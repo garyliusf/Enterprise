@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enterprise - Pencil Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #111; overflow-x: hidden; }
+
+/* Scroll container: 4 * 100vh total height to give scroll room */
+#scroll-container {
+  position: relative;
+  height: 400vh;
+}
+
+/* Sticky visual area */
+#sticky-area {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+/* The design wrapper (1440px native, scaled) */
+#design-scale-wrapper {
+  position: relative;
+  transform-origin: top left;
+  /* width/height set by JS */
+}
+
+/* States are absolutely stacked inside design-scale-wrapper */
+.state-frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  transition: opacity 0.6s ease;
+  opacity: 0;
+  pointer-events: none;
+}
+.state-frame.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Dot nav */
+#dot-nav {
+  position: fixed;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 100;
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.dot.active { background: rgba(255,255,255,0.9); }
+</style>
+</head>
+<body>
+
+<div id="scroll-container">
+  <div id="sticky-area">
+    <div id="design-scale-wrapper">
+      <!-- states injected here by JS -->
+    </div>
+  </div>
+</div>
+
+<div id="dot-nav">
+  <div class="dot active" data-idx="0"></div>
+  <div class="dot" data-idx="1"></div>
+  <div class="dot" data-idx="2"></div>
+  <div class="dot" data-idx="3"></div>
+</div>
+
+<script>
+fetch('Enterprise.pen')
+  .then(r => r.json())
+  .then(PEN_DATA => {
+
+// ─── Utilities ───────────────────────────────────────────────
+
+function parsePadding(p) {
+  if (p == null) return '0px';
+  if (typeof p === 'number') return p + 'px';
+  if (Array.isArray(p)) {
+    if (p.length === 2) return p[0] + 'px ' + p[1] + 'px';
+    if (p.length === 4) return p[0] + 'px ' + p[1] + 'px ' + p[2] + 'px ' + p[3] + 'px';
+  }
+  return '0px';
+}
+
+function parseCornerRadius(r) {
+  if (r == null) return null;
+  if (typeof r === 'number') return r + 'px';
+  if (Array.isArray(r) && r.length === 4) return r[0]+'px '+r[1]+'px '+r[2]+'px '+r[3]+'px';
+  return null;
+}
+
+function parseShadow(effect) {
+  if (!effect || effect.type !== 'shadow') return null;
+  const x = (effect.offset && effect.offset.x) || 0;
+  const y = (effect.offset && effect.offset.y) || 0;
+  const blur = effect.blur || 0;
+  const color = effect.color || '#00000020';
+  return x+'px '+y+'px '+blur+'px '+color;
+}
+
+function parseStroke(stroke) {
+  if (!stroke) return null;
+  const fill = stroke.fill || '#000000';
+  const thickness = stroke.thickness;
+  if (typeof thickness === 'number') {
+    return thickness + 'px solid ' + fill;
+  }
+  if (typeof thickness === 'object' && thickness !== null) {
+    // Partial borders (e.g., bottom only)
+    return { partial: true, fill, thickness };
+  }
+  return null;
+}
+
+function sizeVal(val, parentLayout, dim) {
+  if (val === 'fill_container') {
+    if (parentLayout === 'none') return null; // absolute pos, no flex
+    return 'fill';
+  }
+  if (typeof val === 'number') return val + 'px';
+  return null;
+}
+
+// ─── Renderers ───────────────────────────────────────────────
+
+function renderNode(node, parentLayout) {
+  switch (node.type) {
+    case 'frame':     return renderFrame(node, parentLayout);
+    case 'text':      return renderText(node, parentLayout);
+    case 'rectangle': return renderRectangle(node, parentLayout);
+    case 'line':      return renderLine(node, parentLayout);
+    case 'ellipse':   return renderEllipse(node, parentLayout);
+    case 'path':      return renderPath(node, parentLayout);
+    case 'icon_font': return renderIconFont(node, parentLayout);
+    default:          return null;
+  }
+}
+
+function applyAbsolutePos(el, node, parentLayout) {
+  if (parentLayout === 'none' && (node.x != null || node.y != null)) {
+    el.style.position = 'absolute';
+    if (node.x != null) el.style.left = node.x + 'px';
+    if (node.y != null) el.style.top = node.y + 'px';
+  }
+}
+
+function renderFrame(node, parentLayout) {
+  const el = document.createElement('div');
+
+  const layout = node.layout || 'horizontal'; // default to horizontal (row) when not set
+
+  // Layout
+  if (layout === 'vertical') {
+    el.style.display = 'flex';
+    el.style.flexDirection = 'column';
+  } else if (layout === 'horizontal') {
+    el.style.display = 'flex';
+    el.style.flexDirection = 'row';
+  } else if (layout === 'none') {
+    el.style.position = 'relative';
+  } else {
+    // no layout specified on the node → treat as horizontal flex
+    el.style.display = 'flex';
+    el.style.flexDirection = 'row';
+  }
+
+  // Sizing
+  const w = node.width;
+  const h = node.height;
+
+  if (w === 'fill_container') {
+    if (parentLayout === 'none') {
+      // absolute-positioned inside none-layout; skip flex sizing
+    } else {
+      el.style.flex = '1';
+      el.style.minWidth = '0';
+    }
+  } else if (typeof w === 'number') {
+    el.style.width = w + 'px';
+  }
+
+  if (h === 'fill_container') {
+    if (parentLayout !== 'none') {
+      el.style.flex = '1';
+      el.style.alignSelf = 'stretch';
+      el.style.minHeight = '0';
+    }
+  } else if (typeof h === 'number') {
+    el.style.height = h + 'px';
+  }
+
+  // If both w and h are fill_container in a flex container, don't double-apply flex:1
+  if (w === 'fill_container' && h === 'fill_container' && parentLayout !== 'none') {
+    el.style.flex = '1 1 0';
+    el.style.minWidth = '0';
+    el.style.minHeight = '0';
+  }
+
+  // Style props
+  if (node.fill) el.style.backgroundColor = node.fill;
+  const cr = parseCornerRadius(node.cornerRadius);
+  if (cr) el.style.borderRadius = cr;
+  const shadow = parseShadow(node.effect);
+  if (shadow) el.style.boxShadow = shadow;
+  if (node.clip) el.style.overflow = 'hidden';
+  if (node.opacity != null) el.style.opacity = node.opacity;
+  if (node.gap != null) el.style.gap = node.gap + 'px';
+  if (node.padding != null) el.style.padding = parsePadding(node.padding);
+
+  if (node.alignItems) {
+    el.style.alignItems = node.alignItems === 'center' ? 'center' : node.alignItems;
+  }
+  if (node.justifyContent) {
+    const jc = node.justifyContent;
+    if (jc === 'space_between') el.style.justifyContent = 'space-between';
+    else if (jc === 'space_around') el.style.justifyContent = 'space-around';
+    else if (jc === 'center') el.style.justifyContent = 'center';
+    else el.style.justifyContent = jc;
+  }
+
+  // Stroke
+  if (node.stroke) {
+    const s = parseStroke(node.stroke);
+    if (s) {
+      if (typeof s === 'string') {
+        el.style.border = s;
+      } else if (s.partial) {
+        const t = s.thickness;
+        if (t.bottom != null) el.style.borderBottom = t.bottom + 'px solid ' + s.fill;
+        if (t.top != null) el.style.borderTop = t.top + 'px solid ' + s.fill;
+        if (t.left != null) el.style.borderLeft = t.left + 'px solid ' + s.fill;
+        if (t.right != null) el.style.borderRight = t.right + 'px solid ' + s.fill;
+      }
+    }
+  }
+
+  // Absolute pos from parent
+  applyAbsolutePos(el, node, parentLayout);
+
+  // Children
+  if (node.children && node.children.length) {
+    for (const child of node.children) {
+      const childEl = renderNode(child, layout);
+      if (childEl) el.appendChild(childEl);
+    }
+  }
+
+  return el;
+}
+
+function renderText(node, parentLayout) {
+  const el = document.createElement('span');
+  el.style.display = 'block';
+
+  if (node.fill) el.style.color = node.fill;
+  if (node.fontFamily) el.style.fontFamily = "'" + node.fontFamily + "', sans-serif";
+  if (node.fontSize) el.style.fontSize = node.fontSize + 'px';
+  if (node.fontWeight) el.style.fontWeight = node.fontWeight;
+  if (node.lineHeight) el.style.lineHeight = node.lineHeight;
+
+  if (node.width === 'fill_container') {
+    if (parentLayout === 'none') {
+      // inside absolute container – set explicit width when parent layout is none
+      el.style.width = '100%';
+    } else {
+      el.style.flex = '1';
+      el.style.minWidth = '0';
+    }
+  } else if (typeof node.width === 'number') {
+    el.style.width = node.width + 'px';
+  }
+
+  if (node.textGrowth === 'fixed-width') {
+    el.style.flexShrink = '0';
+  }
+
+  el.textContent = node.content || '';
+
+  applyAbsolutePos(el, node, parentLayout);
+  return el;
+}
+
+function renderRectangle(node, parentLayout) {
+  const el = document.createElement('div');
+
+  // Sizing
+  if (node.width === 'fill_container') {
+    if (parentLayout !== 'none') { el.style.flex = '1'; el.style.minWidth = '0'; }
+  } else if (typeof node.width === 'number') {
+    el.style.width = node.width + 'px';
+  }
+  if (node.height === 'fill_container') {
+    if (parentLayout !== 'none') { el.style.alignSelf = 'stretch'; }
+  } else if (typeof node.height === 'number') {
+    el.style.height = node.height + 'px';
+  }
+
+  if (node.fill) el.style.backgroundColor = node.fill;
+  const cr = parseCornerRadius(node.cornerRadius);
+  if (cr) el.style.borderRadius = cr;
+
+  if (node.stroke) {
+    const s = parseStroke(node.stroke);
+    if (s && typeof s === 'string') el.style.border = s;
+  }
+
+  applyAbsolutePos(el, node, parentLayout);
+  return el;
+}
+
+function renderLine(node, parentLayout) {
+  // Use a div with border for lines
+  const el = document.createElement('div');
+  const isHorizontal = (node.height === 0);
+  const isVertical = (node.width === 0);
+
+  const color = (node.stroke && node.stroke.fill) || '#000000';
+  const thickness = (node.stroke && typeof node.stroke.thickness === 'number')
+    ? node.stroke.thickness : 1;
+
+  el.style.position = 'absolute';
+  el.style.left = (node.x || 0) + 'px';
+  el.style.top = (node.y || 0) + 'px';
+
+  if (isHorizontal) {
+    el.style.width = Math.abs(node.width) + 'px';
+    el.style.height = '0px';
+    el.style.borderTop = thickness + 'px solid ' + color;
+  } else if (isVertical) {
+    el.style.width = '0px';
+    el.style.height = Math.abs(node.height) + 'px';
+    el.style.borderLeft = thickness + 'px solid ' + color;
+  } else {
+    // Diagonal line – use SVG
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    const w = Math.abs(node.width);
+    const h = Math.abs(node.height);
+    svg.setAttribute('width', w);
+    svg.setAttribute('height', h);
+    svg.style.position = 'absolute';
+    svg.style.left = (node.x || 0) + 'px';
+    svg.style.top = (node.y || 0) + 'px';
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    // Handle negative dimensions (flip direction)
+    if (node.width >= 0 && node.height >= 0) {
+      line.setAttribute('x1', '0'); line.setAttribute('y1', '0');
+      line.setAttribute('x2', w); line.setAttribute('y2', h);
+    } else if (node.width >= 0 && node.height < 0) {
+      line.setAttribute('x1', '0'); line.setAttribute('y1', h);
+      line.setAttribute('x2', w); line.setAttribute('y2', '0');
+    } else if (node.width < 0 && node.height >= 0) {
+      line.setAttribute('x1', w); line.setAttribute('y1', '0');
+      line.setAttribute('x2', '0'); line.setAttribute('y2', h);
+    } else {
+      line.setAttribute('x1', w); line.setAttribute('y1', h);
+      line.setAttribute('x2', '0'); line.setAttribute('y2', '0');
+    }
+    line.setAttribute('stroke', color);
+    line.setAttribute('stroke-width', thickness);
+    svg.appendChild(line);
+    return svg;
+  }
+
+  return el;
+}
+
+function renderEllipse(node, parentLayout) {
+  const w = node.width || 16;
+  const h = node.height || 16;
+  const hasInnerRadius = node.innerRadius != null;
+  const hasSweep = node.sweepAngle != null;
+
+  if (hasInnerRadius || hasSweep) {
+    // Render as SVG
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', w);
+    svg.setAttribute('height', h);
+    svg.style.display = 'block';
+    svg.style.flexShrink = '0';
+
+    applyAbsolutePos(svg, node, parentLayout);
+
+    const strokeFill = (node.stroke && node.stroke.fill) || 'none';
+    const strokeW = (node.stroke && node.stroke.thickness) || 0;
+    const fill = (node.fill && node.fill !== '#00000000') ? node.fill : 'none';
+
+    const cx = w / 2, cy = h / 2;
+    const r = Math.min(w, h) / 2 - strokeW / 2;
+
+    if (hasSweep) {
+      // Partial arc using SVG path
+      const sweep = node.sweepAngle; // degrees
+      const startAngle = -90; // start from top
+      const endAngle = startAngle + sweep;
+
+      const toRad = deg => deg * Math.PI / 180;
+      const x1 = cx + r * Math.cos(toRad(startAngle));
+      const y1 = cy + r * Math.sin(toRad(startAngle));
+      const x2 = cx + r * Math.cos(toRad(endAngle));
+      const y2 = cy + r * Math.sin(toRad(endAngle));
+      const largeArc = sweep > 180 ? 1 : 0;
+
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      const d = `M ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2}`;
+      path.setAttribute('d', d);
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke', strokeFill);
+      path.setAttribute('stroke-width', strokeW);
+      path.setAttribute('stroke-linecap', 'round');
+      svg.appendChild(path);
+    } else {
+      // Full circle with stroke (donut)
+      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      circle.setAttribute('cx', cx);
+      circle.setAttribute('cy', cy);
+      circle.setAttribute('r', r);
+      circle.setAttribute('fill', fill);
+      circle.setAttribute('stroke', strokeFill);
+      circle.setAttribute('stroke-width', strokeW);
+      svg.appendChild(circle);
+    }
+
+    return svg;
+  }
+
+  // Simple ellipse / circle as div
+  const el = document.createElement('div');
+  el.style.width = w + 'px';
+  el.style.height = h + 'px';
+  el.style.borderRadius = '50%';
+  el.style.flexShrink = '0';
+
+  if (node.fill) el.style.backgroundColor = node.fill;
+  if (node.stroke) {
+    const s = parseStroke(node.stroke);
+    if (s && typeof s === 'string') el.style.border = s;
+  }
+
+  applyAbsolutePos(el, node, parentLayout);
+  return el;
+}
+
+function renderPath(node, parentLayout) {
+  const w = node.width || 100;
+  const h = node.height || 100;
+
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', w);
+  svg.setAttribute('height', h);
+  svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+  svg.style.display = 'block';
+  svg.style.flexShrink = '0';
+  svg.style.overflow = 'visible';
+
+  applyAbsolutePos(svg, node, parentLayout);
+
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('d', node.geometry || '');
+
+  const fill = node.fill || 'none';
+  path.setAttribute('fill', fill);
+
+  if (node.stroke) {
+    path.setAttribute('stroke', node.stroke.fill || 'none');
+    path.setAttribute('stroke-width', node.stroke.thickness || 1);
+  } else {
+    path.setAttribute('stroke', 'none');
+  }
+
+  svg.appendChild(path);
+  return svg;
+}
+
+function renderIconFont(node, parentLayout) {
+  const w = node.width || 20;
+  const h = node.height || 20;
+  const name = node.iconFontName || 'circle';
+  const fill = node.fill || '#000000';
+
+  const i = document.createElement('i');
+  i.setAttribute('data-lucide', name);
+  i.style.display = 'inline-block';
+  i.style.width = w + 'px';
+  i.style.height = h + 'px';
+  i.style.color = fill;
+  i.style.flexShrink = '0';
+
+  applyAbsolutePos(i, node, parentLayout);
+  return i;
+}
+
+// ─── Build the Design ────────────────────────────────────────
+
+const wrapper = document.getElementById('design-scale-wrapper');
+const DESIGN_W = 1440;
+const DESIGN_H = 900;
+
+// Get the root frame (Scroll Interaction)
+const rootFrame = PEN_DATA.children[0];
+const states = rootFrame.children; // 4 state frames
+
+// Set wrapper size to design dimensions
+wrapper.style.width = DESIGN_W + 'px';
+wrapper.style.height = DESIGN_H + 'px';
+wrapper.style.backgroundColor = rootFrame.fill || '#E8E3DA';
+wrapper.style.overflow = 'hidden';
+
+// Render each state as a full-size overlay
+const stateEls = [];
+states.forEach((state, idx) => {
+  const outer = document.createElement('div');
+  outer.className = 'state-frame' + (idx === 0 ? ' active' : '');
+  outer.style.width = DESIGN_W + 'px';
+  outer.style.height = DESIGN_H + 'px';
+  outer.style.overflow = 'hidden';
+
+  // The state frame itself (fill_container wide, 900px tall, horizontal flex + padding)
+  const stateEl = renderFrame(state, 'vertical'); // parent is vertical layout
+  // Override sizing: it's fill_container wide, 900 tall → make it exactly DESIGN_W x DESIGN_H
+  stateEl.style.flex = 'none';
+  stateEl.style.width = DESIGN_W + 'px';
+  stateEl.style.height = DESIGN_H + 'px';
+  stateEl.style.display = 'flex';
+  stateEl.style.flexDirection = 'row'; // state frames are horizontal (illustration + text panel)
+
+  outer.appendChild(stateEl);
+  wrapper.appendChild(outer);
+  stateEls.push(outer);
+});
+
+// ─── Scaling ─────────────────────────────────────────────────
+
+function applyScale() {
+  const scaleX = window.innerWidth / DESIGN_W;
+  const scaleY = window.innerHeight / DESIGN_H;
+  const scale = Math.min(scaleX, scaleY);
+  wrapper.style.transform = 'scale(' + scale + ')';
+  wrapper.style.transformOrigin = 'top left';
+  // Adjust sticky-area height to match scaled content
+  const stickyArea = document.getElementById('sticky-area');
+  stickyArea.style.height = '100vh';
+}
+
+applyScale();
+window.addEventListener('resize', applyScale);
+
+// ─── Scroll Interaction ───────────────────────────────────────
+
+let currentState = 0;
+
+function updateState(newState) {
+  if (newState === currentState) return;
+  stateEls[currentState].classList.remove('active');
+  stateEls[newState].classList.add('active');
+  currentState = newState;
+  // Update dots
+  document.querySelectorAll('.dot').forEach((dot, i) => {
+    dot.classList.toggle('active', i === currentState);
+  });
+}
+
+window.addEventListener('scroll', () => {
+  const scrollY = window.scrollY;
+  const totalScroll = document.getElementById('scroll-container').offsetHeight - window.innerHeight;
+  const progress = scrollY / totalScroll; // 0 to 1
+  const stateCount = stateEls.length;
+  const idx = Math.min(stateCount - 1, Math.floor(progress * stateCount));
+  updateState(idx);
+});
+
+// Dot click navigation
+document.querySelectorAll('.dot').forEach(dot => {
+  dot.addEventListener('click', () => {
+    const idx = parseInt(dot.getAttribute('data-idx'));
+    const totalScroll = document.getElementById('scroll-container').offsetHeight - window.innerHeight;
+    const targetScroll = (idx / stateEls.length) * totalScroll;
+    window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+  });
+});
+
+// ─── Init Lucide icons ────────────────────────────────────────
+lucide.createIcons();
+});
+</script>
+</body>
+</html>
