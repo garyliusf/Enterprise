@@ -140,7 +140,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 48px;
+    gap: 38px;
   }
 
   .hero-headline-group {
@@ -169,12 +169,126 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
 
   /* ── Video form wrapper — blurred video fills, form overlays on top ── */
   .hero-form-card {
-    width: 560px;
-    min-height: 430px;
+    width: 720px;
+    min-height: 460px;
     border-radius: 20px;
     overflow: hidden;
     position: relative;
     border: 1px solid rgba(255, 255, 255, 0.10);
+    cursor: pointer;
+  }
+
+  /* Play button — visible on hover over the card's top half */
+  .hero-play-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -70%);
+    z-index: 4;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255,255,255,0.55);
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.25s ease, box-shadow 0.25s ease;
+    pointer-events: none;
+  }
+
+  .hero-form-card:hover .hero-play-btn {
+    transform: translate(-50%, -70%) scale(1.12);
+    background: rgba(255,255,255,0.15);
+    box-shadow: 0 0 24px rgba(255,255,255,0.12);
+  }
+
+  .hero-play-btn svg {
+    width: 26px;
+    height: 26px;
+    fill: #fff;
+    margin-left: 0px; /* optical center for play triangle */
+  }
+
+  @keyframes play-ripple {
+    0%   { transform: translate(-50%, -70%) scale(1);    opacity: 1; }
+    100% { transform: translate(-50%, -70%) scale(1.65); opacity: 0; }
+  }
+
+  @keyframes play-fadein {
+    from { opacity: 0; transform: translate(-50%, -70%) scale(0.85); }
+    to   { opacity: 1; transform: translate(-50%, -70%) scale(1); }
+  }
+
+  .hero-play-btn.clicked {
+    animation: play-ripple 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  .hero-play-btn.returning {
+    animation: play-fadein 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  /* Video modal */
+  @keyframes modal-fade-in {
+    from { opacity: 0; } to { opacity: 1; }
+  }
+  @keyframes modal-fade-out {
+    from { opacity: 1; } to { opacity: 0; }
+  }
+
+  .video-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(0,0,0,0.88);
+    align-items: center;
+    justify-content: center;
+  }
+
+  .video-modal.open {
+    display: flex;
+    animation: modal-fade-in 0.15s ease forwards;
+  }
+
+  .video-modal.closing {
+    display: flex;
+    animation: modal-fade-out 0.15s ease forwards;
+  }
+
+  .video-modal-inner {
+    position: relative;
+    width: 90vw;
+    max-width: 1100px;
+    aspect-ratio: 16/9;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #000;
+  }
+
+  .video-modal-inner video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .video-modal-close {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.7);
+    font-size: 28px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+  }
+
+  .video-modal-close:hover {
+    color: #fff;
   }
 
   .form-video-bg {
@@ -208,12 +322,12 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     position: absolute;
     inset: 0;
     z-index: 3;
-    padding: 44px 48px;
+    padding: 32px 36px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-end;
-    gap: 8px;
+    gap: 10px;
   }
 
   .form-eyebrow {
@@ -246,18 +360,29 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     font-weight: 400;
     color: rgba(255, 255, 255, 0.80);
     text-align: center;
-    max-width: 340px;
+    max-width: 480px;
+    white-space: nowrap;
     line-height: 1.5;
     margin-bottom: 12px;
   }
 
-  .hero-email-input {
+  .hero-form-row {
+    display: flex;
+    gap: 0;
     width: 100%;
+    max-width: 480px;
+    background: rgba(255,255,255,0.10);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .hero-email-input {
+    flex: 1;
     height: 52px;
-    background: rgba(255, 255, 255, 0.10);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    border-radius: 8px;
-    padding: 0 20px;
+    background: transparent;
+    border: none;
+    padding: 0 18px;
     font-size: 15px;
     font-family: 'Inter', sans-serif;
     color: #fff;
@@ -269,16 +394,17 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   }
 
   .hero-email-input:focus {
-    border-color: rgba(255, 255, 255, 0.40);
-    background: rgba(255, 255, 255, 0.14);
+    outline: none;
   }
 
   .hero-cta-button {
-    width: 100%;
+    width: auto;
+    padding: 0 24px;
     height: 52px;
+    flex-shrink: 0;
     background: #1488FC;
     border: none;
-    border-radius: 8px;
+    border-radius: 0;
     color: #ffffff;
     font-size: 16px;
     font-weight: 600;
@@ -369,6 +495,28 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     font-weight: 500;
   }
 
+  @keyframes blue-letter-in {
+    from {
+      opacity: 0;
+      transform: var(--bl-from, translateY(-10px));
+      filter: blur(3px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+      filter: blur(0);
+    }
+  }
+
+  .bl {
+    display: inline-block;
+    opacity: 0;
+  }
+
+  .bl.bl-go {
+    animation: blue-letter-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
   .slider-inner-header.transitioning .slider-inner-tagline {
     opacity: 0;
     transform: translate(-12px, -8px);
@@ -453,6 +601,17 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     animation: draft-reveal 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   }
 
+
+  #slide-noise-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10;
+    opacity: 0.05;
+    mix-blend-mode: screen;
+  }
 
   .browser-content-area {
     flex: 1;
@@ -613,7 +772,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 80px;
-    align-items: start;
+    align-items: end;
     margin-bottom: 80px;
     border-top: 1px solid rgba(255,255,255,0.08);
     padding-top: 48px;
@@ -622,13 +781,30 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   .success-top-left {
     display: flex;
     flex-direction: column;
+    gap: 12px;
+  }
+
+  .success-dv-logo {
+    height: 28px;
+    width: auto;
+    max-width: 200px;
+    filter: brightness(0) invert(1);
+    opacity: 0.7;
+    object-fit: contain;
+    object-position: left;
+  }
+
+  .success-dv-name {
+    font-size: 36px;
+    font-weight: 600;
+    color: #fff;
+    margin: 0;
+    letter-spacing: -0.5px;
   }
 
   .success-top-right {
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
-    height: 100%;
   }
 
   .success-eyebrow {
@@ -638,6 +814,10 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     letter-spacing: 2px;
     color: #1488FC;
     margin-bottom: 32px;
+  }
+
+  .success-eyebrow .ey-letter {
+    display: inline-block;
   }
 
   .success-company-row {
@@ -693,7 +873,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
 
   /* Quote text side */
   .success-pull-quote-content {
-    padding: 40px 48px;
+    padding: 48px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -707,10 +887,32 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   }
 
   .success-quote-co img {
-    height: 11px;
+    height: 22px;
     width: auto;
     filter: brightness(0) invert(1);
     opacity: 0.55;
+  }
+
+  .success-quote-card-logo {
+    height: 12px;
+    width: auto;
+    filter: brightness(0) invert(1);
+    opacity: 0.4;
+    display: block;
+    align-self: flex-start;
+  }
+
+  @keyframes word-reveal {
+    from {
+      opacity: 0;
+      transform: translate(-10px, -7px);
+      filter: blur(5px);
+    }
+    to {
+      opacity: 1;
+      transform: translate(0, 0);
+      filter: blur(0);
+    }
   }
 
   .success-pull-quote-text {
@@ -721,6 +923,16 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     line-height: 1.55;
     font-style: normal;
     margin: 0;
+  }
+
+  .success-pull-quote-text .word {
+    display: inline-block;
+    opacity: 0;
+    will-change: transform, opacity, filter;
+  }
+
+  .success-pull-quote-text.quote-revealed .word {
+    animation: word-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   }
 
   .success-pull-quote-attr {
@@ -816,6 +1028,29 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     margin-bottom: 20px;
   }
 
+
+  @keyframes char-in {
+    from {
+      opacity: 0;
+      transform: var(--char-from);
+      filter: blur(4px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+      filter: blur(0);
+    }
+  }
+
+  .success-stat-number .char {
+    display: inline-block;
+    opacity: 0;
+    will-change: transform, opacity, filter;
+  }
+
+  .success-stat-number .char.char-revealed {
+    animation: char-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
 
   .success-stat-number {
     font-size: 72px;
@@ -925,7 +1160,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
         <p class="hero-subtitle">Join leading companies transforming their development workflow.</p>
       </div>
 
-      <div class="hero-form-card">
+      <div class="hero-form-card" id="hero-form-card">
         <!-- ↓ Replace src with your video file when ready -->
         <video class="form-video-bg" autoplay muted loop playsinline>
           <source src="https://res.cloudinary.com/dwixevlb4/video/upload/v1775518156/youtube_zqwpto.mp4" type="video/mp4">
@@ -933,11 +1168,21 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
         </video>
         <div class="form-blur-layer"></div>
         <div class="form-video-overlay"></div>
+
+        <!-- Hover play button -->
+        <div class="hero-play-btn">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+        </div>
+
         <div class="form-inner">
           <h2 class="form-headline">Talk to our team</h2>
-          <p class="hero-form-heading">Schedule a 1:1 session with an expert and see how Bolt can transform your workflow.</p>
-          <input type="email" class="hero-email-input" placeholder="Your work email" />
-          <button class="hero-cta-button">Book your demo</button>
+          <p class="hero-form-heading">Schedule a 1:1 session with an expert from our team.</p>
+          <div class="hero-form-row">
+            <input type="email" class="hero-email-input" placeholder="Your work email" />
+            <button class="hero-cta-button">Submit</button>
+          </div>
         </div>
       </div>
     </div>
@@ -1051,6 +1296,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
         <span class="browser-draft-label" id="browser-draft-label">DRAFT 1</span>
       </div>
       <div class="browser-content-area">
+        <canvas id="slide-noise-canvas"></canvas>
 
         <!-- Slide 1 -->
         <div class="slide active" id="slide-1">
@@ -1116,6 +1362,43 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
       3: 'From design to deploy. <strong>Without the handoff.</strong>'
     };
 
+    var blFroms = [
+      'translateY(-14px) scale(0.75)',
+      'translateY(14px) scale(0.75)',
+      'translateX(-12px) scale(0.8)',
+      'translateX(12px) scale(0.8)',
+      'scale(0.3) rotate(20deg)',
+      'scale(0.3) rotate(-20deg)',
+      'translateY(-20px) rotate(-10deg)',
+      'translateY(20px) rotate(10deg)',
+      'scale(1.5) rotate(5deg)',
+    ];
+
+    function animateBlueLetters(container) {
+      var strong = container.querySelector('strong');
+      if (!strong) return;
+      var text = strong.textContent;
+      strong.innerHTML = text.split('').map(function (ch) {
+        if (ch === ' ') return '<span style="display:inline-block;width:0.25em"></span>';
+        var from = blFroms[Math.floor(Math.random() * blFroms.length)];
+        return '<span class="bl" style="--bl-from:' + from + '">' + ch + '</span>';
+      }).join('');
+
+      var letters = Array.from(strong.querySelectorAll('.bl'));
+      // Shuffle order
+      var order = letters.map(function (_, i) { return i; });
+      for (var i = order.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = order[i]; order[i] = order[j]; order[j] = tmp;
+      }
+      order.forEach(function (letterIdx, rank) {
+        var delay = rank * (350 / letters.length);
+        setTimeout(function () {
+          if (letters[letterIdx]) letters[letterIdx].classList.add('bl-go');
+        }, delay);
+      });
+    }
+
     function updateText(index) {
       const header = document.getElementById('slider-inner-header');
       const taglineEl = document.getElementById('slider-inner-tagline');
@@ -1125,17 +1408,17 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
 
       if (draftLabel) {
         draftLabel.classList.remove('animating');
-        void draftLabel.offsetWidth; // force reflow to restart animation
+        void draftLabel.offsetWidth;
         draftLabel.textContent = 'DRAFT ' + index;
         draftLabel.classList.add('animating');
       }
 
-      // Slide out left + fade
       header.classList.add('transitioning');
 
       setTimeout(function () {
         taglineEl.innerHTML = text;
         header.classList.remove('transitioning');
+        animateBlueLetters(taglineEl);
       }, 400);
     }
 
@@ -1211,6 +1494,10 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     });
 
     setActiveSlide(1, true);
+    // Animate blue letters on initial load
+    setTimeout(function () {
+      animateBlueLetters(document.getElementById('slider-inner-tagline'));
+    }, 100);
   })();
 </script>
 
@@ -1461,22 +1748,23 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     <div class="success-top">
       <div class="success-top-left">
         <p class="success-eyebrow">Customer success</p>
-        <div class="success-company-row">
-          <h2 class="success-company-name">Digital Virgo</h2>
-          <span class="success-company-tag">Global media technology company</span>
-        </div>
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="18" cy="18" r="14" stroke="rgba(255,255,255,0.25)" stroke-width="2"/>
+          <circle cx="13" cy="15" r="1.5" fill="rgba(255,255,255,0.25)"/>
+          <circle cx="23" cy="15" r="1.5" fill="rgba(255,255,255,0.25)"/>
+          <path d="M12 22c1.5 2.5 10.5 2.5 12 0" stroke="rgba(255,255,255,0.25)" stroke-width="2" stroke-linecap="round"/>
+        </svg>
       </div>
       <div class="success-top-right">
         <p class="success-body">Their CTO, Julien Menard, led the development of Drama Pills — a live short-form video streaming application available on iOS and Android — using Bolt as the primary development platform.</p>
       </div>
-
     </div>
 
     <div class="success-pull-quote">
+      <canvas id="quote-pixel-canvas"></canvas>
 
       <div class="success-pull-quote-content">
-        <canvas id="quote-pixel-canvas"></canvas>
-        <span class="success-quote-co"><img src="images/digital-virgo-logo.webp" alt="Digital Virgo"></span>
+        <img src="images/digital-virgo-logo.webp" alt="Digital Virgo" class="success-quote-card-logo">
         <p class="success-pull-quote-text">"Test it before you judge. After that, you will want to run it. Even the developers are using it now. With their tech background, they will be able to do even better things faster than they could manually."</p>
         <div class="success-pull-quote-attr">
           <div class="success-pull-quote-name">Julien Menard</div>
@@ -1629,6 +1917,277 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
 
   requestAnimationFrame(draw);
 })();
+</script>
+
+<script>
+  (function() {
+    var el = document.querySelector('.success-pull-quote-text');
+    if (!el) return;
+
+    // Split text into word spans
+    var text = el.textContent;
+    var words = text.split(' ');
+    el.innerHTML = words.map(function(w) {
+      return '<span class="word">' + w + '</span>';
+    }).join(' ');
+
+    var wordEls = el.querySelectorAll('.word');
+    var total = wordEls.length;
+
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          el.classList.add('quote-revealed');
+          // Group words by row (offsetTop), then stagger within each row
+          // but each successive row starts faster and has tighter word spacing
+          var rows = [];
+          var rowMap = {};
+          wordEls.forEach(function(word) {
+            var top = word.offsetTop;
+            if (rowMap[top] === undefined) {
+              rowMap[top] = rows.length;
+              rows.push(top);
+            }
+          });
+
+          // Build row start times — each row starts sooner relative to previous
+          // as we go down (accelerating cascade)
+          var rowBaseDelay = 0;
+          var rowStarts = {};
+          rows.forEach(function(top, rowIndex) {
+            rowStarts[top] = rowBaseDelay;
+            // Row gap shrinks each row: 0.22s → 0.16s → 0.10s
+            var rowGap = Math.max(0.08, 0.22 - rowIndex * 0.06);
+            rowBaseDelay += rowGap;
+          });
+
+          wordEls.forEach(function(word, i) {
+            var top = word.offsetTop;
+            var rowIndex = rowMap[top];
+            // Word stagger also tightens each row: 0.055s → 0.038s → 0.022s
+            var wordStagger = Math.max(0.016, 0.055 - rowIndex * 0.016);
+            var posInRow = 0;
+            wordEls.forEach(function(w, j) {
+              if (j < i && w.offsetTop === top) posInRow++;
+            });
+            word.style.animationDelay = (rowStarts[top] + posInRow * wordStagger) + 's';
+          });
+          observer.disconnect();
+        }
+      });
+    }, { threshold: 0.75 });
+
+    observer.observe(el);
+  })();
+</script>
+
+<script>
+  (function() {
+    // Random from-directions for variety
+    var froms = [
+      'translateY(-24px) rotate(-8deg)',
+      'translateY(24px) rotate(8deg)',
+      'translateX(-20px) translateY(-16px) rotate(12deg)',
+      'translateX(20px) translateY(-16px) rotate(-12deg)',
+      'translateX(-20px) translateY(16px) rotate(-6deg)',
+      'scale(0.4) rotate(20deg)',
+      'scale(0.4) rotate(-20deg)',
+      'translateY(-30px)',
+      'translateY(30px)',
+    ];
+
+    function randomFrom() {
+      return froms[Math.floor(Math.random() * froms.length)];
+    }
+
+    var statNums = document.querySelectorAll('.success-stat-number');
+    statNums.forEach(function(el) {
+      var text = el.textContent;
+      el.innerHTML = text.split('').map(function(ch) {
+        return ch === ' ' ? ' ' : '<span class="char">' + ch + '</span>';
+      }).join('');
+    });
+
+    var statsSection = document.querySelector('.success-stats');
+    if (!statsSection) return;
+
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (!entry.isIntersecting) return;
+        var chars = statsSection.querySelectorAll('.char');
+        chars.forEach(function(ch, i) {
+          ch.style.setProperty('--char-from', randomFrom());
+          // Stagger with slight randomness per char
+          var delay = i * 0.06 + (Math.random() * 0.04);
+          setTimeout(function() {
+            ch.classList.add('char-revealed');
+          }, delay * 1000);
+        });
+        observer.disconnect();
+      });
+    }, { threshold: 0.85 });
+
+    observer.observe(statsSection);
+  })();
+</script>
+
+<!-- Video modal -->
+<div class="video-modal" id="video-modal">
+  <div class="video-modal-inner">
+    <button class="video-modal-close" id="video-modal-close">&times;</button>
+    <video id="modal-video" controls playsinline>
+      <source src="https://res.cloudinary.com/dwixevlb4/video/upload/v1775518156/youtube_zqwpto.mp4" type="video/mp4">
+    </video>
+  </div>
+</div>
+
+<script>
+  (function() {
+    const card = document.getElementById('hero-form-card');
+    const modal = document.getElementById('video-modal');
+    const modalVideo = document.getElementById('modal-video');
+    const closeBtn = document.getElementById('video-modal-close');
+
+    const playBtn = card.querySelector('.hero-play-btn');
+
+    card.addEventListener('click', function(e) {
+      if (e.target.closest('input, button.hero-cta-button')) return;
+
+      // Ripple animation on play button
+      playBtn.classList.remove('clicked');
+      void playBtn.offsetWidth; // force reflow to restart animation
+      playBtn.classList.add('clicked');
+
+      setTimeout(function() {
+        modal.classList.add('open');
+        modalVideo.play();
+      }, 120);
+    });
+
+    function closeModal() {
+      modal.classList.add('closing');
+      modalVideo.pause();
+      modalVideo.currentTime = 0;
+      setTimeout(function() {
+        modal.classList.remove('open', 'closing');
+        playBtn.classList.remove('clicked');
+        playBtn.classList.add('returning');
+        setTimeout(function() { playBtn.classList.remove('returning'); }, 350);
+      }, 150);
+    }
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeModal();
+    });
+  })();
+</script>
+
+<script>
+  (function () {
+    var eyebrow = document.querySelector('.slider-section-eyebrow');
+    if (!eyebrow) return;
+
+    var text = eyebrow.textContent;
+    eyebrow.innerHTML = text.split('').map(function (ch) {
+      if (ch === ' ') return '<span style="display:inline-block;width:0.4em"></span>';
+      return '<span class="ey-letter">' + ch + '</span>';
+    }).join('');
+
+    var letters = Array.from(eyebrow.querySelectorAll('.ey-letter'));
+
+    function animate(ts) {
+      var t = ts * 0.001;
+      var speed = 0.2 + (Math.sin(t * 0.28) * 0.5 + 0.5) * 0.8;
+      letters.forEach(function (el, i) {
+        var x = i * 0.55;
+        var oct1 = Math.sin(x + t * speed * 0.9);
+        var oct2 = Math.sin(x * 1.8 + t * speed * 1.5 + 1.3);
+        var oct3 = Math.sin(x * 3.0 - t * speed * 2.1 + 2.7);
+        var field = oct1 * 0.50 + oct2 * 0.30 + oct3 * 0.20;
+        el.style.opacity = 0.15 + (field * 0.5 + 0.5) * 0.85;
+      });
+      requestAnimationFrame(animate);
+    }
+
+    requestAnimationFrame(animate);
+  })();
+
+  (function () {
+    var eyebrow = document.querySelector('.success-eyebrow');
+    if (!eyebrow) return;
+
+    var text = eyebrow.textContent;
+    eyebrow.innerHTML = text.split('').map(function (ch) {
+      if (ch === ' ') return '<span style="display:inline-block;width:0.4em"></span>';
+      return '<span class="ey-letter">' + ch + '</span>';
+    }).join('');
+
+    var letters = Array.from(eyebrow.querySelectorAll('.ey-letter'));
+
+    function animate(ts) {
+      var t = ts * 0.001;
+      var speed = 0.2 + (Math.sin(t * 0.28) * 0.5 + 0.5) * 0.8;
+
+      letters.forEach(function (el, i) {
+        var x = i * 0.55;
+        var oct1 = Math.sin(x + t * speed * 0.9);
+        var oct2 = Math.sin(x * 1.8 + t * speed * 1.5 + 1.3);
+        var oct3 = Math.sin(x * 3.0 - t * speed * 2.1 + 2.7);
+        var field = oct1 * 0.50 + oct2 * 0.30 + oct3 * 0.20;
+        // Map -1..1 → 0.15..1.0
+        el.style.opacity = 0.15 + (field * 0.5 + 0.5) * 0.85;
+      });
+
+      requestAnimationFrame(animate);
+    }
+
+    requestAnimationFrame(animate);
+  })();
+</script>
+
+<script>
+  (function () {
+    var canvas = document.getElementById('slide-noise-canvas');
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    var frame = 0;
+
+    function resize() {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    }
+
+    function drawNoise() {
+      var w = canvas.width, h = canvas.height;
+      if (!w || !h) return;
+      var imageData = ctx.createImageData(w, h);
+      var data = imageData.data;
+      for (var i = 0; i < data.length; i += 4) {
+        var v = Math.random() * 255 | 0;
+        data[i] = v;
+        data[i + 1] = v;
+        data[i + 2] = v;
+        data[i + 3] = 255;
+      }
+      ctx.putImageData(imageData, 0, 0);
+    }
+
+    function animate() {
+      frame++;
+      if (frame % 3 === 0) {
+        if (canvas.width !== canvas.offsetWidth || canvas.height !== canvas.offsetHeight) resize();
+        drawNoise();
+      }
+      requestAnimationFrame(animate);
+    }
+
+    resize();
+    animate();
+  })();
 </script>
 
 </body>
