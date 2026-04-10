@@ -2914,6 +2914,9 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     var img = new Image();
     img.src = 'images/drama2.png';
 
+    var noiseCanvas = document.createElement('canvas');
+    var noiseCtx = noiseCanvas.getContext('2d');
+
     var SRC_FRACTION = 0.62; // show only top 62% of image (hides subtitle text)
 
     var glitchSlices = [];
@@ -2989,6 +2992,19 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
       }
 
       ctx.filter = 'none';
+
+      // Film grain overlay
+      noiseCanvas.width = cw;
+      noiseCanvas.height = ch;
+      var nd = noiseCtx.createImageData(cw, ch);
+      for (var n = 0; n < nd.data.length; n += 4) {
+        var v = Math.random() * 255 | 0;
+        nd.data[n] = nd.data[n+1] = nd.data[n+2] = v;
+        nd.data[n+3] = 28;
+      }
+      noiseCtx.putImageData(nd, 0, 0);
+      ctx.drawImage(noiseCanvas, 0, 0);
+
       requestAnimationFrame(draw);
     }
   })();
