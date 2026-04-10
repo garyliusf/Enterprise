@@ -1370,7 +1370,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
 
   .footer-section {
     background: #000;
-    padding: 120px 40px;
+    padding: 120px 40px 0;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -2257,7 +2257,19 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     Join thousands of teams shipping faster with our enterprise platform.
     Get started in minutes — no credit card required.
   </p>
-  <button class="footer-cta">Get Started Free</button>
+  <div style="position:relative;width:100%;max-width:700px;height:80px;margin-top:16px;">
+    <canvas id="footer-pixel-canvas" style="position:absolute;inset:0;pointer-events:none;opacity:1;z-index:0;"></canvas>
+    <div style="position:absolute;bottom:0;left:0;right:0;display:flex;justify-content:center;z-index:1;">
+      <div class="hero-form-row" style="max-width:480px;width:100%;">
+        <input type="email" class="hero-email-input" placeholder="Your work email" />
+        <button class="hero-cta-button">Get Started</button>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top:20px;width:100%;overflow:hidden;position:relative;">
+    <img src="images/bolt-bottom.png" alt="bolt" style="width:100%;display:block;opacity:0.1;">
+    <div style="position:absolute;inset:0;background:linear-gradient(to bottom, #000 0%, transparent 25%);"></div>
+  </div>
 </section>
 
 <script>
@@ -2602,6 +2614,42 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
         const rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
         return density > rand ? density * 0.9 : 0;
       }, 0.55, '255,255,255'
+    );
+
+    makePixelCanvas('footer-pixel-canvas', 6, 2,
+      function(c, r, t, p) {
+        const px = c * 6, py = r * 6;
+        const el = document.getElementById('footer-pixel-canvas');
+        const H = el ? el.height : 260;
+        const W = el ? el.width : 700;
+
+        // Dense at top, fade to nothing at bottom (above the input field)
+        const vFade = Math.max(0, 1 - py / (H * 0.85));
+        // Fade toward horizontal edges
+        const cx = W / 2;
+        const hFade = Math.max(0, 1 - Math.abs(px - cx) / (W * 0.55));
+        const fade = vFade * hFade;
+        if (fade <= 0) return 0;
+
+        const speedMod = 0.05 + (Math.sin(t * 0.00070 + 2.2) * 0.5 + 0.5) * 0.22;
+        function rwave(scale, rotRate, phase, tMult) {
+          const angle = t * rotRate + phase;
+          const u = (px * Math.cos(angle) + py * Math.sin(angle)) / scale;
+          const v = (-px * Math.sin(angle) + py * Math.cos(angle)) / scale;
+          return Math.sin(u * Math.PI * 2 + t * tMult * speedMod)
+               * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7 * speedMod);
+        }
+        const shape1 = rwave(300, 0.00012, 0.3, 0.00030);
+        const shape2 = rwave(160, 0.00025, 1.6, 0.00065);
+        const shape3 = rwave(80,  0.00042, 2.9, 0.00130);
+        const shape4 = rwave(220, 0.00018, 4.2, 0.00048);
+        const waveFront = shape1 * 0.5 + 0.5;
+        const detail = shape2 * 0.45 + shape3 * 0.30 + shape4 * 0.25;
+        const raw = waveFront * (detail * 0.5 + 0.5);
+        const density = Math.pow(Math.max(0, raw), 0.7) * fade;
+        const rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
+        return density > rand ? density * 0.85 : 0;
+      }, 1.0, '220,230,245'
     );
 </script>
 
