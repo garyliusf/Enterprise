@@ -1722,11 +1722,63 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
       header.classList.add('transitioning');
 
       setTimeout(function () {
-        taglineEl.innerHTML = text;
         if (subEl) subEl.textContent = slideSub[index] || '';
         header.classList.remove('transitioning');
-        animateBlueLetters(taglineEl);
+        scrambleText(taglineEl, text, function() {
+          animateBlueLetters(taglineEl);
+        });
       }, 400);
+    }
+
+    var scrambleChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&';
+
+    function scrambleText(el, finalText, onDone) {
+      var chars = finalText.split('');
+      var total = chars.length;
+      var locked = new Array(total).fill(false);
+      var current = chars.map(function(c) { return c === ' ' ? ' ' : scrambleChars[Math.floor(Math.random() * scrambleChars.length)]; });
+
+      function render() {
+        el.innerHTML = current.map(function(c, i) {
+          if (c === ' ') return '<span style="display:inline-block;width:0.28em"></span>';
+          var style = locked[i] ? 'color:rgba(255,255,255,0.55)' : 'color:rgba(255,255,255,0.2)';
+          return '<span style="' + style + '">' + c + '</span>';
+        }).join('');
+      }
+
+      var startTime = null;
+      var totalDuration = 600;
+
+      function tick(ts) {
+        if (!startTime) startTime = ts;
+        var elapsed = ts - startTime;
+        var progress = Math.min(elapsed / totalDuration, 1);
+
+        for (var i = 0; i < total; i++) {
+          if (chars[i] === ' ') { locked[i] = true; current[i] = ' '; continue; }
+          // Each letter locks in sequentially with some randomness
+          var lockThreshold = (i / total) * 0.75 + Math.random() * 0.1;
+          if (!locked[i] && progress > lockThreshold) {
+            locked[i] = true;
+            current[i] = chars[i];
+          } else if (!locked[i]) {
+            current[i] = scrambleChars[Math.floor(Math.random() * scrambleChars.length)];
+          }
+        }
+
+        render();
+
+        if (progress < 1 || locked.some(function(l) { return !l; })) {
+          requestAnimationFrame(tick);
+        } else {
+          // All locked — set final HTML cleanly for animateBlueLetters
+          el.innerHTML = finalText;
+          if (onDone) onDone();
+        }
+      }
+
+      render();
+      requestAnimationFrame(tick);
     }
 
     function getTab(index) {
@@ -1829,9 +1881,12 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     });
 
     setActiveSlide(1, true);
-    // Animate blue letters on initial load
+    // Scramble + animate on initial load
     setTimeout(function () {
-      animateBlueLetters(document.getElementById('slider-inner-tagline'));
+      var taglineEl = document.getElementById('slider-inner-tagline');
+      scrambleText(taglineEl, slideText[1], function() {
+        animateBlueLetters(taglineEl);
+      });
     }, 100);
   })();
 </script>
@@ -2086,7 +2141,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
         <canvas id="success-shape-canvas" width="180" height="180"></canvas>
       </div>
       <div class="success-top-right">
-        <p class="success-body">Their CTO, Julien Menard, led the development of Drama Pills — a live short-form video streaming application available on iOS and Android — using Bolt as the primary development platform.</p>
+        <p class="success-body">Using Bolt, CTO Julien Menard shipped Drama Pills — a live short-form video streaming app — to iOS and Android.</p>
       </div>
     </div>
 
@@ -2183,9 +2238,9 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
         <div class="feat-slide-inner">
           <img src="images/feat-deployment2.png" alt="AWS Azure Deployment">
           <div class="feat-info-cards">
-            <div class="feat-info-card"><p>Deploy into your own AWS or Azure tenant</p></div>
+            <div class="feat-info-card"><p>Deploy into your own AWS or Azure tenant with full infrastructure isolation and no shared compute</p></div>
             <div class="feat-info-card"><p>Your code and prompts never leave your infrastructure</p></div>
-            <div class="feat-info-card"><p>Meets the compliance bar that blocks every other AI tool</p></div>
+            <div class="feat-info-card"><p>Meets the compliance bar that blocks every other AI tool — HIPAA, FedRAMP, and SOC 2 ready</p></div>
           </div>
         </div>
       </div>
