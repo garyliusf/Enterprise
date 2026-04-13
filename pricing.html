@@ -124,7 +124,7 @@
       font-weight: 700;
       color: #1488FC;
       font-family: 'Inter', sans-serif;
-      letter-spacing: 2px;
+      letter-spacing: 0.5px;
     }
 
     /* ── Cards grid ── */
@@ -181,65 +181,47 @@
       flex-direction: column;
       border-right: 1px solid rgba(255,255,255,0.07);
       position: relative;
+      transition: box-shadow 0.3s ease;
+      overflow: hidden;
     }
     .card:last-child { border-right: none; }
 
-    /* ── Teams card highlight ── */
+    .card:not(.card-teams):hover {
+      box-shadow: inset 0 0 0 1px rgba(20,136,252,0.6);
+    }
+
+    .card-hover-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      z-index: 0;
+    }
+    /* Hover canvas: visible on hover, OR on Teams by default (unless .cards is being hovered) */
+    .card:hover .card-hover-canvas { opacity: 1; }
+    .card > *:not(.card-hover-canvas) { position: relative; z-index: 1; }
+
+    /* ── Teams card — subtly featured by default ── */
     .card-teams {
-      background: transparent;
-      border-right: none;
+      background: #0a0a0a;
+      border-right: 1px solid rgba(255,255,255,0.07);
       border-left: none;
-      isolation: isolate;
+      box-shadow: inset 0 0 0 1px rgba(20,136,252,0.35);
+      transition: box-shadow 0.3s ease;
     }
 
-    /* Spinning blue conic gradient border */
-    .card-teams::before {
-      content: '';
-      position: absolute;
-      inset: -1px;
-      border-radius: 5px;
-      background: conic-gradient(
-        from var(--a, 0deg),
-        #0033aa 0%,
-        #1488FC 20%,
-        #00d4ff 40%,
-        #1488FC 60%,
-        #0033aa 80%,
-        #0033aa 100%
-      );
-      z-index: -2;
-      animation: spin-border 4s linear infinite, pulse-border 2.5s ease-in-out infinite;
-    }
-
-    /* Inner card fill — sits above gradient, below content */
-    .card-teams::after {
-      content: '';
-      position: absolute;
-      inset: 1px;
-      background: #0d0d0d;
-      border-radius: 4px;
-      z-index: -1;
-    }
-
-    @property --a {
-      syntax: '<angle>';
-      initial-value: 0deg;
-      inherits: false;
-    }
-
-    @keyframes spin-border {
-      to { --a: 360deg; }
-    }
-
-    @keyframes pulse-border {
-      0%, 100% { opacity: 0.55; }
-      50% { opacity: 1; }
-    }
+    /* When grid is hovered, remove Teams default border so hover takes over */
+    .cards.is-hovering .card-teams { box-shadow: none; }
+    /* Full hover effect on Teams when actually hovered */
+    .card-teams:hover { box-shadow: inset 0 0 0 1px rgba(20,136,252,0.6) !important; }
 
     /* ── Plan label ── */
     .plan-label {
       font-family: 'Silkscreen', monospace;
-      font-size: 11px;
+      font-size: 16px;
       letter-spacing: 1.8px;
       margin-bottom: 20px;
       display: block;
@@ -434,14 +416,16 @@
       height: 100%;
       pointer-events: none;
       opacity: 0.55;
+      transition: opacity 0.3s ease;
       z-index: 0;
     }
+    .cards.is-hovering #teams-pixel-canvas { opacity: 0; }
+    .card-teams:hover #teams-pixel-canvas { opacity: 0.55 !important; }
 
     .card-teams > *:not(canvas) {
       position: relative;
       z-index: 1;
     }
-    /* Badge is already absolute — restore and lift it above canvas */
     .card-teams > .badge-popular {
       position: absolute;
       z-index: 2;
@@ -724,12 +708,6 @@
 </head>
 <body>
 
-  <a href="preview.html" class="back-btn">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M19 12H5M12 5l-7 7 7 7"/>
-    </svg>
-    Back
-  </a>
 
   <div class="page">
 
@@ -752,6 +730,7 @@
 
       <!-- Pro -->
       <div class="card">
+        <canvas class="card-hover-canvas" id="pro-hover-canvas"></canvas>
         <span class="plan-label blue">PRO</span>
         <div class="card-price">
           <span class="price-amount-wrap"><span class="price-amount" id="pro-price">$20</span></span>
@@ -838,6 +817,7 @@
 
       <!-- Organization -->
       <div class="card">
+        <canvas class="card-hover-canvas" id="enterprise-hover-canvas"></canvas>
         <span class="plan-label orange">ENTERPRISE</span>
         <div class="card-price">
           <span class="price-amount">Custom</span>
@@ -1166,6 +1146,49 @@
         return density > rand ? density * 0.85 : 0;
       }, 1.0, '220,230,245'
     );
+
+    // Card hover canvases (Pro + Enterprise)
+    ['pro-hover-canvas', 'enterprise-hover-canvas'].forEach(function(id, idx) {
+      makePixelCanvas(id, 6, 2,
+        function(c, r, t, p) {
+          var px = c * 6, py = r * 6;
+          var el = document.getElementById(id);
+          var W = el ? el.width : 400, H = el ? el.height : 600;
+          var hFade = Math.max(0, 1 - Math.pow(Math.abs(px - W * 0.7) / (W * 0.7), 1.2));
+          var vFade = Math.max(0, 1 - Math.pow(Math.abs(py - H * 0.5) / (H * 0.6), 1.5));
+          var fade = hFade * vFade;
+          if (fade <= 0) return 0;
+          var phase = idx * 2.1;
+          var speedMod = 0.06 + (Math.sin(t * 0.00055 + phase) * 0.5 + 0.5) * 0.18;
+          function rwave(scale, rotRate, ph, tMult) {
+            var angle = t * rotRate + ph;
+            var u = (px * Math.cos(angle) + py * Math.sin(angle)) / scale;
+            var v = (-px * Math.sin(angle) + py * Math.cos(angle)) / scale;
+            return Math.sin(u * Math.PI * 2 + t * tMult * speedMod)
+                 * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7 * speedMod);
+          }
+          var s1 = rwave(500, 0.00012, 0.5 + phase, 0.00030);
+          var s2 = rwave(260, 0.00025, 1.8 + phase, 0.00065);
+          var s3 = rwave(130, 0.00042, 3.1 + phase, 0.00130);
+          var s4 = rwave(380, 0.00018, 4.5 + phase, 0.00048);
+          var waveFront = s1 * 0.5 + 0.5;
+          var detail = s2 * 0.45 + s3 * 0.30 + s4 * 0.25;
+          var raw = waveFront * (detail * 0.5 + 0.5);
+          var density = Math.pow(Math.max(0, raw), 0.7) * fade;
+          var rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
+          return density > rand ? density * 0.9 : 0;
+        }, 0.55, '20,136,252'
+      );
+    });
+  </script>
+
+  <script>
+    (function() {
+      var cardsEl = document.querySelector('.cards');
+      if (!cardsEl) return;
+      cardsEl.addEventListener('mouseenter', function() { cardsEl.classList.add('is-hovering'); });
+      cardsEl.addEventListener('mouseleave', function() { cardsEl.classList.remove('is-hovering'); });
+    })();
   </script>
 
   <script>
