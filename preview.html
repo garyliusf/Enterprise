@@ -824,41 +824,6 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   }
 
   /* Top: two-column layout */
-  .success-top {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 80px;
-    align-items: end;
-    margin-bottom: 30px;
-    padding-top: 0;
-  }
-
-  .success-top-left {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .success-shape-row {
-    display: inline-flex;
-    position: relative;
-  }
-
-  #success-shape-canvas {
-    display: block;
-    opacity: 0.55;
-    flex-shrink: 0;
-  }
-
-  #success-drama-canvas {
-    display: block;
-    border-radius: 10px;
-    opacity: 0.85;
-    position: absolute;
-    bottom: 60px;
-    right: -15px;
-    z-index: 1;
-  }
 
   .success-dv-logo {
     height: 28px;
@@ -877,22 +842,6 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     margin: 0;
     letter-spacing: -0.5px;
   }
-
-  .success-top-right {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-  }
-
-  .success-eyebrow {
-    font-size: 16px;
-    font-weight: 400;
-    font-family: 'Silkscreen', monospace;
-    letter-spacing: 2px;
-    color: #1488FC;
-    margin-bottom: 32px;
-  }
-
 
   .success-company-row {
     display: flex;
@@ -914,13 +863,6 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     font-weight: 400;
   }
 
-  .success-body {
-    font-size: 17px;
-    font-weight: 400;
-    color: rgba(255,255,255,0.45);
-    line-height: 1.75;
-    margin-bottom: 10px;
-  }
 
   /* Big pull quote — editorial card */
   .success-pull-quote {
@@ -966,6 +908,16 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     width: auto;
     filter: brightness(0) invert(1);
     opacity: 0.55;
+  }
+
+  .success-eyebrow {
+    font-size: 11px;
+    font-weight: 400;
+    font-family: 'Silkscreen', monospace;
+    letter-spacing: 2px;
+    color: #1488FC;
+    text-transform: uppercase;
+    margin-bottom: 0;
   }
 
   .success-quote-card-logo {
@@ -1182,7 +1134,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   }
 
   .feat-subheadline {
-    font-size: 22px;
+    font-size: 18px;
     color: #ABABAB;
     margin: 0;
     max-width: 560px;
@@ -1277,7 +1229,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
 
   .feat-tab-desc {
     font-size: 14px;
-    color: rgba(255,255,255,0.35);
+    color: rgba(255,255,255,0.55);
     margin: 0;
     line-height: 1.65;
     opacity: 0;
@@ -1414,7 +1366,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   }
 
   .footer-subtitle {
-    font-size: 22px;
+    font-size: 18px;
     color: #ABABAB;
     max-width: 640px;
     line-height: 1.6;
@@ -2173,24 +2125,14 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   <div class="success-glow"></div>
   <div class="success-inner">
 
-    <div class="success-top">
-      <div class="success-top-left">
-        <p class="success-eyebrow">Customer success</p>
-        <div class="success-shape-row">
-          <canvas id="success-shape-canvas" width="180" height="180"></canvas>
-          <canvas id="success-drama-canvas"></canvas>
-        </div>
-      </div>
-      <div class="success-top-right">
-        <p class="success-body">Using Bolt, CTO Julien Menard shipped Drama Pills — a live short-form video streaming app — to iOS and Android.</p>
-      </div>
-    </div>
-
     <div class="success-pull-quote">
       <canvas id="quote-pixel-canvas"></canvas>
 
       <div class="success-pull-quote-content">
-        <img src="images/digital-virgo-logo.webp" alt="Digital Virgo" class="success-quote-card-logo">
+        <div style="display:flex;flex-direction:column;gap:20px;">
+          <p class="success-eyebrow">Customer Stories</p>
+          <img src="images/digital-virgo-logo.webp" alt="Digital Virgo" class="success-quote-card-logo">
+        </div>
         <p class="success-pull-quote-text">"Test it before you judge. After that, you will want to run it. Even the developers are using it now. With their tech background, they will be able to do even better things faster than they could manually."</p>
         <div class="success-pull-quote-attr">
           <div class="success-pull-quote-name">Julien Menard</div>
@@ -2816,199 +2758,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   })();
 </script>
 
-<script>
-  (function () {
-    var canvas = document.getElementById('success-shape-canvas');
-    if (!canvas) return;
-    var ctx = canvas.getContext('2d');
 
-    var dpr = window.devicePixelRatio || 1;
-    var W_CSS = 360, H_CSS = 360;
-    canvas.width = W_CSS * dpr;
-    canvas.height = H_CSS * dpr;
-    canvas.style.width = W_CSS + 'px';
-    canvas.style.height = H_CSS + 'px';
-    ctx.scale(dpr, dpr);
-
-    var W = W_CSS, H = H_CSS;
-    var spacing = 8;
-    var maxDot = 5.2;
-
-    function rrSDF(px, py, cx, cy, hw, hh, r) {
-      var qx = Math.abs(px - cx) - hw + r;
-      var qy = Math.abs(py - cy) - hh + r;
-      return Math.min(Math.max(qx, qy), 0) +
-        Math.sqrt(Math.max(qx, 0) * Math.max(qx, 0) + Math.max(qy, 0) * Math.max(qy, 0)) - r;
-    }
-
-    function capsuleSDF(px, py, ax, ay, bx, by, r) {
-      var pax = px - ax, pay = py - ay;
-      var bax = bx - ax, bay = by - ay;
-      var h = Math.max(0, Math.min(1, (pax * bax + pay * bay) / (bax * bax + bay * bay)));
-      var dx = pax - bax * h, dy = pay - bay * h;
-      return Math.sqrt(dx * dx + dy * dy) - r;
-    }
-
-    var pcx = W / 2, pcy = H / 2;
-    var angle = -38 * Math.PI / 180;
-    var halfLen = 95, pillR = 72;
-    var ax = pcx + Math.cos(angle + Math.PI) * halfLen;
-    var ay = pcy + Math.sin(angle + Math.PI) * halfLen;
-    var bx = pcx + Math.cos(angle) * halfLen;
-    var by = pcy + Math.sin(angle) * halfLen;
-
-    // Warm amber glow
-    var glowCx = W * 0.38, glowCy = H * 0.62;
-    var grd = ctx.createRadialGradient(glowCx, glowCy, 0, glowCx, glowCy, W * 0.55);
-    grd.addColorStop(0,   'rgba(160, 85, 30, 0.38)');
-    grd.addColorStop(0.4, 'rgba(110, 55, 18, 0.18)');
-    grd.addColorStop(1,   'rgba(0,   0,  0,  0)');
-    ctx.fillStyle = grd;
-    ctx.fillRect(0, 0, W, H);
-
-    var pad = 6, rr = 28;
-    var hw = W / 2 - pad, hh = H / 2 - pad;
-    var sqCx = hw, sqCy = H / 2;
-
-    for (var row = 0; row <= Math.ceil(H / spacing) + 1; row++) {
-      for (var col = 0; col <= Math.ceil(W / spacing) + 1; col++) {
-        var px = col * spacing, py = row * spacing;
-        var sqSdf = rrSDF(px, py, sqCx, sqCy, hw, hh, rr);
-        if (sqSdf > 2) continue;
-        var sqEdge = Math.min(1, Math.max(0, -sqSdf / 14));
-        var pillSdf = capsuleSDF(px, py, ax, ay, bx, by, pillR);
-        var inPill = pillSdf <= 0;
-        var dotR, alpha;
-        if (inPill) {
-          var pillEdge = Math.min(1, Math.max(0, -pillSdf / 14));
-          var pax2 = px - ax, pay2 = py - ay;
-          var abx = bx - ax, aby = by - ay;
-          var abLen2 = abx * abx + aby * aby;
-          var t = Math.max(0, Math.min(1, (pax2 * abx + pay2 * aby) / abLen2));
-          dotR = Math.pow(1 - t * 0.75, 0.9) * pillEdge * maxDot;
-          alpha = 0.82;
-        } else {
-          var gx = 1 - px / W, gy = py / H;
-          dotR = Math.pow(gx * 0.58 + gy * 0.42, 0.85) * sqEdge * maxDot * 0.38;
-          alpha = 0.32;
-        }
-        if (dotR < 0.25) continue;
-        ctx.beginPath();
-        ctx.arc(px, py, dotR, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255,255,255,' + alpha + ')';
-        ctx.fill();
-      }
-    }
-  })();
-</script>
-
-<script>
-  (function () {
-    var canvas = document.getElementById('success-drama-canvas');
-    if (!canvas) return;
-
-    var H_CSS = 200;
-    var dpr = window.devicePixelRatio || 1;
-
-    var ctx = canvas.getContext('2d');
-    var img = new Image();
-    img.src = 'images/drama2.png';
-
-    var noiseCanvas = document.createElement('canvas');
-    var noiseCtx = noiseCanvas.getContext('2d');
-
-    var SRC_FRACTION = 0.62; // show only top 62% of image (hides subtitle text)
-
-    var glitchSlices = [];
-    var glitchUntil = 0;
-    var nextGlitch = 0;
-
-    var startTime = null;
-
-    function scheduleGlitch() {
-      nextGlitch = performance.now() + 800 + Math.random() * 1500;
-    }
-
-    function triggerGlitch() {
-      glitchSlices = [];
-      var count = 2 + Math.floor(Math.random() * 3);
-      for (var i = 0; i < count; i++) {
-        glitchSlices.push({
-          y: Math.random(),
-          h: 0.04 + Math.random() * 0.08,
-          dx: (Math.random() - 0.5) * 28 * dpr
-        });
-      }
-      glitchUntil = performance.now() + 100 + Math.random() * 160;
-      scheduleGlitch();
-    }
-
-    img.onload = function () {
-      var W_CSS = Math.round(H_CSS * img.naturalWidth / (img.naturalHeight * SRC_FRACTION));
-      canvas.width = Math.round(W_CSS * dpr);
-      canvas.height = Math.round(H_CSS * dpr);
-      canvas.style.width = W_CSS + 'px';
-      canvas.style.height = H_CSS + 'px';
-      scheduleGlitch();
-      requestAnimationFrame(draw);
-    };
-
-    function draw(ts) {
-      if (!startTime) startTime = ts;
-      var elapsed = (ts - startTime) / 1000;
-
-      var cw = canvas.width;
-      var ch = canvas.height;
-      var srcH = img.naturalHeight * SRC_FRACTION;
-
-      if (ts >= nextGlitch) triggerGlitch();
-      var isGlitching = ts < glitchUntil;
-
-      ctx.clearRect(0, 0, cw, ch);
-      ctx.filter = 'grayscale(1)';
-
-      // Always draw with ripple; add glitch dx on top during glitch bursts
-      var sliceH = Math.ceil(ch / 80);
-      for (var y = 0; y < ch; y += sliceH) {
-        var progress = y / ch;
-        var xOffset = Math.sin(elapsed * 1.4 + progress * Math.PI * 3) * 1.5 * dpr;
-        var yOffset = Math.cos(elapsed * 0.9 + progress * Math.PI * 2) * 0.5 * dpr;
-
-        var dx = 0;
-        if (isGlitching) {
-          for (var g = 0; g < glitchSlices.length; g++) {
-            var s = glitchSlices[g];
-            if (progress >= s.y && progress < s.y + s.h) { dx = s.dx; break; }
-          }
-        }
-
-        ctx.drawImage(
-          img,
-          0, progress * srcH,
-          img.naturalWidth, (sliceH / ch) * srcH,
-          xOffset + dx, y + yOffset,
-          cw, sliceH + 1
-        );
-      }
-
-      ctx.filter = 'none';
-
-      // Film grain overlay
-      noiseCanvas.width = cw;
-      noiseCanvas.height = ch;
-      var nd = noiseCtx.createImageData(cw, ch);
-      for (var n = 0; n < nd.data.length; n += 4) {
-        var v = Math.random() * 255 | 0;
-        nd.data[n] = nd.data[n+1] = nd.data[n+2] = v;
-        nd.data[n+3] = 28;
-      }
-      noiseCtx.putImageData(nd, 0, 0);
-      ctx.drawImage(noiseCanvas, 0, 0);
-
-      requestAnimationFrame(draw);
-    }
-  })();
-</script>
 
 <script>
   (function () {

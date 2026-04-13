@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upgrade · Bolt Enterprise</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #000;
+      color: #fff;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Back button ── */
+    .back-btn {
+      position: fixed;
+      top: 24px;
+      left: 24px;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: color 0.2s;
+      text-decoration: none;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 0.3px;
+    }
+    .back-btn:hover { color: rgba(255,255,255,0.85); }
+    .back-btn svg { width: 14px; height: 14px; }
+
+    /* ── Page wrapper ── */
+    .page {
+      width: min(1200px, calc(100vw - 80px));
+      margin: 0 auto;
+      padding: 120px 40px 100px;
+    }
+
+    /* ── Header ── */
+    .page-eyebrow {
+      font-family: 'Silkscreen', monospace;
+      font-size: 13px;
+      color: #1488FC;
+      letter-spacing: 2px;
+      margin-bottom: 20px;
+      display: block;
+    }
+
+    .page-header {
+      margin-bottom: 32px;
+      text-align: center;
+    }
+
+    .page-header h1 {
+      font-size: 72px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -1.5px;
+      line-height: 1.05;
+      margin-bottom: 16px;
+    }
+
+    .page-header p {
+      font-size: 22px;
+      font-weight: 400;
+      color: #ABABAB;
+      max-width: 700px;
+      line-height: 1.4;
+      margin: 0 auto;
+    }
+
+    /* ── Billing toggle ── */
+    .billing-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 28px;
+      margin-bottom: 48px;
+    }
+
+    .billing-toggle {
+      display: inline-flex;
+      align-items: center;
+      background: #111;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 999px;
+      padding: 3px;
+      gap: 2px;
+    }
+
+    .billing-btn {
+      padding: 7px 22px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      background: transparent;
+      color: rgba(255,255,255,0.4);
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 0.2px;
+    }
+    .billing-btn:hover { color: rgba(255,255,255,0.8); }
+    .billing-btn.active {
+      background: #1488FC;
+      color: #fff;
+    }
+
+    .billing-save-badge {
+      font-size: 10px;
+      font-weight: 700;
+      color: #1488FC;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 2px;
+    }
+
+    /* ── Cards grid ── */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 4px;
+      overflow: visible;
+    }
+
+    @media (max-width: 860px) {
+      .cards {
+        grid-template-columns: 1fr;
+        border-radius: 4px;
+      }
+      .card { border-right: none !important; border-bottom: 1px solid rgba(255,255,255,0.07); }
+      .card:last-child { border-bottom: none; }
+    }
+
+    /* ── Card base ── */
+    .card {
+      background: #0a0a0a;
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid rgba(255,255,255,0.07);
+      position: relative;
+    }
+    .card:last-child { border-right: none; }
+
+    /* ── Teams card highlight ── */
+    .card-teams {
+      background: transparent;
+      border-right: none;
+      border-left: none;
+      isolation: isolate;
+    }
+
+    /* Spinning blue conic gradient border */
+    .card-teams::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 5px;
+      background: conic-gradient(
+        from var(--a, 0deg),
+        #0033aa 0%,
+        #1488FC 20%,
+        #00d4ff 40%,
+        #1488FC 60%,
+        #0033aa 80%,
+        #0033aa 100%
+      );
+      z-index: -2;
+      animation: spin-border 4s linear infinite, pulse-border 2.5s ease-in-out infinite;
+    }
+
+    /* Inner card fill — sits above gradient, below content */
+    .card-teams::after {
+      content: '';
+      position: absolute;
+      inset: 1px;
+      background: #0d0d0d;
+      border-radius: 4px;
+      z-index: -1;
+    }
+
+    @property --a {
+      syntax: '<angle>';
+      initial-value: 0deg;
+      inherits: false;
+    }
+
+    @keyframes spin-border {
+      to { --a: 360deg; }
+    }
+
+    @keyframes pulse-border {
+      0%, 100% { opacity: 0.55; }
+      50% { opacity: 1; }
+    }
+
+    /* ── Plan label ── */
+    .plan-label {
+      font-family: 'Silkscreen', monospace;
+      font-size: 11px;
+      letter-spacing: 1.8px;
+      margin-bottom: 20px;
+      display: block;
+    }
+    .plan-label.blue   { color: #a855f7; }
+    .plan-label.purple { color: #1488FC; }
+    .plan-label.orange { color: #f97316; }
+
+    /* ── Price ── */
+    .card-price {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .price-amount {
+      font-size: 52px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -2px;
+      line-height: 1;
+    }
+    .price-period {
+      font-size: 13px;
+      color: rgba(255,255,255,0.35);
+    }
+
+    .card-description {
+      font-size: 14px;
+      color: rgba(255,255,255,0.4);
+      line-height: 1.6;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      border: none;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      margin: 24px 0;
+    }
+
+    /* ── Everything note ── */
+    .everything-note {
+      font-size: 12px;
+      color: rgba(255,255,255,0.25);
+      letter-spacing: 0.3px;
+      margin-bottom: 16px;
+    }
+
+    /* ── Feature list ── */
+    .features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+      margin-bottom: 32px;
+      flex: 1;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 14px;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.45;
+    }
+
+    .check-icon {
+      flex-shrink: 0;
+      margin-top: 1px;
+      width: 14px;
+      height: 14px;
+      color: rgba(255,255,255,0.5);
+    }
+    .check-icon.blue, .check-icon.purple, .check-icon.orange { color: rgba(255,255,255,0.5); }
+
+    /* ── CTAs ── */
+    .cta-primary {
+      width: 100%;
+      height: 42px;
+      border-radius: 6px;
+      background: #fff;
+      color: #000;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 0.2px;
+    }
+    .cta-primary:hover { opacity: 0.88; }
+
+    .cta-secondary {
+      width: 100%;
+      height: 42px;
+      border-radius: 6px;
+      background: transparent;
+      color: rgba(255,255,255,0.6);
+      font-size: 14px;
+      font-weight: 500;
+      border: 1px solid rgba(255,255,255,0.12);
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+    .cta-secondary:hover {
+      border-color: rgba(255,255,255,0.25);
+      color: rgba(255,255,255,0.9);
+    }
+
+    /* ── Security & compliance banner ── */
+    .compliance-banner {
+      margin-top: 16px;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 4px;
+      background: #0a0a0a;
+      padding: 40px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 40px;
+    }
+
+    .compliance-left {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .compliance-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: -0.3px;
+    }
+
+    .compliance-sub {
+      font-size: 13px;
+      color: rgba(255,255,255,0.35);
+    }
+
+    .compliance-badges {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-left: auto;
+    }
+
+    .cert-badge {
+      width: 110px;
+      height: 110px;
+      flex-shrink: 0;
+    }
+
+    .cert-badge svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .compliance-btn {
+      height: 42px;
+      padding: 0 32px;
+      border-radius: 6px;
+      background: transparent;
+      color: rgba(255,255,255,0.7);
+      font-size: 14px;
+      font-weight: 500;
+      border: 1px solid rgba(255,255,255,0.15);
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+      font-family: 'Inter', sans-serif;
+      white-space: nowrap;
+    }
+    .compliance-btn:hover {
+      border-color: rgba(255,255,255,0.3);
+      color: #fff;
+    }
+
+    /* ── Teams pixel canvas background ── */
+    #teams-pixel-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      opacity: 0.55;
+      z-index: 0;
+    }
+
+    .card-teams > *:not(canvas) {
+      position: relative;
+      z-index: 1;
+    }
+    /* Badge is already absolute — restore and lift it above canvas */
+    .card-teams > .badge-popular {
+      position: absolute;
+      z-index: 2;
+    }
+
+    /* ── FAQ ── */
+    .faq-section {
+      margin-top: 100px;
+      padding-bottom: 40px;
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 80px;
+      align-items: start;
+    }
+
+    .faq-header {
+      position: sticky;
+      top: 48px;
+    }
+
+    .faq-title {
+      font-size: 64px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -1px;
+      line-height: 1.05;
+      margin-bottom: 16px;
+    }
+
+    .faq-sub {
+      font-size: 18px;
+      color: #ABABAB;
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+
+    .faq-contact-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #fff;
+      text-decoration: none;
+      letter-spacing: 0.2px;
+      padding: 10px 20px;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.06);
+      transition: background 0.2s, border-color 0.2s;
+      width: fit-content;
+    }
+    .faq-contact-link:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.25);
+    }
+    .faq-contact-link svg { transition: transform 0.2s; }
+    .faq-contact-link:hover svg { transform: translateX(3px); }
+
+    .faq-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .faq-item {
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      position: relative;
+      transition: background 0.2s;
+      overflow: hidden;
+    }
+    .faq-item:first-child { border-top: 1px solid rgba(255,255,255,0.07); }
+
+    .faq-item.open { background: rgba(20,136,252,0.03); }
+
+    .faq-open-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      z-index: 0;
+    }
+    .faq-item.open .faq-open-canvas { opacity: 1; }
+
+    .faq-q {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 32px 24px 32px 24px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-size: 19px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.7);
+      text-align: left;
+      gap: 16px;
+      transition: color 0.2s;
+    }
+
+    .faq-q:hover { color: #fff; }
+    .faq-item.open .faq-q { color: #fff; }
+
+    .faq-q-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .faq-num { display: none; }
+
+    .faq-icon {
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s;
+      color: #1488FC;
+    }
+    .faq-item.open .faq-icon {
+      color: #1488FC;
+    }
+
+    .faq-icon-plus, .faq-icon-minus {
+      position: absolute;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .faq-icon-minus { opacity: 0; transform: rotate(-90deg); }
+    .faq-item.open .faq-icon-plus { opacity: 0; transform: rotate(90deg); }
+    .faq-item.open .faq-icon-minus { opacity: 1; transform: rotate(0deg); }
+
+    .faq-a {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1), padding 0.35s ease;
+      padding: 0 28px 0 24px;
+      font-size: 14px;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.75;
+    }
+
+    .faq-item.open .faq-a {
+      max-height: 300px;
+      padding: 0 28px 24px 24px;
+    }
+
+    .faq-link {
+      color: #1488FC;
+      text-decoration: none;
+    }
+    .faq-link:hover { text-decoration: underline; }
+
+    .faq-footer-banner {
+      margin-top: 16px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 8px;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+      text-decoration: none;
+    }
+    .faq-footer-banner:hover {
+      background: rgba(255,255,255,0.05);
+      border-color: rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.6);
+    }
+    .faq-footer-banner svg { transition: transform 0.2s; }
+    .faq-footer-banner:hover svg { transform: translateX(3px); }
+
+    /* ── CTA / Footer section (copied from enterprise page) ── */
+    .footer-section {
+      background: #000;
+      padding: 60px 40px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      text-align: center;
+      box-sizing: border-box;
+      width: 100%;
+    }
+
+    .footer-headline {
+      font-size: 56px;
+      font-weight: 700;
+      color: #fff;
+      margin: 0;
+      line-height: 1.1;
+    }
+
+    .footer-subtitle {
+      font-size: 18px;
+      color: #ABABAB;
+      max-width: 640px;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .hero-form-row {
+      display: flex;
+      gap: 0;
+      flex: 1;
+      max-width: 420px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .hero-email-input {
+      flex: 1;
+      height: 52px;
+      background: transparent;
+      border: none;
+      padding: 0 18px;
+      font-size: 15px;
+      font-family: 'Inter', sans-serif;
+      color: #fff;
+      outline: none;
+    }
+
+    .hero-email-input::placeholder { color: rgba(255,255,255,0.45); }
+
+    .hero-cta-button {
+      width: auto;
+      padding: 0 24px;
+      height: 52px;
+      flex-shrink: 0;
+      background: #1488FC;
+      border: none;
+      border-radius: 0;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+    }
+    .hero-cta-button:hover { opacity: 0.9; }
+
+    /* ── Popular badge ── */
+    .badge-popular {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(20,136,252,0.12);
+      border: 1px solid rgba(20,136,252,0.25);
+      color: #1488FC;
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 1.2px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-family: 'Silkscreen', monospace;
+    }
+
+  </style>
+</head>
+<body>
+
+  <a href="preview.html" class="back-btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 12H5M12 5l-7 7 7 7"/>
+    </svg>
+    Back
+  </a>
+
+  <div class="page">
+
+    <div class="page-header">
+      <h1>Pricing</h1>
+      <p>Start for free. Upgrade when your team needs more.</p>
+    </div>
+
+    <!-- Billing toggle — global -->
+    <div class="billing-row">
+      <div class="billing-toggle">
+        <button class="billing-btn" id="btn-monthly" onclick="setBilling('monthly')">Monthly</button>
+        <button class="billing-btn active" id="btn-yearly" onclick="setBilling('yearly')">Yearly</button>
+      </div>
+      <span class="billing-save-badge" id="save-badge">Save up to 28%</span>
+    </div>
+
+    <!-- Cards -->
+    <div class="cards">
+
+      <!-- Pro -->
+      <div class="card">
+        <span class="plan-label blue">PRO</span>
+        <div class="card-price">
+          <span class="price-amount" id="pro-price">$20</span>
+          <span class="price-period">/month</span>
+        </div>
+        <p class="card-description">For solo builders who need full power and no limits.</p>
+
+        <hr class="divider" />
+
+        <ul class="features">
+          <li class="feature-item">
+            <svg class="check-icon blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            5X more usage than Free
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            No Bolt branding on websites
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Website hosting on Bolt
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Leftover usage 1-month roll-over
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Expanded database storage
+          </li>
+        </ul>
+
+        <button class="cta-primary">Get started</button>
+      </div>
+
+      <!-- Teams -->
+      <div class="card card-teams">
+        <canvas id="teams-pixel-canvas"></canvas>
+        <span class="badge-popular">POPULAR</span>
+        <span class="plan-label purple">TEAMS</span>
+        <div class="card-price">
+          <span class="price-amount" id="teams-price">$27</span>
+          <span class="price-period">/month base</span>
+        </div>
+        <p class="card-description">Usage-based token pool for your team. $15/seat for editors &amp; admins.</p>
+
+        <hr class="divider" />
+
+        <p class="everything-note">Everything in Pro, plus:</p>
+
+        <ul class="features">
+          <li class="feature-item">
+            <svg class="check-icon purple" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Shared usage pool across the team
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon purple" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Spending limits per member
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon purple" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Centralized billing
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon purple" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Admin control over user access
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon purple" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Collaborative workspace with shared projects
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon purple" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Private NPM registries support
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon purple" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Design system support
+          </li>
+        </ul>
+
+        <button class="cta-primary">Get started</button>
+      </div>
+
+      <!-- Organization -->
+      <div class="card">
+        <span class="plan-label orange">ORGANIZATION</span>
+        <div class="card-price">
+          <span class="price-amount">Custom</span>
+        </div>
+        <p class="card-description">For companies that need security, compliance, and scale.</p>
+
+        <hr class="divider" />
+
+        <p class="everything-note">Everything in Teams, plus:</p>
+
+        <ul class="features">
+          <li class="feature-item">
+            <svg class="check-icon orange" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Custom real-time customer support
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon orange" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Multiple teams with rolled-up billing
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon orange" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Dedicated account manager 24/7
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon orange" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Enterprise training
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon orange" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Early access to new releases
+          </li>
+        </ul>
+
+        <button class="cta-secondary">Contact us</button>
+      </div>
+
+    </div>
+
+    <!-- Security & compliance banner -->
+    <div class="compliance-banner">
+      <div class="compliance-left">
+        <p class="compliance-title">Security and compliance</p>
+        <p class="compliance-sub">Enterprise-grade security and compliance certifications</p>
+        <button class="compliance-btn" style="margin-top:16px;width:fit-content;">Learn more</button>
+      </div>
+      <div class="compliance-badges">
+        <!-- SOC 2 -->
+        <div class="cert-badge">
+          <svg viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="45" cy="45" r="43" stroke="#1488FC" stroke-width="1" stroke-dasharray="4 3"/>
+            <text x="45" y="43" text-anchor="middle" dominant-baseline="middle" font-family="Inter,sans-serif" font-size="14" font-weight="700" fill="rgba(255,255,255,0.85)">SOC 2</text>
+            <text x="45" y="57" text-anchor="middle" dominant-baseline="middle" font-family="Inter,sans-serif" font-size="8" font-weight="500" fill="rgba(255,255,255,0.4)" letter-spacing="1.5">TYPE II</text>
+          </svg>
+        </div>
+        <!-- GDPR -->
+        <div class="cert-badge">
+          <svg viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="45" cy="45" r="43" stroke="#1488FC" stroke-width="1" stroke-dasharray="4 3"/>
+            <!-- 12 EU stars on ring radius 20, each star rotated to point outward -->
+            <g fill="rgba(255,255,255,0.75)">
+              <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(0,45,45)"/>
+              <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(30,45,45)"/>
+              <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(60,45,45)"/>
+              <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(90,45,45)"/>
+              <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(120,45,45)"/>
+              <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(150,45,45)"/>
+              <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(180,45,45)"/>
+              <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(210,45,45)"/>
+              <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(240,45,45)"/>
+              <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(270,45,45)"/>
+              <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(300,45,45)"/>
+              <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(330,45,45)"/>
+            </g>
+            <text x="45" y="45" text-anchor="middle" dominant-baseline="middle" font-family="Inter,sans-serif" font-size="11" font-weight="700" fill="rgba(255,255,255,0.85)">GDPR</text>
+          </svg>
+        </div>
+        <!-- ISO 27001 -->
+        <div class="cert-badge">
+          <svg viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="45" cy="45" r="43" stroke="#1488FC" stroke-width="1" stroke-dasharray="4 3"/>
+            <!-- Globe lines -->
+            <circle cx="45" cy="34" r="14" stroke="rgba(255,255,255,0.55)" stroke-width="1.2"/>
+            <ellipse cx="45" cy="34" rx="7" ry="14" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
+            <line x1="31" y1="34" x2="59" y2="34" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
+            <line x1="33" y1="27" x2="57" y2="27" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+            <line x1="33" y1="41" x2="57" y2="41" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+            <text x="45" y="66" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="700" fill="rgba(255,255,255,0.85)" letter-spacing="0.5">ISO 27001</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="faq-section">
+      <div class="faq-header">
+        <h2 class="faq-title">FAQs</h2>
+        <p class="faq-sub">Everything you need to know about the product and billing.</p>
+        <a href="#" class="faq-contact-link">
+          Visit Help Center
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+      </div>
+
+      <div>
+        <div class="faq-list">
+          <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">
+              <div class="faq-q-left">
+                <span class="faq-num">01</span>
+                <span>What are tokens?</span>
+              </div>
+              <div class="faq-icon" style="position:relative;">
+                <svg class="faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                <svg class="faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </div>
+            </button>
+            <div class="faq-a">AI tokens are a complex topic related to all AI apps, not just Bolt. You can learn more about tokens <a href="#" class="faq-link">here</a>. For Bolt specifically it is important to know that most token usage is related to syncing your project's file system to the AI: the larger the project, the more tokens are used per action. Our top priority is to increase the efficiency of token usage in Bolt. We continue to make improvements so that Bolt uses fewer tokens.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">
+              <div class="faq-q-left">
+                <span class="faq-num">02</span>
+                <span>How do Teams plans work?</span>
+              </div>
+              <div class="faq-icon" style="position:relative;">
+                <svg class="faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                <svg class="faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </div>
+            </button>
+            <div class="faq-a">Teams provide a shared workspace for users to collaborate on Bolt projects. The subscription cost for Teams is per team member. Each paid team member receives a monthly token allotment based on the subscription tier. Tokens are not shared among team members. You can read more about Teams plans <a href="#" class="faq-link">here</a>.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">
+              <div class="faq-q-left">
+                <span class="faq-num">03</span>
+                <span>Do tokens rollover from month to month?</span>
+              </div>
+              <div class="faq-icon" style="position:relative;">
+                <svg class="faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                <svg class="faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </div>
+            </button>
+            <div class="faq-a">Starting July 1, 2025, tokens from a paid subscription will roll over for one additional month, making them valid for up to two months in total. Please note that an active paid subscription is required to access any rolled over tokens. For more details, please refer to <a href="#" class="faq-link">this article</a>.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">
+              <div class="faq-q-left">
+                <span class="faq-num">04</span>
+                <span>Can I change my plan later?</span>
+              </div>
+              <div class="faq-icon" style="position:relative;">
+                <svg class="faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                <svg class="faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </div>
+            </button>
+            <div class="faq-a">Yes, you can change your plan by clicking <strong>Manage current plan</strong>. This will take you to our Stripe billing portal where you can select <strong>Update subscription</strong> to change your plan type.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">
+              <div class="faq-q-left">
+                <span class="faq-num">05</span>
+                <span>Can I cancel my subscription?</span>
+              </div>
+              <div class="faq-icon" style="position:relative;">
+                <svg class="faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                <svg class="faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </div>
+            </button>
+            <div class="faq-a">Yes, you can cancel at any time. Click <strong>Manage current plan</strong> to be taken into the cancellation process.</div>
+          </div>
+          <div class="faq-item" style="border-bottom:none;">
+            <button class="faq-q" onclick="toggleFaq(this)">
+              <div class="faq-q-left">
+                <span class="faq-num">06</span>
+                <span>What are the token limits associated with a free plan?</span>
+              </div>
+              <div class="faq-icon" style="position:relative;">
+                <svg class="faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                <svg class="faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </div>
+            </button>
+            <div class="faq-a">Free plans have a 300,000 token daily limit and 1 million token monthly limit.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CTA / Footer — copied from enterprise page -->
+  <section class="footer-section">
+    <p class="footer-eyebrow" style="font-size:14px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:rgba(20,136,252,0.7);margin:0;font-family:'Silkscreen',monospace;">Are you ready?</p>
+    <h2 class="footer-headline">Start building today</h2>
+    <p class="footer-subtitle">
+      Join thousands of teams shipping faster with our enterprise platform.
+      Get started in minutes — no credit card required.
+    </p>
+    <div style="position:relative;width:100%;max-width:700px;height:100px;margin-top:0px;">
+      <canvas id="pricing-footer-pixel-canvas" style="position:absolute;inset:0;pointer-events:none;opacity:1;z-index:0;"></canvas>
+      <div style="position:absolute;bottom:20px;left:0;right:0;display:flex;justify-content:center;z-index:1;">
+        <div class="hero-form-row" style="max-width:480px;width:100%;">
+          <input type="email" class="hero-email-input" placeholder="Your work email" />
+          <button class="hero-cta-button">Submit</button>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:20px;width:100%;overflow:hidden;position:relative;max-height:600px;">
+      <img src="images/bolt-bottom.png" alt="bolt" style="width:100%;display:block;opacity:0.22;object-fit:cover;object-position:top;">
+      <div style="position:absolute;inset:0;background:linear-gradient(to bottom, #000 0%, transparent 25%);"></div>
+    </div>
+  </section>
+
+  <script>
+    function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
+      color = color || '20,136,252';
+      var canvas = document.getElementById(id);
+      if (!canvas) return;
+      var phases = [];
+
+      function buildPhases(cols, rows) {
+        phases = [];
+        for (var r = 0; r < rows; r++) {
+          phases[r] = [];
+          for (var c = 0; c < cols; c++) {
+            phases[r][c] = Math.random() * Math.PI * 2;
+          }
+        }
+      }
+
+      function resize() {
+        var parent = canvas.parentElement;
+        var w = parent.offsetWidth || parent.getBoundingClientRect().width;
+        var h = parent.offsetHeight || parent.getBoundingClientRect().height;
+        if (!w || !h) return;
+        canvas.width = Math.round(w);
+        canvas.height = Math.round(h);
+        buildPhases(Math.ceil(w / spacing), Math.ceil(h / spacing));
+      }
+
+      window.addEventListener('load', resize);
+      window.addEventListener('resize', resize);
+      new ResizeObserver(function() { resize(); }).observe(canvas.parentElement);
+      requestAnimationFrame(function() { resize(); });
+
+      function draw(t) {
+        var w = canvas.width, h = canvas.height;
+        if (!w || !h) { requestAnimationFrame(draw); return; }
+        var ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, w, h);
+        var cols = Math.ceil(w / spacing);
+        var rows = Math.ceil(h / spacing);
+        for (var r = 0; r < rows; r++) {
+          for (var c = 0; c < cols; c++) {
+            var phase = (phases[r] && phases[r][c]) || 0;
+            var op = waveFn(c, r, t, phase) * opacity;
+            if (op < 0.04) continue;
+            ctx.fillStyle = 'rgba(' + color + ',' + op.toFixed(3) + ')';
+            ctx.fillRect(c * spacing, r * spacing, dot, dot);
+          }
+        }
+        requestAnimationFrame(draw);
+      }
+      requestAnimationFrame(draw);
+    }
+
+    makePixelCanvas('teams-pixel-canvas', 6, 2,
+      function(c, r, t, p) {
+        var px = c * 6, py = r * 6;
+        var el = document.getElementById('teams-pixel-canvas');
+        var W = el ? el.width : 400, H = el ? el.height : 600;
+        // Dramatic top-center bloom, fades toward bottom and edges
+        var cx = W / 2;
+        var hFade = Math.max(0, 1 - Math.abs(px - cx) / (W * 0.6));
+        var vFade = Math.max(0, 1 - py / (H * 0.75));
+        var fade = Math.pow(hFade * vFade, 0.6);
+        if (fade <= 0) return 0;
+        var speedMod = 0.05 + (Math.sin(t * 0.00070 + 1.4) * 0.5 + 0.5) * 0.22;
+        function rwave(scale, rotRate, phase, tMult) {
+          var angle = t * rotRate + phase;
+          var u = (px * Math.cos(angle) + py * Math.sin(angle)) / scale;
+          var v = (-px * Math.sin(angle) + py * Math.cos(angle)) / scale;
+          return Math.sin(u * Math.PI * 2 + t * tMult * speedMod)
+               * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7 * speedMod);
+        }
+        var s1 = rwave(500, 0.00012, 0.5, 0.00030);
+        var s2 = rwave(260, 0.00025, 1.8, 0.00065);
+        var s3 = rwave(130, 0.00042, 3.1, 0.00130);
+        var s4 = rwave(380, 0.00018, 4.5, 0.00048);
+        var waveFront = s1 * 0.5 + 0.5;
+        var detail = s2 * 0.45 + s3 * 0.30 + s4 * 0.25;
+        var raw = waveFront * (detail * 0.5 + 0.5);
+        var density = Math.pow(Math.max(0, raw), 0.7) * fade;
+        var rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
+        return density > rand ? density * 0.9 : 0;
+      }, 0.90, '20,136,252'
+    );
+
+    makePixelCanvas('pricing-footer-pixel-canvas', 6, 2,
+      function(c, r, t, p) {
+        var px = c * 6, py = r * 6;
+        var el = document.getElementById('pricing-footer-pixel-canvas');
+        var W = el ? el.width : 700, H = el ? el.height : 90;
+        var cx = W / 2;
+        var hFade = Math.max(0, 1 - Math.abs(px - cx) / (W * 0.55));
+        var vFade = Math.max(0, 1 - py / (H * 0.85));
+        var fade = hFade * vFade;
+        if (fade <= 0) return 0;
+        var speedMod = 0.05 + (Math.sin(t * 0.00070 + 2.2) * 0.5 + 0.5) * 0.22;
+        function rwave(scale, rotRate, phase, tMult) {
+          var angle = t * rotRate + phase;
+          var u = (px * Math.cos(angle) + py * Math.sin(angle)) / scale;
+          var v = (-px * Math.sin(angle) + py * Math.cos(angle)) / scale;
+          return Math.sin(u * Math.PI * 2 + t * tMult * speedMod)
+               * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7 * speedMod);
+        }
+        var s1 = rwave(300, 0.00012, 0.3, 0.00030);
+        var s2 = rwave(160, 0.00025, 1.6, 0.00065);
+        var s3 = rwave(80,  0.00042, 2.9, 0.00130);
+        var s4 = rwave(220, 0.00018, 4.2, 0.00048);
+        var waveFront = s1 * 0.5 + 0.5;
+        var detail = s2 * 0.45 + s3 * 0.30 + s4 * 0.25;
+        var raw = waveFront * (detail * 0.5 + 0.5);
+        var density = Math.pow(Math.max(0, raw), 0.7) * fade;
+        var rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
+        return density > rand ? density * 0.85 : 0;
+      }, 1.0, '220,230,245'
+    );
+  </script>
+
+  <script>
+    function toggleFaq(btn) {
+      var item = btn.parentElement;
+      var isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(function(el) { el.classList.remove('open'); });
+      if (!isOpen) item.classList.add('open');
+    }
+  </script>
+
+  <script>
+    function setBilling(val) {
+      var isYearly = val === 'yearly';
+      document.getElementById('pro-price').textContent = isYearly ? '$18' : '$25';
+      document.getElementById('teams-price').textContent = isYearly ? '$27' : '$30';
+      document.getElementById('btn-monthly').classList.toggle('active', !isYearly);
+      document.getElementById('btn-yearly').classList.toggle('active', isYearly);
+      document.getElementById('save-badge').style.opacity = isYearly ? '1' : '0';
+    }
+    setBilling('yearly');
+  </script>
+
+<script>
+(function() {
+  var dpr = window.devicePixelRatio || 1;
+  var canvasObjs = [];
+
+  // Create a canvas inside each faq-item
+  document.querySelectorAll('.faq-item').forEach(function(item, idx) {
+    var canvas = document.createElement('canvas');
+    canvas.className = 'faq-open-canvas';
+    item.insertBefore(canvas, item.firstChild);
+    canvasObjs.push({ canvas: canvas, item: item, phase: idx * 1.7 });
+  });
+
+  function resizeAll() {
+    canvasObjs.forEach(function(obj) {
+      var rect = obj.item.getBoundingClientRect();
+      var w = obj.item.offsetWidth, h = obj.item.offsetHeight;
+      obj.canvas.width = w * dpr;
+      obj.canvas.height = h * dpr;
+    });
+  }
+  resizeAll();
+  window.addEventListener('resize', resizeAll);
+
+  function draw(t) {
+    canvasObjs.forEach(function(obj) {
+      if (!obj.item.classList.contains('open')) return;
+      var canvas = obj.canvas;
+      // Re-sync size if item height changed (answer expanded)
+      var h = obj.item.offsetHeight;
+      if (canvas.height !== h * dpr) {
+        canvas.width = obj.item.offsetWidth * dpr;
+        canvas.height = h * dpr;
+      }
+      var ctx = canvas.getContext('2d');
+      var W = canvas.width, H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+
+      var sp = 7 * dpr, maxR = 2.2 * dpr;
+      var cols = Math.ceil(W / sp) + 1, rows = Math.ceil(H / sp) + 1;
+
+      for (var r = 0; r < rows; r++) {
+        for (var c = 0; c < cols; c++) {
+          var px = c * sp, py = r * sp;
+          // Fade: strongest on right half, fades to nothing on left quarter
+          var hFade = Math.max(0, Math.min(1, (px / W - 0.2) / 0.5));
+          // Soft vertical: fade at top and bottom edges
+          var vFade = Math.min(1, Math.min(py / (H * 0.18), (H - py) / (H * 0.12)));
+          var fade = hFade * Math.max(0, vFade);
+          if (fade < 0.02) continue;
+
+          var angle1 = t * 0.00012 + obj.phase;
+          var u1 = (px * Math.cos(angle1) + py * Math.sin(angle1)) / (350 * dpr);
+          var v1 = (-px * Math.sin(angle1) + py * Math.cos(angle1)) / (220 * dpr);
+          var angle2 = t * 0.00022 + obj.phase + 1.5;
+          var u2 = (px * Math.cos(angle2) + py * Math.sin(angle2)) / (180 * dpr);
+          var v2 = (-px * Math.sin(angle2) + py * Math.cos(angle2)) / (120 * dpr);
+
+          var wave = (Math.sin(u1 * Math.PI * 2 + t * 0.00030) * Math.cos(v1 * Math.PI * 1.5))
+                   * 0.55 + (Math.sin(u2 * Math.PI * 2 + t * 0.00060) * 0.45);
+          var density = Math.pow(Math.max(0, wave * 0.5 + 0.5), 0.8) * fade;
+          var rand = (Math.sin(c * 127.1 + r * 311.7 + obj.phase * 50) * 0.5 + 0.5) * 0.9;
+          if (density > rand) {
+            var alpha = density * 0.25;
+            ctx.beginPath();
+            ctx.arc(px, py, maxR * density, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(180,185,195,' + alpha.toFixed(2) + ')';
+            ctx.fill();
+          }
+        }
+      }
+    });
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+</script>
+
+<script>
+(function () {
+  var CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+  function scrambleEyebrow(el) {
+    var original = el.textContent;
+    var chars = original.split('');
+    var total = chars.length;
+    var locked = new Array(total).fill(false);
+    var startTime = null;
+    var duration = 500;
+
+    function phase1(ts) {
+      if (!startTime) startTime = ts;
+      var progress = Math.min((ts - startTime) / duration, 1);
+      var result = '';
+      var allDone = true;
+
+      for (var i = 0; i < total; i++) {
+        if (chars[i] === ' ') { locked[i] = true; result += ' '; continue; }
+        if (!locked[i] && progress >= (i / total) * 0.85) locked[i] = true;
+        if (locked[i]) { result += chars[i]; }
+        else { allDone = false; result += CHARS[Math.floor(Math.random() * CHARS.length)]; }
+      }
+
+      el.textContent = result;
+
+      if (!allDone || progress < 1) {
+        requestAnimationFrame(phase1);
+      } else {
+        el.textContent = original;
+        setTimeout(function() {
+          locked = new Array(total).fill(false);
+          startTime = null;
+          requestAnimationFrame(phase1);
+        }, 4000 + Math.random() * 1000);
+      }
+    }
+
+    requestAnimationFrame(phase1);
+  }
+
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        observer.unobserve(entry.target);
+        setTimeout(function () { scrambleEyebrow(entry.target); }, 80);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  document.querySelectorAll('.footer-eyebrow').forEach(function (el) {
+    observer.observe(el);
+  });
+})();
+</script>
+
+</body>
+</html>
