@@ -227,12 +227,18 @@
       gap: 6px;
       margin-bottom: 10px;
     }
+    .price-amount-wrap {
+      overflow: hidden;
+      display: inline-block;
+      vertical-align: baseline;
+    }
     .price-amount {
       font-size: 52px;
       font-weight: 700;
       color: #fff;
       letter-spacing: -2px;
       line-height: 1;
+      display: block;
     }
     .price-period {
       font-size: 13px;
@@ -712,7 +718,7 @@
       <div class="card">
         <span class="plan-label blue">PRO</span>
         <div class="card-price">
-          <span class="price-amount" id="pro-price">$20</span>
+          <span class="price-amount-wrap"><span class="price-amount" id="pro-price">$20</span></span>
           <span class="price-period">/month</span>
         </div>
         <p class="card-description">For solo builders who need full power and no limits.</p>
@@ -751,7 +757,7 @@
         <span class="badge-popular">POPULAR</span>
         <span class="plan-label purple">TEAMS</span>
         <div class="card-price">
-          <span class="price-amount" id="teams-price">$27</span>
+          <span class="price-amount-wrap"><span class="price-amount" id="teams-price">$27</span></span>
           <span class="price-period">/month base</span>
         </div>
         <p class="card-description">Usage-based token pool for your team. $15/seat for editors &amp; admins.</p>
@@ -1136,13 +1142,39 @@
   </script>
 
   <script>
+    var currentBilling = 'yearly';
+
+    function animatePrice(el, newText, direction) {
+      var outY = direction === 'down' ? '55%' : '-55%';
+      var inY  = direction === 'down' ? '-55%' : '55%';
+      el.style.transition = 'transform 0.22s cubic-bezier(0.4,0,0.2,1), opacity 0.22s ease';
+      el.style.transform  = 'translateY(' + outY + ')';
+      el.style.opacity    = '0';
+      setTimeout(function() {
+        el.textContent      = newText;
+        el.style.transition = 'none';
+        el.style.transform  = 'translateY(' + inY + ')';
+        el.style.opacity    = '0';
+        requestAnimationFrame(function() {
+          requestAnimationFrame(function() {
+            el.style.transition = 'transform 0.22s cubic-bezier(0.4,0,0.2,1), opacity 0.22s ease';
+            el.style.transform  = 'translateY(0)';
+            el.style.opacity    = '1';
+          });
+        });
+      }, 230);
+    }
+
     function setBilling(val) {
+      if (val === currentBilling) return;
       var isYearly = val === 'yearly';
-      document.getElementById('pro-price').textContent = isYearly ? '$18' : '$25';
-      document.getElementById('teams-price').textContent = isYearly ? '$27' : '$30';
+      var direction = isYearly ? 'down' : 'up';
+      animatePrice(document.getElementById('pro-price'),   isYearly ? '$18' : '$25', direction);
+      animatePrice(document.getElementById('teams-price'), isYearly ? '$27' : '$30', direction);
       document.getElementById('btn-monthly').classList.toggle('active', !isYearly);
       document.getElementById('btn-yearly').classList.toggle('active', isYearly);
       document.getElementById('save-badge').style.opacity = isYearly ? '1' : '0';
+      currentBilling = val;
     }
     setBilling('yearly');
   </script>
