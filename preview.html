@@ -1172,6 +1172,24 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     position: relative;
   }
 
+  .support-inner::before {
+    content: '';
+    position: absolute;
+    top: 18%;
+    left: 63%;
+    transform: translate(-50%, -50%);
+    width: 380px;
+    height: 380px;
+    background: radial-gradient(circle at center,
+      rgba(255, 195, 70, 0.60) 0%,
+      rgba(255, 158, 35, 0.28) 30%,
+      rgba(255, 120, 10, 0.08) 55%,
+      transparent 72%);
+    pointer-events: none;
+    z-index: 5;
+    mix-blend-mode: screen;
+  }
+
   .support-col-title {
     padding: 56px 40px;
     display: flex;
@@ -2546,11 +2564,89 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   </div>
   <div style="margin-top:20px;width:100%;overflow:hidden;position:relative;max-height:600px;">
     <img src="images/bolt-bottom.png" alt="bolt" style="width:100%;display:block;opacity:0.22;object-fit:cover;object-position:top;">
-    <div style="position:absolute;inset:0;background:linear-gradient(to bottom, #000 0%, transparent 25%);"></div>
+    <canvas id="bolt-dust-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;"></canvas>
+    <div style="position:absolute;inset:0;background:linear-gradient(to bottom, #000 0%, transparent 25%);z-index:3;"></div>
   </div>
 </section>
 
 <script>
+// ── Bolt dust animation ──────────────────────────────────────────────────────
+(function() {
+  var canvas = document.getElementById('bolt-dust-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+
+  var STRIP_W = 7;   // width of each vertical strip (matches image pattern)
+  var GAP_W = 4;     // gap between strips
+  var CYCLE = STRIP_W + GAP_W;
+
+  var particles = [];
+  var W, H, numStrips;
+
+  function resize() {
+    var rect = canvas.parentElement.getBoundingClientRect();
+    W = canvas.width = rect.width;
+    H = canvas.height = rect.height;
+    numStrips = Math.ceil(W / CYCLE);
+    // Seed strips with particles
+    particles = [];
+    for (var s = 0; s < numStrips; s++) {
+      var stripX = s * CYCLE + GAP_W / 2;
+      var count = 3 + Math.floor(Math.random() * 4);
+      for (var i = 0; i < count; i++) {
+        particles.push(makeParticle(stripX, Math.random() * H));
+      }
+    }
+  }
+
+  function makeParticle(stripX, y) {
+    return {
+      x: stripX + Math.random() * STRIP_W,
+      y: y,
+      vy: 0.4 + Math.random() * 1.0,
+      vx: (Math.random() - 0.5) * 0.15,
+      size: 0.8 + Math.random() * 1.2,
+      alpha: 0.0,
+      maxAlpha: 0.18 + Math.random() * 0.28,
+      life: 0,
+      maxLife: 180 + Math.random() * 220,
+      stripX: stripX,
+    };
+  }
+
+  function tick() {
+    ctx.clearRect(0, 0, W, H);
+    for (var i = particles.length - 1; i >= 0; i--) {
+      var p = particles[i];
+      p.life++;
+      p.y += p.vy;
+      p.x += p.vx;
+
+      // fade in/out
+      var t = p.life / p.maxLife;
+      if (t < 0.15) p.alpha = (t / 0.15) * p.maxAlpha;
+      else if (t > 0.75) p.alpha = ((1 - t) / 0.25) * p.maxAlpha;
+      else p.alpha = p.maxAlpha;
+
+      if (p.life >= p.maxLife || p.y > H) {
+        particles[i] = makeParticle(p.stripX, -5);
+        continue;
+      }
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(200,210,220,' + p.alpha.toFixed(3) + ')';
+      ctx.fill();
+    }
+    requestAnimationFrame(tick);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+  requestAnimationFrame(tick);
+})();
+
+// ── Hero pixel dots ──────────────────────────────────────────────────────────
 (function () {
   const canvas = document.getElementById('hero-pixel-dots');
   const ctx = canvas.getContext('2d');
