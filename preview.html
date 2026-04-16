@@ -2848,7 +2848,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   var ctx = canvas.getContext('2d');
   var img = wrap.querySelector('img');
   var W, H, strips = [], t = 0;
-  var hoverT = 0, isHovered = false, splashT = 0, splashStart = null;
+  var hoverT = 0, isHovered = false, splashT = 0, splashStart = null, splashDuration = 300;
 
   // Trigger splash when section enters viewport
   var observer = new IntersectionObserver(function(entries) {
@@ -2899,7 +2899,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     sampleStrips();
     var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
     if (isTouch) {
-      isHovered = true; // always run at full brightness on touch devices
+      splashDuration = 1500; // extend splash to 1.5s on mobile, then fade to idle
     } else {
       wrap.addEventListener('mouseenter', function() { isHovered = true; });
       wrap.addEventListener('mouseleave', function() { isHovered = false; });
@@ -2908,8 +2908,8 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   }
 
   function tick() {
-    var splashRaw = splashStart ? Math.max(0, 1 - (Date.now() - splashStart) / 300) : 0;
-    splashT = splashRaw * splashRaw * splashRaw; // cubic decay — snaps back very quickly
+    var splashRaw = splashStart ? Math.max(0, 1 - (Date.now() - splashStart) / splashDuration) : 0;
+    splashT = splashRaw * splashRaw * splashRaw; // cubic decay
     t += 0.018 + hoverT * 0.016;
     // Smooth lerp: fast fade-in, slower fade-out
     hoverT += ((isHovered ? 1 : 0) - hoverT) * (isHovered ? 0.07 : 0.025);
