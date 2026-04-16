@@ -2024,7 +2024,14 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   } else {
     window.addEventListener('load', setupMarquee);
   }
-  window.addEventListener('resize', setupMarquee);
+  // Only re-setup on width changes — height changes (Safari scroll bar show/hide) cause stutter
+  let lastWidth = window.innerWidth;
+  window.addEventListener('resize', () => {
+    if (window.innerWidth !== lastWidth) {
+      lastWidth = window.innerWidth;
+      setupMarquee();
+    }
+  });
 })();
 </script>
 
