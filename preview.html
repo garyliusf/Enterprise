@@ -2897,8 +2897,13 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     W = canvas.width = r.width; H = canvas.height = r.height;
     t = Math.random() * 80; // random start so strips aren't all in phase on load
     sampleStrips();
-    wrap.addEventListener('mouseenter', function() { isHovered = true; });
-    wrap.addEventListener('mouseleave', function() { isHovered = false; });
+    var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+    if (isTouch) {
+      isHovered = true; // always run at full brightness on touch devices
+    } else {
+      wrap.addEventListener('mouseenter', function() { isHovered = true; });
+      wrap.addEventListener('mouseleave', function() { isHovered = false; });
+    }
     requestAnimationFrame(tick);
   }
 
