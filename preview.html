@@ -2911,7 +2911,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   function tick() {
     var splashRaw = splashStart ? Math.max(0, 1 - (Date.now() - splashStart) / splashDuration) : 0;
     splashT = splashRaw * splashRaw * splashRaw; // cubic decay
-    t += 0.018 + hoverT * 0.016;
+    t += 0.028 + hoverT * 0.016;
     // Smooth lerp: fast fade-in, slower fade-out
     hoverT += ((isHovered ? 1 : 0) - hoverT) * (isHovered ? 0.07 : 0.025);
 
@@ -2919,18 +2919,18 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     for (var i = 0; i < strips.length; i++) {
       var st = strips[i];
       var brightness = (Math.sin(t * st.freq * st.speedMult + st.phase) * 0.5 + 0.5);
-      if (brightness < 0.03) continue;
+      if (brightness < 0.01) continue;
       var x = st.cx * W;
-      var w = Math.max(st.w * W, 2);
+      var w = Math.max(st.w * W, 3);
       var centerY = (Math.sin(t * st.yFreq * st.speedMult + st.yPhase) * 0.5 + 0.5) * H;
-      var spread = H * (0.4 + hoverT * 0.25);
+      var spread = H * (0.55 + hoverT * 0.25);
 
-      // Idle: consistent subtle glow; splash/hover: clearly visible
-      var baseA  = brightness * 0.03;
-      var peakA  = brightness * 0.18;
+      // Idle: dramatic glow; splash/hover: fully lit
+      var baseA  = brightness * 0.11;
+      var peakA  = brightness * 0.28;
       var boost  = Math.max(hoverT, splashT);
       var a  = (baseA + (peakA - baseA) * boost).toFixed(3);
-      var a2 = (parseFloat(a) * 1.25).toFixed(3); // brighter centre stop
+      var a2 = (parseFloat(a) * 1.4).toFixed(3); // brighter centre stop
 
       var grad = ctx.createLinearGradient(0, centerY - spread, 0, centerY + spread);
       grad.addColorStop(0,    'rgba(220,225,240,0)');
