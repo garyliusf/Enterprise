@@ -489,13 +489,17 @@
     .compare-tier-head .tier-cta:hover { color: #4aa6ff; }
 
     .compare-pixel-wrap {
-      position: relative;
+      position: sticky;
+      top: 0;
+      left: 0;
+      right: 0;
       width: 100%;
       height: 130px;
       pointer-events: none;
       margin-bottom: -130px;
       z-index: 1;
       overflow: hidden;
+      transition: opacity 0.15s linear;
     }
 
     .compare-header-pixel {
@@ -1901,6 +1905,23 @@
         return density > rand ? density * 0.9 : 0;
       }, 0.90, '140,150,165'
     );
+
+    (function() {
+      var section = document.querySelector('.compare-section');
+      var wrap = document.querySelector('.compare-pixel-wrap');
+      if (!section || !wrap) return;
+      function update() {
+        var top = section.getBoundingClientRect().top;
+        var fadeStart = 0;
+        var fadeEnd = -160;
+        var t = (top - fadeStart) / (fadeEnd - fadeStart);
+        t = Math.max(0, Math.min(1, t));
+        wrap.style.opacity = String(1 - t);
+      }
+      update();
+      window.addEventListener('scroll', update, { passive: true });
+      window.addEventListener('resize', update);
+    })();
 
     makePixelCanvas('pricing-footer-pixel-canvas', 6, 2,
       function(c, r, t, p) {
