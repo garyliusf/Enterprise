@@ -489,14 +489,17 @@
     .compare-tier-head .tier-cta:hover { color: #4aa6ff; }
 
     .compare-pixel-wrap {
-      position: relative;
+      position: sticky;
+      top: 0;
+      left: 0;
+      right: 0;
       width: 100%;
       height: 130px;
       pointer-events: none;
+      margin-bottom: -130px;
       z-index: 1;
       overflow: hidden;
-      transition: opacity 0.15s linear;
-      margin-bottom: -20px;
+      transition: opacity 0.2s linear;
     }
 
     .compare-header-pixel {
@@ -506,6 +509,13 @@
     }
 
     .compare-tier-head th {
+      background: rgba(10,10,10,0) !important;
+      backdrop-filter: blur(0px);
+      -webkit-backdrop-filter: blur(0px);
+      transition: background-color 0.2s linear, backdrop-filter 0.2s linear, -webkit-backdrop-filter 0.2s linear;
+    }
+
+    .compare-tier-head.is-stuck th {
       background: rgba(10,10,10,0.55) !important;
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
@@ -1906,7 +1916,8 @@
     (function() {
       var section = document.querySelector('.compare-section');
       var wrap = document.querySelector('.compare-pixel-wrap');
-      if (!section || !wrap) return;
+      var head = document.querySelector('.compare-tier-head');
+      if (!section || !wrap || !head) return;
       function update() {
         var top = section.getBoundingClientRect().top;
         var fadeStart = 0;
@@ -1914,6 +1925,7 @@
         var t = (top - fadeStart) / (fadeEnd - fadeStart);
         t = Math.max(0, Math.min(1, t));
         wrap.style.opacity = String(1 - t);
+        head.classList.toggle('is-stuck', t > 0.5);
       }
       update();
       window.addEventListener('scroll', update, { passive: true });
