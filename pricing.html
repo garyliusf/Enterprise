@@ -1576,7 +1576,7 @@
 </script>
 
 <script>
-// ── Rotating name ("Schedule a 1:1 with X") — odometer slide-up ─────────────
+// ── Rotating name ("Schedule a 1:1 with X") — seamless loop, no stutter ──
 (function() {
   var rotators = document.querySelectorAll('.rotating-name');
   if (!rotators.length) return;
@@ -1590,14 +1590,22 @@
     catch (e) { names = []; }
     if (!Array.isArray(names) || names.length < 2) return;
 
+    // Pre-populate the track with ALL names + a duplicate of the first name
+    // at the end. That way we can animate index 0 -> N (ending on the
+    // duplicate first name), then snap back to 0 invisibly. No DOM churn mid-
+    // animation, no removal/reinsertion race — buttery smooth on mobile.
+    track.innerHTML = '';
+    names.concat(names[0]).forEach(function(n) {
+      var s = document.createElement('span');
+      s.className = 'rotating-name-item';
+      s.textContent = n;
+      track.appendChild(s);
+    });
+
     function itemHeightPx() {
       var first = track.querySelector('.rotating-name-item');
       return first ? first.getBoundingClientRect().height : 0;
     }
-
-    var idx = 0;
-    var firstItem = track.querySelector('.rotating-name-item');
-    if (firstItem) firstItem.textContent = names[0];
 
     // Lock container width to widest name so layout doesn't jump
     function lockWidth() {
@@ -1620,34 +1628,37 @@
     }
     window.addEventListener('load', lockWidth);
 
+    var idx = 0;
+
     function tick() {
-      idx = (idx + 1) % names.length;
-      var nextItem = document.createElement('span');
-      nextItem.className = 'rotating-name-item';
-      nextItem.textContent = names[idx];
-      track.appendChild(nextItem);
-
       var h = itemHeightPx();
-      requestAnimationFrame(function() {
-        track.style.transition = 'transform 0.5s cubic-bezier(0.22, 1, 0.36, 1)';
-        track.style.transform = 'translateY(-' + h + 'px)';
-      });
+      idx += 1;
+      track.style.transition = 'transform 0.5s cubic-bezier(0.22, 1, 0.36, 1)';
+      track.style.transform = 'translateY(-' + (idx * h) + 'px)';
 
-      track.addEventListener('transitionend', function onEnd() {
-        track.removeEventListener('transitionend', onEnd);
-        var oldItem = track.querySelector('.rotating-name-item');
-        if (oldItem) oldItem.remove();
-        track.style.transition = 'none';
-        track.style.transform = 'translateY(0)';
-        void track.offsetHeight;
-      }, { once: true });
+      // If we just animated onto the duplicate (last index = names.length),
+      // snap back to index 0 once the transition finishes. Because the
+      // duplicate at the end shows the same name as index 0, the snap is
+      // invisible.
+      if (idx === names.length) {
+        track.addEventListener('transitionend', function onEnd() {
+          track.removeEventListener('transitionend', onEnd);
+          track.style.transition = 'none';
+          track.style.transform = 'translateY(0)';
+          void track.offsetHeight; // force reflow
+          idx = 0;
+        }, { once: true });
+      }
     }
 
     var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReduced) {
+      // Hard-swap with no animation
       setInterval(function() {
         idx = (idx + 1) % names.length;
-        track.innerHTML = '<span class="rotating-name-item">' + names[idx] + '</span>';
+        track.style.transition = 'none';
+        var h = itemHeightPx();
+        track.style.transform = 'translateY(-' + (idx * h) + 'px)';
       }, 2500);
       return;
     }
