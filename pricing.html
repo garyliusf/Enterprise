@@ -6,7 +6,7 @@
   <title>Pricing · Bolt Enterprise</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -16,6 +16,19 @@
       color: #fff;
       min-height: 100vh;
       overflow-x: hidden;
+    }
+
+    /* Screen-reader-only utility for visually-hidden labels */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
     }
 
     /* ── Back button ── */
@@ -724,6 +737,74 @@
     .hero-cta-button:hover .btn-bg-hover { transform: translateY(0); }
     .hero-cta-button:hover .btn-text-inner { transform: translateY(-50%); }
 
+    /* ── Card form strip (bordered container around the CTA form) ── */
+    .card-form-strip {
+      background: #000;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 12px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      cursor: default;
+      width: 100%;
+    }
+    .card-strip-text {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      flex-shrink: 0;
+    }
+    .card-strip-sub {
+      font-size: 20px;
+      font-weight: 500;
+      color: #fff;
+      margin: 0;
+      line-height: 1.2;
+      display: inline-flex;
+      align-items: baseline;
+      gap: 0.25em;
+    }
+
+    /* Rotating name (odometer-style slide-up) */
+    .rotating-name {
+      display: inline-block;
+      vertical-align: baseline;
+      overflow: hidden;
+      line-height: 1.2;
+      height: 1.2em;
+      position: relative;
+      color: #2BA6FF;
+      font-family: 'Playfair Display', Georgia, serif;
+      font-weight: 400;
+      font-style: italic;
+      letter-spacing: 0.01em;
+      text-align: left;
+    }
+    .rotating-name-track {
+      display: block;
+      line-height: 1.2;
+      will-change: transform;
+      text-align: left;
+    }
+    .rotating-name-item {
+      display: block;
+      line-height: 1.2;
+      white-space: nowrap;
+      text-align: left;
+    }
+
+    @media (max-width: 768px) {
+      .card-form-strip {
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 14px;
+      }
+      .card-form-strip .hero-form-row { max-width: none; width: 100%; }
+    }
+
     /* ── Animated BOLT image wrapper + shimmer ── */
     .bolt-image-wrap {
       margin-top: 0;
@@ -1129,11 +1210,15 @@
       Join thousands of teams shipping faster with our enterprise platform.
       Get started in minutes — no credit card required.
     </p>
-    <div style="position:relative;width:100%;max-width:700px;height:100px;margin-top:0px;">
-      <canvas id="pricing-footer-pixel-canvas" style="position:absolute;inset:0;pointer-events:none;opacity:1;z-index:0;"></canvas>
-      <div style="position:absolute;bottom:20px;left:0;right:0;display:flex;justify-content:center;z-index:1;">
-        <div class="hero-form-row" style="max-width:480px;width:100%;">
-          <input type="email" class="hero-email-input" placeholder="Your work email" aria-label="Your work email" />
+    <div style="position:relative;width:100%;max-width:700px;margin-top:-120px;">
+      <canvas id="pricing-footer-pixel-canvas" style="display:block;width:100%;height:160px;pointer-events:none;opacity:1;"></canvas>
+      <div class="card-form-strip" style="margin-top:-50px;position:relative;z-index:1;">
+        <div class="card-strip-text">
+          <p class="card-strip-sub">Schedule a 1:1 with <span class="rotating-name" data-names='["Mason","Joe","Angelo"]'><span class="rotating-name-track"><span class="rotating-name-item">Mason</span></span></span></p>
+        </div>
+        <div class="hero-form-row">
+          <label class="sr-only" for="pricing-email-input">Your work email</label>
+          <input id="pricing-email-input" type="email" class="hero-email-input" placeholder="Your work email" aria-label="Your work email" />
           <button class="hero-cta-button" aria-label="Submit email">
             <div class="btn-bg-hover"></div>
             <div class="btn-text-wrap"><div class="btn-text-inner"><span>Submit</span><span>Submit</span></div></div>
@@ -1486,6 +1571,87 @@
 
   document.querySelectorAll('.footer-eyebrow').forEach(function (el) {
     observer.observe(el);
+  });
+})();
+</script>
+
+<script>
+// ── Rotating name ("Schedule a 1:1 with X") — odometer slide-up ─────────────
+(function() {
+  var rotators = document.querySelectorAll('.rotating-name');
+  if (!rotators.length) return;
+
+  rotators.forEach(function(root) {
+    var track = root.querySelector('.rotating-name-track');
+    if (!track) return;
+
+    var names;
+    try { names = JSON.parse(root.getAttribute('data-names') || '[]'); }
+    catch (e) { names = []; }
+    if (!Array.isArray(names) || names.length < 2) return;
+
+    function itemHeightPx() {
+      var first = track.querySelector('.rotating-name-item');
+      return first ? first.getBoundingClientRect().height : 0;
+    }
+
+    var idx = 0;
+    var firstItem = track.querySelector('.rotating-name-item');
+    if (firstItem) firstItem.textContent = names[0];
+
+    // Lock container width to widest name so layout doesn't jump
+    function lockWidth() {
+      var probe = document.createElement('span');
+      probe.style.cssText = 'visibility:hidden;position:absolute;white-space:nowrap;';
+      root.appendChild(probe);
+      var maxW = 0;
+      for (var i = 0; i < names.length; i++) {
+        probe.textContent = names[i];
+        var w = probe.getBoundingClientRect().width;
+        if (w > maxW) maxW = w;
+      }
+      probe.remove();
+      if (maxW > 0) root.style.minWidth = Math.ceil(maxW) + 'px';
+    }
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(lockWidth);
+    } else {
+      setTimeout(lockWidth, 200);
+    }
+    window.addEventListener('load', lockWidth);
+
+    function tick() {
+      idx = (idx + 1) % names.length;
+      var nextItem = document.createElement('span');
+      nextItem.className = 'rotating-name-item';
+      nextItem.textContent = names[idx];
+      track.appendChild(nextItem);
+
+      var h = itemHeightPx();
+      requestAnimationFrame(function() {
+        track.style.transition = 'transform 0.5s cubic-bezier(0.22, 1, 0.36, 1)';
+        track.style.transform = 'translateY(-' + h + 'px)';
+      });
+
+      track.addEventListener('transitionend', function onEnd() {
+        track.removeEventListener('transitionend', onEnd);
+        var oldItem = track.querySelector('.rotating-name-item');
+        if (oldItem) oldItem.remove();
+        track.style.transition = 'none';
+        track.style.transform = 'translateY(0)';
+        void track.offsetHeight;
+      }, { once: true });
+    }
+
+    var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) {
+      setInterval(function() {
+        idx = (idx + 1) % names.length;
+        track.innerHTML = '<span class="rotating-name-item">' + names[idx] + '</span>';
+      }, 2500);
+      return;
+    }
+    setInterval(tick, 2500);
   });
 })();
 </script>
