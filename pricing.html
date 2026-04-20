@@ -557,9 +557,77 @@
       transform: none;
     }
 
+    .compare-tier-switch { display: none; }
+
     @media (max-width: 900px) {
-      .compare-section { overflow-x: auto; }
-      .compare-table { min-width: 760px; }
+      .compare-section { overflow-x: visible; }
+      .compare-table { min-width: 0; table-layout: auto; }
+      .compare-table col { width: auto !important; }
+
+      .compare-tier-switch {
+        display: flex;
+        gap: 4px;
+        margin: 0 0 24px;
+        padding: 4px;
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 2px;
+        background: rgba(255,255,255,0.02);
+        position: sticky;
+        top: 0;
+        z-index: 3;
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+      }
+      .compare-tier-switch button {
+        flex: 1;
+        padding: 10px 8px;
+        border: 0;
+        background: transparent;
+        color: #ABABAB;
+        border-radius: 2px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s, color 0.2s;
+      }
+      .compare-tier-switch button.is-active {
+        background: rgba(255,255,255,0.08);
+        color: #fff;
+      }
+
+      .compare-section[data-active-tier="free"] .compare-table tbody tr:not(.compare-group) > *:nth-child(3),
+      .compare-section[data-active-tier="free"] .compare-table tbody tr:not(.compare-group) > *:nth-child(4),
+      .compare-section[data-active-tier="free"] .compare-table tbody tr:not(.compare-group) > *:nth-child(5),
+      .compare-section[data-active-tier="free"] .compare-tier-head > *:nth-child(3),
+      .compare-section[data-active-tier="free"] .compare-tier-head > *:nth-child(4),
+      .compare-section[data-active-tier="free"] .compare-tier-head > *:nth-child(5) { display: none; }
+
+      .compare-section[data-active-tier="pro"] .compare-table tbody tr:not(.compare-group) > *:nth-child(2),
+      .compare-section[data-active-tier="pro"] .compare-table tbody tr:not(.compare-group) > *:nth-child(4),
+      .compare-section[data-active-tier="pro"] .compare-table tbody tr:not(.compare-group) > *:nth-child(5),
+      .compare-section[data-active-tier="pro"] .compare-tier-head > *:nth-child(2),
+      .compare-section[data-active-tier="pro"] .compare-tier-head > *:nth-child(4),
+      .compare-section[data-active-tier="pro"] .compare-tier-head > *:nth-child(5) { display: none; }
+
+      .compare-section[data-active-tier="teams"] .compare-table tbody tr:not(.compare-group) > *:nth-child(2),
+      .compare-section[data-active-tier="teams"] .compare-table tbody tr:not(.compare-group) > *:nth-child(3),
+      .compare-section[data-active-tier="teams"] .compare-table tbody tr:not(.compare-group) > *:nth-child(5),
+      .compare-section[data-active-tier="teams"] .compare-tier-head > *:nth-child(2),
+      .compare-section[data-active-tier="teams"] .compare-tier-head > *:nth-child(3),
+      .compare-section[data-active-tier="teams"] .compare-tier-head > *:nth-child(5) { display: none; }
+
+      .compare-section[data-active-tier="ent"] .compare-table tbody tr:not(.compare-group) > *:nth-child(2),
+      .compare-section[data-active-tier="ent"] .compare-table tbody tr:not(.compare-group) > *:nth-child(3),
+      .compare-section[data-active-tier="ent"] .compare-table tbody tr:not(.compare-group) > *:nth-child(4),
+      .compare-section[data-active-tier="ent"] .compare-tier-head > *:nth-child(2),
+      .compare-section[data-active-tier="ent"] .compare-tier-head > *:nth-child(3),
+      .compare-section[data-active-tier="ent"] .compare-tier-head > *:nth-child(4) { display: none; }
+
+      .compare-tier-head th,
+      .compare-table .compare-tier-head th:first-child { font-size: 24px; padding: 24px 16px; }
+      .compare-table th, .compare-table td { padding: 14px 12px; font-size: 14px; }
+      .compare-group td { font-size: 16px; padding: 40px 12px 16px; }
+      .compare-pixel-wrap { display: none; }
     }
 
     /* ── Security & compliance banner ── */
@@ -1452,11 +1520,18 @@
     </div>
 
     <!-- Compare features -->
-    <section class="compare-section">
+    <section class="compare-section" data-active-tier="pro">
       <div class="compare-header">
         <div>
           <h2 class="feat-headline">Compare features</h2>
         </div>
+      </div>
+
+      <div class="compare-tier-switch" role="tablist" aria-label="Select plan">
+        <button type="button" data-tier="free">Free</button>
+        <button type="button" data-tier="pro" class="is-active">Pro</button>
+        <button type="button" data-tier="teams">Teams</button>
+        <button type="button" data-tier="ent">Enterprise</button>
       </div>
 
       <div class="compare-pixel-wrap"><canvas id="compare-header-pixel-canvas" class="compare-header-pixel"></canvas></div>
@@ -1923,6 +1998,19 @@
         return density > rand ? density * 0.9 : 0;
       }, 0.90, '140,150,165'
     );
+
+    (function() {
+      var section = document.querySelector('.compare-section');
+      var btns = document.querySelectorAll('.compare-tier-switch button');
+      if (!section || !btns.length) return;
+      btns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var tier = btn.getAttribute('data-tier');
+          section.setAttribute('data-active-tier', tier);
+          btns.forEach(function(b) { b.classList.toggle('is-active', b === btn); });
+        });
+      });
+    })();
 
     (function() {
       var rows = document.querySelectorAll('.compare-table tbody tr:not(.compare-group)');
