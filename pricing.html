@@ -488,17 +488,23 @@
 
     .compare-tier-head .tier-cta:hover { color: #4aa6ff; }
 
-    .compare-header-pixel {
+    .compare-pixel-wrap {
       position: sticky;
       top: 0;
       left: 0;
       right: 0;
       width: 100%;
       height: 130px;
-      display: block;
       pointer-events: none;
       margin-bottom: -130px;
       z-index: 1;
+      overflow: hidden;
+    }
+
+    .compare-header-pixel {
+      display: block;
+      width: 100%;
+      height: 100%;
     }
 
     .compare-tier-head th {
@@ -506,11 +512,11 @@
     }
 
     .compare-group td {
-      padding: 64px 16px 20px;
+      padding: 64px 20px 20px;
       font-size: 18px;
-      font-weight: 600;
+      font-weight: 400;
       letter-spacing: -0.2px;
-      color: #fff;
+      color: #C9C9C9;
       border-bottom: 1px solid rgba(255,255,255,0.18);
       text-transform: none;
     }
@@ -1432,7 +1438,7 @@
         </div>
       </div>
 
-      <canvas id="compare-header-pixel-canvas" class="compare-header-pixel"></canvas>
+      <div class="compare-pixel-wrap"><canvas id="compare-header-pixel-canvas" class="compare-header-pixel"></canvas></div>
 
       <table class="compare-table">
         <colgroup>
@@ -1876,13 +1882,6 @@
     makePixelCanvas('compare-header-pixel-canvas', 6, 2,
       function(c, r, t, p) {
         var px = c * 6, py = r * 6;
-        var el = document.getElementById('compare-header-pixel-canvas');
-        var W = el ? el.width : 1200, H = el ? el.height : 130;
-        var cx = W / 2;
-        var hFade = Math.max(0, 1 - Math.abs(px - cx) / (W * 0.7));
-        var vFade = Math.max(0, 1 - py / (H * 0.9));
-        var fade = hFade * vFade;
-        if (fade <= 0) return 0;
         var speedMod = 0.05 + (Math.sin(t * 0.00070 + 0.8) * 0.5 + 0.5) * 0.22;
         function rwave(scale, rotRate, phase, tMult) {
           var angle = t * rotRate + phase;
@@ -1891,16 +1890,17 @@
           return Math.sin(u * Math.PI * 2 + t * tMult * speedMod)
                * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7 * speedMod);
         }
-        var s1 = rwave(420, 0.00012, 0.5, 0.00030);
-        var s2 = rwave(220, 0.00025, 1.8, 0.00065);
-        var s3 = rwave(110, 0.00042, 3.1, 0.00130);
+        var s1 = rwave(500, 0.00012, 0.5, 0.00030);
+        var s2 = rwave(260, 0.00025, 1.8, 0.00065);
+        var s3 = rwave(130, 0.00042, 3.1, 0.00130);
+        var s4 = rwave(380, 0.00018, 4.5, 0.00048);
         var waveFront = s1 * 0.5 + 0.5;
-        var detail = s2 * 0.55 + s3 * 0.45;
+        var detail = s2 * 0.45 + s3 * 0.30 + s4 * 0.25;
         var raw = waveFront * (detail * 0.5 + 0.5);
-        var density = Math.pow(Math.max(0, raw), 0.7) * fade;
+        var density = Math.pow(Math.max(0, raw), 0.7);
         var rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
-        return density > rand ? density * 0.85 : 0;
-      }, 0.85, '20,136,252'
+        return density > rand ? density * 0.9 : 0;
+      }, 0.90, '20,136,252'
     );
 
     makePixelCanvas('pricing-footer-pixel-canvas', 6, 2,
