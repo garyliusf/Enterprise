@@ -692,9 +692,64 @@
       font-weight: 600;
       font-family: 'Inter', sans-serif;
       cursor: pointer;
-      transition: opacity 0.2s ease;
+      position: relative;
+      overflow: hidden;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
-    .hero-cta-button:hover { opacity: 0.9; }
+    .hero-cta-button .btn-bg-hover {
+      position: absolute;
+      inset: 0;
+      background: #0d6cd4;
+      z-index: 1;
+      transform: translateY(101%);
+      transition: transform 0.45s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+    .hero-cta-button .btn-text-wrap {
+      position: relative;
+      z-index: 3;
+      overflow: hidden;
+      height: 1.2em;
+    }
+    .hero-cta-button .btn-text-inner {
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.45s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+    .hero-cta-button .btn-text-inner span {
+      display: block;
+      line-height: 1.2;
+    }
+    .hero-cta-button:hover .btn-bg-hover { transform: translateY(0); }
+    .hero-cta-button:hover .btn-text-inner { transform: translateY(-50%); }
+
+    /* ── Animated BOLT image wrapper + shimmer ── */
+    .bolt-image-wrap {
+      margin-top: 0;
+      width: 100%;
+      overflow: hidden;
+      position: relative;
+      height: 32vw;
+      max-height: 32vw;
+    }
+    .bolt-image-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top;
+      display: block;
+      opacity: 0.22;
+    }
+    #bolt-shimmer-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 2;
+      mix-blend-mode: screen;
+    }
 
     /* ── Popular badge ── */
     .badge-popular {
@@ -1078,14 +1133,18 @@
       <canvas id="pricing-footer-pixel-canvas" style="position:absolute;inset:0;pointer-events:none;opacity:1;z-index:0;"></canvas>
       <div style="position:absolute;bottom:20px;left:0;right:0;display:flex;justify-content:center;z-index:1;">
         <div class="hero-form-row" style="max-width:480px;width:100%;">
-          <input type="email" class="hero-email-input" placeholder="Your work email" />
-          <button class="hero-cta-button">Submit</button>
+          <input type="email" class="hero-email-input" placeholder="Your work email" aria-label="Your work email" />
+          <button class="hero-cta-button" aria-label="Submit email">
+            <div class="btn-bg-hover"></div>
+            <div class="btn-text-wrap"><div class="btn-text-inner"><span>Submit</span><span>Submit</span></div></div>
+          </button>
         </div>
       </div>
     </div>
-    <div style="margin-top:20px;width:100%;overflow:hidden;position:relative;max-height:600px;">
-      <img src="images/bolt-bottom.png" alt="bolt" style="width:100%;display:block;opacity:0.22;object-fit:cover;object-position:top;">
-      <div style="position:absolute;inset:0;background:linear-gradient(to bottom, #000 0%, transparent 25%);"></div>
+    <div class="bolt-image-wrap">
+      <img src="images/bolt-bottom.png" alt="" aria-hidden="true" loading="lazy" decoding="async">
+      <canvas id="bolt-shimmer-canvas"></canvas>
+      <div style="position:absolute;inset:0;background:linear-gradient(to bottom, #000 0%, transparent 22%, transparent 88%, #000 100%);z-index:3;pointer-events:none;"></div>
     </div>
   </section>
 
@@ -1427,6 +1486,117 @@
 
   document.querySelectorAll('.footer-eyebrow').forEach(function (el) {
     observer.observe(el);
+  });
+})();
+</script>
+
+<script>
+// ── Bolt strip shimmer (warm glowing vertical bars across the BOLT image) ──
+(function() {
+  var canvas = document.getElementById('bolt-shimmer-canvas');
+  if (!canvas) return;
+  var wrap = canvas.parentElement;
+  var ctx = canvas.getContext('2d');
+  var img = wrap.querySelector('img');
+  var W, H, strips = [], t = 0;
+  var hoverT = 0, isHovered = false, splashT = 0, splashStart = null, splashDuration = 300;
+
+  // Trigger splash when section enters viewport
+  var observer = new IntersectionObserver(function(entries) {
+    if (entries[0].isIntersecting && !splashStart) {
+      splashStart = Date.now();
+      observer.disconnect();
+    }
+  }, { threshold: 0.1 });
+  observer.observe(wrap);
+
+  function sampleStrips() {
+    var SW = 400, SH = 200;
+    var s = document.createElement('canvas');
+    s.width = SW; s.height = SH;
+    var sc = s.getContext('2d');
+    try { sc.drawImage(img, 0, 0, SW, SH); } catch (e) { return; }
+    var data;
+    try { data = sc.getImageData(0, 0, SW, SH).data; } catch (e) { return; }
+    strips = [];
+    var inStrip = false, stripStart = 0;
+    for (var x = 0; x < SW; x++) {
+      var b = 0;
+      for (var y = 20; y < SH - 20; y++) {
+        var idx = (y * SW + x) * 4;
+        b += (data[idx] + data[idx+1] + data[idx+2]) / 3;
+      }
+      b /= (SH - 40);
+      if (b > 28 && !inStrip) { inStrip = true; stripStart = x; }
+      else if (b <= 28 && inStrip) {
+        inStrip = false;
+        var cx = (stripStart + x) / 2 / SW;
+        var w = (x - stripStart) / SW;
+        strips.push({
+          cx: cx, w: w,
+          phase: Math.random() * Math.PI * 2,
+          freq: 0.5 + Math.random() * 1.2,
+          yPhase: Math.random() * Math.PI * 2,
+          yFreq: 0.35 + Math.random() * 0.7,
+          speedMult: 0.6 + Math.random() * 0.8,
+        });
+      }
+    }
+  }
+
+  function init() {
+    var r = wrap.getBoundingClientRect();
+    W = canvas.width = r.width; H = canvas.height = r.height;
+    t = Math.random() * 80;
+    sampleStrips();
+    var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+    if (isTouch) {
+      splashDuration = 1500;
+    } else {
+      wrap.addEventListener('mouseenter', function() { isHovered = true; });
+      wrap.addEventListener('mouseleave', function() { isHovered = false; });
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function tick() {
+    var splashRaw = splashStart ? Math.max(0, 1 - (Date.now() - splashStart) / splashDuration) : 0;
+    splashT = splashRaw * splashRaw * splashRaw;
+    t += 0.028 + hoverT * 0.016;
+    hoverT += ((isHovered ? 1 : 0) - hoverT) * (isHovered ? 0.07 : 0.025);
+
+    ctx.clearRect(0, 0, W, H);
+    for (var i = 0; i < strips.length; i++) {
+      var st = strips[i];
+      var brightness = (Math.sin(t * st.freq * st.speedMult + st.phase) * 0.5 + 0.5);
+      if (brightness < 0.01) continue;
+      var x = st.cx * W;
+      var w = Math.max(st.w * W, 3);
+      var centerY = (Math.sin(t * st.yFreq * st.speedMult + st.yPhase) * 0.5 + 0.5) * H;
+      var spread = H * (0.55 + hoverT * 0.25);
+
+      var baseA  = brightness * 0.11;
+      var peakA  = brightness * 0.28;
+      var boost  = Math.max(hoverT, splashT);
+      var a  = (baseA + (peakA - baseA) * boost).toFixed(3);
+      var a2 = (parseFloat(a) * 1.4).toFixed(3);
+
+      var grad = ctx.createLinearGradient(0, centerY - spread, 0, centerY + spread);
+      grad.addColorStop(0,    'rgba(220,225,240,0)');
+      grad.addColorStop(0.3,  'rgba(220,225,240,' + a + ')');
+      grad.addColorStop(0.5,  'rgba(255,255,255,'  + a2 + ')');
+      grad.addColorStop(0.7,  'rgba(220,225,240,' + a + ')');
+      grad.addColorStop(1,    'rgba(220,225,240,0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(x - w / 2, 0, w, H);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  if (img.complete) init(); else img.addEventListener('load', init);
+  window.addEventListener('resize', function() {
+    var r = wrap.getBoundingClientRect();
+    W = canvas.width = r.width; H = canvas.height = r.height;
   });
 })();
 </script>
