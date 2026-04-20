@@ -1918,6 +1918,13 @@
       var wrap = document.querySelector('.compare-pixel-wrap');
       var head = document.querySelector('.compare-tier-head');
       if (!section || !wrap || !head) return;
+      function syncHeight() {
+        var h = head.getBoundingClientRect().height;
+        if (h > 0) {
+          wrap.style.height = h + 'px';
+          wrap.style.marginBottom = (-h) + 'px';
+        }
+      }
       function update() {
         var top = section.getBoundingClientRect().top;
         var fadeStart = 0;
@@ -1927,9 +1934,12 @@
         wrap.style.opacity = String(1 - t);
         head.classList.toggle('is-stuck', t > 0.5);
       }
+      syncHeight();
       update();
       window.addEventListener('scroll', update, { passive: true });
-      window.addEventListener('resize', update);
+      window.addEventListener('resize', function() { syncHeight(); update(); });
+      window.addEventListener('load', syncHeight);
+      new ResizeObserver(syncHeight).observe(head);
     })();
 
     makePixelCanvas('pricing-footer-pixel-canvas', 6, 2,
