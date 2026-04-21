@@ -355,6 +355,44 @@
       border-bottom: 1px solid rgba(255,255,255,0.08);
     }
 
+    /* ── Logo marquee train ── */
+    .logo-train {
+      margin-top: 80px;
+      height: 72px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(0, 0, 0, 0.25);
+      -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+      mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+    }
+    .logo-track {
+      display: flex;
+      align-items: center;
+      gap: 72px;
+      padding-right: 72px;
+      will-change: transform;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .logo-item {
+      display: inline-flex;
+      align-items: center;
+      color: rgba(255, 255, 255, 0.45);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .logo-item img {
+      height: 20px;
+      width: auto;
+      display: block;
+      opacity: 0.55;
+      flex-shrink: 0;
+    }
+
     /* ── Collapsible card body ── */
     .card-collapsible { position: relative; }
     .card-body {
@@ -2019,6 +2057,17 @@
       </table>
     </section>
 
+    <!-- Logo train -->
+    <div class="logo-train">
+      <div class="logo-track" id="logo-track">
+        <span class="logo-item"><img src="images/salesforce.svg" alt="Salesforce"></span>
+        <span class="logo-item"><img src="images/hubspot-logo.svg" alt="HubSpot"></span>
+        <span class="logo-item"><img src="images/meta.svg" alt="Meta"></span>
+        <span class="logo-item"><img src="images/mozilla.svg" alt="Mozilla"></span>
+        <span class="logo-item"><img src="images/shopify.svg" alt="Shopify"></span>
+        <span class="logo-item"><img src="images/intel.svg" alt="Intel"></span>
+      </div>
+    </div>
 
     <!-- FAQ -->
     <div class="faq-section">
@@ -2448,6 +2497,69 @@
       currentBilling = val;
     }
     setBilling('yearly');
+  </script>
+
+  <script>
+    (function () {
+      var track = document.getElementById('logo-track');
+      if (!track) return;
+      var train = track.parentElement;
+
+      function setupMarquee() {
+        var old = document.getElementById('logo-wrapper');
+        if (old) { train.insertBefore(track, old); old.remove(); }
+        track.style.animation = 'none';
+        track.style.flexShrink = '0';
+
+        var setWidth = track.scrollWidth;
+        var copiesPerHalf = Math.ceil(window.innerWidth / setWidth) + 1;
+        var wrapper = document.createElement('div');
+        wrapper.id = 'logo-wrapper';
+        wrapper.style.cssText = 'display:flex;align-items:center;will-change:transform;flex-shrink:0;';
+
+        for (var i = 0; i < copiesPerHalf * 2; i++) {
+          var copy = i === 0 ? track : track.cloneNode(true);
+          copy.removeAttribute('id');
+          if (i > 0) copy.setAttribute('aria-hidden', 'true');
+          copy.style.flexShrink = '0';
+          wrapper.appendChild(copy);
+        }
+        train.appendChild(wrapper);
+
+        var speed = (setWidth * copiesPerHalf) / 30;
+        var styleEl = document.getElementById('marquee-keyframe');
+        if (!styleEl) {
+          styleEl = document.createElement('style');
+          styleEl.id = 'marquee-keyframe';
+          document.head.appendChild(styleEl);
+        }
+        styleEl.textContent = '@keyframes marquee-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }';
+        wrapper.style.animation = 'marquee-scroll ' + speed + 's linear infinite';
+      }
+
+      var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+      if (!isTouch) {
+        train.addEventListener('mouseenter', function () {
+          var w = document.getElementById('logo-wrapper');
+          if (w) w.style.animationPlayState = 'paused';
+        });
+        train.addEventListener('mouseleave', function () {
+          var w = document.getElementById('logo-wrapper');
+          if (w) w.style.animationPlayState = 'running';
+        });
+      }
+
+      if (document.readyState === 'complete') setupMarquee();
+      else window.addEventListener('load', setupMarquee);
+
+      var lastWidth = window.innerWidth;
+      window.addEventListener('resize', function () {
+        if (window.innerWidth !== lastWidth) {
+          lastWidth = window.innerWidth;
+          setupMarquee();
+        }
+      });
+    })();
   </script>
 
   <script>
