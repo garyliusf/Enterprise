@@ -1610,10 +1610,10 @@
       </div>
 
       <div class="compare-tier-switch" role="tablist" aria-label="Select plan">
-        <button type="button" data-tier="free"><canvas class="tier-btn-pixel" id="tier-pixel-free"></canvas><span>Free</span></button>
-        <button type="button" data-tier="pro" class="is-active"><canvas class="tier-btn-pixel" id="tier-pixel-pro"></canvas><span>Pro</span></button>
-        <button type="button" data-tier="teams"><canvas class="tier-btn-pixel" id="tier-pixel-teams"></canvas><span>Teams</span></button>
-        <button type="button" data-tier="ent"><canvas class="tier-btn-pixel" id="tier-pixel-ent"></canvas><span>Enterprise</span></button>
+        <button type="button" data-tier="free">Free</button>
+        <button type="button" data-tier="pro" class="is-active">Pro</button>
+        <button type="button" data-tier="teams">Teams</button>
+        <button type="button" data-tier="ent">Enterprise</button>
       </div>
 
       <div class="compare-pixel-wrap"><canvas id="compare-header-pixel-canvas" class="compare-header-pixel"></canvas></div>
@@ -2094,39 +2094,6 @@
       });
     })();
 
-    ['tier-pixel-free', 'tier-pixel-pro', 'tier-pixel-teams', 'tier-pixel-ent'].forEach(function(id, idx) {
-      makePixelCanvas(id, 6, 2,
-        function(c, r, t, p) {
-          var px = c * 6, py = r * 6;
-          var speedMod = 0.05 + (Math.sin(t * 0.00070 + idx * 0.9) * 0.5 + 0.5) * 0.22;
-          function rwave(scale, rotRate, phase, tMult) {
-            var angle = t * rotRate + phase + idx * 0.5;
-            var u = (px * Math.cos(angle) + py * Math.sin(angle)) / scale;
-            var v = (-px * Math.sin(angle) + py * Math.cos(angle)) / scale;
-            return Math.sin(u * Math.PI * 2 + t * tMult * speedMod)
-                 * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7 * speedMod);
-          }
-          var s1 = rwave(500, 0.00012, 0.5, 0.00030);
-          var s2 = rwave(260, 0.00025, 1.8, 0.00065);
-          var s3 = rwave(130, 0.00042, 3.1, 0.00130);
-          var s4 = rwave(380, 0.00018, 4.5, 0.00048);
-          var waveFront = s1 * 0.5 + 0.5;
-          var detail = s2 * 0.45 + s3 * 0.30 + s4 * 0.25;
-          var raw = waveFront * (detail * 0.5 + 0.5);
-          var density = Math.pow(Math.max(0, raw), 0.7);
-          var rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
-          return density > rand ? density * 0.9 : 0;
-        },
-        0.9, '255,255,255'
-      );
-      var el = document.getElementById(id);
-      if (el) {
-        var ro = new ResizeObserver(function() {
-          window.dispatchEvent(new Event('resize'));
-        });
-        ro.observe(el.parentElement);
-      }
-    });
 
     (function() {
       var rows = document.querySelectorAll('.compare-table tbody tr:not(.compare-group)');
