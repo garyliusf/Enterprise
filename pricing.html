@@ -110,33 +110,46 @@
     }
 
     .billing-toggle {
+      position: relative;
       display: inline-flex;
       align-items: center;
       background: #111;
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: 999px;
       padding: 3px;
-      gap: 2px;
     }
 
+    .billing-thumb {
+      position: absolute;
+      top: 3px;
+      bottom: 3px;
+      left: 3px;
+      width: calc(50% - 3px);
+      background: #1488FC;
+      border-radius: 999px;
+      transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+      z-index: 0;
+    }
+    .billing-toggle[data-billing="yearly"] .billing-thumb { transform: translateX(100%); }
+
     .billing-btn {
+      position: relative;
+      z-index: 1;
       padding: 7px 22px;
       border-radius: 999px;
       font-size: 13px;
       font-weight: 500;
       border: none;
       cursor: pointer;
-      transition: background 0.2s, color 0.2s;
+      transition: color 0.25s ease;
       background: transparent;
       color: rgba(255,255,255,0.4);
       font-family: 'Inter', sans-serif;
       letter-spacing: 0.2px;
+      outline: none;
     }
     .billing-btn:hover { color: rgba(255,255,255,0.8); }
-    .billing-btn.active {
-      background: #1488FC;
-      color: #fff;
-    }
+    .billing-btn.active { color: #fff; }
 
     .billing-save-badge {
       font-size: 10px;
@@ -1433,7 +1446,8 @@
       <!-- Billing toggle — global -->
       <div class="billing-row">
         <span class="billing-save-badge" id="save-badge">Save up to 28%</span>
-        <div class="billing-toggle">
+        <div class="billing-toggle" data-billing="yearly">
+          <div class="billing-thumb"></div>
           <button class="billing-btn" id="btn-monthly" onclick="setBilling('monthly')">Monthly</button>
           <button class="billing-btn active" id="btn-yearly" onclick="setBilling('yearly')">Yearly</button>
         </div>
@@ -2502,6 +2516,7 @@
       animatePrice(document.getElementById('teams-price'), isYearly ? '$27' : '$30', direction);
       document.getElementById('btn-monthly').classList.toggle('active', !isYearly);
       document.getElementById('btn-yearly').classList.toggle('active', isYearly);
+      document.querySelector('.billing-toggle').setAttribute('data-billing', val);
       document.getElementById('save-badge').style.opacity = isYearly ? '1' : '0';
       currentBilling = val;
     }
