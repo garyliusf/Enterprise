@@ -490,23 +490,22 @@
     .compare-tier-head .tier-cta {
       display: inline-flex;
       align-items: center;
-      justify-content: center;
-      margin-top: 12px;
-      padding: 6px 14px;
+      gap: 6px;
+      margin-top: 10px;
+      padding: 0;
       font-family: 'Silkscreen', monospace;
       font-size: 12px;
       font-weight: 400;
       letter-spacing: 1px;
       text-transform: uppercase;
-      color: #fff;
+      color: #1488FC;
       text-decoration: none;
-      background: #1488FC;
-      border: 1px solid #1488FC;
-      border-radius: 2px;
-      transition: background 0.2s ease, border-color 0.2s ease;
+      background: transparent;
+      border: 0;
+      transition: color 0.2s ease;
     }
 
-    .compare-tier-head .tier-cta:hover { background: #4aa6ff; border-color: #4aa6ff; }
+    .compare-tier-head .tier-cta:hover { color: #4aa6ff; }
 
     .compare-pixel-wrap {
       position: sticky;
@@ -639,7 +638,7 @@
       .compare-tier-switch button.is-active,
       .compare-tier-switch button.is-active:hover,
       .compare-tier-switch button.is-active:focus {
-        background: transparent !important;
+        background: #1488FC !important;
         color: #fff !important;
       }
 
@@ -2080,13 +2079,29 @@
     })();
 
     ['tier-pixel-free', 'tier-pixel-pro', 'tier-pixel-teams', 'tier-pixel-ent'].forEach(function(id, idx) {
-      makePixelCanvas(id, 3, 3,
+      makePixelCanvas(id, 6, 2,
         function(c, r, t, p) {
-          var w = Math.sin(t * 0.0022 + p + idx * 0.7 + c * 0.32 + r * 0.45);
-          var v = (w + 1) * 0.5;
-          return 0.55 + Math.pow(v, 1.4) * 0.45;
+          var px = c * 6, py = r * 6;
+          var speedMod = 0.05 + (Math.sin(t * 0.00070 + idx * 0.9) * 0.5 + 0.5) * 0.22;
+          function rwave(scale, rotRate, phase, tMult) {
+            var angle = t * rotRate + phase + idx * 0.5;
+            var u = (px * Math.cos(angle) + py * Math.sin(angle)) / scale;
+            var v = (-px * Math.sin(angle) + py * Math.cos(angle)) / scale;
+            return Math.sin(u * Math.PI * 2 + t * tMult * speedMod)
+                 * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7 * speedMod);
+          }
+          var s1 = rwave(500, 0.00012, 0.5, 0.00030);
+          var s2 = rwave(260, 0.00025, 1.8, 0.00065);
+          var s3 = rwave(130, 0.00042, 3.1, 0.00130);
+          var s4 = rwave(380, 0.00018, 4.5, 0.00048);
+          var waveFront = s1 * 0.5 + 0.5;
+          var detail = s2 * 0.45 + s3 * 0.30 + s4 * 0.25;
+          var raw = waveFront * (detail * 0.5 + 0.5);
+          var density = Math.pow(Math.max(0, raw), 0.7);
+          var rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
+          return density > rand ? density * 0.9 : 0;
         },
-        1, '20,136,252'
+        0.9, '255,255,255'
       );
       var el = document.getElementById(id);
       if (el) {
