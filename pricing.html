@@ -355,6 +355,51 @@
       border-bottom: 1px solid rgba(255,255,255,0.08);
     }
 
+    /* ── Collapsible card body ── */
+    .card-collapsible { position: relative; }
+    .card-body {
+      max-height: 360px;
+      overflow: hidden;
+      transition: max-height 0.5s ease;
+    }
+    .card.is-expanded .card-body { max-height: 3000px; }
+    .card-fade {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 96px;
+      pointer-events: none;
+      background: linear-gradient(to bottom, rgba(10,10,10,0), #0a0a0a 85%);
+      transition: opacity 0.35s ease;
+    }
+    .card.is-expanded .card-fade { opacity: 0; }
+    .card-expand {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      height: 34px;
+      margin: 8px 0 16px;
+      padding: 0;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 2px;
+      color: rgba(255,255,255,0.75);
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+    .card-expand:hover {
+      background: rgba(255,255,255,0.05);
+      color: #fff;
+      border-color: rgba(255,255,255,0.25);
+    }
+
     /* ── Feature list ── */
     .features {
       list-style: none;
@@ -1359,6 +1404,8 @@
 
         <hr class="divider" />
 
+        <div class="card-collapsible">
+        <div class="card-body">
         <ul class="features">
           <li class="feature-item">
             <svg class="check-icon green" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -1385,6 +1432,10 @@
             10MB file uploads
           </li>
         </ul>
+        </div>
+        <div class="card-fade"></div>
+        </div>
+        <button class="card-expand" type="button">Expand ↓</button>
 
         <button class="cta-primary">
           <div class="btn-bg-hover"></div>
@@ -1404,6 +1455,8 @@
 
         <hr class="divider" />
 
+        <div class="card-collapsible">
+        <div class="card-body">
         <p class="feature-group-label">Capacity</p>
 
         <ul class="features">
@@ -1453,6 +1506,10 @@
             Private sharing with collaborators
           </li>
         </ul>
+        </div>
+        <div class="card-fade"></div>
+        </div>
+        <button class="card-expand" type="button">Expand ↓</button>
 
         <button class="cta-primary">
           <div class="btn-bg-hover"></div>
@@ -1473,6 +1530,8 @@
 
         <hr class="divider" />
 
+        <div class="card-collapsible">
+        <div class="card-body">
         <p class="feature-group-label">How pricing works</p>
 
         <ul class="features">
@@ -1539,6 +1598,10 @@
             SSO (Google, Okta, Azure AD)
           </li>
         </ul>
+        </div>
+        <div class="card-fade"></div>
+        </div>
+        <button class="card-expand" type="button">Expand ↓</button>
 
         <button class="cta-primary">
           <div class="btn-bg-hover"></div>
@@ -1557,6 +1620,8 @@
 
         <hr class="divider" />
 
+        <div class="card-collapsible">
+        <div class="card-body">
         <p class="feature-group-label">Security &amp; compliance</p>
 
         <ul class="features">
@@ -1603,6 +1668,10 @@
             Flexible billing, procurement, and MSA options
           </li>
         </ul>
+        </div>
+        <div class="card-fade"></div>
+        </div>
+        <button class="card-expand" type="button">Expand ↓</button>
 
         <button class="cta-secondary">
           <div class="btn-bg-hover"></div>
@@ -2353,6 +2422,29 @@
       currentBilling = val;
     }
     setBilling('yearly');
+  </script>
+
+  <script>
+    (function() {
+      document.querySelectorAll('.card').forEach(function(card) {
+        var body = card.querySelector('.card-body');
+        var btn = card.querySelector('.card-expand');
+        var fade = card.querySelector('.card-fade');
+        if (!body || !btn) return;
+        requestAnimationFrame(function() {
+          if (body.scrollHeight <= body.clientHeight + 4) {
+            btn.style.display = 'none';
+            if (fade) fade.style.display = 'none';
+            body.style.maxHeight = 'none';
+            return;
+          }
+          btn.addEventListener('click', function() {
+            var expanded = card.classList.toggle('is-expanded');
+            btn.textContent = expanded ? 'Collapse ↑' : 'Expand ↓';
+          });
+        });
+      });
+    })();
   </script>
 
 <script>
