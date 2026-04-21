@@ -360,9 +360,8 @@
     .card-body {
       max-height: 360px;
       overflow: hidden;
-      transition: max-height 0.5s ease;
+      transition: max-height 0.35s cubic-bezier(0.22, 1, 0.36, 1);
     }
-    .card.is-expanded .card-body { max-height: 3000px; }
     .card-fade {
       position: absolute;
       left: 0;
@@ -2442,9 +2441,24 @@
             body.style.maxHeight = 'none';
             return;
           }
+          var COLLAPSED = 360;
+          body.style.maxHeight = COLLAPSED + 'px';
           btn.addEventListener('click', function() {
             var expanded = card.classList.toggle('is-expanded');
             btn.textContent = expanded ? 'Collapse ↑' : 'Expand ↓';
+            if (expanded) {
+              body.style.maxHeight = body.scrollHeight + 'px';
+            } else {
+              body.style.maxHeight = body.scrollHeight + 'px';
+              requestAnimationFrame(function() {
+                body.style.maxHeight = COLLAPSED + 'px';
+              });
+            }
+          });
+          body.addEventListener('transitionend', function(e) {
+            if (e.propertyName === 'max-height' && card.classList.contains('is-expanded')) {
+              body.style.maxHeight = 'none';
+            }
           });
         });
       });
