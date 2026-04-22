@@ -745,6 +745,8 @@
         border-right: 0;
         border-radius: 0;
         background: #0a0a0a;
+        position: sticky;
+        top: 0;
         z-index: 3;
       }
       .compare-tier-switch button {
@@ -782,7 +784,7 @@
       .compare-tier-head .tier-name { display: none; }
       .compare-tier-head th,
       .compare-table .compare-tier-head th:first-child {
-        top: 0;
+        top: 46px;
         padding: 6px 12px !important;
         font-size: 20px !important;
         line-height: 1.2 !important;
@@ -2592,7 +2594,7 @@
         var cx2 = W * (0.72 - 0.20 * Math.sin(t * 0.00020 + 1.1));
         var cy2 = H * (0.42 + 0.15 * Math.cos(t * 0.00013 + 2.3));
 
-        ctx.fillStyle = 'rgba(170, 185, 220, 0.22)';
+        ctx.fillStyle = 'rgba(170, 185, 220, 0.14)';
 
         // Chaotic roaming activation pockets — Lissajous paths with varying speed
         // Each pocket has its own trajectory, radius, and pulse rhythm.
@@ -2667,8 +2669,25 @@
             ctx.fill();
           }
         }
-        requestAnimationFrame(draw);
+        if (inView) requestAnimationFrame(draw);
+        else rafPaused = true;
       }
+
+      // Pause drawing when canvas is out of viewport to free the main thread
+      var inView = true;
+      var rafPaused = false;
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          inView = e.isIntersecting;
+          if (inView && rafPaused) {
+            rafPaused = false;
+            start = null;
+            requestAnimationFrame(draw);
+          }
+        });
+      }, { rootMargin: '100px' });
+      io.observe(canvas);
+
       requestAnimationFrame(draw);
     })();
   </script>
