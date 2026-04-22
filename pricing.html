@@ -1421,13 +1421,14 @@
     #pricing-pixel-skyline {
       position: absolute;
       top: 0;
-      left: 0;
-      right: 0;
-      height: 560px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100vw;
+      height: 720px;
       pointer-events: none;
       z-index: 0;
-      -webkit-mask-image: linear-gradient(to top, black 30%, transparent 100%);
-      mask-image: linear-gradient(to top, black 30%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to bottom, black 55%, transparent 100%);
+      mask-image: linear-gradient(to bottom, black 55%, transparent 100%);
     }
     .pricing-hero, .cards, .compliance-banner, .compare-section, .logo-train, .faq-section, .pricing-footer {
       position: relative;
@@ -2578,6 +2579,11 @@
              * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7);
       }
 
+      // Contour band thresholds — pixels only render near these iso-values,
+      // producing flowing wave lines instead of filled gradients.
+      var BANDS = [0.30, 0.50, 0.70, 0.88];
+      var BAND_WIDTH = 0.055;
+
       var start = null;
       function draw(ts) {
         if (!start) start = ts;
@@ -2585,44 +2591,53 @@
         var W = canvas.width, H = canvas.height;
         ctx.clearRect(0, 0, W, H);
 
-        // Drifting blob centers for extra organic clustering
-        var cx1 = W * (0.25 + 0.18 * Math.sin(t * 0.00018));
-        var cy1 = H * (0.55 + 0.15 * Math.cos(t * 0.00023));
-        var cx2 = W * (0.75 - 0.18 * Math.sin(t * 0.00021));
-        var cy2 = H * (0.45 + 0.12 * Math.cos(t * 0.00016 + 1.2));
+        // Two slow-drifting attractors that warp the field
+        var cx1 = W * (0.3  + 0.22 * Math.sin(t * 0.00015));
+        var cy1 = H * (0.55 + 0.18 * Math.cos(t * 0.00019));
+        var cx2 = W * (0.72 - 0.20 * Math.sin(t * 0.00021 + 1.1));
+        var cy2 = H * (0.42 + 0.15 * Math.cos(t * 0.00014 + 2.3));
 
         for (var r = 0; r < rows; r++) {
           for (var c = 0; c < cols; c++) {
             var px = c * SPACING, py = r * SPACING;
             var phase = phases[r][c];
 
-            // Multiple overlapping waves at different scales/angles
-            var s1 = rwave(px, py, 520, 0.00012, 0.5 + phase * 0.2, 0.00030, t);
-            var s2 = rwave(px, py, 240, 0.00025, 1.8 + phase * 0.3, 0.00065, t);
-            var s3 = rwave(px, py, 120, 0.00042, 3.1 + phase * 0.4, 0.00110, t);
+            // Large, medium, small rotated waves layered
+            var s1 = rwave(px, py, 640, 0.00010, 0.5 + phase * 0.2, 0.00025, t);
+            var s2 = rwave(px, py, 300, 0.00022, 1.8 + phase * 0.3, 0.00055, t);
+            var s3 = rwave(px, py, 150, 0.00038, 3.1 + phase * 0.4, 0.00095, t);
 
-            // Radial blob contribution
+            // Radial falloff from drifting centers — warps the iso-lines
             var d1 = Math.hypot(px - cx1, py - cy1);
             var d2 = Math.hypot(px - cx2, py - cy2);
-            var blob = Math.exp(-d1 * d1 / (2 * 220 * 220)) + Math.exp(-d2 * d2 / (2 * 260 * 260));
+            var blob = Math.exp(-d1 * d1 / (2 * 280 * 280)) - Math.exp(-d2 * d2 / (2 * 320 * 320));
 
-            // Combine — weighted sum creates interference
-            var wave = s1 * 0.45 + s2 * 0.35 + s3 * 0.25 + blob * 0.25;
-            wave = wave * 0.5 + 0.5; // normalize to 0-1
+            var wave = s1 * 0.40 + s2 * 0.32 + s3 * 0.22 + blob * 0.18;
+            wave = wave * 0.5 + 0.5;
 
-            // Vertical fade — softer at top, stronger mid, tapering at bottom
+            // Find closest contour band — keep only near-threshold pixels
+            var best = 1;
+            for (var i = 0; i < BANDS.length; i++) {
+              var d = Math.abs(wave - BANDS[i]);
+              if (d < best) best = d;
+            }
+            if (best > BAND_WIDTH) continue;
+
+            // Soft falloff: brightest in middle of band, fading to edges
+            var bandStrength = 1 - (best / BAND_WIDTH);
+
+            // Vertical mask — soft top, peak in middle, taper at bottom
             var vFrac = py / H;
-            var vFade = Math.sin(vFrac * Math.PI);
+            var vFade = Math.pow(Math.sin(vFrac * Math.PI), 0.9);
 
-            var density = Math.pow(Math.max(0, wave), 1.8) * vFade;
-            if (density < 0.06) continue;
+            var opacity = bandStrength * vFade * 0.75;
+            if (opacity < 0.04) continue;
 
-            var opacity = density * 0.85;
-            // Two-tone mix: base blue-grey with a blue accent on peaks
-            var accent = Math.pow(Math.max(0, wave - 0.65) * 2.8, 1.4);
-            var rCol = Math.round(160 + (20 - 160) * Math.min(1, accent));
-            var gCol = Math.round(180 + (136 - 180) * Math.min(1, accent));
-            var bCol = Math.round(220 + (252 - 220) * Math.min(1, accent));
+            // Accent when pixel sits on the brightest band
+            var accent = wave > 0.78 ? Math.min(1, (wave - 0.78) * 4.5) : 0;
+            var rCol = Math.round(155 + (20 - 155) * accent);
+            var gCol = Math.round(180 + (136 - 180) * accent);
+            var bCol = Math.round(225 + (252 - 225) * accent);
 
             ctx.fillStyle = 'rgba(' + rCol + ',' + gCol + ',' + bCol + ',' + opacity.toFixed(3) + ')';
             ctx.fillRect(px - DOT, py - DOT, DOT * 2, DOT * 2);
