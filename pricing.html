@@ -2546,47 +2546,16 @@
   </script>
 
   <script>
-    // ── 4-tier pixel skyline (per-tier colored peaks) ──
+    // ── Organic wave/noise pixel field ──
     (function () {
       var canvas = document.getElementById('pricing-pixel-skyline');
       if (!canvas) return;
       var ctx = canvas.getContext('2d');
 
-      var SPACING = 11;
+      var SPACING = 10;
       var DOT = 2;
-      var PEAKS = [
-        { x: 0.05,  color: [34, 197, 94]   }, // Free – green
-        { x: 0.35,  color: [20, 136, 252]  }, // Pro – blue
-        { x: 0.65,  color: [168, 85, 247]  }, // Teams – purple
-        { x: 0.95,  color: [249, 115, 22]  }  // Enterprise – orange
-      ];
-      var SIGMA = 0.11;
 
-      var cols, rows, phases, skyline;
-
-      function buildSkyline(numCols) {
-        var heights = new Float32Array(numCols);
-        var c = 0, seed = 0;
-        while (c < numCols) {
-          var width = 5 + Math.floor(Math.abs(Math.sin(seed * 1.37 + 0.91)) * 10);
-          var gap   = 2 + Math.floor(Math.abs(Math.sin(seed * 2.11 + 1.73)) * 4);
-          var h     = 0.30 + Math.abs(Math.sin(seed * 0.83 + 3.14)) * 0.65;
-          for (var i = 0; i < width && (c + i) < numCols; i++) heights[c + i] = h;
-          c += width + gap;
-          seed++;
-        }
-        return heights;
-      }
-
-      // Per-column peak selection: return { peak, mask } for strongest peak
-      function peakAt(colFrac) {
-        var best = null, bestMask = 0;
-        for (var i = 0; i < PEAKS.length; i++) {
-          var m = Math.exp(-Math.pow(colFrac - PEAKS[i].x, 2) / (2 * SIGMA * SIGMA));
-          if (m > bestMask) { bestMask = m; best = PEAKS[i]; }
-        }
-        return { peak: best, mask: bestMask };
-      }
+      var cols, rows, phases;
 
       function init() {
         canvas.width = canvas.offsetWidth;
@@ -2596,39 +2565,67 @@
         phases = Array.from({ length: rows }, function () {
           return Float32Array.from({ length: cols }, function () { return Math.random() * Math.PI * 2; });
         });
-        skyline = buildSkyline(cols);
       }
-
       window.addEventListener('resize', init);
       init();
+
+      // Rotated wave sample — creates drifting, directional bands
+      function rwave(px, py, scale, rotRate, phase, tMult, t) {
+        var angle = t * rotRate + phase;
+        var u = (px * Math.cos(angle) + py * Math.sin(angle)) / scale;
+        var v = (-px * Math.sin(angle) + py * Math.cos(angle)) / scale;
+        return Math.sin(u * Math.PI * 2 + t * tMult)
+             * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7);
+      }
 
       var start = null;
       function draw(ts) {
         if (!start) start = ts;
         var t = ts - start;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        var W = canvas.width, H = canvas.height;
+        ctx.clearRect(0, 0, W, H);
 
-        for (var c = 0; c < cols; c++) {
-          var colFrac = c / cols;
-          var p = peakAt(colFrac);
-          if (p.mask < 0.05) continue;
+        // Drifting blob centers for extra organic clustering
+        var cx1 = W * (0.25 + 0.18 * Math.sin(t * 0.00018));
+        var cy1 = H * (0.55 + 0.15 * Math.cos(t * 0.00023));
+        var cx2 = W * (0.75 - 0.18 * Math.sin(t * 0.00021));
+        var cy2 = H * (0.45 + 0.12 * Math.cos(t * 0.00016 + 1.2));
 
-          var bh = Math.min(0.98, skyline[c] * 0.5 + p.mask * 0.7);
-          if (bh < 0.01) continue;
-          var topRowIdx = (1.0 - bh) * rows;
+        for (var r = 0; r < rows; r++) {
+          for (var c = 0; c < cols; c++) {
+            var px = c * SPACING, py = r * SPACING;
+            var phase = phases[r][c];
 
-          for (var r = 0; r < rows; r++) {
-            var rowDist = r - topRowIdx;
-            if (rowDist < 0) continue;
-            var x = c * SPACING, y = r * SPACING;
-            var roofFade = Math.min(1, rowDist / 3);
-            var w1 = Math.sin(c * 0.18 + r * 0.22 - t * 0.0018 + phases[r][c]);
-            var w2 = Math.sin(c * 0.09 - r * 0.14 + t * 0.0012 + phases[r][c] * 0.6);
-            var wave = (w1 + w2) * 0.5;
-            var opacity = p.mask * roofFade * Math.max(0, wave) * 0.75;
-            if (opacity < 0.02) continue;
-            ctx.fillStyle = 'rgba(' + p.peak.color[0] + ',' + p.peak.color[1] + ',' + p.peak.color[2] + ',' + opacity.toFixed(3) + ')';
-            ctx.fillRect(x - DOT, y - DOT, DOT * 2, DOT * 2);
+            // Multiple overlapping waves at different scales/angles
+            var s1 = rwave(px, py, 520, 0.00012, 0.5 + phase * 0.2, 0.00030, t);
+            var s2 = rwave(px, py, 240, 0.00025, 1.8 + phase * 0.3, 0.00065, t);
+            var s3 = rwave(px, py, 120, 0.00042, 3.1 + phase * 0.4, 0.00110, t);
+
+            // Radial blob contribution
+            var d1 = Math.hypot(px - cx1, py - cy1);
+            var d2 = Math.hypot(px - cx2, py - cy2);
+            var blob = Math.exp(-d1 * d1 / (2 * 220 * 220)) + Math.exp(-d2 * d2 / (2 * 260 * 260));
+
+            // Combine — weighted sum creates interference
+            var wave = s1 * 0.45 + s2 * 0.35 + s3 * 0.25 + blob * 0.25;
+            wave = wave * 0.5 + 0.5; // normalize to 0-1
+
+            // Vertical fade — softer at top, stronger mid, tapering at bottom
+            var vFrac = py / H;
+            var vFade = Math.sin(vFrac * Math.PI);
+
+            var density = Math.pow(Math.max(0, wave), 1.8) * vFade;
+            if (density < 0.06) continue;
+
+            var opacity = density * 0.85;
+            // Two-tone mix: base blue-grey with a blue accent on peaks
+            var accent = Math.pow(Math.max(0, wave - 0.65) * 2.8, 1.4);
+            var rCol = Math.round(160 + (20 - 160) * Math.min(1, accent));
+            var gCol = Math.round(180 + (136 - 180) * Math.min(1, accent));
+            var bCol = Math.round(220 + (252 - 220) * Math.min(1, accent));
+
+            ctx.fillStyle = 'rgba(' + rCol + ',' + gCol + ',' + bCol + ',' + opacity.toFixed(3) + ')';
+            ctx.fillRect(px - DOT, py - DOT, DOT * 2, DOT * 2);
           }
         }
         requestAnimationFrame(draw);
