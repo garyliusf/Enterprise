@@ -410,7 +410,7 @@
     /* ── Collapsible card body ── */
     .card-collapsible { position: relative; }
     .card-body {
-      max-height: 300px;
+      max-height: 240px;
       overflow: hidden;
       transition: max-height 0.35s cubic-bezier(0.22, 1, 0.36, 1);
     }
@@ -2735,35 +2735,60 @@
 
   <script>
     (function() {
+      var COLLAPSED = 240;
+      var entries = [];
       document.querySelectorAll('.card').forEach(function(card) {
         var body = card.querySelector('.card-body');
         var btn = card.querySelector('.card-expand');
         var fade = card.querySelector('.card-fade');
         if (!body || !btn) return;
-        requestAnimationFrame(function() {
-          if (body.scrollHeight <= body.clientHeight + 4) {
-            btn.style.display = 'none';
-            if (fade) fade.style.display = 'none';
-            body.style.maxHeight = 'none';
-            return;
+        entries.push({ card: card, body: body, btn: btn, fade: fade });
+      });
+
+      requestAnimationFrame(function() {
+        var anyOverflows = entries.some(function(e) {
+          return e.body.scrollHeight > e.body.clientHeight + 4;
+        });
+        if (!anyOverflows) {
+          entries.forEach(function(e) {
+            e.btn.style.display = 'none';
+            if (e.fade) e.fade.style.display = 'none';
+            e.body.style.maxHeight = 'none';
+          });
+          return;
+        }
+
+        entries.forEach(function(e) {
+          if (e.body.scrollHeight <= e.body.clientHeight + 4) {
+            // Hide fade/btn on non-overflowing cards but still sync them
+            if (e.fade) e.fade.style.display = 'none';
           }
-          var COLLAPSED = 360;
-          body.style.maxHeight = COLLAPSED + 'px';
-          btn.addEventListener('click', function() {
-            var expanded = card.classList.toggle('is-expanded');
-            btn.textContent = expanded ? 'Collapse ↑' : 'Expand ↓';
+          e.body.style.maxHeight = COLLAPSED + 'px';
+        });
+
+        function setExpanded(expanded) {
+          entries.forEach(function(e) {
+            e.card.classList.toggle('is-expanded', expanded);
+            e.btn.textContent = expanded ? 'Collapse ↑' : 'Expand ↓';
             if (expanded) {
-              body.style.maxHeight = body.scrollHeight + 'px';
+              e.body.style.maxHeight = e.body.scrollHeight + 'px';
             } else {
-              body.style.maxHeight = body.scrollHeight + 'px';
+              e.body.style.maxHeight = e.body.scrollHeight + 'px';
               requestAnimationFrame(function() {
-                body.style.maxHeight = COLLAPSED + 'px';
+                e.body.style.maxHeight = COLLAPSED + 'px';
               });
             }
           });
-          body.addEventListener('transitionend', function(e) {
-            if (e.propertyName === 'max-height' && card.classList.contains('is-expanded')) {
-              body.style.maxHeight = 'none';
+        }
+
+        entries.forEach(function(e) {
+          e.btn.addEventListener('click', function() {
+            var expanded = !e.card.classList.contains('is-expanded');
+            setExpanded(expanded);
+          });
+          e.body.addEventListener('transitionend', function(ev) {
+            if (ev.propertyName === 'max-height' && e.card.classList.contains('is-expanded')) {
+              e.body.style.maxHeight = 'none';
             }
           });
         });
