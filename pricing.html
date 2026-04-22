@@ -2553,8 +2553,8 @@
       if (!canvas) return;
       var ctx = canvas.getContext('2d');
 
-      var SPACING = 10;
-      var DOT = 2;
+      var SPACING = 9;
+      var MAX_R = 3.4;
 
       var cols, rows, phases;
 
@@ -2579,11 +2579,6 @@
              * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7);
       }
 
-      // Contour band thresholds — pixels only render near these iso-values,
-      // producing flowing wave lines instead of filled gradients.
-      var BANDS = [0.30, 0.50, 0.70, 0.88];
-      var BAND_WIDTH = 0.055;
-
       var start = null;
       function draw(ts) {
         if (!start) start = ts;
@@ -2591,56 +2586,45 @@
         var W = canvas.width, H = canvas.height;
         ctx.clearRect(0, 0, W, H);
 
-        // Two slow-drifting attractors that warp the field
-        var cx1 = W * (0.3  + 0.22 * Math.sin(t * 0.00015));
-        var cy1 = H * (0.55 + 0.18 * Math.cos(t * 0.00019));
-        var cx2 = W * (0.72 - 0.20 * Math.sin(t * 0.00021 + 1.1));
-        var cy2 = H * (0.42 + 0.15 * Math.cos(t * 0.00014 + 2.3));
+        // Slow-drifting attractors warp the field so patterns evolve
+        var cx1 = W * (0.30 + 0.22 * Math.sin(t * 0.00014));
+        var cy1 = H * (0.55 + 0.18 * Math.cos(t * 0.00018));
+        var cx2 = W * (0.72 - 0.20 * Math.sin(t * 0.00020 + 1.1));
+        var cy2 = H * (0.42 + 0.15 * Math.cos(t * 0.00013 + 2.3));
+
+        ctx.fillStyle = 'rgba(180, 195, 230, 0.85)';
 
         for (var r = 0; r < rows; r++) {
           for (var c = 0; c < cols; c++) {
             var px = c * SPACING, py = r * SPACING;
             var phase = phases[r][c];
 
-            // Large, medium, small rotated waves layered
-            var s1 = rwave(px, py, 640, 0.00010, 0.5 + phase * 0.2, 0.00025, t);
-            var s2 = rwave(px, py, 300, 0.00022, 1.8 + phase * 0.3, 0.00055, t);
-            var s3 = rwave(px, py, 150, 0.00038, 3.1 + phase * 0.4, 0.00095, t);
+            // Layered rotated waves — organic flowing gradient
+            var s1 = rwave(px, py, 700, 0.00009, 0.5 + phase * 0.2, 0.00022, t);
+            var s2 = rwave(px, py, 340, 0.00020, 1.8 + phase * 0.3, 0.00050, t);
+            var s3 = rwave(px, py, 170, 0.00035, 3.1 + phase * 0.4, 0.00085, t);
 
-            // Radial falloff from drifting centers — warps the iso-lines
+            // Radial attractors soften into smooth hills/valleys
             var d1 = Math.hypot(px - cx1, py - cy1);
             var d2 = Math.hypot(px - cx2, py - cy2);
-            var blob = Math.exp(-d1 * d1 / (2 * 280 * 280)) - Math.exp(-d2 * d2 / (2 * 320 * 320));
+            var blob = Math.exp(-d1 * d1 / (2 * 320 * 320)) - 0.6 * Math.exp(-d2 * d2 / (2 * 360 * 360));
 
-            var wave = s1 * 0.40 + s2 * 0.32 + s3 * 0.22 + blob * 0.18;
-            wave = wave * 0.5 + 0.5;
+            var wave = s1 * 0.40 + s2 * 0.32 + s3 * 0.22 + blob * 0.28;
+            wave = wave * 0.5 + 0.5; // 0..1
 
-            // Find closest contour band — keep only near-threshold pixels
-            var best = 1;
-            for (var i = 0; i < BANDS.length; i++) {
-              var d = Math.abs(wave - BANDS[i]);
-              if (d < best) best = d;
-            }
-            if (best > BAND_WIDTH) continue;
+            // Dot size modulated by wave — bigger where wave is strong
+            var strength = Math.pow(Math.max(0, wave), 1.6);
 
-            // Soft falloff: brightest in middle of band, fading to edges
-            var bandStrength = 1 - (best / BAND_WIDTH);
-
-            // Vertical mask — soft top, peak in middle, taper at bottom
+            // Vertical fade into page
             var vFrac = py / H;
-            var vFade = Math.pow(Math.sin(vFrac * Math.PI), 0.9);
+            var vFade = Math.pow(Math.sin(vFrac * Math.PI), 0.7);
 
-            var opacity = bandStrength * vFade * 0.75;
-            if (opacity < 0.04) continue;
+            var radius = strength * vFade * MAX_R;
+            if (radius < 0.25) continue;
 
-            // Accent when pixel sits on the brightest band
-            var accent = wave > 0.78 ? Math.min(1, (wave - 0.78) * 4.5) : 0;
-            var rCol = Math.round(155 + (20 - 155) * accent);
-            var gCol = Math.round(180 + (136 - 180) * accent);
-            var bCol = Math.round(225 + (252 - 225) * accent);
-
-            ctx.fillStyle = 'rgba(' + rCol + ',' + gCol + ',' + bCol + ',' + opacity.toFixed(3) + ')';
-            ctx.fillRect(px - DOT, py - DOT, DOT * 2, DOT * 2);
+            ctx.beginPath();
+            ctx.arc(px, py, radius, 0, Math.PI * 2);
+            ctx.fill();
           }
         }
         requestAnimationFrame(draw);
