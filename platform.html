@@ -1,0 +1,3170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Platform · Bolt Enterprise</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #000;
+      color: #fff;
+      min-height: 100vh;
+    }
+
+    /* Screen-reader-only utility for visually-hidden labels */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* ── Back button ── */
+    .back-btn {
+      position: fixed;
+      top: 24px;
+      left: 24px;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: color 0.2s;
+      text-decoration: none;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 0.3px;
+    }
+    .back-btn:hover { color: rgba(255,255,255,0.85); }
+    .back-btn svg { width: 14px; height: 14px; }
+
+    /* ── Page wrapper ── */
+    .page {
+      width: min(1200px, calc(100vw - 80px));
+      margin: 0 auto;
+      padding: 140px 40px 100px;
+    }
+
+    /* ── Header ── */
+    .page-eyebrow {
+      font-family: 'Silkscreen', monospace;
+      font-size: 13px;
+      color: #1488FC;
+      letter-spacing: 2px;
+      margin-bottom: 20px;
+      display: block;
+    }
+
+    .pricing-hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 28px;
+      margin-bottom: 48px;
+    }
+
+    .page-header { text-align: center; }
+    .page-header p { margin-left: auto; margin-right: auto; }
+
+    /* Match Enterprise .hero-h1 */
+    .page-header h1 {
+      font-size: 66px;
+      font-weight: 500;
+      color: #ffffff;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+
+    .page-header p {
+      font-size: 22px;
+      font-weight: 400;
+      color: #ABABAB;
+      max-width: 560px;
+      line-height: 1.4;
+      margin: 0;
+    }
+
+    /* ── Billing toggle ── */
+    .billing-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 900px) {
+      .pricing-hero { flex-direction: column; align-items: center; text-align: center; gap: 28px; margin-bottom: 20px; }
+      .pricing-hero .page-header { text-align: center; }
+      .pricing-hero .page-header p { margin-left: auto; margin-right: auto; }
+    }
+
+    .billing-toggle {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      background: #111;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 999px;
+      padding: 3px;
+    }
+
+    .billing-thumb { display: none; }
+
+    .billing-btn {
+      position: relative;
+      z-index: 1;
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 5px 22px;
+      white-space: nowrap;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      transition: color 0.25s ease, background-color 0.25s ease;
+      background: transparent;
+      color: rgba(255,255,255,0.4);
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 0.2px;
+      outline: none;
+    }
+    .billing-btn:hover { color: rgba(255,255,255,0.8); }
+    .billing-btn.active { color: #000; background: #fff; }
+
+    .billing-save-badge {
+      display: inline-block;
+      margin-left: 0;
+      font-size: 11px;
+      font-weight: 600;
+      color: #1488FC;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 0.3px;
+      vertical-align: middle;
+    }
+
+    /* ── Cards grid ── */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 4px;
+      overflow: visible;
+    }
+
+    /* At medium widths, fall to 2x2 before stacking to single column */
+    @media (max-width: 1100px) {
+      .cards { grid-template-columns: repeat(2, 1fr); }
+      .card:nth-child(2) { border-right: none !important; }
+      .card:nth-child(1), .card:nth-child(2) { border-bottom: 1px solid rgba(255,255,255,0.07); }
+      .faq-section { grid-template-columns: 1fr; gap: 40px; }
+      .faq-header  { position: static; }
+    }
+
+    @media (max-width: 640px) {
+      .cards {
+        grid-template-columns: 1fr;
+        border-radius: 4px;
+      }
+      .card { border-right: none !important; border-bottom: 1px solid rgba(255,255,255,0.07); }
+      .card:last-child { border-bottom: none; }
+    }
+
+    @media (max-width: 768px) {
+      .page {
+        width: 100%;
+        padding: 80px 16px 48px;
+      }
+      .pricing-hero { margin-bottom: 16px; gap: 28px; }
+      .page-header { margin-bottom: 0; }
+      .page-header h1 { font-size: clamp(37px, 10.45vw, 51px); margin-bottom: 8px; }
+      .page-header p  { font-size: 16px; white-space: normal; max-width: 100%; }
+
+      .card { padding: 24px 20px; }
+      .card-price .price-amount { font-size: 48px; }
+      .card-description { font-size: 14px; }
+      .feature-item { font-size: 14px; }
+
+      .compliance-banner { flex-direction: column; align-items: center; gap: 24px; padding: 32px 16px; text-align: center; }
+      .compliance-left { align-items: center; text-align: center; }
+      .compliance-badges { margin-left: 0; justify-content: center; gap: 14px; width: 100%; flex-wrap: nowrap; }
+      .cert-badge { width: 65px; height: 65px; flex: 0 0 auto; }
+      .compliance-btn { width: 100% !important; max-width: 280px; }
+      .compliance-sub { font-size: 15px; }
+
+      .faq-section { grid-template-columns: 1fr; gap: 32px; }
+      .faq-header { position: static; }
+      .feat-headline  { font-size: 40px; }
+      .faq-sub    { font-size: 15px; }
+      .faq-q      { padding: 18px 0; font-size: 15px; }
+      .faq-a-inner { font-size: 14px; }
+
+      .footer-headline { font-size: 40px; }
+      .footer-subtitle { font-size: 15px; }
+      .hero-form-row { max-width: 560px; }
+      .hero-email-input { height: 44px; font-size: 13px; padding: 0 14px; }
+      .hero-cta-button { height: 44px; padding: 0 18px; font-size: 14px; }
+    }
+
+    /* Tablet/laptop: shrink compliance banner copy/badges but keep horizontal */
+    /* Smaller laptops: compact hero + cards to fit above the fold */
+    @media (min-width: 901px) and (max-height: 900px) {
+      .page { padding-top: 96px; }
+      .pricing-hero { margin-bottom: 24px; gap: 16px; }
+      .page-header h1 { font-size: 48px; margin-bottom: 8px; }
+      .page-header p  { font-size: 17px; }
+      .card { padding: 16px 18px 20px; }
+      .plan-label { margin-bottom: 12px; font-size: 11px; }
+      .price-amount { font-size: 36px; }
+      .card-price { margin-bottom: 6px; }
+      .card-description { font-size: 13px; line-height: 1.45; }
+      .card-cta { padding: 10px 16px; font-size: 13px; margin: 14px 0; }
+      .feature-item { font-size: 12.5px; }
+      .features { gap: 7px; margin-bottom: 12px; }
+      .card-body { max-height: 210px; }
+    }
+
+    @media (min-width: 769px) and (max-width: 1440px) {
+      .compliance-title { font-size: 24px; }
+      .compliance-sub { font-size: 15px; }
+      .cert-badge { width: 78px; height: 78px; }
+      .compliance-badges { gap: 12px; }
+
+      .compare-tier-head th,
+      .compare-table .compare-tier-head th:first-child { font-size: 22px; padding: 24px 16px; }
+      .compare-tier-head .tier-cta { font-size: 14px; }
+    }
+
+    /* Too narrow to fit horizontally: stack banner vertically + center */
+    @media (min-width: 769px) and (max-width: 1440px) {
+      .compliance-banner {
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        gap: 28px !important;
+      }
+      .compliance-left { align-items: center !important; text-align: center !important; }
+      .compliance-badges { margin-left: 0 !important; justify-content: center !important; flex-wrap: wrap; }
+
+      .compare-tier-head .tier-cta { font-size: 10px !important; letter-spacing: 0.5px; }
+    }
+
+    @media (max-width: 480px) {
+      .page { padding: 48px 14px 40px; }
+      .card { padding: 22px 18px; }
+      .card-price .price-amount { font-size: 44px; }
+      .feat-headline  { font-size: 32px; }
+      .footer-headline { font-size: 32px; }
+      .cert-badge { width: 55px; height: 55px; }
+    }
+
+    /* ── Card base ── */
+    .card {
+      background: #0a0a0a;
+      padding: 24px 24px 28px;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid rgba(255,255,255,0.07);
+      position: relative;
+      transition: box-shadow 0.3s ease;
+      overflow: hidden;
+    }
+    .card:last-child { border-right: none; }
+
+    .card:not(.card-teams):hover {
+      box-shadow: inset 0 0 0 1px rgba(20,136,252,0.6);
+    }
+
+    .card-hover-canvas, #teams-pixel-canvas { display: none !important; }
+    .card-hover-canvas-disabled-placeholder {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      z-index: 0;
+    }
+    /* Hover canvas: visible on hover, OR on Teams by default (unless .cards is being hovered) */
+    .card:hover .card-hover-canvas { opacity: 1; }
+    .card > *:not(.card-hover-canvas) { position: relative; z-index: 1; }
+
+    /* ── Teams card — subtly featured by default ── */
+    .card-teams {
+      background: #0a0a0a;
+      border-right: 1px solid rgba(255,255,255,0.07);
+      border-left: none;
+      box-shadow: inset 0 0 0 1px rgba(20,136,252,0.35);
+      transition: box-shadow 0.3s ease;
+    }
+
+    /* When grid is hovered, remove Teams default border so hover takes over */
+    .cards.is-hovering .card-teams { box-shadow: none; }
+    /* Full hover effect on Teams when actually hovered */
+    .card-teams:hover { box-shadow: inset 0 0 0 1px rgba(20,136,252,0.6) !important; }
+
+    /* ── Plan label ── */
+    .plan-label {
+      font-family: 'Silkscreen', monospace;
+      font-size: 13px;
+      letter-spacing: 1.6px;
+      margin-bottom: 10px;
+      display: block;
+    }
+    /* Only the popular tier (Teams) keeps an accent — everything else
+       goes neutral so the eye lands on the highlighted card. */
+    .plan-label.blue   { color: rgba(255,255,255,0.6); }   /* Pro */
+    .plan-label.purple { color: #1488FC; }                 /* Teams (popular) */
+    .plan-label.orange { color: rgba(255,255,255,0.6); }   /* Enterprise */
+    .plan-label.green  { color: rgba(255,255,255,0.6); }   /* Free */
+
+    /* ── Price ── */
+    .card-price {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .price-amount-wrap {
+      overflow: hidden;
+      display: inline-block;
+      vertical-align: baseline;
+    }
+    .price-amount {
+      font-size: 47px;
+      font-weight: 500;
+      color: #fff;
+      letter-spacing: -2px;
+      line-height: 1;
+      display: block;
+    }
+    .price-period {
+      font-size: 13px;
+      color: rgba(255,255,255,0.35);
+    }
+
+    .card-description {
+      font-size: 14px;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.6;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      border: none;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      margin: 24px 0;
+    }
+
+    /* ── Everything note ── */
+    .everything-note {
+      font-size: 12px;
+      color: rgba(255,255,255,0.25);
+      letter-spacing: 0.3px;
+      margin-bottom: 16px;
+    }
+
+/* ── Logo marquee train ── */
+    .logo-train {
+      margin-top: 80px;
+      height: 72px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(0, 0, 0, 0.25);
+      -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+      mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+    }
+    .logo-track {
+      display: flex;
+      align-items: center;
+      gap: 72px;
+      padding-right: 72px;
+      will-change: transform;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .logo-item {
+      display: inline-flex;
+      align-items: center;
+      color: rgba(255, 255, 255, 0.45);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .logo-item img {
+      height: 20px;
+      width: auto;
+      display: block;
+      opacity: 0.55;
+      flex-shrink: 0;
+    }
+
+    /* ── Collapsible card body ── */
+    .card-collapsible { position: relative; }
+    .card-body {
+      max-height: 240px;
+      overflow: hidden;
+      transition: max-height 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .card-fade {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 96px;
+      pointer-events: none;
+      background: linear-gradient(to bottom, rgba(10,10,10,0), #0a0a0a 85%);
+      transition: opacity 0.35s ease;
+    }
+    .card.is-expanded .card-fade { opacity: 0; }
+    .card-expand {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      margin: -20px 0 6px;
+      margin-top: auto;
+      padding: 6px 0;
+      background: transparent;
+      border: 0;
+      color: #1488FC;
+      font-family: 'Silkscreen', monospace;
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+    .card-expand:hover { color: #4aa6ff; }
+
+    /* ── Feature list ── */
+    .features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.45;
+    }
+
+    .check-icon {
+      flex-shrink: 0;
+      margin-top: 4px;
+      width: 13px;
+      height: 13px;
+      color: rgba(255,255,255,0.5);
+    }
+    .check-icon.blue, .check-icon.purple, .check-icon.orange, .check-icon.green { color: rgba(255,255,255,0.35); }
+
+    /* ── CTAs ──
+       Shared slide-up hover animation ported from the Enterprise hero CTA.
+       A background panel slides up from below while the text slides up
+       to reveal a duplicate underneath. */
+    .cta-primary,
+    .cta-secondary {
+      width: 100%;
+      height: 42px;
+      border-radius: 2px;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .cta-primary {
+      background: #fff;
+      color: #000;
+      font-weight: 500;
+      border: none;
+      letter-spacing: 0.2px;
+    }
+    .cta-secondary {
+      background: transparent;
+      color: rgba(255,255,255,0.6);
+      font-weight: 500;
+      border: 1px solid rgba(255,255,255,0.12);
+      transition: border-color 0.25s ease;
+    }
+    .cta-secondary:hover { border-color: rgba(255,255,255,0.25); }
+
+    .cta-primary.cta-blue { background: #1488FC; color: #fff; }
+    .cta-primary.cta-blue .btn-bg-hover { background: #0f6fd0; }
+
+    .cta-primary .btn-bg-hover,
+    .cta-secondary .btn-bg-hover {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      transform: translateY(101%);
+      transition: transform 0.45s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+    .cta-primary .btn-bg-hover   { background: #e5e5e5; }
+    .cta-secondary .btn-bg-hover { background: rgba(255,255,255,0.08); }
+
+    .cta-primary .btn-text-wrap,
+    .cta-secondary .btn-text-wrap {
+      position: relative;
+      z-index: 3;
+      overflow: hidden;
+      height: 1.2em;
+    }
+    .cta-primary .btn-text-inner,
+    .cta-secondary .btn-text-inner {
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.45s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+    .cta-primary .btn-text-inner span,
+    .cta-secondary .btn-text-inner span {
+      display: block;
+      line-height: 1.2;
+    }
+    .cta-primary:hover .btn-bg-hover,
+    .cta-secondary:hover .btn-bg-hover { transform: translateY(0); }
+    .cta-primary:hover .btn-text-inner,
+    .cta-secondary:hover .btn-text-inner { transform: translateY(-50%); }
+
+    /* ── Compare features table ── */
+    .compare-section {
+      margin-top: 80px;
+      color: #fff;
+    }
+
+    .compare-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 8px;
+    }
+
+    .compare-sub {
+      font-size: 18px;
+      color: #ABABAB;
+      line-height: 1.6;
+      margin: 8px 0 0;
+    }
+
+    .compare-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      table-layout: fixed;
+      font-size: 14px;
+    }
+
+    .compare-table th,
+    .compare-table td {
+      padding: 18px 20px;
+      vertical-align: middle;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      text-align: left;
+      color: #C9C9C9;
+    }
+
+    .compare-table th:first-child,
+    .compare-table td:first-child {
+      text-align: left;
+      color: #C9C9C9;
+      font-weight: 400;
+    }
+
+    .compare-tier-head th,
+    .compare-table .compare-tier-head th:first-child {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: #0a0a0a;
+      padding: 20px 20px;
+      text-align: left;
+      font-weight: 400;
+      font-size: 32px;
+      letter-spacing: -0.5px;
+      color: #fff;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    /* Column hover highlight (skips Features column) */
+    .compare-table td, .compare-table th { transition: background-color 0.3s cubic-bezier(0.22, 1, 0.36, 1); }
+    .compare-table:has(tr > :nth-child(2):hover) tr > :nth-child(2):not([colspan]),
+    .compare-table:has(tr > :nth-child(3):hover) tr > :nth-child(3):not([colspan]),
+    .compare-table:has(tr > :nth-child(4):hover) tr > :nth-child(4):not([colspan]),
+    .compare-table:has(tr > :nth-child(5):hover) tr > :nth-child(5):not([colspan]) {
+      background-color: rgba(255,255,255,0.08) !important;
+    }
+
+    .compare-tier-head .tier-name { line-height: 1; display: block; }
+    .compare-tier-head th > div { margin-top: 0; line-height: 1; }
+    .compare-tier-head .tier-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 0;
+      padding: 0;
+      font-family: 'Silkscreen', monospace;
+      font-size: 12px;
+      font-weight: 400;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #1488FC;
+      text-decoration: none;
+      background: transparent;
+      border: 0;
+      transition: color 0.2s ease;
+    }
+
+    .compare-tier-head .tier-cta:hover { color: #4aa6ff; }
+
+    .compare-pixel-wrap {
+      position: sticky;
+      top: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      height: 170px;
+      pointer-events: none;
+      margin-bottom: -170px;
+      z-index: 1;
+      overflow: hidden;
+      transition: opacity 0.2s linear;
+    }
+
+    .compare-header-pixel {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .compare-tier-head th {
+      background: rgba(10,10,10,0) !important;
+      backdrop-filter: blur(0px);
+      -webkit-backdrop-filter: blur(0px);
+      transition: background-color 0.2s linear, backdrop-filter 0.2s linear, -webkit-backdrop-filter 0.2s linear;
+    }
+
+    .compare-tier-head.is-stuck th {
+      background: rgba(10,10,10,0.55) !important;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    .compare-table .compare-group td,
+    .compare-table .compare-group td:first-child {
+      padding: 64px 20px 20px;
+      font-size: 18px;
+      font-weight: 400;
+      letter-spacing: -0.2px;
+      color: #fff;
+      border-bottom: 1px solid rgba(255,255,255,0.18);
+      text-transform: none;
+    }
+
+    .compare-group.first td { padding-top: 40px; }
+
+    .compare-check {
+      display: inline-block;
+      width: 15px;
+      height: 15px;
+      color: #C9C9C9;
+    }
+
+    .compare-dash {
+      color: rgba(255,255,255,0.3);
+    }
+
+    .compare-emph { color: #fff; }
+
+    .compare-table tbody td.reveal-cell {
+      opacity: 0;
+      transform: translate(-6px, 6px);
+      transition: opacity 0.55s cubic-bezier(.22,.61,.36,1), transform 0.55s cubic-bezier(.22,.61,.36,1);
+      transition-delay: var(--reveal-delay, 0ms);
+    }
+    .compare-table tbody td.reveal-cell.is-visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    .compare-tier-switch { display: none; }
+
+    @media (max-width: 1024px) and (min-width: 769px) {
+      .compare-tier-head th,
+      .compare-table .compare-tier-head th:first-child {
+        font-size: 24px;
+        padding: 24px 14px;
+      }
+      .compare-tier-head .tier-cta { font-size: 14px; }
+      .compare-table th, .compare-table td { padding: 16px 12px; }
+    }
+
+    @media (max-width: 768px) {
+      /* overflow-x: clip prevents horizontal scroll WITHOUT creating a scroll
+         container, so position:sticky children still pin to the viewport. */
+      .compare-section { overflow: visible; max-width: 100%; }
+      .compare-table {
+        min-width: 0; table-layout: fixed; width: calc(100% + 32px); max-width: calc(100% + 32px);
+        margin-left: -16px; margin-right: -16px;
+      }
+      .compare-table col { width: auto !important; }
+      .compare-table tbody tr:not(.compare-group) > td,
+      .compare-tier-head > th { width: 50% !important; }
+      .compare-tier-head .tier-cta { white-space: nowrap; }
+
+      .compare-tier-switch {
+        display: flex;
+        gap: 4px;
+        margin: 0 -16px 0;
+        padding: 4px;
+        border: 1px solid rgba(255,255,255,0.1);
+        border-left: 0;
+        border-right: 0;
+        border-radius: 0;
+        background: #0a0a0a;
+        position: sticky;
+        top: 0;
+        z-index: 3;
+        will-change: transform;
+      }
+      .compare-tier-switch button {
+        flex: 1;
+        padding: 10px 8px;
+        border: 0;
+        background: transparent;
+        color: #ABABAB;
+        border-radius: 2px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s, color 0.2s;
+        position: relative;
+        overflow: hidden;
+      }
+      .compare-tier-switch button > span { position: relative; z-index: 1; }
+      .tier-btn-pixel {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.25s ease;
+      }
+      .compare-tier-switch button.is-active .tier-btn-pixel { opacity: 1; }
+      .compare-tier-switch button.is-active,
+      .compare-tier-switch button.is-active:hover,
+      .compare-tier-switch button.is-active:focus {
+        background: #1488FC !important;
+        color: #fff !important;
+      }
+
+      .compare-tier-head .tier-name { display: none; }
+      .compare-tier-head th,
+      .compare-table .compare-tier-head th:first-child {
+        top: 46px;
+        padding: 6px 12px !important;
+        font-size: 20px !important;
+        line-height: 1.2 !important;
+        background: #0a0a0a;
+        z-index: 2;
+      }
+      .compare-tier-head th:not(:first-child) { text-align: right !important; }
+      .compare-tier-head th:not(:first-child) > div { display: flex; justify-content: flex-end; }
+      .compare-tier-head .tier-cta { margin-top: 0 !important; }
+
+      .compare-group td {
+        background: #000;
+        padding: 20px 12px 12px !important;
+      }
+
+      .compare-section[data-active-tier="free"] .compare-table tbody tr:not(.compare-group) > *:nth-child(3),
+      .compare-section[data-active-tier="free"] .compare-table tbody tr:not(.compare-group) > *:nth-child(4),
+      .compare-section[data-active-tier="free"] .compare-table tbody tr:not(.compare-group) > *:nth-child(5),
+      .compare-section[data-active-tier="free"] .compare-tier-head > *:nth-child(3),
+      .compare-section[data-active-tier="free"] .compare-tier-head > *:nth-child(4),
+      .compare-section[data-active-tier="free"] .compare-tier-head > *:nth-child(5) { display: none; }
+
+      .compare-section[data-active-tier="pro"] .compare-table tbody tr:not(.compare-group) > *:nth-child(2),
+      .compare-section[data-active-tier="pro"] .compare-table tbody tr:not(.compare-group) > *:nth-child(4),
+      .compare-section[data-active-tier="pro"] .compare-table tbody tr:not(.compare-group) > *:nth-child(5),
+      .compare-section[data-active-tier="pro"] .compare-tier-head > *:nth-child(2),
+      .compare-section[data-active-tier="pro"] .compare-tier-head > *:nth-child(4),
+      .compare-section[data-active-tier="pro"] .compare-tier-head > *:nth-child(5) { display: none; }
+
+      .compare-section[data-active-tier="teams"] .compare-table tbody tr:not(.compare-group) > *:nth-child(2),
+      .compare-section[data-active-tier="teams"] .compare-table tbody tr:not(.compare-group) > *:nth-child(3),
+      .compare-section[data-active-tier="teams"] .compare-table tbody tr:not(.compare-group) > *:nth-child(5),
+      .compare-section[data-active-tier="teams"] .compare-tier-head > *:nth-child(2),
+      .compare-section[data-active-tier="teams"] .compare-tier-head > *:nth-child(3),
+      .compare-section[data-active-tier="teams"] .compare-tier-head > *:nth-child(5) { display: none; }
+
+      .compare-section[data-active-tier="ent"] .compare-table tbody tr:not(.compare-group) > *:nth-child(2),
+      .compare-section[data-active-tier="ent"] .compare-table tbody tr:not(.compare-group) > *:nth-child(3),
+      .compare-section[data-active-tier="ent"] .compare-table tbody tr:not(.compare-group) > *:nth-child(4),
+      .compare-section[data-active-tier="ent"] .compare-tier-head > *:nth-child(2),
+      .compare-section[data-active-tier="ent"] .compare-tier-head > *:nth-child(3),
+      .compare-section[data-active-tier="ent"] .compare-tier-head > *:nth-child(4) { display: none; }
+
+      .compare-tier-head th,
+      .compare-table .compare-tier-head th:first-child { font-size: 24px; padding: 24px 16px; }
+      .compare-table th, .compare-table td { padding: 14px 12px; font-size: 14px; }
+      .compare-group td { font-size: 16px; padding: 40px 12px 16px; }
+      .compare-pixel-wrap { display: none; }
+    }
+
+    /* ── Security & compliance banner ── */
+    .compliance-banner {
+      margin-top: 16px;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 4px;
+      background: #0a0a0a;
+      padding: 40px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+    .compliance-left { flex: 1 1 auto; min-width: 0; }
+    .compliance-badges { flex: 0 0 auto; }
+
+    .compliance-left {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .compliance-title {
+      font-size: 28px;
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: -0.5px;
+      margin: 0;
+    }
+
+    .compliance-sub {
+      font-size: 18px;
+      color: #ABABAB;
+      line-height: 1.6;
+    }
+
+    .compliance-badges {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-left: auto;
+    }
+
+    .cert-badge {
+      width: 110px;
+      height: 110px;
+      flex-shrink: 0;
+    }
+
+    .cert-badge svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .cert-ring {
+      transform-origin: 45px 45px;
+      animation: cert-ring-spin 24s linear infinite;
+    }
+
+    @keyframes cert-ring-spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Match Enterprise button language: 42px tall, square corners, slide-up
+       hover ported from .hero-cta-button. */
+    .compliance-btn {
+      height: 42px;
+      padding: 0 32px;
+      border-radius: 2px;
+      background: transparent;
+      color: rgba(255,255,255,0.7);
+      font-size: 14px;
+      font-weight: 500;
+      border: 1px solid rgba(255,255,255,0.15);
+      cursor: pointer;
+      transition: border-color 0.25s ease;
+      font-family: 'Inter', sans-serif;
+      white-space: nowrap;
+      position: relative;
+      overflow: hidden;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .compliance-btn:hover { border-color: rgba(255,255,255,0.3); }
+    .compliance-btn .btn-bg-hover {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: rgba(255,255,255,0.08);
+      transform: translateY(101%);
+      transition: transform 0.45s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+    .compliance-btn .btn-text-wrap {
+      position: relative;
+      z-index: 3;
+      overflow: hidden;
+      height: 1.2em;
+    }
+    .compliance-btn .btn-text-inner {
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.45s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+    .compliance-btn .btn-text-inner span {
+      display: block;
+      line-height: 1.2;
+    }
+    .compliance-btn:hover .btn-bg-hover { transform: translateY(0); }
+    .compliance-btn:hover .btn-text-inner { transform: translateY(-50%); }
+
+    /* ── Teams pixel canvas background ── */
+    #teams-pixel-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      opacity: 0.55;
+      transition: opacity 0.3s ease;
+      z-index: 0;
+    }
+    .cards.is-hovering #teams-pixel-canvas { opacity: 0; }
+    .card-teams:hover #teams-pixel-canvas { opacity: 0.55 !important; }
+
+    .card-teams > *:not(canvas) {
+      position: relative;
+      z-index: 1;
+    }
+    .card-teams > .badge-popular {
+      position: absolute;
+      z-index: 2;
+    }
+
+    /* ── FAQ ──
+       Default to single-column. Two-column sidebar only activates on wide
+       desktops; anything narrower stacks. */
+    .faq-section {
+      margin-top: 100px;
+      padding-bottom: 40px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+    @media (min-width: 1200px) {
+      .faq-section {
+        grid-template-columns: 320px 1fr;
+        gap: 80px;
+      }
+      .faq-header { position: sticky; top: 48px; }
+    }
+
+    .faq-header {
+      position: static;
+    }
+
+    .feat-headline {
+      font-size: clamp(32px, 4.5vw, 44px);
+      font-weight: 500;
+      color: #fff;
+      letter-spacing: -1px;
+      line-height: 1.3;
+      margin: 0 0 16px;
+    }
+
+    .faq-sub {
+      font-size: 18px;
+      color: #ABABAB;
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+
+    /* Match the rest of the button language: outlined, 2px radius, slide-up hover. */
+    .faq-contact-link {
+      height: 42px;
+      padding: 0 32px;
+      border-radius: 2px;
+      background: transparent;
+      color: rgba(255,255,255,0.7);
+      font-size: 14px;
+      font-weight: 500;
+      border: 1px solid rgba(255,255,255,0.15);
+      font-family: 'Inter', sans-serif;
+      text-decoration: none;
+      white-space: nowrap;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: fit-content;
+      transition: border-color 0.25s ease;
+    }
+    .faq-contact-link:hover { border-color: rgba(255,255,255,0.3); }
+    .faq-contact-link .btn-bg-hover {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: rgba(255,255,255,0.08);
+      transform: translateY(101%);
+      transition: transform 0.45s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+    .faq-contact-link .btn-text-wrap {
+      position: relative;
+      z-index: 3;
+      overflow: hidden;
+      height: 1.2em;
+    }
+    .faq-contact-link .btn-text-inner {
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.45s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+    .faq-contact-link .btn-text-inner span {
+      display: block;
+      line-height: 1.2;
+    }
+    .faq-contact-link:hover .btn-bg-hover { transform: translateY(0); }
+    .faq-contact-link:hover .btn-text-inner { transform: translateY(-50%); }
+
+    .faq-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .faq-item {
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      position: relative;
+      transition: background 0.2s;
+      overflow: hidden;
+    }
+    .faq-item:first-child { border-top: 1px solid rgba(255,255,255,0.07); }
+
+    .faq-item.open { background: rgba(20,136,252,0.03); }
+
+    .faq-open-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      z-index: 0;
+    }
+    .faq-item.open .faq-open-canvas { opacity: 1; }
+
+    .faq-q {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 32px 24px 32px 24px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-size: 19px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.7);
+      text-align: left;
+      gap: 16px;
+      transition: color 0.2s;
+    }
+
+    .faq-q:hover { color: #fff; }
+    .faq-item.open .faq-q { color: #fff; }
+
+    .faq-q-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .faq-num { display: none; }
+
+    .faq-icon {
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s;
+      color: #1488FC;
+    }
+    .faq-item.open .faq-icon {
+      color: #1488FC;
+    }
+
+    .faq-icon-plus, .faq-icon-minus {
+      position: absolute;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .faq-icon-minus { opacity: 0; transform: rotate(-90deg); }
+    .faq-item.open .faq-icon-plus { opacity: 0; transform: rotate(90deg); }
+    .faq-item.open .faq-icon-minus { opacity: 1; transform: rotate(0deg); }
+
+    .faq-a {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.38s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    .faq-item.open .faq-a {
+      grid-template-rows: 1fr;
+    }
+
+    .faq-a-inner {
+      overflow: hidden;
+      padding: 0 28px 0 24px;
+      font-size: 14px;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.75;
+      transition: padding-bottom 0.38s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    .faq-item.open .faq-a-inner {
+      padding-bottom: 24px;
+    }
+
+    .faq-link {
+      color: #1488FC;
+      text-decoration: none;
+    }
+    .faq-link:hover { text-decoration: underline; }
+
+    /* Emphasized terms in FAQ answers: white, normal weight (not bold). */
+    .faq-a-inner strong {
+      color: #fff;
+      font-weight: 400;
+    }
+
+    .faq-footer-banner {
+      margin-top: 16px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 8px;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+      text-decoration: none;
+    }
+    .faq-footer-banner:hover {
+      background: rgba(255,255,255,0.05);
+      border-color: rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.6);
+    }
+    .faq-footer-banner svg { transition: transform 0.2s; }
+    .faq-footer-banner:hover svg { transform: translateX(3px); }
+
+    /* ── CTA / Footer section (copied from enterprise page) ── */
+    .footer-section {
+      background: #000;
+      padding: 60px 40px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      text-align: center;
+      box-sizing: border-box;
+      width: 100%;
+    }
+
+    .footer-headline {
+      font-size: 52px;
+      font-weight: 500;
+      color: #fff;
+      margin: 0;
+      line-height: 1.3;
+    }
+
+    .footer-subtitle {
+      font-size: 18px;
+      color: #ABABAB;
+      max-width: 640px;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    @media (max-width: 1366px) {
+      .footer-headline { font-size: 44px; }
+    }
+    @media (max-width: 1180px) {
+      .footer-headline { font-size: 46px; }
+      .footer-subtitle { font-size: 17px; }
+    }
+    @media (max-width: 1024px) {
+      .footer-headline { font-size: 42px; }
+      .footer-subtitle { font-size: 17px; }
+    }
+    @media (max-width: 768px) {
+      .footer-headline { font-size: clamp(26px, 8vw, 36px); line-height: 1.3; }
+      .footer-subtitle { font-size: 16px; max-width: 310px; }
+    }
+
+    .hero-form-row {
+      display: flex;
+      gap: 0;
+      flex: 1;
+      max-width: 420px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .hero-email-input {
+      flex: 1;
+      height: 52px;
+      background: transparent;
+      border: none;
+      padding: 0 18px;
+      font-size: 15px;
+      font-family: 'Inter', sans-serif;
+      color: #fff;
+      outline: none;
+    }
+
+    .hero-email-input::placeholder { color: rgba(255,255,255,0.45); }
+
+    .hero-cta-button {
+      width: auto;
+      padding: 0 24px;
+      height: 52px;
+      flex-shrink: 0;
+      background: #2BA6FF;
+      border: none;
+      border-radius: 2px;
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hero-cta-button .btn-bg-hover {
+      position: absolute;
+      inset: 0;
+      background: #1a8fe0;
+      z-index: 1;
+      transform: translateY(101%);
+      transition: transform 0.45s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+    .hero-cta-button .btn-text-wrap {
+      position: relative;
+      z-index: 3;
+      overflow: hidden;
+      height: 1.2em;
+    }
+    .hero-cta-button .btn-text-inner {
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.45s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+    .hero-cta-button .btn-text-inner span {
+      display: block;
+      line-height: 1.2;
+    }
+    .hero-cta-button:hover .btn-bg-hover { transform: translateY(0); }
+    .hero-cta-button:hover .btn-text-inner { transform: translateY(-50%); }
+
+    /* ── Card form strip (bordered container around the CTA form) ── */
+    .card-form-strip {
+      background: #000;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 12px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      cursor: default;
+      width: 100%;
+    }
+    .card-strip-text {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      flex-shrink: 0;
+    }
+    .card-strip-sub {
+      font-size: 20px;
+      font-weight: 500;
+      color: #fff;
+      margin: 0;
+      line-height: 1.2;
+      display: inline-flex;
+      align-items: baseline;
+      gap: 0.25em;
+    }
+
+    /* Rotating name (odometer-style slide-up) */
+    .rotating-name {
+      display: inline-block;
+      vertical-align: baseline;
+      overflow: hidden;
+      line-height: 1.2;
+      height: 1.2em;
+      position: relative;
+      color: #2BA6FF;
+      font-family: 'Playfair Display', Georgia, serif;
+      font-weight: 400;
+      font-style: italic;
+      letter-spacing: 0.01em;
+      text-align: left;
+      /* Force its own GPU layer + strict paint containment so mobile
+         browsers don't let the sliding item's tail bleed past the top edge
+         between sub-pixel frames. */
+      transform: translateZ(0);
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      contain: paint;
+    }
+    .rotating-name-track {
+      display: block;
+      line-height: 1.2;
+      will-change: transform;
+      text-align: left;
+      transform: translateZ(0);
+    }
+    .rotating-name-item {
+      display: block;
+      line-height: 1.2;
+      white-space: nowrap;
+      text-align: left;
+    }
+
+    @media (max-width: 768px) {
+      .card-form-strip {
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 10px;
+      }
+      .card-form-strip .hero-form-row { max-width: none; width: 100%; }
+    }
+
+    /* ── Animated BOLT image wrapper + shimmer ── */
+    .bolt-image-wrap {
+      margin-top: 0;
+      width: 100%;
+      overflow: hidden;
+      position: relative;
+      height: 32vw;
+      max-height: 32vw;
+    }
+    .bolt-image-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top;
+      display: block;
+      opacity: 0.22;
+    }
+    #bolt-shimmer-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 2;
+      mix-blend-mode: screen;
+    }
+
+    /* ── Hero ambient glow ── */
+    .pricing-hero-glow {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100vw;
+      height: 900px;
+      pointer-events: none;
+      z-index: 0;
+      background:
+        linear-gradient(180deg, rgba(0,0,0,0.40) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.47) 100%),
+        radial-gradient(900px 700px at 15% 70%, rgba(20,136,252,0.55), transparent 65%),
+        radial-gradient(600px 500px at 25% 50%, rgba(180,200,230,0.18), transparent 70%),
+        radial-gradient(800px 700px at 95% 5%, rgba(255,170,110,0.35), transparent 65%),
+        linear-gradient(180deg, #0b1a2f 0%, #0a0f1c 55%, #050608 100%);
+      -webkit-mask-image: linear-gradient(to bottom, black 55%, transparent 100%);
+      mask-image: linear-gradient(to bottom, black 55%, transparent 100%);
+    }
+
+    /* ── 4-tier pixel skyline background ── */
+    .page { position: relative; }
+    html, body { overflow-x: clip; }
+    #pricing-pixel-skyline {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100vw;
+      height: 600px;
+      pointer-events: none;
+      z-index: 1;
+      -webkit-mask-image: linear-gradient(to bottom, black 55%, transparent 100%);
+      mask-image: linear-gradient(to bottom, black 55%, transparent 100%);
+    }
+    @media (max-width: 768px) {
+      #pricing-pixel-skyline { opacity: 0.55; }
+    }
+    .pricing-hero, .cards, .compliance-banner, .compare-section, .logo-train, .faq-section, .pricing-footer {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Popular badge ── */
+    .badge-popular {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(20,136,252,0.12);
+      border: 1px solid rgba(20,136,252,0.25);
+      color: #1488FC;
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 1.2px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-family: 'Silkscreen', monospace;
+    }
+
+  </style>
+</head>
+<body>
+
+
+  <div class="page">
+
+    <div class="pricing-hero-glow"></div>
+    <canvas id="pricing-pixel-skyline"></canvas>
+
+    <div class="pricing-hero">
+      <div class="page-header">
+        <h1>Platform</h1>
+        <p>The full-stack foundation for teams shipping real production apps.</p>
+      </div>
+    </div>
+
+    <!-- Cards -->
+    <div class="cards">
+
+      <!-- Free -->
+      <div class="card">
+        <canvas class="card-hover-canvas" id="free-hover-canvas"></canvas>
+        <span class="plan-label green">FREE</span>
+        <div class="card-price">
+          <span class="price-amount-wrap"><span class="price-amount" id="free-price">$0</span></span>
+          <span class="price-period">/month</span>
+        </div>
+        <p class="card-description">Try Bolt with daily limits. No credit card.</p>
+
+        <hr class="divider" />
+
+        <div class="card-collapsible">
+        <div class="card-body">
+        <ul class="features">
+          <li class="feature-item">
+            <svg class="check-icon green" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            Public and private projects
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon green" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            300K tokens per day (~1 small apps)
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon green" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            1M tokens per month
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon green" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            Hosting on bolt.new subdomain
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon green" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            Bolt branding on published sites
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon green" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            10MB file uploads
+          </li>
+        </ul>
+        </div>
+        <div class="card-fade"></div>
+        </div>
+        <button class="card-expand" type="button">Expand ↓</button>
+
+        <button class="cta-secondary">
+          <div class="btn-bg-hover"></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get started</span><span>Get started</span></div></div>
+        </button>
+      </div>
+
+      <!-- Pro -->
+      <div class="card">
+        <canvas class="card-hover-canvas" id="pro-hover-canvas"></canvas>
+        <span class="plan-label blue">PRO</span>
+        <div class="card-price">
+          <span class="price-amount-wrap"><span class="price-amount" id="pro-price">$18</span></span>
+          <span class="price-period">/month</span>
+        </div>
+        <p class="card-description">Everything in Free, plus real app capacity and your own domain.</p>
+
+        <hr class="divider" />
+
+        <div class="card-collapsible">
+        <div class="card-body">
+
+        <ul class="features">
+          <li class="feature-item">
+            <svg class="check-icon blue" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            10M tokens/month — room to build, break, rebuild, and ship
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon blue" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            Unused tokens roll over to next month
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon blue" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            Pay-as-you-go overages
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon blue" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            Up to 1M web requests per month
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon blue" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            100MB file uploads
+          </li>
+        </ul>
+
+
+        <ul class="features">
+          <li class="feature-item">
+            <svg class="check-icon blue" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            No daily token limit
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon blue" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            No Bolt branding on your sites
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon blue" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            Custom domain support
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon blue" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            SEO boosting for published sites
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon blue" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            Private sharing with collaborators
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon blue" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            Access to the best and newest AI models
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon blue" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            Connectors and MCPs
+          </li>
+        </ul>
+        </div>
+        <div class="card-fade"></div>
+        </div>
+        <button class="card-expand" type="button">Expand ↓</button>
+
+        <button class="cta-primary cta-blue">
+          <div class="btn-bg-hover"></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get started</span><span>Get started</span></div></div>
+        </button>
+      </div>
+
+      <!-- Teams -->
+      <div class="card card-teams">
+        <canvas id="teams-pixel-canvas"></canvas>
+        <span class="badge-popular">POPULAR</span>
+        <span class="plan-label purple">TEAMS</span>
+        <div class="card-price">
+          <span class="price-amount-wrap"><span class="price-amount" id="teams-price">$27</span></span>
+          <span class="price-period">/month base</span>
+        </div>
+        <p class="card-description">Everything in Pro, plus shared capacity and team controls.</p>
+
+        <hr class="divider" />
+
+        <div class="card-collapsible">
+        <div class="card-body">
+
+        <ul class="features">
+          <li class="feature-item">
+            <svg class="check-icon purple" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            Shared workspace, billing and unlimited viewers
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon purple" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            +$15/editor/month — anyone who builds, deploys, or admins
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon purple" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            Shared token pool — 10M tokens per editor, pooled across the team
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon purple" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            Unused tokens roll over to next month
+          </li>
+        </ul>
+
+
+        <ul class="features">
+          <li class="feature-item">
+            <svg class="check-icon purple" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            Centralized billing and invoicing
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon purple" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            Team-level access management with per-project permissions
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon purple" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            Granular admin controls and user provisioning
+          </li>
+        </ul>
+
+
+        <ul class="features">
+          <li class="feature-item">
+            <svg class="check-icon purple" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            Share projects across your entire organization
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon purple" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            Private NPM registries support
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon purple" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            Design system auto-injected for on-brand output
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon purple" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            SSO (Google, Okta, Azure AD)
+          </li>
+        </ul>
+        </div>
+        <div class="card-fade"></div>
+        </div>
+        <button class="card-expand" type="button">Expand ↓</button>
+
+        <button class="cta-primary cta-blue">
+          <div class="btn-bg-hover"></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get started</span><span>Get started</span></div></div>
+        </button>
+      </div>
+
+      <!-- Organization -->
+      <div class="card">
+        <canvas class="card-hover-canvas" id="enterprise-hover-canvas"></canvas>
+        <span class="plan-label orange">ENTERPRISE</span>
+        <div class="card-price">
+          <span class="price-amount">Custom</span>
+        </div>
+        <p class="card-description">Everything in Teams, built for scale, security, and compliance.</p>
+
+        <hr class="divider" />
+
+        <div class="card-collapsible">
+        <div class="card-body">
+
+        <ul class="features">
+          <li class="feature-item">
+            <svg class="check-icon orange" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            SOC 2 Type II, SSO, audit logs, and data governance
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon orange" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            Advanced security reviews available on request
+          </li>
+        </ul>
+
+
+        <ul class="features">
+          <li class="feature-item">
+            <svg class="check-icon orange" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            Unlimited token pools, priced by consumption
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon orange" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            Built for teams of hundreds of builders
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon orange" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            Dedicated infrastructure available for high-volume workloads
+          </li>
+        </ul>
+
+
+        <ul class="features">
+          <li class="feature-item">
+            <svg class="check-icon orange" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            Dedicated account manager and hands-on onboarding
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon orange" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            24/7 priority support
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon orange" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            Flexible billing, procurement, and MSA options
+          </li>
+        </ul>
+        </div>
+        <div class="card-fade"></div>
+        </div>
+        <button class="card-expand" type="button">Expand ↓</button>
+
+        <button class="cta-secondary">
+          <div class="btn-bg-hover"></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Contact us</span><span>Contact us</span></div></div>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Security & compliance banner -->
+    <div class="compliance-banner">
+      <div class="compliance-left">
+        <h3 class="compliance-title">Security and compliance</h3>
+        <p class="compliance-sub">Enterprise-grade security and compliance certifications</p>
+        <a class="compliance-btn" href="https://trust.bolt.new/" target="_blank" rel="noopener" style="margin-top:16px;width:fit-content;text-decoration:none;">
+          <div class="btn-bg-hover"></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Learn more</span><span>Learn more</span></div></div>
+        </a>
+      </div>
+      <div class="compliance-badges">
+        <!-- SOC 2 -->
+        <div class="cert-badge">
+          <svg viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle class="cert-ring" cx="45" cy="45" r="43" stroke="#1488FC" stroke-width="1" stroke-dasharray="4 3"/>
+            <text x="45" y="43" text-anchor="middle" dominant-baseline="middle" font-family="Inter,sans-serif" font-size="14" font-weight="700" fill="rgba(255,255,255,0.85)">SOC 2</text>
+            <text x="45" y="57" text-anchor="middle" dominant-baseline="middle" font-family="Inter,sans-serif" font-size="8" font-weight="500" fill="rgba(255,255,255,0.4)" letter-spacing="1.5">TYPE II</text>
+          </svg>
+        </div>
+        <!-- GDPR -->
+        <div class="cert-badge">
+          <svg viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle class="cert-ring" cx="45" cy="45" r="43" stroke="#1488FC" stroke-width="1" stroke-dasharray="4 3"/>
+            <!-- 12 EU stars on ring radius 20, each star rotated to point outward -->
+            <g fill="rgba(255,255,255,0.75)">
+              <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(0,45,45)"/>
+              <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(30,45,45)"/>
+              <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(60,45,45)"/>
+              <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(90,45,45)"/>
+              <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(120,45,45)"/>
+              <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(150,45,45)"/>
+              <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(180,45,45)"/>
+              <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(210,45,45)"/>
+              <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(240,45,45)"/>
+              <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(270,45,45)"/>
+              <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(300,45,45)"/>
+              <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(330,45,45)"/>
+            </g>
+            <text x="45" y="45" text-anchor="middle" dominant-baseline="middle" font-family="Inter,sans-serif" font-size="11" font-weight="700" fill="rgba(255,255,255,0.85)">GDPR</text>
+          </svg>
+        </div>
+        <!-- ISO 27001 -->
+        <div class="cert-badge">
+          <svg viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle class="cert-ring" cx="45" cy="45" r="43" stroke="#1488FC" stroke-width="1" stroke-dasharray="4 3"/>
+            <!-- Globe lines -->
+            <circle cx="45" cy="34" r="14" stroke="rgba(255,255,255,0.55)" stroke-width="1.2"/>
+            <ellipse cx="45" cy="34" rx="7" ry="14" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
+            <line x1="31" y1="34" x2="59" y2="34" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
+            <line x1="33" y1="27" x2="57" y2="27" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+            <line x1="33" y1="41" x2="57" y2="41" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+            <text x="45" y="66" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="700" fill="rgba(255,255,255,0.85)" letter-spacing="0.5">ISO 27001</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Compare features -->
+    <section class="compare-section" data-active-tier="pro">
+      <div class="compare-header">
+        <div>
+          <h2 class="feat-headline">Compare features</h2>
+        </div>
+      </div>
+
+      <div class="compare-tier-switch" role="tablist" aria-label="Select plan">
+        <button type="button" data-tier="free">Free</button>
+        <button type="button" data-tier="pro" class="is-active">Pro</button>
+        <button type="button" data-tier="teams">Teams</button>
+        <button type="button" data-tier="ent">Enterprise</button>
+      </div>
+
+      <div class="compare-pixel-wrap"><canvas id="compare-header-pixel-canvas" class="compare-header-pixel"></canvas></div>
+
+      <table class="compare-table">
+        <colgroup>
+          <col style="width:28%" />
+          <col style="width:18%" />
+          <col style="width:18%" />
+          <col style="width:18%" />
+          <col style="width:18%" />
+        </colgroup>
+        <thead>
+          <tr class="compare-tier-head">
+            <th>Features</th>
+            <th class="tier-free">
+              <span class="tier-name">Free</span>
+              <div><a class="tier-cta" href="#">Select →</a></div>
+            </th>
+            <th class="tier-pro">
+              <span class="tier-name">Pro</span>
+              <div><a class="tier-cta" href="#">Select →</a></div>
+            </th>
+            <th class="tier-teams">
+              <span class="tier-name">Teams</span>
+              <div><a class="tier-cta" href="#">Select →</a></div>
+            </th>
+            <th class="tier-ent">
+              <span class="tier-name">Enterprise</span>
+              <div><a class="tier-cta" href="#">Select →</a></div>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="compare-group first"><td>Usage & Tokens</td><td></td><td></td><td></td><td></td></tr>
+          <tr>
+            <td>Monthly AI Tokens</td>
+            <td>1M</td>
+            <td>Starts at 10M</td>
+            <td>Shared Pool</td>
+            <td class="compare-emph">Custom</td>
+          </tr>
+          <tr>
+            <td>Daily Token Limit</td>
+            <td>300K</td>
+            <td><span class="compare-dash">No Limit</span></td>
+            <td><span class="compare-dash">No Limit</span></td>
+            <td><span class="compare-dash">No Limit</span></td>
+          </tr>
+          <tr>
+            <td>Unused Tokens roll over</td>
+            <td><span class="compare-dash">—</span></td>
+            <td>
+              <svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            </td>
+            <td>
+              <svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            </td>
+            <td>
+              <svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            </td>
+          </tr>
+          <tr>
+            <td>File Upload Limit</td>
+            <td>10MB</td>
+            <td>100MB</td>
+            <td>100MB</td>
+            <td class="compare-emph">Custom</td>
+          </tr>
+          <tr>
+            <td>Web Requests / Month</td>
+            <td>333K</td>
+            <td>1M</td>
+            <td>1M+</td>
+            <td class="compare-emph">Custom</td>
+          </tr>
+          <tr>
+            <td>Access to Best &amp; Newest AI Models</td>
+            <td><span class="compare-dash">—</span></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+          </tr>
+          <tr>
+            <td>Pay-as-you-go Overages</td>
+            <td><span class="compare-dash">—</span></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+          </tr>
+
+          <tr class="compare-group"><td>Projects & Hosting</td><td></td><td></td><td></td><td></td></tr>
+          <tr>
+            <td>Public & Private Projects</td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+          </tr>
+          <tr>
+            <td>Bolt Branding removed</td>
+            <td><span class="compare-dash">—</span></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+          </tr>
+          <tr>
+            <td>Custom Domains</td>
+            <td><span class="compare-dash">—</span></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+          </tr>
+          <tr>
+            <td>Private Sharing</td>
+            <td><span class="compare-dash">—</span></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+          </tr>
+          <tr>
+            <td>Website Hosting</td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+          </tr>
+          <tr>
+            <td>SEO Boost for Published Sites</td>
+            <td><span class="compare-dash">—</span></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+          </tr>
+
+          <tr class="compare-group"><td>Collaboration</td><td></td><td></td><td></td><td></td></tr>
+          <tr>
+            <td>Centralized Billing</td>
+            <td><span class="compare-dash">—</span></td>
+            <td><span class="compare-dash">—</span></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+          </tr>
+          <tr>
+            <td>Team-Level Access Management</td>
+            <td><span class="compare-dash">—</span></td>
+            <td><span class="compare-dash">—</span></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+          </tr>
+          <tr>
+            <td>Granular Admin Controls</td>
+            <td><span class="compare-dash">—</span></td>
+            <td><span class="compare-dash">—</span></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+          </tr>
+          <tr>
+            <td>Org-Wide Sharing</td>
+            <td><span class="compare-dash">—</span></td>
+            <td><span class="compare-dash">—</span></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+          </tr>
+
+          <tr class="compare-group"><td>Integrations & Data</td><td></td><td></td><td></td><td></td></tr>
+          <tr>
+            <td>Connectors &amp; MCPs</td>
+            <td><span class="compare-dash">—</span></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+          </tr>
+          <tr>
+            <td>Private NPM Registries</td>
+            <td><span class="compare-dash">—</span></td>
+            <td><span class="compare-dash">—</span></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+          </tr>
+          <tr>
+            <td>Design System Knowledge</td>
+            <td><span class="compare-dash">—</span></td>
+            <td><span class="compare-dash">—</span></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+          </tr>
+
+          <tr class="compare-group"><td>Security & Support</td><td></td><td></td><td></td><td></td></tr>
+          <tr>
+            <td>Single Sign-On (SSO)</td>
+            <td><span class="compare-dash">—</span></td>
+            <td><span class="compare-dash">—</span></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+          </tr>
+          <tr>
+            <td>Audit Logs</td>
+            <td><span class="compare-dash">—</span></td>
+            <td><span class="compare-dash">—</span></td>
+            <td><span class="compare-dash">—</span></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+          </tr>
+          <tr>
+            <td>SOC 2, GDPR, ISO 27001</td>
+            <td><span class="compare-dash">—</span></td>
+            <td><span class="compare-dash">—</span></td>
+            <td><span class="compare-dash">—</span></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+          </tr>
+          <tr>
+            <td>Advanced Security Reviews</td>
+            <td><span class="compare-dash">—</span></td>
+            <td><span class="compare-dash">—</span></td>
+            <td><span class="compare-dash">—</span></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+          </tr>
+          <tr>
+            <td>Dedicated Infrastructure</td>
+            <td><span class="compare-dash">—</span></td>
+            <td><span class="compare-dash">—</span></td>
+            <td><span class="compare-dash">—</span></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+          </tr>
+          <tr>
+            <td>Data Governance & Retention</td>
+            <td><span class="compare-dash">—</span></td>
+            <td><span class="compare-dash">—</span></td>
+            <td><span class="compare-dash">—</span></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+          </tr>
+          <tr>
+            <td>Dedicated Account Manager</td>
+            <td><span class="compare-dash">—</span></td>
+            <td><span class="compare-dash">—</span></td>
+            <td><span class="compare-dash">—</span></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+          </tr>
+          <tr>
+            <td>Flexible Billing, Procurement & MSA</td>
+            <td><span class="compare-dash">—</span></td>
+            <td><span class="compare-dash">—</span></td>
+            <td><span class="compare-dash">—</span></td>
+            <td><svg class="compare-check" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></td>
+          </tr>
+          <tr>
+            <td>Support</td>
+            <td>Community</td>
+            <td>Standard</td>
+            <td>Priority</td>
+            <td class="compare-emph">24/7 Priority</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- FAQ -->
+    <div class="faq-section">
+      <div class="faq-header">
+        <h2 class="feat-headline">FAQs</h2>
+        <p class="faq-sub">Everything you need to know about the product and billing.</p>
+        <a href="https://support.bolt.new/" class="faq-contact-link" target="_blank" rel="noopener">
+          <div class="btn-bg-hover"></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Visit Help Center</span><span>Visit Help Center</span></div></div>
+        </a>
+      </div>
+
+      <div>
+        <div class="faq-list">
+          <div class="faq-item open">
+            <button class="faq-q" onclick="toggleFaq(this)">
+              <div class="faq-q-left">
+                <span class="faq-num">01</span>
+                <span>What are tokens?</span>
+              </div>
+              <div class="faq-icon" style="position:relative;">
+                <svg class="faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                <svg class="faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </div>
+            </button>
+            <div class="faq-a"><div class="faq-a-inner">AI tokens are a complex topic related to all AI apps, not just Bolt. You can learn more about tokens <a href="https://docs.anthropic.com/en/docs/resources/glossary#tokens" class="faq-link" target="_blank" rel="noopener">here</a>. For Bolt specifically it is important to know that most token usage is related to syncing your project's file system to the AI: the larger the project, the more tokens are used per action. Our top priority is to increase the efficiency of token usage in Bolt. We continue to make improvements so that Bolt uses fewer tokens.</div></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">
+              <div class="faq-q-left">
+                <span class="faq-num">02</span>
+                <span>How do Teams plans work?</span>
+              </div>
+              <div class="faq-icon" style="position:relative;">
+                <svg class="faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                <svg class="faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </div>
+            </button>
+            <div class="faq-a"><div class="faq-a-inner">Teams provide a shared workspace for users to collaborate on Bolt projects. The subscription cost for Teams is per team member. Each paid team member receives a monthly token allotment based on the subscription tier. Tokens are not shared among team members. You can read more about Teams plans <a href="https://support.bolt.new/account-and-subscription/team-plans#teams-plans" class="faq-link" target="_blank" rel="noopener">here</a>.</div></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">
+              <div class="faq-q-left">
+                <span class="faq-num">03</span>
+                <span>Do tokens rollover from month to month?</span>
+              </div>
+              <div class="faq-icon" style="position:relative;">
+                <svg class="faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                <svg class="faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </div>
+            </button>
+            <div class="faq-a"><div class="faq-a-inner">Starting July 1, 2025, tokens from a paid subscription will roll over for one additional month, making them valid for up to two months in total. Please note that an active paid subscription is required to access any rolled over tokens. For more details, please refer to <a href="https://support.bolt.new/account-and-subscription/tokens#token-rollover" class="faq-link" target="_blank" rel="noopener">this article</a>.</div></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">
+              <div class="faq-q-left">
+                <span class="faq-num">04</span>
+                <span>Can I change my plan later?</span>
+              </div>
+              <div class="faq-icon" style="position:relative;">
+                <svg class="faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                <svg class="faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </div>
+            </button>
+            <div class="faq-a"><div class="faq-a-inner">Yes, you can change your plan by clicking <strong>Manage current plan</strong>. This will take you to our Stripe billing portal where you can select <strong>Update subscription</strong> to change your plan type.</div></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">
+              <div class="faq-q-left">
+                <span class="faq-num">05</span>
+                <span>Can I cancel my subscription?</span>
+              </div>
+              <div class="faq-icon" style="position:relative;">
+                <svg class="faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                <svg class="faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </div>
+            </button>
+            <div class="faq-a"><div class="faq-a-inner">Yes, you can cancel at any time. Click <strong>Manage current plan</strong> to be taken into the cancellation process.</div></div>
+          </div>
+          <div class="faq-item" style="border-bottom:none;">
+            <button class="faq-q" onclick="toggleFaq(this)">
+              <div class="faq-q-left">
+                <span class="faq-num">06</span>
+                <span>What are the token limits associated with a free plan?</span>
+              </div>
+              <div class="faq-icon" style="position:relative;">
+                <svg class="faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                <svg class="faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </div>
+            </button>
+            <div class="faq-a"><div class="faq-a-inner">Free plans have a 300,000 token daily limit and 1 million token monthly limit.</div></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Logo train -->
+    <div class="logo-train">
+      <div class="logo-track" id="logo-track">
+        <span class="logo-item"><img src="images/salesforce.svg" alt="Salesforce"></span>
+        <span class="logo-item"><img src="images/hubspot-logo.svg" alt="HubSpot"></span>
+        <span class="logo-item"><img src="images/meta.svg" alt="Meta"></span>
+        <span class="logo-item"><img src="images/mozilla.svg" alt="Mozilla"></span>
+        <span class="logo-item"><img src="images/shopify.svg" alt="Shopify"></span>
+        <span class="logo-item"><img src="images/intel.svg" alt="Intel"></span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CTA / Footer — copied from enterprise page -->
+  <section class="footer-section">
+    <p class="footer-eyebrow" style="font-size:14px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:rgba(20,136,252,0.7);margin:0;font-family:'Silkscreen',monospace;">Are you ready?</p>
+    <h2 class="footer-headline">Start building today</h2>
+    <p class="footer-subtitle">
+      Join thousands of teams shipping faster with our enterprise platform.
+    </p>
+    <div style="position:relative;width:100%;max-width:700px;margin-top:-120px;">
+      <canvas id="pricing-footer-pixel-canvas" style="display:block;width:100%;height:160px;pointer-events:none;opacity:1;"></canvas>
+      <div class="card-form-strip" style="margin-top:-50px;position:relative;z-index:1;">
+        <div class="card-strip-text">
+          <p class="card-strip-sub">Schedule a 1:1 with <span class="rotating-name" data-names='["Mason","Joe","Angelo"]'><span class="rotating-name-track"><span class="rotating-name-item">Mason</span></span></span></p>
+        </div>
+        <div class="hero-form-row">
+          <label class="sr-only" for="pricing-email-input">Your work email</label>
+          <input id="pricing-email-input" type="email" class="hero-email-input" placeholder="Your work email" aria-label="Your work email" />
+          <button class="hero-cta-button" aria-label="Submit email">
+            <div class="btn-bg-hover"></div>
+            <div class="btn-text-wrap"><div class="btn-text-inner"><span>Submit</span><span>Submit</span></div></div>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="bolt-image-wrap">
+      <img src="images/bolt-bottom.png" alt="" aria-hidden="true" loading="lazy" decoding="async">
+      <canvas id="bolt-shimmer-canvas"></canvas>
+      <div style="position:absolute;inset:0;background:linear-gradient(to bottom, #000 0%, transparent 22%, transparent 88%, #000 100%);z-index:3;pointer-events:none;"></div>
+    </div>
+  </section>
+
+  <script>
+    function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
+      color = color || '20,136,252';
+      var canvas = document.getElementById(id);
+      if (!canvas) return;
+      var phases = [];
+
+      function buildPhases(cols, rows) {
+        phases = [];
+        for (var r = 0; r < rows; r++) {
+          phases[r] = [];
+          for (var c = 0; c < cols; c++) {
+            phases[r][c] = Math.random() * Math.PI * 2;
+          }
+        }
+      }
+
+      function resize() {
+        var parent = canvas.parentElement;
+        var w = parent.offsetWidth || parent.getBoundingClientRect().width;
+        var h = parent.offsetHeight || parent.getBoundingClientRect().height;
+        if (!w || !h) return;
+        canvas.width = Math.round(w);
+        canvas.height = Math.round(h);
+        buildPhases(Math.ceil(w / spacing), Math.ceil(h / spacing));
+      }
+
+      window.addEventListener('load', resize);
+      window.addEventListener('resize', resize);
+      new ResizeObserver(function() { resize(); }).observe(canvas.parentElement);
+      requestAnimationFrame(function() { resize(); });
+
+      function draw(t) {
+        var w = canvas.width, h = canvas.height;
+        if (!w || !h) { requestAnimationFrame(draw); return; }
+        var ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, w, h);
+        var cols = Math.ceil(w / spacing);
+        var rows = Math.ceil(h / spacing);
+        for (var r = 0; r < rows; r++) {
+          for (var c = 0; c < cols; c++) {
+            var phase = (phases[r] && phases[r][c]) || 0;
+            var op = waveFn(c, r, t, phase) * opacity;
+            if (op < 0.04) continue;
+            ctx.fillStyle = 'rgba(' + color + ',' + op.toFixed(3) + ')';
+            ctx.fillRect(c * spacing, r * spacing, dot, dot);
+          }
+        }
+        requestAnimationFrame(draw);
+      }
+      requestAnimationFrame(draw);
+    }
+
+    makePixelCanvas('teams-pixel-canvas', 6, 2,
+      function(c, r, t, p) {
+        var px = c * 6, py = r * 6;
+        var el = document.getElementById('teams-pixel-canvas');
+        var W = el ? el.width : 400, H = el ? el.height : 600;
+        // Dramatic top-center bloom, fades toward bottom and edges
+        var cx = W / 2;
+        var hFade = Math.max(0, 1 - Math.abs(px - cx) / (W * 0.6));
+        var vFade = Math.max(0, 1 - py / (H * 0.75));
+        var fade = Math.pow(hFade * vFade, 0.6);
+        if (fade <= 0) return 0;
+        var speedMod = 0.05 + (Math.sin(t * 0.00070 + 1.4) * 0.5 + 0.5) * 0.22;
+        function rwave(scale, rotRate, phase, tMult) {
+          var angle = t * rotRate + phase;
+          var u = (px * Math.cos(angle) + py * Math.sin(angle)) / scale;
+          var v = (-px * Math.sin(angle) + py * Math.cos(angle)) / scale;
+          return Math.sin(u * Math.PI * 2 + t * tMult * speedMod)
+               * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7 * speedMod);
+        }
+        var s1 = rwave(500, 0.00012, 0.5, 0.00030);
+        var s2 = rwave(260, 0.00025, 1.8, 0.00065);
+        var s3 = rwave(130, 0.00042, 3.1, 0.00130);
+        var s4 = rwave(380, 0.00018, 4.5, 0.00048);
+        var waveFront = s1 * 0.5 + 0.5;
+        var detail = s2 * 0.45 + s3 * 0.30 + s4 * 0.25;
+        var raw = waveFront * (detail * 0.5 + 0.5);
+        var density = Math.pow(Math.max(0, raw), 0.7) * fade;
+        var rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
+        return density > rand ? density * 0.9 : 0;
+      }, 0.90, '20,136,252'
+    );
+
+    makePixelCanvas('compare-header-pixel-canvas', 6, 2,
+      function(c, r, t, p) {
+        var px = c * 6, py = r * 6;
+        var speedMod = 0.05 + (Math.sin(t * 0.00070 + 0.8) * 0.5 + 0.5) * 0.22;
+        function rwave(scale, rotRate, phase, tMult) {
+          var angle = t * rotRate + phase;
+          var u = (px * Math.cos(angle) + py * Math.sin(angle)) / scale;
+          var v = (-px * Math.sin(angle) + py * Math.cos(angle)) / scale;
+          return Math.sin(u * Math.PI * 2 + t * tMult * speedMod)
+               * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7 * speedMod);
+        }
+        var s1 = rwave(500, 0.00012, 0.5, 0.00030);
+        var s2 = rwave(260, 0.00025, 1.8, 0.00065);
+        var s3 = rwave(130, 0.00042, 3.1, 0.00130);
+        var s4 = rwave(380, 0.00018, 4.5, 0.00048);
+        var waveFront = s1 * 0.5 + 0.5;
+        var detail = s2 * 0.45 + s3 * 0.30 + s4 * 0.25;
+        var raw = waveFront * (detail * 0.5 + 0.5);
+        var density = Math.pow(Math.max(0, raw), 0.7);
+        var rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
+        return density > rand ? density * 0.9 : 0;
+      }, 0.90, '140,150,165'
+    );
+
+    (function() {
+      var section = document.querySelector('.compare-section');
+      var btns = document.querySelectorAll('.compare-tier-switch button');
+      if (!section || !btns.length) return;
+      btns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var tier = btn.getAttribute('data-tier');
+          section.setAttribute('data-active-tier', tier);
+          btns.forEach(function(b) { b.classList.toggle('is-active', b === btn); });
+        });
+      });
+    })();
+
+
+    (function() {
+      var rows = document.querySelectorAll('.compare-table tbody tr:not(.compare-group)');
+      rows.forEach(function(row, rIdx) {
+        var cells = row.querySelectorAll('td');
+        cells.forEach(function(cell, cIdx) {
+          cell.classList.add('reveal-cell');
+          cell.style.setProperty('--reveal-delay', (cIdx * 70) + 'ms');
+        });
+      });
+      if ('IntersectionObserver' in window) {
+        var io = new IntersectionObserver(function(entries) {
+          entries.forEach(function(e) {
+            if (e.isIntersecting) {
+              e.target.classList.add('is-visible');
+              io.unobserve(e.target);
+            }
+          });
+        }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' });
+        document.querySelectorAll('.compare-table tbody td.reveal-cell').forEach(function(c) {
+          io.observe(c);
+        });
+      } else {
+        document.querySelectorAll('.compare-table tbody td.reveal-cell').forEach(function(c) {
+          c.classList.add('is-visible');
+        });
+      }
+    })();
+
+    (function() {
+      var section = document.querySelector('.compare-section');
+      var wrap = document.querySelector('.compare-pixel-wrap');
+      var head = document.querySelector('.compare-tier-head');
+      if (!section || !wrap || !head) return;
+      function syncHeight() {
+        var h = head.getBoundingClientRect().height;
+        if (h > 0) {
+          wrap.style.height = h + 'px';
+          wrap.style.marginBottom = (-h) + 'px';
+        }
+      }
+      function update() {
+        var top = section.getBoundingClientRect().top;
+        var fadeStart = 0;
+        var fadeEnd = -160;
+        var t = (top - fadeStart) / (fadeEnd - fadeStart);
+        t = Math.max(0, Math.min(1, t));
+        wrap.style.opacity = String(1 - t);
+        head.classList.toggle('is-stuck', t > 0.5);
+      }
+      syncHeight();
+      update();
+      window.addEventListener('scroll', update, { passive: true });
+      window.addEventListener('resize', function() { syncHeight(); update(); });
+      window.addEventListener('load', syncHeight);
+      new ResizeObserver(syncHeight).observe(head);
+    })();
+
+    makePixelCanvas('pricing-footer-pixel-canvas', 6, 2,
+      function(c, r, t, p) {
+        var px = c * 6, py = r * 6;
+        var el = document.getElementById('pricing-footer-pixel-canvas');
+        var W = el ? el.width : 700, H = el ? el.height : 90;
+        var cx = W / 2;
+        var hFade = Math.max(0, 1 - Math.abs(px - cx) / (W * 0.55));
+        var vFade = Math.max(0, 1 - py / (H * 0.85));
+        var fade = hFade * vFade;
+        if (fade <= 0) return 0;
+        var speedMod = 0.05 + (Math.sin(t * 0.00070 + 2.2) * 0.5 + 0.5) * 0.22;
+        function rwave(scale, rotRate, phase, tMult) {
+          var angle = t * rotRate + phase;
+          var u = (px * Math.cos(angle) + py * Math.sin(angle)) / scale;
+          var v = (-px * Math.sin(angle) + py * Math.cos(angle)) / scale;
+          return Math.sin(u * Math.PI * 2 + t * tMult * speedMod)
+               * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7 * speedMod);
+        }
+        var s1 = rwave(300, 0.00012, 0.3, 0.00030);
+        var s2 = rwave(160, 0.00025, 1.6, 0.00065);
+        var s3 = rwave(80,  0.00042, 2.9, 0.00130);
+        var s4 = rwave(220, 0.00018, 4.2, 0.00048);
+        var waveFront = s1 * 0.5 + 0.5;
+        var detail = s2 * 0.45 + s3 * 0.30 + s4 * 0.25;
+        var raw = waveFront * (detail * 0.5 + 0.5);
+        var density = Math.pow(Math.max(0, raw), 0.7) * fade;
+        var rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
+        return density > rand ? density * 0.85 : 0;
+      }, 1.0, '220,230,245'
+    );
+
+    // Card hover canvases (Pro + Enterprise)
+    ['pro-hover-canvas', 'enterprise-hover-canvas'].forEach(function(id, idx) {
+      makePixelCanvas(id, 6, 2,
+        function(c, r, t, p) {
+          var px = c * 6, py = r * 6;
+          var el = document.getElementById(id);
+          var W = el ? el.width : 400, H = el ? el.height : 600;
+          var hFade = Math.max(0, 1 - Math.pow(Math.abs(px - W * 0.7) / (W * 0.7), 1.2));
+          var vFade = Math.max(0, 1 - Math.pow(Math.abs(py - H * 0.5) / (H * 0.6), 1.5));
+          var fade = hFade * vFade;
+          if (fade <= 0) return 0;
+          var phase = idx * 2.1;
+          var speedMod = 0.06 + (Math.sin(t * 0.00055 + phase) * 0.5 + 0.5) * 0.18;
+          function rwave(scale, rotRate, ph, tMult) {
+            var angle = t * rotRate + ph;
+            var u = (px * Math.cos(angle) + py * Math.sin(angle)) / scale;
+            var v = (-px * Math.sin(angle) + py * Math.cos(angle)) / scale;
+            return Math.sin(u * Math.PI * 2 + t * tMult * speedMod)
+                 * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7 * speedMod);
+          }
+          var s1 = rwave(500, 0.00012, 0.5 + phase, 0.00030);
+          var s2 = rwave(260, 0.00025, 1.8 + phase, 0.00065);
+          var s3 = rwave(130, 0.00042, 3.1 + phase, 0.00130);
+          var s4 = rwave(380, 0.00018, 4.5 + phase, 0.00048);
+          var waveFront = s1 * 0.5 + 0.5;
+          var detail = s2 * 0.45 + s3 * 0.30 + s4 * 0.25;
+          var raw = waveFront * (detail * 0.5 + 0.5);
+          var density = Math.pow(Math.max(0, raw), 0.7) * fade;
+          var rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
+          return density > rand ? density * 0.9 : 0;
+        }, 0.55, '20,136,252'
+      );
+    });
+  </script>
+
+  <script>
+    (function() {
+      var cardsEl = document.querySelector('.cards');
+      if (!cardsEl) return;
+      cardsEl.addEventListener('mouseenter', function() { cardsEl.classList.add('is-hovering'); });
+      cardsEl.addEventListener('mouseleave', function() { cardsEl.classList.remove('is-hovering'); });
+    })();
+  </script>
+
+  <script>
+    function toggleFaq(btn) {
+      var item = btn.parentElement;
+      var isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(function(el) { el.classList.remove('open'); });
+      if (!isOpen) item.classList.add('open');
+    }
+  </script>
+
+  <script>
+    var currentBilling = 'yearly';
+
+    function animatePrice(el, newText, direction) {
+      var outY = direction === 'down' ? '55%' : '-55%';
+      var inY  = direction === 'down' ? '-55%' : '55%';
+      el.style.transition = 'transform 0.22s cubic-bezier(0.4,0,0.2,1), opacity 0.22s ease';
+      el.style.transform  = 'translateY(' + outY + ')';
+      el.style.opacity    = '0';
+      setTimeout(function() {
+        el.textContent      = newText;
+        el.style.transition = 'none';
+        el.style.transform  = 'translateY(' + inY + ')';
+        el.style.opacity    = '0';
+        requestAnimationFrame(function() {
+          requestAnimationFrame(function() {
+            el.style.transition = 'transform 0.22s cubic-bezier(0.4,0,0.2,1), opacity 0.22s ease';
+            el.style.transform  = 'translateY(0)';
+            el.style.opacity    = '1';
+          });
+        });
+      }, 230);
+    }
+
+    function setBilling(val) {
+      if (val === currentBilling) return;
+      var isYearly = val === 'yearly';
+      var direction = isYearly ? 'down' : 'up';
+      animatePrice(document.getElementById('pro-price'),   isYearly ? '$18' : '$25', direction);
+      animatePrice(document.getElementById('teams-price'), isYearly ? '$27' : '$30', direction);
+      document.getElementById('btn-monthly').classList.toggle('active', !isYearly);
+      document.getElementById('btn-yearly').classList.toggle('active', isYearly);
+      document.querySelector('.billing-toggle').setAttribute('data-billing', val);
+      currentBilling = val;
+    }
+    setBilling('yearly');
+  </script>
+
+  <script>
+    // ── Organic wave/noise pixel field ──
+    (function () {
+      var canvas = document.getElementById('pricing-pixel-skyline');
+      if (!canvas) return;
+      var ctx = canvas.getContext('2d');
+
+      var SPACING = 9;
+      var MAX_R = 3.4;
+
+      var cols, rows, phases;
+
+      function init() {
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+        cols = Math.ceil(canvas.width / SPACING) + 1;
+        rows = Math.ceil(canvas.height / SPACING) + 1;
+        phases = Array.from({ length: rows }, function () {
+          return Float32Array.from({ length: cols }, function () { return Math.random() * Math.PI * 2; });
+        });
+      }
+      window.addEventListener('resize', init);
+      init();
+
+      // Rotated wave sample — creates drifting, directional bands
+      function rwave(px, py, scale, rotRate, phase, tMult, t) {
+        var angle = t * rotRate + phase;
+        var u = (px * Math.cos(angle) + py * Math.sin(angle)) / scale;
+        var v = (-px * Math.sin(angle) + py * Math.cos(angle)) / scale;
+        return Math.sin(u * Math.PI * 2 + t * tMult)
+             * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7);
+      }
+
+      var start = null;
+      function draw(ts) {
+        if (!start) start = ts;
+        var t = ts - start;
+        var W = canvas.width, H = canvas.height;
+        ctx.clearRect(0, 0, W, H);
+
+        // Slow-drifting attractors warp the field so patterns evolve
+        var cx1 = W * (0.30 + 0.22 * Math.sin(t * 0.00014));
+        var cy1 = H * (0.55 + 0.18 * Math.cos(t * 0.00018));
+        var cx2 = W * (0.72 - 0.20 * Math.sin(t * 0.00020 + 1.1));
+        var cy2 = H * (0.42 + 0.15 * Math.cos(t * 0.00013 + 2.3));
+
+        ctx.fillStyle = 'rgba(200, 215, 240, 0.28)';
+
+        // Chaotic roaming activation pockets — Lissajous paths with varying speed
+        // Each pocket has its own trajectory, radius, and pulse rhythm.
+        var pockets = [
+          {
+            x: W * (0.5 + 0.45 * Math.sin(t * 0.00015) * Math.cos(t * 0.00011)),
+            y: H * (0.5 + 0.45 * Math.cos(t * 0.00013 + 0.8) * Math.sin(t * 0.00017)),
+            r: 260 + 90 * Math.sin(t * 0.00021),
+            a: 0.5 + 0.5 * Math.sin(t * 0.00032 + 1.2)
+          },
+          {
+            x: W * (0.5 - 0.50 * Math.cos(t * 0.00011 + 1.7) * Math.sin(t * 0.00019)),
+            y: H * (0.5 - 0.45 * Math.sin(t * 0.00014 + 2.3) * Math.cos(t * 0.00008)),
+            r: 320 + 110 * Math.cos(t * 0.00017 + 0.5),
+            a: 0.5 + 0.5 * Math.sin(t * 0.00027 + 3.1)
+          },
+          {
+            x: W * (0.5 + 0.48 * Math.sin(t * 0.00009 + 2.9) * Math.cos(t * 0.00022 + 1.1)),
+            y: H * (0.5 + 0.48 * Math.cos(t * 0.00012 + 0.3)),
+            r: 220 + 80 * Math.sin(t * 0.00029 + 2.2),
+            a: 0.4 + 0.6 * Math.sin(t * 0.00019 + 0.7)
+          },
+          {
+            x: W * (0.5 - 0.42 * Math.sin(t * 0.00020 + 1.3)),
+            y: H * (0.5 + 0.50 * Math.cos(t * 0.00007 + 2.8) * Math.sin(t * 0.00015 + 0.9)),
+            r: 280 + 100 * Math.cos(t * 0.00023 + 1.8),
+            a: 0.5 + 0.5 * Math.cos(t * 0.00025 + 2.6)
+          },
+          {
+            x: W * (0.5 + 0.47 * Math.cos(t * 0.00024 + 3.6) * Math.sin(t * 0.00010)),
+            y: H * (0.5 - 0.47 * Math.cos(t * 0.00018 + 1.4) * Math.sin(t * 0.00011 + 2.0)),
+            r: 200 + 70 * Math.sin(t * 0.00033 + 1.1),
+            a: 0.4 + 0.6 * Math.cos(t * 0.00030 + 1.5)
+          }
+        ];
+
+        for (var r = 0; r < rows; r++) {
+          for (var c = 0; c < cols; c++) {
+            var px = c * SPACING, py = r * SPACING;
+            var phase = phases[r][c];
+
+            // Layered rotated waves
+            var s1 = rwave(px, py, 700, 0.00009, 0.5 + phase * 0.2, 0.00022, t);
+            var s2 = rwave(px, py, 340, 0.00020, 1.8 + phase * 0.3, 0.00050, t);
+            var s3 = rwave(px, py, 170, 0.00035, 3.1 + phase * 0.4, 0.00085, t);
+
+            var d1 = Math.hypot(px - cx1, py - cy1);
+            var d2 = Math.hypot(px - cx2, py - cy2);
+            var blob = Math.exp(-d1 * d1 / (2 * 320 * 320)) - 0.6 * Math.exp(-d2 * d2 / (2 * 360 * 360));
+
+            var wave = s1 * 0.40 + s2 * 0.32 + s3 * 0.22 + blob * 0.28;
+            wave = wave * 0.5 + 0.5;
+
+            // Accumulate activation from all roaming pockets
+            var activation = 0;
+            for (var i = 0; i < pockets.length; i++) {
+              var p = pockets[i];
+              var dx = px - p.x, dy = py - p.y;
+              activation += p.a * Math.exp(-(dx * dx + dy * dy) / (2 * p.r * p.r));
+            }
+            activation = Math.min(1.1, activation);
+
+            // Mostly quiet, pockets animate bright organic swells
+            var strength = Math.pow(Math.max(0, wave), 2.2);
+            var modulated = 0.18 + activation * strength * 1.05;
+
+            var radius = modulated * MAX_R;
+            if (radius < 0.22) continue;
+
+            ctx.beginPath();
+            ctx.arc(px, py, radius, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+        if (inView) requestAnimationFrame(draw);
+        else rafPaused = true;
+      }
+
+      // Pause drawing when canvas is out of viewport to free the main thread
+      var inView = true;
+      var rafPaused = false;
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          inView = e.isIntersecting;
+          if (inView && rafPaused) {
+            rafPaused = false;
+            start = null;
+            requestAnimationFrame(draw);
+          }
+        });
+      }, { rootMargin: '100px' });
+      io.observe(canvas);
+
+      requestAnimationFrame(draw);
+    })();
+  </script>
+
+  <script>
+    (function () {
+      var track = document.getElementById('logo-track');
+      if (!track) return;
+      var train = track.parentElement;
+
+      function setupMarquee() {
+        var old = document.getElementById('logo-wrapper');
+        if (old) { train.insertBefore(track, old); old.remove(); }
+        track.style.animation = 'none';
+        track.style.flexShrink = '0';
+
+        var setWidth = track.scrollWidth;
+        var copiesPerHalf = Math.ceil(window.innerWidth / setWidth) + 1;
+        var wrapper = document.createElement('div');
+        wrapper.id = 'logo-wrapper';
+        wrapper.style.cssText = 'display:flex;align-items:center;will-change:transform;flex-shrink:0;';
+
+        for (var i = 0; i < copiesPerHalf * 2; i++) {
+          var copy = i === 0 ? track : track.cloneNode(true);
+          copy.removeAttribute('id');
+          if (i > 0) copy.setAttribute('aria-hidden', 'true');
+          copy.style.flexShrink = '0';
+          wrapper.appendChild(copy);
+        }
+        train.appendChild(wrapper);
+
+        var speed = (setWidth * copiesPerHalf) / 30;
+        var styleEl = document.getElementById('marquee-keyframe');
+        if (!styleEl) {
+          styleEl = document.createElement('style');
+          styleEl.id = 'marquee-keyframe';
+          document.head.appendChild(styleEl);
+        }
+        styleEl.textContent = '@keyframes marquee-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }';
+        wrapper.style.animation = 'marquee-scroll ' + speed + 's linear infinite';
+      }
+
+      var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+      if (!isTouch) {
+        train.addEventListener('mouseenter', function () {
+          var w = document.getElementById('logo-wrapper');
+          if (w) w.style.animationPlayState = 'paused';
+        });
+        train.addEventListener('mouseleave', function () {
+          var w = document.getElementById('logo-wrapper');
+          if (w) w.style.animationPlayState = 'running';
+        });
+      }
+
+      if (document.readyState === 'complete') setupMarquee();
+      else window.addEventListener('load', setupMarquee);
+
+      var lastWidth = window.innerWidth;
+      window.addEventListener('resize', function () {
+        if (window.innerWidth !== lastWidth) {
+          lastWidth = window.innerWidth;
+          setupMarquee();
+        }
+      });
+    })();
+  </script>
+
+  <script>
+    (function() {
+      function getCollapsed() {
+        return window.matchMedia('(min-width: 901px) and (max-height: 900px)').matches ? 210 : 240;
+      }
+      var entries = [];
+      document.querySelectorAll('.card').forEach(function(card) {
+        var body = card.querySelector('.card-body');
+        var btn = card.querySelector('.card-expand');
+        var fade = card.querySelector('.card-fade');
+        if (!body || !btn) return;
+        entries.push({ card: card, body: body, btn: btn, fade: fade });
+      });
+
+      requestAnimationFrame(function() {
+        var anyOverflows = entries.some(function(e) {
+          return e.body.scrollHeight > e.body.clientHeight + 4;
+        });
+        if (!anyOverflows) {
+          entries.forEach(function(e) {
+            e.btn.style.display = 'none';
+            if (e.fade) e.fade.style.display = 'none';
+            e.body.style.maxHeight = 'none';
+          });
+          return;
+        }
+
+        entries.forEach(function(e) {
+          if (e.body.scrollHeight <= e.body.clientHeight + 4) {
+            e.btn.style.visibility = 'hidden';
+            if (e.fade) e.fade.style.display = 'none';
+          }
+          e.body.style.maxHeight = getCollapsed() + 'px';
+        });
+
+        function setExpanded(expanded) {
+          entries.forEach(function(e) {
+            e.card.classList.toggle('is-expanded', expanded);
+            e.btn.textContent = expanded ? 'Collapse ↑' : 'Expand ↓';
+            if (expanded) {
+              e.body.style.maxHeight = e.body.scrollHeight + 'px';
+            } else {
+              e.body.style.maxHeight = e.body.scrollHeight + 'px';
+              requestAnimationFrame(function() {
+                e.body.style.maxHeight = getCollapsed() + 'px';
+              });
+            }
+          });
+        }
+
+        entries.forEach(function(e) {
+          e.btn.addEventListener('click', function() {
+            var expanded = !e.card.classList.contains('is-expanded');
+            setExpanded(expanded);
+          });
+          e.body.addEventListener('transitionend', function(ev) {
+            if (ev.propertyName === 'max-height' && e.card.classList.contains('is-expanded')) {
+              e.body.style.maxHeight = 'none';
+            }
+          });
+        });
+      });
+    })();
+  </script>
+
+<script>
+(function() {
+  var dpr = window.devicePixelRatio || 1;
+  var canvasObjs = [];
+
+  // Create a canvas inside each faq-item
+  document.querySelectorAll('.faq-item').forEach(function(item, idx) {
+    var canvas = document.createElement('canvas');
+    canvas.className = 'faq-open-canvas';
+    item.insertBefore(canvas, item.firstChild);
+    canvasObjs.push({ canvas: canvas, item: item, phase: idx * 1.7 });
+  });
+
+  function resizeAll() {
+    canvasObjs.forEach(function(obj) {
+      var rect = obj.item.getBoundingClientRect();
+      var w = obj.item.offsetWidth, h = obj.item.offsetHeight;
+      obj.canvas.width = w * dpr;
+      obj.canvas.height = h * dpr;
+    });
+  }
+  resizeAll();
+  window.addEventListener('resize', resizeAll);
+
+  function draw(t) {
+    canvasObjs.forEach(function(obj) {
+      if (!obj.item.classList.contains('open')) return;
+      var canvas = obj.canvas;
+      // Re-sync size if item height changed (answer expanded)
+      var h = obj.item.offsetHeight;
+      if (canvas.height !== h * dpr) {
+        canvas.width = obj.item.offsetWidth * dpr;
+        canvas.height = h * dpr;
+      }
+      var ctx = canvas.getContext('2d');
+      var W = canvas.width, H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+
+      var sp = 7 * dpr, maxR = 2.2 * dpr;
+      var cols = Math.ceil(W / sp) + 1, rows = Math.ceil(H / sp) + 1;
+
+      for (var r = 0; r < rows; r++) {
+        for (var c = 0; c < cols; c++) {
+          var px = c * sp, py = r * sp;
+          // Fade: strongest on right half, fades to nothing on left quarter
+          var hFade = Math.max(0, Math.min(1, (px / W - 0.2) / 0.5));
+          var fade = hFade;
+          if (fade < 0.02) continue;
+
+          var angle1 = t * 0.00012 + obj.phase;
+          var u1 = (px * Math.cos(angle1) + py * Math.sin(angle1)) / (350 * dpr);
+          var v1 = (-px * Math.sin(angle1) + py * Math.cos(angle1)) / (220 * dpr);
+          var angle2 = t * 0.00022 + obj.phase + 1.5;
+          var u2 = (px * Math.cos(angle2) + py * Math.sin(angle2)) / (180 * dpr);
+          var v2 = (-px * Math.sin(angle2) + py * Math.cos(angle2)) / (120 * dpr);
+
+          var wave = (Math.sin(u1 * Math.PI * 2 + t * 0.00030) * Math.cos(v1 * Math.PI * 1.5))
+                   * 0.55 + (Math.sin(u2 * Math.PI * 2 + t * 0.00060) * 0.45);
+          var density = Math.pow(Math.max(0, wave * 0.5 + 0.5), 0.8) * fade;
+          var rand = (Math.sin(c * 127.1 + r * 311.7 + obj.phase * 50) * 0.5 + 0.5) * 0.9;
+          if (density > rand) {
+            var alpha = density * 0.25;
+            ctx.beginPath();
+            ctx.arc(px, py, maxR * density, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(180,185,195,' + alpha.toFixed(2) + ')';
+            ctx.fill();
+          }
+        }
+      }
+    });
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+</script>
+
+<script>
+(function () {
+  var CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+  function scrambleEyebrow(el) {
+    var original = el.textContent;
+    var chars = original.split('');
+    var total = chars.length;
+    var locked = new Array(total).fill(false);
+    var startTime = null;
+    var duration = 500;
+
+    function phase1(ts) {
+      if (!startTime) startTime = ts;
+      var progress = Math.min((ts - startTime) / duration, 1);
+      var result = '';
+      var allDone = true;
+
+      for (var i = 0; i < total; i++) {
+        if (chars[i] === ' ') { locked[i] = true; result += ' '; continue; }
+        if (!locked[i] && progress >= (i / total) * 0.85) locked[i] = true;
+        if (locked[i]) { result += chars[i]; }
+        else { allDone = false; result += CHARS[Math.floor(Math.random() * CHARS.length)]; }
+      }
+
+      el.textContent = result;
+
+      if (!allDone || progress < 1) {
+        requestAnimationFrame(phase1);
+      } else {
+        el.textContent = original;
+        setTimeout(function() {
+          locked = new Array(total).fill(false);
+          startTime = null;
+          requestAnimationFrame(phase1);
+        }, 4000 + Math.random() * 1000);
+      }
+    }
+
+    requestAnimationFrame(phase1);
+  }
+
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        observer.unobserve(entry.target);
+        setTimeout(function () { scrambleEyebrow(entry.target); }, 80);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  var isMobile = window.matchMedia('(max-width: 768px)').matches;
+  var selector = isMobile ? '.footer-eyebrow' : '.footer-eyebrow, .compare-group td:first-child';
+  document.querySelectorAll(selector).forEach(function (el) {
+    observer.observe(el);
+  });
+})();
+</script>
+
+<script>
+// ── Rotating name ("Schedule a 1:1 with X") — seamless loop, no stutter ──
+(function() {
+  var rotators = document.querySelectorAll('.rotating-name');
+  if (!rotators.length) return;
+
+  rotators.forEach(function(root) {
+    var track = root.querySelector('.rotating-name-track');
+    if (!track) return;
+
+    var names;
+    try { names = JSON.parse(root.getAttribute('data-names') || '[]'); }
+    catch (e) { names = []; }
+    if (!Array.isArray(names) || names.length < 2) return;
+
+    // Pre-populate the track with ALL names + a duplicate of the first name
+    // at the end. That way we can animate index 0 -> N (ending on the
+    // duplicate first name), then snap back to 0 invisibly. No DOM churn mid-
+    // animation, no removal/reinsertion race — buttery smooth on mobile.
+    track.innerHTML = '';
+    names.concat(names[0]).forEach(function(n) {
+      var s = document.createElement('span');
+      s.className = 'rotating-name-item';
+      s.textContent = n;
+      track.appendChild(s);
+    });
+
+    function itemHeightPx() {
+      var first = track.querySelector('.rotating-name-item');
+      return first ? first.getBoundingClientRect().height : 0;
+    }
+
+    // Lock container width to widest name so layout doesn't jump
+    function lockWidth() {
+      var probe = document.createElement('span');
+      probe.style.cssText = 'visibility:hidden;position:absolute;white-space:nowrap;';
+      root.appendChild(probe);
+      var maxW = 0;
+      for (var i = 0; i < names.length; i++) {
+        probe.textContent = names[i];
+        var w = probe.getBoundingClientRect().width;
+        if (w > maxW) maxW = w;
+      }
+      probe.remove();
+      if (maxW > 0) root.style.minWidth = Math.ceil(maxW) + 'px';
+    }
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(lockWidth);
+    } else {
+      setTimeout(lockWidth, 200);
+    }
+    window.addEventListener('load', lockWidth);
+
+    var idx = 0;
+
+    function tick() {
+      var h = itemHeightPx();
+      idx += 1;
+      track.style.transition = 'transform 0.5s cubic-bezier(0.22, 1, 0.36, 1)';
+      track.style.transform = 'translateY(-' + (idx * h) + 'px)';
+
+      // If we just animated onto the duplicate (last index = names.length),
+      // snap back to index 0 once the transition finishes. Because the
+      // duplicate at the end shows the same name as index 0, the snap is
+      // invisible.
+      if (idx === names.length) {
+        track.addEventListener('transitionend', function onEnd() {
+          track.removeEventListener('transitionend', onEnd);
+          track.style.transition = 'none';
+          track.style.transform = 'translateY(0)';
+          void track.offsetHeight; // force reflow
+          idx = 0;
+        }, { once: true });
+      }
+    }
+
+    var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) {
+      // Hard-swap with no animation
+      setInterval(function() {
+        idx = (idx + 1) % names.length;
+        track.style.transition = 'none';
+        var h = itemHeightPx();
+        track.style.transform = 'translateY(-' + (idx * h) + 'px)';
+      }, 2500);
+      return;
+    }
+    setInterval(tick, 2500);
+  });
+})();
+</script>
+
+<script>
+// ── Bolt strip shimmer (warm glowing vertical bars across the BOLT image) ──
+(function() {
+  var canvas = document.getElementById('bolt-shimmer-canvas');
+  if (!canvas) return;
+  var wrap = canvas.parentElement;
+  var ctx = canvas.getContext('2d');
+  var img = wrap.querySelector('img');
+  var W, H, strips = [], t = 0;
+  var hoverT = 0, isHovered = false, splashT = 0, splashStart = null, splashDuration = 300;
+
+  // Trigger splash when section enters viewport
+  var observer = new IntersectionObserver(function(entries) {
+    if (entries[0].isIntersecting && !splashStart) {
+      splashStart = Date.now();
+      observer.disconnect();
+    }
+  }, { threshold: 0.1 });
+  observer.observe(wrap);
+
+  function sampleStrips() {
+    var SW = 400, SH = 200;
+    var s = document.createElement('canvas');
+    s.width = SW; s.height = SH;
+    var sc = s.getContext('2d');
+    try { sc.drawImage(img, 0, 0, SW, SH); } catch (e) { return; }
+    var data;
+    try { data = sc.getImageData(0, 0, SW, SH).data; } catch (e) { return; }
+    strips = [];
+    var inStrip = false, stripStart = 0;
+    for (var x = 0; x < SW; x++) {
+      var b = 0;
+      for (var y = 20; y < SH - 20; y++) {
+        var idx = (y * SW + x) * 4;
+        b += (data[idx] + data[idx+1] + data[idx+2]) / 3;
+      }
+      b /= (SH - 40);
+      if (b > 28 && !inStrip) { inStrip = true; stripStart = x; }
+      else if (b <= 28 && inStrip) {
+        inStrip = false;
+        var cx = (stripStart + x) / 2 / SW;
+        var w = (x - stripStart) / SW;
+        strips.push({
+          cx: cx, w: w,
+          phase: Math.random() * Math.PI * 2,
+          freq: 0.5 + Math.random() * 1.2,
+          yPhase: Math.random() * Math.PI * 2,
+          yFreq: 0.35 + Math.random() * 0.7,
+          speedMult: 0.6 + Math.random() * 0.8,
+        });
+      }
+    }
+  }
+
+  function init() {
+    var r = wrap.getBoundingClientRect();
+    W = canvas.width = r.width; H = canvas.height = r.height;
+    t = Math.random() * 80;
+    sampleStrips();
+    var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+    if (isTouch) {
+      splashDuration = 1500;
+    } else {
+      wrap.addEventListener('mouseenter', function() { isHovered = true; });
+      wrap.addEventListener('mouseleave', function() { isHovered = false; });
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function tick() {
+    var splashRaw = splashStart ? Math.max(0, 1 - (Date.now() - splashStart) / splashDuration) : 0;
+    splashT = splashRaw * splashRaw * splashRaw;
+    t += 0.012 + hoverT * 0.008;
+    hoverT += ((isHovered ? 1 : 0) - hoverT) * (isHovered ? 0.07 : 0.025);
+
+    ctx.clearRect(0, 0, W, H);
+    for (var i = 0; i < strips.length; i++) {
+      var st = strips[i];
+      var brightness = (Math.sin(t * st.freq * st.speedMult + st.phase) * 0.5 + 0.5);
+      if (brightness < 0.01) continue;
+      var x = st.cx * W;
+      var w = Math.max(st.w * W, 3);
+      var centerY = (Math.sin(t * st.yFreq * st.speedMult + st.yPhase) * 0.5 + 0.5) * H;
+      var spread = H * (0.55 + hoverT * 0.25);
+
+      var baseA  = brightness * 0.11;
+      var peakA  = brightness * 0.28;
+      var boost  = Math.max(hoverT, splashT);
+      var a  = (baseA + (peakA - baseA) * boost).toFixed(3);
+      var a2 = (parseFloat(a) * 1.4).toFixed(3);
+
+      var grad = ctx.createLinearGradient(0, centerY - spread, 0, centerY + spread);
+      grad.addColorStop(0,    'rgba(220,225,240,0)');
+      grad.addColorStop(0.3,  'rgba(220,225,240,' + a + ')');
+      grad.addColorStop(0.5,  'rgba(255,255,255,'  + a2 + ')');
+      grad.addColorStop(0.7,  'rgba(220,225,240,' + a + ')');
+      grad.addColorStop(1,    'rgba(220,225,240,0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(x - w / 2, 0, w, H);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  if (img.complete) init(); else img.addEventListener('load', init);
+  window.addEventListener('resize', function() {
+    var r = wrap.getBoundingClientRect();
+    W = canvas.width = r.width; H = canvas.height = r.height;
+  });
+})();
+</script>
+
+</body>
+</html>
