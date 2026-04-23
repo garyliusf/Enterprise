@@ -238,6 +238,40 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     margin: 0;
   }
 
+  .rotating-name {
+    display: inline-block;
+    vertical-align: baseline;
+    overflow: hidden;
+    line-height: 1.2;
+    height: 1.2em;
+    position: relative;
+    color: #2BA6FF;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: 0.01em;
+    text-align: left;
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    contain: paint;
+  }
+  .rotating-name-track {
+    display: block;
+    line-height: 1.2;
+    will-change: transform;
+    text-align: left;
+  }
+  @media (min-width: 768px) {
+    .rotating-name-track { transform: translateZ(0); }
+  }
+  .rotating-name-item {
+    display: block;
+    line-height: 1.2;
+    white-space: nowrap;
+    text-align: left;
+  }
+
   /* Play button — visible on hover over the card's top half */
   .hero-play-btn {
     position: absolute;
@@ -1961,7 +1995,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
         <!-- Form strip -->
         <div class="card-form-strip">
           <div class="card-strip-text">
-            <p class="card-strip-sub">Schedule a 1:1 with an expert</p>
+            <p class="card-strip-sub">Schedule a 1:1 with <span class="rotating-name" data-names='["Mason","Joe","Angelo"]'><span class="rotating-name-track"><span class="rotating-name-item">Mason</span></span></span></p>
           </div>
           <div class="hero-form-row">
             <input type="email" class="hero-email-input" placeholder="Your work email" />
@@ -2868,7 +2902,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     <canvas id="footer-pixel-canvas" style="display:block;width:100%;height:160px;pointer-events:none;opacity:1;"></canvas>
     <div class="card-form-strip" style="width:100%;border:1px solid rgba(255,255,255,0.08);border-radius:8px;margin-top:-50px;position:relative;z-index:1;">
     <div class="card-strip-text">
-      <p class="card-strip-sub">Schedule a 1:1 with an expert</p>
+      <p class="card-strip-sub">Schedule a 1:1 with <span class="rotating-name" data-names='["Mason","Joe","Angelo"]'><span class="rotating-name-track"><span class="rotating-name-item">Mason</span></span></span></p>
     </div>
     <div class="hero-form-row">
       <input type="email" class="hero-email-input" placeholder="Your work email" />
@@ -3829,6 +3863,79 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   } else {
     init();
   }
+})();
+</script>
+
+<script>
+(function() {
+  var rotators = document.querySelectorAll('.rotating-name');
+  if (!rotators.length) return;
+  rotators.forEach(function(root) {
+    var track = root.querySelector('.rotating-name-track');
+    if (!track) return;
+    var names;
+    try { names = JSON.parse(root.getAttribute('data-names') || '[]'); } catch (e) { names = []; }
+    if (!Array.isArray(names) || names.length < 2) return;
+    track.innerHTML = '';
+    names.concat(names[0]).forEach(function(n) {
+      var s = document.createElement('span');
+      s.className = 'rotating-name-item';
+      s.textContent = n;
+      track.appendChild(s);
+    });
+    var isMobile = window.matchMedia && window.matchMedia('(max-width: 767px)').matches;
+    function itemHeightPx() {
+      var first = track.querySelector('.rotating-name-item');
+      return first ? first.getBoundingClientRect().height : 0;
+    }
+    function offsetForIdx(i) {
+      return isMobile ? (i * 1.2) + 'em' : (i * itemHeightPx()) + 'px';
+    }
+    function lockWidth() {
+      var probe = document.createElement('span');
+      probe.style.cssText = 'visibility:hidden;position:absolute;white-space:nowrap;';
+      root.appendChild(probe);
+      var maxW = 0;
+      for (var i = 0; i < names.length; i++) {
+        probe.textContent = names[i];
+        var w = probe.getBoundingClientRect().width;
+        if (w > maxW) maxW = w;
+      }
+      probe.remove();
+      if (maxW > 0) root.style.minWidth = Math.ceil(maxW) + 'px';
+    }
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(lockWidth);
+    } else {
+      setTimeout(lockWidth, 200);
+    }
+    window.addEventListener('load', lockWidth);
+
+    var idx = 0;
+    function tick() {
+      idx += 1;
+      track.style.transition = 'transform 0.5s cubic-bezier(0.22, 1, 0.36, 1)';
+      track.style.transform = 'translateY(-' + offsetForIdx(idx) + ')';
+      if (idx === names.length) {
+        track.addEventListener('transitionend', function onEnd() {
+          track.removeEventListener('transitionend', onEnd);
+          track.style.transition = 'none';
+          track.style.transform = 'translateY(0)';
+          idx = 0;
+        }, { once: true });
+      }
+    }
+    var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) {
+      setInterval(function() {
+        idx = (idx + 1) % names.length;
+        track.style.transition = 'none';
+        track.style.transform = 'translateY(-' + offsetForIdx(idx) + ')';
+      }, 2500);
+      return;
+    }
+    setInterval(tick, 2500);
+  });
 })();
 </script>
 
