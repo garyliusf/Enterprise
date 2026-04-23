@@ -328,10 +328,15 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     background: #000;
   }
 
-  .video-modal-inner video {
+  .video-modal-inner video,
+  .video-modal-inner iframe,
+  #modal-video,
+  #modal-video iframe {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    border: 0;
+    display: block;
   }
 
   .video-modal-close {
@@ -1942,7 +1947,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
 
         <!-- Video area -->
         <div class="card-video-area">
-          <video class="form-video-bg" autoplay muted loop playsinline>
+          <video class="form-video-bg" autoplay muted loop playsinline preload="auto" poster="hero-video-poster.webp">
             <source src="hero-video.mp4" type="video/mp4">
           </video>
           <div class="form-video-overlay"></div>
@@ -3203,9 +3208,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
 <div class="video-modal" id="video-modal">
   <div class="video-modal-inner">
     <button class="video-modal-close" id="video-modal-close">&times;</button>
-    <video id="modal-video" controls playsinline>
-      <source src="hero-video.mp4" type="video/mp4">
-    </video>
+    <div id="modal-video" data-youtube-id="y-RAM97TjqQ"></div>
   </div>
 </div>
 
@@ -3215,27 +3218,55 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     const modal = document.getElementById('video-modal');
     const modalVideo = document.getElementById('modal-video');
     const closeBtn = document.getElementById('video-modal-close');
+    const cardVideo = card ? card.querySelector('.form-video-bg') : null;
 
     const playBtn = card.querySelector('.hero-play-btn');
+
+    function warmYouTube() {
+      if (document.querySelector('link[data-yt-preconnect]')) return;
+      ['https://www.youtube-nocookie.com', 'https://www.youtube.com', 'https://i.ytimg.com', 'https://s.ytimg.com', 'https://yt3.ggpht.com'].forEach(function(href) {
+        var l = document.createElement('link');
+        l.rel = 'preconnect';
+        l.href = href;
+        l.crossOrigin = 'anonymous';
+        l.setAttribute('data-yt-preconnect', '');
+        document.head.appendChild(l);
+      });
+    }
+    card.addEventListener('mouseenter', warmYouTube, { once: true });
+    card.addEventListener('touchstart', warmYouTube, { once: true, passive: true });
+
+    function buildYouTubeIframe() {
+      var id = modalVideo.dataset.youtubeId;
+      var iframe = document.createElement('iframe');
+      var params = 'autoplay=1&rel=0&modestbranding=1&iv_load_policy=3&cc_load_policy=0&disablekb=1&fs=1&playsinline=1&color=white';
+      iframe.src = 'https://www.youtube-nocookie.com/embed/' + id + '?' + params;
+      iframe.title = 'Bolt.new Explainer';
+      iframe.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+      iframe.allowFullscreen = true;
+      iframe.loading = 'eager';
+      return iframe;
+    }
 
     card.addEventListener('click', function(e) {
       if (e.target.closest('input, button.hero-cta-button')) return;
 
-      // Ripple animation on play button
       playBtn.classList.remove('clicked');
-      void playBtn.offsetWidth; // force reflow to restart animation
+      void playBtn.offsetWidth;
       playBtn.classList.add('clicked');
 
       setTimeout(function() {
         modal.classList.add('open');
-        modalVideo.play();
+        if (cardVideo) try { cardVideo.pause(); } catch (_) {}
+        modalVideo.innerHTML = '';
+        modalVideo.appendChild(buildYouTubeIframe());
       }, 120);
     });
 
     function closeModal() {
       modal.classList.add('closing');
-      modalVideo.pause();
-      modalVideo.currentTime = 0;
+      modalVideo.innerHTML = '';
+      if (cardVideo) try { cardVideo.play(); } catch (_) {}
       setTimeout(function() {
         modal.classList.remove('open', 'closing');
         playBtn.classList.remove('clicked');
