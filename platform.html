@@ -1730,13 +1730,77 @@
     /* ─── Enterprise-style hero port ───────────────────────────────────── */
     .ent-hero-section {
       width: 100%;
-      height: 100vh;
+      height: 260vh; /* scroll runway: ~1.6 viewports of sticky animation */
       position: relative;
+      font-family: 'Inter', sans-serif;
+      background: #111114;
+      --p: 0; /* scroll progress 0..1, driven by JS */
+    }
+    .ent-hero-section .hero-sticky {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      width: 100%;
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      font-family: 'Inter', sans-serif;
       background: #111114;
+    }
+    .ent-hero-section .hero-dashboard-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      /* Heavy blur + dim initially, unblurs/brightens as progress → 1 */
+      filter: blur(calc((1 - var(--p-bg, 0)) * 10px)) brightness(calc(0.35 + var(--p-bg, 0) * 0.65));
+      opacity: var(--p-bg, 0);
+      z-index: 0;
+      transition: none;
+      pointer-events: none;
+    }
+    .ent-hero-section .hero-dashboard-gradient {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.82) 60%, rgba(0,0,0,0.95) 100%);
+      opacity: calc(1 - var(--p-gradient, 0));
+      z-index: 2;
+      pointer-events: none;
+    }
+    /* Existing ambient layers fade out as the dashboard image fades in */
+    .ent-hero-section .hero-video-bg,
+    .ent-hero-section .hero-video-overlay,
+    .ent-hero-section #hero-pixel-dots {
+      opacity: calc(1 - var(--p-bg, 0));
+    }
+    /* Headline fades + lifts as card starts to dock */
+    .ent-hero-section .hero-headline-group {
+      opacity: calc(1 - var(--p-head, 0));
+      transform: translateY(calc(var(--p-head, 0) * -24px));
+      transition: none;
+    }
+    /* Video card docks using JS-computed delta; we drive it with CSS vars */
+    .ent-hero-section .hero-form-card {
+      transform: translate3d(var(--card-dx, 0px), var(--card-dy, 0px), 0) scale(var(--card-s, 1));
+      transform-origin: center center;
+      will-change: transform;
+      transition: none;
+    }
+    /* Invisible measuring rect inside the dashboard's empty right panel.
+       Position expressed in % of the PNG image. JS converts to viewport px. */
+    .ent-hero-section .hero-dashboard-target {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 0;
+      height: 0;
+      pointer-events: none;
+      opacity: 0;
+      z-index: 0;
+    }
+    .ent-hero-section .hero-inner {
+      padding-top: 2vh; /* keep headline from crowding the top */
     }
     .ent-hero-section .hero-video-bg {
       position: absolute;
@@ -2348,45 +2412,54 @@
   </nav>
 
   <section class="ent-hero-section">
-    <video class="hero-video-bg" autoplay muted loop playsinline poster="hero-video-poster.webp">
-      <source src="hero-video.mp4" type="video/mp4">
-    </video>
-    <div class="hero-video-overlay"></div>
-    <canvas id="hero-pixel-dots"></canvas>
+    <div class="hero-sticky">
+      <img class="hero-dashboard-img" src="images/Dashboard%20Redesign.png" alt="" aria-hidden="true" />
+      <div class="hero-dashboard-gradient"></div>
+      <video class="hero-video-bg" autoplay muted loop playsinline poster="hero-video-poster.webp">
+        <source src="hero-video.mp4" type="video/mp4">
+      </video>
+      <div class="hero-video-overlay"></div>
+      <canvas id="hero-pixel-dots"></canvas>
 
-    <div class="hero-content-area">
-      <div class="hero-inner">
-        <div class="hero-headline-group">
-          <h1 class="hero-h1">Build it better. Enterprise ready.</h1>
-          <p class="hero-subtitle">Turn on AI-native development — built for anyone, ready for enterprise.</p>
-        </div>
-
-        <div class="hero-form-card" id="hero-form-card">
-          <div class="card-video-area">
-            <video class="form-video-bg" autoplay muted loop playsinline preload="auto" poster="hero-video-poster.webp">
-              <source src="hero-video.mp4" type="video/mp4">
-            </video>
-            <div class="form-video-overlay"></div>
-            <div class="hero-play-btn">
-              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M8 5v14l11-7z"/>
-              </svg>
-            </div>
+      <div class="hero-content-area">
+        <div class="hero-inner">
+          <div class="hero-headline-group">
+            <h1 class="hero-h1">Build it better. Enterprise ready.</h1>
+            <p class="hero-subtitle">Turn on AI-native development — built for anyone, ready for enterprise.</p>
           </div>
-          <div class="card-form-strip">
-            <div class="card-strip-text">
-              <p class="card-strip-sub">Schedule a 1:1 with <span class="rotating-name" data-names='["Mason","Joe","Angelo"]'><span class="rotating-name-track"><span class="rotating-name-item">Mason</span></span></span></p>
+
+          <div class="hero-form-card" id="hero-form-card">
+            <div class="card-video-area">
+              <video class="form-video-bg" autoplay muted loop playsinline preload="auto" poster="hero-video-poster.webp">
+                <source src="hero-video.mp4" type="video/mp4">
+              </video>
+              <div class="form-video-overlay"></div>
+              <div class="hero-play-btn">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8 5v14l11-7z"/>
+                </svg>
+              </div>
             </div>
-            <div class="hero-form-row">
-              <input type="email" class="hero-email-input" placeholder="Your work email" aria-label="Your work email" />
-              <button class="hero-cta-button" aria-label="Submit email">
-                <div class="btn-bg-hover"></div>
-                <div class="btn-text-wrap"><div class="btn-text-inner"><span>Submit</span><span>Submit</span></div></div>
-              </button>
+            <div class="card-form-strip">
+              <div class="card-strip-text">
+                <p class="card-strip-sub">Schedule a 1:1 with <span class="rotating-name" data-names='["Mason","Joe","Angelo"]'><span class="rotating-name-track"><span class="rotating-name-item">Mason</span></span></span></p>
+              </div>
+              <div class="hero-form-row">
+                <input type="email" class="hero-email-input" placeholder="Your work email" aria-label="Your work email" />
+                <button class="hero-cta-button" aria-label="Submit email">
+                  <div class="btn-bg-hover"></div>
+                  <div class="btn-text-wrap"><div class="btn-text-inner"><span>Submit</span><span>Submit</span></div></div>
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- Invisible target rect that matches the empty right-panel of the dashboard PNG.
+           The card is translated+scaled into this on scroll. Position is expressed in %
+           of the PNG image; JS converts to viewport coords based on the rendered img rect. -->
+      <div class="hero-dashboard-target" aria-hidden="true"></div>
     </div>
   </section>
 
@@ -3695,6 +3768,116 @@
 </script>
 
 <script>
+// ── Hero sticky scroll: dashboard reveals, card docks into right panel ──
+(function () {
+  var section = document.querySelector('.ent-hero-section');
+  if (!section) return;
+  var sticky = section.querySelector('.hero-sticky');
+  var img    = section.querySelector('.hero-dashboard-img');
+  var card   = section.querySelector('.hero-form-card');
+  if (!sticky || !img || !card) return;
+
+  // Right-panel bounds inside the PNG, expressed as % of image width/height.
+  // Measured off the 4320×2700 export — divider at ~36.6% from left,
+  // top-bar ends at ~6% from top.
+  var PANEL = { left: 0.366, top: 0.060, right: 1.000, bottom: 1.000 };
+  var DOCK_INSET = 0.025; // inset the card slightly inside the panel for padding
+
+  // Map a point in the source image (normalized 0..1) to viewport px,
+  // accounting for object-fit: cover cropping on the <img>.
+  function imageRectToViewport(imgEl) {
+    var r = imgEl.getBoundingClientRect();
+    // Natural ratios
+    var natW = imgEl.naturalWidth  || 4320;
+    var natH = imgEl.naturalHeight || 2700;
+    var natAspect = natW / natH;
+    var boxAspect = r.width / r.height;
+    var renderedW, renderedH, offX, offY;
+    if (boxAspect > natAspect) {
+      // Box is wider than image: image fills width, crops top/bottom
+      renderedW = r.width;
+      renderedH = r.width / natAspect;
+      offX = 0;
+      offY = (r.height - renderedH) / 2;
+    } else {
+      // Box is taller than image: image fills height, crops left/right
+      renderedH = r.height;
+      renderedW = r.height * natAspect;
+      offX = (r.width - renderedW) / 2;
+      offY = 0;
+    }
+    return { x: r.left + offX, y: r.top + offY, w: renderedW, h: renderedH };
+  }
+
+  function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
+  function smoothstep(a, b, t) {
+    t = clamp((t - a) / (b - a), 0, 1);
+    return t * t * (3 - 2 * t);
+  }
+
+  function update() {
+    var secRect = section.getBoundingClientRect();
+    var total = section.offsetHeight - window.innerHeight; // scrollable runway
+    var scrolled = -secRect.top;
+    var p = clamp(scrolled / Math.max(1, total), 0, 1);
+
+    // Derived progress curves
+    var pBg   = smoothstep(0.05, 0.55, p);   // dashboard fades in + unblurs
+    var pHead = smoothstep(0.20, 0.55, p);   // headline fades out
+    var pDock = smoothstep(0.35, 0.95, p);   // card translates + scales into panel
+    var pGrad = smoothstep(0.45, 0.90, p);   // gradient fades out at the end
+
+    section.style.setProperty('--p',          p.toFixed(4));
+    section.style.setProperty('--p-bg',       pBg.toFixed(4));
+    section.style.setProperty('--p-head',     pHead.toFixed(4));
+    section.style.setProperty('--p-gradient', pGrad.toFixed(4));
+
+    // Compute card dock delta using the image's rendered bounds
+    var imgBox = imageRectToViewport(img);
+    var panelX = imgBox.x + imgBox.w * (PANEL.left  + DOCK_INSET);
+    var panelY = imgBox.y + imgBox.h * (PANEL.top   + DOCK_INSET);
+    var panelW = imgBox.w * (PANEL.right  - PANEL.left  - DOCK_INSET * 2);
+    var panelH = imgBox.h * (PANEL.bottom - PANEL.top   - DOCK_INSET * 2);
+    var panelCx = panelX + panelW / 2;
+    var panelCy = panelY + panelH / 2;
+
+    // Reset card transform to identity to measure its resting position
+    card.style.setProperty('--card-dx', '0px');
+    card.style.setProperty('--card-dy', '0px');
+    card.style.setProperty('--card-s',  '1');
+    var cardRect = card.getBoundingClientRect();
+    var cardCx = cardRect.left + cardRect.width / 2;
+    var cardCy = cardRect.top  + cardRect.height / 2;
+
+    // Target scale: match card width to panel width (or height, whichever is tighter)
+    var scaleW = panelW / cardRect.width;
+    var scaleH = panelH / cardRect.height;
+    var targetScale = Math.min(scaleW, scaleH);
+
+    var dx = (panelCx - cardCx) * pDock;
+    var dy = (panelCy - cardCy) * pDock;
+    var s  = 1 + (targetScale - 1) * pDock;
+
+    card.style.setProperty('--card-dx', dx.toFixed(1) + 'px');
+    card.style.setProperty('--card-dy', dy.toFixed(1) + 'px');
+    card.style.setProperty('--card-s',  s.toFixed(4));
+  }
+
+  var ticking = false;
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function () { update(); ticking = false; });
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', update);
+  if (img.complete) update(); else img.addEventListener('load', update);
+  update();
+})();
+</script>
+
+<script>
 // ── Hero pixel dots (skyline animation) ─────────────────────────────────
 (function () {
   var canvas = document.getElementById('hero-pixel-dots');
@@ -3773,12 +3956,15 @@
   var nav = document.querySelector('.platform-nav');
   var hero = document.querySelector('.ent-hero-section');
   if (!nav || !hero) return;
-  var io = new IntersectionObserver(function (entries) {
-    entries.forEach(function (e) {
-      nav.classList.toggle('is-hidden', e.intersectionRatio > 0.4);
-    });
-  }, { threshold: [0, 0.4, 0.6, 1] });
-  io.observe(hero);
+  function sync() {
+    var r = hero.getBoundingClientRect();
+    // Hero is "on screen" whenever its bottom is still below the viewport top
+    var onScreen = r.bottom > 40;
+    nav.classList.toggle('is-hidden', onScreen);
+  }
+  window.addEventListener('scroll', sync, { passive: true });
+  window.addEventListener('resize', sync);
+  sync();
 })();
 </script>
 
