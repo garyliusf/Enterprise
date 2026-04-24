@@ -1656,6 +1656,7 @@
       pointer-events: auto;
     }
     .platform-nav-item {
+      position: relative;
       display: flex;
       align-items: center;
       gap: 14px;
@@ -1669,6 +1670,16 @@
       text-decoration: none;
       transition: color 0.25s ease;
       cursor: pointer;
+    }
+    .platform-nav-item::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -1px;
+      height: 1px;
+      width: calc(var(--progress, 0) * 100%);
+      background: rgba(255,255,255,0.85);
+      pointer-events: none;
     }
     .platform-nav-item:hover { color: rgba(255,255,255,0.8); }
     .platform-nav-item::before {
@@ -2862,6 +2873,23 @@
       if (first && first.offsetTop <= y) active = i;
     }
     items.forEach(function(el, i){ el.classList.toggle('is-active', i === active); });
+
+    for (var j = 0; j < groups.length; j++) {
+      var startEl = document.getElementById(groups[j].ids[0]);
+      if (!startEl) continue;
+      var start = startEl.offsetTop;
+      var end;
+      if (j < groups.length - 1) {
+        var nextEl = document.getElementById(groups[j + 1].ids[0]);
+        end = nextEl ? nextEl.offsetTop : start;
+      } else {
+        end = document.documentElement.scrollHeight - window.innerHeight;
+      }
+      var span = Math.max(1, end - start);
+      var p = (y - start) / span;
+      if (p < 0) p = 0; else if (p > 1) p = 1;
+      groups[j].el.style.setProperty('--progress', p.toFixed(4));
+    }
   }
   window.addEventListener('scroll', update, { passive: true });
   window.addEventListener('resize', update);
