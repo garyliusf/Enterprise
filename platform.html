@@ -1840,12 +1840,42 @@
     /* widths as % of plan-row (= % of chat-plan since rows are width:100%) */
     .ent-hero-section .plan-row.r-header  img { width: 14.5%; }
     .ent-hero-section .plan-row.r-status1 img { width: 70.1%; }
-    .ent-hero-section .plan-row.r-status2 img { width: 51.4%; }
     .ent-hero-section .plan-row.r-status3 img { width: 38.8%; }
     .ent-hero-section .plan-row.r-status4 img { width: 65.9%; }
-    .ent-hero-section .plan-row.r-status5 img { width: 51.1%; }
-    .ent-hero-section .plan-row.r-status6 img { width: 29.0%; }
-    .ent-hero-section .plan-row.r-actrow  img { width: 25.7%; }
+    /* Final group: 'Plan completed' + action icons appear together */
+    .ent-hero-section .plan-row.r-finish .r-finish-status { width: 29.0%; margin-bottom: 0.42vw; }
+    .ent-hero-section .plan-row.r-finish .r-finish-actrow { width: 25.7%; }
+
+    /* Bolt-shaped pixel-fill transition shown briefly between sections */
+    .ent-hero-section .bolt-transition {
+      position: absolute;
+      left: 1.0%;
+      width: 6.5%;
+      aspect-ratio: 100 / 43;
+      opacity: 0;
+      pointer-events: none;
+      will-change: opacity;
+      transition: none;
+      z-index: 4;
+      -webkit-mask-image: url('images/bolt-logo.svg');
+              mask-image: url('images/bolt-logo.svg');
+      -webkit-mask-size: contain;
+              mask-size: contain;
+      -webkit-mask-repeat: no-repeat;
+              mask-repeat: no-repeat;
+      -webkit-mask-position: left center;
+              mask-position: left center;
+    }
+    .ent-hero-section .bolt-transition canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      image-rendering: pixelated;
+    }
+    /* Position each thinking transition just where the next section will appear */
+    .ent-hero-section .bolt-1 { top: 38.0%; }   /* before .chat-prompt */
+    .ent-hero-section .bolt-2 { top: 44.5%; }   /* before .chat-results */
+    .ent-hero-section .bolt-3 { top: 69.0%; }   /* before .chat-prompt2 */
     /* Card: positioned by JS via CSS vars; transform-origin centered for clean scaling */
     .ent-hero-section .hero-form-card {
       position: absolute;
@@ -2414,15 +2444,18 @@
         <div class="chat-overlay chat-plan" aria-hidden="true">
           <div class="plan-row r-header"><img src="images/chat/fFel4.png" alt="" /></div>
           <div class="plan-row r-status1"><img src="images/chat/nyRJq.png" alt="" /></div>
-          <div class="plan-row r-status2"><img src="images/chat/b2eyg.png" alt="" /></div>
           <div class="plan-row r-status3"><img src="images/chat/PHzLg.png" alt="" /></div>
           <div class="plan-row r-status4"><img src="images/chat/B8WGCF.png" alt="" /></div>
-          <div class="plan-row r-status5"><img src="images/chat/WbGlX.png" alt="" /></div>
-          <div class="plan-row r-status6"><img src="images/chat/K2Ygr.png" alt="" /></div>
-          <div class="plan-row r-actrow"><img src="images/chat/F4b7tY.png" alt="" /></div>
+          <div class="plan-row r-finish">
+            <img class="r-finish-status" src="images/chat/K2Ygr.png" alt="" />
+            <img class="r-finish-actrow" src="images/chat/F4b7tY.png" alt="" />
+          </div>
         </div>
+        <div class="bolt-transition bolt-1" aria-hidden="true"><canvas></canvas></div>
         <div class="chat-overlay chat-prompt"  aria-hidden="true"><img src="images/chat/n5Biu.png" alt="" /></div>
+        <div class="bolt-transition bolt-2" aria-hidden="true"><canvas></canvas></div>
         <div class="chat-overlay chat-results" aria-hidden="true"><img src="images/chat/H5fThN.png" alt="" /></div>
+        <div class="bolt-transition bolt-3" aria-hidden="true"><canvas></canvas></div>
         <div class="chat-overlay chat-prompt2" aria-hidden="true"><img src="images/chat/b9pbI.png" alt="" /></div>
       </div>
 
@@ -3846,19 +3879,24 @@
   var section = document.querySelector('.ent-hero-section');
   if (!section) return;
   // Each animated element with its own appearAt (fraction of LOOP_MS).
-  // Plan rows spaced 1.1s apart; sections after plan have natural pauses.
+  // Plan rows spaced 1.1s apart; bolt-thinking transition fills between sections.
   var overlays = [
     { sel: '.plan-row.r-header',  appearAt: 0.030 },  // 0.6s
     { sel: '.plan-row.r-status1', appearAt: 0.085 },  // 1.7s
-    { sel: '.plan-row.r-status2', appearAt: 0.140 },  // 2.8s
-    { sel: '.plan-row.r-status3', appearAt: 0.195 },  // 3.9s
-    { sel: '.plan-row.r-status4', appearAt: 0.250 },  // 5.0s
-    { sel: '.plan-row.r-status5', appearAt: 0.305 },  // 6.1s
-    { sel: '.plan-row.r-status6', appearAt: 0.360 },  // 7.2s — Plan completed (green)
-    { sel: '.plan-row.r-actrow',  appearAt: 0.415 },  // 8.3s — action icons
-    { sel: '.chat-prompt',        appearAt: 0.480 },  // 9.6s — first prompt
+    { sel: '.plan-row.r-status3', appearAt: 0.140 },  // 2.8s
+    { sel: '.plan-row.r-status4', appearAt: 0.195 },  // 3.9s
+    { sel: '.plan-row.r-finish',  appearAt: 0.260 },  // 5.2s — Plan completed + action icons together
+    { sel: '.chat-prompt',        appearAt: 0.420 },  // 8.4s — first prompt
     { sel: '.chat-results',       appearAt: 0.560 },  // 11.2s — bolt response
-    { sel: '.chat-prompt2',       appearAt: 0.770 }   // 15.4s — second prompt
+    { sel: '.chat-prompt2',       appearAt: 0.780 }   // 15.6s — second prompt
+  ];
+
+  // Bolt-pixel "thinking" transitions shown briefly before each next section.
+  // The pixel-fill animation runs from `start` → `end`, then the section appears.
+  var transitions = [
+    { sel: '.bolt-1', start: 0.330, end: 0.420 },  // between plan-finish and prompt
+    { sel: '.bolt-2', start: 0.470, end: 0.560 },  // between prompt and results
+    { sel: '.bolt-3', start: 0.690, end: 0.780 }   // between results and prompt2
   ];
   var els = overlays.map(function (o) {
     o.el = section.querySelector(o.sel);
@@ -3870,6 +3908,51 @@
   var FADE_IN_MS = 400;
   var FADE_OUT_MS = 700;
   var HOLD_OUT_AT = 0.92; // start fade-out at 92% of loop
+
+  // Set up each thinking transition: bolt-shaped div with a noise-fill canvas.
+  var transElements = transitions.map(function (t) {
+    var el = section.querySelector(t.sel);
+    if (!el) return null;
+    var canvas = el.querySelector('canvas');
+    var ctx = canvas.getContext('2d');
+    var spacing = 4, dot = 2;
+    var cols = 0, rows = 0, noise = [];
+    function resize() {
+      var r = el.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      canvas.width = Math.round(r.width);
+      canvas.height = Math.round(r.height);
+      cols = Math.ceil(canvas.width / spacing);
+      rows = Math.ceil(canvas.height / spacing);
+      noise = [];
+      for (var y = 0; y < rows; y++) {
+        noise[y] = [];
+        for (var x = 0; x < cols; x++) {
+          var bias = 1 - (y / Math.max(1, rows - 1)); // bottom rows fill first
+          noise[y][x] = bias * 0.55 + Math.random() * 0.55;
+        }
+      }
+    }
+    function draw(progress) {
+      if (!canvas.width) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#FAF4EB';
+      var threshold = progress * 1.3;
+      for (var y = 0; y < rows; y++) {
+        for (var x = 0; x < cols; x++) {
+          var n = noise[y][x];
+          if (n < threshold) {
+            var edge = threshold - n;
+            if (edge < 0.08 && Math.random() < 0.45) continue;
+            ctx.fillRect(x * spacing, y * spacing, dot, dot);
+          }
+        }
+      }
+    }
+    setTimeout(resize, 0); // wait for layout
+    window.addEventListener('resize', resize);
+    return { el: el, draw: draw, resize: resize, t: t };
+  }).filter(function (x) { return x; });
 
   var start = performance.now();
   function tick(t) {
@@ -3886,6 +3969,34 @@
       }
       o.el.style.opacity = p.toFixed(3);
       o.el.style.transform = 'translateY(' + ((1 - p) * 8).toFixed(2) + 'px)';
+    });
+
+    // Bolt thinking transitions: pixel-fill in, hold, fade out
+    transElements.forEach(function (te) {
+      var st = te.t.start;
+      var en = te.t.end;
+      var span = en - st;
+      var fillFrac = 0.65;       // first 65% of window: pixels fill in
+      var holdFrac = 0.20;       // next 20%: hold full
+      // remainder: fade out as next section appears
+      if (elapsed < st) {
+        te.el.style.opacity = '0';
+        te.draw(0);
+      } else if (elapsed < st + span * fillFrac) {
+        var p = (elapsed - st) / (span * fillFrac);
+        te.el.style.opacity = '1';
+        te.draw(Math.min(1, p));
+      } else if (elapsed < st + span * (fillFrac + holdFrac)) {
+        te.el.style.opacity = '1';
+        te.draw(1);
+      } else if (elapsed < en) {
+        var fadeP = (elapsed - st - span * (fillFrac + holdFrac)) / (span * (1 - fillFrac - holdFrac));
+        te.el.style.opacity = (1 - fadeP).toFixed(3);
+        te.draw(1);
+      } else {
+        te.el.style.opacity = '0';
+        te.draw(0);
+      }
     });
 
     if (elapsed < 1) requestAnimationFrame(tick);
