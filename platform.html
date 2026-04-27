@@ -3873,24 +3873,22 @@
 
   var start = performance.now();
   function tick(t) {
-    var elapsed = ((t - start) % LOOP_MS) / LOOP_MS; // 0..1
+    // Plays once and holds — no loop, no fade-out
+    var elapsed = Math.min(1, (t - start) / LOOP_MS);
 
     els.forEach(function (o) {
-      var p; // 0 = invisible, 1 = visible
+      var p;
       if (elapsed < o.appearAt) {
         p = 0;
-      } else if (elapsed < HOLD_OUT_AT) {
+      } else {
         var into = (elapsed - o.appearAt) * LOOP_MS;
         p = Math.min(1, into / FADE_IN_MS);
-      } else {
-        var outProg = (elapsed - HOLD_OUT_AT) * LOOP_MS / FADE_OUT_MS;
-        p = Math.max(0, 1 - outProg);
       }
       o.el.style.opacity = p.toFixed(3);
       o.el.style.transform = 'translateY(' + ((1 - p) * 8).toFixed(2) + 'px)';
     });
 
-    requestAnimationFrame(tick);
+    if (elapsed < 1) requestAnimationFrame(tick);
   }
   requestAnimationFrame(tick);
 })();
