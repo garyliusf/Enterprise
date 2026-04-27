@@ -1799,7 +1799,7 @@
       position: absolute;
       left: 0%;
       top: 6.2%;
-      width: 27%;     /* full sidebar width incl. chat content */
+      width: 26.5%;  /* sidebar ends at ~26.4% of dashboard width */
       height: 93.8%;
       background: #0C0C0C;
       z-index: 2;
@@ -1818,11 +1818,20 @@
     }
     .ent-hero-section .chat-overlay img { display: block; width: 100%; }
 
-    /* Per-section bounds (in % of dashboard image, 1440x900) */
-    .ent-hero-section .chat-plan    { left: 2.1%; top: 14.7%; width: 24.9%; }
-    .ent-hero-section .chat-prompt  { left: 2.1%; top: 39.4%; width: 24.9%; }
-    .ent-hero-section .chat-results { left: 2.1%; top: 46.1%; width: 24.9%; }
-    .ent-hero-section .chat-prompt2 { left: 2.1%; top: 70.6%; width: 24.9%; }
+    /* Per-section bounds (in % of dashboard image, 1440x900). Right edge aligned
+       to ~25.4% (chatMessages right edge ~26.4% minus ~1% inner padding). */
+    .ent-hero-section .chat-plan    { left: 1.0%; top: 14.7%; width: 24.4%; }
+    .ent-hero-section .chat-prompt  { left: 1.0%; top: 39.4%; width: 24.4%; }
+    .ent-hero-section .chat-results { left: 1.0%; top: 46.1%; width: 24.4%; }
+    .ent-hero-section .chat-prompt2 { left: 1.0%; top: 70.6%; width: 24.4%; }
+
+    /* Row-by-row reveal within the plan section: clip-path inset bottom is
+       driven by JS in discrete steps so each status row pops in one at a time. */
+    .ent-hero-section .chat-plan img {
+      clip-path: inset(0 0 var(--plan-clip, 100%) 0);
+      -webkit-clip-path: inset(0 0 var(--plan-clip, 100%) 0);
+      transition: none;
+    }
     /* Card: positioned by JS via CSS vars; transform-origin centered for clean scaling */
     .ent-hero-section .hero-form-card {
       position: absolute;
@@ -3814,11 +3823,27 @@
   var section = document.querySelector('.ent-hero-section');
   if (!section) return;
   var overlays = [
-    { sel: '.chat-plan',    appearAt: 0.06 },
-    { sel: '.chat-prompt',  appearAt: 0.30 },
-    { sel: '.chat-results', appearAt: 0.42 },
-    { sel: '.chat-prompt2', appearAt: 0.66 }
+    { sel: '.chat-plan',    appearAt: 0.04 },
+    { sel: '.chat-prompt',  appearAt: 0.40 },
+    { sel: '.chat-results', appearAt: 0.50 },
+    { sel: '.chat-prompt2', appearAt: 0.74 }
   ];
+
+  // Row-by-row clip stops inside the plan section.
+  // Values are clip-path inset bottom (% of plan PNG); reveal advances top→bottom.
+  // Plan PNG measured rows (in % of 386px PNG height):
+  //   planHeader at y=4-14   → bottom inset 96.4%  (clip 96.4%)  hides everything
+  //   status1     at y=32-44 → reveal at clip = (386-44)/386 = 88.6%
+  //   status2     at y=56-67 → 82.6%
+  //   status3     at y=80-90 → 76.7%
+  //   status4     at y=104-114 → 70.5%
+  //   status5     at y=128-138 → 64.2%
+  //   status6     at y=152-164 → 57.5%
+  //   actRow      at y=180-192 → 50.3%, then full reveal = 0%
+  // We "fast-fade" between stops by interpolating, then hold each step briefly.
+  var ROW_STOPS = [100, 96.4, 88.6, 82.6, 76.7, 70.5, 64.2, 57.5, 50.3, 0];
+  var PLAN_REVEAL_START = 0.06;  // after plan card appears
+  var PLAN_REVEAL_END   = 0.34;
   var els = overlays.map(function (o) {
     o.el = section.querySelector(o.sel);
     return o;
@@ -3848,6 +3873,27 @@
       o.el.style.opacity = p.toFixed(3);
       o.el.style.transform = 'translateY(' + ((1 - p) * 8).toFixed(2) + 'px)';
     });
+
+    // Plan row-by-row reveal driven by clip-path
+    var planEl = section.querySelector('.chat-plan');
+    if (planEl) {
+      var planP = (elapsed - PLAN_REVEAL_START) / (PLAN_REVEAL_END - PLAN_REVEAL_START);
+      var clip;
+      if (elapsed >= HOLD_OUT_AT) {
+        // Reset to fully clipped during fade-out so next loop starts hidden
+        clip = 0;
+      } else if (planP <= 0) {
+        clip = ROW_STOPS[0]; // 100% — everything clipped
+      } else if (planP >= 1) {
+        clip = 0;            // fully revealed
+      } else {
+        var stepF = planP * (ROW_STOPS.length - 1);
+        var i = Math.floor(stepF);
+        clip = ROW_STOPS[i];
+      }
+      planEl.style.setProperty('--plan-clip', clip + '%');
+    }
+
     requestAnimationFrame(tick);
   }
   requestAnimationFrame(tick);
