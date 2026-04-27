@@ -1793,51 +1793,36 @@
       border-radius: 8px 8px 0 0;
       box-shadow: 0 -20px 60px rgba(0,0,0,0.6);
     }
-    /* Chat sidebar reveal mask — sits over the static chat in the PNG and
-       shrinks from bottom-up to expose sections one by one on a loop. */
-    .ent-hero-section .chat-reveal-mask {
+    /* Static cover over the static chat content in the PNG. Section overlays
+       fade in on top of this. Coordinates are % of the dashboard image. */
+    .ent-hero-section .chat-mask-bg {
       position: absolute;
-      /* Coordinates as % of dashboard image (1440x900) */
       left: 0%;
-      top: 6.2%;     /* below the bolt.new top nav */
-      width: 19%;    /* sidebar width */
-      height: 93.8%; /* down to the bottom edge */
+      top: 6.2%;
+      width: 27%;     /* full sidebar width incl. chat content */
+      height: 93.8%;
       background: #0C0C0C;
       z-index: 2;
-      transform-origin: bottom;
-      transform: scaleY(1);
-      animation: chat-reveal 12s cubic-bezier(0.65, 0, 0.35, 1) infinite;
       pointer-events: none;
       border-radius: 8px 0 0 0;
     }
-    @keyframes chat-reveal {
-      0%   { transform: scaleY(1.00); }   /* fully covered */
-      4%   { transform: scaleY(1.00); }   /* small initial pause */
-
-      /* Plan header + planList ticking off one row at a time */
-      8%   { transform: scaleY(0.97); }   /* planHeader visible */
-      11%  { transform: scaleY(0.92); }   /* status1 */
-      14%  { transform: scaleY(0.88); }   /* status2 */
-      17%  { transform: scaleY(0.85); }   /* status3 */
-      20%  { transform: scaleY(0.81); }   /* status4 */
-      23%  { transform: scaleY(0.78); }   /* status5 */
-      27%  { transform: scaleY(0.74); }   /* status6 (Plan completed) */
-      31%  { transform: scaleY(0.69); }   /* actRow */
-
-      /* prompt → results → prompt2 in sequence */
-      38%  { transform: scaleY(0.58); }   /* prompt user message */
-      48%  { transform: scaleY(0.42); }   /* results: bolt logo + 4 actions */
-      55%  { transform: scaleY(0.30); }   /* results: response text */
-      62%  { transform: scaleY(0.20); }   /* version card */
-      70%  { transform: scaleY(0.10); }   /* prompt2 user message */
-      75%  { transform: scaleY(0.05); }   /* tokenBar */
-      80%  { transform: scaleY(0.00); }   /* input box visible — full reveal */
-
-      /* Hold the fully-revealed state */
-      94%  { transform: scaleY(0.00); }
-      /* Quick wipe back up to start the loop */
-      100% { transform: scaleY(1.00); }
+    /* Each chat section is positioned absolutely and animated by JS via opacity + translateY */
+    .ent-hero-section .chat-overlay {
+      position: absolute;
+      z-index: 3;
+      opacity: 0;
+      transform: translateY(8px);
+      pointer-events: none;
+      will-change: opacity, transform;
+      transition: none;
     }
+    .ent-hero-section .chat-overlay img { display: block; width: 100%; }
+
+    /* Per-section bounds (in % of dashboard image, 1440x900) */
+    .ent-hero-section .chat-plan    { left: 2.1%; top: 14.7%; width: 24.9%; }
+    .ent-hero-section .chat-prompt  { left: 2.1%; top: 39.4%; width: 24.9%; }
+    .ent-hero-section .chat-results { left: 2.1%; top: 46.1%; width: 24.9%; }
+    .ent-hero-section .chat-prompt2 { left: 2.1%; top: 70.6%; width: 24.9%; }
     /* Card: positioned by JS via CSS vars; transform-origin centered for clean scaling */
     .ent-hero-section .hero-form-card {
       position: absolute;
@@ -2402,7 +2387,11 @@
 
       <div class="hero-dashboard-frame">
         <img class="hero-dashboard-img" src="images/dashboard-hero.png" alt="" aria-hidden="true" />
-        <div class="chat-reveal-mask" aria-hidden="true"></div>
+        <div class="chat-mask-bg" aria-hidden="true"></div>
+        <div class="chat-overlay chat-plan"    aria-hidden="true"><img src="images/chat/Y51x8.png" alt="" /></div>
+        <div class="chat-overlay chat-prompt"  aria-hidden="true"><img src="images/chat/n5Biu.png" alt="" /></div>
+        <div class="chat-overlay chat-results" aria-hidden="true"><img src="images/chat/H5fThN.png" alt="" /></div>
+        <div class="chat-overlay chat-prompt2" aria-hidden="true"><img src="images/chat/b9pbI.png" alt="" /></div>
       </div>
 
       <div class="hero-form-card" id="hero-form-card">
@@ -3814,6 +3803,54 @@
   window.addEventListener('resize', update);
   if (img.complete) update(); else img.addEventListener('load', update);
   update();
+})();
+</script>
+
+<script>
+// ── Chat sidebar autoplay loop ──────────────────────────────────────────
+//    Each named section fades in (opacity + slight upward slide) on a
+//    staggered timeline, holds, then fades out and restarts.
+(function () {
+  var section = document.querySelector('.ent-hero-section');
+  if (!section) return;
+  var overlays = [
+    { sel: '.chat-plan',    appearAt: 0.06 },
+    { sel: '.chat-prompt',  appearAt: 0.30 },
+    { sel: '.chat-results', appearAt: 0.42 },
+    { sel: '.chat-prompt2', appearAt: 0.66 }
+  ];
+  var els = overlays.map(function (o) {
+    o.el = section.querySelector(o.sel);
+    return o;
+  }).filter(function (o) { return o.el; });
+  if (!els.length) return;
+
+  var LOOP_MS = 11000;
+  var FADE_IN_MS = 350;
+  var FADE_OUT_MS = 600;
+  var HOLD_OUT_AT = 0.92; // start fade-out at 92% of loop
+
+  var start = performance.now();
+  function tick(t) {
+    var elapsed = ((t - start) % LOOP_MS) / LOOP_MS; // 0..1
+
+    els.forEach(function (o) {
+      var p; // 0 = invisible, 1 = visible
+      if (elapsed < o.appearAt) {
+        p = 0;
+      } else if (elapsed < HOLD_OUT_AT) {
+        var into = (elapsed - o.appearAt) * LOOP_MS;
+        p = Math.min(1, into / FADE_IN_MS);
+      } else {
+        var outProg = (elapsed - HOLD_OUT_AT) * LOOP_MS / FADE_OUT_MS;
+        p = Math.max(0, 1 - outProg);
+      }
+      o.el.style.opacity = p.toFixed(3);
+      o.el.style.transform = 'translateY(' + ((1 - p) * 8).toFixed(2) + 'px)';
+    });
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
 })();
 </script>
 
