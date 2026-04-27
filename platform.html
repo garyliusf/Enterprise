@@ -1820,18 +1820,31 @@
 
     /* Per-section bounds (in % of dashboard image, 1440x900). Right edge aligned
        to ~25.4% (chatMessages right edge ~26.4% minus ~1% inner padding). */
-    .ent-hero-section .chat-plan    { left: 1.0%; top: 14.7%; width: 24.4%; }
+    .ent-hero-section .chat-plan    { left: 1.0%; top: 14.7%; width: 24.4%; aspect-ratio: 716 / 386; opacity: 1; transform: none; }
     .ent-hero-section .chat-prompt  { left: 1.0%; top: 39.4%; width: 24.4%; }
     .ent-hero-section .chat-results { left: 1.0%; top: 46.1%; width: 24.4%; }
     .ent-hero-section .chat-prompt2 { left: 1.0%; top: 70.6%; width: 24.4%; }
 
-    /* Row-by-row reveal within the plan section: clip-path inset bottom is
-       driven by JS in discrete steps so each status row pops in one at a time. */
-    .ent-hero-section .chat-plan img {
-      clip-path: inset(0 0 var(--plan-clip, 100%) 0);
-      -webkit-clip-path: inset(0 0 var(--plan-clip, 100%) 0);
+    /* Plan rows: each row is its own animated element positioned by % of plan box */
+    .ent-hero-section .plan-row {
+      position: absolute;
+      left: 0;
+      opacity: 0;
+      transform: translateY(6px);
+      will-change: opacity, transform;
       transition: none;
+      pointer-events: none;
     }
+    .ent-hero-section .plan-row img { display: block; width: 100%; height: auto; }
+    /* y-positions and widths measured from plan PNG (716x386, 2× design) */
+    .ent-hero-section .plan-row.r-header  { top: 1.0%;  width: 14.5%; }
+    .ent-hero-section .plan-row.r-status1 { top: 8.3%;  width: 70.1%; }
+    .ent-hero-section .plan-row.r-status2 { top: 14.5%; width: 51.4%; }
+    .ent-hero-section .plan-row.r-status3 { top: 20.7%; width: 38.8%; }
+    .ent-hero-section .plan-row.r-status4 { top: 26.9%; width: 65.9%; }
+    .ent-hero-section .plan-row.r-status5 { top: 33.2%; width: 51.1%; }
+    .ent-hero-section .plan-row.r-status6 { top: 39.4%; width: 29.0%; }
+    .ent-hero-section .plan-row.r-actrow  { top: 46.6%; width: 25.7%; }
     /* Card: positioned by JS via CSS vars; transform-origin centered for clean scaling */
     .ent-hero-section .hero-form-card {
       position: absolute;
@@ -2397,7 +2410,16 @@
       <div class="hero-dashboard-frame">
         <img class="hero-dashboard-img" src="images/dashboard-hero.png" alt="" aria-hidden="true" />
         <div class="chat-mask-bg" aria-hidden="true"></div>
-        <div class="chat-overlay chat-plan"    aria-hidden="true"><img src="images/chat/Y51x8.png" alt="" /></div>
+        <div class="chat-overlay chat-plan" aria-hidden="true">
+          <div class="plan-row r-header"><img src="images/chat/fFel4.png" alt="" /></div>
+          <div class="plan-row r-status1"><img src="images/chat/nyRJq.png" alt="" /></div>
+          <div class="plan-row r-status2"><img src="images/chat/b2eyg.png" alt="" /></div>
+          <div class="plan-row r-status3"><img src="images/chat/PHzLg.png" alt="" /></div>
+          <div class="plan-row r-status4"><img src="images/chat/B8WGCF.png" alt="" /></div>
+          <div class="plan-row r-status5"><img src="images/chat/WbGlX.png" alt="" /></div>
+          <div class="plan-row r-status6"><img src="images/chat/K2Ygr.png" alt="" /></div>
+          <div class="plan-row r-actrow"><img src="images/chat/F4b7tY.png" alt="" /></div>
+        </div>
         <div class="chat-overlay chat-prompt"  aria-hidden="true"><img src="images/chat/n5Biu.png" alt="" /></div>
         <div class="chat-overlay chat-results" aria-hidden="true"><img src="images/chat/H5fThN.png" alt="" /></div>
         <div class="chat-overlay chat-prompt2" aria-hidden="true"><img src="images/chat/b9pbI.png" alt="" /></div>
@@ -3822,28 +3844,22 @@
 (function () {
   var section = document.querySelector('.ent-hero-section');
   if (!section) return;
+  // Each animated element with its own appearAt (fraction of LOOP_MS)
   var overlays = [
-    { sel: '.chat-plan',    appearAt: 0.04 },
-    { sel: '.chat-prompt',  appearAt: 0.40 },
-    { sel: '.chat-results', appearAt: 0.50 },
-    { sel: '.chat-prompt2', appearAt: 0.74 }
+    // plan rows (each pops in individually)
+    { sel: '.plan-row.r-header',  appearAt: 0.04 },
+    { sel: '.plan-row.r-status1', appearAt: 0.07 },
+    { sel: '.plan-row.r-status2', appearAt: 0.10 },
+    { sel: '.plan-row.r-status3', appearAt: 0.13 },
+    { sel: '.plan-row.r-status4', appearAt: 0.16 },
+    { sel: '.plan-row.r-status5', appearAt: 0.19 },
+    { sel: '.plan-row.r-status6', appearAt: 0.22 },
+    { sel: '.plan-row.r-actrow',  appearAt: 0.26 },
+    // chat sections that follow
+    { sel: '.chat-prompt',  appearAt: 0.34 },
+    { sel: '.chat-results', appearAt: 0.46 },
+    { sel: '.chat-prompt2', appearAt: 0.72 }
   ];
-
-  // Row-by-row clip stops inside the plan section.
-  // Values are clip-path inset bottom (% of plan PNG); reveal advances top→bottom.
-  // Plan PNG measured rows (in % of 386px PNG height):
-  //   planHeader at y=4-14   → bottom inset 96.4%  (clip 96.4%)  hides everything
-  //   status1     at y=32-44 → reveal at clip = (386-44)/386 = 88.6%
-  //   status2     at y=56-67 → 82.6%
-  //   status3     at y=80-90 → 76.7%
-  //   status4     at y=104-114 → 70.5%
-  //   status5     at y=128-138 → 64.2%
-  //   status6     at y=152-164 → 57.5%
-  //   actRow      at y=180-192 → 50.3%, then full reveal = 0%
-  // We "fast-fade" between stops by interpolating, then hold each step briefly.
-  var ROW_STOPS = [100, 96.4, 88.6, 82.6, 76.7, 70.5, 64.2, 57.5, 50.3, 0];
-  var PLAN_REVEAL_START = 0.06;  // after plan card appears
-  var PLAN_REVEAL_END   = 0.34;
   var els = overlays.map(function (o) {
     o.el = section.querySelector(o.sel);
     return o;
@@ -3873,26 +3889,6 @@
       o.el.style.opacity = p.toFixed(3);
       o.el.style.transform = 'translateY(' + ((1 - p) * 8).toFixed(2) + 'px)';
     });
-
-    // Plan row-by-row reveal driven by clip-path
-    var planEl = section.querySelector('.chat-plan');
-    if (planEl) {
-      var planP = (elapsed - PLAN_REVEAL_START) / (PLAN_REVEAL_END - PLAN_REVEAL_START);
-      var clip;
-      if (elapsed >= HOLD_OUT_AT) {
-        // Reset to fully clipped during fade-out so next loop starts hidden
-        clip = 0;
-      } else if (planP <= 0) {
-        clip = ROW_STOPS[0]; // 100% — everything clipped
-      } else if (planP >= 1) {
-        clip = 0;            // fully revealed
-      } else {
-        var stepF = planP * (ROW_STOPS.length - 1);
-        var i = Math.floor(stepF);
-        clip = ROW_STOPS[i];
-      }
-      planEl.style.setProperty('--plan-clip', clip + '%');
-    }
 
     requestAnimationFrame(tick);
   }
