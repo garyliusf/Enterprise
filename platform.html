@@ -1902,9 +1902,8 @@
     .ent-hero-section .bolt-1 { top: 34.1%; }   /* after plan-finish, before chat-prompt */
     .ent-hero-section .bolt-2 { top: 45.0%; }   /* after chat-prompt, before chat-results */
 
-    /* Beige mask hides the dashboard's right side until the plan completes,
-       then fades out so the content "reveals" alongside the first prompt.
-       Color matches the dashboard surface in the .pen (#faf8f4). */
+    /* Beige mask hides the dashboard's right side. It stays opaque the whole time;
+       the reveal layer above it brings the right-side content in from an angle. */
     .ent-hero-section .dashboard-mask {
       position: absolute;
       left: 26.35%;
@@ -1914,8 +1913,24 @@
       background: #faf8f4;
       z-index: 2;
       pointer-events: none;
-      opacity: 1;
-      will-change: opacity;
+    }
+
+    /* Reveal layer: a clipped duplicate of the dashboard PNG that glides in from
+       below-right with a slight tilt, then settles flat over the beige mask. */
+    .ent-hero-section .dashboard-reveal {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      clip-path: inset(0 0 0 26.35%);
+      pointer-events: none;
+      opacity: 0;
+      transform: translate(18px, 36px) scale(0.97) rotate(-1.4deg);
+      transform-origin: 26.35% 100%;
+      will-change: opacity, transform;
+    }
+    .ent-hero-section .dashboard-reveal img {
+      width: 100%;
+      display: block;
     }
 
     /* Metric numbers — animate count-up after chat-results reveals.
@@ -2527,6 +2542,7 @@
         </div>
         <div class="chat-overlay chat-results" aria-hidden="true"><img src="images/chat/H5fThN.png" alt="" /></div>
         <div class="dashboard-mask" aria-hidden="true"></div>
+        <div class="dashboard-reveal" aria-hidden="true"><img src="images/dashboard-hero.png" alt="" /></div>
         <div class="metric-overlay m-visitors"  aria-hidden="true">0</div>
         <div class="metric-overlay m-pageviews" aria-hidden="true">0</div>
         <div class="metric-overlay m-sessions"  aria-hidden="true">0</div>
@@ -3977,11 +3993,11 @@
   var METRIC_START = 0.260;     // shortly after chat-results appears (0.250)
   var METRIC_DUR_FRAC = 0.050;  // ~1.4s count-up at LOOP_MS = 28000
 
-  // Dashboard reveal mask — opaque beige until plan completes, then fades out
-  // so the right side appears alongside the first prompt.
-  var dashMask = section.querySelector('.dashboard-mask');
-  var MASK_FADE_START = 0.094;  // r-finish row is fully visible (~2.6s)
-  var MASK_FADE_END   = 0.130;  // ~1s glide-out, finishes just before chat-prompt
+  // Dashboard right side reveals via a clipped duplicate img that glides in from
+  // an angle once the plan rows finish, settling over the static beige mask.
+  var dashReveal = section.querySelector('.dashboard-reveal');
+  var REVEAL_START = 0.094;  // r-finish row is fully visible (~2.6s)
+  var REVEAL_END   = 0.150;  // ~1.6s glide finishes before chat-prompt has fully eased
   var els = overlays.map(function (o) {
     o.el = section.querySelector(o.sel);
     return o;
@@ -4059,13 +4075,20 @@
       o.el.style.transform = 'translateY(' + ((1 - eased) * slide).toFixed(2) + 'px)';
     });
 
-    // Dashboard reveal mask — fades out after plan rows finish.
-    if (dashMask) {
-      var mp;
-      if (elapsed < MASK_FADE_START) mp = 0;
-      else mp = Math.min(1, (elapsed - MASK_FADE_START) / (MASK_FADE_END - MASK_FADE_START));
-      var mEased = 1 - Math.pow(1 - mp, 3);
-      dashMask.style.opacity = (1 - mEased).toFixed(3);
+    // Dashboard reveal — glides in from below-right with a slight tilt.
+    if (dashReveal) {
+      var rp;
+      if (elapsed < REVEAL_START) rp = 0;
+      else rp = Math.min(1, (elapsed - REVEAL_START) / (REVEAL_END - REVEAL_START));
+      var rEased = 1 - Math.pow(1 - rp, 4);  // quart out — soft settle
+      var tx = (1 - rEased) * 18;
+      var ty = (1 - rEased) * 36;
+      var sc = 0.97 + rEased * 0.03;
+      var rot = (1 - rEased) * -1.4;
+      dashReveal.style.opacity = rEased.toFixed(3);
+      dashReveal.style.transform =
+        'translate(' + tx.toFixed(2) + 'px, ' + ty.toFixed(2) + 'px) ' +
+        'scale(' + sc.toFixed(4) + ') rotate(' + rot.toFixed(3) + 'deg)';
     }
 
     // Metric count-up — driven by elapsed timeline; quart-out easing.
