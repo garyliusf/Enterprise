@@ -1902,6 +1902,22 @@
     .ent-hero-section .bolt-1 { top: 34.1%; }   /* after plan-finish, before chat-prompt */
     .ent-hero-section .bolt-2 { top: 45.0%; }   /* after chat-prompt, before chat-results */
 
+    /* Beige mask hides the dashboard's right side until the plan completes,
+       then fades out so the content "reveals" alongside the first prompt.
+       Color matches the dashboard surface in the .pen (#faf8f4). */
+    .ent-hero-section .dashboard-mask {
+      position: absolute;
+      left: 26.35%;
+      top: 0;
+      width: 73.65%;
+      height: 100%;
+      background: #faf8f4;
+      z-index: 2;
+      pointer-events: none;
+      opacity: 1;
+      will-change: opacity;
+    }
+
     /* Metric numbers — animate count-up after chat-results reveals.
        Static numbers in the dashboard PNG were hidden (opacity 0 in pen) so these
        overlays own the rendering. Position is in % of the dashboard image. */
@@ -2510,6 +2526,7 @@
           <span class="bolt-transition-text">Thinking…</span>
         </div>
         <div class="chat-overlay chat-results" aria-hidden="true"><img src="images/chat/H5fThN.png" alt="" /></div>
+        <div class="dashboard-mask" aria-hidden="true"></div>
         <div class="metric-overlay m-visitors"  aria-hidden="true">0</div>
         <div class="metric-overlay m-pageviews" aria-hidden="true">0</div>
         <div class="metric-overlay m-sessions"  aria-hidden="true">0</div>
@@ -3959,6 +3976,12 @@
   ].map(function (m) { m.el = section.querySelector(m.sel); return m; }).filter(function (m) { return m.el; });
   var METRIC_START = 0.260;     // shortly after chat-results appears (0.250)
   var METRIC_DUR_FRAC = 0.050;  // ~1.4s count-up at LOOP_MS = 28000
+
+  // Dashboard reveal mask — opaque beige until plan completes, then fades out
+  // so the right side appears alongside the first prompt.
+  var dashMask = section.querySelector('.dashboard-mask');
+  var MASK_FADE_START = 0.094;  // r-finish row is fully visible (~2.6s)
+  var MASK_FADE_END   = 0.130;  // ~1s glide-out, finishes just before chat-prompt
   var els = overlays.map(function (o) {
     o.el = section.querySelector(o.sel);
     return o;
@@ -4035,6 +4058,15 @@
       o.el.style.opacity = eased.toFixed(3);
       o.el.style.transform = 'translateY(' + ((1 - eased) * slide).toFixed(2) + 'px)';
     });
+
+    // Dashboard reveal mask — fades out after plan rows finish.
+    if (dashMask) {
+      var mp;
+      if (elapsed < MASK_FADE_START) mp = 0;
+      else mp = Math.min(1, (elapsed - MASK_FADE_START) / (MASK_FADE_END - MASK_FADE_START));
+      var mEased = 1 - Math.pow(1 - mp, 3);
+      dashMask.style.opacity = (1 - mEased).toFixed(3);
+    }
 
     // Metric count-up — driven by elapsed timeline; quart-out easing.
     metrics.forEach(function (m) {
