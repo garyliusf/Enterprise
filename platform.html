@@ -1901,6 +1901,28 @@
     /* Position each thinking transition just where the next section will appear */
     .ent-hero-section .bolt-1 { top: 34.1%; }   /* after plan-finish, before chat-prompt */
     .ent-hero-section .bolt-2 { top: 45.0%; }   /* after chat-prompt, before chat-results */
+
+    /* Metric numbers — animate count-up after chat-results reveals.
+       Static numbers in the dashboard PNG were hidden (opacity 0 in pen) so these
+       overlays own the rendering. Position is in % of the dashboard image. */
+    .ent-hero-section .metric-overlay {
+      position: absolute;
+      top: 25.6%;
+      height: 5.4%;
+      z-index: 3;
+      font-family: 'Bodoni Moda', serif;
+      font-weight: 700;
+      color: #444444;
+      display: flex;
+      align-items: center;
+      font-size: clamp(15px, 1.42vw, 27px);
+      letter-spacing: -0.01em;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .ent-hero-section .m-visitors  { left: 40.8%; }
+    .ent-hero-section .m-pageviews { left: 60.2%; }
+    .ent-hero-section .m-sessions  { left: 79.6%; }
     /* Card: positioned by JS via CSS vars; transform-origin centered for clean scaling */
     .ent-hero-section .hero-form-card {
       position: absolute;
@@ -2488,6 +2510,9 @@
           <span class="bolt-transition-text">Thinking…</span>
         </div>
         <div class="chat-overlay chat-results" aria-hidden="true"><img src="images/chat/H5fThN.png" alt="" /></div>
+        <div class="metric-overlay m-visitors"  aria-hidden="true">0</div>
+        <div class="metric-overlay m-pageviews" aria-hidden="true">0</div>
+        <div class="metric-overlay m-sessions"  aria-hidden="true">0</div>
       </div>
 
       <div class="hero-form-card" id="hero-form-card">
@@ -3925,6 +3950,15 @@
   var transitions = [
     { sel: '.bolt-2', start: 0.150, end: 0.240 }   // right after chat-prompt finishes
   ];
+
+  // Metric numbers count-up — kicks in once chat-results (the second prompt) reveals.
+  var metrics = [
+    { sel: '.m-visitors',  target: 247800,  fmt: function (n) { return (n / 1000).toFixed(1) + 'K'; } },
+    { sel: '.m-pageviews', target: 1250000, fmt: function (n) { return (n / 1000000).toFixed(2) + 'M'; } },
+    { sel: '.m-sessions',  target: 312900,  fmt: function (n) { return (n / 1000).toFixed(1) + 'K'; } }
+  ].map(function (m) { m.el = section.querySelector(m.sel); return m; }).filter(function (m) { return m.el; });
+  var METRIC_START = 0.260;     // shortly after chat-results appears (0.250)
+  var METRIC_DUR_FRAC = 0.050;  // ~1.4s count-up at LOOP_MS = 28000
   var els = overlays.map(function (o) {
     o.el = section.querySelector(o.sel);
     return o;
@@ -4000,6 +4034,15 @@
       var slide = o.sel.indexOf('plan-row') >= 0 ? 12 : 8;
       o.el.style.opacity = eased.toFixed(3);
       o.el.style.transform = 'translateY(' + ((1 - eased) * slide).toFixed(2) + 'px)';
+    });
+
+    // Metric count-up — driven by elapsed timeline; quart-out easing.
+    metrics.forEach(function (m) {
+      var p;
+      if (elapsed < METRIC_START) p = 0;
+      else p = Math.min(1, (elapsed - METRIC_START) / METRIC_DUR_FRAC);
+      var eased = 1 - Math.pow(1 - p, 4);
+      m.el.textContent = p === 0 ? '0' : m.fmt(m.target * eased);
     });
 
     // Bolt thinking transitions: pixel-fill in, hold, fade out
