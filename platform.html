@@ -3990,7 +3990,7 @@
   var dashMask = section.querySelector('.dashboard-mask');
   var heroFormCard = section.querySelector('.hero-form-card');
   var REVEAL_START = 0.094;  // r-finish row is fully visible (~2.6s)
-  var REVEAL_END   = 0.119;  // ~0.7s reveal — matches quote word-reveal duration
+  var REVEAL_END   = 0.130;  // ~1s reveal — slightly slower than the quote for softness
   var els = overlays.map(function (o) {
     o.el = section.querySelector(o.sel);
     return o;
@@ -4072,13 +4072,14 @@
     var rp;
     if (elapsed < REVEAL_START) rp = 0;
     else rp = Math.min(1, (elapsed - REVEAL_START) / (REVEAL_END - REVEAL_START));
-    var rEased = 1 - Math.pow(1 - rp, 4);  // quart out — close to cubic-bezier(0.22,1,0.36,1)
+    // Sine ease-in-out for a softer ramp at both ends than quart-out.
+    var rEased = -(Math.cos(Math.PI * rp) - 1) / 2;
     if (dashMask) {
-      // Soft-edge wipe at 75° (mostly left→right, slight upward tilt). The
-      // transparent and black stops slide together along the gradient axis as
-      // the reveal progresses, sweeping the beige mask away.
-      var x = rEased * 200 - 100;
-      var y = x + 50;  // 50% soft edge
+      // 75° wipe (mostly left→right, slight upward tilt). The two stops slide
+      // along the axis with a wide 100% soft edge, so the leading edge is a
+      // gentle gradient instead of a hard line.
+      var x = rEased * 240 - 120;   // a bit more travel so the soft edge fully clears
+      var y = x + 100;
       var grad = 'linear-gradient(75deg, transparent ' + x.toFixed(1) + '%, black ' + y.toFixed(1) + '%)';
       dashMask.style.webkitMaskImage = grad;
       dashMask.style.maskImage = grad;
