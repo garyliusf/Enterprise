@@ -1904,36 +1904,19 @@
 
     /* Beige mask hides the dashboard's right side. It stays opaque the whole time;
        the reveal layer above it brings the right-side content in from an angle. */
+    /* Beige mask hides the dashboard's right side (everything below the navbar)
+       until the plan completes, then dissolves with the same blur + slight
+       angular drift used by the enterprise quote-text reveal. */
     .ent-hero-section .dashboard-mask {
       position: absolute;
       left: 26.35%;
-      top: 0;
+      top: 6.22%;        /* below the dashboard nav bar (56px / 900px) so it's always visible */
       width: 73.65%;
-      height: 100%;
+      height: 93.78%;
       background: #faf8f4;
       z-index: 2;
       pointer-events: none;
-      /* Match the PNG's rounded top-right corner so the mask doesn't peek out
-         past the rounded image into the surrounding dark area. */
-      border-top-right-radius: 12px;
-    }
-
-    /* Reveal layer: a clipped duplicate of the dashboard PNG. Fades + slides up
-       once the plan completes, settling over the beige mask. Same feel as the
-       chat plan rows. */
-    .ent-hero-section .dashboard-reveal {
-      position: absolute;
-      inset: 0;
-      z-index: 3;
-      clip-path: inset(0 0 0 26.35%);
-      pointer-events: none;
-      opacity: 0;
-      transform: translateY(12px);
-      will-change: opacity, transform;
-    }
-    .ent-hero-section .dashboard-reveal img {
-      width: 100%;
-      display: block;
+      will-change: opacity, transform, filter;
     }
 
     /* Metric numbers — animate count-up after chat-results reveals.
@@ -2548,7 +2531,6 @@
         </div>
         <div class="chat-overlay chat-results" aria-hidden="true"><img src="images/chat/H5fThN.png" alt="" /></div>
         <div class="dashboard-mask" aria-hidden="true"></div>
-        <div class="dashboard-reveal" aria-hidden="true"><img src="images/dashboard-hero.png" alt="" /></div>
         <div class="metric-overlay m-visitors"  aria-hidden="true">0</div>
         <div class="metric-overlay m-pageviews" aria-hidden="true">0</div>
         <div class="metric-overlay m-sessions"  aria-hidden="true">0</div>
@@ -3999,14 +3981,14 @@
   var METRIC_START = 0.260;     // shortly after chat-results appears (0.250)
   var METRIC_DUR_FRAC = 0.050;  // ~1.4s count-up at LOOP_MS = 28000
 
-  // Dashboard right side reveals via a clipped duplicate img — soft fade + small
-  // upward slide once the plan rows finish, matching the chat plan-row feel.
-  // The metric overlays and the video card share the same fade window so the
-  // initial '0' values and the player don't appear during the beige state.
-  var dashReveal = section.querySelector('.dashboard-reveal');
+  // Dashboard right side reveals by dissolving the beige mask: fade out + slight
+  // angled drift + de-blur, mirroring the enterprise quote-text word reveal.
+  // The metric overlays and video card share the same window so the '0's and
+  // the player don't appear during the beige state.
+  var dashMask = section.querySelector('.dashboard-mask');
   var heroFormCard = section.querySelector('.hero-form-card');
   var REVEAL_START = 0.094;  // r-finish row is fully visible (~2.6s)
-  var REVEAL_END   = 0.150;  // ~1.6s fade-and-slide
+  var REVEAL_END   = 0.119;  // ~0.7s reveal — matches quote word-reveal duration
   var els = overlays.map(function (o) {
     o.el = section.querySelector(o.sel);
     return o;
@@ -4084,14 +4066,16 @@
       o.el.style.transform = 'translateY(' + ((1 - eased) * slide).toFixed(2) + 'px)';
     });
 
-    // Dashboard reveal — soft fade + slight upward slide after plan completes.
+    // Dashboard reveal — beige mask dissolves with quote-style angled drift.
     var rp;
     if (elapsed < REVEAL_START) rp = 0;
     else rp = Math.min(1, (elapsed - REVEAL_START) / (REVEAL_END - REVEAL_START));
-    var rEased = 1 - Math.pow(1 - rp, 4);  // quart out
-    if (dashReveal) {
-      dashReveal.style.opacity = rEased.toFixed(3);
-      dashReveal.style.transform = 'translateY(' + ((1 - rEased) * 12).toFixed(2) + 'px)';
+    var rEased = 1 - Math.pow(1 - rp, 4);  // quart out — close to cubic-bezier(0.22,1,0.36,1)
+    if (dashMask) {
+      dashMask.style.opacity = (1 - rEased).toFixed(3);
+      // Mask drifts down-right while fading, matching the quote word translate vector
+      dashMask.style.transform = 'translate(' + (rEased * 10).toFixed(2) + 'px, ' + (rEased * 7).toFixed(2) + 'px)';
+      dashMask.style.filter = 'blur(' + (rEased * 5).toFixed(2) + 'px)';
     }
     if (heroFormCard) {
       heroFormCard.style.opacity = rEased.toFixed(3);
