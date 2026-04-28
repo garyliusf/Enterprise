@@ -1799,7 +1799,7 @@
       position: absolute;
       left: 0%;
       top: 6.2%;
-      width: 26.3%;   /* sidebar ends at 26.35%; sit just inside */
+      width: 26.35%;  /* match dashboard-mask left edge exactly to avoid a seam */
       height: 70%;
       background: #0C0C0C;
       z-index: 2;
@@ -1913,20 +1913,23 @@
       background: #faf8f4;
       z-index: 2;
       pointer-events: none;
+      /* Match the PNG's rounded top-right corner so the mask doesn't peek out
+         past the rounded image into the surrounding dark area. */
+      border-top-right-radius: 12px;
     }
 
-    /* Reveal layer: a clipped duplicate of the dashboard PNG. A diagonal mask
-       sweeps from bottom-left to top-right as the plan completes, softly fading
-       the right-side content in over the beige mask. */
+    /* Reveal layer: a clipped duplicate of the dashboard PNG. Fades + slides up
+       once the plan completes, settling over the beige mask. Same feel as the
+       chat plan rows. */
     .ent-hero-section .dashboard-reveal {
       position: absolute;
       inset: 0;
       z-index: 3;
       clip-path: inset(0 0 0 26.35%);
       pointer-events: none;
-      -webkit-mask-image: linear-gradient(45deg, black -100%, transparent -20%);
-              mask-image: linear-gradient(45deg, black -100%, transparent -20%);
-      will-change: mask-image, -webkit-mask-image;
+      opacity: 0;
+      transform: translateY(12px);
+      will-change: opacity, transform;
     }
     .ent-hero-section .dashboard-reveal img {
       width: 100%;
@@ -1950,6 +1953,8 @@
       letter-spacing: -0.01em;
       pointer-events: none;
       white-space: nowrap;
+      opacity: 0;   /* hidden until the dashboard reveals */
+      will-change: opacity;
     }
     .ent-hero-section .m-visitors  { left: 40.8%; }
     .ent-hero-section .m-pageviews { left: 60.2%; }
@@ -1969,8 +1974,9 @@
       cursor: pointer;
       display: flex;
       flex-direction: column;
-      will-change: left, top, width;
+      will-change: left, top, width, opacity;
       transition: none;
+      opacity: 0;   /* hidden until the dashboard reveals */
     }
     .ent-hero-section .card-video-area {
       position: relative;
@@ -3993,11 +3999,14 @@
   var METRIC_START = 0.260;     // shortly after chat-results appears (0.250)
   var METRIC_DUR_FRAC = 0.050;  // ~1.4s count-up at LOOP_MS = 28000
 
-  // Dashboard right side reveals via a clipped duplicate img that glides in from
-  // an angle once the plan rows finish, settling over the static beige mask.
+  // Dashboard right side reveals via a clipped duplicate img — soft fade + small
+  // upward slide once the plan rows finish, matching the chat plan-row feel.
+  // The metric overlays and the video card share the same fade window so the
+  // initial '0' values and the player don't appear during the beige state.
   var dashReveal = section.querySelector('.dashboard-reveal');
+  var heroFormCard = section.querySelector('.hero-form-card');
   var REVEAL_START = 0.094;  // r-finish row is fully visible (~2.6s)
-  var REVEAL_END   = 0.150;  // ~1.6s glide finishes before chat-prompt has fully eased
+  var REVEAL_END   = 0.150;  // ~1.6s fade-and-slide
   var els = overlays.map(function (o) {
     o.el = section.querySelector(o.sel);
     return o;
@@ -4075,21 +4084,23 @@
       o.el.style.transform = 'translateY(' + ((1 - eased) * slide).toFixed(2) + 'px)';
     });
 
-    // Dashboard reveal — diagonal soft mask sweep from bottom-left to top-right.
+    // Dashboard reveal — soft fade + slight upward slide after plan completes.
+    var rp;
+    if (elapsed < REVEAL_START) rp = 0;
+    else rp = Math.min(1, (elapsed - REVEAL_START) / (REVEAL_END - REVEAL_START));
+    var rEased = 1 - Math.pow(1 - rp, 4);  // quart out
     if (dashReveal) {
-      var rp;
-      if (elapsed < REVEAL_START) rp = 0;
-      else rp = Math.min(1, (elapsed - REVEAL_START) / (REVEAL_END - REVEAL_START));
-      var rEased = -(Math.cos(Math.PI * rp) - 1) / 2;  // sine ease-in-out
-      var startPct = (rEased * 200) - 100;             // -100% → 100% across the diagonal
-      var endPct = startPct + 80;                      // 80% soft edge for a gentle fade
-      var grad = 'linear-gradient(45deg, black ' + startPct.toFixed(1) + '%, transparent ' + endPct.toFixed(1) + '%)';
-      dashReveal.style.webkitMaskImage = grad;
-      dashReveal.style.maskImage = grad;
+      dashReveal.style.opacity = rEased.toFixed(3);
+      dashReveal.style.transform = 'translateY(' + ((1 - rEased) * 12).toFixed(2) + 'px)';
+    }
+    if (heroFormCard) {
+      heroFormCard.style.opacity = rEased.toFixed(3);
     }
 
-    // Metric count-up — driven by elapsed timeline; quart-out easing.
+    // Metric count-up — fade in alongside the reveal; numbers stay at 0 until
+    // chat-results, then count up to their final values.
     metrics.forEach(function (m) {
+      m.el.style.opacity = rEased.toFixed(3);
       var p;
       if (elapsed < METRIC_START) p = 0;
       else p = Math.min(1, (elapsed - METRIC_START) / METRIC_DUR_FRAC);
