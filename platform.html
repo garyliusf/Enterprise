@@ -1822,9 +1822,9 @@
        to ~25.4% (chatMessages right edge ~26.4% minus ~1% inner padding). */
     .ent-hero-section .chat-plan    { left: 1.0%; top: 14.7%; width: 24.4%; opacity: 1; transform: none;
       display: flex; flex-direction: column; gap: 0.42vw; }
-    .ent-hero-section .chat-prompt  { left: 1.0%; top: 39.4%; width: 24.4%; }
-    .ent-hero-section .chat-results { left: 1.0%; top: 46.1%; width: 24.4%; }
-    .ent-hero-section .chat-prompt2 { left: 1.0%; top: 70.6%; width: 24.4%; }
+    .ent-hero-section .chat-prompt  { left: 1.0%; top: 36.0%; width: 24.4%; }
+    .ent-hero-section .chat-results { left: 1.0%; top: 42.5%; width: 24.4%; }
+    .ent-hero-section .chat-prompt2 { left: 1.0%; top: 67.0%; width: 24.4%; }
 
     /* Plan rows in document flow inside the flex column. Widths sized to the
        row's natural proportion of the plan PNG so they keep design proportions. */
@@ -1861,8 +1861,8 @@
     }
     .ent-hero-section .bolt-transition-logo {
       position: relative;
-      width: 0.85vw;
-      height: calc(0.85vw * 43 / 100);
+      width: 1.4vw;
+      height: calc(1.4vw * 43 / 100);
       flex-shrink: 0;
       -webkit-mask-image: url('images/bolt-logo.svg');
               mask-image: url('images/bolt-logo.svg');
@@ -1899,9 +1899,9 @@
       100% { background-position: -110% 0; }
     }
     /* Position each thinking transition just where the next section will appear */
-    .ent-hero-section .bolt-1 { top: 38.0%; }   /* before .chat-prompt */
-    .ent-hero-section .bolt-2 { top: 44.5%; }   /* before .chat-results */
-    .ent-hero-section .bolt-3 { top: 69.0%; }   /* before .chat-prompt2 */
+    .ent-hero-section .bolt-1 { top: 34.5%; }   /* right under plan-finish */
+    .ent-hero-section .bolt-2 { top: 41.0%; }   /* right under chat-prompt */
+    .ent-hero-section .bolt-3 { top: 65.5%; }   /* right under chat-results */
     /* Card: positioned by JS via CSS vars; transform-origin centered for clean scaling */
     .ent-hero-section .hero-form-card {
       position: absolute;
@@ -3921,17 +3921,17 @@
     { sel: '.plan-row.r-status3', appearAt: 0.065 },  // 1.8s
     { sel: '.plan-row.r-status4', appearAt: 0.090 },  // 2.5s
     { sel: '.plan-row.r-finish',  appearAt: 0.125 },  // 3.5s — Plan completed + action icons together
-    { sel: '.chat-prompt',        appearAt: 0.350 },  // 9.8s — first prompt
-    { sel: '.chat-results',       appearAt: 0.530 },  // 14.8s — bolt response
-    { sel: '.chat-prompt2',       appearAt: 0.760 }   // 21.3s — second prompt
+    { sel: '.chat-prompt',        appearAt: 0.290 },  // 8.1s
+    { sel: '.chat-results',       appearAt: 0.450 },  // 12.6s
+    { sel: '.chat-prompt2',       appearAt: 0.620 }   // 17.4s
   ];
 
-  // Bolt-pixel "thinking" transitions: longer windows (~3.5s each) so the
-  // shimmering text + bottom-up pixel fill reads as a real loading state.
+  // Each thinking transition starts immediately after the previous section's
+  // fade-in completes (~600ms after appearAt) and runs ~3s.
   var transitions = [
-    { sel: '.bolt-1', start: 0.225, end: 0.350 },  // before chat-prompt   (3.5s)
-    { sel: '.bolt-2', start: 0.405, end: 0.530 },  // before chat-results  (3.5s)
-    { sel: '.bolt-3', start: 0.635, end: 0.760 }   // before chat-prompt2  (3.5s)
+    { sel: '.bolt-1', start: 0.155, end: 0.285 },  // right after plan-finish, before chat-prompt
+    { sel: '.bolt-2', start: 0.320, end: 0.445 },  // right after chat-prompt, before chat-results
+    { sel: '.bolt-3', start: 0.495, end: 0.615 }   // right after chat-results, before chat-prompt2
   ];
   var els = overlays.map(function (o) {
     o.el = section.querySelector(o.sel);
@@ -3951,7 +3951,7 @@
     var logo = el.querySelector('.bolt-transition-logo');
     var canvas = el.querySelector('canvas');
     var ctx = canvas.getContext('2d');
-    var spacing = 3, dot = 1.5;
+    var spacing = 2, dot = 1.6;
     var cols = 0, rows = 0, noise = [];
     function resize() {
       var r = logo.getBoundingClientRect();
