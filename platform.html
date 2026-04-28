@@ -1904,9 +1904,9 @@
 
     /* Beige mask hides the dashboard's right side. It stays opaque the whole time;
        the reveal layer above it brings the right-side content in from an angle. */
-    /* Beige mask hides the dashboard's right side (everything below the navbar)
-       until the plan completes, then dissolves with the same blur + slight
-       angular drift used by the enterprise quote-text reveal. */
+    /* Beige mask hides the dashboard's right side until the plan completes,
+       then sweeps away at a ~75° angle (mostly left-to-right with a slight
+       upward tilt). The angled mask-image gradient is animated by JS. */
     .ent-hero-section .dashboard-mask {
       position: absolute;
       left: 26.35%;
@@ -1916,7 +1916,9 @@
       background: #faf8f4;
       z-index: 2;
       pointer-events: none;
-      will-change: opacity, transform, filter;
+      -webkit-mask-image: linear-gradient(75deg, transparent -100%, black -50%);
+              mask-image: linear-gradient(75deg, transparent -100%, black -50%);
+      will-change: mask-image, -webkit-mask-image;
     }
 
     /* Metric numbers — animate count-up after chat-results reveals.
@@ -4066,16 +4068,20 @@
       o.el.style.transform = 'translateY(' + ((1 - eased) * slide).toFixed(2) + 'px)';
     });
 
-    // Dashboard reveal — beige mask dissolves with quote-style angled drift.
+    // Dashboard reveal — angled wipe across the beige mask via mask-image.
     var rp;
     if (elapsed < REVEAL_START) rp = 0;
     else rp = Math.min(1, (elapsed - REVEAL_START) / (REVEAL_END - REVEAL_START));
     var rEased = 1 - Math.pow(1 - rp, 4);  // quart out — close to cubic-bezier(0.22,1,0.36,1)
     if (dashMask) {
-      dashMask.style.opacity = (1 - rEased).toFixed(3);
-      // Mask drifts down-right while fading, matching the quote word translate vector
-      dashMask.style.transform = 'translate(' + (rEased * 10).toFixed(2) + 'px, ' + (rEased * 7).toFixed(2) + 'px)';
-      dashMask.style.filter = 'blur(' + (rEased * 5).toFixed(2) + 'px)';
+      // Soft-edge wipe at 75° (mostly left→right, slight upward tilt). The
+      // transparent and black stops slide together along the gradient axis as
+      // the reveal progresses, sweeping the beige mask away.
+      var x = rEased * 200 - 100;
+      var y = x + 50;  // 50% soft edge
+      var grad = 'linear-gradient(75deg, transparent ' + x.toFixed(1) + '%, black ' + y.toFixed(1) + '%)';
+      dashMask.style.webkitMaskImage = grad;
+      dashMask.style.maskImage = grad;
     }
     if (heroFormCard) {
       heroFormCard.style.opacity = rEased.toFixed(3);
