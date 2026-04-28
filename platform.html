@@ -1944,6 +1944,29 @@
     .ent-hero-section .m-visitors  { left: 40.8%; }
     .ent-hero-section .m-pageviews { left: 60.2%; }
     .ent-hero-section .m-sessions  { left: 79.6%; }
+
+    /* Chart overlay — static lines/gradient in the PNG were hidden; this SVG
+       takes over and animates from flat to the real shape after the metrics. */
+    .ent-hero-section .chart-overlay-wrap {
+      position: absolute;
+      left: 41.25%;
+      top: 47.78%;
+      width: 55.97%;
+      height: 15.78%;
+      z-index: 3;
+      pointer-events: none;
+      overflow: hidden;
+      opacity: 0;
+      will-change: opacity;
+    }
+    .ent-hero-section .chart-overlay-wrap svg {
+      width: 100%;
+      height: 121.13%;       /* 172 / 142 — match pen's path height beyond clipped chart area */
+      display: block;
+    }
+    .ent-hero-section .chart-fill { fill: url(#chartGrad); }
+    .ent-hero-section .chart-prev { fill: none; stroke: #d1d5db; stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+    .ent-hero-section .chart-main { fill: none; stroke: #10B981; stroke-width: 2.5; vector-effect: non-scaling-stroke; }
     /* Card: positioned by JS via CSS vars; transform-origin centered for clean scaling */
     .ent-hero-section .hero-form-card {
       position: absolute;
@@ -2536,6 +2559,19 @@
         <div class="metric-overlay m-visitors"  aria-hidden="true">0</div>
         <div class="metric-overlay m-pageviews" aria-hidden="true">0</div>
         <div class="metric-overlay m-sessions"  aria-hidden="true">0</div>
+        <div class="chart-overlay-wrap" aria-hidden="true">
+          <svg viewBox="0 0 950 172" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%"   stop-color="#34D399" stop-opacity="0.208"/>
+                <stop offset="100%" stop-color="#34D399" stop-opacity="0.031"/>
+              </linearGradient>
+            </defs>
+            <path class="chart-fill" />
+            <path class="chart-prev" />
+            <path class="chart-main" />
+          </svg>
+        </div>
       </div>
 
       <div class="hero-form-card" id="hero-form-card">
@@ -3983,6 +4019,26 @@
   var METRIC_START = 0.260;     // shortly after chat-results appears (0.250)
   var METRIC_DUR_FRAC = 0.050;  // ~1.4s count-up at LOOP_MS = 28000
 
+  // Chart line draws from a flat baseline up to the real shape after metrics.
+  var chartWrap = section.querySelector('.chart-overlay-wrap');
+  var chartFill = section.querySelector('.chart-fill');
+  var chartPrev = section.querySelector('.chart-prev');
+  var chartMain = section.querySelector('.chart-main');
+  var CHART_START    = 0.320;
+  var CHART_DUR_FRAC = 0.060;   // ~1.7s flat → final
+  var CHART_FLAT_Y   = 86;
+  var CHART_MAIN_SY  = 62;
+  var CHART_PREV_SY  = 56;
+  var CHART_MAIN_SEGS = [[55,10],[55,10],[45,-4],[45,-26],[50,-8],[60,-6],[50,12],[50,16],[45,8],[50,-14],[50,-30],[45,-4],[50,16],[45,10],[45,-12],[40,-22],[40,6],[40,12],[40,-6],[30,-12],[20,16]];
+  var CHART_PREV_SEGS = [[55,9],[55,9],[45,-4],[45,-6],[50,-6],[60,-6],[50,4],[50,14],[45,8],[50,-4],[50,-9],[45,-3],[50,-2],[45,4],[45,-6],[40,-4],[40,6],[40,-4],[40,-4],[30,-2],[20,-3]];
+  function buildChartPath(segs, startY, t, withFill) {
+    var sy = CHART_FLAT_Y + (startY - CHART_FLAT_Y) * t;
+    var d = 'M0 ' + sy.toFixed(2);
+    for (var i = 0; i < segs.length; i++) d += 'l' + segs[i][0] + ' ' + (segs[i][1] * t).toFixed(2);
+    if (withFill) d += 'l0 138l-950 0z';
+    return d;
+  }
+
   // Dashboard right side reveals by dissolving the beige mask: fade out + slight
   // angled drift + de-blur, mirroring the enterprise quote-text word reveal.
   // The metric overlays and video card share the same window so the '0's and
@@ -4087,6 +4143,18 @@
     if (heroFormCard) {
       heroFormCard.style.opacity = rEased.toFixed(3);
     }
+    if (chartWrap) {
+      chartWrap.style.opacity = rEased.toFixed(3);
+    }
+
+    // Chart line — draws from flat to real shape after metrics.
+    var cp;
+    if (elapsed < CHART_START) cp = 0;
+    else cp = Math.min(1, (elapsed - CHART_START) / CHART_DUR_FRAC);
+    var cEased = 1 - Math.pow(1 - cp, 4);
+    if (chartMain) chartMain.setAttribute('d', buildChartPath(CHART_MAIN_SEGS, CHART_MAIN_SY, cEased, false));
+    if (chartPrev) chartPrev.setAttribute('d', buildChartPath(CHART_PREV_SEGS, CHART_PREV_SY, cEased, false));
+    if (chartFill) chartFill.setAttribute('d', buildChartPath(CHART_MAIN_SEGS, CHART_MAIN_SY, cEased, true));
 
     // Metric count-up — fade in alongside the reveal; numbers stay at 0 until
     // chat-results, then count up to their final values.
