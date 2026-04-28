@@ -3910,19 +3910,19 @@
   // Each animated element with its own appearAt (fraction of LOOP_MS).
   // Plan rows spaced 1.1s apart; bolt-thinking transition fills between sections.
   var overlays = [
-    { sel: '.plan-row.r-header',  appearAt: 0.015 },
-    { sel: '.plan-row.r-status1', appearAt: 0.038 },
-    { sel: '.plan-row.r-status3', appearAt: 0.061 },
-    { sel: '.plan-row.r-status4', appearAt: 0.084 },
-    { sel: '.plan-row.r-finish',  appearAt: 0.115 },  // Plan completed + action icons together
-    { sel: '.chat-prompt',        appearAt: 0.300 },
-    { sel: '.chat-results',       appearAt: 0.450 }
+    { sel: '.plan-row.r-header',  appearAt: 0.010 },
+    { sel: '.plan-row.r-status1', appearAt: 0.025 },
+    { sel: '.plan-row.r-status3', appearAt: 0.040 },
+    { sel: '.plan-row.r-status4', appearAt: 0.055 },
+    { sel: '.plan-row.r-finish',  appearAt: 0.075 },  // Plan completed + action icons together
+    { sel: '.chat-prompt',        appearAt: 0.140 },
+    { sel: '.chat-results',       appearAt: 0.260 }
   ];
 
-  // Two thinking transitions, each ~2.2s (50% faster than before).
+  // Each thinking transition kicks in immediately after the previous reveal.
   var transitions = [
-    { sel: '.bolt-1', start: 0.215, end: 0.295 },  // right after plan-finish, before chat-prompt
-    { sel: '.bolt-2', start: 0.360, end: 0.445 }   // right after chat-prompt, before chat-results
+    { sel: '.bolt-1', start: 0.085, end: 0.135 },  // ~1.4s, right after plan-finish
+    { sel: '.bolt-2', start: 0.165, end: 0.255 }   // ~2.5s, right after chat-prompt
   ];
   var els = overlays.map(function (o) {
     o.el = section.querySelector(o.sel);
@@ -3994,8 +3994,12 @@
         var into = (elapsed - o.appearAt) * LOOP_MS;
         p = Math.min(1, into / FADE_IN_MS);
       }
-      o.el.style.opacity = p.toFixed(3);
-      o.el.style.transform = 'translateY(' + ((1 - p) * 8).toFixed(2) + 'px)';
+      // Gliding ease-out (cubic) so rows decelerate smoothly into place
+      var eased = 1 - Math.pow(1 - p, 3);
+      // Plan rows get a longer slide for a more pronounced glide
+      var slide = o.sel.indexOf('plan-row') >= 0 ? 14 : 8;
+      o.el.style.opacity = eased.toFixed(3);
+      o.el.style.transform = 'translateY(' + ((1 - eased) * slide).toFixed(2) + 'px)';
     });
 
     // Bolt thinking transitions: pixel-fill in, hold, fade out
