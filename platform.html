@@ -3911,18 +3911,18 @@
   // Plan rows spaced 1.1s apart; bolt-thinking transition fills between sections.
   var overlays = [
     { sel: '.plan-row.r-header',  appearAt: 0.010 },
-    { sel: '.plan-row.r-status1', appearAt: 0.025 },
-    { sel: '.plan-row.r-status3', appearAt: 0.040 },
-    { sel: '.plan-row.r-status4', appearAt: 0.055 },
-    { sel: '.plan-row.r-finish',  appearAt: 0.075 },  // Plan completed + action icons together
-    { sel: '.chat-prompt',        appearAt: 0.140 },
-    { sel: '.chat-results',       appearAt: 0.260 }
+    { sel: '.plan-row.r-status1', appearAt: 0.028 },
+    { sel: '.plan-row.r-status3', appearAt: 0.046 },
+    { sel: '.plan-row.r-status4', appearAt: 0.064 },
+    { sel: '.plan-row.r-finish',  appearAt: 0.082 },  // even pacing to last row
+    { sel: '.chat-prompt',        appearAt: 0.150 },
+    { sel: '.chat-results',       appearAt: 0.270 }
   ];
 
   // Each thinking transition kicks in immediately after the previous reveal.
   var transitions = [
-    { sel: '.bolt-1', start: 0.085, end: 0.135 },  // ~1.4s, right after plan-finish
-    { sel: '.bolt-2', start: 0.165, end: 0.255 }   // ~2.5s, right after chat-prompt
+    { sel: '.bolt-1', start: 0.095, end: 0.145 },  // ~1.4s, right after plan-finish
+    { sel: '.bolt-2', start: 0.175, end: 0.265 }   // ~2.5s, right after chat-prompt
   ];
   var els = overlays.map(function (o) {
     o.el = section.querySelector(o.sel);
@@ -3931,7 +3931,7 @@
   if (!els.length) return;
 
   var LOOP_MS = 28000;
-  var FADE_IN_MS = 600;     // longer, smoother fade-in for each row
+  var FADE_IN_MS = 500;     // matches plan-row spacing so each row finishes before the next starts
   var FADE_OUT_MS = 700;
   var HOLD_OUT_AT = 0.95;
 
@@ -3994,10 +3994,9 @@
         var into = (elapsed - o.appearAt) * LOOP_MS;
         p = Math.min(1, into / FADE_IN_MS);
       }
-      // Gliding ease-out (cubic) so rows decelerate smoothly into place
-      var eased = 1 - Math.pow(1 - p, 3);
-      // Plan rows get a longer slide for a more pronounced glide
-      var slide = o.sel.indexOf('plan-row') >= 0 ? 14 : 8;
+      // Gentle ease-out (quad) — less momentum, more uniform-feeling pacing
+      var eased = 1 - (1 - p) * (1 - p);
+      var slide = o.sel.indexOf('plan-row') >= 0 ? 10 : 8;
       o.el.style.opacity = eased.toFixed(3);
       o.el.style.transform = 'translateY(' + ((1 - eased) * slide).toFixed(2) + 'px)';
     });
