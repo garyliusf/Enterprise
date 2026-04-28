@@ -3931,7 +3931,7 @@
   if (!els.length) return;
 
   var LOOP_MS = 28000;
-  var FADE_IN_MS = 500;     // matches plan-row spacing so each row finishes before the next starts
+  var FADE_IN_MS = 900;     // longer fade so rows overlap into a continuous glide
   var FADE_OUT_MS = 700;
   var HOLD_OUT_AT = 0.95;
 
@@ -3994,9 +3994,9 @@
         var into = (elapsed - o.appearAt) * LOOP_MS;
         p = Math.min(1, into / FADE_IN_MS);
       }
-      // Gentle ease-out (quad) — less momentum, more uniform-feeling pacing
-      var eased = 1 - (1 - p) * (1 - p);
-      var slide = o.sel.indexOf('plan-row') >= 0 ? 10 : 8;
+      // Expo ease-out — fast initial glide, soft deceleration tail (momentum feel)
+      var eased = p >= 1 ? 1 : 1 - Math.pow(2, -8 * p);
+      var slide = o.sel.indexOf('plan-row') >= 0 ? 18 : 8;
       o.el.style.opacity = eased.toFixed(3);
       o.el.style.transform = 'translateY(' + ((1 - eased) * slide).toFixed(2) + 'px)';
     });
