@@ -1946,10 +1946,10 @@
       left: 50%;
       transform: translate(-50%, -50%);
       z-index: 4;
-      width: 56px;
-      height: 56px;
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
-      border: 1.5px solid rgba(255,255,255,0.55);
+      border: 1px solid rgba(255,255,255,0.55);
       background: rgba(255,255,255,0.08);
       backdrop-filter: blur(8px);
       display: flex;
@@ -1964,8 +1964,8 @@
       box-shadow: 0 0 24px rgba(255,255,255,0.12);
     }
     .ent-hero-section .hero-play-btn svg {
-      width: 26px;
-      height: 26px;
+      width: 11px;
+      height: 11px;
       fill: #fff;
     }
     .ent-hero-section .hero-form-card .card-form-strip {
@@ -3910,11 +3910,11 @@
   // Each animated element with its own appearAt (fraction of LOOP_MS).
   // Plan rows spaced 1.1s apart; bolt-thinking transition fills between sections.
   var overlays = [
-    { sel: '.plan-row.r-header',  appearAt: 0.010 },
-    { sel: '.plan-row.r-status1', appearAt: 0.028 },
-    { sel: '.plan-row.r-status3', appearAt: 0.046 },
-    { sel: '.plan-row.r-status4', appearAt: 0.064 },
-    { sel: '.plan-row.r-finish',  appearAt: 0.082 },  // even pacing to last row
+    { sel: '.plan-row.r-header',  appearAt: 0.005 },
+    { sel: '.plan-row.r-status1', appearAt: 0.030 },
+    { sel: '.plan-row.r-status3', appearAt: 0.055 },
+    { sel: '.plan-row.r-status4', appearAt: 0.080 },
+    { sel: '.plan-row.r-finish',  appearAt: 0.105 },  // wider stagger so each row's glide is visible
     { sel: '.chat-prompt',        appearAt: 0.150 },
     { sel: '.chat-results',       appearAt: 0.270 }
   ];
@@ -3931,7 +3931,7 @@
   if (!els.length) return;
 
   var LOOP_MS = 28000;
-  var FADE_IN_MS = 900;     // longer fade so rows overlap into a continuous glide
+  var FADE_IN_MS = 1200;    // longer fade for a softer glide; rows overlap heavily
   var FADE_OUT_MS = 700;
   var HOLD_OUT_AT = 0.95;
 
@@ -3994,9 +3994,9 @@
         var into = (elapsed - o.appearAt) * LOOP_MS;
         p = Math.min(1, into / FADE_IN_MS);
       }
-      // Expo ease-out — fast initial glide, soft deceleration tail (momentum feel)
-      var eased = p >= 1 ? 1 : 1 - Math.pow(2, -8 * p);
-      var slide = o.sel.indexOf('plan-row') >= 0 ? 18 : 8;
+      // Quart ease-out — smooth ramp, no early pop, gentle tail
+      var eased = 1 - Math.pow(1 - p, 4);
+      var slide = o.sel.indexOf('plan-row') >= 0 ? 12 : 8;
       o.el.style.opacity = eased.toFixed(3);
       o.el.style.transform = 'translateY(' + ((1 - eased) * slide).toFixed(2) + 'px)';
     });
