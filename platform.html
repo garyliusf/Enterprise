@@ -1915,18 +1915,18 @@
       pointer-events: none;
     }
 
-    /* Reveal layer: a clipped duplicate of the dashboard PNG that glides in from
-       below-right with a slight tilt, then settles flat over the beige mask. */
+    /* Reveal layer: a clipped duplicate of the dashboard PNG. A diagonal mask
+       sweeps from bottom-left to top-right as the plan completes, softly fading
+       the right-side content in over the beige mask. */
     .ent-hero-section .dashboard-reveal {
       position: absolute;
       inset: 0;
       z-index: 3;
       clip-path: inset(0 0 0 26.35%);
       pointer-events: none;
-      opacity: 0;
-      transform: translate(18px, 36px) scale(0.97) rotate(-1.4deg);
-      transform-origin: 26.35% 100%;
-      will-change: opacity, transform;
+      -webkit-mask-image: linear-gradient(45deg, black -100%, transparent -20%);
+              mask-image: linear-gradient(45deg, black -100%, transparent -20%);
+      will-change: mask-image, -webkit-mask-image;
     }
     .ent-hero-section .dashboard-reveal img {
       width: 100%;
@@ -4075,20 +4075,17 @@
       o.el.style.transform = 'translateY(' + ((1 - eased) * slide).toFixed(2) + 'px)';
     });
 
-    // Dashboard reveal — glides in from below-right with a slight tilt.
+    // Dashboard reveal — diagonal soft mask sweep from bottom-left to top-right.
     if (dashReveal) {
       var rp;
       if (elapsed < REVEAL_START) rp = 0;
       else rp = Math.min(1, (elapsed - REVEAL_START) / (REVEAL_END - REVEAL_START));
-      var rEased = 1 - Math.pow(1 - rp, 4);  // quart out — soft settle
-      var tx = (1 - rEased) * 18;
-      var ty = (1 - rEased) * 36;
-      var sc = 0.97 + rEased * 0.03;
-      var rot = (1 - rEased) * -1.4;
-      dashReveal.style.opacity = rEased.toFixed(3);
-      dashReveal.style.transform =
-        'translate(' + tx.toFixed(2) + 'px, ' + ty.toFixed(2) + 'px) ' +
-        'scale(' + sc.toFixed(4) + ') rotate(' + rot.toFixed(3) + 'deg)';
+      var rEased = -(Math.cos(Math.PI * rp) - 1) / 2;  // sine ease-in-out
+      var startPct = (rEased * 200) - 100;             // -100% → 100% across the diagonal
+      var endPct = startPct + 80;                      // 80% soft edge for a gentle fade
+      var grad = 'linear-gradient(45deg, black ' + startPct.toFixed(1) + '%, transparent ' + endPct.toFixed(1) + '%)';
+      dashReveal.style.webkitMaskImage = grad;
+      dashReveal.style.maskImage = grad;
     }
 
     // Metric count-up — driven by elapsed timeline; quart-out easing.
