@@ -1846,31 +1846,57 @@
     .ent-hero-section .plan-row.r-finish .r-finish-status { width: 29.0%; margin-bottom: 0.42vw; }
     .ent-hero-section .plan-row.r-finish .r-finish-actrow { width: 25.7%; }
 
-    /* Bolt-shaped pixel-fill transition shown briefly between sections */
+    /* Bolt logo + "Thinking..." with shimmer between sections */
     .ent-hero-section .bolt-transition {
       position: absolute;
       left: 1.0%;
-      width: 6.5%;
-      aspect-ratio: 100 / 43;
+      display: flex;
+      align-items: center;
+      gap: 0.55vw;
       opacity: 0;
       pointer-events: none;
       will-change: opacity;
       transition: none;
       z-index: 4;
+    }
+    .ent-hero-section .bolt-transition-logo {
+      position: relative;
+      width: 1.7vw;
+      height: calc(1.7vw * 43 / 100);
+      flex-shrink: 0;
       -webkit-mask-image: url('images/bolt-logo.svg');
               mask-image: url('images/bolt-logo.svg');
       -webkit-mask-size: contain;
               mask-size: contain;
       -webkit-mask-repeat: no-repeat;
               mask-repeat: no-repeat;
-      -webkit-mask-position: left center;
-              mask-position: left center;
     }
-    .ent-hero-section .bolt-transition canvas {
+    .ent-hero-section .bolt-transition-logo canvas {
       display: block;
       width: 100%;
       height: 100%;
       image-rendering: pixelated;
+    }
+    .ent-hero-section .bolt-transition-text {
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 0.95vw;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      background: linear-gradient(90deg,
+        rgba(255,255,255,0.35) 0%,
+        rgba(255,255,255,1.00) 50%,
+        rgba(255,255,255,0.35) 100%);
+      background-size: 220% 100%;
+      -webkit-background-clip: text;
+              background-clip: text;
+      color: transparent;
+      -webkit-text-fill-color: transparent;
+      animation: bolt-shimmer 1.8s linear infinite;
+    }
+    @keyframes bolt-shimmer {
+      0%   { background-position: 110% 0; }
+      100% { background-position: -110% 0; }
     }
     /* Position each thinking transition just where the next section will appear */
     .ent-hero-section .bolt-1 { top: 38.0%; }   /* before .chat-prompt */
@@ -2451,11 +2477,20 @@
             <img class="r-finish-actrow" src="images/chat/F4b7tY.png" alt="" />
           </div>
         </div>
-        <div class="bolt-transition bolt-1" aria-hidden="true"><canvas></canvas></div>
+        <div class="bolt-transition bolt-1" aria-hidden="true">
+          <div class="bolt-transition-logo"><canvas></canvas></div>
+          <span class="bolt-transition-text">Thinking…</span>
+        </div>
         <div class="chat-overlay chat-prompt"  aria-hidden="true"><img src="images/chat/n5Biu.png" alt="" /></div>
-        <div class="bolt-transition bolt-2" aria-hidden="true"><canvas></canvas></div>
+        <div class="bolt-transition bolt-2" aria-hidden="true">
+          <div class="bolt-transition-logo"><canvas></canvas></div>
+          <span class="bolt-transition-text">Thinking…</span>
+        </div>
         <div class="chat-overlay chat-results" aria-hidden="true"><img src="images/chat/H5fThN.png" alt="" /></div>
-        <div class="bolt-transition bolt-3" aria-hidden="true"><canvas></canvas></div>
+        <div class="bolt-transition bolt-3" aria-hidden="true">
+          <div class="bolt-transition-logo"><canvas></canvas></div>
+          <span class="bolt-transition-text">Thinking…</span>
+        </div>
         <div class="chat-overlay chat-prompt2" aria-hidden="true"><img src="images/chat/b9pbI.png" alt="" /></div>
       </div>
 
@@ -3881,22 +3916,22 @@
   // Each animated element with its own appearAt (fraction of LOOP_MS).
   // Plan rows spaced 1.1s apart; bolt-thinking transition fills between sections.
   var overlays = [
-    { sel: '.plan-row.r-header',  appearAt: 0.030 },  // 0.6s
-    { sel: '.plan-row.r-status1', appearAt: 0.085 },  // 1.7s
-    { sel: '.plan-row.r-status3', appearAt: 0.140 },  // 2.8s
-    { sel: '.plan-row.r-status4', appearAt: 0.195 },  // 3.9s
-    { sel: '.plan-row.r-finish',  appearAt: 0.260 },  // 5.2s — Plan completed + action icons together
-    { sel: '.chat-prompt',        appearAt: 0.420 },  // 8.4s — first prompt
-    { sel: '.chat-results',       appearAt: 0.560 },  // 11.2s — bolt response
-    { sel: '.chat-prompt2',       appearAt: 0.780 }   // 15.6s — second prompt
+    { sel: '.plan-row.r-header',  appearAt: 0.020 },  // 0.6s
+    { sel: '.plan-row.r-status1', appearAt: 0.060 },  // 1.7s
+    { sel: '.plan-row.r-status3', appearAt: 0.100 },  // 2.8s
+    { sel: '.plan-row.r-status4', appearAt: 0.140 },  // 3.9s
+    { sel: '.plan-row.r-finish',  appearAt: 0.190 },  // 5.3s — Plan completed + action icons together
+    { sel: '.chat-prompt',        appearAt: 0.350 },  // 9.8s — first prompt
+    { sel: '.chat-results',       appearAt: 0.530 },  // 14.8s — bolt response
+    { sel: '.chat-prompt2',       appearAt: 0.760 }   // 21.3s — second prompt
   ];
 
-  // Bolt-pixel "thinking" transitions shown briefly before each next section.
-  // The pixel-fill animation runs from `start` → `end`, then the section appears.
+  // Bolt-pixel "thinking" transitions: longer windows (~3.5s each) so the
+  // shimmering text + bottom-up pixel fill reads as a real loading state.
   var transitions = [
-    { sel: '.bolt-1', start: 0.330, end: 0.420 },  // between plan-finish and prompt
-    { sel: '.bolt-2', start: 0.470, end: 0.560 },  // between prompt and results
-    { sel: '.bolt-3', start: 0.690, end: 0.780 }   // between results and prompt2
+    { sel: '.bolt-1', start: 0.225, end: 0.350 },  // before chat-prompt   (3.5s)
+    { sel: '.bolt-2', start: 0.405, end: 0.530 },  // before chat-results  (3.5s)
+    { sel: '.bolt-3', start: 0.635, end: 0.760 }   // before chat-prompt2  (3.5s)
   ];
   var els = overlays.map(function (o) {
     o.el = section.querySelector(o.sel);
@@ -3904,21 +3939,22 @@
   }).filter(function (o) { return o.el; });
   if (!els.length) return;
 
-  var LOOP_MS = 20000;
-  var FADE_IN_MS = 400;
+  var LOOP_MS = 28000;
+  var FADE_IN_MS = 450;
   var FADE_OUT_MS = 700;
-  var HOLD_OUT_AT = 0.92; // start fade-out at 92% of loop
+  var HOLD_OUT_AT = 0.95; // start fade-out at 95% of loop
 
   // Set up each thinking transition: bolt-shaped div with a noise-fill canvas.
   var transElements = transitions.map(function (t) {
     var el = section.querySelector(t.sel);
     if (!el) return null;
+    var logo = el.querySelector('.bolt-transition-logo');
     var canvas = el.querySelector('canvas');
     var ctx = canvas.getContext('2d');
-    var spacing = 4, dot = 2;
+    var spacing = 3, dot = 1.5;
     var cols = 0, rows = 0, noise = [];
     function resize() {
-      var r = el.getBoundingClientRect();
+      var r = logo.getBoundingClientRect();
       if (!r.width || !r.height) return;
       canvas.width = Math.round(r.width);
       canvas.height = Math.round(r.height);
@@ -3976,8 +4012,8 @@
       var st = te.t.start;
       var en = te.t.end;
       var span = en - st;
-      var fillFrac = 0.65;       // first 65% of window: pixels fill in
-      var holdFrac = 0.20;       // next 20%: hold full
+      var fillFrac = 0.75;       // first 75% of window: pixels fill in slowly
+      var holdFrac = 0.15;       // next 15%: hold full
       // remainder: fade out as next section appears
       if (elapsed < st) {
         te.el.style.opacity = '0';
