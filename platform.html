@@ -4229,6 +4229,11 @@
     { el: items[1], ids: ['platform-04','platform-05'] },
     { el: items[2], ids: ['platform-06'] }
   ];
+  // Use getBoundingClientRect so the math is consistent with scrollY even when
+  // the sections sit inside a wrapper with its own offsetParent (.page).
+  function topOf(el) {
+    return el.getBoundingClientRect().top + window.scrollY;
+  }
   function update() {
     // Active state activates when a section is 30% into the viewport — so the
     // user feels the section is "in focus" before the meter starts filling.
@@ -4239,18 +4244,18 @@
     var active = 0;
     for (var i = 0; i < groups.length; i++) {
       var first = document.getElementById(groups[i].ids[0]);
-      if (first && first.offsetTop <= yActive) active = i;
+      if (first && topOf(first) <= yActive) active = i;
     }
     items.forEach(function(el, i){ el.classList.toggle('is-active', i === active); });
 
     for (var j = 0; j < groups.length; j++) {
       var startEl = document.getElementById(groups[j].ids[0]);
       if (!startEl) continue;
-      var start = startEl.offsetTop;
+      var start = topOf(startEl);
       var end;
       if (j < groups.length - 1) {
         var nextEl = document.getElementById(groups[j + 1].ids[0]);
-        end = nextEl ? nextEl.offsetTop : start;
+        end = nextEl ? topOf(nextEl) : start;
       } else {
         end = document.documentElement.scrollHeight - window.innerHeight;
       }
