@@ -4242,13 +4242,22 @@
     section.style.setProperty('--p-bg',   pBg.toFixed(4));
     section.style.setProperty('--p-head', pHead.toFixed(4));
 
-    // YouTube takes over once the card finishes centering (pCard reaches 1
-    // around p≈0.60). Hysteresis prevents flapping near the boundary.
-    if (p > 0.62) {
+    // YouTube takeover lifecycle:
+    //   p < 0.55  → revert to teaser (and pause iframe)
+    //   0.62..0.92 → centered zone, iframe plays + unmuted
+    //   p > 0.92  → user has kept scrolling past the centered linger; pause+mute
+    //                so the audio doesn't bleed into the next section.
+    if (p > 0.92) {
+      if (card.classList.contains('is-yt-active')) {
+        ytPost('pauseVideo');
+        ytPost('mute');
+      }
+    } else if (p > 0.62) {
       ensureYt();
     } else if (p < 0.55 && card.classList.contains('is-yt-active')) {
       card.classList.remove('is-yt-active');
       ytPost('pauseVideo');
+      ytPost('mute');
     }
 
     // Image is rendered at width:100% of its frame, natural aspect → no cropping
