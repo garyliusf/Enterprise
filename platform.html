@@ -2087,10 +2087,10 @@
       align-items: center;
       justify-content: center;
       transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.25s ease, box-shadow 0.25s ease;
-      /* Hidden initially; fades in as the user scrolls past ~30% of the hero. */
-      opacity: clamp(0, calc((var(--p, 0) - 0.30) * 4), 1);
-      pointer-events: auto;
-      cursor: pointer;
+      /* No longer used — the YouTube iframe takes over once the card is
+         fully centered. Hidden so it doesn't compete with the player. */
+      opacity: 0;
+      pointer-events: none;
     }
     .ent-hero-section .hero-form-card:hover .hero-play-btn {
       transform: translate(-50%, -50%) scale(1.12);
@@ -4225,15 +4225,13 @@
     section.style.setProperty('--p-bg',   pBg.toFixed(4));
     section.style.setProperty('--p-head', pHead.toFixed(4));
 
-    // Once the card has grown past ~half-way, swap to YouTube. When the user
-    // scrolls back up past ~0.4, hide it again so the muted teaser reappears.
-    if (p > 0.5) {
+    // YouTube takes over only once the card is mostly centered (avoids the
+    // jitter while the card is still scaling up). Hysteresis prevents flapping.
+    if (p > 0.85) {
       ensureYt();
-    } else if (p < 0.4 && card.classList.contains('is-yt-active')) {
+    } else if (p < 0.75 && card.classList.contains('is-yt-active')) {
       card.classList.remove('is-yt-active');
       ytPost('pauseVideo');
-    } else if (p > 0.5 && card.classList.contains('is-yt-active')) {
-      ytPost('playVideo');
     }
 
     // Image is rendered at width:100% of its frame, natural aspect → no cropping
