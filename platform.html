@@ -5405,14 +5405,36 @@
       });
     });
 
-    setActiveSlide(1, true);
-    // Scramble + animate on initial load
-    setTimeout(function () {
+    // Show slide 1 initially but DON'T start the auto-advance until the user
+    // actually scrolls to the slider section — that way they always see slide
+    // 1 first when arriving, regardless of how long they took to scroll.
+    setActiveSlide(1, false);
+
+    var sliderSection = document.querySelector('.slider-section');
+    var hasStarted = false;
+    function startWhenVisible() {
+      if (hasStarted) return;
+      hasStarted = true;
+      // Reset to slide 1 (in case it auto-advanced) and kick off the timer.
+      setActiveSlide(1, true);
       var taglineEl = document.getElementById('slider-inner-tagline');
       scrambleText(taglineEl, slideText[1], function() {
         animateBlueLetters(taglineEl);
       });
-    }, 100);
+    }
+    if (sliderSection && 'IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) {
+            startWhenVisible();
+            io.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.25 });
+      io.observe(sliderSection);
+    } else {
+      startWhenVisible();
+    }
   })();
 </script>
 
