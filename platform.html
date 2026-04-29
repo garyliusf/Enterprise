@@ -2789,8 +2789,9 @@
   <script>
   // Narrative slider header — split text into per-word spans and reveal on
   // scroll-into-view (word-stagger blur reveal, same pattern as the enterprise
-  // quote-text fade-in).
-  (function () {
+  // quote-text fade-in). Wrapped in DOMContentLoaded since this script tag is
+  // placed before the slider section markup.
+  function __dsaRevealInit() {
     var headers = document.querySelectorAll('.slider-section-header');
     if (!headers.length) return;
     headers.forEach(function (header) {
@@ -2826,7 +2827,12 @@
     } else {
       headers.forEach(function (h) { h.classList.add('is-revealed'); });
     }
-  })();
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', __dsaRevealInit);
+  } else {
+    __dsaRevealInit();
+  }
   </script>
 
   <script>
@@ -4269,6 +4275,21 @@
     );
   }
   var ytFirstReadyDone = false;
+  var ytUserInteracted = false;
+  function unmuteIfActive() {
+    if (!ytUserInteracted || !ytLoaded || !card.classList.contains('is-yt-active')) return;
+    ytPost('unMute');
+    ytPost('setVolume', [70]);
+  }
+  function markInteracted() {
+    if (ytUserInteracted) return;
+    ytUserInteracted = true;
+    unmuteIfActive();
+  }
+  ['click', 'keydown', 'touchstart'].forEach(function (evt) {
+    window.addEventListener(evt, markInteracted, { once: true, passive: true });
+  });
+
   function ensureYt() {
     if (!ytIframe) return;
     if (!ytLoaded) {
@@ -4298,8 +4319,7 @@
     }
     card.classList.add('is-yt-active');
     ytPost('playVideo');
-    ytPost('unMute');
-    ytPost('setVolume', [70]);
+    unmuteIfActive();
   }
   if ('IntersectionObserver' in window) {
     var io = new IntersectionObserver(function (entries) {
