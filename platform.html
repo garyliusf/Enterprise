@@ -2429,8 +2429,10 @@
     will-change: opacity, transform, filter;
   }
   .slider-section-header.is-revealed .word {
-    animation: word-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    animation-delay: calc(var(--i, 0) * 28ms);
+    animation: word-reveal 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    /* Cap the stagger so even long paragraphs finish quickly — otherwise the
+       last words stay blurred long after the section is visible. */
+    animation-delay: calc(min(var(--i, 0), 24) * 14ms);
   }
   @keyframes word-reveal {
     from { opacity: 0; transform: translate(-10px, -7px); filter: blur(5px); }
@@ -5041,10 +5043,11 @@
   var hero = document.querySelector('.ent-hero-section');
   if (!nav || !hero) return;
   function sync() {
-    var r = hero.getBoundingClientRect();
-    // Hero is "on screen" whenever its bottom is still below the viewport top
-    var onScreen = r.bottom > 40;
-    nav.classList.toggle('is-hidden', onScreen);
+    // Reveal the nav once the user has scrolled ~40% through the hero —
+    // sooner than waiting for the hero to fully clear the viewport.
+    var heroH = hero.offsetHeight;
+    var p = Math.max(0, Math.min(1, -hero.getBoundingClientRect().top / Math.max(1, heroH - window.innerHeight)));
+    nav.classList.toggle('is-hidden', p < 0.4);
   }
   window.addEventListener('scroll', sync, { passive: true });
   window.addEventListener('resize', sync);
