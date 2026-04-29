@@ -4222,8 +4222,16 @@
     section.style.setProperty('--p-bg',   pBg.toFixed(4));
     section.style.setProperty('--p-head', pHead.toFixed(4));
 
-    // Once the card has grown past ~half-way, kick off the YouTube takeover.
-    if (p > 0.5) ensureYt();
+    // Once the card has grown past ~half-way, swap to YouTube. When the user
+    // scrolls back up past ~0.4, hide it again so the muted teaser reappears.
+    if (p > 0.5) {
+      ensureYt();
+    } else if (p < 0.4 && card.classList.contains('is-yt-active')) {
+      card.classList.remove('is-yt-active');
+      ytPost('pauseVideo');
+    } else if (p > 0.5 && card.classList.contains('is-yt-active')) {
+      ytPost('playVideo');
+    }
 
     // Image is rendered at width:100% of its frame, natural aspect → no cropping
     var imgRect    = img.getBoundingClientRect();
