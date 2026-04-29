@@ -1749,31 +1749,26 @@
       position: absolute;
       left: 50%;
       top: 13vh;
-      transform: translateX(-50%)
-        perspective(1200px)
-        rotateX(calc(var(--p-head, 0) * 75deg))
-        translateY(calc(var(--p-head, 0) * -8px));
-      transform-origin: 50% 100%;
+      transform: translateX(-50%);
       width: min(900px, calc(100vw - 40px));
       text-align: center;
       z-index: 6;
-      opacity: calc(1 - var(--p-head, 0) * 0.85);
       pointer-events: none;
       display: flex;
       flex-direction: column;
       gap: 10px;
-      /* As it rotates back, the top portion is wiped under a mask so the
-         headline appears to roll/disappear into a hidden plane. */
-      -webkit-mask-image: linear-gradient(to bottom,
-        transparent 0%,
-        transparent calc(var(--p-head, 0) * 60%),
-        black calc(var(--p-head, 0) * 60% + 12%),
-        black 100%);
-              mask-image: linear-gradient(to bottom,
-        transparent 0%,
-        transparent calc(var(--p-head, 0) * 60%),
-        black calc(var(--p-head, 0) * 60% + 12%),
-        black 100%);
+    }
+    /* Per-character stagger: each letter fades + drifts up at slightly different
+       times based on its index (--i). The character total (--n) is set in JS so
+       letters near the end fade later. */
+    .ent-hero-section .hero-h1 .char,
+    .ent-hero-section .hero-subtitle .char {
+      display: inline-block;
+      will-change: opacity, transform, filter;
+      --t: clamp(0, calc(var(--p-head, 0) * 1.6 - (var(--i, 0) / max(var(--n, 1), 1)) * 0.7), 1);
+      opacity: calc(1 - var(--t));
+      transform: translateY(calc(var(--t) * -10px));
+      filter: blur(calc(var(--t) * 4px));
     }
     .ent-hero-section .hero-h1 {
       font-size: 66px;
@@ -2753,6 +2748,60 @@
       </filter>
     </defs>
   </svg>
+
+  <script>
+  // Hero headline scramble + stagger fade. Splits each line into per-character
+  // spans (with --i and --n CSS vars) so each letter can fade at a different
+  // time. While in the transition window, swaps to a random char a few times
+  // for a brief scramble feel before disappearing.
+  (function () {
+    var els = document.querySelectorAll('.ent-hero-section .hero-h1, .ent-hero-section .hero-subtitle');
+    if (!els.length) return;
+    var SCRAMBLE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#$%@&*+';
+    var allChars = [];
+    els.forEach(function (el) {
+      var text = el.textContent;
+      el.textContent = '';
+      for (var i = 0; i < text.length; i++) {
+        var ch = text.charAt(i);
+        var span = document.createElement('span');
+        span.className = 'char';
+        span.style.setProperty('--i', i);
+        span.style.setProperty('--n', text.length);
+        span.dataset.orig = ch;
+        span.textContent = ch === ' ' ? ' ' : ch;
+        el.appendChild(span);
+        allChars.push(span);
+      }
+    });
+
+    var section = document.querySelector('.ent-hero-section');
+    if (!section) return;
+    var lastSwap = 0;
+    function frame(t) {
+      var pHead = parseFloat(section.style.getPropertyValue('--p-head')) || 0;
+      // Throttle scramble swaps so it reads as character noise, not chaos.
+      if (t - lastSwap > 70) {
+        lastSwap = t;
+        var n = allChars.length;
+        for (var i = 0; i < n; i++) {
+          var span = allChars[i];
+          var orig = span.dataset.orig;
+          var charT = Math.max(0, Math.min(1, pHead * 1.6 - (i / n) * 0.7));
+          if (charT > 0.05 && charT < 0.7 && orig !== ' ') {
+            span.textContent = SCRAMBLE.charAt(Math.floor(Math.random() * SCRAMBLE.length));
+          } else if (orig === ' ') {
+            span.textContent = ' ';
+          } else {
+            span.textContent = orig;
+          }
+        }
+      }
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  })();
+  </script>
 
   <script>
   // Hover magnifier — shows a 2x zoomed lens of the dashboard image under the
