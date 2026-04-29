@@ -2758,21 +2758,29 @@
 
   <script>
   // Hover magnifier — shows a 2x zoomed lens of the dashboard image under the
-  // cursor. Bails out gracefully on touch devices.
+  // cursor. Listens on the hero section because the dashboard frame itself has
+  // pointer-events:none, then gates activation on the image's bounding rect.
+  // Bails out on touch devices.
   (function () {
     if (window.matchMedia && window.matchMedia('(hover: none)').matches) return;
     var ZOOM = 2;
-    var SIZE = 220;
+    var SIZE = 240;
     var lens = document.getElementById('ui-magnifier');
-    var frame = document.querySelector('.hero-dashboard-frame');
+    var section = document.querySelector('.ent-hero-section');
     var img = document.querySelector('.hero-dashboard-img');
-    var card = document.querySelector('.hero-form-card');
-    if (!lens || !frame || !img) return;
+    if (!lens || !section || !img) return;
 
     var imgUrl = img.getAttribute('src').split('?')[0];
     lens.style.backgroundImage = 'url("' + imgUrl + '")';
 
     function move(e) {
+      // Disable as soon as the user starts scrolling so the lens doesn't
+      // interfere with clicking the play button, etc.
+      var p = parseFloat(section.style.getPropertyValue('--p')) || 0;
+      if (p > 0.04) {
+        lens.classList.remove('is-active');
+        return;
+      }
       var rect = img.getBoundingClientRect();
       var x = e.clientX - rect.left;
       var y = e.clientY - rect.top;
@@ -2792,12 +2800,8 @@
     }
     function leave() { lens.classList.remove('is-active'); }
 
-    frame.addEventListener('mousemove', move);
-    frame.addEventListener('mouseleave', leave);
-    if (card) {
-      card.addEventListener('mousemove', move);
-      card.addEventListener('mouseleave', leave);
-    }
+    section.addEventListener('mousemove', move);
+    section.addEventListener('mouseleave', leave);
   })();
   </script>
 
