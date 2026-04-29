@@ -2052,21 +2052,20 @@
       z-index: 1;
       opacity: 0;
       pointer-events: none;
-      /* Fade IN slow (smooth handoff to YouTube), fade OUT fast (snap back to
-         teaser without seeing YouTube paused-frame content lingering). */
-      transition: opacity 0.18s ease;
       visibility: hidden;
+      /* Fade IN once the iframe has loaded (`is-yt-ready`); fade OUT fast so
+         the teaser snaps back without YouTube paused-frame artifacts. */
+      transition: opacity 0.18s ease, visibility 0s 0.18s;
     }
-    .ent-hero-section .hero-form-card.is-yt-active .form-yt-iframe {
+    .ent-hero-section .hero-form-card.is-yt-active.is-yt-ready .form-yt-iframe {
       opacity: 1;
       pointer-events: auto;
       visibility: visible;
       transition: opacity 0.45s ease, visibility 0s 0s;
     }
-    .ent-hero-section .hero-form-card .form-yt-iframe {
-      transition: opacity 0.18s ease, visibility 0s 0.18s;
-    }
-    .ent-hero-section .hero-form-card.is-yt-active .form-video-bg { opacity: 0; }
+    /* Keep the muted teaser visible while YouTube iframe is still loading;
+       only fade it out once iframe is ready (avoids the black blank box). */
+    .ent-hero-section .hero-form-card.is-yt-ready .form-video-bg { opacity: 0; }
     .ent-hero-section .hero-form-card.is-yt-active .hero-play-btn {
       opacity: 0;
       pointer-events: none;
@@ -2236,6 +2235,25 @@
     text-align: left;
     align-items: flex-start;
     gap: 20px;
+  }
+
+  /* Word-stagger blur reveal — when the section scrolls into view, each word
+     fades + drifts up-left + de-blurs on a stagger (same pattern as the
+     enterprise quote-text reveal). */
+  .slider-section-header.is-narrative .word {
+    display: inline-block;
+    opacity: 0;
+    transform: translate(-10px, -7px);
+    filter: blur(5px);
+    will-change: opacity, transform, filter;
+  }
+  .slider-section-header.is-narrative.is-revealed .word {
+    animation: word-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation-delay: calc(var(--i, 0) * 28ms);
+  }
+  @keyframes word-reveal {
+    from { opacity: 0; transform: translate(-10px, -7px); filter: blur(5px); }
+    to   { opacity: 1; transform: translate(0, 0);        filter: blur(0); }
   }
   .slider-section-header.is-narrative .slider-section-headline {
     font-size: clamp(40px, 5vw, 72px);
@@ -2782,6 +2800,49 @@
       </filter>
     </defs>
   </svg>
+
+  <script>
+  // Narrative slider header — split text into per-word spans and reveal on
+  // scroll-into-view (word-stagger blur reveal, same pattern as the enterprise
+  // quote-text fade-in).
+  (function () {
+    var headers = document.querySelectorAll('.slider-section-header.is-narrative');
+    if (!headers.length) return;
+    headers.forEach(function (header) {
+      var nodes = header.querySelectorAll('.slider-section-headline, .slider-section-tagline, .slider-section-body');
+      var idx = 0;
+      nodes.forEach(function (el) {
+        var parts = el.textContent.split(/(\s+)/);
+        el.textContent = '';
+        parts.forEach(function (p) {
+          if (!p.trim().length) {
+            el.appendChild(document.createTextNode(p));
+            return;
+          }
+          var span = document.createElement('span');
+          span.className = 'word';
+          span.style.setProperty('--i', idx);
+          span.textContent = p;
+          el.appendChild(span);
+          idx++;
+        });
+      });
+    });
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) {
+            e.target.classList.add('is-revealed');
+            io.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.25 });
+      headers.forEach(function (h) { io.observe(h); });
+    } else {
+      headers.forEach(function (h) { h.classList.add('is-revealed'); });
+    }
+  })();
+  </script>
 
   <script>
   // Hero headline wave/glide fade — splits each line into per-WORD spans so
@@ -4226,6 +4287,18 @@
     if (!ytIframe) return;
     if (!ytLoaded) {
       ytLoaded = true;
+      // Wait for the iframe to load before fading the teaser out — otherwise
+      // we briefly show YouTube's black loading box.
+      ytIframe.addEventListener('load', function () {
+        setTimeout(function () { card.classList.add('is-yt-ready'); }, 350);
+        // Send unmute commands now that the player is loaded; YouTube's IFrame
+        // API requires a loaded player to honor postMessage commands.
+        setTimeout(function () {
+          ytPost('playVideo');
+          ytPost('unMute');
+          ytPost('setVolume', [70]);
+        }, 500);
+      }, { once: true });
       ytIframe.src =
         'https://www.youtube.com/embed/' + YT_ID +
         '?autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&playsinline=1&iv_load_policy=3&loop=1&playlist=' + YT_ID +
@@ -4233,8 +4306,6 @@
     }
     card.classList.add('is-yt-active');
     ytPost('playVideo');
-    // Browser autoplay policy required mute=1 on initial load. The user has
-    // interacted (scroll counts), so unmute now that the card is centered.
     ytPost('unMute');
     ytPost('setVolume', [70]);
   }
@@ -4280,6 +4351,7 @@
       ensureYt();
     } else if (p < 0.55 && card.classList.contains('is-yt-active')) {
       card.classList.remove('is-yt-active');
+      card.classList.remove('is-yt-ready');
       ytPost('pauseVideo');
       ytPost('mute');
     }

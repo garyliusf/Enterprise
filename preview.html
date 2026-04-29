@@ -557,6 +557,23 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     align-items: flex-start;
     gap: 20px;
   }
+
+  /* Word-stagger blur reveal — same pattern as the success quote-text fade-in. */
+  .slider-section-header.is-narrative .word {
+    display: inline-block;
+    opacity: 0;
+    transform: translate(-10px, -7px);
+    filter: blur(5px);
+    will-change: opacity, transform, filter;
+  }
+  .slider-section-header.is-narrative.is-revealed .word {
+    animation: dsa-word-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation-delay: calc(var(--i, 0) * 28ms);
+  }
+  @keyframes dsa-word-reveal {
+    from { opacity: 0; transform: translate(-10px, -7px); filter: blur(5px); }
+    to   { opacity: 1; transform: translate(0, 0);        filter: blur(0); }
+  }
   .slider-section-header.is-narrative .slider-section-headline {
     font-size: clamp(40px, 5vw, 72px);
     font-weight: 700;
@@ -3963,6 +3980,48 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     }
     setInterval(tick, 2500);
   });
+})();
+</script>
+
+<script>
+// Narrative slider header — split text into per-word spans and reveal on
+// scroll-into-view (word-stagger blur reveal).
+(function () {
+  var headers = document.querySelectorAll('.slider-section-header.is-narrative');
+  if (!headers.length) return;
+  headers.forEach(function (header) {
+    var nodes = header.querySelectorAll('.slider-section-headline, .slider-section-tagline, .slider-section-body');
+    var idx = 0;
+    nodes.forEach(function (el) {
+      var parts = el.textContent.split(/(\s+)/);
+      el.textContent = '';
+      parts.forEach(function (p) {
+        if (!p.trim().length) {
+          el.appendChild(document.createTextNode(p));
+          return;
+        }
+        var span = document.createElement('span');
+        span.className = 'word';
+        span.style.setProperty('--i', idx);
+        span.textContent = p;
+        el.appendChild(span);
+        idx++;
+      });
+    });
+  });
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          e.target.classList.add('is-revealed');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.25 });
+    headers.forEach(function (h) { io.observe(h); });
+  } else {
+    headers.forEach(function (h) { h.classList.add('is-revealed'); });
+  }
 })();
 </script>
 
