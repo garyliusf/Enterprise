@@ -1758,17 +1758,17 @@
       flex-direction: column;
       gap: 10px;
     }
-    /* Per-character stagger: each letter fades + drifts up at slightly different
-       times based on its index (--i). The character total (--n) is set in JS so
-       letters near the end fade later. */
-    .ent-hero-section .hero-h1 .char,
-    .ent-hero-section .hero-subtitle .char {
+    /* Per-word wave/glide fade — mirrors the quote-text reveal on the enterprise
+       page (translate -10/-7 + blur 5 + opacity), but driven by scroll instead
+       of time. Each word's index (--i) over total (--n) gives a stagger. */
+    .ent-hero-section .hero-h1 .word,
+    .ent-hero-section .hero-subtitle .word {
       display: inline-block;
       will-change: opacity, transform, filter;
-      --t: clamp(0, calc(var(--p-head, 0) * 1.6 - (var(--i, 0) / max(var(--n, 1), 1)) * 0.7), 1);
+      --t: clamp(0, calc(var(--p-head, 0) * 1.5 - (var(--i, 0) / max(var(--n, 1), 1)) * 0.5), 1);
       opacity: calc(1 - var(--t));
-      transform: translateY(calc(var(--t) * -10px));
-      filter: blur(calc(var(--t) * 4px));
+      transform: translate(calc(var(--t) * -10px), calc(var(--t) * -7px));
+      filter: blur(calc(var(--t) * 5px));
     }
     .ent-hero-section .hero-h1 {
       font-size: 66px;
@@ -2751,56 +2751,31 @@
   </svg>
 
   <script>
-  // Hero headline scramble + stagger fade. Splits each line into per-character
-  // spans (with --i and --n CSS vars) so each letter can fade at a different
-  // time. While in the transition window, swaps to a random char a few times
-  // for a brief scramble feel before disappearing.
+  // Hero headline wave/glide fade — splits each line into per-WORD spans so
+  // each word fades + drifts up-left + blurs at a slightly different point
+  // along the scroll, mirroring the quote-text reveal on the enterprise page.
   (function () {
     var els = document.querySelectorAll('.ent-hero-section .hero-h1, .ent-hero-section .hero-subtitle');
     if (!els.length) return;
-    var SCRAMBLE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#$%@&*+';
-    var allChars = [];
     els.forEach(function (el) {
-      var text = el.textContent;
+      var words = el.textContent.split(/(\s+)/);
       el.textContent = '';
-      for (var i = 0; i < text.length; i++) {
-        var ch = text.charAt(i);
-        var span = document.createElement('span');
-        span.className = 'char';
-        span.style.setProperty('--i', i);
-        span.style.setProperty('--n', text.length);
-        span.dataset.orig = ch;
-        span.textContent = ch === ' ' ? ' ' : ch;
-        el.appendChild(span);
-        allChars.push(span);
-      }
-    });
-
-    var section = document.querySelector('.ent-hero-section');
-    if (!section) return;
-    var lastSwap = 0;
-    function frame(t) {
-      var pHead = parseFloat(section.style.getPropertyValue('--p-head')) || 0;
-      // Throttle scramble swaps so it reads as character noise, not chaos.
-      if (t - lastSwap > 70) {
-        lastSwap = t;
-        var n = allChars.length;
-        for (var i = 0; i < n; i++) {
-          var span = allChars[i];
-          var orig = span.dataset.orig;
-          var charT = Math.max(0, Math.min(1, pHead * 1.6 - (i / n) * 0.7));
-          if (charT > 0.05 && charT < 0.7 && orig !== ' ') {
-            span.textContent = SCRAMBLE.charAt(Math.floor(Math.random() * SCRAMBLE.length));
-          } else if (orig === ' ') {
-            span.textContent = ' ';
-          } else {
-            span.textContent = orig;
-          }
+      var idx = 0;
+      var total = words.filter(function (w) { return w.trim().length; }).length;
+      words.forEach(function (w) {
+        if (!w.trim().length) {
+          el.appendChild(document.createTextNode(w));
+          return;
         }
-      }
-      requestAnimationFrame(frame);
-    }
-    requestAnimationFrame(frame);
+        var span = document.createElement('span');
+        span.className = 'word';
+        span.style.setProperty('--i', idx);
+        span.style.setProperty('--n', total);
+        span.textContent = w;
+        el.appendChild(span);
+        idx++;
+      });
+    });
   })();
   </script>
 
