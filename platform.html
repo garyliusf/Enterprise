@@ -2046,7 +2046,29 @@
       object-fit: cover;
       object-position: center;
       z-index: 0;
+      transition: opacity 0.45s ease;
     }
+    .ent-hero-section .form-yt-iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      z-index: 1;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.45s ease;
+    }
+    .ent-hero-section .hero-form-card.is-yt-active .form-yt-iframe {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .ent-hero-section .hero-form-card.is-yt-active .form-video-bg { opacity: 0; }
+    .ent-hero-section .hero-form-card.is-yt-active .hero-play-btn {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .ent-hero-section .hero-form-card.is-yt-active .form-video-overlay { opacity: 0; }
     .ent-hero-section .form-video-overlay {
       position: absolute;
       inset: 0;
@@ -2139,55 +2161,6 @@
     .ui-magnifier.over-video { background-image: none !important; }
     .ui-magnifier.over-video .lens-video { display: block; }
 
-    /* YouTube modal */
-    .yt-modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.85);
-      z-index: 1000;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      opacity: 0;
-      transition: opacity 0.25s ease;
-    }
-    .yt-modal.is-open { display: flex; opacity: 1; }
-    .yt-modal-frame {
-      position: relative;
-      width: 100%;
-      max-width: 1080px;
-      aspect-ratio: 16 / 9;
-      background: #000;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
-    }
-    .yt-modal-frame iframe {
-      width: 100%;
-      height: 100%;
-      border: 0;
-      display: block;
-    }
-    .yt-modal-close {
-      position: absolute;
-      top: -44px;
-      right: 0;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: #fff;
-      font-size: 18px;
-      line-height: 1;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.2s ease;
-    }
-    .yt-modal-close:hover { background: rgba(255, 255, 255, 0.2); }
     .ent-hero-section .hero-form-card .card-form-strip {
       display: none;   /* email strip removed from the video card for now */
     }
@@ -2723,6 +2696,7 @@
           <video class="form-video-bg" autoplay muted loop playsinline preload="auto" poster="hero-video-poster.webp">
             <source src="hero-video.mp4" type="video/mp4">
           </video>
+          <iframe class="form-yt-iframe" id="card-yt-iframe" src="" allow="autoplay; encrypted-media; picture-in-picture" frameborder="0" allowfullscreen></iframe>
           <div class="form-video-overlay"></div>
           <div class="hero-play-btn">
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -2779,13 +2753,6 @@
       </filter>
     </defs>
   </svg>
-
-  <div class="yt-modal" id="yt-modal" role="dialog" aria-modal="true" aria-label="Tutorial video">
-    <div class="yt-modal-frame">
-      <button class="yt-modal-close" id="yt-modal-close" aria-label="Close video">×</button>
-      <div id="yt-modal-iframe-slot"></div>
-    </div>
-  </div>
 
   <script>
   // Hover magnifier — shows a 2x zoomed lens of the dashboard image under the
@@ -2859,36 +2826,6 @@
 
     section.addEventListener('mousemove', move);
     section.addEventListener('mouseleave', leave);
-  })();
-  </script>
-
-  <script>
-  // Play button → YouTube modal. Iframe is added on open and removed on close
-  // so the video stops when dismissed.
-  (function () {
-    var YT_ID = 'alBRPqq9DJo';
-    var modal = document.getElementById('yt-modal');
-    var slot  = document.getElementById('yt-modal-iframe-slot');
-    var btn   = document.querySelector('.hero-play-btn');
-    var card  = document.querySelector('.hero-form-card');
-    var closeBtn = document.getElementById('yt-modal-close');
-    if (!modal || !slot || !btn) return;
-
-    function open() {
-      slot.innerHTML = '<iframe src="https://www.youtube.com/embed/' + YT_ID + '?autoplay=1&rel=0" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>';
-      modal.classList.add('is-open');
-      document.body.style.overflow = 'hidden';
-    }
-    function close() {
-      modal.classList.remove('is-open');
-      slot.innerHTML = '';
-      document.body.style.overflow = '';
-    }
-    btn.addEventListener('click', function (e) { e.stopPropagation(); open(); });
-    if (card) card.addEventListener('click', function () { open(); });
-    closeBtn.addEventListener('click', close);
-    modal.addEventListener('click', function (e) { if (e.target === modal) close(); });
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && modal.classList.contains('is-open')) close(); });
   })();
   </script>
 
@@ -4212,6 +4149,34 @@
   var PANEL = { left: 0.394, top: 0.732, right: 0.539, bottom: 0.863 };
   var PANEL_INSET = 0.000;
 
+  // Inline YouTube takeover: once the card has grown past ~half-way, swap from
+  // the muted teaser <video> to the real YouTube embed (autoplay+muted). The
+  // iframe pauses/plays via postMessage based on whether the hero section is
+  // intersecting the viewport.
+  var YT_ID = 'alBRPqq9DJo';
+  var ytIframe = card.querySelector('.form-yt-iframe');
+  var ytLoaded = false;
+  function ytPost(cmd) {
+    if (!ytIframe || !ytIframe.contentWindow) return;
+    ytIframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: cmd, args: '' }), '*');
+  }
+  function ensureYt() {
+    if (ytLoaded || !ytIframe) return;
+    ytLoaded = true;
+    ytIframe.src =
+      'https://www.youtube.com/embed/' + YT_ID +
+      '?autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&playsinline=1&iv_load_policy=3&loop=1&playlist=' + YT_ID +
+      '&enablejsapi=1';
+    card.classList.add('is-yt-active');
+  }
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      if (!ytLoaded) return;
+      entries.forEach(function (e) { ytPost(e.isIntersecting ? 'playVideo' : 'pauseVideo'); });
+    }, { threshold: 0.05 });
+    io.observe(section);
+  }
+
   function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
   function smoothstep(a, b, t) {
     t = clamp((t - a) / (b - a), 0, 1);
@@ -4231,6 +4196,9 @@
     section.style.setProperty('--p',      p.toFixed(4));
     section.style.setProperty('--p-bg',   pBg.toFixed(4));
     section.style.setProperty('--p-head', pHead.toFixed(4));
+
+    // Once the card has grown past ~half-way, kick off the YouTube takeover.
+    if (p > 0.5) ensureYt();
 
     // Image is rendered at width:100% of its frame, natural aspect → no cropping
     var imgRect    = img.getBoundingClientRect();
