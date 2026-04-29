@@ -4186,13 +4186,16 @@
     ytIframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: cmd, args: '' }), '*');
   }
   function ensureYt() {
-    if (ytLoaded || !ytIframe) return;
-    ytLoaded = true;
-    ytIframe.src =
-      'https://www.youtube.com/embed/' + YT_ID +
-      '?autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&playsinline=1&iv_load_policy=3&loop=1&playlist=' + YT_ID +
-      '&enablejsapi=1';
+    if (!ytIframe) return;
+    if (!ytLoaded) {
+      ytLoaded = true;
+      ytIframe.src =
+        'https://www.youtube.com/embed/' + YT_ID +
+        '?autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&playsinline=1&iv_load_policy=3&loop=1&playlist=' + YT_ID +
+        '&enablejsapi=1';
+    }
     card.classList.add('is-yt-active');
+    ytPost('playVideo');
   }
   if ('IntersectionObserver' in window) {
     var io = new IntersectionObserver(function (entries) {
