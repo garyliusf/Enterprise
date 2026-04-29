@@ -4229,38 +4229,28 @@
     { el: items[1], ids: ['platform-04','platform-05'] },
     { el: items[2], ids: ['platform-06'] }
   ];
-  // Use getBoundingClientRect so the math is consistent with scrollY even when
-  // the sections sit inside a wrapper with its own offsetParent (.page).
-  function topOf(el) {
-    return el.getBoundingClientRect().top + window.scrollY;
-  }
   function update() {
-    // Active state activates when a section is 30% into the viewport — so the
-    // user feels the section is "in focus" before the meter starts filling.
-    var yActive = window.scrollY + window.innerHeight * 0.3;
-    // Progress fill is anchored to the viewport top so a section just entering
-    // reads as ~0% rather than already 30% in.
-    var yProg = window.scrollY;
+    var y = window.scrollY + window.innerHeight * 0.3;
     var active = 0;
     for (var i = 0; i < groups.length; i++) {
       var first = document.getElementById(groups[i].ids[0]);
-      if (first && topOf(first) <= yActive) active = i;
+      if (first && first.offsetTop <= y) active = i;
     }
     items.forEach(function(el, i){ el.classList.toggle('is-active', i === active); });
 
     for (var j = 0; j < groups.length; j++) {
       var startEl = document.getElementById(groups[j].ids[0]);
       if (!startEl) continue;
-      var start = topOf(startEl);
+      var start = startEl.offsetTop;
       var end;
       if (j < groups.length - 1) {
         var nextEl = document.getElementById(groups[j + 1].ids[0]);
-        end = nextEl ? topOf(nextEl) : start;
+        end = nextEl ? nextEl.offsetTop : start;
       } else {
         end = document.documentElement.scrollHeight - window.innerHeight;
       }
       var span = Math.max(1, end - start);
-      var p = (yProg - start) / span;
+      var p = (y - start) / span;
       if (p < 0) p = 0; else if (p > 1) p = 1;
       groups[j].el.style.setProperty('--progress', p.toFixed(4));
     }
