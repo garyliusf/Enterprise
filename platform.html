@@ -1730,7 +1730,7 @@
     /* ─── Sticky-scroll hero: dashboard 80vw with docked card → centered card ─ */
     .ent-hero-section {
       width: 100%;
-      height: 220vh; /* scroll runway */
+      height: 300vh; /* scroll runway — extra length so the centered card lingers before exiting */
       position: relative;
       font-family: 'Inter', sans-serif;
       background: #0a0a0c;
@@ -4191,9 +4191,12 @@
   var YT_ID = 'alBRPqq9DJo';
   var ytIframe = card.querySelector('.form-yt-iframe');
   var ytLoaded = false;
-  function ytPost(cmd) {
+  function ytPost(cmd, args) {
     if (!ytIframe || !ytIframe.contentWindow) return;
-    ytIframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: cmd, args: '' }), '*');
+    ytIframe.contentWindow.postMessage(
+      JSON.stringify({ event: 'command', func: cmd, args: args || '' }),
+      '*'
+    );
   }
   function ensureYt() {
     if (!ytIframe) return;
@@ -4206,6 +4209,10 @@
     }
     card.classList.add('is-yt-active');
     ytPost('playVideo');
+    // Browser autoplay policy required mute=1 on initial load. The user has
+    // interacted (scroll counts), so unmute now that the card is centered.
+    ytPost('unMute');
+    ytPost('setVolume', [70]);
   }
   if ('IntersectionObserver' in window) {
     var io = new IntersectionObserver(function (entries) {
@@ -4227,19 +4234,19 @@
     var scrolled = -secRect.top;
     var p = clamp(scrolled / Math.max(1, total), 0, 1);
 
-    var pBg    = smoothstep(0.10, 0.95, p);   // dashboard blurs/dims away
-    var pHead  = smoothstep(0.20, 0.70, p);   // headline starts shrinking + drifting down sooner
-    var pCard  = smoothstep(0.05, 0.95, p);   // card animates from docked → centered
+    var pBg    = smoothstep(0.08, 0.62, p);   // dashboard blurs/dims away
+    var pHead  = smoothstep(0.15, 0.55, p);   // headline starts shrinking + drifting down sooner
+    var pCard  = smoothstep(0.04, 0.60, p);   // card centers by ~60% so the rest of the scroll is a linger zone
 
     section.style.setProperty('--p',      p.toFixed(4));
     section.style.setProperty('--p-bg',   pBg.toFixed(4));
     section.style.setProperty('--p-head', pHead.toFixed(4));
 
-    // YouTube takes over only once the card is mostly centered (avoids the
-    // jitter while the card is still scaling up). Hysteresis prevents flapping.
-    if (p > 0.85) {
+    // YouTube takes over once the card finishes centering (pCard reaches 1
+    // around p≈0.60). Hysteresis prevents flapping near the boundary.
+    if (p > 0.62) {
       ensureYt();
-    } else if (p < 0.75 && card.classList.contains('is-yt-active')) {
+    } else if (p < 0.55 && card.classList.contains('is-yt-active')) {
       card.classList.remove('is-yt-active');
       ytPost('pauseVideo');
     }
