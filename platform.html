@@ -5054,17 +5054,15 @@
   requestAnimationFrame(draw);
 })();
 
-// ── Fade the left side-nav while the hero is on-screen ─────────────────
+// ── Reveal the left side-nav only once the YouTube card is off-screen ─
 (function () {
   var nav = document.querySelector('.platform-nav');
-  var hero = document.querySelector('.ent-hero-section');
-  if (!nav || !hero) return;
+  var card = document.querySelector('.hero-form-card');
+  if (!nav || !card) return;
   function sync() {
-    // Reveal the nav only after the user has scrolled past the YouTube player
-    // (which fully centers around p≈0.6 and stops playing around p≈0.7).
-    var heroH = hero.offsetHeight;
-    var p = Math.max(0, Math.min(1, -hero.getBoundingClientRect().top / Math.max(1, heroH - window.innerHeight)));
-    nav.classList.toggle('is-hidden', p < 0.95);
+    // Card is "off-screen" once its bottom edge is above the viewport top.
+    var r = card.getBoundingClientRect();
+    nav.classList.toggle('is-hidden', r.bottom > -8);
   }
   window.addEventListener('scroll', sync, { passive: true });
   window.addEventListener('resize', sync);
