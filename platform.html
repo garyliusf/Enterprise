@@ -3096,22 +3096,39 @@
     var els = document.querySelectorAll('.ent-hero-section .hero-h1, .ent-hero-section .hero-subtitle');
     if (!els.length) return;
     els.forEach(function (el) {
-      var words = el.textContent.split(/(\s+)/);
-      el.textContent = '';
+      // Count total words across the whole element so --n is consistent.
+      var rawText = el.textContent;
+      var total = rawText.split(/\s+/).filter(function (w) { return w.length; }).length;
       var idx = 0;
-      var total = words.filter(function (w) { return w.trim().length; }).length;
-      words.forEach(function (w) {
-        if (!w.trim().length) {
-          el.appendChild(document.createTextNode(w));
-          return;
+      function splitTextInto(text, target) {
+        var parts = text.split(/(\s+)/);
+        parts.forEach(function (w) {
+          if (!w.length) return;
+          if (!w.trim().length) {
+            target.appendChild(document.createTextNode(w));
+            return;
+          }
+          var span = document.createElement('span');
+          span.className = 'word';
+          span.style.setProperty('--i', idx);
+          span.style.setProperty('--n', total);
+          span.textContent = w;
+          target.appendChild(span);
+          idx++;
+        });
+      }
+      var children = Array.prototype.slice.call(el.childNodes);
+      el.textContent = '';
+      children.forEach(function (node) {
+        if (node.nodeType === 3) {
+          splitTextInto(node.textContent, el);
+        } else {
+          // Preserve element children (e.g. .hero-h1-line line wrappers) and
+          // split the text inside them so the line break still applies.
+          var clone = node.cloneNode(false);
+          el.appendChild(clone);
+          splitTextInto(node.textContent, clone);
         }
-        var span = document.createElement('span');
-        span.className = 'word';
-        span.style.setProperty('--i', idx);
-        span.style.setProperty('--n', total);
-        span.textContent = w;
-        el.appendChild(span);
-        idx++;
       });
     });
   })();
