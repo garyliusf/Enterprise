@@ -2070,19 +2070,24 @@
       fill: #fff;
     }
 
-    /* Hover magnifier — circular zoom lens that follows the cursor over the
-       dashboard, sampling the underlying PNG at 2x. */
+    /* Hover magnifier — glass bubble that follows the cursor over the dashboard.
+       Background is the dashboard PNG sampled at 2x. SVG filter adds RGB chromatic
+       aberration (subtle near center, stronger at the edges). Inset highlights
+       give it a glassy/soap-bubble feel. */
     .ui-magnifier {
       position: fixed;
-      width: 220px;
-      height: 220px;
+      width: 240px;
+      height: 240px;
       border-radius: 50%;
       pointer-events: none;
       background-repeat: no-repeat;
-      border: 2px solid rgba(255, 255, 255, 0.55);
+      filter: url(#magnifier-chroma) saturate(1.05);
       box-shadow:
-        0 0 0 1px rgba(0, 0, 0, 0.18),
-        0 18px 50px rgba(0, 0, 0, 0.45);
+        inset 8px 10px 28px rgba(255, 255, 255, 0.35),    /* top-left highlight */
+        inset -12px -16px 36px rgba(255, 255, 255, 0.18), /* bottom-right gloss */
+        inset 0 0 0 1px rgba(255, 255, 255, 0.4),         /* inner rim */
+        0 0 0 1px rgba(0, 0, 0, 0.12),                    /* outer hairline */
+        0 24px 60px rgba(0, 0, 0, 0.45);
       opacity: 0;
       transform: translate3d(0, 0, 0) scale(0.85);
       transition: opacity 0.18s ease, transform 0.18s ease;
@@ -2092,6 +2097,19 @@
     .ui-magnifier.is-active {
       opacity: 1;
       transform: translate3d(0, 0, 0) scale(1);
+    }
+    .ui-magnifier::after {
+      /* Specular highlight for the top of the bubble. */
+      content: '';
+      position: absolute;
+      top: 8%;
+      left: 18%;
+      width: 36%;
+      height: 24%;
+      border-radius: 50%;
+      background: radial-gradient(ellipse at center, rgba(255,255,255,0.55), rgba(255,255,255,0) 70%);
+      filter: blur(2px);
+      pointer-events: none;
     }
 
     /* YouTube modal */
@@ -2702,6 +2720,34 @@
   </section>
 
   <div class="ui-magnifier" id="ui-magnifier" aria-hidden="true"></div>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <filter id="magnifier-chroma" x="-10%" y="-10%" width="120%" height="120%">
+        <!-- Red channel offset left -->
+        <feOffset in="SourceGraphic" dx="-3" dy="0" result="rShift" />
+        <feColorMatrix in="rShift" type="matrix"
+          values="1 0 0 0 0
+                  0 0 0 0 0
+                  0 0 0 0 0
+                  0 0 0 1 0" result="rOnly" />
+        <!-- Green stays centered -->
+        <feColorMatrix in="SourceGraphic" type="matrix"
+          values="0 0 0 0 0
+                  0 1 0 0 0
+                  0 0 0 0 0
+                  0 0 0 1 0" result="gOnly" />
+        <!-- Blue offset right -->
+        <feOffset in="SourceGraphic" dx="3" dy="0" result="bShift" />
+        <feColorMatrix in="bShift" type="matrix"
+          values="0 0 0 0 0
+                  0 0 0 0 0
+                  0 0 1 0 0
+                  0 0 0 1 0" result="bOnly" />
+        <feBlend in="rOnly" in2="gOnly" mode="screen" result="rg" />
+        <feBlend in="rg" in2="bOnly" mode="screen" />
+      </filter>
+    </defs>
+  </svg>
 
   <div class="yt-modal" id="yt-modal" role="dialog" aria-modal="true" aria-label="Tutorial video">
     <div class="yt-modal-frame">
