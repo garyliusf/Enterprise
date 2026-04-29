@@ -2110,7 +2110,18 @@
       background: radial-gradient(ellipse at center, rgba(255,255,255,0.55), rgba(255,255,255,0) 70%);
       filter: blur(2px);
       pointer-events: none;
+      z-index: 2;
     }
+    .ui-magnifier { overflow: hidden; }
+    .ui-magnifier .lens-video {
+      position: absolute;
+      pointer-events: none;
+      object-fit: cover;
+      display: none;
+      z-index: 1;
+    }
+    .ui-magnifier.over-video { background-image: none !important; }
+    .ui-magnifier.over-video .lens-video { display: block; }
 
     /* YouTube modal */
     .yt-modal {
@@ -2719,12 +2730,16 @@
     </div>
   </section>
 
-  <div class="ui-magnifier" id="ui-magnifier" aria-hidden="true"></div>
+  <div class="ui-magnifier" id="ui-magnifier" aria-hidden="true">
+    <video class="lens-video" muted loop playsinline preload="auto">
+      <source src="hero-video.mp4" type="video/mp4">
+    </video>
+  </div>
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <defs>
       <filter id="magnifier-chroma" x="-10%" y="-10%" width="120%" height="120%">
         <!-- Red channel offset left -->
-        <feOffset in="SourceGraphic" dx="-3" dy="0" result="rShift" />
+        <feOffset in="SourceGraphic" dx="-1.5" dy="0" result="rShift" />
         <feColorMatrix in="rShift" type="matrix"
           values="1 0 0 0 0
                   0 0 0 0 0
@@ -2737,7 +2752,7 @@
                   0 0 0 0 0
                   0 0 0 1 0" result="gOnly" />
         <!-- Blue offset right -->
-        <feOffset in="SourceGraphic" dx="3" dy="0" result="bShift" />
+        <feOffset in="SourceGraphic" dx="1.5" dy="0" result="bShift" />
         <feColorMatrix in="bShift" type="matrix"
           values="0 0 0 0 0
                   0 0 0 0 0
@@ -2768,10 +2783,16 @@
     var lens = document.getElementById('ui-magnifier');
     var section = document.querySelector('.ent-hero-section');
     var img = document.querySelector('.hero-dashboard-img');
+    var lensVideo = lens && lens.querySelector('.lens-video');
     if (!lens || !section || !img) return;
 
     var imgUrl = img.getAttribute('src').split('?')[0];
     lens.style.backgroundImage = 'url("' + imgUrl + '")';
+    if (lensVideo) lensVideo.play().catch(function () {});
+
+    // Match the PANEL coords used by the docked card so the lens hands off to
+    // the video when the cursor enters the card area.
+    var PANEL = { left: 0.394, top: 0.732, right: 0.539, bottom: 0.863 };
 
     function move(e) {
       // Disable as soon as the user starts scrolling so the lens doesn't
@@ -2791,12 +2812,32 @@
       lens.classList.add('is-active');
       lens.style.left = (e.clientX - SIZE / 2) + 'px';
       lens.style.top  = (e.clientY - SIZE / 2) + 'px';
-      var bgW = rect.width * ZOOM;
-      var bgH = rect.height * ZOOM;
-      lens.style.backgroundSize = bgW + 'px ' + bgH + 'px';
-      lens.style.backgroundPosition =
-        (-(x * ZOOM - SIZE / 2)) + 'px ' +
-        (-(y * ZOOM - SIZE / 2)) + 'px';
+
+      var px = x / rect.width;
+      var py = y / rect.height;
+      var inPanel = px >= PANEL.left && px <= PANEL.right
+                 && py >= PANEL.top  && py <= PANEL.bottom;
+      if (inPanel && lensVideo) {
+        lens.classList.add('over-video');
+        var panelLeftPx = PANEL.left * rect.width;
+        var panelTopPx  = PANEL.top  * rect.height;
+        var panelWPx = (PANEL.right - PANEL.left) * rect.width;
+        var panelHPx = (PANEL.bottom - PANEL.top) * rect.height;
+        var cursorPanelX = x - panelLeftPx;
+        var cursorPanelY = y - panelTopPx;
+        lensVideo.style.width  = (panelWPx * ZOOM) + 'px';
+        lensVideo.style.height = (panelHPx * ZOOM) + 'px';
+        lensVideo.style.left = (-cursorPanelX * ZOOM + SIZE / 2) + 'px';
+        lensVideo.style.top  = (-cursorPanelY * ZOOM + SIZE / 2) + 'px';
+      } else {
+        lens.classList.remove('over-video');
+        var bgW = rect.width * ZOOM;
+        var bgH = rect.height * ZOOM;
+        lens.style.backgroundSize = bgW + 'px ' + bgH + 'px';
+        lens.style.backgroundPosition =
+          (-(x * ZOOM - SIZE / 2)) + 'px ' +
+          (-(y * ZOOM - SIZE / 2)) + 'px';
+      }
     }
     function leave() { lens.classList.remove('is-active'); }
 
