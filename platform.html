@@ -4920,12 +4920,26 @@
     { el: items[1], ids: ['platform-04','platform-05'] },
     { el: items[2], ids: ['platform-06'] }
   ];
+  function absTop(el) {
+    var top = 0;
+    while (el) { top += el.offsetTop; el = el.offsetParent; }
+    return top;
+  }
   function update() {
     var y = window.scrollY + window.innerHeight * 0.3;
     var active = 0;
-    for (var i = 0; i < groups.length; i++) {
-      var first = document.getElementById(groups[i].ids[0]);
-      if (first && first.offsetTop <= y) active = i;
+    // Walk every section in document order; whichever is the last one whose top
+    // is above y wins. Map that section back to its group.
+    var allEntries = [];
+    groups.forEach(function (g, gi) {
+      g.ids.forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) allEntries.push({ top: absTop(el), groupIndex: gi });
+      });
+    });
+    allEntries.sort(function (a, b) { return a.top - b.top; });
+    for (var i = 0; i < allEntries.length; i++) {
+      if (allEntries[i].top <= y) active = allEntries[i].groupIndex;
     }
     items.forEach(function(el, i){ el.classList.toggle('is-active', i === active); });
 
