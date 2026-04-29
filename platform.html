@@ -2283,6 +2283,10 @@
     max-width: 720px;
     margin: 0;
   }
+  .slider-section-body .t-accent {
+    color: #1488FC;
+    font-style: italic;
+  }
 
   /* Word-stagger blur reveal — when the section scrolls into view, each word
      fades + drifts up-left + de-blurs on a stagger. */
@@ -2854,19 +2858,34 @@
       var nodes = header.querySelectorAll('.slider-section-headline, .slider-section-body');
       var idx = 0;
       nodes.forEach(function (el) {
-        var parts = el.textContent.split(/(\s+)/);
+        var children = Array.prototype.slice.call(el.childNodes);
         el.textContent = '';
-        parts.forEach(function (p) {
-          if (!p.trim().length) {
-            el.appendChild(document.createTextNode(p));
-            return;
+        children.forEach(function (node) {
+          if (node.nodeType === 3) {
+            // Text node: split into per-word spans, preserving whitespace runs.
+            var parts = node.textContent.split(/(\s+)/);
+            parts.forEach(function (p) {
+              if (!p.trim().length) {
+                if (p.length) el.appendChild(document.createTextNode(p));
+                return;
+              }
+              var span = document.createElement('span');
+              span.className = 'word';
+              span.style.setProperty('--i', idx);
+              span.textContent = p;
+              el.appendChild(span);
+              idx++;
+            });
+          } else {
+            // Element node (e.g. <span class="t-accent">): wrap as a word so it
+            // gets the same fade-stagger animation, preserving its styling.
+            var wrap = document.createElement('span');
+            wrap.className = 'word';
+            wrap.style.setProperty('--i', idx);
+            wrap.appendChild(node);
+            el.appendChild(wrap);
+            idx++;
           }
-          var span = document.createElement('span');
-          span.className = 'word';
-          span.style.setProperty('--i', idx);
-          span.textContent = p;
-          el.appendChild(span);
-          idx++;
         });
       });
     });
@@ -3003,7 +3022,7 @@
 
   <div class="slider-section-header">
     <h2 class="slider-section-headline">Design System Agents</h2>
-    <p class="slider-section-body">Design System Agents ingest your component libraries, npm packages, Storybook sites, brand guidelines, fonts, and tokens — then apply them automatically to everything built in Bolt. The result: prototypes that use your real components, your real design tokens, and your real file structure from the first line of code.</p>
+    <p class="slider-section-body">Design System Agents ingest your component libraries, npm packages, Storybook sites, brand guidelines, fonts, and tokens — then apply them automatically to everything built in Bolt. The result: prototypes that use your real components, your real design tokens, and your real file structure from the first line of code. The prototype <span class="t-accent">is</span> the product.</p>
   </div>
 
   <div class="slider-container">
