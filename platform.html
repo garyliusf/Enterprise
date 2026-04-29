@@ -1528,14 +1528,14 @@
     .transition-pixels {
       position: relative;
       width: 100%;
-      height: clamp(320px, 44vh, 480px);
+      /* Short, no overlap — keeps the canvas + slider stacking simple so
+         body text on top is never visually muted. */
+      height: clamp(140px, 20vh, 220px);
       background: transparent;
       overflow: hidden;
       pointer-events: none;
-      /* Don't overlap the hero — only pull the slider section up into the
-         canvas's bottom so the visible band sits cleanly between sections. */
-      margin-top: 0;
-      margin-bottom: clamp(-360px, -34vh, -260px);
+      margin: 0;
+      z-index: 0;
     }
     .transition-pixels::before,
     .transition-pixels::after {
@@ -2445,10 +2445,8 @@
     will-change: opacity, transform, filter;
   }
   .slider-section-header.is-revealed .word {
-    animation: word-reveal 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    /* Cap the stagger so even long paragraphs finish quickly — otherwise the
-       last words stay blurred long after the section is visible. */
-    animation-delay: calc(min(var(--i, 0), 24) * 14ms);
+    animation: word-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation-delay: calc(var(--i, 0) * 28ms);
   }
   @keyframes word-reveal {
     from { opacity: 0; transform: translate(-10px, -7px); filter: blur(5px); }
@@ -3005,9 +3003,7 @@
     var headers = document.querySelectorAll('.slider-section-header');
     if (!headers.length) return;
     headers.forEach(function (header) {
-      // Only animate the headline. Body paragraph stays static — no per-word
-      // blur/fade so it reads cleanly without any partial-animation states.
-      var nodes = header.querySelectorAll('.slider-section-headline');
+      var nodes = header.querySelectorAll('.slider-section-headline, .slider-section-body');
       var idx = 0;
       nodes.forEach(function (el) {
         var children = Array.prototype.slice.call(el.childNodes);
