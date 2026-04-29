@@ -2070,6 +2070,30 @@
       fill: #fff;
     }
 
+    /* Hover magnifier — circular zoom lens that follows the cursor over the
+       dashboard, sampling the underlying PNG at 2x. */
+    .ui-magnifier {
+      position: fixed;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      pointer-events: none;
+      background-repeat: no-repeat;
+      border: 2px solid rgba(255, 255, 255, 0.55);
+      box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.18),
+        0 18px 50px rgba(0, 0, 0, 0.45);
+      opacity: 0;
+      transform: translate3d(0, 0, 0) scale(0.85);
+      transition: opacity 0.18s ease, transform 0.18s ease;
+      z-index: 50;
+      will-change: transform, background-position, opacity;
+    }
+    .ui-magnifier.is-active {
+      opacity: 1;
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+
     /* YouTube modal */
     .yt-modal {
       position: fixed;
@@ -2677,12 +2701,59 @@
     </div>
   </section>
 
+  <div class="ui-magnifier" id="ui-magnifier" aria-hidden="true"></div>
+
   <div class="yt-modal" id="yt-modal" role="dialog" aria-modal="true" aria-label="Tutorial video">
     <div class="yt-modal-frame">
       <button class="yt-modal-close" id="yt-modal-close" aria-label="Close video">×</button>
       <div id="yt-modal-iframe-slot"></div>
     </div>
   </div>
+
+  <script>
+  // Hover magnifier — shows a 2x zoomed lens of the dashboard image under the
+  // cursor. Bails out gracefully on touch devices.
+  (function () {
+    if (window.matchMedia && window.matchMedia('(hover: none)').matches) return;
+    var ZOOM = 2;
+    var SIZE = 220;
+    var lens = document.getElementById('ui-magnifier');
+    var frame = document.querySelector('.hero-dashboard-frame');
+    var img = document.querySelector('.hero-dashboard-img');
+    var card = document.querySelector('.hero-form-card');
+    if (!lens || !frame || !img) return;
+
+    var imgUrl = img.getAttribute('src').split('?')[0];
+    lens.style.backgroundImage = 'url("' + imgUrl + '")';
+
+    function move(e) {
+      var rect = img.getBoundingClientRect();
+      var x = e.clientX - rect.left;
+      var y = e.clientY - rect.top;
+      if (x < 0 || y < 0 || x > rect.width || y > rect.height) {
+        lens.classList.remove('is-active');
+        return;
+      }
+      lens.classList.add('is-active');
+      lens.style.left = (e.clientX - SIZE / 2) + 'px';
+      lens.style.top  = (e.clientY - SIZE / 2) + 'px';
+      var bgW = rect.width * ZOOM;
+      var bgH = rect.height * ZOOM;
+      lens.style.backgroundSize = bgW + 'px ' + bgH + 'px';
+      lens.style.backgroundPosition =
+        (-(x * ZOOM - SIZE / 2)) + 'px ' +
+        (-(y * ZOOM - SIZE / 2)) + 'px';
+    }
+    function leave() { lens.classList.remove('is-active'); }
+
+    frame.addEventListener('mousemove', move);
+    frame.addEventListener('mouseleave', leave);
+    if (card) {
+      card.addEventListener('mousemove', move);
+      card.addEventListener('mouseleave', leave);
+    }
+  })();
+  </script>
 
   <script>
   // Play button → YouTube modal. Iframe is added on open and removed on close
