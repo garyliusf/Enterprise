@@ -1528,14 +1528,11 @@
     .transition-pixels {
       position: relative;
       width: 100%;
-      /* Tall enough to scatter patches vertically — not just a strip band. */
+      /* Tall enough to scatter island-style patches vertically. */
       height: clamp(360px, 50vh, 560px);
-      background: #050608;
+      background: transparent;
       overflow: hidden;
-      /* Decorative-only — never block clicks on the video card or other UI. */
       pointer-events: none;
-      /* Pull only into the slider-section above to reduce its top gap. The
-         hero side is left alone so the video card stays interactive. */
       margin-top: 0;
       margin-bottom: clamp(-280px, -32vh, -200px);
     }
@@ -3547,18 +3544,21 @@
         var el = document.getElementById('transition-pixels-canvas');
         var W = el ? el.width : 1200, H = el ? el.height : 320;
 
-        // Patches scattered across BOTH axes (top, middle, bottom) so the
-        // canvas reads as a discovery map of clusters — not a horizontal band.
-        // Each has its own anchor, radius, and slow orbital drift.
+        // Map-style islands of varied sizes scattered across the full canvas.
+        // Using Math.max (not sum) per patch so they read as distinct clusters
+        // — they don't blur into a continuous band where they overlap.
         var patches = [
-          { ax: 0.12, ay: 0.20, ox: 50, oy: 36, sp: 0.00018, ph: 0.0, rad: 110 },
-          { ax: 0.28, ay: 0.78, ox: 70, oy: 50, sp: 0.00026, ph: 1.1, rad: 130 },
-          { ax: 0.40, ay: 0.42, ox: 60, oy: 40, sp: 0.00022, ph: 2.3, rad: 100 },
-          { ax: 0.55, ay: 0.12, ox: 80, oy: 30, sp: 0.00016, ph: 3.4, rad: 120 },
-          { ax: 0.68, ay: 0.65, ox: 90, oy: 60, sp: 0.00024, ph: 4.6, rad: 140 },
-          { ax: 0.82, ay: 0.30, ox: 70, oy: 50, sp: 0.00020, ph: 5.9, rad: 110 },
-          { ax: 0.92, ay: 0.85, ox: 60, oy: 40, sp: 0.00028, ph: 0.7, rad: 95 },
-          { ax: 0.06, ay: 0.55, ox: 50, oy: 50, sp: 0.00018, ph: 2.0, rad: 100 }
+          { ax: 0.08, ay: 0.18, ox: 30, oy: 22, sp: 0.00018, ph: 0.0, rad: 60 },
+          { ax: 0.18, ay: 0.62, ox: 36, oy: 30, sp: 0.00022, ph: 1.3, rad: 70 },
+          { ax: 0.27, ay: 0.32, ox: 28, oy: 24, sp: 0.00026, ph: 2.5, rad: 50 },
+          { ax: 0.36, ay: 0.82, ox: 40, oy: 28, sp: 0.00020, ph: 3.8, rad: 65 },
+          { ax: 0.46, ay: 0.10, ox: 32, oy: 20, sp: 0.00024, ph: 5.0, rad: 55 },
+          { ax: 0.55, ay: 0.48, ox: 44, oy: 36, sp: 0.00018, ph: 0.6, rad: 80 },
+          { ax: 0.66, ay: 0.74, ox: 36, oy: 30, sp: 0.00026, ph: 2.0, rad: 60 },
+          { ax: 0.74, ay: 0.22, ox: 28, oy: 24, sp: 0.00022, ph: 3.3, rad: 55 },
+          { ax: 0.84, ay: 0.58, ox: 40, oy: 36, sp: 0.00020, ph: 4.5, rad: 70 },
+          { ax: 0.92, ay: 0.32, ox: 30, oy: 22, sp: 0.00026, ph: 5.7, rad: 50 },
+          { ax: 0.96, ay: 0.84, ox: 24, oy: 28, sp: 0.00018, ph: 1.0, rad: 45 }
         ];
         var fade = 0;
         for (var i = 0; i < patches.length; i++) {
@@ -3566,10 +3566,10 @@
           var cx = pa.ax * W + Math.cos(t * pa.sp + pa.ph) * pa.ox;
           var cy = pa.ay * H + Math.sin(t * pa.sp * 1.3 + pa.ph) * pa.oy;
           var dx = px - cx, dy = py - cy;
-          fade += Math.exp(-(dx*dx + dy*dy) / (2 * pa.rad * pa.rad));
+          var f = Math.exp(-(dx*dx + dy*dy) / (2 * pa.rad * pa.rad));
+          if (f > fade) fade = f;
         }
-        fade = Math.min(1, fade);
-        if (fade <= 0.02) return 0;
+        if (fade <= 0.05) return 0;
 
         var speedMod = 0.05 + (Math.sin(t * 0.00070 + 0.6) * 0.5 + 0.5) * 0.22;
         function rwave(scale, rotRate, phase, tMult) {
