@@ -2066,6 +2066,52 @@
     /* Keep the muted teaser visible while YouTube iframe is still loading;
        only fade it out once iframe is ready (avoids the black blank box). */
     .ent-hero-section .hero-form-card.is-yt-ready .form-video-bg { opacity: 0; }
+
+    /* Minimal always-on YouTube controls (overlaid on the iframe so users
+       always see at least play/pause + mute, even when YouTube's native chrome
+       auto-hides). Hidden until the iframe is showing. */
+    .ent-hero-section .card-yt-controls {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      display: flex;
+      gap: 8px;
+      z-index: 5;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease 0.1s;
+    }
+    .ent-hero-section .hero-form-card.is-yt-ready .card-yt-controls {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .ent-hero-section .yt-ctrl {
+      width: 32px;
+      height: 32px;
+      border: 0;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #fff;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      transition: background 0.2s ease, transform 0.18s ease;
+    }
+    .ent-hero-section .yt-ctrl:hover {
+      background: rgba(0, 0, 0, 0.75);
+      transform: scale(1.08);
+    }
+    .ent-hero-section .yt-ctrl svg { width: 14px; height: 14px; fill: currentColor; display: block; }
+    .ent-hero-section .yt-ctrl .ic-pause,
+    .ent-hero-section .yt-ctrl .ic-mute { display: none; }
+    .ent-hero-section .hero-form-card.is-yt-playing .yt-ctrl-play .ic-play  { display: none; }
+    .ent-hero-section .hero-form-card.is-yt-playing .yt-ctrl-play .ic-pause { display: block; }
+    .ent-hero-section .hero-form-card.is-yt-muted   .yt-ctrl-mute .ic-vol  { display: none; }
+    .ent-hero-section .hero-form-card.is-yt-muted   .yt-ctrl-mute .ic-mute { display: block; }
     .ent-hero-section .hero-form-card.is-yt-active .hero-play-btn {
       opacity: 0;
       pointer-events: none;
@@ -2729,6 +2775,16 @@
             <source src="hero-video.mp4" type="video/mp4">
           </video>
           <iframe class="form-yt-iframe" id="card-yt-iframe" src="" allow="autoplay; encrypted-media; picture-in-picture" frameborder="0" allowfullscreen></iframe>
+          <div class="card-yt-controls" aria-hidden="true">
+            <button type="button" class="yt-ctrl yt-ctrl-play" id="yt-ctrl-play" aria-label="Play / pause">
+              <svg class="ic-play"  viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              <svg class="ic-pause" viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+            </button>
+            <button type="button" class="yt-ctrl yt-ctrl-mute" id="yt-ctrl-mute" aria-label="Toggle mute">
+              <svg class="ic-vol"  viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zM16.5 12a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/></svg>
+              <svg class="ic-mute" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm14 6.6L19.6 18 21 16.6 18.4 14 21 11.4 19.6 10 17 12.6 14.4 10 13 11.4 15.6 14 13 16.6 14.4 18z"/></svg>
+            </button>
+          </div>
           <div class="form-video-overlay"></div>
           <div class="hero-play-btn">
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -2822,7 +2878,7 @@
             io.unobserve(e.target);
           }
         });
-      }, { threshold: 0, rootMargin: '0px 0px -25% 0px' });
+      }, { threshold: 0, rootMargin: '-15% 0px -45% 0px' });
       headers.forEach(function (h) { io.observe(h); });
     } else {
       headers.forEach(function (h) { h.classList.add('is-revealed'); });
@@ -4288,6 +4344,31 @@
   }
   ['click', 'keydown', 'touchstart', 'pointerdown', 'wheel', 'scroll'].forEach(function (evt) {
     window.addEventListener(evt, markInteracted, { once: true, passive: true });
+  });
+
+  // Custom minimal controls overlay — always visible while iframe is shown.
+  var ytPlaying = true, ytMuted = true;
+  function syncCtrlClasses() {
+    card.classList.toggle('is-yt-playing', ytPlaying);
+    card.classList.toggle('is-yt-muted',   ytMuted);
+  }
+  syncCtrlClasses();
+  var btnPlay = document.getElementById('yt-ctrl-play');
+  var btnMute = document.getElementById('yt-ctrl-mute');
+  if (btnPlay) btnPlay.addEventListener('click', function (e) {
+    e.stopPropagation();
+    markInteracted();
+    ytPlaying = !ytPlaying;
+    ytPost(ytPlaying ? 'playVideo' : 'pauseVideo');
+    syncCtrlClasses();
+  });
+  if (btnMute) btnMute.addEventListener('click', function (e) {
+    e.stopPropagation();
+    markInteracted();
+    ytMuted = !ytMuted;
+    ytPost(ytMuted ? 'mute' : 'unMute');
+    if (!ytMuted) ytPost('setVolume', [70]);
+    syncCtrlClasses();
   });
 
   function ensureYt() {
