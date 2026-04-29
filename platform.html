@@ -4317,9 +4317,14 @@
       // shows on this and every subsequent scroll-down without flicker.
       card.classList.add('is-yt-ready');
     }
+    var wasActive = card.classList.contains('is-yt-active');
     card.classList.add('is-yt-active');
-    ytPost('playVideo');
-    unmuteIfActive();
+    if (!wasActive) {
+      // Only post commands on the activation edge so we don't re-fire every
+      // scroll frame (which made the YouTube controls flicker).
+      ytPost('playVideo');
+      unmuteIfActive();
+    }
   }
   if ('IntersectionObserver' in window) {
     var io = new IntersectionObserver(function (entries) {
@@ -4355,11 +4360,13 @@
     //   p > 0.70  → user kept scrolling, pause + mute (iframe still on screen,
     //                 just no longer playing audio)
     if (p > 0.70) {
-      if (card.classList.contains('is-yt-active')) {
+      if (card.classList.contains('is-yt-active') && !card.classList.contains('is-yt-paused-past')) {
+        card.classList.add('is-yt-paused-past');
         ytPost('pauseVideo');
         ytPost('mute');
       }
     } else if (p > 0.62) {
+      card.classList.remove('is-yt-paused-past');
       ensureYt();
     } else if (p < 0.55 && card.classList.contains('is-yt-active')) {
       card.classList.remove('is-yt-active');
