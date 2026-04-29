@@ -2227,48 +2227,33 @@
     margin: 0;
   }
 
-  /* ── Narrative variant: left-aligned long-form intro for sections like
-        Design System Agents (with multi-paragraph body copy). Apply with
-        `.slider-section-header.is-narrative` and add a per-page combo class
-        like `.is-platform` / `.is-preview` for any further tweaks. */
-  .slider-section-header.is-narrative {
-    text-align: left;
-    align-items: flex-start;
-    gap: 20px;
+  /* Body paragraph for slider section headers. Styled the same whether or not
+     a narrative variant is in use. */
+  .slider-section-body {
+    font-size: clamp(14px, 1.05vw, 16px);
+    font-weight: 400;
+    color: #888;
+    line-height: 1.7;
+    max-width: 720px;
+    margin: 0;
   }
 
   /* Word-stagger blur reveal — when the section scrolls into view, each word
-     fades + drifts up-left + de-blurs on a stagger (same pattern as the
-     enterprise quote-text reveal). */
-  .slider-section-header.is-narrative .word {
+     fades + drifts up-left + de-blurs on a stagger. */
+  .slider-section-header .word {
     display: inline-block;
     opacity: 0;
     transform: translate(-10px, -7px);
     filter: blur(5px);
     will-change: opacity, transform, filter;
   }
-  .slider-section-header.is-narrative.is-revealed .word {
+  .slider-section-header.is-revealed .word {
     animation: word-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
     animation-delay: calc(var(--i, 0) * 28ms);
   }
   @keyframes word-reveal {
     from { opacity: 0; transform: translate(-10px, -7px); filter: blur(5px); }
     to   { opacity: 1; transform: translate(0, 0);        filter: blur(0); }
-  }
-  .slider-section-header.is-narrative .slider-section-headline {
-    font-size: clamp(40px, 5vw, 72px);
-    font-weight: 700;
-    line-height: 1.05;
-    letter-spacing: -1.6px;
-  }
-  .slider-section-header.is-narrative .slider-section-tagline,
-  .slider-section-header.is-narrative .slider-section-body {
-    font-size: clamp(14px, 1.05vw, 16px);
-    font-weight: 400;
-    color: #888;
-    line-height: 1.7;
-    max-width: 920px;
-    margin: 0;
   }
 
   /* ── Per-slide inner header inside grey container ── */
@@ -2806,10 +2791,10 @@
   // scroll-into-view (word-stagger blur reveal, same pattern as the enterprise
   // quote-text fade-in).
   (function () {
-    var headers = document.querySelectorAll('.slider-section-header.is-narrative');
+    var headers = document.querySelectorAll('.slider-section-header');
     if (!headers.length) return;
     headers.forEach(function (header) {
-      var nodes = header.querySelectorAll('.slider-section-headline, .slider-section-tagline, .slider-section-body');
+      var nodes = header.querySelectorAll('.slider-section-headline, .slider-section-body');
       var idx = 0;
       nodes.forEach(function (el) {
         var parts = el.textContent.split(/(\s+)/);
@@ -2954,7 +2939,7 @@
 
 <section class="slider-section" id="slider-section-01">
 
-  <div class="slider-section-header is-narrative is-platform">
+  <div class="slider-section-header">
     <h2 class="slider-section-headline">Design System Agents</h2>
     <p class="slider-section-body">Design System Agents ingest your component libraries, npm packages, Storybook sites, brand guidelines, fonts, and tokens — then apply them automatically to everything built in Bolt. The result: prototypes that use your real components, your real design tokens, and your real file structure from the first line of code.</p>
   </div>
