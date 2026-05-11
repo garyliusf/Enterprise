@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bolt — Build and ship faster with AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Inter:wght@300;400;500;600;700;900&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #000;
+      --surface: #0d0d0d;
+      --surface-2: #111;
+      --border: rgba(255,255,255,0.07);
+      --border-md: rgba(255,255,255,0.12);
+      --text-primary: #fff;
+      --text-secondary: #ABABAB;
+      --text-muted: rgba(255,255,255,0.4);
+      --accent-blue: #1488FC;
+      --accent-salmon: #FFB093;
+      --font-sans: 'Inter', sans-serif;
+      --font-serif: 'Cormorant Garamond', Georgia, serif;
+      --font-mono: 'Silkscreen', monospace;
+      --max-w: 1200px;
+      --gutter: 40px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--black);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Utility ── */
+    .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+    .container { width: min(var(--max-w), calc(100vw - var(--gutter) * 2)); margin: 0 auto; }
+
+    /* ─────────────────────────────────────────
+       NAV
+    ───────────────────────────────────────── */
+    .site-nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      border-bottom: 1px solid var(--border);
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .nav-inner {
+      width: min(var(--max-w), calc(100vw - var(--gutter) * 2));
+      margin: 0 auto;
+      height: 60px;
+      display: flex;
+      align-items: center;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 15px;
+      letter-spacing: 1px;
+      flex-shrink: 0;
+      margin-right: 40px;
+    }
+    .nav-logo svg { width: 20px; height: 20px; }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      flex: 1;
+    }
+    .nav-link {
+      font-size: 14px;
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: color 0.15s, background 0.15s;
+    }
+    .nav-link:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); }
+    .nav-actions { display: flex; align-items: center; gap: 8px; }
+    .nav-btn {
+      font-size: 13.5px;
+      font-family: var(--font-sans);
+      font-weight: 500;
+      padding: 7px 16px;
+      border-radius: 2px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+    .nav-btn-ghost {
+      color: var(--text-secondary);
+      background: none;
+      border: 1px solid var(--border-md);
+    }
+    .nav-btn-ghost:hover { color: var(--text-primary); border-color: rgba(255,255,255,0.25); }
+    .nav-btn-primary { color: #000; background: #fff; border: 1px solid #fff; }
+    .nav-btn-primary:hover { background: rgba(255,255,255,0.88); }
+
+    /* ─────────────────────────────────────────
+       HERO
+    ───────────────────────────────────────── */
+    .hero {
+      padding-top: 60px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-canvas-bg {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .hero-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 80px var(--gutter) 60px;
+      position: relative;
+      z-index: 1;
+    }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--accent-blue);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+      padding: 6px 14px;
+      border: 1px solid rgba(20,136,252,0.25);
+      border-radius: 2px;
+    }
+    .hero-eyebrow-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent-blue);
+      animation: blink 2s infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    .hero-h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(52px, 7vw, 96px);
+      font-weight: 400;
+      line-height: 1.0;
+      color: var(--text-primary);
+      max-width: 900px;
+      letter-spacing: -0.5px;
+      margin-bottom: 28px;
+    }
+    .hero-h1 em { font-style: italic; color: var(--accent-salmon); }
+    .hero-subtitle {
+      font-size: clamp(16px, 2vw, 20px);
+      color: var(--text-secondary);
+      max-width: 520px;
+      line-height: 1.55;
+      margin-bottom: 44px;
+      font-weight: 400;
+    }
+    .hero-ctas {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 56px;
+    }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      color: #000;
+      background: #fff;
+      padding: 12px 28px;
+      border-radius: 2px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .btn-primary:hover { background: rgba(255,255,255,0.88); }
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 15px;
+      font-weight: 400;
+      color: var(--text-secondary);
+      background: none;
+      padding: 12px 28px;
+      border-radius: 2px;
+      border: 1px solid var(--border-md);
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+    .btn-secondary:hover { color: var(--text-primary); border-color: rgba(255,255,255,0.25); }
+    .hero-meta {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .hero-meta-item {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* hero image visual */
+    .hero-visual {
+      width: 100%;
+      border-top: 1px solid var(--border);
+      overflow: hidden;
+      position: relative;
+      z-index: 1;
+      height: 580px;
+      background: #e8e6e2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hero-visual img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 30%;
+      display: block;
+    }
+
+    /* ─────────────────────────────────────────
+       SOCIAL PROOF STRIP
+    ───────────────────────────────────────── */
+    .proof-strip {
+      border-bottom: 1px solid var(--border);
+      padding: 24px 0;
+    }
+    .proof-inner {
+      width: min(var(--max-w), calc(100vw - var(--gutter) * 2));
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 40px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .proof-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+    }
+    .proof-logos { display: flex; align-items: center; gap: 32px; flex-wrap: wrap; }
+    .proof-logo {
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.2);
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .proof-logo:hover { color: rgba(255,255,255,0.45); }
+
+    /* ─────────────────────────────────────────
+       STATS
+    ───────────────────────────────────────── */
+    .stats-section {
+      border-bottom: 1px solid var(--border);
+      padding: 72px 0;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+    }
+    .stat-item {
+      padding: 0 40px;
+      border-right: 1px solid var(--border);
+      text-align: center;
+    }
+    .stat-item:first-child { padding-left: 0; }
+    .stat-item:last-child { border-right: none; padding-right: 0; }
+    .stat-number {
+      font-family: var(--font-serif);
+      font-size: 60px;
+      font-weight: 400;
+      color: var(--text-primary);
+      line-height: 1;
+      margin-bottom: 10px;
+      letter-spacing: -1px;
+    }
+    .stat-number em { font-style: italic; color: var(--accent-salmon); }
+    .stat-label { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+
+    /* ─────────────────────────────────────────
+       SECTION HEADER
+    ───────────────────────────────────────── */
+    .section-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      display: block;
+    }
+    .section-h2 {
+      font-family: var(--font-serif);
+      font-size: clamp(36px, 4vw, 56px);
+      font-weight: 400;
+      line-height: 1.1;
+      color: var(--text-primary);
+      max-width: 640px;
+    }
+    .section-h2 em { font-style: italic; color: var(--accent-salmon); }
+    .section-body {
+      font-size: 16px;
+      color: var(--text-secondary);
+      max-width: 480px;
+      line-height: 1.65;
+      margin-top: 16px;
+    }
+
+    /* ─────────────────────────────────────────
+       WHAT YOU CAN BUILD
+    ───────────────────────────────────────── */
+    .build-section {
+      padding: 96px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .build-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 48px;
+      gap: 32px;
+    }
+    .see-all-link {
+      font-size: 13px;
+      color: var(--text-muted);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.15s;
+      white-space: nowrap;
+      flex-shrink: 0;
+      padding-bottom: 4px;
+    }
+    .see-all-link:hover { color: var(--text-primary); }
+    .build-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+    .build-card {
+      background: var(--black);
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: background 0.15s;
+      min-height: 220px;
+    }
+    .build-card:hover { background: #0a0a0a; }
+    .build-card-icon { font-size: 22px; margin-bottom: 4px; }
+    .build-card-label {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+    .build-card-title {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-primary);
+      line-height: 1.35;
+    }
+    .build-card-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-top: auto;
+    }
+
+    /* ─────────────────────────────────────────
+       WHY BOLT  (3-col like Figma Config)
+    ───────────────────────────────────────── */
+    .why-section {
+      padding: 96px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .why-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      margin-top: 56px;
+    }
+    .why-col {
+      padding: 0 48px;
+      border-right: 1px solid var(--border);
+    }
+    .why-col:first-child { padding-left: 0; }
+    .why-col:last-child { border-right: none; }
+    .why-num {
+      font-family: var(--font-serif);
+      font-size: 13px;
+      font-style: italic;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+    .why-col-title {
+      font-family: var(--font-serif);
+      font-size: 30px;
+      font-weight: 400;
+      line-height: 1.15;
+      color: var(--text-primary);
+      margin-bottom: 14px;
+    }
+    .why-col-title em { font-style: italic; color: var(--accent-salmon); }
+    .why-col-body { font-size: 14px; color: var(--text-secondary); line-height: 1.7; }
+    .why-items {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .why-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+    .why-item::before {
+      content: '';
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: var(--accent-blue);
+      margin-top: 7px;
+      flex-shrink: 0;
+    }
+
+    /* ─────────────────────────────────────────
+       DEMO / QUOTE
+    ───────────────────────────────────────── */
+    .demo-section {
+      padding: 96px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .demo-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .demo-video-wrap {
+      position: relative;
+      aspect-ratio: 16/9;
+      background: var(--surface);
+      border: 1px solid var(--border-md);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .demo-video-wrap canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .demo-play {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      cursor: pointer;
+    }
+    .demo-play-circle {
+      width: 60px; height: 60px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      backdrop-filter: blur(4px);
+    }
+    .demo-play-circle:hover { background: rgba(255,255,255,0.18); transform: scale(1.06); }
+    .demo-play-circle svg { width: 20px; height: 20px; fill: #fff; margin-left: 3px; }
+    .demo-quote {
+      font-family: var(--font-serif);
+      font-size: 34px;
+      font-weight: 400;
+      font-style: italic;
+      color: var(--text-primary);
+      line-height: 1.3;
+      margin-bottom: 20px;
+    }
+    .demo-quote em { color: var(--accent-salmon); font-style: normal; }
+    .demo-attr { font-size: 13px; color: var(--text-muted); margin-bottom: 36px; }
+    .demo-attr strong { color: var(--text-secondary); font-weight: 500; }
+
+    /* ─────────────────────────────────────────
+       FEATURE CARDS (3-col)
+    ───────────────────────────────────────── */
+    .features-section {
+      padding: 96px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border: 1px solid var(--border);
+      margin-top: 56px;
+    }
+    .feature-card {
+      padding: 36px 32px;
+      border-right: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+    .feature-card:last-child { border-right: none; }
+    .feature-card:hover { background: var(--surface-2); }
+    .feature-icon { font-size: 24px; margin-bottom: 18px; }
+    .feature-title {
+      font-size: 17px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 10px;
+    }
+    .feature-body { font-size: 14px; color: var(--text-secondary); line-height: 1.65; }
+    .feature-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--accent-blue);
+      text-decoration: none;
+      margin-top: 18px;
+      transition: gap 0.15s;
+    }
+    .feature-link:hover { gap: 10px; }
+
+    /* ─────────────────────────────────────────
+       CTA
+    ───────────────────────────────────────── */
+    .cta-section {
+      padding: 120px 0;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      opacity: 0.2;
+    }
+    .cta-inner { position: relative; z-index: 1; }
+    .cta-h2 {
+      font-family: var(--font-serif);
+      font-size: clamp(40px, 5vw, 72px);
+      font-weight: 400;
+      line-height: 1.05;
+      color: var(--text-primary);
+      margin-bottom: 18px;
+    }
+    .cta-h2 em { font-style: italic; color: var(--accent-salmon); }
+    .cta-sub { font-size: 17px; color: var(--text-secondary); margin-bottom: 44px; }
+    .cta-btns { display: flex; align-items: center; gap: 12px; justify-content: center; }
+    .cta-note { margin-top: 20px; font-size: 12px; color: var(--text-muted); }
+
+    /* ─────────────────────────────────────────
+       FOOTER
+    ───────────────────────────────────────── */
+    .site-footer { padding: 60px 0 40px; }
+    .footer-inner {
+      width: min(var(--max-w), calc(100vw - var(--gutter) * 2));
+      margin: 0 auto;
+    }
+    .footer-top {
+      display: grid;
+      grid-template-columns: 200px repeat(4, 1fr);
+      gap: 40px;
+      padding-bottom: 48px;
+      border-bottom: 1px solid var(--border);
+    }
+    .footer-brand-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      max-width: 160px;
+      margin-top: 10px;
+    }
+    .footer-col-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .footer-links { display: flex; flex-direction: column; gap: 10px; }
+    .footer-link {
+      font-size: 13px;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .footer-link:hover { color: var(--text-secondary); }
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 28px;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .footer-copy { font-size: 12px; color: var(--text-muted); }
+    .footer-socials { display: flex; align-items: center; gap: 16px; }
+    .footer-social {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .footer-social:hover { color: var(--text-secondary); }
+
+    /* ─────────────────────────────────────────
+       RESPONSIVE
+    ───────────────────────────────────────── */
+    @media (max-width: 1024px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .stat-item:nth-child(2) { border-right: none; }
+      .stat-item:nth-child(3) { border-top: 1px solid var(--border); padding-top: 40px; }
+      .stat-item:nth-child(4) { border-top: 1px solid var(--border); border-right: none; padding-top: 40px; }
+      .build-grid { grid-template-columns: repeat(2, 1fr); }
+      .demo-layout { grid-template-columns: 1fr; gap: 48px; }
+      .features-grid { grid-template-columns: 1fr; }
+      .feature-card { border-right: none; border-bottom: 1px solid var(--border); }
+      .feature-card:last-child { border-bottom: none; }
+      .footer-top { grid-template-columns: repeat(3, 1fr); }
+      .footer-brand { grid-column: 1 / -1; }
+    }
+    @media (max-width: 768px) {
+      :root { --gutter: 20px; }
+      .nav-links { display: none; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 0; }
+      .build-grid { grid-template-columns: 1fr; }
+      .why-grid { grid-template-columns: 1fr; }
+      .why-col { padding: 0 0 40px 0; border-right: none; border-bottom: 1px solid var(--border); }
+      .why-col:last-child { border-bottom: none; padding-bottom: 0; }
+      .features-grid { grid-template-columns: 1fr; }
+      .footer-top { grid-template-columns: 1fr 1fr; }
+      .footer-brand { grid-column: 1 / -1; }
+      .hero-visual { height: 240px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── NAV ── -->
+  <header class="site-nav">
+    <div class="nav-inner">
+      <a href="/" class="nav-logo">
+        <svg viewBox="0 0 20 20" fill="none">
+          <rect x="2" y="2" width="7" height="7" rx="1" fill="currentColor" opacity=".9"/>
+          <rect x="11" y="2" width="7" height="7" rx="1" fill="currentColor" opacity=".9"/>
+          <rect x="2" y="11" width="7" height="7" rx="1" fill="currentColor" opacity=".9"/>
+          <rect x="11" y="11" width="7" height="7" rx="1" fill="currentColor" opacity=".9"/>
+        </svg>
+        bolt
+      </a>
+      <nav class="nav-links" aria-label="Primary">
+        <a href="#build" class="nav-link">Platform</a>
+        <a href="#why" class="nav-link">Why Bolt</a>
+        <a href="pricing.html" class="nav-link">Pricing</a>
+        <a href="#" class="nav-link">Enterprise</a>
+        <a href="#" class="nav-link">Changelog</a>
+      </nav>
+      <div class="nav-actions">
+        <a href="#" class="nav-btn nav-btn-ghost">Sign in</a>
+        <a href="#" class="nav-btn nav-btn-primary">Start building</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── HERO ── -->
+  <section class="hero" id="hero">
+
+    <div class="hero-body">
+      <div class="hero-eyebrow">
+        <span class="hero-eyebrow-dot"></span>
+        AI-native development
+      </div>
+
+      <h1 class="hero-h1">
+        Build and ship<br><em>faster than you think</em>
+      </h1>
+
+      <p class="hero-subtitle">
+        Turn ideas into production-ready apps in minutes.
+        Bolt's AI understands your codebase and ships real code — not prototypes.
+      </p>
+
+      <div class="hero-ctas">
+        <a href="#" class="btn-primary">
+          Start building free
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M7.5 3.5 11 7l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a href="#demo" class="btn-secondary">
+          Watch the demo
+        </a>
+      </div>
+
+      <div class="hero-meta">
+        <span class="hero-meta-item">Free to start</span>
+        <span class="hero-meta-item" style="color:var(--border-md)">·</span>
+        <span class="hero-meta-item">No credit card required</span>
+        <span class="hero-meta-item" style="color:var(--border-md)">·</span>
+        <span class="hero-meta-item">SOC 2 compliant</span>
+      </div>
+    </div>
+
+    <!-- hero image -->
+    <div class="hero-visual">
+      <img src="hero-arch.png" alt="Build anything — a sea lion coding under a neoclassical arch made of LEGO" />
+    </div>
+  </section>
+
+  <!-- ── SOCIAL PROOF ── -->
+  <div class="proof-strip">
+    <div class="proof-inner">
+      <span class="proof-label">Trusted by teams at</span>
+      <div class="proof-logos">
+        <span class="proof-logo">Stripe</span>
+        <span class="proof-logo">Vercel</span>
+        <span class="proof-logo">Linear</span>
+        <span class="proof-logo">Notion</span>
+        <span class="proof-logo">Figma</span>
+        <span class="proof-logo">GitHub</span>
+        <span class="proof-logo">Shopify</span>
+        <span class="proof-logo">Loom</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STATS ── -->
+  <section class="stats-section">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-number">4<em>M+</em></div>
+          <div class="stat-label">apps built on Bolt</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">10<em>×</em></div>
+          <div class="stat-label">faster from idea to deploy</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">500<em>K</em></div>
+          <div class="stat-label">developers and counting</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">&lt;5<em>m</em></div>
+          <div class="stat-label">average time to first deploy</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── WHAT YOU CAN BUILD ── -->
+  <section class="build-section" id="build">
+    <div class="container">
+      <div class="build-header">
+        <div>
+          <span class="section-eyebrow">What you can build</span>
+          <h2 class="section-h2">From prompt to <em>production</em></h2>
+        </div>
+        <a href="#" class="see-all-link">
+          Browse all examples
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 6h7M6.5 2.5 10 6l-3.5 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+
+      <div class="build-grid">
+        <div class="build-card">
+          <div class="build-card-icon">🛍️</div>
+          <div class="build-card-label">E-commerce</div>
+          <div class="build-card-title">Full-stack storefronts with checkout</div>
+          <div class="build-card-desc">Stripe-connected, inventory-aware shops shipped in an afternoon.</div>
+        </div>
+        <div class="build-card">
+          <div class="build-card-icon">📊</div>
+          <div class="build-card-label">SaaS dashboards</div>
+          <div class="build-card-title">Data-rich interfaces with live updates</div>
+          <div class="build-card-desc">Real-time charts, user auth, and database connections, ready to ship.</div>
+        </div>
+        <div class="build-card">
+          <div class="build-card-icon">🤖</div>
+          <div class="build-card-label">AI products</div>
+          <div class="build-card-title">LLM-powered apps and agents</div>
+          <div class="build-card-desc">Integrate Claude, GPT-4, or any model into your product without the glue code.</div>
+        </div>
+        <div class="build-card">
+          <div class="build-card-icon">🎨</div>
+          <div class="build-card-label">Design systems</div>
+          <div class="build-card-title">From Figma to production components</div>
+          <div class="build-card-desc">Import your design tokens, generate React components, ship on day one.</div>
+        </div>
+        <div class="build-card">
+          <div class="build-card-icon">📱</div>
+          <div class="build-card-label">Mobile-first</div>
+          <div class="build-card-title">PWAs and mobile web experiences</div>
+          <div class="build-card-desc">Responsive-by-default, performance-first apps that feel native.</div>
+        </div>
+        <div class="build-card">
+          <div class="build-card-icon">🔒</div>
+          <div class="build-card-label">Enterprise apps</div>
+          <div class="build-card-title">SSO, RBAC, audit logs — built in</div>
+          <div class="build-card-desc">Enterprise-grade security that doesn't slow down your team.</div>
+        </div>
+        <div class="build-card">
+          <div class="build-card-icon">⚡</div>
+          <div class="build-card-label">Rapid prototyping</div>
+          <div class="build-card-title">Validate ideas before writing a line</div>
+          <div class="build-card-desc">Turn a napkin sketch into a clickable prototype in minutes, not days.</div>
+        </div>
+        <div class="build-card">
+          <div class="build-card-icon">🔗</div>
+          <div class="build-card-label">Integrations</div>
+          <div class="build-card-title">Connect any API, instantly</div>
+          <div class="build-card-desc">Slack, Notion, Salesforce, and 200+ tools wired up without the boilerplate.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── WHY BOLT ── -->
+  <section class="why-section" id="why">
+    <div class="container">
+      <span class="section-eyebrow">Why Bolt</span>
+      <h2 class="section-h2">The AI that actually <em>ships</em></h2>
+      <p class="section-body">Most AI coding tools generate code. Bolt generates apps — complete, tested, deployable ones.</p>
+
+      <div class="why-grid">
+        <div class="why-col">
+          <div class="why-num">01 —</div>
+          <div class="why-col-title">What you'll <em>build</em></div>
+          <p class="why-col-body">Real full-stack apps with databases, auth, and production infrastructure — not toy examples.</p>
+          <ul class="why-items">
+            <li class="why-item">Full-stack apps with one prompt</li>
+            <li class="why-item">Database schemas and migrations</li>
+            <li class="why-item">Auth, payments, and third-party APIs</li>
+            <li class="why-item">Production-ready from day one</li>
+          </ul>
+        </div>
+        <div class="why-col">
+          <div class="why-num">02 —</div>
+          <div class="why-col-title">How fast you'll <em>move</em></div>
+          <p class="why-col-body">Skip the scaffolding, the boilerplate, the config files. Go from prompt to deployed in under five minutes.</p>
+          <ul class="why-items">
+            <li class="why-item">First deploy in under 5 minutes</li>
+            <li class="why-item">Iterate directly in the browser</li>
+            <li class="why-item">No environment setup required</li>
+            <li class="why-item">Git, CI/CD all pre-wired</li>
+          </ul>
+        </div>
+        <div class="why-col">
+          <div class="why-num">03 —</div>
+          <div class="why-col-title">Who it's <em>for</em></div>
+          <p class="why-col-body">Solo founder, design team, or enterprise engineering org — Bolt fits how you actually work.</p>
+          <ul class="why-items">
+            <li class="why-item">Founders and indie hackers</li>
+            <li class="why-item">Product designers who want to build</li>
+            <li class="why-item">Engineering teams moving faster</li>
+            <li class="why-item">Enterprises that need security + scale</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── DEMO / QUOTE ── -->
+  <section class="demo-section" id="demo">
+    <div class="container">
+      <div class="demo-layout">
+        <div class="demo-video-wrap">
+          <canvas id="demo-canvas"></canvas>
+          <div class="demo-play">
+            <div class="demo-play-circle">
+              <svg viewBox="0 0 20 20"><path d="M6 4l12 6-12 6V4z"/></svg>
+            </div>
+          </div>
+        </div>
+        <div>
+          <span class="section-eyebrow">See it in action</span>
+          <blockquote class="demo-quote">
+            "We shipped our MVP in <em>three days</em> — it would have taken three months."
+          </blockquote>
+          <p class="demo-attr">— <strong>Sarah Chen</strong>, Founder at Fable</p>
+          <a href="#" class="btn-primary" style="width:fit-content">
+            Watch the full demo
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M7.5 3.5 11 7l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FEATURES ── -->
+  <section class="features-section" id="features">
+    <div class="container">
+      <span class="section-eyebrow">Platform</span>
+      <h2 class="section-h2">Everything in <em>one place</em></h2>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <div class="feature-title">AI-native editor</div>
+          <div class="feature-body">Code, preview, and deploy from a single browser tab. The AI understands context, not just syntax.</div>
+          <a href="#" class="feature-link">Learn more →</a>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🚀</div>
+          <div class="feature-title">Instant deploys</div>
+          <div class="feature-body">Every save is a deployment. Roll back, branch, and preview with zero configuration required.</div>
+          <a href="#" class="feature-link">Learn more →</a>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔐</div>
+          <div class="feature-title">Enterprise-ready</div>
+          <div class="feature-body">SOC 2, SSO, RBAC, BYOK, and a dedicated customer success team. Security that scales with you.</div>
+          <a href="#" class="feature-link">Learn more →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA ── -->
+  <section class="cta-section">
+    <canvas id="cta-canvas" class="cta-canvas"></canvas>
+    <div class="container cta-inner">
+      <h2 class="cta-h2">Ready to <em>ship faster?</em></h2>
+      <p class="cta-sub">Join 500,000+ developers building with Bolt.</p>
+      <div class="cta-btns">
+        <a href="#" class="btn-primary">
+          Start building — it's free
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M7.5 3.5 11 7l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a href="#" class="btn-secondary">Talk to sales</a>
+      </div>
+      <p class="cta-note">No credit card required · Free forever on the Starter plan</p>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ── -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <a href="/" class="nav-logo" style="display:inline-flex">
+            <svg viewBox="0 0 20 20" fill="none" width="18" height="18">
+              <rect x="2" y="2" width="7" height="7" rx="1" fill="currentColor" opacity=".9"/>
+              <rect x="11" y="2" width="7" height="7" rx="1" fill="currentColor" opacity=".9"/>
+              <rect x="2" y="11" width="7" height="7" rx="1" fill="currentColor" opacity=".9"/>
+              <rect x="11" y="11" width="7" height="7" rx="1" fill="currentColor" opacity=".9"/>
+            </svg>
+            bolt
+          </a>
+          <p class="footer-brand-desc">Build and ship faster with AI-powered development.</p>
+        </div>
+        <div>
+          <div class="footer-col-title">Product</div>
+          <div class="footer-links">
+            <a href="#" class="footer-link">Platform</a>
+            <a href="#" class="footer-link">Pricing</a>
+            <a href="#" class="footer-link">Enterprise</a>
+            <a href="#" class="footer-link">Changelog</a>
+          </div>
+        </div>
+        <div>
+          <div class="footer-col-title">Resources</div>
+          <div class="footer-links">
+            <a href="#" class="footer-link">Docs</a>
+            <a href="#" class="footer-link">Blog</a>
+            <a href="#" class="footer-link">Templates</a>
+            <a href="#" class="footer-link">Community</a>
+          </div>
+        </div>
+        <div>
+          <div class="footer-col-title">Company</div>
+          <div class="footer-links">
+            <a href="#" class="footer-link">About</a>
+            <a href="#" class="footer-link">Careers</a>
+            <a href="#" class="footer-link">Press</a>
+            <a href="#" class="footer-link">Contact</a>
+          </div>
+        </div>
+        <div>
+          <div class="footer-col-title">Legal</div>
+          <div class="footer-links">
+            <a href="#" class="footer-link">Privacy</a>
+            <a href="#" class="footer-link">Terms</a>
+            <a href="#" class="footer-link">Security</a>
+            <a href="#" class="footer-link">Cookie policy</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span class="footer-copy">© 2026 StackBlitz, Inc. All rights reserved.</span>
+        <div class="footer-socials">
+          <a href="#" class="footer-social">X / Twitter</a>
+          <a href="#" class="footer-social">LinkedIn</a>
+          <a href="#" class="footer-social">GitHub</a>
+          <a href="#" class="footer-social">YouTube</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+  // makePixelCanvas — same pattern as existing Bolt pages
+  function makePixelCanvas(canvas, opts) {
+    opts = opts || {};
+    var color = opts.color || [220, 230, 245];
+    var density = opts.density || 0.003;
+    var speed = opts.speed || 0.5;
+    var ctx = canvas.getContext('2d');
+    var particles = [];
+    var W = 0, H = 0;
+
+    function resize() {
+      W = canvas.width  = canvas.offsetWidth;
+      H = canvas.height = canvas.offsetHeight;
+      spawn();
+    }
+    function spawn() {
+      particles = [];
+      var count = Math.floor(W * H * density);
+      for (var i = 0; i < count; i++) {
+        particles.push({
+          x: Math.random() * W,
+          y: Math.random() * H,
+          s: Math.random() * 1.5 + 0.5,
+          o: Math.random() * 0.55 + 0.1,
+          dy: -(Math.random() * speed + 0.1)
+        });
+      }
+    }
+    function tick() {
+      ctx.clearRect(0, 0, W, H);
+      for (var i = 0; i < particles.length; i++) {
+        var p = particles[i];
+        p.y += p.dy;
+        if (p.y < -2) { p.y = H + 2; p.x = Math.random() * W; }
+        ctx.globalAlpha = p.o;
+        ctx.fillStyle = 'rgb(' + color[0] + ',' + color[1] + ',' + color[2] + ')';
+        ctx.fillRect(Math.round(p.x), Math.round(p.y), p.s, p.s);
+      }
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(tick);
+    }
+    window.addEventListener('resize', resize);
+    resize();
+    tick();
+  }
+
+  // Demo section
+  makePixelCanvas(document.getElementById('demo-canvas'), { color: [180,195,220], density: 0.003, speed: 0.35 });
+  // CTA — salmon tint
+  makePixelCanvas(document.getElementById('cta-canvas'), { color: [255,176,147], density: 0.0015, speed: 0.3 });
+  </script>
+
+</body>
+</html>
