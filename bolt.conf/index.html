@@ -111,35 +111,61 @@
     .nav-btn-primary:hover { background: rgba(255,255,255,0.88); }
 
     /* ─────────────────────────────────────────
-       HERO
+       HERO  (Clay Sculpt-style masked video)
     ───────────────────────────────────────── */
     .hero {
       padding-top: 60px;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      border-bottom: 1px solid var(--border);
+      background: var(--black);
       position: relative;
       overflow: hidden;
     }
-    .hero-canvas-bg {
+
+    /* ── Masked video block ── */
+    .hero-video-section {
+      position: relative;
+      width: 100%;
+    }
+    .hero-video-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16/8;
+      overflow: hidden;
+      /* organic wave clip — straight top, wavy bottom */
+      clip-path: url(#hero-video-clip);
+    }
+    .hero-video-wrap video {
       position: absolute;
       inset: 0;
-      pointer-events: none;
-      z-index: 0;
       width: 100%;
       height: 100%;
+      object-fit: cover;
+      object-position: center center;
     }
+    /* dark overlay so text is readable if overlaid later */
+    .hero-video-wrap::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(0,0,0,0.15) 0%,
+        rgba(0,0,0,0.05) 50%,
+        rgba(0,0,0,0.4) 100%
+      );
+      pointer-events: none;
+    }
+
+    /* ── Text block sits ABOVE the video (like Clay Sculpt) ── */
     .hero-body {
-      flex: 1;
+      width: min(var(--max-w), calc(100vw - var(--gutter) * 2));
+      margin: 0 auto;
+      padding: 72px 0 40px;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 80px var(--gutter) 60px;
+      align-items: flex-start;
+      text-align: left;
       position: relative;
-      z-index: 1;
+      z-index: 2;
     }
     .hero-eyebrow {
       display: inline-flex;
@@ -150,7 +176,7 @@
       color: var(--accent-blue);
       letter-spacing: 2px;
       text-transform: uppercase;
-      margin-bottom: 28px;
+      margin-bottom: 24px;
       padding: 6px 14px;
       border: 1px solid rgba(20,136,252,0.25);
       border-radius: 2px;
@@ -162,32 +188,32 @@
       animation: blink 2s infinite;
     }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
     .hero-h1 {
       font-family: var(--font-serif);
-      font-size: clamp(52px, 7vw, 96px);
+      font-size: clamp(56px, 8vw, 112px);
       font-weight: 400;
-      line-height: 1.0;
+      line-height: 0.95;
       color: var(--text-primary);
-      max-width: 900px;
-      letter-spacing: -0.5px;
+      letter-spacing: -1px;
       margin-bottom: 28px;
+      max-width: 820px;
     }
     .hero-h1 em { font-style: italic; color: var(--accent-salmon); }
+
     .hero-subtitle {
-      font-size: clamp(16px, 2vw, 20px);
+      font-size: clamp(16px, 1.6vw, 19px);
       color: var(--text-secondary);
-      max-width: 520px;
-      line-height: 1.55;
-      margin-bottom: 44px;
-      font-weight: 400;
+      max-width: 480px;
+      line-height: 1.6;
+      margin-bottom: 36px;
     }
     .hero-ctas {
       display: flex;
       align-items: center;
       gap: 12px;
       flex-wrap: wrap;
-      justify-content: center;
-      margin-bottom: 56px;
+      margin-bottom: 48px;
     }
     .btn-primary {
       display: inline-flex;
@@ -221,38 +247,17 @@
       transition: all 0.15s;
     }
     .btn-secondary:hover { color: var(--text-primary); border-color: rgba(255,255,255,0.25); }
+
     .hero-meta {
       display: flex;
       align-items: center;
-      gap: 32px;
+      gap: 24px;
       flex-wrap: wrap;
-      justify-content: center;
     }
-    .hero-meta-item {
-      font-size: 13px;
-      color: var(--text-muted);
-    }
+    .hero-meta-item { font-size: 13px; color: var(--text-muted); }
 
-    /* hero image visual */
-    .hero-visual {
-      width: 100%;
-      border-top: 1px solid var(--border);
-      overflow: hidden;
-      position: relative;
-      z-index: 1;
-      height: 580px;
-      background: #e8e6e2;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .hero-visual img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center 30%;
-      display: block;
-    }
+    /* bottom spacing after the clipped video */
+    .hero-after { height: 48px; border-bottom: 1px solid var(--border); }
 
     /* ─────────────────────────────────────────
        SOCIAL PROOF STRIP
@@ -714,8 +719,26 @@
   </header>
 
   <!-- ── HERO ── -->
+  <!-- SVG clip-path definition: organic wave bottom edge -->
+  <svg width="0" height="0" aria-hidden="true" style="position:absolute;overflow:hidden">
+    <defs>
+      <clipPath id="hero-video-clip" clipPathUnits="objectBoundingBox">
+        <!-- full width at top, sweeping organic wave across the bottom -->
+        <path d="
+          M 0,0
+          L 1,0
+          L 1,0.78
+          C 0.84,0.96 0.66,0.88 0.50,0.92
+          C 0.34,0.96 0.16,0.90 0,0.80
+          Z
+        "/>
+      </clipPath>
+    </defs>
+  </svg>
+
   <section class="hero" id="hero">
 
+    <!-- text sits above the video -->
     <div class="hero-body">
       <div class="hero-eyebrow">
         <span class="hero-eyebrow-dot"></span>
@@ -723,7 +746,7 @@
       </div>
 
       <h1 class="hero-h1">
-        Build and ship<br><em>faster than you think</em>
+        Build and ship<br><em>faster than<br>you think</em>
       </h1>
 
       <p class="hero-subtitle">
@@ -736,9 +759,7 @@
           Start building free
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M7.5 3.5 11 7l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </a>
-        <a href="#demo" class="btn-secondary">
-          Watch the demo
-        </a>
+        <a href="#demo" class="btn-secondary">Watch the demo</a>
       </div>
 
       <div class="hero-meta">
@@ -750,10 +771,16 @@
       </div>
     </div>
 
-    <!-- hero image -->
-    <div class="hero-visual">
-      <img src="hero-arch.png" alt="Build anything — a sea lion coding under a neoclassical arch made of LEGO" />
+    <!-- masked video -->
+    <div class="hero-video-section">
+      <div class="hero-video-wrap">
+        <video autoplay muted loop playsinline poster="hero-arch.png">
+          <source src="hero-video.mp4" type="video/mp4" />
+        </video>
+      </div>
     </div>
+
+    <div class="hero-after"></div>
   </section>
 
   <!-- ── SOCIAL PROOF ── -->
