@@ -2294,8 +2294,8 @@
       W = canvas.width = Math.round(r.width);
       H = canvas.height = Math.round(r.height);
       cx = W * 0.5;
-      cy = H * 1.06;
-      maxR = H * 1.2;
+      cy = H * 1.15;   // push center well below bottom — half-sun peek
+      maxR = H * 0.72; // smaller sun: only lower portion visible
     }
 
     window.addEventListener('resize', resize);
@@ -2303,8 +2303,8 @@
     requestAnimationFrame(resize);
 
     function draw() {
-      t += 0.005;
-      var breathe = 0.88 + Math.sin(t) * 0.12; // very gentle 0.76–1.0
+      t += 0.004;
+      var breathe = 0.82 + Math.sin(t) * 0.08; // subtle 0.74–0.90
 
       if (!W || !H) { requestAnimationFrame(draw); return; }
       ctx.clearRect(0, 0, W, H);
@@ -2322,15 +2322,14 @@
 
           var norm = dist / maxR; // 0=center, 1=edge
 
-          // Halftone dot size: peaks around norm=0.25, zero at edges
-          // Center (norm~0): very large → dots merge = solid fill look
-          var dotSize = SPACING * Math.pow(Math.max(0, 1 - norm), 0.7) * breathe;
+          // Halftone dot size — more gradual falloff
+          var dotSize = SPACING * Math.pow(Math.max(0, 1 - norm), 0.9) * breathe;
           if (dotSize < 0.5) continue;
           dotSize = Math.min(dotSize, SPACING); // cap at cell size
 
-          // Opacity: full in bright zone, fades at far edge
-          var op = Math.pow(Math.max(0, 1 - norm), 0.5) * breathe;
-          if (op < 0.03) continue;
+          // Opacity: significantly reduced, gentle edge fade
+          var op = Math.pow(Math.max(0, 1 - norm), 0.6) * breathe * 0.38;
+          if (op < 0.02) continue;
 
           // Color: bright yellow core → salmon → orange edge
           var rr = 255;
