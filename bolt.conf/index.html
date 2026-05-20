@@ -1164,44 +1164,45 @@
       mins:  document.getElementById('cd-mins'),
       secs:  document.getElementById('cd-secs')
     };
-    var prev = { days: null, hours: null, mins: null, secs: null };
+    var prev = { days: -1, hours: -1, mins: -1, secs: -1 };
+    var busy = { days: false, hours: false, mins: false, secs: false };
 
-    function setSlot(el, val) {
+    function setSlot(key, val) {
+      var el = slots[key];
+      if (!el || prev[key] === val) return;
       var str = String(val);
-      if (!el) return;
-      if (prev[el.id] === null) {
-        // First render — no animation
+      if (prev[key] === -1) {
         el.innerHTML = '<span class="cd-cur">' + str + '</span>';
-        prev[el.id] = str;
+        prev[key] = val;
         return;
       }
-      if (prev[el.id] === str) return;
+      prev[key] = val;
+      if (busy[key]) {
+        el.innerHTML = '<span class="cd-cur">' + str + '</span>';
+        return;
+      }
+      busy[key] = true;
       var cur = el.querySelector('.cd-cur');
       var next = document.createElement('span');
       next.className = 'cd-next';
       next.textContent = str;
       el.appendChild(next);
-      var dur = '0.3s';
-      if (cur) cur.style.cssText = 'animation:cd-roll-out ' + dur + ' ease forwards;position:absolute;left:0;right:0;';
-      next.style.cssText = 'animation:cd-roll-in ' + dur + ' ease forwards;position:absolute;left:0;right:0;top:100%;';
+      if (cur) cur.style.cssText = 'animation:cd-roll-out 0.3s ease forwards;position:absolute;left:0;right:0;top:0;';
+      next.style.cssText = 'animation:cd-roll-in 0.3s ease forwards;position:absolute;left:0;right:0;top:100%;';
       setTimeout(function() {
         el.innerHTML = '<span class="cd-cur">' + str + '</span>';
+        busy[key] = false;
       }, 320);
-      prev[el.id] = str;
     }
 
     function update() {
       var now = new Date();
       var diff = target - now;
       if (diff <= 0) return;
-      var d = Math.floor(diff / 86400000);
-      var h = Math.floor((diff % 86400000) / 3600000);
-      var m = Math.floor((diff % 3600000) / 60000);
-      var s = Math.floor((diff % 60000) / 1000);
-      setSlot(slots.days,  d);
-      setSlot(slots.hours, h);
-      setSlot(slots.mins,  m);
-      setSlot(slots.secs,  s);
+      setSlot('days',  Math.floor(diff / 86400000));
+      setSlot('hours', Math.floor((diff % 86400000) / 3600000));
+      setSlot('mins',  Math.floor((diff % 3600000) / 60000));
+      setSlot('secs',  Math.floor((diff % 60000) / 1000));
     }
     update();
     setInterval(update, 1000);
