@@ -2324,9 +2324,14 @@
           // Pseudo-random sparse pattern (halftone feel)
           var rand = (Math.sin(c * 127.1 + r * 311.7) * 0.5 + 0.5);
           if (rand > radial) continue;
-          var op = radial * breathe * 0.5;
+          var op = radial * breathe * 0.55;
           if (op < 0.02) continue;
-          ctx.fillStyle = 'rgba(255,176,147,' + op.toFixed(3) + ')';
+          // Gradient: warm yellow at center → orange → burnt amber at edges
+          var t2 = 1 - radial; // 0=center, 1=edge
+          var rr = Math.round(255);
+          var gg = Math.round(200 - t2 * 100); // 200→100
+          var bb = Math.round(20 + t2 * 30);   // 20→50
+          ctx.fillStyle = 'rgba(' + rr + ',' + gg + ',' + bb + ',' + op.toFixed(3) + ')';
           ctx.fillRect(px, py, DOT, DOT);
         }
       }
