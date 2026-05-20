@@ -464,11 +464,8 @@
       width: 100%;
       height: 100%;
       pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.4s ease;
       z-index: 0;
     }
-    .session-card:hover .session-hover-canvas { opacity: 0.12; }
     .session-card-top, .session-card-bottom { position: relative; z-index: 1; }
     .session-card-top {
       padding: 36px 32px 32px;
@@ -670,11 +667,8 @@
       width: 100%;
       height: 100%;
       pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.4s ease;
       z-index: 1;
     }
-    .speaker-card:hover .speaker-hover-canvas { opacity: 0.15; }
     .speaker-info { padding: 14px 0 0; }
     .speaker-name {
       font-size: 15px;
@@ -2047,12 +2041,19 @@
     go(0);
   })();
 
-  // Session + speaker card hover — animated rwave pixel dots
+  // Session + speaker card hover — pixel fill rises from bottom on enter, drains on leave
   (function() {
     var SPACING = 6, DOT = 2;
 
     function initHoverCanvas(canvas) {
+      var card = canvas.closest('.session-card, .speaker-card');
+      if (!card) return;
+
+      var fillT = 0;       // 0 = empty (bottom), 1 = fully filled
+      var isHovered = false;
+      var t = 0;
       var phases = [];
+      var W = 0, H = 0;
 
       function buildPhases(cols, rows) {
         phases = [];
@@ -2066,54 +2067,63 @@
 
       function resize() {
         var parent = canvas.parentElement;
-        var w = parent.offsetWidth || 0;
-        var h = parent.offsetHeight || 0;
-        if (!w || !h) return;
-        canvas.width = w;
-        canvas.height = h;
-        buildPhases(Math.ceil(w / SPACING), Math.ceil(h / SPACING));
+        W = parent.offsetWidth || 0;
+        H = parent.offsetHeight || 0;
+        if (!W || !H) return;
+        canvas.width = W;
+        canvas.height = H;
+        buildPhases(Math.ceil(W / SPACING), Math.ceil(H / SPACING));
       }
 
       window.addEventListener('resize', resize);
       new ResizeObserver(resize).observe(canvas.parentElement);
       requestAnimationFrame(resize);
 
-      function waveFn(c, r, t, p) {
-        var px = c * SPACING, py = r * SPACING;
-        var speedMod = 0.05 + (Math.sin(t * 0.00070 + 1.4) * 0.5 + 0.5) * 0.22;
-        function rwave(scale, rotRate, phase, tMult) {
-          var angle = t * rotRate + phase;
-          var u = (px * Math.cos(angle) + py * Math.sin(angle)) / scale;
-          var v = (-px * Math.sin(angle) + py * Math.cos(angle)) / scale;
-          return Math.sin(u * Math.PI * 2 + t * tMult * speedMod)
-               * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7 * speedMod);
-        }
-        var s1 = rwave(500, 0.00012, 0.5, 0.00030);
-        var s2 = rwave(260, 0.00025, 1.8, 0.00065);
-        var s3 = rwave(130, 0.00042, 3.1, 0.00130);
-        var s4 = rwave(380, 0.00018, 4.5, 0.00048);
-        var waveFront = s1 * 0.5 + 0.5;
-        var detail = s2 * 0.45 + s3 * 0.30 + s4 * 0.25;
-        var raw = waveFront * (detail * 0.5 + 0.5);
-        var density = Math.pow(Math.max(0, raw), 0.7);
-        var rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
-        return density > rand ? density * 0.9 : 0;
-      }
+      card.addEventListener('mouseenter', function() { isHovered = true; });
+      card.addEventListener('mouseleave', function() { isHovered = false; });
 
-      function draw(t) {
+      function draw() {
+        // Lerp fillT: fast rise (0.06), slow drain (0.028)
+        fillT += ((isHovered ? 1 : 0) - fillT) * (isHovered ? 0.06 : 0.028);
+        t += 1;
+
         var w = canvas.width, h = canvas.height;
         if (!w || !h) { requestAnimationFrame(draw); return; }
         var ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, w, h);
+
+        if (fillT < 0.005) { requestAnimationFrame(draw); return; }
+
         var cols = Math.ceil(w / SPACING);
         var rows = Math.ceil(h / SPACING);
+
+        // fillT=1 means all rows visible; fillT=0 means none
+        // Tide line rises from bottom: row 0=top, row rows-1=bottom
+        // Visible rows are those >= (1-fillT)*rows (i.e., bottom portion)
+        var tideRow = (1 - fillT) * rows; // rows above this are hidden
+
         for (var r = 0; r < rows; r++) {
+          // Distance below the tide line (positive = visible region)
+          var distBelow = r - tideRow;
+
+          // Wavefront softness: within 3 rows of tide line, fade in
+          var edgeFade = Math.min(1, Math.max(0, distBelow / 3));
+          if (edgeFade <= 0) continue;
+
           for (var c = 0; c < cols; c++) {
             var phase = (phases[r] && phases[r][c]) || 0;
-            var op = waveFn(c, r, t, phase) * 0.85;
-            if (op < 0.04) continue;
+            var px = c * SPACING, py = r * SPACING;
+
+            // Gentle shimmer across the fill
+            var shimmer = Math.sin(t * 0.018 + phase + c * 0.3 + r * 0.5) * 0.5 + 0.5;
+            // Pseudo-random dot density
+            var rand = Math.sin(phase * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
+            if (rand > 0.55) continue; // ~45% dot density
+
+            var op = shimmer * edgeFade * fillT * 0.55;
+            if (op < 0.03) continue;
             ctx.fillStyle = 'rgba(255,255,255,' + op.toFixed(3) + ')';
-            ctx.fillRect(c * SPACING, r * SPACING, DOT, DOT);
+            ctx.fillRect(px, py, DOT, DOT);
           }
         }
         requestAnimationFrame(draw);
