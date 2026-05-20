@@ -1075,7 +1075,17 @@
     .tickets-section {
       padding: 120px 0;
       border-bottom: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
     }
+    .tickets-halftone {
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .tickets-section > div { position: relative; z-index: 1; }
     .tickets-inner {
       display: grid;
       grid-template-columns: 1fr 420px;
@@ -1844,6 +1854,7 @@
 
   <!-- ── TICKETS ── -->
   <section class="tickets-section" id="tickets">
+    <canvas class="tickets-halftone" id="tickets-halftone"></canvas>
     <div style="width:min(var(--max-w),calc(100vw - var(--gutter)*2));margin:0 auto">
       <div class="tickets-inner">
 
@@ -2267,6 +2278,61 @@
     }
 
     document.querySelectorAll('.session-hover-canvas, .speaker-hover-canvas').forEach(initHoverCanvas);
+  })();
+
+  // Tickets section — salmon radial halftone background
+  (function() {
+    var canvas = document.getElementById('tickets-halftone');
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    var SPACING = 6, DOT = 2;
+    var W, H, cx, cy, maxR;
+    var t = 0;
+
+    function resize() {
+      var r = canvas.parentElement.getBoundingClientRect();
+      W = canvas.width = Math.round(r.width);
+      H = canvas.height = Math.round(r.height);
+      cx = W * 0.38; // center slightly left, behind the left column
+      cy = H * 0.55;
+      maxR = Math.min(W, H) * 0.72;
+    }
+
+    window.addEventListener('resize', resize);
+    new ResizeObserver(resize).observe(canvas.parentElement);
+    requestAnimationFrame(resize);
+
+    function draw() {
+      t += 0.008;
+      // Master breathe: slow sine 0.55–1.0
+      var breathe = 0.55 + (Math.sin(t) * 0.5 + 0.5) * 0.45;
+
+      if (!W || !H) { requestAnimationFrame(draw); return; }
+      ctx.clearRect(0, 0, W, H);
+
+      var cols = Math.ceil(W / SPACING);
+      var rows = Math.ceil(H / SPACING);
+
+      for (var r = 0; r < rows; r++) {
+        for (var c = 0; c < cols; c++) {
+          var px = c * SPACING, py = r * SPACING;
+          var dx = px - cx, dy = py - cy;
+          var dist = Math.sqrt(dx * dx + dy * dy);
+          // Radial falloff: dense center, sparse edges
+          var radial = Math.max(0, 1 - dist / maxR);
+          radial = Math.pow(radial, 1.4); // sharpen falloff
+          // Pseudo-random sparse pattern (halftone feel)
+          var rand = (Math.sin(c * 127.1 + r * 311.7) * 0.5 + 0.5);
+          if (rand > radial) continue;
+          var op = radial * breathe * 0.5;
+          if (op < 0.02) continue;
+          ctx.fillStyle = 'rgba(255,176,147,' + op.toFixed(3) + ')';
+          ctx.fillRect(px, py, DOT, DOT);
+        }
+      }
+      requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
   })();
 
   // FAQ accordion
