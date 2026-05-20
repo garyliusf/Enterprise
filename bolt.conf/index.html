@@ -192,6 +192,30 @@
       animation: blink 2s infinite;
     }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    .cd-unit {
+      display: inline-flex;
+      align-items: center;
+      gap: 1px;
+    }
+    .cd-slot {
+      display: inline-block;
+      overflow: hidden;
+      height: 1.1em;
+      line-height: 1.1em;
+      vertical-align: middle;
+      position: relative;
+      min-width: 1ch;
+    }
+    .cd-cur, .cd-next {
+      display: block;
+      position: absolute;
+      left: 0; right: 0;
+      text-align: center;
+    }
+    .cd-cur { top: 0; }
+    .cd-next { top: 100%; }
+    @keyframes cd-roll-out { from { transform: translateY(0); } to { transform: translateY(-100%); } }
+    @keyframes cd-roll-in  { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
     .hero-h1 {
       font-family: var(--font-serif);
@@ -749,7 +773,11 @@
     <div class="hero-body">
       <div class="hero-eyebrow">
         <span class="hero-eyebrow-dot"></span>
-        bolt.conf launches in <span id="eyebrow-countdown"></span>
+        bolt.conf launches in
+        <span class="cd-unit"><span class="cd-slot" id="cd-days"></span>d</span>
+        <span class="cd-unit"><span class="cd-slot" id="cd-hours"></span>h</span>
+        <span class="cd-unit"><span class="cd-slot" id="cd-mins"></span>m</span>
+        <span class="cd-unit"><span class="cd-slot" id="cd-secs"></span>s</span>
       </div>
 
       <h1 class="hero-h1">
@@ -1126,22 +1154,56 @@
     tick();
   }
 
-  // Countdown to October 8, 2026
+  // Countdown to October 8, 2026 — with roll-up animation
   (function() {
     var target = new Date('2026-10-08T00:00:00');
-    var el = document.getElementById('eyebrow-countdown');
-    if (!el) return;
+    var slots = {
+      days:  document.getElementById('cd-days'),
+      hours: document.getElementById('cd-hours'),
+      mins:  document.getElementById('cd-mins'),
+      secs:  document.getElementById('cd-secs')
+    };
+    var prev = { days: null, hours: null, mins: null, secs: null };
+
+    function setSlot(el, val) {
+      var str = String(val);
+      if (!el) return;
+      if (prev[el.id] === null) {
+        // First render — no animation
+        el.innerHTML = '<span class="cd-cur">' + str + '</span>';
+        prev[el.id] = str;
+        return;
+      }
+      if (prev[el.id] === str) return;
+      var cur = el.querySelector('.cd-cur');
+      var next = document.createElement('span');
+      next.className = 'cd-next';
+      next.textContent = str;
+      el.appendChild(next);
+      var dur = '0.3s';
+      if (cur) cur.style.cssText = 'animation:cd-roll-out ' + dur + ' ease forwards;position:absolute;left:0;right:0;';
+      next.style.cssText = 'animation:cd-roll-in ' + dur + ' ease forwards;position:absolute;left:0;right:0;top:100%;';
+      setTimeout(function() {
+        el.innerHTML = '<span class="cd-cur">' + str + '</span>';
+      }, 320);
+      prev[el.id] = str;
+    }
+
     function update() {
       var now = new Date();
       var diff = target - now;
-      if (diff <= 0) { el.textContent = 'now'; return; }
-      var days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      var hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      var mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      el.textContent = days + 'd ' + hours + 'h ' + mins + 'm';
+      if (diff <= 0) return;
+      var d = Math.floor(diff / 86400000);
+      var h = Math.floor((diff % 86400000) / 3600000);
+      var m = Math.floor((diff % 3600000) / 60000);
+      var s = Math.floor((diff % 60000) / 1000);
+      setSlot(slots.days,  d);
+      setSlot(slots.hours, h);
+      setSlot(slots.mins,  m);
+      setSlot(slots.secs,  s);
     }
     update();
-    setInterval(update, 60000);
+    setInterval(update, 1000);
   })();
 
   // Logo train marquee
