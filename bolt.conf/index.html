@@ -2280,13 +2280,12 @@
     document.querySelectorAll('.session-hover-canvas, .speaker-hover-canvas').forEach(initHoverCanvas);
   })();
 
-  // Tickets section — halftone half-sun, variable dot size + outward pulse rings
+  // Tickets section — square halftone half-sun matching reference video
   (function() {
     var canvas = document.getElementById('tickets-halftone');
     if (!canvas) return;
     var ctx = canvas.getContext('2d');
-    var SPACING = 8; // grid spacing
-    var MAX_DOT = 3.8; // largest dot radius (center)
+    var SPACING = 9;   // grid cell size
     var W, H, cx, cy, maxR;
     var t = 0;
 
@@ -2295,8 +2294,8 @@
       W = canvas.width = Math.round(r.width);
       H = canvas.height = Math.round(r.height);
       cx = W * 0.5;
-      cy = H * 1.08; // source just below bottom — half-sun
-      maxR = H * 1.15;
+      cy = H * 1.06;
+      maxR = H * 1.2;
     }
 
     window.addEventListener('resize', resize);
@@ -2304,45 +2303,43 @@
     requestAnimationFrame(resize);
 
     function draw() {
-      t += 0.006;
-      // Slow gentle breathe
-      var breathe = 0.82 + Math.sin(t) * 0.18;
+      t += 0.005;
+      var breathe = 0.88 + Math.sin(t) * 0.12; // very gentle 0.76–1.0
 
       if (!W || !H) { requestAnimationFrame(draw); return; }
       ctx.clearRect(0, 0, W, H);
 
-      var cols = Math.ceil(W / SPACING);
-      var rows = Math.ceil(H / SPACING);
+      var cols = Math.ceil(W / SPACING) + 1;
+      var rows = Math.ceil(H / SPACING) + 1;
 
       for (var r = 0; r < rows; r++) {
         for (var c = 0; c < cols; c++) {
-          var px = c * SPACING + SPACING * 0.5;
-          var py = r * SPACING + SPACING * 0.5;
+          var px = c * SPACING;
+          var py = r * SPACING;
           var dx = px - cx, dy = py - cy;
           var dist = Math.sqrt(dx * dx + dy * dy);
           if (dist > maxR) continue;
 
-          // Smooth radial falloff from center
-          var radial = Math.max(0, 1 - dist / maxR);
-          var radialSharp = Math.pow(radial, 0.55);
+          var norm = dist / maxR; // 0=center, 1=edge
 
-          // Dot size scales with radial — large sun core, tiny at edge
-          var dotR = MAX_DOT * radialSharp * breathe;
-          if (dotR < 0.35) continue;
+          // Halftone dot size: peaks around norm=0.25, zero at edges
+          // Center (norm~0): very large → dots merge = solid fill look
+          var dotSize = SPACING * Math.pow(Math.max(0, 1 - norm), 0.7) * breathe;
+          if (dotSize < 0.5) continue;
+          dotSize = Math.min(dotSize, SPACING); // cap at cell size
 
-          var op = radialSharp * breathe * 0.75;
+          // Opacity: full in bright zone, fades at far edge
+          var op = Math.pow(Math.max(0, 1 - norm), 0.5) * breathe;
           if (op < 0.03) continue;
 
-          // Amber gradient: warm gold core → deep amber → burnt orange edge
-          var edge = 1 - radialSharp;
+          // Color: warm amber-gold core → orange → dark orange edge
           var rr = 255;
-          var gg = Math.round(180 - edge * 80); // 180→100
-          var bb = Math.round(0 + edge * 10);   // 0→10
+          var gg = Math.round(165 - norm * 65); // 165→100
+          var bb = Math.round(0 + norm * 15);
 
-          ctx.beginPath();
-          ctx.arc(px, py, dotR, 0, Math.PI * 2);
+          var half = dotSize * 0.5;
           ctx.fillStyle = 'rgba(' + rr + ',' + gg + ',' + bb + ',' + op.toFixed(3) + ')';
-          ctx.fill();
+          ctx.fillRect(px - half, py - half, dotSize, dotSize);
         }
       }
       requestAnimationFrame(draw);
