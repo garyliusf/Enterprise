@@ -441,8 +441,21 @@
       overflow: hidden;
       cursor: default;
       transition: border-color 0.2s;
+      position: relative;
     }
     .session-card:hover { border-color: rgba(255,255,255,0.18); }
+    .session-hover-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      z-index: 0;
+    }
+    .session-card:hover .session-hover-canvas { opacity: 0.12; }
+    .session-card-top, .session-card-bottom { position: relative; z-index: 1; }
     .session-card-top {
       padding: 36px 32px 32px;
       display: flex;
@@ -1309,7 +1322,7 @@
       <div class="sessions-track-wrap">
         <div class="sessions-track" id="sessions-track">
 
-          <div class="session-card">
+          <div class="session-card"><canvas class="session-hover-canvas"></canvas>
             <div class="session-card-top">
               <div class="session-meta">
                 <span class="session-date">9:00 – 10:00 AM PT</span>
@@ -1331,7 +1344,7 @@
             </div>
           </div>
 
-          <div class="session-card">
+          <div class="session-card"><canvas class="session-hover-canvas"></canvas>
             <div class="session-card-top">
               <div class="session-meta">
                 <span class="session-date">10:30 AM – 12:00 PM PT</span>
@@ -1353,7 +1366,7 @@
             </div>
           </div>
 
-          <div class="session-card">
+          <div class="session-card"><canvas class="session-hover-canvas"></canvas>
             <div class="session-card-top">
               <div class="session-meta">
                 <span class="session-date">1:00 – 2:00 PM PT</span>
@@ -1375,7 +1388,7 @@
             </div>
           </div>
 
-          <div class="session-card">
+          <div class="session-card"><canvas class="session-hover-canvas"></canvas>
             <div class="session-card-top">
               <div class="session-meta">
                 <span class="session-date">2:00 – 3:00 PM PT</span>
@@ -1397,7 +1410,7 @@
             </div>
           </div>
 
-          <div class="session-card">
+          <div class="session-card"><canvas class="session-hover-canvas"></canvas>
             <div class="session-card-top">
               <div class="session-meta">
                 <span class="session-date">3:15 – 4:00 PM PT</span>
@@ -1419,7 +1432,7 @@
             </div>
           </div>
 
-          <div class="session-card">
+          <div class="session-card"><canvas class="session-hover-canvas"></canvas>
             <div class="session-card-top">
               <div class="session-meta">
                 <span class="session-date">4:00 – 7:00 PM PT</span>
@@ -1876,6 +1889,32 @@
     btnNext.addEventListener('click', function() { go(current + 1); });
     window.addEventListener('resize', function() { go(current); });
     go(0);
+  })();
+
+  // Session card hover noise canvas
+  (function() {
+    var dpr = window.devicePixelRatio || 1;
+    function drawNoise(canvas) {
+      var w = Math.round(canvas.offsetWidth * dpr);
+      var h = Math.round(canvas.offsetHeight * dpr);
+      if (!w || !h) return;
+      canvas.width = w; canvas.height = h;
+      canvas.style.width = canvas.offsetWidth + 'px';
+      canvas.style.height = canvas.offsetHeight + 'px';
+      var ctx = canvas.getContext('2d');
+      var img = ctx.createImageData(w, h);
+      for (var i = 0; i < img.data.length; i += 4) {
+        var v = Math.floor(Math.random() * 80 + 30);
+        img.data[i] = img.data[i+1] = img.data[i+2] = v;
+        img.data[i+3] = 255;
+      }
+      ctx.putImageData(img, 0, 0);
+    }
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        document.querySelectorAll('.session-hover-canvas').forEach(drawNoise);
+      });
+    });
   })();
 
   // Scramble eyebrow animation
