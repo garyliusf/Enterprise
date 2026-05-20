@@ -265,37 +265,37 @@
     .hero-after { height: 48px; border-bottom: 1px solid var(--border); }
 
     /* ─────────────────────────────────────────
-       SOCIAL PROOF STRIP
+       LOGO TRAIN
     ───────────────────────────────────────── */
     .proof-strip {
       border-bottom: 1px solid var(--border);
-      padding: 24px 0;
+      padding: 20px 0;
     }
     .proof-inner {
       width: min(var(--max-w), calc(100vw - var(--gutter) * 2));
       margin: 0 auto;
+      overflow: hidden;
+      position: relative;
+      -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+      mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+    }
+    .proof-track {
       display: flex;
       align-items: center;
-      gap: 40px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    .proof-label {
-      font-size: 12px;
-      color: var(--text-muted);
-      letter-spacing: 0.5px;
+      gap: 64px;
+      padding-right: 64px;
+      white-space: nowrap;
       flex-shrink: 0;
+      will-change: transform;
     }
-    .proof-logos { display: flex; align-items: center; gap: 32px; flex-wrap: wrap; }
     .proof-logo {
       font-size: 13px;
       font-weight: 600;
-      color: rgba(255,255,255,0.2);
-      letter-spacing: 0.3px;
+      color: rgba(255,255,255,0.25);
+      letter-spacing: 0.5px;
       text-transform: uppercase;
-      transition: color 0.2s;
+      flex-shrink: 0;
     }
-    .proof-logo:hover { color: rgba(255,255,255,0.45); }
 
     /* ─────────────────────────────────────────
        STATS
@@ -783,11 +783,10 @@
     <div class="hero-after"></div>
   </section>
 
-  <!-- ── SOCIAL PROOF ── -->
+  <!-- ── LOGO TRAIN ── -->
   <div class="proof-strip">
     <div class="proof-inner">
-      <span class="proof-label">Trusted by teams at</span>
-      <div class="proof-logos">
+      <div class="proof-track" id="proof-track">
         <span class="proof-logo">Stripe</span>
         <span class="proof-logo">Vercel</span>
         <span class="proof-logo">Linear</span>
@@ -796,6 +795,10 @@
         <span class="proof-logo">GitHub</span>
         <span class="proof-logo">Shopify</span>
         <span class="proof-logo">Loom</span>
+        <span class="proof-logo">Salesforce</span>
+        <span class="proof-logo">HubSpot</span>
+        <span class="proof-logo">Atlassian</span>
+        <span class="proof-logo">Twilio</span>
       </div>
     </div>
   </div>
@@ -1123,6 +1126,39 @@
     resize();
     tick();
   }
+
+  // Logo train marquee
+  (function() {
+    var track = document.getElementById('proof-track');
+    if (!track) return;
+    var container = track.parentElement;
+    function setupMarquee() {
+      var old = document.getElementById('proof-wrapper');
+      if (old) { container.insertBefore(track, old); old.remove(); }
+      track.style.animation = 'none';
+      var setWidth = track.scrollWidth;
+      var containerWidth = container.offsetWidth;
+      var copiesPerHalf = Math.ceil(containerWidth / setWidth) + 1;
+      var wrapper = document.createElement('div');
+      wrapper.id = 'proof-wrapper';
+      wrapper.style.cssText = 'display:flex;align-items:center;will-change:transform;flex-shrink:0;';
+      for (var i = 0; i < copiesPerHalf * 2; i++) {
+        var copy = i === 0 ? track : track.cloneNode(true);
+        copy.removeAttribute('id');
+        if (i > 0) copy.setAttribute('aria-hidden', 'true');
+        copy.style.flexShrink = '0';
+        wrapper.appendChild(copy);
+      }
+      container.appendChild(wrapper);
+      var speed = (setWidth * copiesPerHalf) / 25;
+      var styleEl = document.getElementById('proof-keyframe');
+      if (!styleEl) { styleEl = document.createElement('style'); styleEl.id = 'proof-keyframe'; document.head.appendChild(styleEl); }
+      styleEl.textContent = '@keyframes proof-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }';
+      wrapper.style.animation = 'proof-scroll ' + speed + 's linear infinite';
+    }
+    window.addEventListener('load', setupMarquee);
+    window.addEventListener('resize', setupMarquee);
+  })();
 
   // Demo section
   makePixelCanvas(document.getElementById('demo-canvas'), { color: [180,195,220], density: 0.003, speed: 0.35 });
