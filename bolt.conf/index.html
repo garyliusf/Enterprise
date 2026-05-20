@@ -2230,8 +2230,8 @@
       card.addEventListener('mouseleave', function() { isHovered = false; });
 
       function draw() {
-        // Lerp fillT: fast rise (0.06), slow drain (0.028)
-        fillT += ((isHovered ? 1 : 0) - fillT) * (isHovered ? 0.06 : 0.028);
+        // Lerp fillT: fast in (0.07), slow out (0.03)
+        fillT += ((isHovered ? 1 : 0) - fillT) * (isHovered ? 0.07 : 0.03);
         t += 1;
 
         var w = canvas.width, h = canvas.height;
@@ -2244,31 +2244,20 @@
         var cols = Math.ceil(w / SPACING);
         var rows = Math.ceil(h / SPACING);
 
-        // fillT=1 means all rows visible; fillT=0 means none
-        // Tide line rises from bottom: row 0=top, row rows-1=bottom
-        // Visible rows are those >= (1-fillT)*rows (i.e., bottom portion)
-        var tideRow = (1 - fillT) * rows; // rows above this are hidden
-
         for (var r = 0; r < rows; r++) {
-          // Distance below the tide line (positive = visible region)
-          var distBelow = r - tideRow;
-
-          // Wavefront softness: within 3 rows of tide line, fade in
-          var edgeFade = Math.min(1, Math.max(0, distBelow / 3));
-          if (edgeFade <= 0) continue;
-
           for (var c = 0; c < cols; c++) {
             var phase = (phases[r] && phases[r][c]) || 0;
             var px = c * SPACING, py = r * SPACING;
 
-            // Gentle shimmer across the fill
-            var shimmer = Math.sin(t * 0.018 + phase + c * 0.3 + r * 0.5) * 0.5 + 0.5;
-            // Pseudo-random dot density
+            // Pseudo-random dot density — uniform across card
             var rand = Math.sin(phase * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
-            if (rand > 0.30) continue; // ~30% dot density
+            if (rand > 0.35) continue; // ~35% dot density
 
-            var op = shimmer * edgeFade * fillT * 0.18;
-            if (op < 0.03) continue;
+            // Gentle shimmer
+            var shimmer = Math.sin(t * 0.018 + phase + c * 0.3 + r * 0.5) * 0.5 + 0.5;
+
+            var op = shimmer * fillT * 0.22;
+            if (op < 0.02) continue;
             ctx.fillStyle = 'rgba(255,255,255,' + op.toFixed(3) + ')';
             ctx.fillRect(px, py, DOT, DOT);
           }
