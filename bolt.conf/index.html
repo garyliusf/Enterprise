@@ -2280,12 +2280,13 @@
     document.querySelectorAll('.session-hover-canvas, .speaker-hover-canvas').forEach(initHoverCanvas);
   })();
 
-  // Tickets section — salmon radial halftone background
+  // Tickets section — halftone half-sun, variable dot size + outward pulse rings
   (function() {
     var canvas = document.getElementById('tickets-halftone');
     if (!canvas) return;
     var ctx = canvas.getContext('2d');
-    var SPACING = 6, DOT = 2;
+    var SPACING = 8; // grid spacing
+    var MAX_DOT = 3.8; // largest dot radius (center)
     var W, H, cx, cy, maxR;
     var t = 0;
 
@@ -2293,9 +2294,9 @@
       var r = canvas.parentElement.getBoundingClientRect();
       W = canvas.width = Math.round(r.width);
       H = canvas.height = Math.round(r.height);
-      cx = W * 0.5;  // horizontal center
-      cy = H * 1.05; // just below the bottom edge — half-sun rising up
-      maxR = H * 1.1; // large enough to fill the section
+      cx = W * 0.5;
+      cy = H * 1.08; // source just below bottom — half-sun
+      maxR = H * 1.15;
     }
 
     window.addEventListener('resize', resize);
@@ -2303,36 +2304,49 @@
     requestAnimationFrame(resize);
 
     function draw() {
-      t += 0.008;
-      // Master breathe: slow sine 0.55–1.0
-      var breathe = 0.55 + (Math.sin(t) * 0.5 + 0.5) * 0.45;
-
+      t += 0.012;
       if (!W || !H) { requestAnimationFrame(draw); return; }
       ctx.clearRect(0, 0, W, H);
 
       var cols = Math.ceil(W / SPACING);
       var rows = Math.ceil(H / SPACING);
+      var RING_PERIOD = 80; // px between ring peaks
+      var RING_SPEED = 18;  // px per second (t units)
 
       for (var r = 0; r < rows; r++) {
         for (var c = 0; c < cols; c++) {
-          var px = c * SPACING, py = r * SPACING;
+          var px = c * SPACING + SPACING * 0.5;
+          var py = r * SPACING + SPACING * 0.5;
           var dx = px - cx, dy = py - cy;
           var dist = Math.sqrt(dx * dx + dy * dy);
-          // Radial falloff: dense center, sparse edges
+          if (dist > maxR) continue;
+
+          // Base radial: 1 at center, 0 at edge
           var radial = Math.max(0, 1 - dist / maxR);
-          radial = Math.pow(radial, 1.4); // sharpen falloff
-          // Pseudo-random sparse pattern (halftone feel)
-          var rand = (Math.sin(c * 127.1 + r * 311.7) * 0.5 + 0.5);
-          if (rand > radial) continue;
-          var op = radial * breathe * 0.55;
-          if (op < 0.02) continue;
-          // Gradient: warm yellow at center → orange → burnt amber at edges
-          var t2 = 1 - radial; // 0=center, 1=edge
-          var rr = Math.round(255);
-          var gg = Math.round(200 - t2 * 100); // 200→100
-          var bb = Math.round(20 + t2 * 30);   // 20→50
+          var radialSharp = Math.pow(radial, 0.6);
+
+          // Concentric ring pulse: rings expand outward over time
+          var ringPhase = (dist - t * RING_SPEED) / RING_PERIOD;
+          var ring = Math.cos(ringPhase * Math.PI * 2) * 0.5 + 0.5;
+
+          // Dot size: large at center, small at edge, modulated by ring
+          var dotR = MAX_DOT * radialSharp * (0.5 + ring * 0.5);
+          if (dotR < 0.4) continue;
+
+          // Opacity: strong in bright ring zones near center
+          var op = radialSharp * (0.4 + ring * 0.45);
+          if (op < 0.04) continue;
+
+          // Color gradient: yellow-white core → orange → dark orange edge
+          var t2 = 1 - radialSharp;
+          var rr = 255;
+          var gg = Math.round(195 - t2 * 90); // 195→105
+          var bb = Math.round(10 + t2 * 20);  // 10→30
+
+          ctx.beginPath();
+          ctx.arc(px, py, dotR, 0, Math.PI * 2);
           ctx.fillStyle = 'rgba(' + rr + ',' + gg + ',' + bb + ',' + op.toFixed(3) + ')';
-          ctx.fillRect(px, py, DOT, DOT);
+          ctx.fill();
         }
       }
       requestAnimationFrame(draw);
