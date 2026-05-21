@@ -2452,19 +2452,25 @@
           var dotSize = SPACING * Math.pow(Math.max(0, 1 - norm), 0.9) * localBreath;
           if (dotSize < 0.5) continue;
           dotSize = Math.min(dotSize, SPACING);
-          var op = Math.pow(Math.max(0, 1 - norm), 0.6) * localBreath * 0.62;
+          var op = Math.pow(Math.max(0, 1 - norm), 0.6) * localBreath * 0.78;
           if (op < 0.02) continue;
           var rr, gg, bb;
-          if (norm < 0.4) {
-            var p = norm / 0.4;
+          // salmon core (0–0.28) → mint mid (0.28–0.58) → blue edge (0.58–1.0)
+          if (norm < 0.28) {
+            var p = norm / 0.28;
             rr = Math.round(255 + (127 - 255) * p);
             gg = Math.round(176 + (221 - 176) * p);
             bb = Math.round(147 + (193 - 147) * p);
-          } else {
-            var p = (norm - 0.4) / 0.6;
+          } else if (norm < 0.58) {
+            var p = (norm - 0.28) / 0.30;
             rr = Math.round(127 + (20  - 127) * p);
             gg = Math.round(221 + (136 - 221) * p);
             bb = Math.round(193 + (252 - 193) * p);
+          } else {
+            var p = (norm - 0.58) / 0.42;
+            rr = Math.round(20  + (255 - 20)  * p * 0.25); // hint of salmon at outer edge
+            gg = Math.round(136 + (176 - 136) * p * 0.25);
+            bb = Math.round(252 + (147 - 252) * p * 0.25);
           }
           var half = dotSize * 0.5;
           ctx.fillStyle = 'rgba(' + rr + ',' + gg + ',' + bb + ',' + op.toFixed(3) + ')';
