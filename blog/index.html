@@ -314,12 +314,46 @@
       transition: transform 0.4s ease;
     }
 
+    /* ── HIDDEN POSTS ── */
+    .blog-list li.hidden-post {
+      display: none;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+    .blog-list li.hidden-post.revealing {
+      display: list-item;
+    }
+    .blog-list li.hidden-post.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Fade bottom of last visible post */
+    .blog-list li.fade-last {
+      position: relative;
+    }
+    .blog-list li.fade-last::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 100%;
+      background: linear-gradient(to bottom, transparent 20%, #000 90%);
+      pointer-events: none;
+      z-index: 2;
+      transition: opacity 0.4s ease;
+    }
+    .blog-list li.fade-last.unfaded::after {
+      opacity: 0;
+    }
+
     /* ── LOAD MORE ── */
     .blog-load-more {
       text-align: center;
       padding: 8px 0 96px;
     }
     .btn-load-more {
+      font-family: var(--font-sans);
       font-size: 13px;
       font-weight: 500;
       color: var(--text-secondary);
@@ -328,14 +362,14 @@
       padding: 12px 36px;
       border-radius: 2px;
       cursor: pointer;
-      transition: border-color 0.2s, color 0.2s, background 0.2s;
-      font-family: var(--font-sans);
+      transition: border-color 0.2s, color 0.2s, background 0.2s, opacity 0.3s;
     }
     .btn-load-more:hover {
       border-color: var(--accent-mint);
       color: var(--accent-mint);
       background: rgba(127,221,193,0.04);
     }
+    .btn-load-more.hidden { opacity: 0; pointer-events: none; }
 
     /* ── FOOTER ── */
     .footer {
@@ -552,8 +586,8 @@
           </a>
         </li>
 
-        <!-- Post 6 -->
-        <li>
+        <!-- Post 6 — last visible, faded to hint more below -->
+        <li class="fade-last">
           <a href="post.html" class="blog-list-item">
             <div class="blog-list-meta">
               <span class="blog-list-date">May 3, 2026</span>
@@ -570,6 +604,72 @@
             </div>
             <div class="blog-list-thumb">
               <img src="../images/feat-slide-ui.png" alt="" />
+            </div>
+          </a>
+        </li>
+
+        <!-- Post 7 — hidden -->
+        <li class="hidden-post">
+          <a href="post.html" class="blog-list-item">
+            <div class="blog-list-meta">
+              <span class="blog-list-date">Apr 28, 2026</span>
+              <span class="blog-list-readtime">8 min read</span>
+            </div>
+            <div class="blog-list-body">
+              <span class="blog-list-tag mint">Engineering</span>
+              <div class="blog-list-title">Hot module replacement at the edge: how we cut reload time to under 200ms</div>
+              <p class="blog-list-excerpt">When you're iterating in real-time, every millisecond of reload latency costs creative momentum. Here's how we got it under 200ms.</p>
+              <div class="blog-list-author">
+                <div class="blog-list-avatar"><img src="../images/julien.jpg" alt="" /></div>
+                <span class="blog-list-author-name">Julien Bouteloup</span>
+              </div>
+            </div>
+            <div class="blog-list-thumb">
+              <img src="../images/feat-deployment3.png" alt="" />
+            </div>
+          </a>
+        </li>
+
+        <!-- Post 8 — hidden -->
+        <li class="hidden-post">
+          <a href="post.html" class="blog-list-item">
+            <div class="blog-list-meta">
+              <span class="blog-list-date">Apr 22, 2026</span>
+              <span class="blog-list-readtime">12 min read</span>
+            </div>
+            <div class="blog-list-body">
+              <span class="blog-list-tag blue">Tutorials</span>
+              <div class="blog-list-title">Build a full-stack app with Bolt in one afternoon</div>
+              <p class="blog-list-excerpt">A step-by-step walkthrough: from blank canvas to a working, deployed web app with auth, database, and a polished UI.</p>
+              <div class="blog-list-author">
+                <div class="blog-list-avatar"><img src="../images/julien.jpg" alt="" /></div>
+                <span class="blog-list-author-name">Sarah Chen</span>
+              </div>
+            </div>
+            <div class="blog-list-thumb">
+              <img src="../images/feat-glass-cube2.png" alt="" />
+            </div>
+          </a>
+        </li>
+
+        <!-- Post 9 — hidden -->
+        <li class="hidden-post">
+          <a href="post.html" class="blog-list-item">
+            <div class="blog-list-meta">
+              <span class="blog-list-date">Apr 15, 2026</span>
+              <span class="blog-list-readtime">6 min read</span>
+            </div>
+            <div class="blog-list-body">
+              <span class="blog-list-tag salmon">Product</span>
+              <div class="blog-list-title">The new Bolt editor: built for speed, designed for focus</div>
+              <p class="blog-list-excerpt">A look at the thinking behind our latest editor redesign — fewer distractions, faster interactions, and a canvas that gets out of the way.</p>
+              <div class="blog-list-author">
+                <div class="blog-list-avatar"><img src="../images/julien.jpg" alt="" /></div>
+                <span class="blog-list-author-name">Marcus Reid</span>
+              </div>
+            </div>
+            <div class="blog-list-thumb">
+              <img src="../images/feat-unlimited.png" alt="" />
             </div>
           </a>
         </li>
@@ -593,6 +693,36 @@
       <a href="#" class="footer-link">Contact</a>
     </div>
   </footer>
+
+  <script>
+  // Load more: expand hidden posts with fade-in
+  (function () {
+    var btn = document.querySelector('.btn-load-more');
+    var hiddenPosts = Array.from(document.querySelectorAll('.hidden-post'));
+    var fadeLast = document.querySelector('.fade-last');
+
+    if (!btn || hiddenPosts.length === 0) return;
+
+    btn.addEventListener('click', function () {
+      // Remove fade on the last visible row
+      if (fadeLast) {
+        fadeLast.classList.add('unfaded');
+        fadeLast = null;
+      }
+
+      // Reveal each hidden post with staggered animation
+      hiddenPosts.forEach(function (li, i) {
+        li.classList.add('revealing');
+        setTimeout(function () {
+          li.classList.add('visible');
+        }, 30 + i * 80);
+      });
+
+      // Hide button
+      btn.classList.add('hidden');
+    });
+  })();
+  </script>
 
   <script>
   (function () {
