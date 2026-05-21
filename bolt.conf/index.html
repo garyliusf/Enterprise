@@ -2422,8 +2422,12 @@
     requestAnimationFrame(resize);
 
     function draw() {
-      t += 0.012;
-      var breathe = 0.82 + Math.sin(t) * 0.08;
+      t += 0.028;
+      // layered breathe: 3 overlapping sines at different speeds for organic feel
+      var breathe = 0.80
+        + Math.sin(t)        * 0.07
+        + Math.sin(t * 2.7)  * 0.04
+        + Math.sin(t * 0.53) * 0.04;
       if (!W || !H) { requestAnimationFrame(draw); return; }
       ctx.clearRect(0, 0, W, H);
       var cols = Math.ceil(W / SPACING) + 1;
@@ -2435,10 +2439,15 @@
           var dist = Math.sqrt(dx * dx + dy * dy);
           if (dist > maxR) continue;
           var norm = dist / maxR;
-          var dotSize = SPACING * Math.pow(Math.max(0, 1 - norm), 0.9) * breathe;
+          // per-dot organic jitter using fast pseudo-noise
+          var seed = Math.sin(c * 127.1 + r * 311.7) * 43758.5453;
+          var noise = (seed - Math.floor(seed)) - 0.5; // -0.5 … 0.5
+          var ripple = Math.sin(t * 1.8 - norm * 6.0 + noise * 2.0) * 0.06;
+          var localBreath = breathe + ripple + noise * 0.05;
+          var dotSize = SPACING * Math.pow(Math.max(0, 1 - norm), 0.9) * localBreath;
           if (dotSize < 0.5) continue;
           dotSize = Math.min(dotSize, SPACING);
-          var op = Math.pow(Math.max(0, 1 - norm), 0.6) * breathe * 0.62;
+          var op = Math.pow(Math.max(0, 1 - norm), 0.6) * localBreath * 0.62;
           if (op < 0.02) continue;
           var rr, gg, bb;
           if (norm < 0.4) {
