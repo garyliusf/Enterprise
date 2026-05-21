@@ -911,6 +911,22 @@
         rgba(255,176,147,0.06) 100%
       );
     }
+    .agenda-session::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 4px;
+      pointer-events: none;
+      filter: url(#agenda-noise);
+      mix-blend-mode: overlay;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 2;
+    }
+    .agenda-session.is-active::after,
+    .agenda-session:hover::after {
+      opacity: 1;
+    }
     .agenda-time {
       font-size: 13px;
       color: #FFB093;
@@ -1426,6 +1442,12 @@
         <feColorMatrix type="saturate" values="0" in="noise" result="grayNoise"/>
         <feBlend in="SourceGraphic" in2="grayNoise" mode="overlay" result="blended"/>
         <feComposite in="blended" in2="SourceGraphic" operator="in"/>
+      </filter>
+      <filter id="agenda-noise" color-interpolation-filters="sRGB" x="0%" y="0%" width="100%" height="100%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.72" numOctaves="4" stitchTiles="stitch">
+          <animate attributeName="seed" from="0" to="999" dur="0.4s" repeatCount="indefinite"/>
+        </feTurbulence>
+        <feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.18 0"/>
       </filter>
     </defs>
   </svg>
