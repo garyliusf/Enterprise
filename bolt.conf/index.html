@@ -1519,10 +1519,7 @@
       <div class="hero-eyebrow">
         <span class="hero-eyebrow-dot"></span>
         bolt.conf launches in
-        <span class="cd-unit"><span class="cd-slot" id="cd-days"></span><span class="cd-label">d</span></span>
-        <span class="cd-unit"><span class="cd-slot" id="cd-hours"></span><span class="cd-label">h</span></span>
-        <span class="cd-unit"><span class="cd-slot" id="cd-mins"></span><span class="cd-label">m</span></span>
-        <span class="cd-unit"><span class="cd-slot" id="cd-secs"></span><span class="cd-label">s</span></span>
+        <span class="cd-unit"><span class="cd-slot" id="cd-days" style="color:#FFB093"></span><span class="cd-label">d</span></span>
       </div>
 
       <h1 class="hero-h1">
@@ -2183,61 +2180,13 @@
     tick();
   }
 
-  // Countdown to October 8, 2026 — with roll-up animation
+  // Countdown to October 8, 2026 — days only
   (function() {
     var target = new Date('2026-10-08T00:00:00');
-    var slots = {
-      days:  document.getElementById('cd-days'),
-      hours: document.getElementById('cd-hours'),
-      mins:  document.getElementById('cd-mins'),
-      secs:  document.getElementById('cd-secs')
-    };
-    var prev    = { days: -1,    hours: -1,    mins: -1,    secs: -1    };
-    var pending = { days: null,  hours: null,  mins: null,  secs: null  };
-    var busy    = { days: false, hours: false, mins: false, secs: false };
-
-    function animate(key, str) {
-      var el = slots[key];
-      busy[key] = true;
-      var cur = el.querySelector('.cd-cur');
-      var next = document.createElement('span');
-      next.className = 'cd-next';
-      next.textContent = str;
-      el.appendChild(next);
-      if (cur) cur.style.cssText = 'animation:cd-roll-out 0.4s ease forwards;position:absolute;left:0;right:0;top:0;';
-      next.style.cssText = 'animation:cd-roll-in 0.4s ease forwards;position:absolute;left:0;right:0;top:100%;';
-      setTimeout(function() {
-        // Always use latest pending value — fixes stale closure bug
-        var latest = String(pending[key] !== null ? pending[key] : str);
-        el.innerHTML = '<span class="cd-cur">' + latest + '</span>';
-        busy[key] = false;
-      }, 420);
-    }
-
-    function setSlot(key, val) {
-      var el = slots[key];
-      if (!el || prev[key] === val) return;
-      pending[key] = val;
-      if (prev[key] === -1) {
-        el.innerHTML = '<span class="cd-cur">' + val + '</span>';
-        prev[key] = val;
-        return;
-      }
-      prev[key] = val;
-      if (!busy[key]) animate(key, String(val));
-    }
-
-    function update() {
-      var now = new Date();
-      var diff = target - now;
-      if (diff <= 0) return;
-      setSlot('days',  Math.floor(diff / 86400000));
-      setSlot('hours', Math.floor((diff % 86400000) / 3600000));
-      setSlot('mins',  Math.floor((diff % 3600000) / 60000));
-      setSlot('secs',  Math.floor((diff % 60000) / 1000));
-    }
-    update();
-    setInterval(update, 1000);
+    var el = document.getElementById('cd-days');
+    if (!el) return;
+    var diff = target - new Date();
+    el.textContent = diff > 0 ? Math.floor(diff / 86400000) : 0;
   })();
 
   // Agenda day tabs
