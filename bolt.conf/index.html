@@ -2374,9 +2374,19 @@
           dotSize = Math.min(dotSize, SPACING);
           var op = Math.pow(Math.max(0, 1 - norm), 0.6) * breathe * 0.62;
           if (op < 0.02) continue;
-          var rr = 255;
-          var gg = Math.round(176 - norm * 60);
-          var bb = Math.round(147 - norm * 90);
+          // salmon(core) → mint(mid) → blue(edge)
+          var rr, gg, bb;
+          if (norm < 0.4) {
+            var p = norm / 0.4;
+            rr = Math.round(255 + (127 - 255) * p);
+            gg = Math.round(176 + (221 - 176) * p);
+            bb = Math.round(147 + (193 - 147) * p);
+          } else {
+            var p = (norm - 0.4) / 0.6;
+            rr = Math.round(127 + (20  - 127) * p);
+            gg = Math.round(221 + (136 - 221) * p);
+            bb = Math.round(193 + (252 - 193) * p);
+          }
           var half = dotSize * 0.5;
           ctx.fillStyle = 'rgba(' + rr + ',' + gg + ',' + bb + ',' + op.toFixed(3) + ')';
           ctx.fillRect(px - half, py - half, dotSize, dotSize);
