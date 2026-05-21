@@ -2331,95 +2331,57 @@
     document.querySelectorAll('.speaker-hover-canvas').forEach(initHoverCanvas);
   })();
 
-  // Tickets section — horizontal glass-morphism half-sun
+  // Tickets section — square halftone half-sun
   (function() {
     var canvas = document.getElementById('tickets-halftone');
     if (!canvas) return;
     var ctx = canvas.getContext('2d');
-    var W, H, cx, cy, R;
+    var SPACING = 9;
+    var W, H, cx, cy, maxR;
     var t = 0;
 
     function resize() {
       var r = canvas.parentElement.getBoundingClientRect();
       W = canvas.width = Math.round(r.width);
       H = canvas.height = Math.round(r.height);
-      cx = W * 0.78;   // sun center toward right
-      cy = H * 1.08;   // just below canvas bottom
-      R  = H * 0.92;   // radius — fills most of the section height
+      cx = W * 0.5;
+      cy = H * 1.12;
+      maxR = H * 0.85;
     }
 
     window.addEventListener('resize', resize);
     new ResizeObserver(resize).observe(canvas.parentElement);
     requestAnimationFrame(resize);
 
-    function lerp(a, b, v) { return a + (b - a) * v; }
-    function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
-
     function draw() {
-      t += 0.003;
+      t += 0.012;
+      var breathe = 0.82 + Math.sin(t) * 0.08;
       if (!W || !H) { requestAnimationFrame(draw); return; }
       ctx.clearRect(0, 0, W, H);
 
-      ctx.save();
-      // Clip to the half-sun circle
-      ctx.beginPath();
-      ctx.arc(cx, cy, R, 0, Math.PI * 2);
-      ctx.clip();
+      var cols = Math.ceil(W / SPACING) + 1;
+      var rows = Math.ceil(H / SPACING) + 1;
 
-      var STEP = 2.8; // line pitch in px — tight for glass look
-      var rows = Math.ceil((cy - (cy - R)) / STEP) + 4;
-
-      for (var i = 0; i <= rows; i++) {
-        var y = (cy - R) + i * STEP;
-        // slow wave drift
-        var wave = Math.sin(t * 1.1 + i * 0.22) * 1.8;
-        y += wave;
-
-        var dy = y - cy;
-        if (Math.abs(dy) > R) continue;
-        var halfChord = Math.sqrt(Math.max(0, R * R - dy * dy));
-        var x0 = cx - halfChord;
-        var x1 = cx + halfChord;
-
-        // normalized position: 0 = top of circle arc, 1 = bottom (near center)
-        var pos = clamp((cy - R - y) / (-R * 2), 0, 1); // 0 top → 1 bottom
-
-        // Color: salmon top → cream mid → mint bottom
-        var rr, gg, bb;
-        if (pos < 0.5) {
-          var p = pos * 2; // 0→1 across top half
-          rr = Math.round(lerp(255, 245, p));
-          gg = Math.round(lerp(176, 225, p));
-          bb = Math.round(lerp(147, 200, p));
-        } else {
-          var p = (pos - 0.5) * 2; // 0→1 across bottom half
-          rr = Math.round(lerp(245, 127, p));
-          gg = Math.round(lerp(225, 221, p));
-          bb = Math.round(lerp(200, 193, p));
+      for (var r = 0; r < rows; r++) {
+        for (var c = 0; c < cols; c++) {
+          var px = c * SPACING, py = r * SPACING;
+          var dx = px - cx, dy = py - cy;
+          var dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist > maxR) continue;
+          var norm = dist / maxR;
+          var dotSize = SPACING * Math.pow(Math.max(0, 1 - norm), 0.9) * breathe;
+          if (dotSize < 0.5) continue;
+          dotSize = Math.min(dotSize, SPACING);
+          var op = Math.pow(Math.max(0, 1 - norm), 0.6) * breathe * 0.62;
+          if (op < 0.02) continue;
+          var rr = 255;
+          var gg = Math.round(176 - norm * 60);
+          var bb = Math.round(147 - norm * 90);
+          var half = dotSize * 0.5;
+          ctx.fillStyle = 'rgba(' + rr + ',' + gg + ',' + bb + ',' + op.toFixed(3) + ')';
+          ctx.fillRect(px - half, py - half, dotSize, dotSize);
         }
-
-        // Alternating bright/dark bands — sine-based so it animates smoothly
-        var band = Math.sin(i * 0.9 + t * 0.6) * 0.5 + 0.5;
-        // Edge fade toward circle boundary
-        var edgeFade = clamp(Math.pow(1 - Math.abs(dy) / R, 0.6), 0, 1);
-        // Fade toward left edge (canvas left)
-        var leftFade = clamp((x0 - 0) / (W * 0.25), 0, 1);
-        leftFade = Math.min(leftFade, 1);
-
-        var op = band * edgeFade * leftFade * 0.38;
-        if (op < 0.008) continue;
-
-        var lw = lerp(0.6, 2.2, band) * edgeFade;
-
-        ctx.beginPath();
-        ctx.moveTo(Math.max(0, x0), y);
-        ctx.lineTo(Math.min(W, x1), y);
-        ctx.strokeStyle = 'rgba(' + rr + ',' + gg + ',' + bb + ',' + op.toFixed(3) + ')';
-        ctx.lineWidth = lw;
-        ctx.stroke();
       }
-
-      ctx.restore();
       requestAnimationFrame(draw);
     }
     requestAnimationFrame(draw);
