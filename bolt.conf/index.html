@@ -2331,67 +2331,121 @@
     document.querySelectorAll('.speaker-hover-canvas').forEach(initHoverCanvas);
   })();
 
-  // Tickets section — square halftone half-sun
+  // Tickets section — layered glass half-sun (mimics flow-bg horizontal bands)
   (function() {
     var canvas = document.getElementById('tickets-halftone');
     if (!canvas) return;
     var ctx = canvas.getContext('2d');
-    var SPACING = 9;
-    var W, H, cx, cy, maxR;
+    var W, H, cx, cy, R;
     var t = 0;
 
     function resize() {
       var r = canvas.parentElement.getBoundingClientRect();
       W = canvas.width = Math.round(r.width);
       H = canvas.height = Math.round(r.height);
-      cx = W * 0.5;
-      cy = H * 1.12;
-      maxR = H * 0.85;
+      cx = W * 0.68;
+      cy = H * 1.10;
+      R  = H * 0.95;
     }
-
     window.addEventListener('resize', resize);
     new ResizeObserver(resize).observe(canvas.parentElement);
     requestAnimationFrame(resize);
 
+    function lerp(a, b, v) { return a + (b - a) * v; }
+    function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
+
+    // Pre-bake per-row band data so it's consistent frame to frame
+    var ROWS = 600;
+    var rowData = [];
+    for (var i = 0; i < ROWS; i++) {
+      var s1 = Math.sin(i * 0.431 + 1.7) * 0.5 + 0.5;
+      var s2 = Math.sin(i * 0.193 + 3.1) * 0.5 + 0.5;
+      var s3 = Math.sin(i * 0.712 + 0.4) * 0.5 + 0.5;
+      rowData.push({
+        thick: lerp(0.8, 3.5, Math.pow(s1, 1.2)),   // line thickness
+        bright: s2 > 0.28,                            // ~72% rows visible
+        opMult: lerp(0.3, 1.0, s3),                  // per-row brightness variation
+        // Left spike: how far the line is "cut back" from the left chord edge
+        // Creates the pointed/zigzag look from the video
+        spikeFrac: Math.pow(Math.max(0, Math.sin(i * 0.27 + 2.1)), 2.5)
+      });
+    }
+
     function draw() {
-      t += 0.012;
-      var breathe = 0.82 + Math.sin(t) * 0.08;
+      t += 0.0015; // very slow drift
       if (!W || !H) { requestAnimationFrame(draw); return; }
       ctx.clearRect(0, 0, W, H);
 
-      var cols = Math.ceil(W / SPACING) + 1;
-      var rows = Math.ceil(H / SPACING) + 1;
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx, cy, R, 0, Math.PI * 2);
+      ctx.clip();
 
-      for (var r = 0; r < rows; r++) {
-        for (var c = 0; c < cols; c++) {
-          var px = c * SPACING, py = r * SPACING;
-          var dx = px - cx, dy = py - cy;
-          var dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist > maxR) continue;
-          var norm = dist / maxR;
-          var dotSize = SPACING * Math.pow(Math.max(0, 1 - norm), 0.9) * breathe;
-          if (dotSize < 0.5) continue;
-          dotSize = Math.min(dotSize, SPACING);
-          var op = Math.pow(Math.max(0, 1 - norm), 0.6) * breathe * 0.62;
-          if (op < 0.02) continue;
-          // salmon(core) → mint(mid) → blue(edge)
-          var rr, gg, bb;
-          if (norm < 0.4) {
-            var p = norm / 0.4;
-            rr = Math.round(255 + (127 - 255) * p);
-            gg = Math.round(176 + (221 - 176) * p);
-            bb = Math.round(147 + (193 - 147) * p);
-          } else {
-            var p = (norm - 0.4) / 0.6;
-            rr = Math.round(127 + (20  - 127) * p);
-            gg = Math.round(221 + (136 - 221) * p);
-            bb = Math.round(193 + (252 - 193) * p);
-          }
-          var half = dotSize * 0.5;
-          ctx.fillStyle = 'rgba(' + rr + ',' + gg + ',' + bb + ',' + op.toFixed(3) + ')';
-          ctx.fillRect(px - half, py - half, dotSize, dotSize);
+      var PITCH = 2.6; // px between line centers
+      var topY = cy - R;
+
+      for (var i = 0; i < ROWS; i++) {
+        var baseY = topY + i * PITCH;
+        // gentle slow vertical breathing — very small so lines don't visibly scroll
+        var drift = Math.sin(t * 2.2 + i * 0.08) * 0.6;
+        var y = baseY + drift;
+
+        if (y < 0 || y > H) continue;
+        var dy = y - cy;
+        if (Math.abs(dy) > R) continue;
+
+        var rd = rowData[i];
+        if (!rd.bright) continue;
+
+        var halfChord = Math.sqrt(Math.max(0, R * R - dy * dy));
+        var x0chord = cx - halfChord;
+        var x1chord = cx + halfChord;
+
+        // Spike: left edge tapers inward based on spikeFrac
+        var spikeOffset = rd.spikeFrac * halfChord * 0.55;
+        var x0 = x0chord + spikeOffset;
+        var x1 = x1chord;
+
+        // Vertical position within circle → color zone
+        var posNorm = clamp((y - topY) / (R * 1.8), 0, 1);
+
+        var rr, gg, bb;
+        if (posNorm < 0.38) {
+          // salmon zone
+          var p = posNorm / 0.38;
+          rr = Math.round(lerp(255, 230, p));
+          gg = Math.round(lerp(176, 195, p));
+          bb = Math.round(lerp(147, 168, p));
+        } else if (posNorm < 0.62) {
+          // cream/neutral transition
+          var p = (posNorm - 0.38) / 0.24;
+          rr = Math.round(lerp(230, 175, p));
+          gg = Math.round(lerp(195, 230, p));
+          bb = Math.round(lerp(168, 210, p));
+        } else {
+          // mint zone
+          var p = clamp((posNorm - 0.62) / 0.38, 0, 1);
+          rr = Math.round(lerp(175, 100, p));
+          gg = Math.round(lerp(230, 215, p));
+          bb = Math.round(lerp(210, 185, p));
         }
+
+        // Edge fade: soften near circle boundary
+        var edgeFade = clamp(Math.pow(1 - Math.abs(dy) / R, 0.5), 0, 1);
+        // Fade toward canvas left so it doesn't hard-stop at x0
+        var leftFade = clamp((x0 - 0) / (W * 0.18), 0, 1);
+        var op = rd.opMult * edgeFade * leftFade * 0.42;
+        if (op < 0.01) continue;
+
+        ctx.beginPath();
+        ctx.moveTo(Math.max(0, x0), y);
+        ctx.lineTo(Math.min(W, x1), y);
+        ctx.strokeStyle = 'rgba(' + rr + ',' + gg + ',' + bb + ',' + op.toFixed(3) + ')';
+        ctx.lineWidth = rd.thick;
+        ctx.stroke();
       }
+
+      ctx.restore();
       requestAnimationFrame(draw);
     }
     requestAnimationFrame(draw);
