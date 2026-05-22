@@ -55,6 +55,19 @@
       padding-left: 10px;
       margin-left: 12px;
     }
+    .nav-cta {
+      margin-left: auto;
+      font-family: var(--font-sans);
+      font-size: 13px;
+      font-weight: 600;
+      background: var(--accent-blue);
+      color: #fff;
+      padding: 8px 18px;
+      border-radius: 2px;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .nav-cta:hover { opacity: 0.85; }
 
     /* ── ARTICLE HEADER (centered) ── */
     .post-header {
@@ -316,8 +329,9 @@
     }
     .related-eyebrow {
       font-family: var(--font-mono);
-      font-size: 10px;
-      letter-spacing: 1.5px;
+      font-size: 16px;
+      font-weight: 400;
+      letter-spacing: 2px;
       text-transform: uppercase;
       color: var(--accent-blue);
       margin-bottom: 28px;
@@ -369,7 +383,7 @@
       top: 60px;
       left: 0;
       height: 2px;
-      background: var(--accent-mint);
+      background: var(--accent-blue);
       width: 0%;
       z-index: 99;
       transition: width 0.1s linear;
@@ -396,6 +410,7 @@
       <img src="../images/bolt-new-dark.svg" alt="bolt.new" />
       <span class="nav-logo-label">Blog</span>
     </a>
+    <a href="https://bolt.new" class="nav-cta">Try Bolt →</a>
   </nav>
 
   <!-- ARTICLE HEADER (centered) -->
@@ -559,6 +574,33 @@ const app = await bolt.create({
       const scrolled = doc.scrollTop;
       const total = doc.scrollHeight - doc.clientHeight;
       bar.style.width = (scrolled / total * 100) + '%';
+    });
+
+    // Scramble animation for eyebrow
+    const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    function scrambleEyebrow(el) {
+      const original = el.textContent;
+      let iter = 0;
+      const interval = setInterval(function () {
+        el.textContent = original.split('').map(function (ch, i) {
+          if (ch === ' ' || ch === '●') return ch;
+          if (i < iter) return original[i];
+          return CHARS[Math.floor(Math.random() * CHARS.length)];
+        }).join('');
+        if (iter >= original.length) clearInterval(interval);
+        iter += 0.5;
+      }, 40);
+    }
+    const observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          scrambleEyebrow(entry.target);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+    document.querySelectorAll('.related-eyebrow').forEach(function (el) {
+      observer.observe(el);
     });
   </script>
 </body>
