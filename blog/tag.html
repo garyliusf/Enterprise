@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tag — Blog — Bolt</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Inter:wght@300;400;500;600;700&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #F0EDE9;
+      --surface: #E8E3DE;
+      --card-bg: #D8D3CD;
+      --border: rgba(0,0,0,0.09);
+      --text-primary: #10100F;
+      --text-secondary: #555;
+      --text-muted: #999;
+      --accent-mint: #0d9b7a;
+      --accent-salmon: #c05030;
+      --accent-blue: #1488FC;
+      --font-sans: 'Inter', sans-serif;
+      --font-serif: 'Cormorant Garamond', Georgia, serif;
+      --font-mono: 'Silkscreen', monospace;
+      --max-w: 1120px;
+      --gutter: 80px;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text-primary); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+
+    /* ── NAV ── */
+    .nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center;
+      padding: 0 var(--gutter);
+      height: 60px;
+      background: rgba(240,237,233,0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { display: flex; align-items: center; gap: 0; text-decoration: none; }
+    .nav-logo img { height: 18px; }
+    .nav-logo-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--accent-blue);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      border-left: 1px solid var(--border);
+      padding-left: 10px;
+      margin-left: 12px;
+    }
+
+    /* ── FILTER BAR ── */
+    .blog-filters {
+      width: 100%;
+      border-bottom: 1px solid var(--border);
+      background: rgba(240,237,233,0.9);
+    }
+    .blog-filters-inner {
+      width: min(var(--max-w), calc(100vw - var(--gutter) * 2));
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .blog-filters-inner::-webkit-scrollbar { display: none; }
+    .filter-btn {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      padding: 14px 20px;
+      cursor: pointer;
+      white-space: nowrap;
+      margin-bottom: -1px;
+      text-decoration: none;
+      display: inline-block;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .filter-btn:hover { color: var(--text-secondary); }
+    .filter-btn.active {
+      color: var(--accent-mint);
+      border-bottom-color: var(--accent-mint);
+    }
+
+    /* ── MAIN CONTENT AREA ── */
+    .blog-wrap {
+      width: min(var(--max-w), calc(100vw - var(--gutter) * 2));
+      margin: 0 auto;
+    }
+
+    /* ── TAG HEADER ── */
+    .category-header {
+      padding: 64px 0 48px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 32px;
+    }
+    .category-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+    .category-title {
+      font-family: var(--font-serif);
+      font-size: clamp(36px, 5vw, 64px);
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.0;
+      letter-spacing: -0.02em;
+    }
+    .category-count {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      white-space: nowrap;
+      padding-bottom: 6px;
+    }
+
+    /* ── POST LIST ── */
+    .blog-list { list-style: none; margin-bottom: 96px; }
+
+    .blog-list-item {
+      display: grid;
+      grid-template-columns: 100px 1fr 260px;
+      gap: 40px;
+      align-items: center;
+      padding: 36px 0;
+      border-top: 1px solid var(--border);
+      text-decoration: none;
+      position: relative;
+    }
+    .blog-list-item:last-child { border-bottom: 1px solid var(--border); }
+    .blog-list-item:hover .blog-list-title { color: var(--accent-mint); }
+    .blog-list-item:hover .blog-list-thumb img { transform: scale(1.04); }
+
+    .blog-list-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .blog-list-date { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
+    .blog-list-readtime {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .blog-list-tag {
+      display: inline-flex;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 2px;
+      width: fit-content;
+      margin-bottom: 12px;
+    }
+    .blog-list-tag.mint   { background: rgba(13,155,122,0.08); color: var(--accent-mint); }
+    .blog-list-tag.salmon { background: rgba(192,80,48,0.08); color: var(--accent-salmon); }
+    .blog-list-tag.blue   { background: rgba(20,136,252,0.08);  color: var(--accent-blue); }
+
+    .blog-list-title {
+      font-family: var(--font-serif);
+      font-size: 24px;
+      font-weight: 600;
+      line-height: 1.2;
+      color: var(--text-primary);
+      margin-bottom: 10px;
+      letter-spacing: -0.01em;
+      transition: color 0.2s;
+    }
+    .blog-list-excerpt {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.65;
+      margin-bottom: 18px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .blog-list-author {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .blog-list-avatar {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: var(--card-bg);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .blog-list-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .blog-list-author-name { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+
+    .blog-list-thumb {
+      aspect-ratio: 16/10;
+      overflow: hidden;
+      border-radius: 3px;
+      background: var(--surface);
+    }
+    .blog-list-thumb img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    /* ── FOOTER ── */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 40px var(--gutter);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .footer-logo img { height: 20px; opacity: 0.35; }
+    .footer-links { display: flex; gap: 24px; }
+    .footer-link { font-size: 13px; color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+    .footer-link:hover { color: var(--text-secondary); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1024px) {
+      :root { --gutter: 40px; }
+      .blog-list-item { grid-template-columns: 80px 1fr 200px; gap: 28px; }
+    }
+    @media (max-width: 768px) {
+      :root { --gutter: 24px; }
+      .blog-list-item {
+        grid-template-columns: 1fr 160px;
+        grid-template-rows: auto auto;
+        gap: 16px 24px;
+      }
+      .blog-list-meta { grid-column: 1; grid-row: 1; flex-direction: row; gap: 12px; align-items: center; }
+      .blog-list-body { grid-column: 1; grid-row: 2; }
+      .blog-list-thumb { grid-column: 2; grid-row: 1 / span 2; align-self: start; }
+      .category-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+    }
+    @media (max-width: 560px) {
+      .blog-list-item { grid-template-columns: 1fr; }
+      .blog-list-thumb { grid-column: 1; grid-row: auto; aspect-ratio: 16/9; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <a href="../index.html" class="nav-logo">
+      <img src="../images/bolt-new-dark.svg" alt="bolt.new" />
+      <span class="nav-logo-label">Blog</span>
+    </a>
+  </nav>
+
+  <!-- FILTER BAR -->
+  <div class="blog-filters">
+    <div class="blog-filters-inner">
+      <a href="index.html"                      class="filter-btn">All</a>
+      <a href="collection.html?c=product"       class="filter-btn">Product</a>
+      <a href="collection.html?c=engineering"   class="filter-btn">Engineering</a>
+      <a href="collection.html?c=ai-automation" class="filter-btn">AI &amp; Automation</a>
+      <a href="collection.html?c=design"        class="filter-btn">Design</a>
+      <a href="collection.html?c=company"       class="filter-btn">Company</a>
+      <a href="collection.html?c=tutorials"     class="filter-btn">Tutorials</a>
+    </div>
+  </div>
+
+  <div class="blog-wrap">
+
+    <!-- TAG HEADER -->
+    <header class="category-header">
+      <div>
+        <div class="category-eyebrow">Tag</div>
+        <h1 class="category-title" id="tag-title" style="color: var(--accent-blue);">TypeScript</h1>
+      </div>
+      <div class="category-count" id="tag-count">8 posts</div>
+    </header>
+
+    <!-- POST LIST — all posts shown; in production, filter by tag -->
+    <ul class="blog-list" id="post-list">
+
+      <li>
+        <a href="post.html" class="blog-list-item">
+          <div class="blog-list-meta">
+            <span class="blog-list-date">May 18, 2026</span>
+            <span class="blog-list-readtime">6 min read</span>
+          </div>
+          <div class="blog-list-body">
+            <span class="blog-list-tag mint">Engineering</span>
+            <div class="blog-list-title">Zero to deployed: building AI-native apps in under 90 minutes</div>
+            <p class="blog-list-excerpt">A deep dive into the patterns that make modern deployment fast, reliable, and repeatable across any stack.</p>
+            <div class="blog-list-author">
+              <div class="blog-list-avatar"><img src="../images/julien.jpg" alt="" /></div>
+              <span class="blog-list-author-name">Julien Bouteloup</span>
+            </div>
+          </div>
+          <div class="blog-list-thumb">
+            <img src="../images/feat-deployment3.png" alt="" />
+          </div>
+        </a>
+      </li>
+
+      <li>
+        <a href="post.html" class="blog-list-item">
+          <div class="blog-list-meta">
+            <span class="blog-list-date">May 15, 2026</span>
+            <span class="blog-list-readtime">5 min read</span>
+          </div>
+          <div class="blog-list-body">
+            <span class="blog-list-tag blue">AI &amp; Automation</span>
+            <div class="blog-list-title">The prompt is the product: how AI agents change the design process</div>
+            <p class="blog-list-excerpt">When natural language becomes the interface, what does that mean for designers, product managers, and the teams between them?</p>
+            <div class="blog-list-author">
+              <div class="blog-list-avatar"><img src="../images/julien.jpg" alt="" /></div>
+              <span class="blog-list-author-name">Sarah Chen</span>
+            </div>
+          </div>
+          <div class="blog-list-thumb">
+            <img src="../images/feat-glass-cube2.png" alt="" />
+          </div>
+        </a>
+      </li>
+
+      <li>
+        <a href="post.html" class="blog-list-item">
+          <div class="blog-list-meta">
+            <span class="blog-list-date">May 12, 2026</span>
+            <span class="blog-list-readtime">7 min read</span>
+          </div>
+          <div class="blog-list-body">
+            <span class="blog-list-tag salmon">Product</span>
+            <div class="blog-list-title">From idea to shipped: inside the product workflow that scales</div>
+            <p class="blog-list-excerpt">How fast-moving product teams cut their cycle time in half without sacrificing quality or burning out their engineers.</p>
+            <div class="blog-list-author">
+              <div class="blog-list-avatar"><img src="../images/julien.jpg" alt="" /></div>
+              <span class="blog-list-author-name">Marcus Reid</span>
+            </div>
+          </div>
+          <div class="blog-list-thumb">
+            <img src="../images/dashboard-hero.png" alt="" />
+          </div>
+        </a>
+      </li>
+
+      <li>
+        <a href="post.html" class="blog-list-item">
+          <div class="blog-list-meta">
+            <span class="blog-list-date">May 6, 2026</span>
+            <span class="blog-list-readtime">9 min read</span>
+          </div>
+          <div class="blog-list-body">
+            <span class="blog-list-tag mint">Engineering</span>
+            <div class="blog-list-title">Why we rebuilt our infrastructure from the ground up</div>
+            <p class="blog-list-excerpt">A transparent look at the decisions behind our latest infrastructure overhaul — what worked, what didn't, and what we'd do differently.</p>
+            <div class="blog-list-author">
+              <div class="blog-list-avatar"><img src="../images/julien.jpg" alt="" /></div>
+              <span class="blog-list-author-name">Tom Walters</span>
+            </div>
+          </div>
+          <div class="blog-list-thumb">
+            <img src="../images/drama2.png" alt="" />
+          </div>
+        </a>
+      </li>
+
+    </ul>
+
+  </div><!-- /blog-wrap -->
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-logo"><img src="../images/bolt-new-dark.svg" alt="Bolt" /></div>
+    <div class="footer-links">
+      <a href="#" class="footer-link">Privacy</a>
+      <a href="#" class="footer-link">Terms</a>
+      <a href="#" class="footer-link">Contact</a>
+    </div>
+  </footer>
+
+  <script>
+    // Tag definitions
+    const TAGS = {
+      'ai':              { label: 'AI',              count: 51, accent: 'var(--accent-blue)' },
+      'typescript':      { label: 'TypeScript',      count: 46, accent: 'var(--accent-blue)' },
+      'react':           { label: 'React',           count: 38, accent: 'var(--accent-blue)' },
+      'product':         { label: 'Product',         count: 34, accent: 'var(--accent-salmon)' },
+      'apis':            { label: 'APIs',            count: 29, accent: 'var(--accent-blue)' },
+      'deployment':      { label: 'Deployment',      count: 24, accent: 'var(--accent-mint)' },
+      'nodejs':          { label: 'Node.js',         count: 21, accent: 'var(--accent-mint)' },
+      'databases':       { label: 'Databases',       count: 19, accent: 'var(--accent-mint)' },
+      'design-systems':  { label: 'Design Systems',  count: 17, accent: 'var(--accent-mint)' },
+      'performance':     { label: 'Performance',     count: 15, accent: 'var(--accent-blue)' },
+      'tutorials':       { label: 'Tutorials',       count: 14, accent: 'var(--accent-blue)' },
+      'security':        { label: 'Security',        count: 11, accent: 'var(--accent-salmon)' },
+      'open-source':     { label: 'Open Source',     count:  9, accent: 'var(--accent-mint)' },
+      'company':         { label: 'Company',         count:  8, accent: 'var(--accent-salmon)' },
+      'infrastructure':  { label: 'Infrastructure',  count:  7, accent: 'var(--accent-mint)' },
+      'webassembly':     { label: 'WebAssembly',     count:  4, accent: 'var(--accent-blue)' },
+      'postgres':        { label: 'Postgres',        count:  3, accent: 'var(--accent-blue)' },
+      'edge-functions':  { label: 'Edge Functions',  count:  2, accent: 'var(--accent-mint)' },
+    };
+
+    const params  = new URLSearchParams(location.search);
+    const current = params.get('t') || 'typescript';
+    const info    = TAGS[current] || { label: current, count: 0, accent: 'var(--accent-blue)' };
+
+    // Update page title + header
+    document.title = info.label + ' — Tag — Blog — Bolt';
+    document.getElementById('tag-title').textContent = info.label;
+    document.getElementById('tag-title').style.color = info.accent;
+    document.getElementById('tag-count').textContent =
+      info.count + (info.count === 1 ? ' post' : ' posts');
+  </script>
+</body>
+</html>
