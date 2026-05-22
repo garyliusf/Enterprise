@@ -327,6 +327,10 @@
       margin: 80px auto 96px;
       padding: 0 var(--gutter);
     }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.4; transform: scale(1.5); }
+    }
     .related-eyebrow {
       font-family: var(--font-mono);
       font-size: 16px;
@@ -335,6 +339,14 @@
       text-transform: uppercase;
       color: var(--accent-blue);
       margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .eyebrow-dot {
+      display: inline-block;
+      animation: pulse-dot 1.5s ease-in-out infinite;
+      line-height: 1;
     }
     .related-grid {
       display: grid;
@@ -524,7 +536,7 @@ const app = await bolt.create({
 
   <!-- RELATED POSTS -->
   <section class="related-posts">
-    <div class="related-eyebrow">● Continue reading</div>
+    <div class="related-eyebrow"><span class="eyebrow-dot">●</span><span class="eyebrow-text">Continue reading</span></div>
     <div class="related-grid">
       <a href="post.html" class="related-card">
         <div class="related-card-image">
@@ -576,26 +588,39 @@ const app = await bolt.create({
       bar.style.width = (scrolled / total * 100) + '%';
     });
 
-    // Scramble animation for eyebrow
+    // Scramble animation — targets only the text span, loops every 2s
     const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    function scrambleEyebrow(el) {
+    function scrambleText(el) {
       const original = el.textContent;
       let iter = 0;
-      const interval = setInterval(function () {
+      clearInterval(el._scramble);
+      el._scramble = setInterval(function () {
         el.textContent = original.split('').map(function (ch, i) {
-          if (ch === ' ' || ch === '●') return ch;
+          if (ch === ' ') return ch;
           if (i < iter) return original[i];
           return CHARS[Math.floor(Math.random() * CHARS.length)];
         }).join('');
-        if (iter >= original.length) clearInterval(interval);
+        if (iter >= original.length) {
+          clearInterval(el._scramble);
+          el.textContent = original;
+        }
         iter += 0.5;
       }, 40);
     }
+    function startLoopingScramble(textEl) {
+      scrambleText(textEl);
+      textEl._loop = setInterval(function () { scrambleText(textEl); }, 2000);
+    }
     const observer = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
+        const textEl = entry.target.querySelector('.eyebrow-text');
+        if (!textEl) return;
         if (entry.isIntersecting) {
-          scrambleEyebrow(entry.target);
-          observer.unobserve(entry.target);
+          if (!textEl._loop) startLoopingScramble(textEl);
+        } else {
+          clearInterval(textEl._loop);
+          clearInterval(textEl._scramble);
+          textEl._loop = null;
         }
       });
     }, { threshold: 0.5 });
