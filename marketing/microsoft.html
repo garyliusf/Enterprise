@@ -1929,23 +1929,22 @@ window.addEventListener('load', function() {
   var SPACING = 9;
   var W, H, cx, cy, maxR;
   var t = 0;
-  var lastW = 0;
+  var resizeTimer;
 
   function resize() {
     var r = canvas.parentElement.getBoundingClientRect();
-    var newW = Math.round(r.width);
-    /* ignore height-only changes (accordion open/close) — only resize on width change */
-    if (newW === lastW) return;
-    lastW = newW;
-    W = canvas.width  = newW;
+    W = canvas.width  = Math.round(r.width);
     H = canvas.height = Math.round(r.height);
     cx = W * 0.5;
     cy = H * 1.12;
     maxR = H * 0.60;
   }
-  window.addEventListener('resize', resize);
-  new ResizeObserver(resize).observe(canvas.parentElement);
-  requestAnimationFrame(resize);
+  /* debounced window resize only — accordion open/close never triggers a canvas reset */
+  window.addEventListener('resize', function() {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(resize, 200);
+  });
+  resize();
 
   function draw() {
     t += 0.028;
