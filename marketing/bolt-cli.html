@@ -69,7 +69,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   .hero-terminal {
     width: 100%; max-width: 680px;
     background: #0d0d0d; border: 1px solid rgba(255,255,255,0.10);
-    border-radius: 8px; overflow: hidden;
+    border-radius: 4px; overflow: hidden;
     box-shadow: 0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
   }
   .terminal-bar {
@@ -105,16 +105,27 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     color: #fff; font-size: 15px; font-weight: 600; font-family: 'Inter', sans-serif;
     cursor: pointer; position: relative; overflow: hidden; text-decoration: none;
   }
-  .hero-btn-primary:hover { background: #0f6fd0; }
+  .hero-btn-primary .btn-bg-hover { position: absolute; inset: 0; background: #0f6fd0; z-index: 1; transform: translateY(101%); transition: transform 0.45s cubic-bezier(0.165,0.84,0.44,1); }
+  .hero-btn-primary .btn-text-wrap { position: relative; z-index: 3; overflow: hidden; height: 1.2em; }
+  .hero-btn-primary .btn-text-inner { display: flex; flex-direction: column; transition: transform 0.45s cubic-bezier(0.165,0.84,0.44,1); }
+  .hero-btn-primary .btn-text-inner span { display: block; line-height: 1.2; }
+  .hero-btn-primary:hover .btn-bg-hover { transform: translateY(0); }
+  .hero-btn-primary:hover .btn-text-inner { transform: translateY(-50%); }
+  .hero-btn-primary.btn-pixelized .btn-bg-hover { display: none !important; }
+  .hero-btn-primary.btn-pixelized .btn-text-inner { transform: none !important; }
+  .hero-btn-primary.btn-pixelized .btn-text-inner span:nth-child(2) { display: none; }
+  .hero-btn-primary.btn-pixelized .btn-text-wrap { z-index: 3; }
   .hero-btn-ghost {
     display: inline-flex; align-items: center; justify-content: center;
     height: 52px; padding: 0 28px; background: transparent;
-    border: 1px solid rgba(255,255,255,0.2); border-radius: 2px;
-    color: rgba(255,255,255,0.75); font-size: 15px; font-weight: 500;
+    border: 1px solid rgba(255,255,255,0.22); border-radius: 2px;
+    color: rgba(255,255,255,0.8); font-size: 15px; font-weight: 500;
     font-family: 'Inter', sans-serif; cursor: pointer; text-decoration: none;
-    position: relative; overflow: hidden;
+    position: relative; overflow: hidden; transition: border-color 0.25s, color 0.25s;
   }
   .hero-btn-ghost:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
+  .hero-btn-ghost .btn-pixel-canvas { z-index: 1; border-radius: 2px; }
+  .btn-pixel-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; border-radius: 2px; }
   .hero-footnote {
     font-size: 13px; color: rgba(255,255,255,0.3); text-align: center;
     margin-top: -10px;
@@ -138,15 +149,15 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
 
   /* ─── UNLOCKS SECTION ────────────────────────────────────────────────────── */
   .unlocks-section {
-    width: 100%; background: #000; padding: clamp(80px, 11vh, 130px) 0;
+    width: 100%; background: #000; padding: clamp(72px, 10vh, 128px) 0;
     font-family: 'Inter', sans-serif;
   }
   .unlocks-visual {
     margin-top: 56px; position: relative;
-    width: 100%; border: 1px solid rgba(255,255,255,0.10); border-radius: 4px;
-    background: linear-gradient(180deg, #050608 0%, #000 100%);
+    width: 100%; border: 1px solid rgba(255,255,255,0.12); border-radius: 4px;
+    background: radial-gradient(600px 320px at 22% 80%, rgba(14,28,40,0.55), transparent 60%), linear-gradient(180deg, #050608 0%, #000000 100%);
     box-shadow: 0 30px 80px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.04);
-    overflow: hidden; padding: clamp(48px, 8vh, 88px) clamp(20px, 2.4vw, 40px);
+    overflow: hidden; padding: clamp(56px, 9vh, 96px) clamp(20px, 2.4vw, 40px);
   }
   .unlocks-visual::after {
     content: ''; position: absolute; inset: 0;
@@ -162,26 +173,27 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     position: relative; z-index: 1;
   }
   .unlock-card {
-    border: 1px solid rgba(255,255,255,0.09); border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.10); border-radius: 4px;
     padding: 24px 24px 28px;
-    background: linear-gradient(180deg, rgba(255,255,255,0.035) 0%, rgba(255,255,255,0.005) 100%);
+    background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%);
     display: flex; flex-direction: column; gap: 10px; min-height: 180px;
     position: relative; overflow: hidden;
     transition: border-color 0.3s ease;
   }
-  .unlock-card:hover { border-color: rgba(255,255,255,0.2); }
+  .unlock-card > * { position: relative; z-index: 2; }
+  .unlock-card:hover { border-color: rgba(255,255,255,0.22); }
   .unlock-icon {
     width: 44px; height: 44px; border-radius: 4px;
     background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
     display: inline-flex; align-items: center; justify-content: center;
-    color: rgba(255,255,255,0.8); margin-bottom: 18px; flex-shrink: 0;
+    color: rgba(255,255,255,0.85); margin-bottom: 20px; flex-shrink: 0;
   }
   .unlock-title {
-    font-size: 17px; font-weight: 600; color: #fff;
-    margin: 0; letter-spacing: -0.2px; line-height: 1.3;
+    font-size: 18px; font-weight: 600; color: #fff;
+    margin: 0; letter-spacing: -0.2px; line-height: 1.35;
   }
   .unlock-desc {
-    font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.6; margin: 0;
+    font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.55; margin: 0;
   }
   @media (max-width: 900px) {
     .unlocks-grid { grid-template-columns: repeat(2, 1fr); }
@@ -417,6 +429,45 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     z-index: 1;
   }
 
+  /* ─── ROTATING NAME ─────────────────────────────────────────────────────── */
+  .rotating-name {
+    display: inline-block; vertical-align: baseline;
+    overflow: hidden; line-height: 1.2; height: 1.2em;
+    position: relative; top: 0.22em;
+    color: #FFB093;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 400; font-style: italic; letter-spacing: 0.01em;
+    text-align: left; transform: translateZ(0);
+    -webkit-backface-visibility: hidden; backface-visibility: hidden; contain: paint;
+  }
+  .rotating-name-track { display: block; line-height: 1.2; will-change: transform; text-align: left; }
+  @media (min-width: 768px) { .rotating-name-track { transform: translateZ(0); } }
+  @media (max-width: 767px) { .rotating-name { top: 0.26em; } }
+  .rotating-name-item { display: block; line-height: 1.2; white-space: nowrap; text-align: left; }
+
+  /* ─── HERO CTA BUTTON ────────────────────────────────────────────────────── */
+  .hero-cta-button {
+    position: relative; overflow: hidden;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .hero-cta-button .btn-bg-hover {
+    position: absolute; inset: 0; background: #0f6fd0; z-index: 1;
+    transform: translateY(101%); transition: transform 0.45s cubic-bezier(0.165,0.84,0.44,1);
+  }
+  .hero-cta-button .btn-text-wrap {
+    position: relative; z-index: 3; overflow: hidden; height: 1.2em;
+  }
+  .hero-cta-button .btn-text-inner {
+    display: flex; flex-direction: column;
+    transition: transform 0.45s cubic-bezier(0.165,0.84,0.44,1);
+  }
+  .hero-cta-button .btn-text-inner span { display: block; line-height: 1.2; }
+  .hero-cta-button:hover .btn-bg-hover { transform: translateY(0); }
+  .hero-cta-button:hover .btn-text-inner { transform: translateY(-50%); }
+  .hero-cta-button.btn-pixelized .btn-bg-hover { display: none !important; }
+  .hero-cta-button.btn-pixelized .btn-text-inner { transform: none !important; }
+  .hero-cta-button.btn-pixelized .btn-text-inner span:nth-child(2) { display: none; }
+
   /* ─── RESPONSIVE SHARED ──────────────────────────────────────────────────── */
   @media (max-width: 768px) {
     .section-inner { width: calc(100vw - 48px); }
@@ -466,7 +517,10 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
       </div>
 
       <div class="hero-cta-row">
-        <a href="#request" class="hero-btn-primary">Request access</a>
+        <a href="#request" class="hero-btn-primary">
+          <div class="btn-bg-hover"></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Request access</span><span>Request access</span></div></div>
+        </a>
         <a href="#how" class="hero-btn-ghost">How it works</a>
       </div>
       <p class="hero-footnote">Invite-only. Spots are limited.</p>
@@ -652,16 +706,26 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   <h2 class="footer-headline">Save your seat.</h2>
   <p class="footer-subtitle">Spots are limited this round. Send the email on your Bolt account and we'll save you a seat.</p>
 
-  <div style="position:relative;width:100%;max-width:520px;">
-    <div class="footer-form" style="width:100%;border:1px solid rgba(255,255,255,0.08);border-radius:4px;overflow:hidden;background:rgba(255,255,255,0.06);display:flex;align-items:center;">
-      <input type="email" class="footer-email" placeholder="Your Bolt account email" />
-      <button class="footer-submit">Request access</button>
+  <div style="position:relative;width:100%;max-width:700px;margin-top:-120px;">
+    <canvas id="footer-pixel-canvas" style="display:block;width:100%;height:160px;pointer-events:none;opacity:1;"></canvas>
+    <div class="card-form-strip" style="width:100%;border:1px solid rgba(255,255,255,0.08);border-radius:8px;margin-top:-50px;position:relative;z-index:1;background:#000;padding:12px 28px;display:flex;align-items:center;justify-content:space-between;gap:24px;">
+      <div style="display:flex;flex-direction:column;gap:3px;flex-shrink:0;">
+        <p style="font-size:20px;font-weight:500;color:#fff;margin:0;">Request early access from <span class="rotating-name" data-names='["the CLI","your terminal","day one"]'><span class="rotating-name-track"><span class="rotating-name-item">the CLI</span></span></span></p>
+      </div>
+      <div style="display:flex;gap:0;flex:1;max-width:420px;background:rgba(255,255,255,0.08);border:none;border-radius:4px;overflow:hidden;">
+        <input type="email" class="hero-email-input" placeholder="Your Bolt account email" style="flex:1;height:52px;background:transparent;border:none;padding:0 18px;font-size:15px;font-family:'Inter',sans-serif;color:#fff;outline:none;" />
+        <button class="hero-cta-button" style="width:auto;padding:0 24px;height:52px;flex-shrink:0;background:#1488FC;border:none;border-radius:0 2px 2px 0;color:#fff;font-size:16px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;position:relative;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;">
+          <div class="btn-bg-hover" style="position:absolute;inset:0;background:#0f6fd0;z-index:1;transform:translateY(101%);transition:transform 0.45s cubic-bezier(0.165,0.84,0.44,1);"></div>
+          <div class="btn-text-wrap" style="position:relative;z-index:3;overflow:hidden;height:1.2em;"><div class="btn-text-inner" style="display:flex;flex-direction:column;transition:transform 0.45s cubic-bezier(0.165,0.84,0.44,1);"><span>Submit</span><span>Submit</span></div></div>
+        </button>
+      </div>
     </div>
   </div>
-  <p class="footer-note">Free during beta &nbsp;·&nbsp; No API keys required &nbsp;·&nbsp; Invite-only</p>
+  <p style="margin-top:16px;font-size:13px;color:rgba(255,255,255,0.25);">Free during beta &nbsp;·&nbsp; No API keys required &nbsp;·&nbsp; Invite-only</p>
 
-  <div class="footer-bottom-image">
-    <img src="../images/bolt-bottom.png" alt="bolt">
+  <div class="bolt-image-wrap" style="margin-top:0;width:100%;overflow:hidden;position:relative;height:32vw;max-height:32vw;">
+    <img src="../images/bolt-bottom.png" alt="bolt" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;opacity:0.20;">
+    <div style="position:absolute;inset:0;background:linear-gradient(to bottom, #000 0%, transparent 22%, transparent 88%, #000 100%);z-index:3;"></div>
   </div>
 </section>
 
@@ -836,6 +900,155 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
       });
       if (!isOpen) { item.classList.add('is-open'); ans.style.maxHeight = ans.scrollHeight + 'px'; }
     });
+  });
+})();
+
+// ── Generic pixel canvas helper ───────────────────────────────────────────────
+function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
+  color = color || '20,136,252';
+  const canvas = document.getElementById(id);
+  if (!canvas) return;
+  let phases = [];
+  function buildPhases(cols, rows) {
+    phases = Array.from({ length: rows }, () => Array.from({ length: cols }, () => Math.random() * Math.PI * 2));
+  }
+  function resize() {
+    const parent = canvas.parentElement;
+    const w = parent.offsetWidth || parent.getBoundingClientRect().width;
+    const h = parent.offsetHeight || parent.getBoundingClientRect().height;
+    if (!w || !h) return;
+    canvas.width = Math.round(w); canvas.height = Math.round(h);
+    buildPhases(Math.ceil(w / spacing), Math.ceil(h / spacing));
+  }
+  window.addEventListener('load', resize); window.addEventListener('resize', resize);
+  new ResizeObserver(function() { resize(); }).observe(canvas.parentElement);
+  requestAnimationFrame(function() { resize(); });
+  function draw(t) {
+    const w = canvas.width, h = canvas.height;
+    if (!w || !h) { requestAnimationFrame(draw); return; }
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, w, h);
+    const cols = Math.ceil(w / spacing); const rows = Math.ceil(h / spacing);
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const phase = (phases[r] && phases[r][c]) || 0;
+        const op = waveFn(c, r, t, phase) * opacity;
+        if (op < 0.04) continue;
+        ctx.fillStyle = `rgba(${color},${op.toFixed(3)})`;
+        ctx.fillRect(c * spacing, r * spacing, dot, dot);
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+}
+
+// ── Footer pixel canvas ───────────────────────────────────────────────────────
+window.addEventListener('load', function() {
+  makePixelCanvas('footer-pixel-canvas', 6, 2,
+    function(c, r, t, p) {
+      const px = c * 6, py = r * 6;
+      const el = document.getElementById('footer-pixel-canvas');
+      const H = el ? el.height : 260, W = el ? el.width : 700;
+      const vFade = Math.max(0, 1 - py / (H * 0.85));
+      const cx = W / 2, hFade = Math.max(0, 1 - Math.abs(px - cx) / (W * 0.55));
+      const fade = vFade * hFade; if (fade <= 0) return 0;
+      const speedMod = 0.05 + (Math.sin(t * 0.00070 + 2.2) * 0.5 + 0.5) * 0.22;
+      function rwave(scale, rotRate, phase, tMult) {
+        const angle = t * rotRate + phase;
+        const u = (px * Math.cos(angle) + py * Math.sin(angle)) / scale;
+        const v = (-px * Math.sin(angle) + py * Math.cos(angle)) / scale;
+        return Math.sin(u * Math.PI * 2 + t * tMult * speedMod) * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7 * speedMod);
+      }
+      const s1 = rwave(300,0.00012,0.3,0.00030), s2 = rwave(160,0.00025,1.6,0.00065);
+      const s3 = rwave(80,0.00042,2.9,0.00130), s4 = rwave(220,0.00018,4.2,0.00048);
+      const wf = s1 * 0.5 + 0.5, det = s2 * 0.45 + s3 * 0.30 + s4 * 0.25;
+      const raw = wf * (det * 0.5 + 0.5), density = Math.pow(Math.max(0, raw), 0.7) * fade;
+      const rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
+      return density > rand ? density * 0.85 : 0;
+    }, 1.0, '220,230,245');
+});
+
+// ── Pixel-fill button hover ───────────────────────────────────────────────────
+(function() {
+  function attach(btn, color) {
+    if (btn.__pixelized) return; btn.__pixelized = true; btn.classList.add('btn-pixelized');
+    var canvas = document.createElement('canvas'); canvas.className = 'btn-pixel-canvas';
+    btn.insertBefore(canvas, btn.firstChild);
+    var ctx = canvas.getContext('2d'); var spacing = 4, dot = 2; var cols = 0, rows = 0, noise = [];
+    function resize() {
+      var r = btn.getBoundingClientRect(); if (!r.width || !r.height) return;
+      canvas.width = Math.round(r.width); canvas.height = Math.round(r.height);
+      cols = Math.ceil(canvas.width / spacing); rows = Math.ceil(canvas.height / spacing);
+      noise = new Array(rows);
+      for (var y = 0; y < rows; y++) { noise[y] = new Array(cols); for (var x = 0; x < cols; x++) { var bias = 1 - (y / Math.max(1, rows - 1)); noise[y][x] = bias * 0.55 + Math.random() * 0.55; } }
+      draw();
+    }
+    try { new ResizeObserver(resize).observe(btn); } catch(e) {}
+    window.addEventListener('resize', resize); requestAnimationFrame(resize);
+    var progress = 0, target = 0, raf = null, last = 0;
+    function tick(t) {
+      if (!last) last = t; var dt = Math.min(0.05, (t - last) / 1000); last = t;
+      progress += (target - progress) * Math.min(1, dt * 8);
+      if (Math.abs(target - progress) < 0.003) progress = target;
+      draw();
+      if (progress !== target) { raf = requestAnimationFrame(tick); } else { raf = null; last = 0; if (target === 1) flickerLoop(); }
+    }
+    function flickerLoop() { requestAnimationFrame(function step() { if (target !== 1) return; draw(true); setTimeout(function() { requestAnimationFrame(step); }, 120); }); }
+    function draw(flicker) {
+      if (!canvas.width) return; ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.fillStyle = color;
+      var threshold = progress * 1.3;
+      for (var y = 0; y < rows; y++) {
+        for (var x = 0; x < cols; x++) {
+          var n = noise[y][x]; if (n < threshold) {
+            if (flicker && target === 1 && Math.random() < 0.015) continue;
+            var edge = threshold - n; if (edge < 0.08 && Math.random() < 0.45) continue;
+            ctx.fillRect(x * spacing, y * spacing, dot, dot);
+          }
+        }
+      }
+    }
+    btn.addEventListener('mouseenter', function() { target = 1; if (!raf) { last = 0; raf = requestAnimationFrame(tick); } });
+    btn.addEventListener('mouseleave', function() { target = 0; if (!raf) { last = 0; raf = requestAnimationFrame(tick); } });
+  }
+  function init() {
+    document.querySelectorAll('.hero-cta-button').forEach(function(b) { attach(b, '#0a5aa8'); });
+    document.querySelectorAll('.hero-btn-primary').forEach(function(b) { attach(b, '#0a5aa8'); });
+    document.querySelectorAll('.hero-btn-ghost').forEach(function(b) { attach(b, 'rgba(255,255,255,0.18)'); });
+  }
+  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); }
+})();
+
+// ── Rotating name ─────────────────────────────────────────────────────────────
+(function() {
+  var rotators = document.querySelectorAll('.rotating-name');
+  if (!rotators.length) return;
+  rotators.forEach(function(root) {
+    var track = root.querySelector('.rotating-name-track'); if (!track) return;
+    var names; try { names = JSON.parse(root.getAttribute('data-names') || '[]'); } catch(e) { names = []; }
+    if (!Array.isArray(names) || names.length < 2) return;
+    track.innerHTML = '';
+    names.concat(names[0]).forEach(function(n) { var s = document.createElement('span'); s.className = 'rotating-name-item'; s.textContent = n; track.appendChild(s); });
+    function itemHeightPx() { var first = track.querySelector('.rotating-name-item'); return Math.round(first ? first.getBoundingClientRect().height : 0); }
+    function offsetForIdx(i) { return (i * itemHeightPx()) + 'px'; }
+    function lockWidth() {
+      var probe = document.createElement('span'); probe.style.cssText = 'visibility:hidden;position:absolute;white-space:nowrap;'; root.appendChild(probe);
+      var maxW = 0;
+      for (var i = 0; i < names.length; i++) { probe.textContent = names[i]; var w = probe.getBoundingClientRect().width; if (w > maxW) maxW = w; }
+      probe.remove(); if (maxW > 0) root.style.minWidth = Math.ceil(maxW) + 'px';
+    }
+    if (document.fonts && document.fonts.ready) { document.fonts.ready.then(lockWidth); } else { setTimeout(lockWidth, 200); }
+    window.addEventListener('load', lockWidth);
+    var idx = 0;
+    function tick() {
+      idx += 1; track.style.transition = 'transform 0.5s cubic-bezier(0.22, 1, 0.36, 1)'; track.style.transform = 'translateY(-' + offsetForIdx(idx) + ')';
+      if (idx === names.length) {
+        track.addEventListener('transitionend', function onEnd() { track.removeEventListener('transitionend', onEnd); track.style.transition = 'none'; track.style.transform = 'translateY(0)'; idx = 0; }, { once: true });
+      }
+    }
+    var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) { setInterval(function() { idx = (idx + 1) % names.length; track.style.transition = 'none'; track.style.transform = 'translateY(-' + offsetForIdx(idx) + ')'; }, 2500); return; }
+    setInterval(tick, 2500);
   });
 })();
 </script>
