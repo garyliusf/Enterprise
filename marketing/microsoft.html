@@ -1929,10 +1929,15 @@ window.addEventListener('load', function() {
   var SPACING = 9;
   var W, H, cx, cy, maxR;
   var t = 0;
+  var lastW = 0;
 
   function resize() {
     var r = canvas.parentElement.getBoundingClientRect();
-    W = canvas.width  = Math.round(r.width);
+    var newW = Math.round(r.width);
+    /* ignore height-only changes (accordion open/close) — only resize on width change */
+    if (newW === lastW) return;
+    lastW = newW;
+    W = canvas.width  = newW;
     H = canvas.height = Math.round(r.height);
     cx = W * 0.5;
     cy = H * 1.12;
