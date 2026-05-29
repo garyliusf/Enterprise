@@ -443,40 +443,44 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   #platform-07 .practice-visual { padding: 32px; }
   #platform-07 .stack-icon { width: 52px; height: 52px; border-radius: 10px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.14); color: rgba(255,255,255,0.90); margin-bottom: 28px; }
 
-  /* ─── UNLOCKS SECTION: INDIANA JONES ILLUSTRATION ────────────────────── */
+  /* ─── UNLOCKS SECTION: INDIANA JONES ILLUSTRATION (exact match platform.html) ── */
   #unlocks-section .unlocks-navigate {
     position: absolute;
-    bottom: -6%;
-    left: -3%;
-    width: clamp(180px, 20vw, 300px);
+    bottom: -8%;
+    left: -4%;
+    width: clamp(264px, 33.6vw, 480px);
     pointer-events: none;
     user-select: none;
     z-index: 0;
-    opacity: 0.72;
-    -webkit-mask-image: radial-gradient(ellipse at 38% 78%, black 32%, transparent 68%);
-    mask-image: radial-gradient(ellipse at 38% 78%, black 32%, transparent 68%);
+    opacity: 0.7;
+    -webkit-mask-image: radial-gradient(ellipse at 30% 80%, black 30%, transparent 70%);
+    mask-image: radial-gradient(ellipse at 30% 80%, black 30%, transparent 70%);
   }
   #unlocks-section .unlocks-navigate img { width: 100%; height: auto; display: block; }
-  @keyframes lanternPulse {
-    0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-    50%       { opacity: 0.72; transform: translate(-50%, -50%) scale(1.14); }
+  #unlocks-section .unlocks-navigate-noise {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    opacity: 0.28;
+    mix-blend-mode: overlay;
   }
   #unlocks-section .unlocks-lantern-glow {
     position: absolute;
-    top: 60%;
-    left: 11%;
-    width: clamp(56px, 8vw, 110px);
-    height: clamp(56px, 8vw, 110px);
+    top: 62%;
+    left: 22%;
+    width: clamp(50px, 7vw, 100px);
+    height: clamp(50px, 7vw, 100px);
     transform: translate(-50%, -50%);
     background: radial-gradient(circle at center,
-      rgba(255, 242, 200, 0.88) 0%,
-      rgba(255, 220, 155, 0.42) 35%,
-      rgba(255, 200, 120, 0.12) 60%,
+      rgba(255, 240, 200, 0.85) 0%,
+      rgba(255, 220, 160, 0.40) 35%,
+      rgba(255, 200, 130, 0.10) 60%,
       transparent 80%);
     pointer-events: none;
     z-index: 2;
     mix-blend-mode: screen;
-    animation: lanternPulse 3s ease-in-out infinite;
   }
   @media (max-width: 720px) {
     #unlocks-section .unlocks-lantern-glow { display: none; }
@@ -703,11 +707,12 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
       position: absolute;
       bottom: 0;
       left: 5%;
-      width: 72vw;
-      max-width: 270px;
+      transform: none;
+      width: 70vw;
+      max-width: 280px;
       opacity: 0.65;
-      -webkit-mask-image: radial-gradient(ellipse at 40% 88%, black 28%, transparent 68%);
-      mask-image: radial-gradient(ellipse at 40% 88%, black 28%, transparent 68%);
+      -webkit-mask-image: radial-gradient(ellipse at 40% 90%, black 30%, transparent 70%);
+      mask-image: radial-gradient(ellipse at 40% 90%, black 30%, transparent 70%);
     }
     /* how section */
     .how-header .feat-headline { font-size: clamp(26px, 8vw, 36px); letter-spacing: -0.5px; line-height: 1.3; }
@@ -959,6 +964,21 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   }, 100);
 })();
 </script>
+<script>
+(function() {
+  function attachNoise(canvasId) {
+    var canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    function resize() { var p = canvas.parentElement; canvas.width = p.offsetWidth || 400; canvas.height = p.offsetHeight || 400; }
+    resize();
+    new ResizeObserver(resize).observe(canvas.parentElement);
+    function tick() { var w = canvas.width, h = canvas.height, img = ctx.createImageData(w, h), d = img.data; for (var i = 0; i < d.length; i += 4) { var v = Math.random() * 255 | 0; d[i] = d[i+1] = d[i+2] = v; d[i+3] = 255; } ctx.putImageData(img, 0, 0); requestAnimationFrame(tick); }
+    requestAnimationFrame(tick);
+  }
+  attachNoise('unlocks-navigate-noise');
+})();
+</script>
 
 <!-- ─── SECTION 2B: WHAT IT UNLOCKS ──────────────────────────────────────── -->
 <section class="practice-section" id="unlocks-section">
@@ -966,6 +986,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     <div class="practice-visual">
       <div class="unlocks-navigate" aria-hidden="true">
         <img src="discovery_Platform.png" alt="">
+        <canvas class="unlocks-navigate-noise" id="unlocks-navigate-noise"></canvas>
       </div>
       <div class="unlocks-lantern-glow" aria-hidden="true"></div>
       <span class="practice-visual-label eyebrow-scramble">Built for Microsoft</span>
