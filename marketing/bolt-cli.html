@@ -301,29 +301,60 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     width: 100%; background: #000; padding: 0 0 clamp(80px, 11vh, 130px);
     font-family: 'Inter', sans-serif;
   }
-  .beta-notice {
+  .beta-card {
     width: min(1120px, calc(100vw - 160px)); margin: 0 auto;
-    border: 1px solid rgba(20,136,252,0.2); border-radius: 4px;
-    background: linear-gradient(135deg, rgba(20,136,252,0.06) 0%, rgba(20,136,252,0.02) 100%);
-    padding: clamp(28px, 4vh, 48px) clamp(24px, 3vw, 48px);
-    display: flex; gap: 24px; align-items: flex-start;
+    border: 1px solid rgba(20,136,252,0.22); border-radius: 6px;
+    background: linear-gradient(160deg, rgba(20,136,252,0.07) 0%, rgba(0,0,0,0) 55%);
+    overflow: hidden; position: relative;
   }
-  .beta-notice-icon {
-    flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%;
-    background: rgba(20,136,252,0.15); border: 1px solid rgba(20,136,252,0.3);
-    display: flex; align-items: center; justify-content: center; margin-top: 2px;
+  .beta-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent 0%, #1488FC 30%, #90F7D8 65%, transparent 100%);
   }
-  .beta-notice-body { display: flex; flex-direction: column; gap: 8px; }
-  .beta-notice-label {
-    font-family: 'Silkscreen', monospace; font-size: 11px; letter-spacing: 2px;
-    text-transform: uppercase; color: #1488FC; margin: 0;
+  .beta-card-inner {
+    display: grid; grid-template-columns: 280px 1px 1fr;
+    gap: 0; align-items: stretch;
   }
-  .beta-notice-text {
-    font-size: 16px; color: rgba(255,255,255,0.65); line-height: 1.7;
-    max-width: 740px; margin: 0;
+  .beta-card-left {
+    padding: clamp(32px, 4vw, 52px);
+    display: flex; flex-direction: column; gap: 14px; justify-content: center;
   }
-  @media (max-width: 600px) {
-    .beta-notice { flex-direction: column; }
+  .beta-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: 'Silkscreen', monospace; font-size: 10px; letter-spacing: 2px;
+    color: #1488FC; background: rgba(20,136,252,0.12); border: 1px solid rgba(20,136,252,0.3);
+    border-radius: 3px; padding: 4px 10px; width: fit-content;
+  }
+  .beta-card-headline {
+    font-size: clamp(24px, 2.4vw, 32px); font-weight: 600; color: #fff;
+    line-height: 1.2; letter-spacing: -0.5px; margin: 0;
+  }
+  .beta-card-divider {
+    width: 1px; background: rgba(20,136,252,0.18); align-self: stretch;
+  }
+  .beta-card-right {
+    padding: clamp(32px, 4vw, 52px);
+    display: flex; flex-direction: column; gap: 24px; justify-content: center;
+  }
+  .beta-card-text {
+    font-size: clamp(14px, 1.1vw, 16px); color: rgba(255,255,255,0.6);
+    line-height: 1.75; margin: 0;
+  }
+  .beta-chips {
+    display: flex; flex-wrap: wrap; gap: 8px;
+  }
+  .beta-chip {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.7);
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px; padding: 5px 14px; white-space: nowrap;
+  }
+  .beta-chip-dot {
+    width: 5px; height: 5px; border-radius: 50%; background: #90F7D8; flex-shrink: 0;
+  }
+  @media (max-width: 760px) {
+    .beta-card-inner { grid-template-columns: 1fr; }
+    .beta-card-divider { width: 100%; height: 1px; }
     .beta-section { padding: 0 0 56px; }
   }
 
@@ -638,13 +669,21 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
 
 <!-- ─── BETA NOTICE ───────────────────────────────────────────────────────── -->
 <section class="beta-section">
-  <div class="beta-notice">
-    <div class="beta-notice-icon">
-      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#1488FC" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/></svg>
-    </div>
-    <div class="beta-notice-body">
-      <p class="beta-notice-label">A note on this beta</p>
-      <p class="beta-notice-text">We're shipping this early to a small group on purpose. Expect it to move fast, expect a few rough edges, and expect us to act on what you tell us. Your feedback shapes where it goes next.</p>
+  <div class="beta-card">
+    <div class="beta-card-inner">
+      <div class="beta-card-left">
+        <span class="beta-badge">Beta</span>
+        <p class="beta-card-headline">Shipping early,<br>on purpose.</p>
+      </div>
+      <div class="beta-card-divider"></div>
+      <div class="beta-card-right">
+        <p class="beta-card-text">We're shipping this early to a small group on purpose. Expect it to move fast, expect a few rough edges, and expect us to act on what you tell us. Your feedback shapes where it goes next.</p>
+        <div class="beta-chips">
+          <span class="beta-chip"><span class="beta-chip-dot"></span>Moves fast</span>
+          <span class="beta-chip"><span class="beta-chip-dot"></span>Rough edges expected</span>
+          <span class="beta-chip"><span class="beta-chip-dot"></span>You shape what's next</span>
+        </div>
+      </div>
     </div>
   </div>
 </section>
