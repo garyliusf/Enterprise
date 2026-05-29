@@ -1854,8 +1854,15 @@ window.addEventListener('load', function() {
   function scrambleEyebrow(el) {
     var original = el.textContent; var chars = original.split(''); var total = chars.length;
     // Lock the element's width before scrambling so the container doesn't reflow
+    el.style.whiteSpace = 'nowrap';
     el.style.display = 'inline-block';
-    el.style.width = el.getBoundingClientRect().width + 'px';
+    // Lock the parent container (badge wrapper) not just the span, so it can't shrink/grow
+    var container = el.parentElement;
+    if (container) {
+      var cw = container.getBoundingClientRect().width;
+      container.style.width = Math.ceil(cw) + 'px';
+      container.style.flexShrink = '0';
+    }
     var locked = new Array(total).fill(false); var startTime = null; var duration = 500;
     function phase1(ts) {
       if (!startTime) startTime = ts;
