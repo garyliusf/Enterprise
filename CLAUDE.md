@@ -133,5 +133,3 @@ All buttons must use these exact specs. No inline overrides unless absolutely ne
 - `marketing/platform.html` — Platform overview
 - `marketing/pricing.html` — Pricing page
 - `marketing/enterprise-staging.html` — Enterprise staging page (video hero + email capture, simpler version of enterprise page)
-- `marketing/sections.html` — Component/section library
-- `marketing/footer.html` — Footer component
