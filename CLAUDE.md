@@ -92,6 +92,26 @@ All buttons must use these exact specs. No inline overrides unless absolutely ne
 
 ---
 
+## Global Spacing Standards (from bolt.new/enterprise)
+
+### Section Vertical Padding
+| Breakpoint | Section padding |
+|------------|----------------|
+| Desktop (>1024px) | `clamp(80px, 12vh, 140px) 0` |
+| Tablet (≤1024px) | `64px 0` |
+| Mobile (≤768px) | `40–48px 0` |
+
+### Horizontal Padding (inner containers)
+| Breakpoint | Value |
+|------------|-------|
+| Desktop | `min(1120px, calc(100vw - 160px))` — 80px each side |
+| Tablet (≤1024px) | `min(900px, calc(100vw - 80px))` — 40px each side |
+| Mobile (≤768px) | `calc(100vw - 32px)` — **16px each side** (matches enterprise `px-4`) |
+
+**Never use less than 16px horizontal padding on any breakpoint.**
+
+---
+
 ## FAQ Section Standards
 - Eyebrow + H2 always wrapped in `.dsa-reveal` for scroll animation
 - H2 class: `ms-faq-headline` — `clamp(32px, 4vw, 52px)`, weight `500`, letter-spacing `-1px`
