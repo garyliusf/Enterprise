@@ -369,8 +369,6 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   .how-steps-wrap.line-active .how-line-glow { animation: howGlowTravel 1.4s cubic-bezier(0.4,0,0.2,1) 0.1s both; }
   @keyframes howLineDraw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
   @keyframes howGlowTravel { 0% { opacity:0; transform:translateX(0); } 8% { opacity:1; } 88% { opacity:1; } 100% { opacity:0; transform:translateX(var(--glow-dist,700px)); } }
-  @keyframes howLineDrawV { from { transform: scaleY(0); } to { transform: scaleY(1); } }
-  @keyframes howGlowTravelV { 0% { opacity:0; transform:translateY(0); } 8% { opacity:1; } 88% { opacity:1; } 100% { opacity:0; transform:translateY(var(--glow-dist-v,500px)); } }
   .how-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; position: relative; }
   .how-step { display: flex; flex-direction: column; padding: 0 28px 0 0; position: relative; }
   .how-step:last-child { padding-right: 0; }
@@ -399,16 +397,10 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   @media (max-width: 760px) { .how-steps { grid-template-columns: repeat(2, 1fr); gap: 40px 24px; } .how-steps::before { display: none; } .how-step { padding-right: 0; } .how-line-track, .how-line-fill, .how-line-glow { display: none; } }
   @media (max-width: 540px) {
     .how-steps { grid-template-columns: 1fr; } .how-section { padding: 40px 0; } .how-inner { width: calc(100vw - 32px); }
-    /* Vertical timeline line connecting the stacked step nodes (JS sets exact top/height) */
-    .how-line-track { display: block; top: 0; left: 19px; right: auto; width: 1px; height: 100%; }
-    .how-line-fill {
-      display: block; top: 0; left: 19px; right: auto; width: 1px; height: 100%;
-      background: linear-gradient(180deg, rgba(20,136,252,0.25), rgba(20,136,252,0.8) 20%, rgba(20,136,252,0.8) 80%, rgba(20,136,252,0.25));
-      transform: scaleY(0); transform-origin: top center;
-    }
-    .how-line-glow { display: block; top: 0; left: 16px; width: 7px; height: 80px; }
-    .how-steps-wrap.line-active .how-line-fill { animation: howLineDrawV 1.4s cubic-bezier(0.4,0,0.2,1) 0.1s both; }
-    .how-steps-wrap.line-active .how-line-glow { animation: howGlowTravelV 1.4s cubic-bezier(0.4,0,0.2,1) 0.1s both; }
+    /* Reveal each step card with its blur-in animation as it scrolls into view */
+    .how-step.step-revealed .how-step-node  { animation: nodePop 0.45s cubic-bezier(0.34,1.56,0.64,1) both; }
+    .how-step.step-revealed .how-step-title { animation: howStepIn 0.7s cubic-bezier(0.25,0.46,0.45,0.94) 0.1s both; }
+    .how-step.step-revealed .how-step-desc  { animation: howStepIn 0.7s cubic-bezier(0.25,0.46,0.45,0.94) 0.2s both; }
   }
 
   /* ─── PRACTICE SECTIONS (from platform.html) ─────────────────────────── */
@@ -1791,57 +1783,22 @@ window.addEventListener('load', function() {
   if (!wrap) return;
   var isMobile = window.innerWidth <= 540;
 
-  // Position the vertical timeline line from the first node center to the last
-  function positionVerticalLine() {
-    var nodes = wrap.querySelectorAll('.how-step-node');
-    if (nodes.length < 2) return;
-    var wrapRect = wrap.getBoundingClientRect();
-    var first = nodes[0].getBoundingClientRect();
-    var last = nodes[nodes.length - 1].getBoundingClientRect();
-    var topY = (first.top - wrapRect.top) + first.height / 2;
-    var botY = (last.top - wrapRect.top) + last.height / 2;
-    var h = Math.max(0, botY - topY);
-    var track = wrap.querySelector('.how-line-track');
-    var fill = wrap.querySelector('.how-line-fill');
-    var glow = document.getElementById('how-line-glow');
-    if (track) { track.style.top = topY + 'px'; track.style.height = h + 'px'; }
-    if (fill)  { fill.style.top  = topY + 'px'; fill.style.height  = h + 'px'; }
-    if (glow)  { glow.style.top  = topY + 'px'; }
-    wrap.style.setProperty('--glow-dist-v', Math.max(0, h - 80) + 'px');
-  }
-
-  function activate() {
-    if (isMobile) {
-      wrap.querySelectorAll('.how-step-node').forEach(function(n) { n.style.transform = 'none'; });
-      positionVerticalLine();
-    } else {
-      wrap.style.setProperty('--glow-dist', (wrap.offsetWidth - 80) + 'px');
-    }
-    wrap.classList.add('line-active');
-  }
-
   if (isMobile) {
-    window.addEventListener('resize', function() {
-      if (wrap.classList.contains('line-active')) positionVerticalLine();
-    });
-    var steps = wrap.querySelectorAll('.how-step');
-    var activated = false;
-    steps.forEach(function(step) {
+    // Reveal each step card with its own blur-in animation as it scrolls into view
+    wrap.querySelectorAll('.how-step').forEach(function(step) {
       var stepObs = new IntersectionObserver(function(entries) {
         if (entries[0].isIntersecting) {
-          if (!activated) { activated = true; activate(); }
-          step.querySelectorAll('.how-step-title, .how-step-desc, .how-step-node').forEach(function(el) {
-            el.style.animation = 'none';
-            el.style.opacity = '1';
-            el.style.transform = 'none';
-            el.style.filter = 'none';
-          });
+          step.classList.add('step-revealed');
           stepObs.disconnect();
         }
       }, { threshold: 0.2 });
       stepObs.observe(step);
     });
   } else {
+    function activate() {
+      wrap.style.setProperty('--glow-dist', (wrap.offsetWidth - 80) + 'px');
+      wrap.classList.add('line-active');
+    }
     var obs = new IntersectionObserver(function(entries) {
       if (entries[0].isIntersecting) { activate(); obs.disconnect(); }
     }, { threshold: 0.15 });
