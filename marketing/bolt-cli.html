@@ -863,7 +863,13 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     var r = canvas.parentElement.getBoundingClientRect();
     W = canvas.width = Math.round(r.width);
     H = canvas.height = Math.round(r.height);
-    cx = W * 0.5; cy = H * 1.12; maxR = H * 0.60;
+    cx = W * 0.5;
+    /* On mobile, anchor the glow to width (identical across pages regardless of
+       section height) and pin its center just below the section bottom so the
+       glow size/position matches between pages that differ only in question count */
+    var isMobile = W <= 768;
+    cy = isMobile ? (H + W * 0.15) : (H * 1.12);
+    maxR = isMobile ? (W * 0.80) : (H * 0.60);
   }
   window.addEventListener('resize', function() { clearTimeout(resizeTimer); resizeTimer = setTimeout(resize, 200); });
   resize();

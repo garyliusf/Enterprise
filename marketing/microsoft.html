@@ -1983,8 +1983,12 @@ window.addEventListener('load', function() {
     W = canvas.width  = Math.round(r.width);
     H = canvas.height = Math.round(r.height);
     cx = W * 0.5;
-    cy = H * 1.12;
-    maxR = H * 0.60;
+    /* On mobile, anchor the glow to width (identical across pages regardless of
+       section height) and pin its center just below the section bottom so the
+       glow size/position matches between pages that differ only in question count */
+    var isMobile = W <= 768;
+    cy = isMobile ? (H + W * 0.15) : (H * 1.12);
+    maxR = isMobile ? (W * 0.80) : (H * 0.60);
   }
   /* debounced window resize only — accordion open/close never triggers a canvas reset */
   window.addEventListener('resize', function() {
