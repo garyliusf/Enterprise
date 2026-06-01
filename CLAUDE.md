@@ -1,6 +1,26 @@
 # Enterprise Marketing Pages — Design Standards
 
-## Button Standards
+## Reference: bolt.new/enterprise (canonical source of truth)
+
+Extracted directly from the live site. All marketing pages should align with these patterns.
+
+### Typography (from bolt.new/enterprise)
+| Element | Size | Weight | Color | Line Height | Letter Spacing |
+|---------|------|--------|-------|-------------|----------------|
+| H1 | `66px` | `500` | `#fff` | `1.1` | `normal` |
+| H2 | `52px` | `500` | `#fff` | `1.2` | `-1px` |
+| H3 | `varies` | `500` | `#fff` | `1.2` | `-1px` |
+| Font family | Inter, sans-serif | — | — | — | — |
+
+### Buttons (from bolt.new/enterprise)
+| Type | Height | Padding | Font size | Weight | Background | Border radius |
+|------|--------|---------|-----------|--------|------------|---------------|
+| Primary CTA | `~37px` | `8px 12px` | `14px` | `500` | `#1488FC` | `6px` |
+| Form submit | `52px` | `0 24px` | `16px` | `600` | `#0f6fd0` | `0 2px 2px 0` |
+
+---
+
+## Our Marketing Page Button Standards
 
 All buttons must use these exact specs. No inline overrides unless absolutely necessary.
 
@@ -44,11 +64,13 @@ All buttons must use these exact specs. No inline overrides unless absolutely ne
 
 | Token | Value | Usage |
 |-------|-------|-------|
-| Primary blue | `#2563EB` | Button backgrounds, accents |
-| Hover blue | `#0f6fd0` | Button hover states |
-| Brand blue | `#1488FC` | Eyebrows, labels, icons, badges |
+| Primary blue | `#2563EB` | Button backgrounds |
+| Hover blue | `#0f6fd0` | Button hover states, form submits |
+| Brand blue | `#1488FC` | Eyebrows, labels, icons, badges, cursors |
 | Body text | `#ABABAB` | Subtitles, secondary text |
 | Muted text | `rgba(255,255,255,0.55)` | Descriptions, card text |
+| Background | `#000` | Page background |
+| Card background | `#111` | Card/panel backgrounds |
 
 **Eyebrow color is always `#1488FC` — never use `rgba(20,136,252,0.7)` or any opacity variant.**
 
@@ -56,16 +78,41 @@ All buttons must use these exact specs. No inline overrides unless absolutely ne
 
 ## Typography
 
-| Element | Size | Weight | Color |
-|---------|------|--------|-------|
-| Hero H1 | `clamp(44px, 5.5vw, 66px)` | `500` | `#fff` |
-| Hero subtitle | `clamp(16px, 1.4vw, 20px)` | `400` | `#ABABAB` |
-| Section headline | `clamp(32px, 4vw, 52px)` | `500` | `#fff` |
-| Eyebrow | `16px` | `400` | `#1488FC` |
-| Body/description | `14–15px` | `400` | `rgba(255,255,255,0.55)` |
+| Element | Size | Weight | Color | Line Height |
+|---------|------|--------|-------|-------------|
+| Hero H1 | `clamp(44px, 5.5vw, 66px)` | `500` | `#fff` | `1.08–1.1` |
+| Hero subtitle | `clamp(16px, 1.4vw, 20px)` | `400` | `#ABABAB` | `1.6` |
+| Section headline | `clamp(32px, 4vw, 52px)` | `500` | `#fff` | `1.2` |
+| Section subtitle | `clamp(15px, 1.1vw, 17px)` | `400` | `rgba(255,255,255,0.5)` | `1.65` |
+| Eyebrow | `16px` | `400` | `#1488FC` | — |
+| Card title | `18px` | `600` | `#fff` | `1.35` |
+| Body/description | `14–15px` | `400` | `rgba(255,255,255,0.55)` | `1.55–1.65` |
+| FAQ question | `18px` | `500` | `#fff` | — |
+| FAQ answer | `15px` | `400` | `rgba(255,255,255,0.55)` | `1.7` |
+
+---
+
+## FAQ Section Standards
+- Eyebrow + H2 always wrapped in `.dsa-reveal` for scroll animation
+- H2 class: `ms-faq-headline` — `clamp(32px, 4vw, 52px)`, weight `500`, letter-spacing `-1px`
+- Question padding: `28px 16px` (desktop), `22px 0` (mobile ≤768px)
+- Answer padding: `0 16px 28px` (desktop), `0 0 24px` (mobile ≤768px)
+
+---
+
+## Scroll Animations
+- Word-reveal: `.dsa-reveal` container + JS auto-wraps words in `.word` spans
+- Eyebrow scramble: `.eyebrow-scramble` class triggers letter scramble on scroll
+- How It Works line: `.how-steps-wrap` → `.line-active` class triggers node + text animations
 
 ---
 
 ## Pages
 - `marketing/microsoft.html` — Microsoft Teams & Copilot landing page
 - `marketing/bolt-cli.html` — Bolt CLI landing page
+- `marketing/platform.html` — Platform overview
+- `marketing/pricing.html` — Pricing page
+- `marketing/home-new-home.html` — Homepage (has its own larger hero design)
+- `marketing/preview.html` — Product preview page
+- `marketing/sections.html` — Component/section library
+- `marketing/footer.html` — Footer component
