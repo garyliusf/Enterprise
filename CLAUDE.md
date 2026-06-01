@@ -29,7 +29,7 @@ All buttons must use these exact specs. No inline overrides unless absolutely ne
 - **Padding:** `0 28px`
 - **Font size:** `15px`
 - **Font weight:** `600`
-- **Background:** `#2563EB`
+- **Background:** `#1488FC`
 - **Hover background:** `#0f6fd0`
 - **Border radius:** `2px`
 - **Color:** `#fff`
@@ -49,7 +49,7 @@ All buttons must use these exact specs. No inline overrides unless absolutely ne
 - **Padding:** `0 28px`
 - **Font size:** `15px`
 - **Font weight:** `600`
-- **Background:** `#2563EB`
+- **Background:** `#1488FC`
 - **Hover background:** `#0f6fd0`
 - **Border radius:** `0 2px 2px 0` (right side only, attached to input)
 
@@ -64,7 +64,7 @@ All buttons must use these exact specs. No inline overrides unless absolutely ne
 
 | Token | Value | Usage |
 |-------|-------|-------|
-| Primary blue | `#2563EB` | Button backgrounds |
+| Primary blue | `#1488FC` | Button backgrounds |
 | Hover blue | `#0f6fd0` | Button hover states, form submits |
 | Brand blue | `#1488FC` | Eyebrows, labels, icons, badges, cursors |
 | Body text | `#ABABAB` | Subtitles, secondary text |
