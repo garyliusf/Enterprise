@@ -816,10 +816,34 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     wrap.style.setProperty('--glow-dist', (w - 80) + 'px');
     wrap.classList.add('line-active');
   }
-  var obs = new IntersectionObserver(function(entries) {
-    if (entries[0].isIntersecting) { activate(); obs.disconnect(); }
-  }, { threshold: 0.3 });
-  obs.observe(wrap);
+  // On mobile (single column), observe each step individually so each
+  // animates as it scrolls into view rather than waiting for the whole wrap
+  var isMobile = window.innerWidth <= 540;
+  if (isMobile) {
+    var steps = wrap.querySelectorAll('.how-step');
+    var activated = false;
+    steps.forEach(function(step, i) {
+      var stepObs = new IntersectionObserver(function(entries) {
+        if (entries[0].isIntersecting) {
+          if (!activated) { activated = true; activate(); }
+          // Force each step visible immediately when it enters view
+          step.querySelectorAll('.how-step-title, .how-step-desc, .how-step-node').forEach(function(el) {
+            el.style.animation = 'none';
+            el.style.opacity = '1';
+            el.style.transform = 'none';
+            el.style.filter = 'none';
+          });
+          stepObs.disconnect();
+        }
+      }, { threshold: 0.2 });
+      stepObs.observe(step);
+    });
+  } else {
+    var obs = new IntersectionObserver(function(entries) {
+      if (entries[0].isIntersecting) { activate(); obs.disconnect(); }
+    }, { threshold: 0.15 });
+    obs.observe(wrap);
+  }
 })();
 
 // ── Eyebrow scramble ──────────────────────────────────────────────────────────
