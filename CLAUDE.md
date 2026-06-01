@@ -107,6 +107,26 @@ All buttons must use these exact specs. No inline overrides unless absolutely ne
 
 ---
 
+## Reference: pricing.html (extracted from live page)
+
+### Pricing Page Buttons
+| Type | Height | Padding | Font size | Weight | Background | Border radius |
+|------|--------|---------|-----------|--------|------------|---------------|
+| Plan CTA (`.cta-primary`) | `42px` | `0` | `14px` | `500` | `#1488FC` | `2px` |
+| Nav "Get Started" | `~37px` | `8px 12px` | `14px` | `500` | `#1488FC` | `6px` |
+| Form submit | `52px` | `0 24px` | `16px` | `600` | `#0f6fd0` | `0 2px 2px 0` |
+| Toggle (Yearly/Monthly) | `~26px` | `5px 22px` | `13px` | `500` | `#fff` | `999px` |
+
+**Note:** Pricing plan buttons intentionally use `42px` height — they sit inside plan cards and are a different context from hero CTAs. Do not "fix" these to 52px.
+
+### Pricing Page Eyebrows
+- Color: `#1488FC` ✓ — consistent with brand standard
+
+### Pricing Page Typography
+- Matches bolt.new/enterprise: H1 `66px` weight `500`, H2 `52px` weight `500` letter-spacing `-1px`
+
+---
+
 ## Pages
 - `marketing/microsoft.html` — Microsoft Teams & Copilot landing page
 - `marketing/bolt-cli.html` — Bolt CLI landing page
