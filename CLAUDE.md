@@ -133,4 +133,4 @@ All buttons must use these exact specs. No inline overrides unless absolutely ne
 - `marketing/platform.html` — Platform overview
 - `marketing/pricing.html` — Pricing page
 - `marketing/enterprise-staging.html` — Enterprise staging page (video hero + email capture, simpler version of enterprise page)
-- `bolt.conf/index.html` — Bolt Conf event landing page (keep in its own folder, separate from marketing)
+- `bolt.conf/index.html` — Bolt Conf event landing page — **Conference style** (keep in its own folder, separate from marketing)
