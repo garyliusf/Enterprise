@@ -132,7 +132,6 @@ All buttons must use these exact specs. No inline overrides unless absolutely ne
 - `marketing/bolt-cli.html` — Bolt CLI landing page
 - `marketing/platform.html` — Platform overview
 - `marketing/pricing.html` — Pricing page
-- `marketing/home-new-home.html` — Homepage (has its own larger hero design)
-- `marketing/preview.html` — Product preview page
+- `marketing/enterprise-staging.html` — Enterprise staging page (video hero + email capture, simpler version of enterprise page)
 - `marketing/sections.html` — Component/section library
 - `marketing/footer.html` — Footer component
