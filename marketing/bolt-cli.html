@@ -755,13 +755,14 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     <canvas id="footer-pixel-canvas" style="display:block;width:100%;height:192px;pointer-events:none;opacity:1;"></canvas>
     <div class="card-form-strip is-carded" style="position:relative;z-index:1;width:100%;margin-top:-16px;">
       <div class="card-strip-text"><p class="card-strip-sub">Request private beta access</p></div>
-      <form class="hero-form-row" onsubmit="return false;">
-        <input type="email" class="hero-email-input" placeholder="Your work email" />
+      <form class="hero-form-row" id="cli-beta-form">
+        <input type="email" name="email" class="hero-email-input" placeholder="Your work email" required />
         <button class="hero-cta-button" type="submit">
           <div class="btn-bg-hover"></div>
           <div class="btn-text-wrap"><div class="btn-text-inner"><span>Request Access</span><span>Request Access</span></div></div>
         </button>
       </form>
+      <p class="card-strip-success" style="display:none;font-size:14px;font-weight:500;color:#90F7D8;margin:0;flex:1 1 320px;text-align:center;">Thanks — you're on the list. We'll be in touch.</p>
     </div>
   </div>
   <p style="margin-top:-8px;font-size:13px;color:#90F7D8;">Free During Beta &nbsp;·&nbsp; No API Keys Required</p>
@@ -1214,6 +1215,44 @@ window.addEventListener('load', function() {
     }, { threshold: 0, rootMargin: '-5% 0px -20% 0px' });
     headers.forEach(function(h) { io.observe(h); });
   } else { headers.forEach(function(h) { h.classList.add('is-revealed'); }); }
+})();
+</script>
+
+<script>
+/* CLI footer email form → HubSpot Forms API (keeps the custom styled strip) */
+(function () {
+  var form = document.getElementById('cli-beta-form');
+  if (!form) return;
+  var input = form.querySelector('input[name="email"]');
+  var btn = form.querySelector('.hero-cta-button');
+  var success = form.parentElement.querySelector('.card-strip-success');
+  var PORTAL_ID = '45403856';
+  var FORM_ID = '3037e821-dc14-44d5-9da4-86caa577e85d';
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var email = (input.value || '').trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { input.focus(); return; }
+    if (btn) btn.style.pointerEvents = 'none';
+    fetch('https://api.hsforms.com/submissions/v3/integration/submit/' + PORTAL_ID + '/' + FORM_ID, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fields: [{ objectTypeId: '0-1', name: 'email', value: email }],
+        context: { pageUri: location.href, pageName: document.title }
+      })
+    }).then(function (r) {
+      if (r.ok) {
+        form.style.display = 'none';
+        if (success) success.style.display = 'block';
+      } else {
+        if (btn) btn.style.pointerEvents = '';
+        input.setAttribute('placeholder', 'Something went wrong — try again');
+      }
+    }).catch(function () {
+      if (btn) btn.style.pointerEvents = '';
+      input.setAttribute('placeholder', 'Something went wrong — try again');
+    });
+  });
 })();
 </script>
 
