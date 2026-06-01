@@ -81,7 +81,8 @@ All buttons must use these exact specs. No inline overrides unless absolutely ne
 | Element | Size | Weight | Color | Line Height |
 |---------|------|--------|-------|-------------|
 | Hero H1 | `66px` desktop / `51px` tablet (≤1024px) / `clamp(36px, 6.5vw, 51px)` mobile (≤768px) | `500` | `#fff` | `1.1` |
-| Hero subtitle | `clamp(16px, 1.4vw, 20px)` | `400` | `#ABABAB` | `1.6` |
+| Hero subtitle | `clamp(16px, 1.4vw, 20px)` desktop / `18px` tablet (≤1024px) / `16px` mobile (≤768px) | `400` | `#ABABAB` | `1.6` |
+| Section subtitle | `clamp(15px, 1.1vw, 17px)` desktop / `16px` tablet / `15px` mobile | `400` | `rgba(255,255,255,0.5)` | `1.65` |
 | Section headline | `clamp(32px, 4vw, 52px)` | `500` | `#fff` | `1.2` |
 | Section subtitle | `clamp(15px, 1.1vw, 17px)` | `400` | `rgba(255,255,255,0.5)` | `1.65` |
 | Eyebrow | `16px` desktop / `13px` tablet+mobile | `400` | `#1488FC` | — |
