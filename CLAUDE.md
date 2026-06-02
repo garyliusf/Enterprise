@@ -149,9 +149,12 @@ All buttons must use these exact specs. No inline overrides unless absolutely ne
 ---
 
 ## Pages
-- `marketing/microsoft.html` — Microsoft Teams & Copilot landing page
-- `marketing/bolt-cli.html` — Bolt CLI landing page
-- `marketing/platform.html` — Platform overview
-- `marketing/pricing.html` — Pricing page
-- `marketing/enterprise-staging.html` — Enterprise staging page (video hero + email capture, simpler version of enterprise page)
+- `marketing/microsoft.html` — Microsoft Teams & Copilot landing page (ported to company repo `stackblitz/bolt-public-pages`, PR #54)
+- `marketing/bolt-cli.html` — Bolt CLI landing page (ported to company repo `stackblitz/bolt-public-pages`, PR #54)
+- `marketing/pricing.html` — Pricing page. **Canonical/correct version, NOT live yet (pending approval).** Its own track; will get its own port + PR when approved.
+- `marketing/platform.html` — Platform overview (prototype)
 - `bolt.conf/index.html` — Bolt Conf event landing page — **Conference style** (keep in its own folder, separate from marketing)
+
+## Source of truth
+- **Enterprise** is LIVE in production via the company repo **`stackblitz/bolt-public-pages`** (`src/pages/enterprise/index.astro` + `src/content/enterprise-body.html`). That is the source of truth — do NOT maintain a static copy here (the old `enterprise-staging.html` prototype was removed to avoid drift).
+- This `garyliusf/Enterprise` repo is a **prototyping sandbox** (static HTML on GitHub Pages). Production lives in the company repo; use branch / bolt.host previews as "staging," not hand-synced HTML twins.
