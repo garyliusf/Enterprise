@@ -26,6 +26,12 @@ just drop it in / diff it against your copy).
 - Google Fonts link swapped: removed `Playfair+Display`, added
   `Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400`.
 
+### Footer email-capture label sizing (latest)
+- `.card-strip-sub` ("Schedule a 1:1 with …") font-size `20px` → **`16px`**
+  (matches the shared standard / the other pages' label size).
+- `.rotating-name` (the Cormorant "Mason/Joe/Angelo") given **`font-size: 1.25em`** so the
+  serif name doesn't look undersized next to the Inter label — renders ~20px against the 16px label.
+
 ## Notes
 - The shared components (footer, FAQ accordion, buttons, eyebrows, email-capture card)
   live in `shared-components.css` / `shared-components.js` in the source repo
