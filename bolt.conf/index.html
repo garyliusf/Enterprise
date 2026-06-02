@@ -1396,13 +1396,20 @@
       padding: 120px 0;
       border-bottom: 1px solid var(--border);
     }
-    .faq-header { margin-bottom: 64px; }
-    .faq-list { display: flex; flex-direction: column; }
-    .faq-item {
-      border-top: 1px solid rgba(255,255,255,0.08);
+    .faq-header { margin-bottom: 48px; }
+    /* ── Standard FAQ accordion (ported from our marketing component):
+       +/− icon, grid-row expand, open-state tint + pixel glow.
+       Themed to conf identity — mint accent, cream text, conf tokens. ── */
+    .ms-faq-list { display: flex; flex-direction: column; }
+    .ms-faq-item {
+      border-top: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+      transition: background 0.2s ease;
     }
-    .faq-item:last-child { border-bottom: 1px solid rgba(255,255,255,0.08); }
-    .faq-q {
+    .ms-faq-item:last-child { border-bottom: 1px solid var(--border); }
+    .ms-faq-item.is-open { background: rgba(127,221,193,0.04); }
+    .ms-faq-q {
       width: 100%;
       display: flex;
       align-items: center;
@@ -1411,33 +1418,56 @@
       padding: 28px 0;
       background: none;
       border: none;
-      color: var(--text-primary);
+      color: rgba(250,244,235,0.7);
       font-family: var(--font-sans);
       font-size: 18px;
       font-weight: 500;
       text-align: left;
       cursor: pointer;
       transition: color 0.2s;
+      position: relative;
+      z-index: 1;
     }
-    .faq-q:hover { color: #FAF4EB; }
-    .faq-chevron {
+    .ms-faq-q:hover, .ms-faq-item.is-open .ms-faq-q { color: var(--text-primary); }
+    .ms-faq-icon {
       flex-shrink: 0;
-      width: 20px; height: 20px;
-      color: var(--text-secondary);
-      transition: transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94), color 0.2s;
+      width: 22px; height: 22px;
+      display: flex; align-items: center; justify-content: center;
+      color: #7FDDC1;
+      position: relative;
     }
-    .faq-item.is-open .faq-chevron { transform: rotate(180deg); color: var(--text-primary); }
-    .faq-a {
+    .ms-faq-icon-plus, .ms-faq-icon-minus { position: absolute; transition: opacity 0.2s, transform 0.2s; }
+    .ms-faq-icon-minus { opacity: 0; transform: rotate(-90deg); }
+    .ms-faq-item.is-open .ms-faq-icon-plus { opacity: 0; transform: rotate(90deg); }
+    .ms-faq-item.is-open .ms-faq-icon-minus { opacity: 1; transform: rotate(0deg); }
+    .ms-faq-a {
+      display: grid;
+      grid-template-rows: 0fr;
       overflow: hidden;
-      max-height: 0;
-      transition: max-height 0.35s cubic-bezier(0.25,0.46,0.45,0.94);
+      position: relative;
+      z-index: 1;
+      transition: grid-template-rows 0.38s cubic-bezier(0.4,0,0.2,1);
     }
-    .faq-a-inner {
-      padding: 0 0 28px;
+    .ms-faq-item.is-open .ms-faq-a { grid-template-rows: 1fr; }
+    .ms-faq-a-inner {
+      overflow: hidden;
+      padding: 0;
       font-size: 15px;
       line-height: 1.7;
       color: #FAF4EB;
       max-width: 680px;
+      transition: padding-bottom 0.38s cubic-bezier(0.4,0,0.2,1);
+    }
+    .ms-faq-item.is-open .ms-faq-a-inner { padding-bottom: 28px; }
+    .ms-faq-link { color: #7FDDC1; text-decoration: none; }
+    .ms-faq-link:hover { text-decoration: underline; }
+    /* open-state pixel glow (canvas injected per item by JS, tinted mint) */
+    .ms-faq-open-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity 0.5s ease; z-index: 0; }
+    .ms-faq-item.is-open .ms-faq-open-canvas { opacity: 1; }
+    @media (max-width: 768px) {
+      .ms-faq-q { font-size: 17px; padding: 22px 0; }
+      .ms-faq-a-inner { font-size: 14px; }
+      .ms-faq-item.is-open .ms-faq-a-inner { padding-bottom: 22px; }
     }
 
     /* ─────────────────────────────────────────
@@ -2131,55 +2161,56 @@
     <div style="width:min(var(--max-w),calc(100vw - var(--gutter)*2));margin:0 auto">
       <div class="faq-header">
         <span class="section-eyebrow">FAQ</span>
+        <h2 class="section-h2">Questions, <em>answered</em></h2>
       </div>
-      <div class="faq-list">
+      <div class="ms-faq-list">
 
-        <div class="faq-item">
-          <button class="faq-q">
+        <div class="ms-faq-item">
+          <button class="ms-faq-q">
             Who should go to this conference?
-            <svg class="faq-chevron" viewBox="0 0 20 20" fill="none"><path d="M5 7.5l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
           </button>
-          <div class="faq-a"><div class="faq-a-inner">bolt.conf is built for developers, designers, and product builders who want to see where AI-native development is heading. Whether you're a solo creator or shipping at an enterprise, you'll find sessions, workshops, and conversations worth your time.</div></div>
+          <div class="ms-faq-a"><div class="ms-faq-a-inner">bolt.conf is built for developers, designers, and product builders who want to see where AI-native development is heading. Whether you're a solo creator or shipping at an enterprise, you'll find sessions, workshops, and conversations worth your time.</div></div>
         </div>
 
-        <div class="faq-item">
-          <button class="faq-q">
+        <div class="ms-faq-item">
+          <button class="ms-faq-q">
             What is the format of the event?
-            <svg class="faq-chevron" viewBox="0 0 20 20" fill="none"><path d="M5 7.5l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
           </button>
-          <div class="faq-a"><div class="faq-a-inner">A single full day: keynotes and talks on the main stage in the morning, breakout workshops and demos in the afternoon, and the After Dark evening experience (food, music, Kygo / The Chainsmokers / WhoMadeWho) from 7 PM to midnight.</div></div>
+          <div class="ms-faq-a"><div class="ms-faq-a-inner">A single full day: keynotes and talks on the main stage in the morning, breakout workshops and demos in the afternoon, and the After Dark evening experience (food, music, Kygo / The Chainsmokers / WhoMadeWho) from 7 PM to midnight.</div></div>
         </div>
 
-        <div class="faq-item">
-          <button class="faq-q">
+        <div class="ms-faq-item">
+          <button class="ms-faq-q">
             Will drinks / food be served?
-            <svg class="faq-chevron" viewBox="0 0 20 20" fill="none"><path d="M5 7.5l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
           </button>
-          <div class="faq-a"><div class="faq-a-inner">Yes — coffee and snacks throughout the day, a full catered dinner during the After Dark session, and an open bar for the evening portion of the event.</div></div>
+          <div class="ms-faq-a"><div class="ms-faq-a-inner">Yes — coffee and snacks throughout the day, a full catered dinner during the After Dark session, and an open bar for the evening portion of the event.</div></div>
         </div>
 
-        <div class="faq-item">
-          <button class="faq-q">
+        <div class="ms-faq-item">
+          <button class="ms-faq-q">
             Where will the event take place?
-            <svg class="faq-chevron" viewBox="0 0 20 20" fill="none"><path d="M5 7.5l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
           </button>
-          <div class="faq-a"><div class="faq-a-inner">San Francisco, CA — exact venue details will be emailed to registered attendees closer to the date. The venue is accessible via BART and Caltrain, with parking nearby.</div></div>
+          <div class="ms-faq-a"><div class="ms-faq-a-inner">San Francisco, CA — exact venue details will be emailed to registered attendees closer to the date. The venue is accessible via BART and Caltrain, with parking nearby.</div></div>
         </div>
 
-        <div class="faq-item">
-          <button class="faq-q">
+        <div class="ms-faq-item">
+          <button class="ms-faq-q">
             Are there refunds? Can I transfer my ticket?
-            <svg class="faq-chevron" viewBox="0 0 20 20" fill="none"><path d="M5 7.5l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
           </button>
-          <div class="faq-a"><div class="faq-a-inner">Full refunds are available up to 30 days before the event. After that, tickets are transferable but non-refundable. Contact us at conf@bolt.new to initiate a transfer.</div></div>
+          <div class="ms-faq-a"><div class="ms-faq-a-inner">Full refunds are available up to 30 days before the event. After that, tickets are transferable but non-refundable. Contact us at conf@bolt.new to initiate a transfer.</div></div>
         </div>
 
-        <div class="faq-item">
-          <button class="faq-q">
+        <div class="ms-faq-item">
+          <button class="ms-faq-q">
             Where should I stay if I'm visiting SF?
-            <svg class="faq-chevron" viewBox="0 0 20 20" fill="none"><path d="M5 7.5l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
           </button>
-          <div class="faq-a"><div class="faq-a-inner">We'll share a curated list of nearby hotels with preferred rates once the venue is confirmed. Popular neighborhoods close to the venue include SoMa, Mission Bay, and Union Square.</div></div>
+          <div class="ms-faq-a"><div class="ms-faq-a-inner">We'll share a curated list of nearby hotels with preferred rates once the venue is confirmed. Popular neighborhoods close to the venue include SoMa, Mission Bay, and Union Square.</div></div>
         </div>
 
       </div>
@@ -2530,24 +2561,76 @@
     requestAnimationFrame(draw);
   })();
 
-  // FAQ accordion
+  // FAQ accordion (standard component: toggle .is-open; CSS grid-row drives the expand)
   (function() {
-    document.querySelectorAll('.faq-item').forEach(function(item) {
-      var btn = item.querySelector('.faq-q');
-      var ans = item.querySelector('.faq-a');
+    document.querySelectorAll('.ms-faq-item').forEach(function(item) {
+      var btn = item.querySelector('.ms-faq-q');
+      if (!btn) return;
       btn.addEventListener('click', function() {
         var isOpen = item.classList.contains('is-open');
-        // close all
-        document.querySelectorAll('.faq-item.is-open').forEach(function(o) {
-          o.classList.remove('is-open');
-          o.querySelector('.faq-a').style.maxHeight = '0';
-        });
-        if (!isOpen) {
-          item.classList.add('is-open');
-          ans.style.maxHeight = ans.scrollHeight + 'px';
-        }
+        document.querySelectorAll('.ms-faq-item.is-open').forEach(function(o) { o.classList.remove('is-open'); });
+        if (!isOpen) item.classList.add('is-open');
       });
     });
+  })();
+
+  // FAQ open-state pixel glow (ported from shared-components.js, tinted conf mint)
+  (function () {
+    var items = document.querySelectorAll('.ms-faq-item');
+    if (!items.length) return;
+    var dpr = window.devicePixelRatio || 1;
+    var canvasObjs = [];
+    items.forEach(function (item, idx) {
+      var canvas = document.createElement('canvas');
+      canvas.className = 'ms-faq-open-canvas';
+      item.insertBefore(canvas, item.firstChild);
+      canvasObjs.push({ canvas: canvas, item: item, phase: idx * 1.7 });
+    });
+    function resizeAll() {
+      canvasObjs.forEach(function (obj) {
+        obj.canvas.width = obj.item.offsetWidth * dpr;
+        obj.canvas.height = obj.item.offsetHeight * dpr;
+      });
+    }
+    resizeAll();
+    window.addEventListener('resize', resizeAll);
+    function draw(t) {
+      canvasObjs.forEach(function (obj) {
+        if (!obj.item.classList.contains('is-open')) return;
+        var canvas = obj.canvas;
+        var h = obj.item.offsetHeight;
+        if (canvas.height !== h * dpr) { canvas.width = obj.item.offsetWidth * dpr; canvas.height = h * dpr; }
+        var ctx = canvas.getContext('2d');
+        var W = canvas.width, H = canvas.height;
+        ctx.clearRect(0, 0, W, H);
+        var sp = 7 * dpr, maxR = 2.2 * dpr;
+        var cols = Math.ceil(W / sp) + 1, rows = Math.ceil(H / sp) + 1;
+        for (var r = 0; r < rows; r++) {
+          for (var c = 0; c < cols; c++) {
+            var px = c * sp, py = r * sp;
+            var fade = Math.max(0, Math.min(1, (px / W - 0.2) / 0.5));
+            if (fade < 0.02) continue;
+            var angle1 = t * 0.00012 + obj.phase;
+            var u1 = (px * Math.cos(angle1) + py * Math.sin(angle1)) / (350 * dpr);
+            var v1 = (-px * Math.sin(angle1) + py * Math.cos(angle1)) / (220 * dpr);
+            var angle2 = t * 0.00022 + obj.phase + 1.5;
+            var u2 = (px * Math.cos(angle2) + py * Math.sin(angle2)) / (180 * dpr);
+            var wave = (Math.sin(u1 * Math.PI * 2 + t * 0.00030) * Math.cos(v1 * Math.PI * 1.5)) * 0.55 + (Math.sin(u2 * Math.PI * 2 + t * 0.00060) * 0.45);
+            var density = Math.pow(Math.max(0, wave * 0.5 + 0.5), 0.8) * fade;
+            var rand = (Math.sin(c * 127.1 + r * 311.7 + obj.phase * 50) * 0.5 + 0.5) * 0.9;
+            if (density > rand) {
+              var alpha = density * 0.30;
+              ctx.beginPath();
+              ctx.arc(px, py, maxR * density, 0, Math.PI * 2);
+              ctx.fillStyle = 'rgba(127,221,193,' + alpha.toFixed(2) + ')';
+              ctx.fill();
+            }
+          }
+        }
+      });
+      requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
   })();
 
   // Scramble eyebrow animation
