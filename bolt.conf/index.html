@@ -1721,8 +1721,8 @@
 
   <!-- ── VIDEO STRIP ── -->
   <div class="video-strip">
-    <video autoplay muted loop playsinline>
-      <source src="kygo.mp4" type="video/mp4" />
+    <video muted loop playsinline preload="none" data-lazy-video>
+      <source src="kygo-opt.mp4" type="video/mp4" />
     </video>
     <div class="video-strip-overlay"></div>
   </div>
@@ -1802,7 +1802,7 @@
   <!-- ── FEATURED SESSIONS ── -->
   <section class="sessions-section" id="sessions">
     <div class="sessions-bg-video-wrap">
-      <video class="sessions-bg-video" autoplay muted loop playsinline>
+      <video class="sessions-bg-video" muted loop playsinline preload="none" data-lazy-video>
         <source src="flow-bg.mp4" type="video/mp4" />
       </video>
     </div>
@@ -2137,7 +2137,7 @@
   <!-- ── TICKETS ── -->
   <section class="tickets-section" id="tickets">
     <canvas class="tickets-halftone" id="tickets-halftone"></canvas>
-    <video class="tickets-bg-video" autoplay muted loop playsinline>
+    <video class="tickets-bg-video" muted loop playsinline preload="none" data-lazy-video>
       <source src="flow-bg.mp4" type="video/mp4" />
     </video>
     <div style="width:min(var(--max-w),calc(100vw - var(--gutter)*2));margin:0 auto">
@@ -2580,6 +2580,29 @@
       requestAnimationFrame(draw);
     }
     requestAnimationFrame(draw);
+  })();
+
+  // ── Lazy-load below-the-fold background videos (preload=none until near) ──
+  (function() {
+    var vids = document.querySelectorAll('video[data-lazy-video]');
+    if (!vids.length) return;
+    if (!('IntersectionObserver' in window)) {
+      // Fallback: just load + play them all
+      vids.forEach(function(v){ v.preload = 'auto'; v.load(); v.play().catch(function(){}); });
+      return;
+    }
+    var io = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        var v = e.target;
+        if (e.isIntersecting) {
+          if (!v.__loaded) { v.__loaded = true; v.preload = 'auto'; v.load(); }
+          v.play().catch(function(){});
+        } else {
+          v.pause();
+        }
+      });
+    }, { rootMargin: '300px 0px' });   // start ~300px before it enters the viewport
+    vids.forEach(function(v) { io.observe(v); });
   })();
 
   // ── Pixel-rise button hover (ported from shared standard, mint fill) ──
