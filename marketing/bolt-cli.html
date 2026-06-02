@@ -1233,12 +1233,16 @@ window.addEventListener('load', function() {
     var email = (input.value || '').trim();
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { input.focus(); return; }
     if (btn) btn.style.pointerEvents = 'none';
+    // HubSpot visitor token (set by the hs-scripts tracking code) for attribution
+    var hutkMatch = document.cookie.match(/hubspotutk=([^;]+)/);
+    var context = { pageUri: location.href, pageName: document.title };
+    if (hutkMatch) context.hutk = hutkMatch[1];
     fetch('https://api.hsforms.com/submissions/v3/integration/submit/' + PORTAL_ID + '/' + FORM_ID, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         fields: [{ objectTypeId: '0-1', name: 'email', value: email }],
-        context: { pageUri: location.href, pageName: document.title }
+        context: context
       })
     }).then(function (r) {
       if (r.ok) {
@@ -1255,6 +1259,9 @@ window.addEventListener('load', function() {
   });
 })();
 </script>
+
+<!-- HubSpot tracking (portal 45403856) — sets hubspotutk for form attribution, matches enterprise page -->
+<script type="text/javascript" id="hs-script-loader" async defer src="//js.hs-scripts.com/45403856.js"></script>
 
 <!-- Shared standardized components (single source of truth) -->
 <link rel="stylesheet" href="shared-components.css">
