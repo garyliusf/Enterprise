@@ -1410,6 +1410,9 @@
       border-bottom: 1px solid var(--border);
     }
     .faq-header { margin-bottom: 48px; }
+    /* FAQ headline: single line, uniform Termina (no italic-serif accent) */
+    .faq-h2 { max-width: none; white-space: nowrap; }
+    @media (max-width: 600px) { .faq-h2 { white-space: normal; } }
     /* ── Standard FAQ accordion (ported from our marketing component):
        +/− icon, grid-row expand, open-state tint + pixel glow.
        Standard blue accent (matches marketing), conf cream text + tokens. ── */
@@ -2174,9 +2177,9 @@
     <div style="width:min(var(--max-w),calc(100vw - var(--gutter)*2));margin:0 auto">
       <div class="faq-header">
         <span class="section-eyebrow">FAQ</span>
-        <h2 class="section-h2">Your questions <em>answered</em></h2>
+        <h2 class="section-h2 faq-h2">Your questions answered</h2>
       </div>
-      <div class="ms-faq-list">
+      <div class="ms-faq-list faq-glow-mint">
 
         <div class="ms-faq-item">
           <button class="ms-faq-q">
@@ -2640,6 +2643,9 @@
     var items = document.querySelectorAll('.ms-faq-item');
     if (!items.length) return;
     var dpr = window.devicePixelRatio || 1;
+    // combo class: .faq-glow-mint on the list → mint pixel fill instead of neutral
+    var listEl = document.querySelector('.ms-faq-list');
+    var glowRGB = (listEl && listEl.classList.contains('faq-glow-mint')) ? '127,221,193' : '180,185,195';
     var canvasObjs = [];
     items.forEach(function (item, idx) {
       var canvas = document.createElement('canvas');
@@ -2683,7 +2689,7 @@
               var alpha = density * 0.25;
               ctx.beginPath();
               ctx.arc(px, py, maxR * density, 0, Math.PI * 2);
-              ctx.fillStyle = 'rgba(180,185,195,' + alpha.toFixed(2) + ')';
+              ctx.fillStyle = 'rgba(' + glowRGB + ',' + alpha.toFixed(2) + ')';
               ctx.fill();
             }
           }
