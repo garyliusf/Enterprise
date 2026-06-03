@@ -102,8 +102,11 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
   background: rgba(240,237,233,0.92);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  transition: box-shadow 0.25s ease, border-color 0.25s ease;
+  transform: translateY(0);
+  transition: transform 0.32s cubic-bezier(0.25,0.46,0.45,0.94), box-shadow 0.25s ease, border-color 0.25s ease;
+  will-change: transform;
 }
+.blog-filters.filter-hidden { transform: translateY(-100%); box-shadow: none; }
 .blog-filters.is-stuck {
   box-shadow: 0 2px 16px rgba(0,0,0,0.07);
   border-bottom-color: rgba(0,0,0,0.12);
@@ -1394,17 +1397,28 @@ function showView(view) {
 })();
 
 
-// Sticky filter bar
+// Filter bar: hide on scroll-down, reveal on scroll-up
 (function() {
   var bar = document.querySelector('.blog-filters');
   if (!bar) return;
   var sentinel = document.createElement('div');
   sentinel.style.cssText = 'position:absolute;top:0;left:0;width:1px;height:1px;pointer-events:none;';
   bar.parentNode.insertBefore(sentinel, bar);
-  var obs = new IntersectionObserver(function(entries) {
+  var stuckObs = new IntersectionObserver(function(entries) {
     bar.classList.toggle('is-stuck', !entries[0].isIntersecting);
   }, { threshold: 0, rootMargin: '-61px 0px 0px 0px' });
-  obs.observe(sentinel);
+  stuckObs.observe(sentinel);
+  var lastY = window.scrollY, ticking = false, threshold = 80;
+  window.addEventListener('scroll', function() {
+    if (ticking) return; ticking = true;
+    requestAnimationFrame(function() {
+      var y = window.scrollY, delta = y - lastY;
+      if (y < threshold) { bar.classList.remove('filter-hidden'); }
+      else if (delta > 4) { bar.classList.add('filter-hidden'); }
+      else if (delta < -4) { bar.classList.remove('filter-hidden'); }
+      lastY = y; ticking = false;
+    });
+  }, { passive: true });
 })();
 
 // Reading progress bar
