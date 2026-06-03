@@ -416,9 +416,50 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
   .related-grid { grid-template-columns: 1fr; }
 }
 
+/* ── CATEGORY / TAG HEADER ── */
+.category-header {
+  padding: 64px 0 48px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 32px;
+}
+.category-eyebrow {
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px;
+}
+.category-title {
+  font-family: var(--font-serif); font-size: clamp(36px, 5vw, 64px);
+  font-weight: 600; color: var(--text-primary); line-height: 1.0; letter-spacing: -0.02em;
+}
+.category-description { font-size: 15px; color: var(--text-secondary); line-height: 1.6; margin-top: 14px; max-width: 520px; }
+.category-count {
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--text-muted); white-space: nowrap; padding-bottom: 6px;
+}
+/* Index variant (category/tag pages): meta col | body | thumb */
+.blog-index .blog-list-item { grid-template-columns: 100px 1fr 260px; gap: 40px; align-items: center; }
+.blog-index .blog-list-meta { flex-direction: column; align-items: flex-start; gap: 6px; margin-bottom: 0; }
+.blog-index .blog-list-readtime { font-family: var(--font-mono); font-size: 9px; letter-spacing: 1px; text-transform: uppercase; }
+.blog-index .blog-list-tag { margin-bottom: 0; }
+.blog-index .blog-list-title { font-size: 24px; }
+.blog-index .blog-list-avatar { width: 22px; height: 22px; font-size: 10px; }
+.blog-index .blog-list-item:hover .blog-list-title { color: var(--accent-mint); }
+.blog-index .blog-list { margin-bottom: 64px; }
+@media (max-width: 900px) {
+  .blog-index .blog-list-item { grid-template-columns: 1fr 200px; gap: 24px; }
+  .blog-index .blog-list-item > .blog-list-meta { display: none; }
+}
+@media (max-width: 600px) {
+  .blog-index .blog-list-item { grid-template-columns: 1fr; }
+  .blog-index .blog-list-thumb { display: none; }
+}
+
+/* Tag header accent dot */
+.tag-header-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 10px; vertical-align: middle; position: relative; top: -2px; }
+
 /* ── DEMO TOGGLE ── */
-#view-index { display: block; }
-#view-article { display: none; }
+#view-index    { display: block; }
+#view-article  { display: none; }
+#view-category { display: none; }
+#view-tag      { display: none; }
 </style>
 </head>
 <body>
@@ -428,7 +469,9 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
   <span class="demo-label">Preview:</span>
   <div class="page-toggle">
     <button class="page-toggle-btn active" onclick="showView('index')">Blog Index</button>
-    <button class="page-toggle-btn" onclick="showView('article')">Article Page</button>
+    <button class="page-toggle-btn" onclick="showView('article')">Article</button>
+    <button class="page-toggle-btn" onclick="showView('category')">Category</button>
+    <button class="page-toggle-btn" onclick="showView('tag')">Tag</button>
   </div>
 </div>
 
@@ -819,12 +862,348 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
 
 </div><!-- /view-article -->
 
+
+<!-- ════════════════════════════════════════════════
+     VIEW 3 — CATEGORY PAGE
+════════════════════════════════════════════════ -->
+<div id="view-category">
+
+  <nav class="nav">
+    <a href="#" class="nav-logo"><span class="nav-logo-bolt">bolt</span><span class="nav-logo-label">Blog</span></a>
+    <a href="https://bolt.new" class="nav-cta">Try Bolt →</a>
+  </nav>
+
+  <div class="blog-filters">
+    <div class="blog-filters-inner">
+      <div class="filter-group">
+        <a href="#" class="filter-btn">All</a>
+        <a href="#" class="filter-btn">Product</a>
+        <a href="#" class="filter-btn active">Engineering</a>
+        <a href="#" class="filter-btn">AI</a>
+        <a href="#" class="filter-btn">Company</a>
+        <a href="#" class="filter-btn">Tutorials</a>
+      </div>
+      <div class="blog-search">
+        <input class="blog-search-input" type="search" placeholder="Search">
+        <button class="blog-search-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="blog-wrap blog-index">
+
+    <nav class="blog-breadcrumbs" style="padding: 32px 0 0;">
+      <ol class="blog-breadcrumbs-list">
+        <li class="blog-breadcrumb"><a href="#" class="blog-breadcrumb-link">Blog</a></li>
+        <li class="blog-breadcrumb"><span class="blog-breadcrumb-sep">/</span></li>
+        <li class="blog-breadcrumb"><span class="blog-breadcrumb-current">Engineering</span></li>
+      </ol>
+    </nav>
+
+    <div class="category-header">
+      <div>
+        <div class="category-eyebrow">Category</div>
+        <div class="category-title">Engineering</div>
+        <p class="category-description">How Bolt is built — architecture deep-dives, technical decisions, and lessons learned from shipping fast.</p>
+      </div>
+      <span class="category-count">15 posts</span>
+    </div>
+
+    <section class="blog-list-section">
+      <ul class="blog-list">
+
+        <li>
+          <a href="#" class="blog-list-item">
+            <div class="blog-list-meta">
+              <span class="blog-list-tag blue">Engineering</span>
+              <span class="blog-list-readtime">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                8 min
+              </span>
+              <span class="blog-list-date">May 28</span>
+            </div>
+            <div class="blog-list-body">
+              <div class="blog-list-title">How we built real-time collaborative editing into Bolt without breaking the world</div>
+              <p class="blog-list-excerpt">A deep dive into the architecture decisions, the tradeoffs we made, and what we'd do differently if we started over today.</p>
+              <div class="blog-list-author">
+                <div class="blog-list-avatar">👤</div>
+                <span class="blog-list-author-name">Addy Osmani</span>
+              </div>
+            </div>
+            <div class="blog-list-thumb"><div class="blog-list-thumb-placeholder" style="background:linear-gradient(135deg,#1e3a5f,#0f2540);height:100%;"></div></div>
+          </a>
+        </li>
+
+        <li>
+          <a href="#" class="blog-list-item">
+            <div class="blog-list-meta">
+              <span class="blog-list-tag blue">Engineering</span>
+              <span class="blog-list-readtime">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                11 min
+              </span>
+              <span class="blog-list-date">Apr 14</span>
+            </div>
+            <div class="blog-list-body">
+              <div class="blog-list-title">WebContainers in 2025: what's changed, what's next</div>
+              <p class="blog-list-excerpt">A look back at three years of running Node.js in the browser — and what we're building toward for the next phase of WebContainers.</p>
+              <div class="blog-list-author">
+                <div class="blog-list-avatar">👤</div>
+                <span class="blog-list-author-name">Tomek Sułkowski</span>
+              </div>
+            </div>
+            <div class="blog-list-thumb"><div class="blog-list-thumb-placeholder" style="background:linear-gradient(135deg,#1a2e1a,#0a160a);height:100%;"></div></div>
+          </a>
+        </li>
+
+        <li>
+          <a href="#" class="blog-list-item">
+            <div class="blog-list-meta">
+              <span class="blog-list-tag blue">Engineering</span>
+              <span class="blog-list-readtime">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                6 min
+              </span>
+              <span class="blog-list-date">Mar 3</span>
+            </div>
+            <div class="blog-list-body">
+              <div class="blog-list-title">How we cut cold-start latency by 60% using a new caching layer</div>
+              <p class="blog-list-excerpt">Cold starts were the biggest complaint in our last user survey. Here's how we fixed them, and the surprising thing we learned in the process.</p>
+              <div class="blog-list-author">
+                <div class="blog-list-avatar">👤</div>
+                <span class="blog-list-author-name">Cody Lindley</span>
+              </div>
+            </div>
+            <div class="blog-list-thumb"><div class="blog-list-thumb-placeholder" style="background:linear-gradient(135deg,#2e1a0a,#160d04);height:100%;"></div></div>
+          </a>
+        </li>
+
+        <li>
+          <a href="#" class="blog-list-item">
+            <div class="blog-list-meta">
+              <span class="blog-list-tag blue">Engineering</span>
+              <span class="blog-list-readtime">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                9 min
+              </span>
+              <span class="blog-list-date">Feb 19</span>
+            </div>
+            <div class="blog-list-body">
+              <div class="blog-list-title">The surprisingly hard problem of streaming AI output into a live editor</div>
+              <p class="blog-list-excerpt">Streaming tokens into a code editor sounds simple until you hit race conditions, cursor jumps, and undo history. Here's how we solved it.</p>
+              <div class="blog-list-author">
+                <div class="blog-list-avatar">👤</div>
+                <span class="blog-list-author-name">Natmara Pimentel</span>
+              </div>
+            </div>
+            <div class="blog-list-thumb"><div class="blog-list-thumb-placeholder" style="background:linear-gradient(135deg,#1a1a30,#0d0d1a);height:100%;"></div></div>
+          </a>
+        </li>
+
+        <li>
+          <a href="#" class="blog-list-item">
+            <div class="blog-list-meta">
+              <span class="blog-list-tag blue">Engineering</span>
+              <span class="blog-list-readtime">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                7 min
+              </span>
+              <span class="blog-list-date">Jan 8</span>
+            </div>
+            <div class="blog-list-body">
+              <div class="blog-list-title">Why we rewrote our file system layer from scratch</div>
+              <p class="blog-list-excerpt">The old implementation worked fine until it didn't. A look at the edge cases that broke it, and the new design that handles them gracefully.</p>
+              <div class="blog-list-author">
+                <div class="blog-list-avatar">👤</div>
+                <span class="blog-list-author-name">Addy Osmani</span>
+              </div>
+            </div>
+            <div class="blog-list-thumb"><div class="blog-list-thumb-placeholder" style="background:linear-gradient(135deg,#1e2a1e,#101810);height:100%;"></div></div>
+          </a>
+        </li>
+
+      </ul>
+    </section>
+  </div>
+
+  <div class="blog-load-more">
+    <a href="#" class="btn-load-more">Load more posts</a>
+  </div>
+
+  <footer class="footer">
+    <span class="footer-copy">© 2025 StackBlitz, Inc.</span>
+    <div class="footer-links"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">bolt.new</a></div>
+  </footer>
+
+</div><!-- /view-category -->
+
+
+<!-- ════════════════════════════════════════════════
+     VIEW 4 — TAG PAGE
+════════════════════════════════════════════════ -->
+<div id="view-tag">
+
+  <nav class="nav">
+    <a href="#" class="nav-logo"><span class="nav-logo-bolt">bolt</span><span class="nav-logo-label">Blog</span></a>
+    <a href="https://bolt.new" class="nav-cta">Try Bolt →</a>
+  </nav>
+
+  <div class="blog-filters">
+    <div class="blog-filters-inner">
+      <div class="filter-group">
+        <a href="#" class="filter-btn">All</a>
+        <a href="#" class="filter-btn">Product</a>
+        <a href="#" class="filter-btn">Engineering</a>
+        <a href="#" class="filter-btn active">AI</a>
+        <a href="#" class="filter-btn">Company</a>
+        <a href="#" class="filter-btn">Tutorials</a>
+      </div>
+      <div class="blog-search">
+        <input class="blog-search-input" type="search" placeholder="Search">
+        <button class="blog-search-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="blog-wrap blog-index">
+
+    <nav class="blog-breadcrumbs" style="padding: 32px 0 0;">
+      <ol class="blog-breadcrumbs-list">
+        <li class="blog-breadcrumb"><a href="#" class="blog-breadcrumb-link">Blog</a></li>
+        <li class="blog-breadcrumb"><span class="blog-breadcrumb-sep">/</span></li>
+        <li class="blog-breadcrumb"><a href="#" class="blog-breadcrumb-link">Tags</a></li>
+        <li class="blog-breadcrumb"><span class="blog-breadcrumb-sep">/</span></li>
+        <li class="blog-breadcrumb"><span class="blog-breadcrumb-current">AI</span></li>
+      </ol>
+    </nav>
+
+    <div class="category-header">
+      <div>
+        <div class="category-eyebrow">Tag</div>
+        <div class="category-title"><span class="tag-header-dot" style="background:var(--accent-mint);"></span>AI</div>
+        <p class="category-description">Posts about artificial intelligence, language models, and how Bolt uses AI to build software faster.</p>
+      </div>
+      <span class="category-count">24 posts</span>
+    </div>
+
+    <section class="blog-list-section">
+      <ul class="blog-list">
+
+        <li>
+          <a href="#" class="blog-list-item">
+            <div class="blog-list-meta">
+              <span class="blog-list-tag mint">AI</span>
+              <span class="blog-list-readtime">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                5 min
+              </span>
+              <span class="blog-list-date">May 22</span>
+            </div>
+            <div class="blog-list-body">
+              <div class="blog-list-title">Why most AI coding tools get context wrong — and how Bolt is different</div>
+              <p class="blog-list-excerpt">Context isn't just the file you have open. It's the whole project, the intent, the conversation history. Here's how we think about it.</p>
+              <div class="blog-list-author">
+                <div class="blog-list-avatar">👤</div>
+                <span class="blog-list-author-name">Natmara Pimentel</span>
+              </div>
+            </div>
+            <div class="blog-list-thumb"><div class="blog-list-thumb-placeholder" style="background:linear-gradient(135deg,#0d3d30,#051f18);height:100%;"></div></div>
+          </a>
+        </li>
+
+        <li>
+          <a href="#" class="blog-list-item">
+            <div class="blog-list-meta">
+              <span class="blog-list-tag mint">AI</span>
+              <span class="blog-list-readtime">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                7 min
+              </span>
+              <span class="blog-list-date">Apr 30</span>
+            </div>
+            <div class="blog-list-body">
+              <div class="blog-list-title">Evaluating frontier models for code generation: what actually matters</div>
+              <p class="blog-list-excerpt">Benchmark scores don't tell the whole story. Here's the framework we use internally to evaluate models for real-world code tasks.</p>
+              <div class="blog-list-author">
+                <div class="blog-list-avatar">👤</div>
+                <span class="blog-list-author-name">Sarah Drasner</span>
+              </div>
+            </div>
+            <div class="blog-list-thumb"><div class="blog-list-thumb-placeholder" style="background:linear-gradient(135deg,#1a2e3d,#0d1a24);height:100%;"></div></div>
+          </a>
+        </li>
+
+        <li>
+          <a href="#" class="blog-list-item">
+            <div class="blog-list-meta">
+              <span class="blog-list-tag mint">AI</span>
+              <span class="blog-list-readtime">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                10 min
+              </span>
+              <span class="blog-list-date">Mar 18</span>
+            </div>
+            <div class="blog-list-body">
+              <div class="blog-list-title">How we built Bolt's planning layer — and why it changes everything</div>
+              <p class="blog-list-excerpt">Before Bolt writes a single line of code, it plans. This is how that planning layer works, and why it makes the output so much better.</p>
+              <div class="blog-list-author">
+                <div class="blog-list-avatar">👤</div>
+                <span class="blog-list-author-name">Addy Osmani</span>
+              </div>
+            </div>
+            <div class="blog-list-thumb"><div class="blog-list-thumb-placeholder" style="background:linear-gradient(135deg,#0d3020,#050f0a);height:100%;"></div></div>
+          </a>
+        </li>
+
+        <li>
+          <a href="#" class="blog-list-item">
+            <div class="blog-list-meta">
+              <span class="blog-list-tag mint">AI</span>
+              <span class="blog-list-readtime">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                4 min
+              </span>
+              <span class="blog-list-date">Feb 5</span>
+            </div>
+            <div class="blog-list-body">
+              <div class="blog-list-title">Prompting is a skill. Here's how we teach it to new Bolt users.</div>
+              <p class="blog-list-excerpt">The gap between a vague prompt and a great one is smaller than you think. Here are the patterns that consistently produce better results.</p>
+              <div class="blog-list-author">
+                <div class="blog-list-avatar">👤</div>
+                <span class="blog-list-author-name">Eric Simons</span>
+              </div>
+            </div>
+            <div class="blog-list-thumb"><div class="blog-list-thumb-placeholder" style="background:linear-gradient(135deg,#2e1a2e,#160a16);height:100%;"></div></div>
+          </a>
+        </li>
+
+      </ul>
+    </section>
+  </div>
+
+  <div class="blog-load-more">
+    <a href="#" class="btn-load-more">Load more posts</a>
+  </div>
+
+  <footer class="footer">
+    <span class="footer-copy">© 2025 StackBlitz, Inc.</span>
+    <div class="footer-links"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">bolt.new</a></div>
+  </footer>
+
+</div><!-- /view-tag -->
+
 <script>
 function showView(view) {
-  document.getElementById('view-index').style.display = view === 'index' ? 'block' : 'none';
-  document.getElementById('view-article').style.display = view === 'article' ? 'block' : 'none';
+  ['index','article','category','tag'].forEach(function(v) {
+    document.getElementById('view-' + v).style.display = v === view ? 'block' : 'none';
+  });
   document.querySelectorAll('.page-toggle-btn').forEach(function(b, i) {
-    b.classList.toggle('active', (view === 'index' && i === 0) || (view === 'article' && i === 1));
+    var views = ['index','article','category','tag'];
+    b.classList.toggle('active', views[i] === view);
   });
   window.scrollTo(0, 0);
 }
