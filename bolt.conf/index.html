@@ -2722,11 +2722,12 @@
         for (var c = 0; c < cols; c++) {
           var px = c * SPACING, py = r * SPACING;
           var phase = phases[r][c];
-          // radial center-fade: 0 in the middle (video shows), 1 toward the edges
-          var nx = (px - W / 2) / (W / 2), ny = (py - H / 2) / (H / 2);
-          var dist = Math.sqrt(nx * nx * 0.85 + ny * ny);
-          var edge = Math.max(0, Math.min(1, (dist - 0.32) / 0.55));
-          edge = edge * edge; // generous clear center so the video reads through
+          // edge-frame mask: pixels only in a thin band around all four edges,
+          // center fully clear so the whole video reads through
+          var band = 0.15;
+          var ed = Math.min(Math.min(px / W, 1 - px / W), Math.min(py / H, 1 - py / H));
+          var edge = Math.max(0, 1 - ed / band);
+          edge = edge * edge; // soft falloff into the interior
           if (edge < 0.02) continue;
           var s1 = rwave(px, py, 700, 0.00009, 0.5 + phase*0.2, 0.00022, t);
           var s2 = rwave(px, py, 340, 0.00020, 1.8 + phase*0.3, 0.00050, t);
