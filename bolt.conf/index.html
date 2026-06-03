@@ -674,9 +674,11 @@
     ───────────────────────────────────────── */
     .video-strip {
       position: relative;
-      width: 100%;
+      width: min(var(--max-w), calc(100vw - var(--gutter) * 2));
+      margin: 0 auto;
       height: 460px;
       overflow: hidden;
+      border-radius: 10px;
     }
     .video-strip video {
       position: absolute;
@@ -691,9 +693,10 @@
       inset: 0;
       background: linear-gradient(
         to bottom,
-        rgba(0,0,0,0.35) 0%,
-        rgba(0,0,0,0.1) 50%,
-        rgba(0,0,0,0.35) 100%
+        #000 0%,
+        rgba(0,0,0,0.15) 28%,
+        rgba(0,0,0,0.15) 72%,
+        #000 100%
       );
     }
 
@@ -2685,7 +2688,7 @@
     var canvas = document.getElementById('kygo-pixel-canvas');
     if (!canvas) return;
     var ctx = canvas.getContext('2d');
-    var SPACING = 9, MAX_R = 3.4;
+    var SPACING = 8, MAX_R = 4.2;
     var cols, rows, phases;
     function init() {
       canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
@@ -2709,7 +2712,7 @@
       var W = canvas.width, H = canvas.height;
       if (!W || !H) { init(); if (inView) requestAnimationFrame(draw); return; }
       ctx.clearRect(0, 0, W, H);
-      ctx.fillStyle = 'rgba(200, 215, 240, 0.30)';
+      ctx.fillStyle = 'rgba(210, 222, 245, 0.62)';
       var pockets = [
         { x: W*(0.5+0.45*Math.sin(t*0.00015)*Math.cos(t*0.00011)), y: H*(0.5+0.45*Math.cos(t*0.00013+0.8)*Math.sin(t*0.00017)), r: 200+70*Math.sin(t*0.00021), a: 0.5+0.5*Math.sin(t*0.00032+1.2) },
         { x: W*(0.5-0.50*Math.cos(t*0.00011+1.7)*Math.sin(t*0.00019)), y: H*(0.5-0.45*Math.sin(t*0.00014+2.3)*Math.cos(t*0.00008)), r: 240+90*Math.cos(t*0.00017+0.5), a: 0.5+0.5*Math.sin(t*0.00027+3.1) },
@@ -2722,8 +2725,7 @@
           // radial center-fade: 0 in the middle (video shows), 1 toward the edges
           var nx = (px - W / 2) / (W / 2), ny = (py - H / 2) / (H / 2);
           var dist = Math.sqrt(nx * nx * 0.85 + ny * ny);
-          var edge = Math.max(0, Math.min(1, (dist - 0.34) / 0.5));
-          edge = edge * edge; // ease in so the clear center is generous
+          var edge = Math.max(0, Math.min(1, (dist - 0.18) / 0.55));
           if (edge < 0.02) continue;
           var s1 = rwave(px, py, 700, 0.00009, 0.5 + phase*0.2, 0.00022, t);
           var s2 = rwave(px, py, 340, 0.00020, 1.8 + phase*0.3, 0.00050, t);
@@ -2736,7 +2738,7 @@
           }
           activation = Math.min(1.1, activation);
           var strength = Math.pow(Math.max(0, wave), 2.2);
-          var modulated = (0.18 + activation * strength * 1.05) * edge;
+          var modulated = (0.32 + activation * strength * 1.05) * edge;
           var radius = modulated * MAX_R;
           if (radius < 0.22) continue;
           ctx.beginPath(); ctx.arc(px, py, radius, 0, Math.PI * 2); ctx.fill();
