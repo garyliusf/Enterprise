@@ -49,13 +49,15 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
 .nav-logo { display: flex; align-items: center; gap: 0; text-decoration: none; }
 .nav-logo-label {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 16px;
   color: var(--accent-blue);
-  letter-spacing: 1px;
+  letter-spacing: 2px;
   text-transform: uppercase;
   border-left: 1px solid var(--border);
   padding-left: 10px;
   margin-left: 12px;
+  white-space: nowrap;
+  display: inline-block;
 }
 .nav-cta {
   margin-left: auto;
@@ -67,9 +69,16 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
   padding: 8px 18px;
   border-radius: 2px;
   text-decoration: none;
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
   transition: opacity 0.2s;
 }
 .nav-cta:hover { opacity: 0.85; }
+/* Pixel-fill button */
+.btn-pixel-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; border-radius: inherit; }
+.btn-pf-text { position: relative; z-index: 2; }
 
 /* ── FILTER BAR ── */
 .blog-filters {
@@ -293,7 +302,8 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
 .blog-newsletter-input:focus { outline: none; border-color: var(--accent-mint); }
 .blog-newsletter-btn {
   font-family: var(--font-sans); font-size: 14px; font-weight: 600; white-space: nowrap;
-  background: var(--accent-blue); color: #fff; border: none; padding: 12px 24px; border-radius: 2px; cursor: pointer; transition: opacity 0.2s;
+  background: var(--accent-blue); color: #fff; border: none; padding: 12px 24px; border-radius: 2px; cursor: pointer;
+  position: relative; overflow: hidden; display: inline-flex; align-items: center; transition: opacity 0.2s;
 }
 .blog-newsletter-btn:hover { opacity: 0.88; }
 
@@ -302,7 +312,8 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
 .btn-load-more {
   font-family: var(--font-sans); font-size: 13px; font-weight: 500; color: var(--text-secondary);
   background: none; border: 1px solid var(--border); padding: 12px 36px; border-radius: 2px;
-  cursor: pointer; text-decoration: none; transition: border-color 0.2s, color 0.2s, background 0.2s;
+  cursor: pointer; text-decoration: none; position: relative; overflow: hidden; display: inline-flex; align-items: center;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
 }
 .btn-load-more:hover { border-color: var(--accent-mint); color: var(--accent-mint); background: rgba(13,155,122,0.06); }
 
@@ -454,6 +465,17 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
 /* Tag header accent dot */
 .tag-header-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 10px; vertical-align: middle; position: relative; top: -2px; }
 
+/* ── WORD REVEAL ── */
+@keyframes dsa-word-reveal {
+  from { opacity: 0; transform: translate(-10px, -7px); filter: blur(5px); }
+  to   { opacity: 1; transform: translate(0, 0);        filter: blur(0px); }
+}
+.dsa-reveal .word { display: inline-block; opacity: 0; transform: translate(-10px,-7px); filter: blur(5px); will-change: opacity,transform,filter; }
+.dsa-reveal.is-revealed .word { animation: dsa-word-reveal 0.7s cubic-bezier(0.22,1,0.36,1) forwards; animation-delay: calc(var(--i,0) * 28ms); }
+
+/* ── TAG CLOUD CANVAS ── */
+#tags-pixel-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; opacity: 0.5; }
+
 /* ── DEMO TOGGLE ── */
 #view-index    { display: block; }
 #view-article  { display: none; }
@@ -483,9 +505,9 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
   <nav class="nav">
     <a href="#" class="nav-logo">
       <svg width="46" height="20" viewBox="0 0 56 25" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M26.3342 21.6696C21.2373 21.6696 18.6441 18.689 18.6441 14.9632C18.6441 10.5519 22.1613 6.55786 27.2581 6.55786C32.355 6.55786 34.9482 9.53849 34.9482 13.2643C34.9482 17.6756 31.431 21.6696 26.3342 21.6696ZM26.5428 16.9304C28.3312 16.9304 29.4638 15.3209 29.4638 13.5325C29.4638 12.1018 28.5398 11.2971 27.0495 11.2971C25.2611 11.2971 24.1285 12.9066 24.1285 14.695C24.1285 16.1257 25.0525 16.9304 26.5428 16.9304Z" fill="#10100F"/><path d="M40.3773 21.312H35.0122L39.3937 1.43119H44.7588L40.3773 21.312Z" fill="#10100F"/><path fill-rule="evenodd" clip-rule="evenodd" d="M10.5159 21.6696C8.87653 21.6696 7.267 21.0735 6.343 19.7918L6.01709 21.3034L0 24.5L0.649573 21.3034L5.03153 1.43119H10.3967L8.84673 8.43566C10.0986 7.06457 11.261 6.55786 12.7513 6.55786C15.9704 6.55786 18.1165 8.67411 18.1165 12.5489C18.1165 16.543 15.6426 21.6696 10.5159 21.6696ZM12.5725 13.6816C12.5725 15.5296 11.261 16.9304 9.56208 16.9304C8.60828 16.9304 7.7439 16.5728 7.17758 15.9468L8.01215 12.2807C8.63808 11.6547 9.35343 11.2971 10.188 11.2971C11.4697 11.2971 12.5725 12.2509 12.5725 13.6816Z" fill="#10100F"/><path d="M50.3408 21.6696C47.2409 21.6696 45.0353 20.537 45.0353 18.0333C45.0353 17.8246 45.0651 17.3179 45.1545 16.9006L46.3169 11.5653H43.9324L44.9756 6.91554H47.3601L48.2245 2.98111L54.2308 0.5L53.5897 2.98718L52.7253 6.91554H55.6463L54.6031 11.5653H51.6821L50.9071 15.0825C50.8475 15.3507 50.8177 15.6488 50.8177 15.768C50.8177 16.4535 51.235 16.9304 52.159 16.9304C52.4272 16.9304 52.8147 16.841 52.9041 16.7814V21.0735C52.3378 21.461 51.3244 21.6696 50.3408 21.6696Z" fill="#10100F"/></svg>
-      <span class="nav-logo-label">Blog</span>
+      <span class="nav-logo-label eyebrow-scramble">Blog</span>
     </a>
-    <a href="https://bolt.new" class="nav-cta">Try Bolt →</a>
+    <a href="https://bolt.new" class="nav-cta btn-pf"><span class="btn-pf-text">Try Bolt →</span></a>
   </nav>
 
   <!-- FILTER BAR -->
@@ -513,7 +535,7 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
 
     <!-- HERO FEATURED POST -->
     <section class="blog-hero">
-      <div class="blog-hero-eyebrow">Featured</div>
+      <div class="blog-hero-eyebrow eyebrow-scramble">Featured</div>
       <a href="#" class="blog-hero-card">
         <div class="blog-hero-content">
           <div>
@@ -525,7 +547,7 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
                 6 min
               </span>
             </div>
-            <h1 class="blog-hero-title">Bolt now runs in Microsoft Teams and Microsoft 365 Copilot</h1>
+            <h1 class="blog-hero-title dsa-reveal">Bolt now runs in Microsoft Teams and Microsoft 365 Copilot</h1>
             <p class="blog-hero-excerpt">Build and ship real apps right from the tools your team already uses — no tab-switching, no context loss, no separate tool to adopt.</p>
           </div>
           <div class="blog-hero-meta">
@@ -545,7 +567,7 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
     <!-- LATEST POSTS -->
     <section class="blog-list-section blog-feed">
       <div class="blog-list-header">
-        <span class="blog-list-label">Latest</span>
+        <span class="blog-list-label eyebrow-scramble">Latest</span>
       </div>
       <ul class="blog-list">
 
@@ -644,7 +666,7 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
 
   <!-- LOAD MORE -->
   <div class="blog-load-more">
-    <a href="#" class="btn-load-more">Load more posts</a>
+    <a href="#" class="btn-load-more btn-pf"><span class="btn-pf-text">Load more posts</span></a>
   </div>
 
   <!-- NEWSLETTER -->
@@ -656,7 +678,7 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
       </div>
       <form class="blog-newsletter-form">
         <input class="blog-newsletter-input" type="email" placeholder="you@company.com" required>
-        <button class="blog-newsletter-btn" type="submit">Subscribe</button>
+        <button class="blog-newsletter-btn btn-pf" type="submit"><span class="btn-pf-text">Subscribe</span></button>
       </form>
     </div>
   </div>
@@ -664,7 +686,8 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
   <!-- TAG CLOUD -->
   <div class="blog-tags-outer">
     <section class="blog-tags-section">
-      <div class="blog-tags-eyebrow">Browse by tag</div>
+      <canvas id="tags-pixel-canvas" aria-hidden="true"></canvas>
+      <div class="blog-tags-eyebrow eyebrow-scramble">Browse by tag</div>
       <div class="blog-tags-grid">
         <a href="#" class="blog-tag-cell"><span class="blog-tag-count">24</span><span class="blog-tag-name">AI</span></a>
         <a href="#" class="blog-tag-cell"><span class="blog-tag-count">18</span><span class="blog-tag-name">Product</span></a>
@@ -704,9 +727,9 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
   <nav class="nav">
     <a href="#" class="nav-logo">
       <svg width="46" height="20" viewBox="0 0 56 25" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M26.3342 21.6696C21.2373 21.6696 18.6441 18.689 18.6441 14.9632C18.6441 10.5519 22.1613 6.55786 27.2581 6.55786C32.355 6.55786 34.9482 9.53849 34.9482 13.2643C34.9482 17.6756 31.431 21.6696 26.3342 21.6696ZM26.5428 16.9304C28.3312 16.9304 29.4638 15.3209 29.4638 13.5325C29.4638 12.1018 28.5398 11.2971 27.0495 11.2971C25.2611 11.2971 24.1285 12.9066 24.1285 14.695C24.1285 16.1257 25.0525 16.9304 26.5428 16.9304Z" fill="#10100F"/><path d="M40.3773 21.312H35.0122L39.3937 1.43119H44.7588L40.3773 21.312Z" fill="#10100F"/><path fill-rule="evenodd" clip-rule="evenodd" d="M10.5159 21.6696C8.87653 21.6696 7.267 21.0735 6.343 19.7918L6.01709 21.3034L0 24.5L0.649573 21.3034L5.03153 1.43119H10.3967L8.84673 8.43566C10.0986 7.06457 11.261 6.55786 12.7513 6.55786C15.9704 6.55786 18.1165 8.67411 18.1165 12.5489C18.1165 16.543 15.6426 21.6696 10.5159 21.6696ZM12.5725 13.6816C12.5725 15.5296 11.261 16.9304 9.56208 16.9304C8.60828 16.9304 7.7439 16.5728 7.17758 15.9468L8.01215 12.2807C8.63808 11.6547 9.35343 11.2971 10.188 11.2971C11.4697 11.2971 12.5725 12.2509 12.5725 13.6816Z" fill="#10100F"/><path d="M50.3408 21.6696C47.2409 21.6696 45.0353 20.537 45.0353 18.0333C45.0353 17.8246 45.0651 17.3179 45.1545 16.9006L46.3169 11.5653H43.9324L44.9756 6.91554H47.3601L48.2245 2.98111L54.2308 0.5L53.5897 2.98718L52.7253 6.91554H55.6463L54.6031 11.5653H51.6821L50.9071 15.0825C50.8475 15.3507 50.8177 15.6488 50.8177 15.768C50.8177 16.4535 51.235 16.9304 52.159 16.9304C52.4272 16.9304 52.8147 16.841 52.9041 16.7814V21.0735C52.3378 21.461 51.3244 21.6696 50.3408 21.6696Z" fill="#10100F"/></svg>
-      <span class="nav-logo-label">Blog</span>
+      <span class="nav-logo-label eyebrow-scramble">Blog</span>
     </a>
-    <a href="https://bolt.new" class="nav-cta">Try Bolt →</a>
+    <a href="https://bolt.new" class="nav-cta btn-pf"><span class="btn-pf-text">Try Bolt →</span></a>
   </nav>
 
   <!-- READING PROGRESS -->
@@ -731,7 +754,7 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
       <a href="#" class="post-tag">Product</a>
       <span class="post-date">Published June 2, 2025</span>
     </div>
-    <h1 class="post-title">Bolt now runs in Microsoft Teams and Microsoft 365 Copilot</h1>
+    <h1 class="post-title dsa-reveal">Bolt now runs in Microsoft Teams and Microsoft 365 Copilot</h1>
     <p class="post-subtitle">Build and ship real apps right from the tools your team already uses — no tab-switching, no context loss, no separate tool to adopt.</p>
     <div class="post-author-row">
       <div class="post-author-avatar">👤</div>
@@ -823,7 +846,7 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
 
   <!-- RELATED POSTS -->
   <div class="related-posts">
-    <div class="related-eyebrow">Related <span class="eyebrow-dot">●</span></div>
+    <div class="related-eyebrow eyebrow-scramble">Related <span class="eyebrow-dot">●</span></div>
     <div class="related-grid">
       <a href="#" class="related-card">
         <div class="related-card-image"><div class="related-card-image-placeholder" style="background: linear-gradient(135deg, #1e3a5f 0%, #0f2540 100%); height:100%;"></div></div>
@@ -869,7 +892,7 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
 
   <nav class="nav">
     <a href="#" class="nav-logo"><span class="nav-logo-bolt">bolt</span><span class="nav-logo-label">Blog</span></a>
-    <a href="https://bolt.new" class="nav-cta">Try Bolt →</a>
+    <a href="https://bolt.new" class="nav-cta btn-pf"><span class="btn-pf-text">Try Bolt →</span></a>
   </nav>
 
   <div class="blog-filters">
@@ -903,8 +926,8 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
 
     <div class="category-header">
       <div>
-        <div class="category-eyebrow">Category</div>
-        <div class="category-title">Engineering</div>
+        <div class="category-eyebrow eyebrow-scramble">Category</div>
+        <div class="category-title dsa-reveal">Engineering</div>
         <p class="category-description">How Bolt is built — architecture deep-dives, technical decisions, and lessons learned from shipping fast.</p>
       </div>
       <span class="category-count">15 posts</span>
@@ -1028,7 +1051,7 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
   </div>
 
   <div class="blog-load-more">
-    <a href="#" class="btn-load-more">Load more posts</a>
+    <a href="#" class="btn-load-more btn-pf"><span class="btn-pf-text">Load more posts</span></a>
   </div>
 
   <footer class="footer">
@@ -1046,7 +1069,7 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
 
   <nav class="nav">
     <a href="#" class="nav-logo"><span class="nav-logo-bolt">bolt</span><span class="nav-logo-label">Blog</span></a>
-    <a href="https://bolt.new" class="nav-cta">Try Bolt →</a>
+    <a href="https://bolt.new" class="nav-cta btn-pf"><span class="btn-pf-text">Try Bolt →</span></a>
   </nav>
 
   <div class="blog-filters">
@@ -1082,8 +1105,8 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
 
     <div class="category-header">
       <div>
-        <div class="category-eyebrow">Tag</div>
-        <div class="category-title"><span class="tag-header-dot" style="background:var(--accent-mint);"></span>AI</div>
+        <div class="category-eyebrow eyebrow-scramble">Tag</div>
+        <div class="category-title dsa-reveal"><span class="tag-header-dot" style="background:var(--accent-mint);"></span>AI</div>
         <p class="category-description">Posts about artificial intelligence, language models, and how Bolt uses AI to build software faster.</p>
       </div>
       <span class="category-count">24 posts</span>
@@ -1185,7 +1208,7 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
   </div>
 
   <div class="blog-load-more">
-    <a href="#" class="btn-load-more">Load more posts</a>
+    <a href="#" class="btn-load-more btn-pf"><span class="btn-pf-text">Load more posts</span></a>
   </div>
 
   <footer class="footer">
@@ -1206,6 +1229,125 @@ function showView(view) {
   });
   window.scrollTo(0, 0);
 }
+
+// ── Eyebrow scramble ─────────────────────────────────────────────────────────
+(function() {
+  var CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  function scrambleEyebrow(el) {
+    var original = el.textContent; var chars = original.split(''); var total = chars.length;
+    el.style.whiteSpace = 'nowrap'; el.style.display = 'inline-block';
+    el.style.minWidth = el.getBoundingClientRect().width + 'px';
+    var locked = new Array(total).fill(false); var startTime = null; var duration = 500;
+    function phase1(ts) {
+      if (!startTime) startTime = ts;
+      var progress = Math.min((ts - startTime) / duration, 1);
+      var result = '', allDone = true;
+      for (var i = 0; i < total; i++) {
+        if (chars[i] === ' ') { locked[i] = true; result += ' '; continue; }
+        if (!locked[i] && progress >= (i / total) * 0.85) locked[i] = true;
+        if (locked[i]) { result += chars[i]; } else { allDone = false; result += CHARS[Math.floor(Math.random() * CHARS.length)]; }
+      }
+      el.textContent = result;
+      if (!allDone || progress < 1) { requestAnimationFrame(phase1); }
+      else { el.textContent = original; setTimeout(function() { locked = new Array(total).fill(false); startTime = null; requestAnimationFrame(phase1); }, 4000 + Math.random() * 1000); }
+    }
+    requestAnimationFrame(phase1);
+  }
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) { observer.unobserve(entry.target); setTimeout(function() { scrambleEyebrow(entry.target); }, 80); }
+    });
+  }, { threshold: 0.3 });
+  document.querySelectorAll('.eyebrow-scramble').forEach(function(el) { observer.observe(el); });
+})();
+
+// ── Word reveal ───────────────────────────────────────────────────────────────
+(function() {
+  document.querySelectorAll('.dsa-reveal').forEach(function(el) {
+    var words = el.textContent.trim().split(/\s+/);
+    el.innerHTML = words.map(function(w, i) {
+      return '<span class="word" style="--i:' + i + '">' + w + '</span>';
+    }).join(' ');
+  });
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) { entry.target.classList.add('is-revealed'); observer.unobserve(entry.target); }
+    });
+  }, { threshold: 0.2 });
+  document.querySelectorAll('.dsa-reveal').forEach(function(el) { observer.observe(el); });
+})();
+
+// ── Pixel-fill button hover ───────────────────────────────────────────────────
+(function() {
+  function attach(btn, fillColor) {
+    if (btn.__pf) return; btn.__pf = true;
+    var canvas = document.createElement('canvas'); canvas.className = 'btn-pixel-canvas';
+    btn.insertBefore(canvas, btn.firstChild);
+    var ctx = canvas.getContext('2d'), spacing = 4, dot = 2, cols = 0, rows = 0, noise = [];
+    function resize() {
+      var r = btn.getBoundingClientRect(); if (!r.width) return;
+      canvas.width = Math.round(r.width); canvas.height = Math.round(r.height);
+      cols = Math.ceil(canvas.width / spacing); rows = Math.ceil(canvas.height / spacing);
+      noise = [];
+      for (var y = 0; y < rows; y++) { noise[y] = []; for (var x = 0; x < cols; x++) { var b = 1 - (y / Math.max(1,rows-1)); noise[y][x] = b * 0.55 + Math.random() * 0.55; } }
+      draw();
+    }
+    try { new ResizeObserver(resize).observe(btn); } catch(e) {}
+    requestAnimationFrame(resize);
+    var progress = 0, target = 0, raf = null, last = 0;
+    function tick(t) {
+      if (!last) last = t; var dt = Math.min(0.05,(t-last)/1000); last = t;
+      progress += (target - progress) * Math.min(1, dt * 8);
+      if (Math.abs(target-progress) < 0.003) progress = target;
+      draw();
+      if (progress !== target) { raf = requestAnimationFrame(tick); } else { raf = null; last = 0; }
+    }
+    function draw() {
+      if (!canvas.width) return; ctx.clearRect(0,0,canvas.width,canvas.height); ctx.fillStyle = fillColor;
+      var threshold = progress * 1.3;
+      for (var y = 0; y < rows; y++) for (var x = 0; x < cols; x++) {
+        var n = noise[y][x]; if (n < threshold) { var edge = threshold-n; if (edge < 0.08 && Math.random() < 0.45) continue; ctx.fillRect(x*spacing, y*spacing, dot, dot); }
+      }
+    }
+    btn.addEventListener('mouseenter', function() { target = 1; if (!raf) { last = 0; raf = requestAnimationFrame(tick); } });
+    btn.addEventListener('mouseleave', function() { target = 0; if (!raf) { last = 0; raf = requestAnimationFrame(tick); } });
+  }
+  document.querySelectorAll('.btn-pf').forEach(function(b) {
+    var isDark = b.classList.contains('nav-cta') || b.classList.contains('blog-newsletter-btn');
+    attach(b, isDark ? 'rgba(255,255,255,0.18)' : 'rgba(13,155,122,0.18)');
+  });
+})();
+
+// ── Tag cloud pixel canvas ────────────────────────────────────────────────────
+(function() {
+  var canvas = document.getElementById('tags-pixel-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d'), spacing = 8, dot = 2, t = 0;
+  var phases = [];
+  function resize() {
+    var p = canvas.parentElement; canvas.width = p.offsetWidth; canvas.height = p.offsetHeight;
+    var cols = Math.ceil(canvas.width/spacing), rows = Math.ceil(canvas.height/spacing);
+    phases = Array.from({length:rows}, function() { return Array.from({length:cols}, function() { return Math.random()*Math.PI*2; }); });
+  }
+  window.addEventListener('resize', resize); resize();
+  function draw(ts) {
+    t = ts * 0.0004;
+    var w = canvas.width, h = canvas.height;
+    if (!w || !h) { requestAnimationFrame(draw); return; }
+    ctx.clearRect(0,0,w,h);
+    var cols = Math.ceil(w/spacing), rows = Math.ceil(h/spacing);
+    for (var r = 0; r < rows; r++) for (var c = 0; c < cols; c++) {
+      var ph = (phases[r] && phases[r][c]) || 0;
+      var wave = (Math.sin(c*0.15 + r*0.22 + t*1.1 + ph)*0.5+0.5) * (Math.sin(c*0.08 - r*0.12 + t*0.7 + ph*0.6)*0.5+0.5);
+      var op = Math.pow(wave, 1.8) * 0.55;
+      if (op < 0.05) continue;
+      ctx.fillStyle = 'rgba(0,0,0,' + op.toFixed(3) + ')';
+      ctx.fillRect(c*spacing, r*spacing, dot, dot);
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
 
 // Reading progress bar
 window.addEventListener('scroll', function() {
