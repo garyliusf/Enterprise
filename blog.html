@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Bolt.new Blog</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Silkscreen&display=swap" rel="stylesheet">
+  <style>
+/* ════════════════════════════════════════════════════════════════════════════
+   Blog styles
+   ════════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F0EDE9;
+  --surface: #E8E3DE;
+  --card-bg: #D8D3CD;
+  --border: rgba(0,0,0,0.09);
+  --text-primary: #10100F;
+  --text-secondary: #555;
+  --text-muted: #999;
+  --accent-mint: #0d9b7a;
+  --accent-salmon: #c05030;
+  --accent-blue: #1488FC;
+  --font-sans: 'Inter', sans-serif;
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+  --font-mono: 'Silkscreen', monospace;
+  --max-w: 1120px;
+  --article-w: 800px;
+  --hero-w: 1040px;
+  --gutter: 80px;
+}
+
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text-primary); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+
+/* ── NAV ── */
+.nav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center;
+  padding: 0 var(--gutter);
+  height: 60px;
+  background: rgba(240,237,233,0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo { display: flex; align-items: center; gap: 0; text-decoration: none; }
+.nav-logo-bolt { font-family: var(--font-sans); font-size: 17px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.5px; }
+.nav-logo-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent-blue);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border-left: 1px solid var(--border);
+  padding-left: 10px;
+  margin-left: 12px;
+}
+.nav-cta {
+  margin-left: auto;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--accent-blue);
+  color: #fff;
+  padding: 8px 18px;
+  border-radius: 2px;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+.nav-cta:hover { opacity: 0.85; }
+
+/* ── FILTER BAR ── */
+.blog-filters {
+  width: 100%;
+  border-bottom: 1px solid var(--border);
+  background: rgba(240,237,233,0.9);
+}
+.blog-filters-inner {
+  width: min(var(--max-w), calc(100vw - var(--gutter) * 2));
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.filter-group {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.filter-group::-webkit-scrollbar { display: none; }
+.blog-search { display: flex; align-items: center; gap: 8px; flex-shrink: 0; padding-left: 16px; }
+.blog-search-input {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-align: right;
+  color: var(--text-primary);
+  background: none;
+  border: none;
+  outline: none;
+  width: 130px;
+  padding: 14px 0;
+  transition: width 0.2s;
+}
+.blog-search-input::placeholder { color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-size: 11px; }
+.blog-search-input:focus { width: 180px; }
+.blog-search-btn { display: inline-flex; align-items: center; background: none; border: none; padding: 0; cursor: pointer; color: var(--text-muted); transition: color 0.2s; }
+.blog-search-btn:hover, .blog-search:focus-within .blog-search-btn { color: var(--accent-blue); }
+.filter-btn {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 14px 20px;
+  cursor: pointer;
+  white-space: nowrap;
+  margin-bottom: -1px;
+  text-decoration: none;
+  display: inline-block;
+  transition: color 0.2s, border-color 0.2s;
+}
+.filter-btn:hover { color: var(--text-secondary); }
+.filter-btn.active { color: var(--accent-blue); border-bottom-color: var(--accent-blue); }
+
+/* ── MAIN CONTENT AREA ── */
+.blog-wrap {
+  width: min(var(--max-w), calc(100vw - var(--gutter) * 2));
+  margin: 0 auto;
+}
+
+/* ── HERO FEATURED POST ── */
+.blog-hero { padding: 56px 0 0; }
+.blog-hero-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.blog-hero-card {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  background: var(--surface);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  text-decoration: none;
+  transition: border-color 0.3s;
+}
+.blog-hero-card:hover { border-color: rgba(13,155,122,0.35); }
+.blog-hero-content { padding: 52px 48px; display: flex; flex-direction: column; justify-content: space-between; }
+.blog-hero-top-meta { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+.blog-hero-tag {
+  display: inline-flex; align-items: center;
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.5px;
+  text-transform: uppercase; padding: 4px 10px; border-radius: 2px;
+  background: rgba(13,155,122,0.08); color: var(--accent-mint); width: fit-content;
+}
+.blog-hero-title {
+  font-family: var(--font-serif);
+  font-size: clamp(30px, 3.2vw, 46px);
+  font-weight: 600; line-height: 1.1; color: var(--text-primary);
+  margin-bottom: 18px; letter-spacing: -0.02em;
+}
+.blog-hero-excerpt { font-size: 15px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 36px; }
+.blog-hero-meta { display: flex; align-items: center; gap: 14px; }
+.blog-hero-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--card-bg); overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.blog-hero-author { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+.blog-hero-date { font-size: 13px; color: var(--text-muted); }
+.blog-hero-readtime { font-size: 13px; color: var(--text-muted); display: inline-flex; align-items: center; gap: 4px; }
+.blog-hero-image { position: relative; overflow: hidden; background: var(--card-bg); }
+.blog-hero-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+.blog-hero-card:hover .blog-hero-image img { transform: scale(1.03); }
+.blog-hero-image-placeholder { width: 100%; height: 100%; min-height: 340px; background: linear-gradient(135deg, #D8D3CD 0%, #C8C3BC 100%); display: flex; align-items: center; justify-content: center; }
+
+/* ── LIST SECTION HEADER ── */
+.blog-list-section { padding: 0 0 96px; }
+.blog-list-header { display: flex; align-items: center; justify-content: space-between; padding: 48px 0 0; margin-bottom: 32px; }
+.blog-list-label {
+  font-family: var(--font-mono); font-size: 16px; font-weight: 400;
+  letter-spacing: 2px; text-transform: uppercase; color: var(--accent-blue);
+}
+
+/* ── POST LIST ── */
+.blog-list { list-style: none; }
+.blog-list-item {
+  display: grid;
+  align-items: start;
+  padding: 36px 0;
+  border-top: 1px solid var(--border);
+  text-decoration: none;
+  position: relative;
+}
+.blog-list-item:last-child { border-bottom: 1px solid var(--border); }
+.blog-list-item:hover .blog-list-thumb img { transform: scale(1.04); }
+.blog-list-meta { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+.blog-list-date { font-size: 13px; color: var(--text-muted); }
+.blog-list-readtime { font-size: 13px; color: var(--text-muted); display: inline-flex; align-items: center; gap: 4px; }
+.blog-list-tag {
+  display: inline-flex; font-family: var(--font-mono); font-size: 9px;
+  letter-spacing: 1.5px; text-transform: uppercase; padding: 3px 8px;
+  border-radius: 2px; width: fit-content;
+}
+.blog-list-tag.mint   { background: rgba(13,155,122,0.08); color: var(--accent-mint); }
+.blog-list-tag.salmon { background: rgba(192,80,48,0.08);  color: var(--accent-salmon); }
+.blog-list-tag.blue   { background: rgba(20,136,252,0.08); color: var(--accent-blue); }
+.blog-list-title {
+  font-family: var(--font-serif); font-weight: 600; line-height: 1.2;
+  color: var(--text-primary); margin-bottom: 10px; letter-spacing: -0.01em;
+  transition: color 0.2s;
+}
+.blog-list-excerpt {
+  font-size: 14px; color: var(--text-secondary); line-height: 1.65;
+  margin-bottom: 18px; display: -webkit-box; -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical; overflow: hidden;
+}
+.blog-list-author { display: flex; align-items: center; gap: 8px; }
+.blog-list-avatar { border-radius: 50%; background: var(--card-bg); overflow: hidden; flex-shrink: 0; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.blog-list-author-name { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+.blog-list-thumb { aspect-ratio: 16/10; overflow: hidden; border-radius: 3px; background: var(--surface); }
+.blog-list-thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+.blog-list-thumb-placeholder { width: 100%; height: 100%; background: linear-gradient(135deg, #D8D3CD 0%, #C0BAB3 100%); }
+
+/* Feed variant */
+.blog-feed .blog-list-item { grid-template-columns: 1fr 320px; gap: 48px; }
+.blog-feed .blog-list-title { font-size: 32px; }
+.blog-feed .blog-list-item:hover .blog-list-title { color: var(--text-primary); }
+
+/* ── TAGS CLOUD ── */
+@keyframes grain {
+  0%,100% { transform: translate(0,0); }
+  10% { transform: translate(-2%,-3%); } 20% { transform: translate(3%,2%); }
+  30% { transform: translate(-1%,4%); } 40% { transform: translate(4%,-1%); }
+  50% { transform: translate(-3%,3%); } 60% { transform: translate(2%,-4%); }
+  70% { transform: translate(-4%,1%); } 80% { transform: translate(1%,3%); }
+  90% { transform: translate(3%,-2%); }
+}
+.blog-tags-outer { padding: 0 0 80px; background: var(--bg); }
+.blog-tags-section {
+  background: var(--surface); padding: 72px var(--gutter); margin: 0 auto;
+  width: min(var(--max-w), calc(100vw - var(--gutter) * 2));
+  position: relative; overflow: hidden; border-radius: 4px;
+}
+.blog-tags-section::before {
+  content: ''; position: absolute; inset: -50%; width: 200%; height: 200%;
+  opacity: 0.18; pointer-events: none; z-index: 0; animation: grain 0.6s steps(1) infinite;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+}
+.blog-tags-section > * { position: relative; z-index: 1; }
+.blog-tags-eyebrow {
+  font-family: var(--font-mono); font-size: 16px; font-weight: 400;
+  letter-spacing: 2px; text-transform: uppercase; color: var(--accent-blue); margin-bottom: 40px;
+}
+.blog-tags-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  border-top: 1px solid rgba(0,0,0,0.1); border-left: 1px solid rgba(0,0,0,0.1);
+}
+.blog-tag-cell {
+  position: relative; padding: 28px 24px;
+  border-bottom: 1px solid rgba(0,0,0,0.1); border-right: 1px solid rgba(0,0,0,0.1);
+  text-decoration: none; display: flex; align-items: flex-end; cursor: pointer; transition: background 0.2s;
+}
+.blog-tag-cell:hover { background: #7FDDC1; }
+.blog-tag-cell:hover .blog-tag-name { color: #10100F; }
+.blog-tag-cell:hover .blog-tag-count { color: rgba(0,0,0,0.45); }
+.blog-tag-name { font-size: 16px; font-weight: 400; color: var(--text-primary); letter-spacing: -0.01em; line-height: 1; }
+.blog-tag-count { font-family: var(--font-mono); font-size: 10px; color: rgba(0,0,0,0.3); font-weight: 400; line-height: 1; position: absolute; top: 14px; right: 16px; }
+
+/* ── NEWSLETTER ── */
+.blog-newsletter { width: min(var(--max-w), calc(100vw - var(--gutter) * 2)); margin: 0 auto 80px; }
+.blog-newsletter-inner {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 4px;
+  padding: 56px 48px; display: flex; align-items: center; justify-content: space-between; gap: 40px; flex-wrap: wrap;
+}
+.blog-newsletter-heading { font-family: var(--font-serif); font-size: 30px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 8px; }
+.blog-newsletter-body { font-size: 15px; color: var(--text-secondary); line-height: 1.6; max-width: 420px; }
+.blog-newsletter-form { display: flex; gap: 10px; flex: 1; min-width: 280px; max-width: 460px; }
+.blog-newsletter-input {
+  flex: 1; font-family: var(--font-sans); font-size: 14px; padding: 12px 16px;
+  border: 1px solid var(--border); border-radius: 2px; background: var(--bg); color: var(--text-primary);
+}
+.blog-newsletter-input:focus { outline: none; border-color: var(--accent-mint); }
+.blog-newsletter-btn {
+  font-family: var(--font-sans); font-size: 14px; font-weight: 600; white-space: nowrap;
+  background: var(--accent-blue); color: #fff; border: none; padding: 12px 24px; border-radius: 2px; cursor: pointer; transition: opacity 0.2s;
+}
+.blog-newsletter-btn:hover { opacity: 0.88; }
+
+/* ── LOAD MORE ── */
+.blog-load-more { text-align: center; padding: 8px 0 72px; display: flex; gap: 12px; justify-content: center; }
+.btn-load-more {
+  font-family: var(--font-sans); font-size: 13px; font-weight: 500; color: var(--text-secondary);
+  background: none; border: 1px solid var(--border); padding: 12px 36px; border-radius: 2px;
+  cursor: pointer; text-decoration: none; transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+.btn-load-more:hover { border-color: var(--accent-mint); color: var(--accent-mint); background: rgba(13,155,122,0.06); }
+
+/* ── FOOTER ── */
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 40px var(--gutter);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.footer-copy { font-size: 13px; color: var(--text-muted); }
+.footer-links { display: flex; gap: 24px; }
+.footer-links a { font-size: 13px; color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+.footer-links a:hover { color: var(--text-primary); }
+
+/* ── PAGE NAV (index / article toggle) ── */
+.page-toggle { display: flex; gap: 0; border: 1px solid var(--border); border-radius: 3px; overflow: hidden; margin: 0 auto; width: fit-content; }
+.page-toggle-btn {
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
+  padding: 8px 20px; background: none; border: none; cursor: pointer; color: var(--text-muted);
+  transition: background 0.2s, color 0.2s;
+}
+.page-toggle-btn.active { background: var(--text-primary); color: #fff; }
+.demo-bar { background: var(--card-bg); border-bottom: 1px solid var(--border); padding: 12px var(--gutter); display: flex; align-items: center; gap: 16px; }
+.demo-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); }
+
+/* ── POST PAGE ── */
+.reading-progress { position: fixed; top: 60px; left: 0; height: 2px; background: var(--accent-blue); width: 0%; z-index: 99; transition: width 0.1s linear; }
+.post-breadcrumbs { max-width: var(--article-w); margin: 0 auto; padding: 40px var(--gutter) 0; }
+.blog-breadcrumbs-list { list-style: none; display: flex; align-items: center; gap: 8px; }
+.blog-breadcrumb { display: inline-flex; align-items: center; gap: 8px; }
+.blog-breadcrumb-link { font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); text-decoration: none; }
+.blog-breadcrumb-link:hover { color: var(--accent-blue); }
+.blog-breadcrumb-current { font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-secondary); max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.blog-breadcrumb-sep { color: var(--text-muted); font-size: 10px; }
+.post-header { max-width: var(--article-w); margin: 0 auto; padding: 64px var(--gutter) 40px; text-align: center; }
+.post-meta-top { display: inline-flex; align-items: center; gap: 12px; margin-bottom: 28px; }
+.post-tag { font-family: var(--font-mono); font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; padding: 5px 12px; border-radius: 2px; border: 1px solid var(--border); color: var(--text-secondary); text-decoration: none; transition: color 0.2s, border-color 0.2s; }
+.post-tag:hover { color: var(--accent-blue); border-color: var(--accent-blue); }
+.post-date { font-size: 13px; color: var(--text-muted); }
+.post-title { font-family: var(--font-serif); font-size: clamp(38px, 5vw, 62px); font-weight: 700; line-height: 1.06; letter-spacing: -0.02em; color: var(--text-primary); margin-bottom: 24px; }
+.post-subtitle { font-size: 17px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 36px; max-width: 580px; margin-left: auto; margin-right: auto; }
+.post-author-row { display: inline-flex; align-items: center; gap: 10px; justify-content: center; }
+.post-author-avatar { width: 28px; height: 28px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: var(--card-bg); display: flex; align-items: center; justify-content: center; font-size: 12px; }
+.post-author-name { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+.post-author-divider { width: 1px; height: 14px; background: var(--border); }
+.post-readtime { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 5px; }
+.post-hero { max-width: var(--hero-w); margin: 0 auto 56px; padding: 0 var(--gutter); }
+.post-hero-image { width: 100%; aspect-ratio: 16/7; border-radius: 6px; overflow: hidden; background: var(--surface); }
+.post-hero-image-placeholder { width: 100%; height: 100%; background: linear-gradient(135deg, #D8D3CD 0%, #B8B3AC 100%); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); }
+.post-body { max-width: var(--article-w); margin: 0 auto; padding: 0 var(--gutter) 0; }
+.post-body p { font-size: 17px; line-height: 1.8; color: var(--text-secondary); margin-bottom: 28px; }
+.post-body > p:first-child { color: var(--text-primary); font-size: 18px; }
+.post-body h2 { font-size: 26px; font-weight: 700; color: var(--text-primary); margin: 52px 0 20px; letter-spacing: -0.02em; }
+.post-body h3 { font-size: 19px; font-weight: 600; color: var(--text-primary); margin: 36px 0 14px; }
+.post-body ul, .post-body ol { padding-left: 24px; margin-bottom: 28px; }
+.post-body li { font-size: 17px; line-height: 1.8; color: var(--text-secondary); margin-bottom: 8px; }
+.post-body a { color: var(--accent-mint); text-decoration: none; border-bottom: 1px solid rgba(13,155,122,0.3); }
+.post-body a:hover { border-bottom-color: var(--accent-mint); }
+.post-body strong { color: var(--text-primary); font-weight: 600; }
+.post-body hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+.post-body code { font-family: 'Courier New', monospace; font-size: 0.9em; background: var(--surface); padding: 1px 5px; border-radius: 3px; color: #0d7a62; }
+.post-quote { margin: 48px 0; padding: 36px 40px; border-left: 3px solid var(--accent-mint); background: rgba(13,155,122,0.05); border-radius: 0 4px 4px 0; }
+.post-quote p { font-family: var(--font-serif); font-size: clamp(22px, 2.5vw, 30px); font-style: italic; font-weight: 400; color: var(--text-primary) !important; line-height: 1.4; margin-bottom: 0 !important; }
+.post-code { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 24px; margin: 28px 0; overflow-x: auto; }
+.post-code code { font-family: 'Courier New', monospace; font-size: 13px; color: #0d7a62; line-height: 1.7; background: none; padding: 0; white-space: pre; }
+.post-tags { display: flex; gap: 8px; flex-wrap: wrap; margin: 56px 0 0; padding-top: 32px; border-top: 1px solid var(--border); }
+.post-tag-item { font-family: var(--font-mono); font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; padding: 5px 12px; border-radius: 2px; border: 1px solid var(--border); color: var(--text-muted); text-decoration: none; transition: color 0.2s, border-color 0.2s; }
+.post-tag-item:hover { color: var(--text-primary); border-color: rgba(0,0,0,0.2); }
+.post-author-bio { max-width: var(--article-w); margin: 56px auto 0; padding: 0 var(--gutter); }
+.author-bio-card { display: flex; gap: 24px; padding: 32px; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; }
+.author-bio-avatar { width: 64px; height: 64px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: var(--card-bg); display: flex; align-items: center; justify-content: center; font-size: 24px; }
+.author-bio-name { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+.author-bio-role { font-family: var(--font-mono); font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent-blue); margin-bottom: 12px; }
+.author-bio-text { font-size: 14px; color: var(--text-secondary); line-height: 1.65; }
+.related-posts { max-width: var(--max-w); margin: 80px auto 96px; padding: 0 var(--gutter); }
+@keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+.related-eyebrow { font-family: var(--font-mono); font-size: 16px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-blue); margin-bottom: 28px; display: flex; align-items: center; gap: 10px; }
+.eyebrow-dot { display: inline-block; font-size: 8px; animation: pulse-dot 2s ease-in-out infinite; line-height: 1; vertical-align: middle; position: relative; top: -1px; }
+.related-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.related-card { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; text-decoration: none; transition: border-color 0.3s; }
+.related-card:hover { border-color: rgba(13,155,122,0.3); }
+.related-card-image { aspect-ratio: 16/9; overflow: hidden; background: var(--card-bg); }
+.related-card-image-placeholder { width: 100%; height: 100%; background: linear-gradient(135deg, #D8D3CD 0%, #C0BAB3 100%); }
+.related-card:hover .related-card-image img { transform: scale(1.04); }
+.related-card-body { padding: 20px; }
+.related-card-tag { font-family: var(--font-mono); font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent-salmon); margin-bottom: 10px; }
+.related-card-title { font-size: 15px; font-weight: 600; color: var(--text-primary); line-height: 1.35; }
+
+/* ── CTA EMBED ── */
+.rt-cta { margin: 40px 0; padding: 32px 36px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+.rt-cta--banner { background: rgba(20,136,252,0.06); border-color: rgba(20,136,252,0.2); }
+.rt-cta-heading { font-family: var(--font-serif); font-size: 24px; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
+.rt-cta-body { font-size: 15px; color: var(--text-secondary); line-height: 1.6; margin: 0; }
+.rt-cta-btn { font-family: var(--font-sans); font-size: 14px; font-weight: 600; background: var(--accent-blue); color: #fff; padding: 12px 22px; border-radius: 2px; text-decoration: none; white-space: nowrap; transition: opacity 0.2s; }
+.rt-cta-btn:hover { opacity: 0.88; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  :root { --gutter: 40px; }
+  .blog-hero-card { grid-template-columns: 1fr; }
+  .blog-hero-image-placeholder { min-height: 240px; }
+  .blog-feed .blog-list-item { grid-template-columns: 1fr; gap: 24px; }
+  .blog-feed .blog-list-title { font-size: 24px; }
+  .related-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+  :root { --gutter: 20px; }
+  .filter-btn { padding: 14px 12px; }
+  .blog-newsletter-inner { padding: 36px 24px; flex-direction: column; }
+  .related-grid { grid-template-columns: 1fr; }
+}
+
+/* ── DEMO TOGGLE ── */
+#view-index { display: block; }
+#view-article { display: none; }
+</style>
+</head>
+<body>
+
+<!-- ── DEMO SWITCHER ── -->
+<div class="demo-bar">
+  <span class="demo-label">Preview:</span>
+  <div class="page-toggle">
+    <button class="page-toggle-btn active" onclick="showView('index')">Blog Index</button>
+    <button class="page-toggle-btn" onclick="showView('article')">Article Page</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+     VIEW 1 — BLOG INDEX
+════════════════════════════════════════════════ -->
+<div id="view-index">
+
+  <!-- NAV -->
+  <nav class="nav">
+    <a href="#" class="nav-logo">
+      <span class="nav-logo-bolt">bolt</span>
+      <span class="nav-logo-label">Blog</span>
+    </a>
+    <a href="https://bolt.new" class="nav-cta">Try Bolt →</a>
+  </nav>
+
+  <!-- FILTER BAR -->
+  <div class="blog-filters">
+    <div class="blog-filters-inner">
+      <div class="filter-group">
+        <a href="#" class="filter-btn active">All</a>
+        <a href="#" class="filter-btn">Product</a>
+        <a href="#" class="filter-btn">Engineering</a>
+        <a href="#" class="filter-btn">AI</a>
+        <a href="#" class="filter-btn">Company</a>
+        <a href="#" class="filter-btn">Tutorials</a>
+      </div>
+      <div class="blog-search">
+        <input class="blog-search-input" type="search" placeholder="Search">
+        <button class="blog-search-btn">
+          <svg class="blog-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="blog-wrap">
+
+    <!-- HERO FEATURED POST -->
+    <section class="blog-hero">
+      <div class="blog-hero-eyebrow">Featured</div>
+      <a href="#" class="blog-hero-card">
+        <div class="blog-hero-content">
+          <div>
+            <div class="blog-hero-top-meta">
+              <span class="blog-hero-tag">Product</span>
+              <span class="blog-hero-date">June 2, 2025</span>
+              <span class="blog-hero-readtime">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                6 min
+              </span>
+            </div>
+            <h1 class="blog-hero-title">Bolt now runs in Microsoft Teams and Microsoft 365 Copilot</h1>
+            <p class="blog-hero-excerpt">Build and ship real apps right from the tools your team already uses — no tab-switching, no context loss, no separate tool to adopt.</p>
+          </div>
+          <div class="blog-hero-meta">
+            <div class="blog-hero-avatar">👤</div>
+            <div>
+              <div class="blog-hero-author">Eric Simons</div>
+              <div class="blog-hero-date">CEO, StackBlitz</div>
+            </div>
+          </div>
+        </div>
+        <div class="blog-hero-image">
+          <div class="blog-hero-image-placeholder" style="background: linear-gradient(135deg, #1a2a3a 0%, #0d1a28 100%); min-height:340px;"></div>
+        </div>
+      </a>
+    </section>
+
+    <!-- LATEST POSTS -->
+    <section class="blog-list-section blog-feed">
+      <div class="blog-list-header">
+        <span class="blog-list-label">Latest</span>
+      </div>
+      <ul class="blog-list">
+
+        <li>
+          <a href="#" class="blog-list-item">
+            <div class="blog-list-body">
+              <div class="blog-list-meta">
+                <span class="blog-list-tag blue">Engineering</span>
+                <span class="blog-list-date">May 28, 2025</span>
+                <span class="blog-list-readtime">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  8 min
+                </span>
+              </div>
+              <div class="blog-list-title">How we built real-time collaborative editing into Bolt without breaking the world</div>
+              <p class="blog-list-excerpt">A deep dive into the architecture decisions, the tradeoffs we made, and what we'd do differently if we started over today.</p>
+              <div class="blog-list-author">
+                <div class="blog-list-avatar">👤</div>
+                <span class="blog-list-author-name">Addy Osmani</span>
+              </div>
+            </div>
+            <div class="blog-list-thumb"><div class="blog-list-thumb-placeholder" style="background: linear-gradient(135deg, #1e3a5f 0%, #0f2540 100%); height:100%;"></div></div>
+          </a>
+        </li>
+
+        <li>
+          <a href="#" class="blog-list-item">
+            <div class="blog-list-body">
+              <div class="blog-list-meta">
+                <span class="blog-list-tag mint">AI</span>
+                <span class="blog-list-date">May 22, 2025</span>
+                <span class="blog-list-readtime">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  5 min
+                </span>
+              </div>
+              <div class="blog-list-title">Why most AI coding tools get context wrong — and how Bolt is different</div>
+              <p class="blog-list-excerpt">Context isn't just the file you have open. It's the whole project, the intent, the conversation history. Here's how we think about it.</p>
+              <div class="blog-list-author">
+                <div class="blog-list-avatar">👤</div>
+                <span class="blog-list-author-name">Natmara Pimentel</span>
+              </div>
+            </div>
+            <div class="blog-list-thumb"><div class="blog-list-thumb-placeholder" style="background: linear-gradient(135deg, #0d3d30 0%, #051f18 100%); height:100%;"></div></div>
+          </a>
+        </li>
+
+        <li>
+          <a href="#" class="blog-list-item">
+            <div class="blog-list-body">
+              <div class="blog-list-meta">
+                <span class="blog-list-tag salmon">Tutorials</span>
+                <span class="blog-list-date">May 15, 2025</span>
+                <span class="blog-list-readtime">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  12 min
+                </span>
+              </div>
+              <div class="blog-list-title">From Figma to production in 20 minutes: a step-by-step walkthrough</div>
+              <p class="blog-list-excerpt">We took a real design file and shipped it live using Bolt. No hand-off, no pixel-matching, no back-and-forth with an engineer.</p>
+              <div class="blog-list-author">
+                <div class="blog-list-avatar">👤</div>
+                <span class="blog-list-author-name">Sarah Drasner</span>
+              </div>
+            </div>
+            <div class="blog-list-thumb"><div class="blog-list-thumb-placeholder" style="background: linear-gradient(135deg, #3d1a0a 0%, #200e04 100%); height:100%;"></div></div>
+          </a>
+        </li>
+
+        <li>
+          <a href="#" class="blog-list-item">
+            <div class="blog-list-body">
+              <div class="blog-list-meta">
+                <span class="blog-list-tag blue">Company</span>
+                <span class="blog-list-date">May 8, 2025</span>
+                <span class="blog-list-readtime">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  3 min
+                </span>
+              </div>
+              <div class="blog-list-title">Bolt hits 5 million projects built — a note from our team</div>
+              <p class="blog-list-excerpt">Five million projects is a number that still doesn't feel real to us. Here's what we're seeing, what it means, and where we're headed.</p>
+              <div class="blog-list-author">
+                <div class="blog-list-avatar">👤</div>
+                <span class="blog-list-author-name">Eric Simons</span>
+              </div>
+            </div>
+            <div class="blog-list-thumb"><div class="blog-list-thumb-placeholder" style="background: linear-gradient(135deg, #1a1a2e 0%, #0d0d1a 100%); height:100%;"></div></div>
+          </a>
+        </li>
+
+      </ul>
+    </section>
+
+  </div>
+
+  <!-- LOAD MORE -->
+  <div class="blog-load-more">
+    <a href="#" class="btn-load-more">Load more posts</a>
+  </div>
+
+  <!-- NEWSLETTER -->
+  <div class="blog-newsletter">
+    <div class="blog-newsletter-inner">
+      <div>
+        <div class="blog-newsletter-heading">Stay in the loop</div>
+        <p class="blog-newsletter-body">Product updates, engineering deep-dives, and the occasional early access drop — straight to your inbox.</p>
+      </div>
+      <form class="blog-newsletter-form">
+        <input class="blog-newsletter-input" type="email" placeholder="you@company.com" required>
+        <button class="blog-newsletter-btn" type="submit">Subscribe</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- TAG CLOUD -->
+  <div class="blog-tags-outer">
+    <section class="blog-tags-section">
+      <div class="blog-tags-eyebrow">Browse by tag</div>
+      <div class="blog-tags-grid">
+        <a href="#" class="blog-tag-cell"><span class="blog-tag-count">24</span><span class="blog-tag-name">AI</span></a>
+        <a href="#" class="blog-tag-cell"><span class="blog-tag-count">18</span><span class="blog-tag-name">Product</span></a>
+        <a href="#" class="blog-tag-cell"><span class="blog-tag-count">15</span><span class="blog-tag-name">Engineering</span></a>
+        <a href="#" class="blog-tag-cell"><span class="blog-tag-count">12</span><span class="blog-tag-name">Tutorials</span></a>
+        <a href="#" class="blog-tag-cell"><span class="blog-tag-count">9</span><span class="blog-tag-name">Enterprise</span></a>
+        <a href="#" class="blog-tag-cell"><span class="blog-tag-count">8</span><span class="blog-tag-name">Open Source</span></a>
+        <a href="#" class="blog-tag-cell"><span class="blog-tag-count">7</span><span class="blog-tag-name">Design</span></a>
+        <a href="#" class="blog-tag-cell"><span class="blog-tag-count">6</span><span class="blog-tag-name">Company</span></a>
+        <a href="#" class="blog-tag-cell"><span class="blog-tag-count">5</span><span class="blog-tag-name">WebContainers</span></a>
+        <a href="#" class="blog-tag-cell"><span class="blog-tag-count">4</span><span class="blog-tag-name">Performance</span></a>
+        <a href="#" class="blog-tag-cell"><span class="blog-tag-count">3</span><span class="blog-tag-name">Security</span></a>
+        <a href="#" class="blog-tag-cell"><span class="blog-tag-count">3</span><span class="blog-tag-name">Releases</span></a>
+      </div>
+    </section>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <span class="footer-copy">© 2025 StackBlitz, Inc.</span>
+    <div class="footer-links">
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">bolt.new</a>
+    </div>
+  </footer>
+
+</div><!-- /view-index -->
+
+
+<!-- ════════════════════════════════════════════════
+     VIEW 2 — ARTICLE PAGE
+════════════════════════════════════════════════ -->
+<div id="view-article">
+
+  <!-- NAV -->
+  <nav class="nav">
+    <a href="#" class="nav-logo">
+      <span class="nav-logo-bolt">bolt</span>
+      <span class="nav-logo-label">Blog</span>
+    </a>
+    <a href="https://bolt.new" class="nav-cta">Try Bolt →</a>
+  </nav>
+
+  <!-- READING PROGRESS -->
+  <div class="reading-progress" id="reading-progress"></div>
+
+  <!-- BREADCRUMBS -->
+  <div class="post-breadcrumbs">
+    <nav class="blog-breadcrumbs">
+      <ol class="blog-breadcrumbs-list">
+        <li class="blog-breadcrumb"><a href="#" class="blog-breadcrumb-link">Blog</a></li>
+        <li class="blog-breadcrumb"><span class="blog-breadcrumb-sep">/</span></li>
+        <li class="blog-breadcrumb"><a href="#" class="blog-breadcrumb-link">Product</a></li>
+        <li class="blog-breadcrumb"><span class="blog-breadcrumb-sep">/</span></li>
+        <li class="blog-breadcrumb"><span class="blog-breadcrumb-current">Bolt now runs in Microsoft Teams</span></li>
+      </ol>
+    </nav>
+  </div>
+
+  <!-- POST HEADER -->
+  <header class="post-header">
+    <div class="post-meta-top">
+      <a href="#" class="post-tag">Product</a>
+      <span class="post-date">Published June 2, 2025</span>
+    </div>
+    <h1 class="post-title">Bolt now runs in Microsoft Teams and Microsoft 365 Copilot</h1>
+    <p class="post-subtitle">Build and ship real apps right from the tools your team already uses — no tab-switching, no context loss, no separate tool to adopt.</p>
+    <div class="post-author-row">
+      <div class="post-author-avatar">👤</div>
+      <span class="post-author-name">Eric Simons</span>
+      <div class="post-author-divider"></div>
+      <span class="post-readtime">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        6 min read
+      </span>
+    </div>
+  </header>
+
+  <!-- HERO IMAGE -->
+  <div class="post-hero">
+    <div class="post-hero-image">
+      <div class="post-hero-image-placeholder">Hero image</div>
+    </div>
+  </div>
+
+  <!-- ARTICLE BODY -->
+  <article class="post-body">
+    <p>Today we're announcing that Bolt is now available natively inside Microsoft Teams and Microsoft 365 Copilot. You can describe an app, watch it get built in real time, and share a working preview — all without leaving the conversation.</p>
+
+    <p>This is the result of a strategic partnership with Microsoft, and it changes something fundamental about how teams build internal tools: the moment of inspiration and the moment of creation are now the same moment.</p>
+
+    <h2>Why Teams?</h2>
+
+    <p>Most software ideas die in chat. Someone mentions a problem, a few people react, someone says "we should build something for that," and then... nothing. The friction between the idea and the first line of code is too high. By the time a ticket is filed and a sprint is planned, the energy is gone.</p>
+
+    <p>Bolt in Teams removes that friction entirely. You can describe what you want in plain English, in the same message thread where the problem was raised, and have a working prototype to share in minutes.</p>
+
+    <div class="post-quote">
+      <p>"The gap between idea and working software just collapsed. That's not a small thing."</p>
+    </div>
+
+    <h2>How it works</h2>
+
+    <p>When Bolt is enabled for your organization, a <code>@Bolt</code> mention in any Teams chat opens a build session. Bolt uses Copilot's language understanding to turn your description into a detailed spec, then builds the app step by step — visible to everyone in the thread.</p>
+
+    <ul>
+      <li>Describe your app in plain English — no spec doc, no wireframes required</li>
+      <li>Watch Bolt plan, scaffold, and build in real time</li>
+      <li>Get a live preview link that works on any device</li>
+      <li>Iterate with follow-up messages, just like a conversation</li>
+    </ul>
+
+    <div class="rt-cta rt-cta--banner">
+      <div>
+        <div class="rt-cta-heading">Try Bolt in Microsoft Teams</div>
+        <p class="rt-cta-body">Available now for enterprise organizations. Contact our team to enable it for your workspace.</p>
+      </div>
+      <a href="#" class="rt-cta-btn">Talk to our team</a>
+    </div>
+
+    <h2>Built for enterprise from day one</h2>
+
+    <p>Access is controlled through Microsoft Entra ID. Your IT admin enables Bolt for the organization and governs who can use it — no separate user management, no shadow IT, no new passwords to remember.</p>
+
+    <p>Everything runs in your tenant. App previews are scoped to your organization. Your existing security posture applies automatically.</p>
+
+    <div class="post-code"><code>$ bolt deploy --env production --org acme-corp
+✓ Building application...
+✓ Deploying to acme-corp workspace...
+✓ Preview available at: https://bolt.new/preview/x7k2m</code></div>
+
+    <h3>What's available today</h3>
+
+    <p>The Teams integration is live now for enterprise customers. The Microsoft 365 Copilot integration is in private beta — you can request access from the link below. We're letting people in in batches, and we'll reach out when your spot opens.</p>
+
+    <div class="post-tags">
+      <a href="#" class="post-tag-item">Product</a>
+      <a href="#" class="post-tag-item">Microsoft</a>
+      <a href="#" class="post-tag-item">Enterprise</a>
+      <a href="#" class="post-tag-item">Teams</a>
+    </div>
+  </article>
+
+  <!-- AUTHOR BIO -->
+  <div class="post-author-bio">
+    <div class="author-bio-card">
+      <div class="author-bio-avatar">👤</div>
+      <div>
+        <div class="author-bio-name">Eric Simons</div>
+        <div class="author-bio-role">CEO · StackBlitz</div>
+        <p class="author-bio-text">Eric is the co-founder and CEO of StackBlitz, the company behind Bolt.new and WebContainers. He's been building developer tools for over a decade and still writes code every day.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- RELATED POSTS -->
+  <div class="related-posts">
+    <div class="related-eyebrow">Related <span class="eyebrow-dot">●</span></div>
+    <div class="related-grid">
+      <a href="#" class="related-card">
+        <div class="related-card-image"><div class="related-card-image-placeholder" style="background: linear-gradient(135deg, #1e3a5f 0%, #0f2540 100%); height:100%;"></div></div>
+        <div class="related-card-body">
+          <div class="related-card-tag">Engineering</div>
+          <div class="related-card-title">How we built real-time collaborative editing into Bolt without breaking the world</div>
+        </div>
+      </a>
+      <a href="#" class="related-card">
+        <div class="related-card-image"><div class="related-card-image-placeholder" style="background: linear-gradient(135deg, #0d3d30 0%, #051f18 100%); height:100%;"></div></div>
+        <div class="related-card-body">
+          <div class="related-card-tag" style="color:var(--accent-mint);">AI</div>
+          <div class="related-card-title">Why most AI coding tools get context wrong — and how Bolt is different</div>
+        </div>
+      </a>
+      <a href="#" class="related-card">
+        <div class="related-card-image"><div class="related-card-image-placeholder" style="background: linear-gradient(135deg, #3d1a0a 0%, #200e04 100%); height:100%;"></div></div>
+        <div class="related-card-body">
+          <div class="related-card-tag">Tutorials</div>
+          <div class="related-card-title">From Figma to production in 20 minutes: a step-by-step walkthrough</div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <span class="footer-copy">© 2025 StackBlitz, Inc.</span>
+    <div class="footer-links">
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">bolt.new</a>
+    </div>
+  </footer>
+
+</div><!-- /view-article -->
+
+<script>
+function showView(view) {
+  document.getElementById('view-index').style.display = view === 'index' ? 'block' : 'none';
+  document.getElementById('view-article').style.display = view === 'article' ? 'block' : 'none';
+  document.querySelectorAll('.page-toggle-btn').forEach(function(b, i) {
+    b.classList.toggle('active', (view === 'index' && i === 0) || (view === 'article' && i === 1));
+  });
+  window.scrollTo(0, 0);
+}
+
+// Reading progress bar
+window.addEventListener('scroll', function() {
+  var el = document.getElementById('reading-progress');
+  if (!el) return;
+  var body = document.body, html = document.documentElement;
+  var total = Math.max(body.scrollHeight, html.scrollHeight) - window.innerHeight;
+  el.style.width = (window.scrollY / total * 100) + '%';
+});
+</script>
+</body>
+</html>
