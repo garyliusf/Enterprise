@@ -2599,6 +2599,24 @@
     requestAnimationFrame(draw);
   })();
 
+  // ── Nudge the hero/autoplay videos to start immediately ──
+  // (some browsers hold a muted-autoplay video on its poster until the first
+  //  interaction; calling play() on load kicks it off without a scroll)
+  (function () {
+    function playAll() {
+      document.querySelectorAll('video[autoplay]:not([data-lazy-video])').forEach(function (v) {
+        var p = v.play();
+        if (p && p.catch) p.catch(function () {});
+      });
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', playAll);
+    } else { playAll(); }
+    window.addEventListener('load', playAll);
+    // one more nudge after first paint settles
+    requestAnimationFrame(function () { requestAnimationFrame(playAll); });
+  })();
+
   // ── Lazy-load below-the-fold background videos (preload=none until near) ──
   (function() {
     var vids = document.querySelectorAll('video[data-lazy-video]');
