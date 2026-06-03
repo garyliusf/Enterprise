@@ -1003,27 +1003,22 @@
       position: relative;
     }
     .agenda-session.is-active {
-      background: linear-gradient(105deg,
-        rgba(255,176,147,0.14) 0%,
-        rgba(127,221,193,0.06) 45%,
-        rgba(20,136,252,0.16) 100%
-      );
+      background: rgba(127,221,193,0.04);
     }
-    .agenda-session::after {
-      content: '';
+    /* animated mint pixel field on the scroll-active card (same as the FAQ) */
+    .agenda-pixel-canvas {
       position: absolute;
       inset: 0;
+      width: 100%;
+      height: 100%;
       border-radius: 4px;
       pointer-events: none;
-      filter: url(#agenda-noise);
-      mix-blend-mode: screen;
       opacity: 0;
-      transition: opacity 0.4s ease;
-      z-index: 2;
+      transition: opacity 0.5s ease;
+      z-index: 0;
     }
-    .agenda-session.is-active::after {
-      opacity: 1;
-    }
+    .agenda-session.is-active .agenda-pixel-canvas { opacity: 1; }
+    .agenda-session > *:not(.agenda-pixel-canvas) { position: relative; z-index: 1; }
     .agenda-time {
       font-size: 13px;
       color: #FFB093;
@@ -2757,6 +2752,58 @@
       });
     }, { rootMargin: '100px' });
     io.observe(canvas);
+    requestAnimationFrame(draw);
+  })();
+
+  // ── Agenda card mint pixel field (fades in on the scroll-active card) ──
+  (function () {
+    var items = document.querySelectorAll('.agenda-session');
+    if (!items.length) return;
+    var dpr = window.devicePixelRatio || 1;
+    var objs = [];
+    items.forEach(function (item, idx) {
+      var canvas = document.createElement('canvas');
+      canvas.className = 'agenda-pixel-canvas';
+      item.insertBefore(canvas, item.firstChild);
+      objs.push({ canvas: canvas, item: item, phase: idx * 1.7 });
+    });
+    function resizeAll() {
+      objs.forEach(function (o) { o.canvas.width = o.item.offsetWidth * dpr; o.canvas.height = o.item.offsetHeight * dpr; });
+    }
+    resizeAll();
+    window.addEventListener('resize', resizeAll);
+    function draw(t) {
+      objs.forEach(function (o) {
+        if (!o.item.classList.contains('is-active')) return;
+        var canvas = o.canvas, h = o.item.offsetHeight;
+        if (canvas.height !== h * dpr) { canvas.width = o.item.offsetWidth * dpr; canvas.height = h * dpr; }
+        var ctx = canvas.getContext('2d'); var W = canvas.width, H = canvas.height;
+        ctx.clearRect(0, 0, W, H);
+        var sp = 7 * dpr, maxR = 2.2 * dpr;
+        var cols = Math.ceil(W / sp) + 1, rows = Math.ceil(H / sp) + 1;
+        for (var r = 0; r < rows; r++) {
+          for (var c = 0; c < cols; c++) {
+            var px = c * sp, py = r * sp;
+            var fade = Math.max(0, Math.min(1, (px / W - 0.12) / 0.6));
+            if (fade < 0.02) continue;
+            var a1 = t * 0.00012 + o.phase;
+            var u1 = (px * Math.cos(a1) + py * Math.sin(a1)) / (350 * dpr);
+            var v1 = (-px * Math.sin(a1) + py * Math.cos(a1)) / (220 * dpr);
+            var a2 = t * 0.00022 + o.phase + 1.5;
+            var u2 = (px * Math.cos(a2) + py * Math.sin(a2)) / (180 * dpr);
+            var wave = (Math.sin(u1 * Math.PI * 2 + t * 0.00030) * Math.cos(v1 * Math.PI * 1.5)) * 0.55 + (Math.sin(u2 * Math.PI * 2 + t * 0.00060) * 0.45);
+            var density = Math.pow(Math.max(0, wave * 0.5 + 0.5), 0.8) * fade;
+            var rand = (Math.sin(c * 127.1 + r * 311.7 + o.phase * 50) * 0.5 + 0.5) * 0.9;
+            if (density > rand) {
+              var alpha = density * 0.3;
+              ctx.beginPath(); ctx.arc(px, py, maxR * density, 0, Math.PI * 2);
+              ctx.fillStyle = 'rgba(127,221,193,' + alpha.toFixed(2) + ')'; ctx.fill();
+            }
+          }
+        }
+      });
+      requestAnimationFrame(draw);
+    }
     requestAnimationFrame(draw);
   })();
 
