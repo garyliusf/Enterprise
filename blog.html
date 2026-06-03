@@ -95,8 +95,18 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
 /* ── FILTER BAR ── */
 .blog-filters {
   width: 100%;
+  position: sticky;
+  top: 60px;
+  z-index: 90;
   border-bottom: 1px solid var(--border);
-  background: rgba(240,237,233,0.9);
+  background: rgba(240,237,233,0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.blog-filters.is-stuck {
+  box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+  border-bottom-color: rgba(0,0,0,0.12);
 }
 .blog-filters-inner {
   width: min(var(--max-w), calc(100vw - var(--gutter) * 2));
@@ -1381,6 +1391,20 @@ function showView(view) {
     requestAnimationFrame(draw);
   }
   requestAnimationFrame(draw);
+})();
+
+
+// Sticky filter bar
+(function() {
+  var bar = document.querySelector('.blog-filters');
+  if (!bar) return;
+  var sentinel = document.createElement('div');
+  sentinel.style.cssText = 'position:absolute;top:0;left:0;width:1px;height:1px;pointer-events:none;';
+  bar.parentNode.insertBefore(sentinel, bar);
+  var obs = new IntersectionObserver(function(entries) {
+    bar.classList.toggle('is-stuck', !entries[0].isIntersecting);
+  }, { threshold: 0, rootMargin: '-61px 0px 0px 0px' });
+  obs.observe(sentinel);
 })();
 
 // Reading progress bar
