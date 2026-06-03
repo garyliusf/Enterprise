@@ -1191,6 +1191,12 @@
     .faq-footer-banner:hover svg { transform: translateX(3px); }
 
     /* ── CTA / Footer section (copied from enterprise page) ── */
+    @keyframes word-reveal {
+      from { opacity: 0; transform: translate(-10px, -7px); filter: blur(5px); }
+      to { opacity: 1; transform: translate(0, 0); filter: blur(0); }
+    }
+    .reveal-stagger .word { display: inline-block; opacity: 0; transform: translate(-10px, -7px); filter: blur(5px); will-change: opacity, transform, filter; }
+    .reveal-stagger.is-revealed .word { animation: word-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards; animation-delay: calc(var(--i, 0) * 28ms); }
     .footer-section {
       background: #000;
       padding: 60px 40px 0;
@@ -1313,7 +1319,7 @@
     .card-form-strip {
       background: #000;
       border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 8px;
+      border-radius: 2px;
       padding: 12px 28px;
       display: flex;
       align-items: center;
@@ -2094,13 +2100,15 @@
 
   <!-- CTA / Footer — copied from enterprise page -->
   <section class="footer-section">
-    <p class="footer-eyebrow" style="font-size:14px;font-weight:400;letter-spacing:2px;text-transform:uppercase;color:rgba(20,136,252,0.7);margin:0;font-family:'Silkscreen',monospace;">Are you ready?</p>
-    <h2 class="footer-headline">Start building today</h2>
-    <p class="footer-subtitle">
-      Join thousands of teams shipping faster with our enterprise platform.
-    </p>
-    <div style="position:relative;width:100%;max-width:700px;margin-top:-120px;">
-      <canvas id="footer-pixel-canvas" style="display:block;width:100%;height:160px;pointer-events:none;opacity:1;"></canvas>
+    <div class="reveal-stagger" style="display:flex;flex-direction:column;align-items:center;gap:24px;text-align:center;width:100%;" data-reveal-children=".footer-eyebrow, .footer-headline, .footer-subtitle">
+      <p class="footer-eyebrow" style="font-size:16px;font-weight:400;letter-spacing:2px;text-transform:uppercase;color:#1488FC;margin:0;font-family:'Silkscreen',monospace;">Are you ready?</p>
+      <h2 class="footer-headline">Start building today</h2>
+      <p class="footer-subtitle">
+        Join thousands of teams shipping faster with our enterprise platform.
+      </p>
+    </div>
+    <div style="position:relative;width:100%;max-width:700px;margin-top:-152px;display:flex;flex-direction:column;align-items:center;">
+      <canvas id="footer-pixel-canvas" style="display:block;width:100%;height:192px;pointer-events:none;opacity:1;"></canvas>
       <div class="card-form-strip" style="margin-top:-16px;position:relative;z-index:1;">
         <div class="card-strip-text">
           <p class="card-strip-sub">Schedule a 1:1 with <span class="rotating-name" data-names='["Mason","Joe","Angelo"]'><span class="rotating-name-track"><span class="rotating-name-item">Mason</span></span></span></p>
@@ -3079,3 +3087,50 @@
 <script src="shared-components.js"></script>
 </body>
 </html>
+
+<script>
+(function () {
+  function __genericRevealInit() {
+    var wrappers = document.querySelectorAll('.reveal-stagger');
+    if (!wrappers.length) return;
+    wrappers.forEach(function (wrap) {
+      var sel = wrap.getAttribute('data-reveal-children');
+      if (!sel) return;
+      var nodes = wrap.querySelectorAll(sel);
+      var idx = 0;
+      nodes.forEach(function (el) {
+        var children = Array.prototype.slice.call(el.childNodes);
+        el.textContent = '';
+        children.forEach(function (node) {
+          if (node.nodeType === 3) {
+            var parts = node.textContent.split(/(\s+)/);
+            parts.forEach(function (pp) {
+              if (!pp.trim().length) { if (pp.length) el.appendChild(document.createTextNode(pp)); return; }
+              var span = document.createElement('span');
+              span.className = 'word'; span.style.setProperty('--i', idx); span.textContent = pp;
+              el.appendChild(span); idx++;
+            });
+          } else if (node.nodeName === 'BR') {
+            el.appendChild(node);
+          } else {
+            var w = document.createElement('span');
+            w.className = 'word'; w.style.setProperty('--i', idx); w.appendChild(node);
+            el.appendChild(w); idx++;
+          }
+        });
+      });
+    });
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) { e.target.classList.add('is-revealed'); io.unobserve(e.target); }
+        });
+      }, { threshold: 0, rootMargin: '-15% 0px -45% 0px' });
+      wrappers.forEach(function (w) { io.observe(w); });
+    } else {
+      wrappers.forEach(function (w) { w.classList.add('is-revealed'); });
+    }
+  }
+  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', __genericRevealInit); } else { __genericRevealInit(); }
+})();
+</script>

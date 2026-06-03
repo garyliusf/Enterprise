@@ -26,11 +26,25 @@ just drop it in / diff it against your copy).
 - Google Fonts link swapped: removed `Playfair+Display`, added
   `Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400`.
 
-### Footer email-capture label sizing (latest)
+### Footer email-capture label sizing
 - `.card-strip-sub` ("Schedule a 1:1 with …") font-size `20px` → **`16px`**
   (matches the shared standard / the other pages' label size).
 - `.rotating-name` (the Cormorant "Mason/Joe/Angelo") given **`font-size: 1.25em`** so the
   serif name doesn't look undersized next to the Inter label — renders ~20px against the 16px label.
+
+### Footer — final alignment to Microsoft footer (latest)
+- **Pixel canvas behind the headline** matched to Microsoft exactly: wrapper
+  `margin-top: -120px → -152px` + `display:flex; flex-direction:column; align-items:center`,
+  canvas `height: 160px → 192px`. Pixels now sit higher behind the header, identical to the
+  Microsoft/Enterprise/CLI footers.
+- **Card radius** `.card-form-strip` `8px → 2px` (matches the 2px standard used on
+  Enterprise/Get-Started cards).
+- **Reveal-stagger intro animation** added: the eyebrow + headline + subtitle now do the
+  blur/fade staggered word-reveal on scroll-in (same animation as the other footers). Wraps
+  the three elements in `.reveal-stagger[data-reveal-children]`; CSS keyframes + a small
+  generic init script are inlined.
+- **Eyebrow color/size** corrected to the brand standard: `rgba(20,136,252,0.7)/14px` →
+  **`#1488FC`/16px** (never use the opacity variant).
 
 ## Notes
 - The shared components (footer, FAQ accordion, buttons, eyebrows, email-capture card)
