@@ -1743,19 +1743,45 @@ window.addEventListener('load', function () {
   requestAnimationFrame(draw);
 })();
 
-/* ── Template slider nav ─────────────────────────────────────────────────── */
+/* ── Template slider — nav + click-drag ─────────────────────────────────── */
 (function () {
   var slider = document.getElementById('template-slider');
   var prev   = document.getElementById('tpl-prev');
   var next   = document.getElementById('tpl-next');
-  if (!slider || !prev || !next) return;
+  if (!slider) return;
   var card = slider.querySelector('.template-card');
   function scrollBy(dir) {
     var w = card ? card.offsetWidth + 20 : 360;
     slider.scrollBy({ left: dir * w, behavior: 'smooth' });
   }
-  prev.addEventListener('click', function () { scrollBy(-1); });
-  next.addEventListener('click', function () { scrollBy(1); });
+  if (prev) prev.addEventListener('click', function () { scrollBy(-1); });
+  if (next) next.addEventListener('click', function () { scrollBy(1); });
+
+  /* click-drag to scroll */
+  var isDragging = false, startX = 0, startScroll = 0, hasDragged = false;
+  slider.style.cursor = 'grab';
+  slider.addEventListener('mousedown', function (e) {
+    isDragging = true; hasDragged = false;
+    startX = e.pageX; startScroll = slider.scrollLeft;
+    slider.style.cursor = 'grabbing';
+    slider.style.userSelect = 'none';
+  });
+  window.addEventListener('mousemove', function (e) {
+    if (!isDragging) return;
+    var dx = e.pageX - startX;
+    if (Math.abs(dx) > 4) hasDragged = true;
+    slider.scrollLeft = startScroll - dx;
+  });
+  window.addEventListener('mouseup', function () {
+    if (!isDragging) return;
+    isDragging = false;
+    slider.style.cursor = 'grab';
+    slider.style.userSelect = '';
+  });
+  /* prevent click-through on links if we dragged */
+  slider.addEventListener('click', function (e) {
+    if (hasDragged) { e.preventDefault(); e.stopPropagation(); hasDragged = false; }
+  }, true);
 })();
 
 /* ── FAQ accordion — classList only, grid-template-rows handles expand ────── */
