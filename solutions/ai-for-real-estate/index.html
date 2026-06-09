@@ -1909,7 +1909,7 @@ window.addEventListener('load', function () {
     }, 1.0, '90,100,115');
 });
 
-/* ── Template card film-grain noise (animated canvas, mix-blend overlay) ─── */
+/* ── Template card film-grain noise (static, draw once) ─────────────────── */
 (function () {
   function makeGrain(wrap) {
     var canvas = document.createElement('canvas');
@@ -1917,24 +1917,19 @@ window.addEventListener('load', function () {
     wrap.appendChild(canvas);
     var ctx = canvas.getContext('2d');
     var dpr = window.devicePixelRatio || 1;
-    function resize() {
+    function draw() {
       canvas.width  = Math.round(wrap.offsetWidth  * dpr);
       canvas.height = Math.round(wrap.offsetHeight * dpr);
-    }
-    function draw() {
       var w = canvas.width, h = canvas.height;
-      if (!w || !h) { requestAnimationFrame(draw); return; }
+      if (!w || !h) return;
       var imgData = ctx.createImageData(w, h);
       for (var i = 0; i < imgData.data.length; i += 4) {
         var v = Math.floor(Math.random() * 255);
         imgData.data[i] = v; imgData.data[i+1] = v; imgData.data[i+2] = v; imgData.data[i+3] = 255;
       }
       ctx.putImageData(imgData, 0, 0);
-      requestAnimationFrame(draw);
     }
-    resize();
-    window.addEventListener('resize', resize);
-    draw();
+    requestAnimationFrame(draw); /* draw once */
   }
   document.querySelectorAll('.template-card-image').forEach(function (wrap) {
     if (wrap.querySelector('img')) makeGrain(wrap);
