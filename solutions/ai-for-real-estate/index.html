@@ -742,28 +742,61 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 .quote-name { font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.65); }
 .quote-role { font-size: 13px; color: rgba(255,255,255,0.35); }
 
-/* ─── TEMPLATES ──────────────────────────────────────────────────────────── */
-.template-grid {
-  display: grid;
-  grid-template-columns: repeat(2,1fr);
-  gap: 24px;
+/* ─── TEMPLATES SLIDER ───────────────────────────────────────────────────── */
+.template-slider-wrap {
+  position: relative;
+  /* right-side fade hint */
+  -webkit-mask-image: linear-gradient(to right, black 0%, black 88%, transparent 100%);
+          mask-image: linear-gradient(to right, black 0%, black 88%, transparent 100%);
 }
+.template-slider {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+}
+.template-slider::-webkit-scrollbar { display: none; }
 .template-card {
+  flex: 0 0 340px;
+  scroll-snap-align: start;
   border: 1px solid rgba(255,255,255,0.10);
   border-radius: 4px;
-  padding: 28px 28px 24px;
+  padding: 28px 28px 28px;
   background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: 24px;
   transition: border-color 0.3s ease;
+  min-height: 220px;
 }
 .template-card:hover { border-color: rgba(255,255,255,0.22); }
 .template-card-body { display: flex; flex-direction: column; gap: 10px; }
 .template-card-title { font-size: 18px; font-weight: 600; color: #fff; line-height: 1.35; letter-spacing: -0.2px; }
 .template-card-desc { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.6; }
 .template-cta { align-self: flex-start; }
+/* slider nav arrows */
+.template-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 28px;
+}
+.template-nav-btn {
+  width: 40px; height: 40px;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 2px;
+  background: transparent;
+  color: rgba(255,255,255,0.6);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color 0.2s, color 0.2s;
+}
+.template-nav-btn:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
+.template-nav-btn svg { width: 16px; height: 16px; }
 
 @media (max-width: 1024px) {
   /* CLAUDE.md: tablet section padding 64px 0 */
@@ -782,7 +815,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   .stats-grid .stat-cell:nth-child(-n+2) { border-bottom: 1px solid rgba(255,255,255,0.10); }
   .why-layout { grid-template-columns: 1fr; gap: 24px; }
   .how-steps { grid-template-columns: repeat(3,1fr); }
-  .template-grid { grid-template-columns: 1fr; }
+
   .unlocks-grid { grid-template-columns: repeat(2,1fr); }
   .card-grid-3 { grid-template-columns: repeat(2,1fr); }
   .feat-inner { grid-template-columns: repeat(2,1fr); }
@@ -807,7 +840,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   .why-layout { gap: 16px; }
   .how-steps { grid-template-columns: 1fr; gap: 40px; }
   .how-line-track, .how-line-fill, .how-line-glow { display: none; }
-  .template-grid { grid-template-columns: 1fr; }
+
   .unlocks-grid { grid-template-columns: 1fr; }
   .card-grid-3 { grid-template-columns: 1fr; }
   .feat-inner { grid-template-columns: 1fr; }
@@ -1033,52 +1066,62 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
       <h2 class="section-headline">Not sure where to start? Customize existing real estate templates</h2>
       <p class="section-sub" style="max-width:680px;">Each one was built with plain-English prompts. Open it, see how it works, then rebuild it for your market, your criteria, your clients, and your brand.</p>
     </div>
-    <div class="template-grid">
+    <div class="template-slider-wrap">
+      <div class="template-slider" id="template-slider">
 
-      <div class="template-card">
-        <div class="template-card-body">
-          <h3 class="template-card-title">Property listing website</h3>
-          <p class="template-card-desc">A responsive listing site with search filters, map view, and lead capture. Connects to your MLS data or works with manual entries.</p>
+        <div class="template-card">
+          <div class="template-card-body">
+            <h3 class="template-card-title">Property listing website</h3>
+            <p class="template-card-desc">A responsive listing site with search filters, map view, and lead capture. Connects to your MLS data or works with manual entries.</p>
+          </div>
+          <a href="https://bolt.new" class="template-cta hero-btn-primary">
+            <div class="btn-bg-hover"></div>
+            <div class="btn-text-wrap"><div class="btn-text-inner"><span>Try Template</span><span>Try Template</span></div></div>
+          </a>
         </div>
-        <a href="https://bolt.new" class="template-cta hero-btn-primary">
-          <div class="btn-bg-hover"></div>
-          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Try Template</span><span>Try Template</span></div></div>
-        </a>
-      </div>
 
-      <div class="template-card">
-        <div class="template-card-body">
-          <h3 class="template-card-title">Tenant screening portal</h3>
-          <p class="template-card-desc">Applicant intake form, background check integration, custom scoring rubric, and landlord dashboard.</p>
+        <div class="template-card">
+          <div class="template-card-body">
+            <h3 class="template-card-title">Tenant screening portal</h3>
+            <p class="template-card-desc">Applicant intake form, background check integration, custom scoring rubric, and landlord dashboard.</p>
+          </div>
+          <a href="https://bolt.new" class="template-cta hero-btn-primary">
+            <div class="btn-bg-hover"></div>
+            <div class="btn-text-wrap"><div class="btn-text-inner"><span>Try Template</span><span>Try Template</span></div></div>
+          </a>
         </div>
-        <a href="https://bolt.new" class="template-cta hero-btn-primary">
-          <div class="btn-bg-hover"></div>
-          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Try Template</span><span>Try Template</span></div></div>
-        </a>
-      </div>
 
-      <div class="template-card">
-        <div class="template-card-body">
-          <h3 class="template-card-title">Buyer rep compensation calculator</h3>
-          <p class="template-card-desc">Commission structures changed after the NAR settlement (August 2024). Models different scenarios, generates comparison reports, and explains the math to buyers in plain language.</p>
+        <div class="template-card">
+          <div class="template-card-body">
+            <h3 class="template-card-title">Buyer rep compensation calculator</h3>
+            <p class="template-card-desc">Commission structures changed after the NAR settlement (August 2024). Models different scenarios, generates comparison reports, and explains the math to buyers in plain language.</p>
+          </div>
+          <a href="https://bolt.new" class="template-cta hero-btn-primary">
+            <div class="btn-bg-hover"></div>
+            <div class="btn-text-wrap"><div class="btn-text-inner"><span>Try Template</span><span>Try Template</span></div></div>
+          </a>
         </div>
-        <a href="https://bolt.new" class="template-cta hero-btn-primary">
-          <div class="btn-bg-hover"></div>
-          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Try Template</span><span>Try Template</span></div></div>
-        </a>
-      </div>
 
-      <div class="template-card">
-        <div class="template-card-body">
-          <h3 class="template-card-title">Parcel viewer app</h3>
-          <p class="template-card-desc">County parcel data in a fast, clean interface with custom overlays: zoning, flood zones, ownership history, tax assessments, and distance to amenities.</p>
+        <div class="template-card">
+          <div class="template-card-body">
+            <h3 class="template-card-title">Parcel viewer app</h3>
+            <p class="template-card-desc">County parcel data in a fast, clean interface with custom overlays: zoning, flood zones, ownership history, tax assessments, and distance to amenities.</p>
+          </div>
+          <a href="https://bolt.new" class="template-cta hero-btn-primary">
+            <div class="btn-bg-hover"></div>
+            <div class="btn-text-wrap"><div class="btn-text-inner"><span>Try Template</span><span>Try Template</span></div></div>
+          </a>
         </div>
-        <a href="https://bolt.new" class="template-cta hero-btn-primary">
-          <div class="btn-bg-hover"></div>
-          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Try Template</span><span>Try Template</span></div></div>
-        </a>
-      </div>
 
+      </div>
+    </div>
+    <div class="template-nav">
+      <button class="template-nav-btn" id="tpl-prev" aria-label="Previous">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <button class="template-nav-btn" id="tpl-next" aria-label="Next">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
     </div>
   </div>
 </section>
@@ -1464,6 +1507,21 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
     requestAnimationFrame(draw);
   }
   requestAnimationFrame(draw);
+})();
+
+/* ── Template slider nav ─────────────────────────────────────────────────── */
+(function () {
+  var slider = document.getElementById('template-slider');
+  var prev   = document.getElementById('tpl-prev');
+  var next   = document.getElementById('tpl-next');
+  if (!slider || !prev || !next) return;
+  var card = slider.querySelector('.template-card');
+  function scrollBy(dir) {
+    var w = card ? card.offsetWidth + 20 : 360;
+    slider.scrollBy({ left: dir * w, behavior: 'smooth' });
+  }
+  prev.addEventListener('click', function () { scrollBy(-1); });
+  next.addEventListener('click', function () { scrollBy(1); });
 })();
 
 /* ── FAQ accordion — classList only, grid-template-rows handles expand ────── */
