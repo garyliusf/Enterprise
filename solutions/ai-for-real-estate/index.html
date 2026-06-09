@@ -625,13 +625,44 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 .feat-check { color: #1488FC; flex-shrink: 0; margin-top: 1px; font-weight: 700; font-size: 13px; }
 
 /* ─── FAQ ────────────────────────────────────────────────────────────────── */
-.ms-faq-section { background: #000; border-top: 1px solid rgba(255,255,255,0.06); }
-.ms-faq-inner { width: min(1120px, calc(100vw - 160px)); margin: 0 auto; }
+.ms-faq-section {
+  background: #000;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  position: relative;
+  overflow: hidden;
+}
+/* section-level pixel background canvas */
+#faq-pixel-canvas {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  min-height: 600px;
+  pointer-events: none;
+  z-index: 0;
+}
+.ms-faq-inner { width: min(1120px, calc(100vw - 160px)); margin: 0 auto; position: relative; z-index: 1; }
 .ms-faq-headline { font-size: clamp(32px,4vw,52px); font-weight: 500; color: #fff; letter-spacing: -1px; line-height: 1.2; margin: 0 0 48px; }
 .ms-faq-list { display: flex; flex-direction: column; }
-.ms-faq-item { border-top: 1px solid rgba(255,255,255,0.08); }
+/* div items — no bullets */
+.ms-faq-item {
+  border-top: 1px solid rgba(255,255,255,0.08);
+  position: relative;
+  overflow: hidden;
+  transition: background 0.2s ease;
+}
 .ms-faq-item:last-child { border-bottom: 1px solid rgba(255,255,255,0.08); }
-.ms-faq-item:hover { background: rgba(255,255,255,0.02); }
+@media (hover: hover) { .ms-faq-item:hover { background: rgba(255,255,255,0.02); } }
+/* per-item canvas: fades in when open (CLAUDE.md: .ms-faq-open-canvas) */
+.ms-faq-open-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  z-index: 0;
+}
+.ms-faq-item.is-open .ms-faq-open-canvas { opacity: 1; }
 .ms-faq-q {
   width: 100%;
   display: flex; align-items: center; justify-content: space-between;
@@ -642,18 +673,19 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   font-family: 'Inter', sans-serif;
   font-size: 18px; font-weight: 500;
   text-align: left; cursor: pointer;
+  position: relative; z-index: 1;
 }
-/* CLAUDE.md: blue +/- icons */
+/* SVG plus/minus icons in brand blue — per reference pages */
 .ms-faq-icon {
   flex-shrink: 0;
-  width: 20px; height: 20px;
   color: #1488FC;
-  font-size: 20px; font-weight: 300; line-height: 1;
-  transition: transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94), color 0.2s;
   display: flex; align-items: center; justify-content: center;
+  width: 20px; height: 20px;
 }
-.ms-faq-item.is-open .ms-faq-icon { transform: rotate(45deg); color: #1488FC; }
-.ms-faq-a { overflow: hidden; max-height: 0; transition: max-height 0.25s ease-out; }
+.ms-faq-icon-minus { display: none; }
+.ms-faq-item.is-open .ms-faq-icon-plus  { display: none; }
+.ms-faq-item.is-open .ms-faq-icon-minus { display: block; }
+.ms-faq-a { overflow: hidden; max-height: 0; transition: max-height 0.25s ease-out; position: relative; z-index: 1; }
 /* CLAUDE.md: answer 15px, rgba(255,255,255,0.55), line-height 1.7 */
 .ms-faq-a-inner { padding: 0 16px 28px; font-size: 15px; line-height: 1.7; color: rgba(255,255,255,0.55); max-width: 720px; }
 
@@ -814,10 +846,8 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 
       <p class="hero-eyebrow eyebrow-scramble">AI for Real Estate</p>
 
-      <!-- dsa-reveal wraps the h1, not placed on it directly -->
-      <div class="dsa-reveal">
-        <h1 class="hero-h1">Build The Custom Real Estate Tools Your Business Needs</h1>
-      </div>
+      <!-- hero H1 is above the fold — no blur animation (matches all reference pages) -->
+      <h1 class="hero-h1">Build The Custom Real Estate Tools Your Business Needs</h1>
 
       <p class="hero-subtitle">Bolt.new's no code AI builder lets you build the exact CRM, screening portal, listing site, app or lead scoring tool your business needs.</p>
 
@@ -1125,33 +1155,65 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 
 <!-- FAQ -->
 <section class="section ms-faq-section">
+  <canvas id="faq-pixel-canvas" aria-hidden="true"></canvas>
   <div class="ms-faq-inner">
     <div class="dsa-reveal">
       <p class="ms-faq-eyebrow eyebrow-scramble">FAQ</p>
       <h2 class="ms-faq-headline">Common questions</h2>
     </div>
-    <ul class="ms-faq-list">
-      <li class="ms-faq-item">
-        <button class="ms-faq-q">Do I need to know how to code?<span class="ms-faq-icon">+</span></button>
+    <div class="ms-faq-list">
+
+      <div class="ms-faq-item">
+        <button class="ms-faq-q">Do I need to know how to code?
+          <span class="ms-faq-icon">
+            <svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </span>
+        </button>
         <div class="ms-faq-a"><div class="ms-faq-a-inner">No. Bolt.new is built for non-developers. You describe what you want in plain language and Bolt builds it. Real estate professionals — agents, brokers, and property managers — use Bolt every day without writing a single line of code.</div></div>
-      </li>
-      <li class="ms-faq-item">
-        <button class="ms-faq-q">How long does it take to build a listing site?<span class="ms-faq-icon">+</span></button>
+      </div>
+
+      <div class="ms-faq-item">
+        <button class="ms-faq-q">How long does it take to build a listing site?
+          <span class="ms-faq-icon">
+            <svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </span>
+        </button>
         <div class="ms-faq-a"><div class="ms-faq-a-inner">Most teams have a working prototype in under an hour and a production-ready app deployed within a day or two. Complex integrations (MLS feeds, payment processing, custom databases) may take a few days of iteration.</div></div>
-      </li>
-      <li class="ms-faq-item">
-        <button class="ms-faq-q">Can I connect to my MLS data?<span class="ms-faq-icon">+</span></button>
+      </div>
+
+      <div class="ms-faq-item">
+        <button class="ms-faq-q">Can I connect to my MLS data?
+          <span class="ms-faq-icon">
+            <svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </span>
+        </button>
         <div class="ms-faq-a"><div class="ms-faq-a-inner">Yes. Bolt supports custom API integrations including RETS feeds, RESO Web API, and most major MLS data providers. Enterprise customers can also bring their own data connectors or custom data sources.</div></div>
-      </li>
-      <li class="ms-faq-item">
-        <button class="ms-faq-q">What happens to my data?<span class="ms-faq-icon">+</span></button>
+      </div>
+
+      <div class="ms-faq-item">
+        <button class="ms-faq-q">What happens to my data?
+          <span class="ms-faq-icon">
+            <svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </span>
+        </button>
         <div class="ms-faq-a"><div class="ms-faq-a-inner">Your data is yours. Bolt is SOC 2 Type 2 compliant and enterprise customers can deploy into their own AWS or Azure tenant for full data isolation. We never sell or share your customer data.</div></div>
-      </li>
-      <li class="ms-faq-item">
-        <button class="ms-faq-q">Is there a free plan?<span class="ms-faq-icon">+</span></button>
+      </div>
+
+      <div class="ms-faq-item">
+        <button class="ms-faq-q">Is there a free plan?
+          <span class="ms-faq-icon">
+            <svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </span>
+        </button>
         <div class="ms-faq-a"><div class="ms-faq-a-inner">Yes — you can start building for free with no credit card required. Free plans include access to the AI builder and basic hosting. Paid plans unlock custom domains, team collaboration, and production-grade infrastructure.</div></div>
-      </li>
-    </ul>
+      </div>
+
+    </div>
   </div>
 </section>
 
@@ -1348,6 +1410,74 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
     document.querySelectorAll('.footer-cta-btn').forEach(function (b) { attach(b, '#0a5aa8'); });
   }
   if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); }
+})();
+
+/* ── FAQ section pixel background canvas ────────────────────────────────── */
+(function () {
+  var canvas = document.getElementById('faq-pixel-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var dpr = window.devicePixelRatio || 1;
+  function resize() {
+    var el = canvas.parentElement;
+    canvas.width  = el.offsetWidth  * dpr;
+    canvas.height = el.offsetHeight * dpr;
+    canvas.style.width  = el.offsetWidth  + 'px';
+    canvas.style.height = el.offsetHeight + 'px';
+    draw();
+  }
+  function draw() {
+    var w = canvas.width, h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+    var spacing = 22 * dpr, dot = 3 * dpr;
+    var cx = w * 0.75, cy = h * 0.25;
+    for (var y = 0; y < h; y += spacing) {
+      for (var x = 0; x < w; x += spacing) {
+        var dx = x - cx, dy = y - cy;
+        var dist = Math.sqrt(dx*dx + dy*dy);
+        var wave = Math.sin(dist / (60 * dpr)) * 0.5 + 0.5;
+        var alpha = wave * Math.max(0, 1 - dist / (w * 0.7)) * 0.22;
+        if (alpha < 0.02) continue;
+        ctx.fillStyle = 'rgba(20,136,252,' + alpha + ')';
+        ctx.fillRect(x - dot/2, y - dot/2, dot, dot);
+      }
+    }
+  }
+  resize();
+  window.addEventListener('resize', function () { resize(); });
+})();
+
+/* ── FAQ per-item open canvas (CLAUDE.md: .ms-faq-open-canvas) ──────────── */
+(function () {
+  document.querySelectorAll('.ms-faq-item').forEach(function (item) {
+    var canvas = document.createElement('canvas');
+    canvas.className = 'ms-faq-open-canvas';
+    item.insertBefore(canvas, item.firstChild);
+    var ctx = canvas.getContext('2d');
+    function drawOpen() {
+      var w = item.offsetWidth, h = item.offsetHeight;
+      if (!w || !h) return;
+      canvas.width = w; canvas.height = h;
+      canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+      ctx.clearRect(0, 0, w, h);
+      var spacing = 11, dot = 4;
+      for (var y = 0; y < h; y += spacing) {
+        for (var x = 0; x < w; x += spacing) {
+          var dx = x - w * 0.5, dy = y - h * 0.5;
+          var dist = Math.sqrt(dx*dx + dy*dy);
+          var wave = Math.sin(dist / 38) * 0.5 + 0.5;
+          var alpha = wave * Math.max(0, 1 - dist / (w * 0.7)) * 0.28;
+          if (alpha < 0.03) continue;
+          ctx.fillStyle = 'rgba(20,136,252,' + alpha + ')';
+          ctx.fillRect(x, y, dot, dot);
+        }
+      }
+    }
+    var obs = new MutationObserver(function () {
+      if (item.classList.contains('is-open')) drawOpen();
+    });
+    obs.observe(item, { attributes: true, attributeFilter: ['class'] });
+  });
 })();
 
 /* ── FAQ accordion ───────────────────────────────────────────────────────── */
