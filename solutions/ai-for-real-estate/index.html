@@ -793,22 +793,45 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 
 /* ─── WHY SECTION ────────────────────────────────────────────────────────── */
 .why-section { border-top: 1px solid rgba(255,255,255,0.06); }
-.why-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: end; }
-.why-stats { display: flex; flex-direction: column; gap: 12px; padding-bottom: 4px; }
-.why-stat {
-  border: 1px solid rgba(255,255,255,0.08);
+.why-layout { display: flex; flex-direction: column; gap: 48px; }
+/* stat grid — exact microsoft.html .success-stats */
+.why-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  border: 1px solid rgba(255,255,255,0.10);
   border-radius: 4px;
-  padding: 20px 24px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0.005) 100%);
-  display: flex; flex-direction: column; gap: 6px;
-  transition: border-color 0.25s;
+  overflow: hidden;
 }
-.why-stat:hover { border-color: rgba(255,255,255,0.18); }
-.why-stat:nth-child(2) { margin-left: 24px; }
-.why-stat:nth-child(3) { margin-left: 48px; }
-.why-stat-num { font-size: 36px; font-weight: 300; color: #fff; letter-spacing: -1.5px; line-height: 1; }
-.why-stat-num em { font-style: normal; color: #1488FC; }
-.why-stat-label { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.5; }
+.why-stat-cell {
+  padding: 24px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid rgba(255,255,255,0.10);
+}
+.why-stat-cell:last-child { border-right: none; }
+.why-stat-eyebrow {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.40);
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+@keyframes char-in { from { opacity:0; transform: var(--char-from); filter: blur(4px); } to { opacity:1; transform: none; filter: blur(0); } }
+.why-stat-number .char { display: inline-block; opacity: 0; will-change: transform, opacity, filter; }
+.why-stat-number .char.char-revealed { animation: char-in 0.6s cubic-bezier(0.22,1,0.36,1) forwards; }
+.why-stat-number {
+  font-size: 72px;
+  font-weight: 300;
+  color: #fff;
+  letter-spacing: -3px;
+  line-height: 0.85;
+  display: block;
+  align-self: flex-start;
+  margin-top: auto;
+}
+.why-stat-number em { font-style: normal; font-weight: 300; }
 
 /* ─── HOW IT WORKS ───────────────────────────────────────────────────────── */
 .how-section { border-top: 1px solid rgba(255,255,255,0.06); }
@@ -1011,9 +1034,10 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   .stats-grid { grid-template-columns: repeat(2,1fr); }
   .stats-grid .stat-cell:nth-child(2) { border-right: none; }
   .stats-grid .stat-cell:nth-child(-n+2) { border-bottom: 1px solid rgba(255,255,255,0.10); }
-  .why-layout { grid-template-columns: 1fr; gap: 24px; }
-  .why-stat:nth-child(2) { margin-left: 16px; }
-  .why-stat:nth-child(3) { margin-left: 32px; }
+  .why-stats-grid { grid-template-columns: repeat(2,1fr); }
+  .why-stat-cell:nth-child(2) { border-right: none; }
+  .why-stat-cell:nth-child(-n+2) { border-bottom: 1px solid rgba(255,255,255,0.10); }
+  .why-stat-number { font-size: 48px; letter-spacing: -2px; }
   .how-steps { grid-template-columns: repeat(3,1fr); }
 
   .unlocks-grid { grid-template-columns: repeat(2,1fr); }
@@ -1037,8 +1061,8 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   .hero-btn-ghost { height: 44px; padding: 0 18px; font-size: 14px; }
   .footer-cta-btn { height: 44px; font-size: 14px; }
   .footer-email-input { height: 44px; }
-  .why-layout { gap: 16px; }
-  .why-stat:nth-child(2), .why-stat:nth-child(3) { margin-left: 0; }
+  .why-stats-grid { grid-template-columns: repeat(2,1fr); }
+  .why-stat-number { font-size: clamp(36px,10vw,48px); letter-spacing: -2px; }
   .how-steps { grid-template-columns: 1fr; gap: 40px; }
   .how-line-track, .how-line-fill, .how-line-glow { display: none; }
 
@@ -1159,21 +1183,25 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 <section class="section why-section">
   <div class="section-inner">
     <div class="why-layout">
-      <div class="why-left dsa-reveal">
+      <div class="dsa-reveal">
         <h2 class="section-headline">Most real estate agents are using AI. Few are using it well.</h2>
       </div>
-      <div class="why-stats">
-        <div class="why-stat">
-          <span class="why-stat-num">70<em>%</em></span>
-          <span class="why-stat-label">of agents use at least one AI tool — but generic tools don't fit how real businesses run.</span>
+      <div class="why-stats-grid">
+        <div class="why-stat-cell">
+          <p class="why-stat-eyebrow">Agents using at least one AI tool</p>
+          <span class="why-stat-number">70<em>%</em></span>
         </div>
-        <div class="why-stat">
-          <span class="why-stat-num">17<em>%</em></span>
-          <span class="why-stat-label">see significant results. The gap isn't effort — it's that off-the-shelf tools weren't built for your market.</span>
+        <div class="why-stat-cell">
+          <p class="why-stat-eyebrow">Who see significant results from generic tools</p>
+          <span class="why-stat-number">17<em>%</em></span>
         </div>
-        <div class="why-stat">
-          <span class="why-stat-num">10<em>M+</em></span>
-          <span class="why-stat-label">Bolt.new users — over half are non-technical founders using industry expertise to build tools that work for them.</span>
+        <div class="why-stat-cell">
+          <p class="why-stat-eyebrow">Bolt.new users building their own tools</p>
+          <span class="why-stat-number">10<em>M+</em></span>
+        </div>
+        <div class="why-stat-cell">
+          <p class="why-stat-eyebrow">Are non-technical founders and business owners</p>
+          <span class="why-stat-number">50<em>%+</em></span>
         </div>
       </div>
     </div>
@@ -1852,6 +1880,30 @@ window.addEventListener('load', function () {
       var d = density * vFade; return d > rand ? d * 0.85 : 0;
     }, 1.0, '90,100,115');
 });
+
+/* ── Why stat char reveal — exact microsoft.html implementation ──────────── */
+(function () {
+  var froms = ['translateY(-24px) rotate(-8deg)','translateY(24px) rotate(8deg)','translateX(-20px) translateY(-16px) rotate(12deg)','translateX(20px) translateY(-16px) rotate(-12deg)','scale(0.4) rotate(20deg)','scale(0.4) rotate(-20deg)','translateY(-30px)','translateY(30px)'];
+  function randomFrom() { return froms[Math.floor(Math.random() * froms.length)]; }
+  var nums = document.querySelectorAll('.why-stat-number');
+  nums.forEach(function (el) {
+    el.innerHTML = el.textContent.split('').map(function (ch) { return ch === ' ' ? ' ' : '<span class="char">' + ch + '</span>'; }).join('');
+  });
+  var grid = document.querySelector('.why-stats-grid');
+  if (!grid) return;
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      var chars = grid.querySelectorAll('.char');
+      chars.forEach(function (ch, i) {
+        ch.style.setProperty('--char-from', randomFrom());
+        setTimeout(function () { ch.classList.add('char-revealed'); }, (i * 0.06 + Math.random() * 0.04) * 1000);
+      });
+      io.disconnect();
+    });
+  }, { threshold: 0.5 });
+  io.observe(grid);
+})();
 
 /* ── How It Works line animation ──────────────────────────────────────────── */
 (function () {
