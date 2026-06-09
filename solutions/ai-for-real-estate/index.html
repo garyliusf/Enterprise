@@ -624,59 +624,58 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 }
 .feat-check { color: #1488FC; flex-shrink: 0; margin-top: 1px; font-weight: 700; font-size: 13px; }
 
-/* ─── FAQ ────────────────────────────────────────────────────────────────── */
+/* ─── FAQ — exact shared-components.css canonical implementation ─────────── */
 .ms-faq-section {
   background: #000;
   border-top: 1px solid rgba(255,255,255,0.06);
   position: relative;
   overflow: hidden;
 }
-/* section-level pixel background canvas */
 #faq-pixel-canvas {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  min-height: 600px;
-  pointer-events: none;
-  z-index: 0;
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%; min-height: 600px;
+  pointer-events: none; z-index: 0;
 }
 .ms-faq-inner { width: min(1120px, calc(100vw - 160px)); margin: 0 auto; position: relative; z-index: 1; }
 .ms-faq-headline { font-size: clamp(32px,4vw,52px); font-weight: 500; color: #fff; letter-spacing: -1px; line-height: 1.2; margin: 0 0 48px; }
 .ms-faq-list { display: flex; flex-direction: column; }
-/* div items — no bullets */
 .ms-faq-item {
-  border-top: 1px solid rgba(255,255,255,0.08);
+  border-top: 1px solid rgba(255,255,255,0.07);
+  border-bottom: none;
   position: relative;
-  overflow: hidden;
   transition: background 0.2s ease;
+  overflow: hidden;
 }
-.ms-faq-item:last-child { border-bottom: 1px solid rgba(255,255,255,0.08); }
-@media (hover: hover) { .ms-faq-item:hover { background: rgba(255,255,255,0.02); } }
+.ms-faq-item:last-child { border-bottom: 1px solid rgba(255,255,255,0.07); }
+/* blue tint when open */
+.ms-faq-item.is-open { background: rgba(20,136,252,0.03); }
+/* per-item open canvas fades in — exact shared-components.css */
+.ms-faq-open-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity 0.5s ease; z-index: 0; }
+.ms-faq-item.is-open .ms-faq-open-canvas { opacity: 1; }
 .ms-faq-q {
   width: 100%;
   display: flex; align-items: center; justify-content: space-between;
-  gap: 24px;
-  padding: 28px 16px;
+  gap: 16px; padding: 28px 16px;
   background: none; border: none;
-  color: #fff;
+  color: rgba(255,255,255,0.7);
   font-family: 'Inter', sans-serif;
   font-size: 18px; font-weight: 500;
   text-align: left; cursor: pointer;
+  transition: color 0.2s;
   position: relative; z-index: 1;
 }
-/* SVG plus/minus icons in brand blue — per reference pages */
-.ms-faq-icon {
-  flex-shrink: 0;
-  color: #1488FC;
-  display: flex; align-items: center; justify-content: center;
-  width: 20px; height: 20px;
-}
-.ms-faq-icon-minus { display: none; }
-.ms-faq-item.is-open .ms-faq-icon-plus  { display: none; }
-.ms-faq-item.is-open .ms-faq-icon-minus { display: block; }
-.ms-faq-a { overflow: hidden; max-height: 0; transition: max-height 0.25s ease-out; position: relative; z-index: 1; }
-/* CLAUDE.md: answer 15px, rgba(255,255,255,0.55), line-height 1.7 */
-.ms-faq-a-inner { padding: 0 16px 28px; font-size: 15px; line-height: 1.7; color: rgba(255,255,255,0.65); max-width: 720px; }
+.ms-faq-q:hover, .ms-faq-item.is-open .ms-faq-q { color: #fff; }
+/* icon: opacity + transform transitions — exact shared-components.css */
+.ms-faq-icon { flex-shrink: 0; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; color: #1488FC; position: relative; }
+.ms-faq-icon-plus, .ms-faq-icon-minus { position: absolute; transition: opacity 0.2s, transform 0.2s; }
+.ms-faq-icon-minus { opacity: 0; transform: rotate(-90deg); }
+.ms-faq-item.is-open .ms-faq-icon-plus  { opacity: 0; transform: rotate(90deg); }
+.ms-faq-item.is-open .ms-faq-icon-minus { opacity: 1; transform: rotate(0deg); }
+/* grid-template-rows accordion — exact shared-components.css */
+.ms-faq-a { display: grid; grid-template-rows: 0fr; max-height: none; overflow: hidden; transition: grid-template-rows 0.38s cubic-bezier(0.4,0,0.2,1); position: relative; z-index: 1; }
+.ms-faq-item.is-open .ms-faq-a { grid-template-rows: 1fr; }
+.ms-faq-a-inner { overflow: hidden; padding: 0 16px; font-size: 15px; line-height: 1.7; color: rgba(255,255,255,0.65); max-width: 720px; transition: padding-bottom 0.38s cubic-bezier(0.4,0,0.2,1); }
+.ms-faq-item.is-open .ms-faq-a-inner { padding-bottom: 24px; }
 
 /* ─── FOOTER CTA ─────────────────────────────────────────────────────────── */
 .footer-section {
@@ -800,7 +799,8 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   .footer-headline { font-size: clamp(28px,8vw,40px); }
   /* FAQ mobile padding — per CLAUDE.md */
   .ms-faq-q { font-size: 16px; padding: 22px 0; }
-  .ms-faq-a-inner { padding: 0 0 24px; font-size: 13px; }
+  .ms-faq-a-inner { padding: 0; font-size: 13px; }
+  .ms-faq-item.is-open .ms-faq-a-inner { padding-bottom: 20px; }
   .logo-track { gap: 48px; padding-right: 48px; }
 }
 @media (max-width: 540px) {
@@ -1465,21 +1465,80 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 })();
 
 
-/* ── FAQ accordion ───────────────────────────────────────────────────────── */
+/* ── FAQ open-state per-item pixel canvas — exact shared-components.js ───── */
+(function () {
+  var items = document.querySelectorAll('.ms-faq-item');
+  if (!items.length) return;
+  var dpr = window.devicePixelRatio || 1;
+  var canvasObjs = [];
+  items.forEach(function (item, idx) {
+    var canvas = document.createElement('canvas');
+    canvas.className = 'ms-faq-open-canvas';
+    item.insertBefore(canvas, item.firstChild);
+    canvasObjs.push({ canvas: canvas, item: item, phase: idx * 1.7 });
+  });
+  function resizeAll() {
+    canvasObjs.forEach(function (obj) {
+      obj.canvas.width  = obj.item.offsetWidth  * dpr;
+      obj.canvas.height = obj.item.offsetHeight * dpr;
+    });
+  }
+  resizeAll();
+  window.addEventListener('resize', resizeAll);
+  function draw(t) {
+    canvasObjs.forEach(function (obj) {
+      if (!obj.item.classList.contains('is-open')) return;
+      var canvas = obj.canvas;
+      var h = obj.item.offsetHeight;
+      if (canvas.height !== h * dpr) {
+        canvas.width  = obj.item.offsetWidth * dpr;
+        canvas.height = h * dpr;
+      }
+      var ctx = canvas.getContext('2d');
+      var W = canvas.width, H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+      var sp = 7 * dpr, maxR = 2.2 * dpr;
+      var cols = Math.ceil(W / sp) + 1, rows = Math.ceil(H / sp) + 1;
+      for (var r = 0; r < rows; r++) {
+        for (var c = 0; c < cols; c++) {
+          var px = c * sp, py = r * sp;
+          var hFade = Math.max(0, Math.min(1, (px / W - 0.2) / 0.5));
+          if (hFade < 0.02) continue;
+          var angle1 = t * 0.00012 + obj.phase;
+          var u1 = (px * Math.cos(angle1) + py * Math.sin(angle1)) / (350 * dpr);
+          var v1 = (-px * Math.sin(angle1) + py * Math.cos(angle1)) / (220 * dpr);
+          var angle2 = t * 0.00022 + obj.phase + 1.5;
+          var u2 = (px * Math.cos(angle2) + py * Math.sin(angle2)) / (180 * dpr);
+          var v2 = (-px * Math.sin(angle2) + py * Math.cos(angle2)) / (120 * dpr);
+          var wave = (Math.sin(u1 * Math.PI * 2 + t * 0.00030) * Math.cos(v1 * Math.PI * 1.5))
+                   * 0.55 + (Math.sin(u2 * Math.PI * 2 + t * 0.00060) * 0.45);
+          var density = Math.pow(Math.max(0, wave * 0.5 + 0.5), 0.8) * hFade;
+          var rand = (Math.sin(c * 127.1 + r * 311.7 + obj.phase * 50) * 0.5 + 0.5) * 0.9;
+          if (density > rand) {
+            var alpha = density * 0.25;
+            ctx.beginPath();
+            ctx.arc(px, py, maxR * density, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(180,185,195,' + alpha.toFixed(2) + ')';
+            ctx.fill();
+          }
+        }
+      }
+    });
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+
+/* ── FAQ accordion — classList only, grid-template-rows handles expand ────── */
 (function () {
   document.querySelectorAll('.ms-faq-q').forEach(function (btn) {
     btn.addEventListener('click', function () {
       var item = btn.closest('.ms-faq-item');
       var isOpen = item.classList.contains('is-open');
-      document.querySelectorAll('.ms-faq-item.is-open').forEach(function (i) {
-        i.classList.remove('is-open');
-        i.querySelector('.ms-faq-a').style.maxHeight = '0';
+      document.querySelectorAll('.ms-faq-item.is-open').forEach(function (o) {
+        o.classList.remove('is-open');
       });
-      if (!isOpen) {
-        item.classList.add('is-open');
-        var a = item.querySelector('.ms-faq-a');
-        a.style.maxHeight = a.scrollHeight + 'px';
-      }
+      if (!isOpen) item.classList.add('is-open');
     });
   });
 })();
