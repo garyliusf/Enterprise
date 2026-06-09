@@ -983,17 +983,15 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   filter: brightness(0.88);
 }
 .template-card:hover .template-card-image img { transform: scale(1.03); }
-/* film-grain noise overlay on all card images */
-.template-card-image::after {
-  content: '';
+/* film-grain noise — canvas injected by JS */
+.template-grain-canvas {
   position: absolute;
   inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.38'/%3E%3C/svg%3E");
-  background-size: 200px 200px;
-  mix-blend-mode: overlay;
+  width: 100%; height: 100%;
   pointer-events: none;
-  opacity: 0.38;
-  z-index: 1;
+  mix-blend-mode: overlay;
+  opacity: 0.32;
+  z-index: 2;
 }
 /* placeholder when no image — warm luxury gradient */
 .template-card-image-placeholder {
@@ -1634,7 +1632,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
       }
       io.unobserve(el);
     });
-  }, { threshold: 0.15 });
+  }, { threshold: 0.5 });
 
   document.querySelectorAll('.dsa-reveal, .eyebrow-scramble').forEach(function (el) { io.observe(el); });
 })();
@@ -1907,6 +1905,38 @@ window.addEventListener('load', function () {
       var d = density * vFade; return d > rand ? d * 0.85 : 0;
     }, 1.0, '90,100,115');
 });
+
+/* ── Template card film-grain noise (animated canvas, mix-blend overlay) ─── */
+(function () {
+  function makeGrain(wrap) {
+    var canvas = document.createElement('canvas');
+    canvas.className = 'template-grain-canvas';
+    wrap.appendChild(canvas);
+    var ctx = canvas.getContext('2d');
+    var dpr = window.devicePixelRatio || 1;
+    function resize() {
+      canvas.width  = Math.round(wrap.offsetWidth  * dpr);
+      canvas.height = Math.round(wrap.offsetHeight * dpr);
+    }
+    function draw() {
+      var w = canvas.width, h = canvas.height;
+      if (!w || !h) { requestAnimationFrame(draw); return; }
+      var imgData = ctx.createImageData(w, h);
+      for (var i = 0; i < imgData.data.length; i += 4) {
+        var v = Math.floor(Math.random() * 255);
+        imgData.data[i] = v; imgData.data[i+1] = v; imgData.data[i+2] = v; imgData.data[i+3] = 255;
+      }
+      ctx.putImageData(imgData, 0, 0);
+      requestAnimationFrame(draw);
+    }
+    resize();
+    window.addEventListener('resize', resize);
+    draw();
+  }
+  document.querySelectorAll('.template-card-image').forEach(function (wrap) {
+    if (wrap.querySelector('img')) makeGrain(wrap);
+  });
+})();
 
 /* ── Unlock card hover noise — exact microsoft.html feat-hover-canvas ───── */
 (function () {
