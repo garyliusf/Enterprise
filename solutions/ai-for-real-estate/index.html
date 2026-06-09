@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI for Real Estate — Bolt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Silkscreen:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+
+/* ─── SHARED WORD-REVEAL ─────────────────────────────────────────────────── */
+.dsa-reveal .word { display: inline-block; opacity: 0; transform: translate(-10px, -7px); filter: blur(5px); will-change: opacity, transform, filter; }
+.dsa-reveal.is-revealed .word { animation: dsa-word-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards; animation-delay: calc(var(--i, 0) * 28ms); }
+@keyframes dsa-word-reveal { from { opacity: 0; transform: translate(-10px, -7px); filter: blur(5px); } to { opacity: 1; transform: translate(0, 0); filter: blur(0); } }
+
+/* ─── HERO ──────────────────────────────────────────────────────────────────── */
+.hero-section {
+  width: 100%;
+  min-height: 88vh;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: #000;
+}
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% -5%, rgba(20,136,252,0.14) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+}
+#hero-pixel-dots {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+.hero-breadcrumb {
+  position: relative;
+  z-index: 5;
+  width: min(1120px, calc(100vw - 160px));
+  margin: 0 auto;
+  padding-top: 88px;
+  padding-bottom: 0;
+  font-size: 13px;
+  color: rgba(255,255,255,0.35);
+}
+.hero-breadcrumb a { color: rgba(255,255,255,0.35); text-decoration: none; transition: color 0.2s; }
+.hero-breadcrumb a:hover { color: rgba(255,255,255,0.6); }
+.hero-breadcrumb span { margin: 0 7px; }
+.hero-content-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  position: relative;
+  z-index: 5;
+  padding: clamp(28px,4vh,56px) 0 clamp(56px,8vh,112px);
+}
+.hero-inner {
+  width: min(1120px, calc(100vw - 160px));
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 28px;
+}
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Silkscreen', monospace;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #1488FC;
+}
+.hero-eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 24px;
+  height: 2px;
+  background: #1488FC;
+  flex-shrink: 0;
+}
+.hero-h1 {
+  font-size: 66px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.05;
+  letter-spacing: -2.5px;
+  max-width: 800px;
+}
+.hero-subtitle {
+  font-size: clamp(16px,1.4vw,20px);
+  font-weight: 400;
+  color: #ABABAB;
+  line-height: 1.5;
+  max-width: 560px;
+  margin-top: -8px;
+}
+.hero-btn-group { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.hero-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 52px;
+  padding: 0 28px;
+  background: #1488FC;
+  border: none;
+  border-radius: 2px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+  gap: 8px;
+}
+.hero-btn-primary .btn-bg-hover { position: absolute; inset: 0; background: #0f6fd0; z-index: 1; transform: translateY(101%); transition: transform 0.45s cubic-bezier(0.165, 0.84, 0.44, 1); }
+.hero-btn-primary .btn-text-wrap { position: relative; z-index: 3; overflow: hidden; height: 1.2em; }
+.hero-btn-primary .btn-text-inner { display: flex; flex-direction: column; transition: transform 0.45s cubic-bezier(0.165, 0.84, 0.44, 1); }
+.hero-btn-primary .btn-text-inner span { display: block; line-height: 1.2; }
+.hero-btn-primary:hover .btn-bg-hover { transform: translateY(0); }
+.hero-btn-primary:hover .btn-text-inner { transform: translateY(-50%); }
+.hero-social-proof {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.45);
+  margin-top: -8px;
+}
+.hero-social-proof-dot { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; flex-shrink: 0; }
+
+/* ─── LOGO TRAIN ─────────────────────────────────────────────────────────── */
+.logo-train {
+  flex-shrink: 0;
+  height: 72px;
+  position: relative;
+  z-index: 4;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  background: rgba(0,0,0,0.25);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+}
+.logo-track {
+  display: flex;
+  align-items: center;
+  gap: 72px;
+  padding-right: 72px;
+  will-change: transform;
+  white-space: nowrap;
+  flex-shrink: 0;
+  animation: scrollLogos 32s linear infinite;
+}
+@keyframes scrollLogos { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.logo-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255,255,255,0.4);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ─── SHARED SECTION BASE ────────────────────────────────────────────────── */
+.section-eyebrow {
+  font-family: 'Silkscreen', monospace;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #1488FC;
+  margin: 0 0 16px;
+}
+.section-headline {
+  font-size: clamp(32px,4vw,52px);
+  font-weight: 500;
+  color: #fff;
+  line-height: 1.2;
+  letter-spacing: -1px;
+  margin: 0 0 14px;
+}
+.section-sub {
+  font-size: clamp(15px,1.1vw,17px);
+  font-weight: 400;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.65;
+  max-width: 560px;
+  margin: 0;
+}
+
+/* ─── STATS SECTION ──────────────────────────────────────────────────────── */
+.stats-section {
+  width: 100%;
+  background: #000;
+  padding: clamp(80px,12vh,140px) 0;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.stats-inner {
+  width: min(1120px, calc(100vw - 160px));
+  margin: 0 auto;
+}
+.stats-header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: clamp(40px,6vh,72px);
+}
+.stats-headline {
+  font-size: clamp(36px,5vw,60px);
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.1;
+  letter-spacing: -2px;
+  max-width: 820px;
+}
+.stats-headline span { color: #1488FC; }
+.stats-body {
+  font-size: 17px;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.7;
+  max-width: 640px;
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.stat-card {
+  padding: 24px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid rgba(255,255,255,0.10);
+}
+.stat-card:last-child { border-right: none; }
+.stat-eyebrow {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.40);
+  margin-bottom: 16px;
+}
+.stat-number {
+  font-size: 56px;
+  font-weight: 300;
+  color: #fff;
+  letter-spacing: -3px;
+  line-height: 0.85;
+  margin-top: auto;
+}
+.stat-number em { font-style: normal; }
+
+/* ─── USE CASES SECTION ──────────────────────────────────────────────────── */
+.usecases-section {
+  width: 100%;
+  background: #000;
+  padding: clamp(80px,12vh,140px) 0;
+}
+.usecases-inner {
+  width: min(1120px, calc(100vw - 160px));
+  margin: 0 auto;
+}
+.usecases-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 56px;
+}
+.stack-grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 24px;
+}
+.stack-card {
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 4px;
+  padding: 24px 24px 28px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 180px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s ease;
+}
+.stack-card:hover { border-color: rgba(255,255,255,0.22); }
+.stack-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 16px;
+  font-size: 20px;
+}
+.stack-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+  letter-spacing: -0.2px;
+}
+.stack-desc {
+  font-size: 14px;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* ─── DEPLOY SECTION ─────────────────────────────────────────────────────── */
+.deploy-section {
+  width: 100%;
+  background: #000;
+  padding: clamp(80px,12vh,140px) 0;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.deploy-inner {
+  width: min(1120px, calc(100vw - 160px));
+  margin: 0 auto;
+}
+.deploy-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 56px;
+}
+.deploy-grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 0;
+}
+.deploy-card {
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 0;
+  padding: 28px 24px 32px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(0,0,0,0) 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-right: none;
+  border-bottom: none;
+  position: relative;
+}
+.deploy-card:first-child { border-radius: 4px 0 0 0; }
+.deploy-card:nth-child(3) { border-radius: 0 4px 0 0; }
+.deploy-card:nth-child(4) { border-radius: 0 0 0 4px; }
+.deploy-card:last-child { border-radius: 0 0 4px 0; }
+.deploy-grid { border: 1px solid rgba(255,255,255,0.10); border-radius: 4px; overflow: hidden; }
+.deploy-card { border: none; border-right: 1px solid rgba(255,255,255,0.10); border-bottom: 1px solid rgba(255,255,255,0.10); }
+.deploy-card:nth-child(3n) { border-right: none; }
+.deploy-card:nth-last-child(-n+3) { border-bottom: none; }
+.deploy-card-icon {
+  font-size: 22px;
+  margin-bottom: 8px;
+}
+.deploy-card-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: -0.2px;
+}
+.deploy-card-desc {
+  font-size: 14px;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.55;
+}
+
+/* ─── SUCCESS SECTION ────────────────────────────────────────────────────── */
+.success-section {
+  width: 100%;
+  background: #000;
+  padding: clamp(80px,12vh,140px) 0;
+  position: relative;
+  overflow: hidden;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.success-glow {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(20,136,252,0.07) 0%, transparent 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.success-inner {
+  width: min(1120px, calc(100vw - 160px));
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+.success-eyebrow {
+  font-family: 'Silkscreen', monospace;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #1488FC;
+  margin-bottom: 8px;
+}
+.success-pull-quote {
+  margin-top: 40px;
+  background: #0d0d0d;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 4px;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  min-height: 480px;
+}
+.success-pull-quote-content {
+  padding: 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 40px;
+}
+.success-pull-quote-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px;
+  font-weight: 300;
+  color: rgba(255,255,255,0.85);
+  line-height: 1.6;
+  font-style: italic;
+}
+.success-pull-quote-attr { display: flex; flex-direction: column; gap: 5px; }
+.success-pull-quote-name { font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.65); }
+.success-pull-quote-role { font-size: 13px; color: rgba(255,255,255,0.28); }
+.success-quote-image-wrap {
+  position: relative;
+  overflow: hidden;
+  background: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.success-quote-placeholder {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 40px;
+  width: 100%;
+}
+.success-quote-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.success-quote-metric-val {
+  font-size: 44px;
+  font-weight: 300;
+  color: #fff;
+  letter-spacing: -2px;
+  line-height: 0.9;
+}
+.success-quote-metric-label {
+  font-size: 12px;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.success-stats {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  margin-top: 0;
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.success-stat {
+  padding: 24px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid rgba(255,255,255,0.10);
+}
+.success-stat:last-child { border-right: none; }
+.success-stat-eyebrow {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.40);
+  margin-bottom: 16px;
+}
+.success-stat-number {
+  font-size: 56px;
+  font-weight: 300;
+  color: #fff;
+  letter-spacing: -3px;
+  line-height: 0.85;
+  margin-top: auto;
+}
+
+/* ─── ENTERPRISE SECTION ─────────────────────────────────────────────────── */
+.feat-section {
+  width: 100%;
+  background: #000;
+  padding: clamp(80px,12vh,140px) 0;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.feat-header {
+  width: min(1120px, calc(100vw - 160px));
+  margin: 0 auto 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+.feat-eyebrow {
+  font-family: 'Silkscreen', monospace;
+  font-size: 16px;
+  font-weight: 400;
+  color: #1488FC;
+  letter-spacing: 2px;
+  margin: 0;
+}
+.feat-headline { font-size: 52px; font-weight: 500; color: #fff; line-height: 1.2; letter-spacing: -1px; margin: 0; }
+.feat-subheadline { font-size: clamp(15px,1.1vw,17px); color: rgba(255,255,255,0.5); max-width: 640px; line-height: 1.65; margin: 0; }
+.feat-inner {
+  width: min(1120px, calc(100vw - 160px));
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 24px;
+}
+.feat-card {
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 4px;
+  padding: 28px 24px 32px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: border-color 0.3s ease;
+}
+.feat-card:hover { border-color: rgba(255,255,255,0.22); }
+.feat-card-title { font-size: 20px; font-weight: 600; color: #fff; letter-spacing: -0.2px; margin: 0; }
+.feat-card ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.feat-card li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.5;
+}
+.feat-check {
+  color: #1488FC;
+  flex-shrink: 0;
+  margin-top: 1px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* ─── FAQ SECTION ────────────────────────────────────────────────────────── */
+.ms-faq-section {
+  width: 100%;
+  background: #000;
+  padding: clamp(80px,12vh,140px) 0 clamp(64px,10vh,120px);
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.ms-faq-inner { width: min(1120px, calc(100vw - 160px)); margin: 0 auto; }
+.ms-faq-eyebrow { font-family: 'Silkscreen', monospace; font-size: 16px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; color: #1488FC; margin: 0 0 16px; }
+.ms-faq-headline { font-size: clamp(32px,4vw,52px); font-weight: 500; color: #fff; letter-spacing: -1px; line-height: 1.2; margin: 0 0 48px; }
+.ms-faq-list { display: flex; flex-direction: column; }
+.ms-faq-item { border-top: 1px solid rgba(255,255,255,0.08); }
+.ms-faq-item:last-child { border-bottom: 1px solid rgba(255,255,255,0.08); }
+.ms-faq-item:hover { background: rgba(255,255,255,0.02); }
+.ms-faq-q { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 28px 16px; background: none; border: none; color: #fff; font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 500; text-align: left; cursor: pointer; }
+.ms-faq-icon { flex-shrink: 0; width: 20px; height: 20px; color: rgba(255,255,255,0.4); transition: transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94), color 0.2s; font-size: 18px; font-weight: 300; line-height: 1; }
+.ms-faq-item.is-open .ms-faq-icon { transform: rotate(45deg); color: #fff; }
+.ms-faq-a { overflow: hidden; max-height: 0; transition: max-height 0.25s ease-out; }
+.ms-faq-a-inner { padding: 0 16px 28px; font-size: 15px; line-height: 1.7; color: rgba(255,255,255,0.65); max-width: 720px; }
+
+/* ─── FOOTER CTA ─────────────────────────────────────────────────────────── */
+.footer-section {
+  background: #000;
+  padding: 90px 40px 0;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  text-align: center;
+  width: 100%;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.footer-eyebrow { font-family: 'Silkscreen', monospace; font-size: 16px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; color: #1488FC; }
+.footer-headline { font-size: 52px; font-weight: 500; color: #fff; margin: 0; line-height: 1.2; letter-spacing: -1px; }
+.footer-subtitle { font-size: 18px; color: #ABABAB; max-width: 560px; line-height: 1.6; margin: -8px 0 0; }
+.footer-form-row {
+  display: flex;
+  gap: 0;
+  max-width: 460px;
+  width: 100%;
+  background: rgba(255,255,255,0.08);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+.footer-email-input {
+  flex: 1;
+  height: 52px;
+  background: transparent;
+  border: none;
+  padding: 0 18px;
+  font-size: 15px;
+  font-family: 'Inter', sans-serif;
+  color: #fff;
+  outline: none;
+}
+.footer-email-input::placeholder { color: rgba(255,255,255,0.45); }
+.footer-cta-btn {
+  height: 52px;
+  padding: 0 28px;
+  background: #1488FC;
+  border: none;
+  border-radius: 0 2px 2px 0;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.footer-cta-btn .btn-bg-hover { position: absolute; inset: 0; background: #0f6fd0; z-index: 1; transform: translateY(101%); transition: transform 0.45s cubic-bezier(0.165, 0.84, 0.44, 1); }
+.footer-cta-btn .btn-text-wrap { position: relative; z-index: 3; overflow: hidden; height: 1.2em; }
+.footer-cta-btn .btn-text-inner { display: flex; flex-direction: column; transition: transform 0.45s cubic-bezier(0.165, 0.84, 0.44, 1); }
+.footer-cta-btn .btn-text-inner span { display: block; line-height: 1.2; }
+.footer-cta-btn:hover .btn-bg-hover { transform: translateY(0); }
+.footer-cta-btn:hover .btn-text-inner { transform: translateY(-50%); }
+.footer-spacer { height: 60px; width: 100%; flex-shrink: 0; }
+.footer-links { display: flex; gap: 32px; flex-wrap: wrap; align-items: center; justify-content: center; }
+.footer-link { font-size: 13px; color: #666; text-decoration: none; cursor: pointer; transition: color 0.15s ease; }
+.footer-link:hover { color: #999; }
+.footer-copyright { font-size: 12px; color: #444; padding-bottom: 24px; }
+
+/* ─── RESPONSIVE ─────────────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .hero-inner, .stats-inner, .usecases-inner, .deploy-inner, .success-inner, .feat-header, .feat-inner, .ms-faq-inner { width: min(900px, calc(100vw - 80px)); }
+  .hero-breadcrumb { width: min(900px, calc(100vw - 80px)); }
+  .hero-h1 { font-size: 51px; }
+  .stats-grid { grid-template-columns: repeat(2,1fr); }
+  .stats-grid .stat-card:nth-child(2) { border-right: none; }
+  .stats-grid .stat-card:nth-child(-n+2) { border-bottom: 1px solid rgba(255,255,255,0.10); }
+  .stack-grid { grid-template-columns: repeat(2,1fr); }
+  .feat-inner { grid-template-columns: repeat(2,1fr); }
+  .success-pull-quote { grid-template-columns: 1fr; min-height: 360px; }
+  .success-quote-placeholder { flex-direction: row; flex-wrap: wrap; }
+  .section-eyebrow, .feat-eyebrow, .ms-faq-eyebrow, .footer-eyebrow, .hero-eyebrow { font-size: 13px; }
+  .feat-headline { font-size: 40px; }
+  .footer-headline { font-size: 42px; }
+}
+@media (max-width: 768px) {
+  .hero-breadcrumb, .hero-inner, .stats-inner, .usecases-inner, .deploy-inner, .success-inner, .feat-header, .feat-inner, .ms-faq-inner { width: calc(100vw - 32px); }
+  .hero-h1 { font-size: clamp(36px,8vw,48px); letter-spacing: -1.5px; }
+  .hero-breadcrumb { padding-top: 72px; }
+  .stats-grid { grid-template-columns: repeat(2,1fr); }
+  .stack-grid { grid-template-columns: 1fr; }
+  .feat-inner { grid-template-columns: 1fr; }
+  .deploy-grid { grid-template-columns: 1fr; }
+  .deploy-card:nth-child(3n) { border-right: 1px solid rgba(255,255,255,0.10); }
+  .deploy-card:nth-child(-n+2):last-child { border-right: none; }
+  .success-stats { grid-template-columns: repeat(2,1fr); }
+  .success-stat:nth-child(2) { border-right: none; }
+  .success-stat:nth-child(-n+2) { border-bottom: 1px solid rgba(255,255,255,0.10); }
+  .footer-section { padding: 56px 16px 0; }
+  .footer-headline { font-size: clamp(28px,8vw,40px); }
+  .ms-faq-q { font-size: 16px; padding: 22px 0; }
+  .ms-faq-a-inner { padding: 0 0 24px; font-size: 14px; }
+  .logo-track { gap: 48px; padding-right: 48px; }
+}
+</style>
+
+<!-- ─── NAV (shared across bolt.new) ─────────────────────────────────────── -->
+<nav style="position:fixed;top:0;left:0;right:0;z-index:100;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 40px;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.06);">
+  <a href="/" style="display:flex;align-items:center;text-decoration:none;font-size:16px;font-weight:700;letter-spacing:-0.3px;">
+    <span style="color:#fff;">bolt</span><span style="color:#22c55e;">.new</span>
+  </a>
+  <ul style="display:flex;align-items:center;gap:32px;list-style:none;">
+    <li><a href="/solutions" style="color:rgba(255,255,255,0.75);text-decoration:none;font-size:14px;font-weight:400;">Solutions</a></li>
+    <li><a href="/pricing" style="color:rgba(255,255,255,0.75);text-decoration:none;font-size:14px;font-weight:400;">Pricing</a></li>
+    <li><a href="/templates" style="color:rgba(255,255,255,0.75);text-decoration:none;font-size:14px;font-weight:400;">Templates</a></li>
+    <li><a href="/blog" style="color:rgba(255,255,255,0.75);text-decoration:none;font-size:14px;font-weight:400;">Blog</a></li>
+  </ul>
+  <a href="https://bolt.new" style="height:37px;padding:0 16px;background:#1488FC;color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;transition:background 0.2s;" onmouseover="this.style.background='#0f6fd0'" onmouseout="this.style.background='#1488FC'">Start building</a>
+</nav>
+
+<!-- ─── HERO ──────────────────────────────────────────────────────────────── -->
+<section class="hero-section">
+  <div class="hero-overlay"></div>
+  <canvas id="hero-pixel-dots"></canvas>
+
+  <p class="hero-breadcrumb">
+    <a href="/solutions">Solutions</a>
+    <span>/</span>
+    AI for real estate
+  </p>
+
+  <div class="hero-content-area">
+    <div class="hero-inner">
+      <p class="hero-eyebrow eyebrow-scramble">AI for Real Estate</p>
+      <h1 class="hero-h1 dsa-reveal">Build The Custom Real Estate Tools Your Business Needs</h1>
+      <p class="hero-subtitle">Bolt.new's no code AI builder lets you build the exact CRM, screening portal, listing site, app or lead scoring tool your business needs.</p>
+      <div class="hero-btn-group">
+        <a href="https://bolt.new" class="hero-btn-primary">
+          <div class="btn-bg-hover"></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Start building now →</span><span>Start building now →</span></div></div>
+        </a>
+      </div>
+      <p class="hero-social-proof">
+        <span class="hero-social-proof-dot"></span>
+        Join the 1,000+ real estate professionals building custom websites, apps, and AI-powered software.
+      </p>
+    </div>
+  </div>
+
+  <!-- Trust logos train -->
+  <div class="logo-train">
+    <div class="logo-track">
+      <span class="logo-item">Keller Williams</span>
+      <span class="logo-item">Compass</span>
+      <span class="logo-item">Realtor.com</span>
+      <span class="logo-item">HomeLight</span>
+      <span class="logo-item">Colliers</span>
+      <span class="logo-item">Luxury Presence</span>
+      <span class="logo-item">CBRE</span>
+      <span class="logo-item">JLL</span>
+      <!-- duplicate for seamless loop -->
+      <span class="logo-item">Keller Williams</span>
+      <span class="logo-item">Compass</span>
+      <span class="logo-item">Realtor.com</span>
+      <span class="logo-item">HomeLight</span>
+      <span class="logo-item">Colliers</span>
+      <span class="logo-item">Luxury Presence</span>
+      <span class="logo-item">CBRE</span>
+      <span class="logo-item">JLL</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─── STATS ─────────────────────────────────────────────────────────────── -->
+<section class="stats-section">
+  <div class="stats-inner">
+    <div class="stats-header dsa-reveal">
+      <p class="section-eyebrow eyebrow-scramble">By the numbers</p>
+      <h2 class="stats-headline">114,500+ AI built real estate projects<span> and counting</span></h2>
+      <p class="stats-body">Agents, brokers, property managers, and investors have launched over 114,500 projects on Bolt.new as of 2026. They're not just building websites — they're building full-stack tools that close deals faster and create competitive advantages impossible to buy off the shelf.</p>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <p class="stat-eyebrow">Time to launch</p>
+        <span class="stat-number">3.5<em>×</em></span>
+      </div>
+      <div class="stat-card">
+        <p class="stat-eyebrow">Dev cost reduction</p>
+        <span class="stat-number">80<em>%</em></span>
+      </div>
+      <div class="stat-card">
+        <p class="stat-eyebrow">To working prototype</p>
+        <span class="stat-number">1<em> day</em></span>
+      </div>
+      <div class="stat-card">
+        <p class="stat-eyebrow">Projects on Bolt.new</p>
+        <span class="stat-number">114k<em>+</em></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── USE CASES ──────────────────────────────────────────────────────────── -->
+<section class="usecases-section">
+  <div class="usecases-inner">
+    <div class="usecases-header dsa-reveal">
+      <p class="section-eyebrow eyebrow-scramble">What you can build</p>
+      <h2 class="section-headline">Every tool your team needs</h2>
+      <p class="section-sub">Real estate moves fast. Bolt lets you go from idea to deployed app before your next client meeting.</p>
+    </div>
+    <div class="stack-grid">
+      <div class="stack-card">
+        <div class="stack-icon">🏠</div>
+        <h3 class="stack-title">Property Listing Portals</h3>
+        <p class="stack-desc">AI-searchable listings with filters, map views, photo galleries, and mortgage calculators — deployed in days, not months.</p>
+      </div>
+      <div class="stack-card">
+        <div class="stack-icon">👥</div>
+        <h3 class="stack-title">Agent CRM & Pipeline</h3>
+        <p class="stack-desc">Custom CRMs built to match your exact sales process — lead tracking, follow-up reminders, deal pipeline, and client comms.</p>
+      </div>
+      <div class="stack-card">
+        <div class="stack-icon">📋</div>
+        <h3 class="stack-title">Tenant Screening Portals</h3>
+        <p class="stack-desc">Automated screening workflows, application management, and background check integrations in one branded portal.</p>
+      </div>
+      <div class="stack-card">
+        <div class="stack-icon">📊</div>
+        <h3 class="stack-title">Market Analytics Dashboards</h3>
+        <p class="stack-desc">Real-time pricing trends, days on market, inventory data, and comps — visualized for agents, investors, and buyers.</p>
+      </div>
+      <div class="stack-card">
+        <div class="stack-icon">🎯</div>
+        <h3 class="stack-title">Lead Scoring Tools</h3>
+        <p class="stack-desc">AI-powered lead qualification engines that rank prospects by intent, budget, and timeline so your team focuses on the right deals.</p>
+      </div>
+      <div class="stack-card">
+        <div class="stack-icon">📄</div>
+        <h3 class="stack-title">Contract & Document Workflows</h3>
+        <p class="stack-desc">Streamline offer submissions, e-signatures, and inspection requests with apps built to your brokerage's exact process.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── DEPLOY WITH CONFIDENCE ────────────────────────────────────────────── -->
+<section class="deploy-section">
+  <div class="deploy-inner">
+    <div class="deploy-header dsa-reveal">
+      <p class="section-eyebrow eyebrow-scramble">Platform</p>
+      <h2 class="section-headline">Deploy with confidence</h2>
+      <p class="section-sub">Everything you need to go from prototype to production — hosting, data, auth, and payments all in one place.</p>
+    </div>
+    <div class="deploy-grid">
+      <div class="deploy-card">
+        <div class="deploy-card-icon">🚀</div>
+        <h3 class="deploy-card-title">Hosting</h3>
+        <p class="deploy-card-desc">Publish directly from Bolt — no DevOps, no server config. Custom domains with SSL included.</p>
+      </div>
+      <div class="deploy-card">
+        <div class="deploy-card-icon">🌐</div>
+        <h3 class="deploy-card-title">Custom Domains</h3>
+        <p class="deploy-card-desc">Domain management with SSL certificates, handled automatically. Your brand, your URL.</p>
+      </div>
+      <div class="deploy-card">
+        <div class="deploy-card-icon">🗄️</div>
+        <h3 class="deploy-card-title">Database</h3>
+        <p class="deploy-card-desc">User authentication, property databases, and media storage — production-ready from day one.</p>
+      </div>
+      <div class="deploy-card">
+        <div class="deploy-card-icon">📈</div>
+        <h3 class="deploy-card-title">Analytics</h3>
+        <p class="deploy-card-desc">Track listing views, lead conversions, and user engagement — built-in, no third-party setup.</p>
+      </div>
+      <div class="deploy-card">
+        <div class="deploy-card-icon">🔗</div>
+        <h3 class="deploy-card-title">Supabase & Netlify</h3>
+        <p class="deploy-card-desc">Export to your preferred infrastructure provider for teams that want full ownership of their stack.</p>
+      </div>
+      <div class="deploy-card">
+        <div class="deploy-card-icon">💳</div>
+        <h3 class="deploy-card-title">Stripe</h3>
+        <p class="deploy-card-desc">Accept deposits, application fees, or subscription payments for premium listing access — wired up automatically.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CUSTOMER SUCCESS ───────────────────────────────────────────────────── -->
+<section class="success-section">
+  <div class="success-glow"></div>
+  <div class="success-inner">
+    <p class="success-eyebrow">Customer story</p>
+    <h2 class="section-headline dsa-reveal">Digital Virgo</h2>
+
+    <div class="success-pull-quote">
+      <div class="success-pull-quote-content">
+        <div></div>
+        <p class="success-pull-quote-text">We built our entire property search portal in a weekend. What would have taken our dev team three months, Bolt shipped in two days — and it was production quality. Our agents were live before the quarter ended.</p>
+        <div class="success-pull-quote-attr">
+          <span class="success-pull-quote-name">Marcus Rodriguez</span>
+          <span class="success-pull-quote-role">VP of Technology, Pacific Realty Group</span>
+        </div>
+      </div>
+      <div class="success-quote-image-wrap">
+        <div class="success-quote-placeholder">
+          <div class="success-quote-metric">
+            <span class="success-quote-metric-val">3 mo</span>
+            <span class="success-quote-metric-label">→ 2 days to launch</span>
+          </div>
+          <div class="success-quote-metric">
+            <span class="success-quote-metric-val">4→1</span>
+            <span class="success-quote-metric-label">engineers needed</span>
+          </div>
+          <div class="success-quote-metric">
+            <span class="success-quote-metric-val">40%</span>
+            <span class="success-quote-metric-label">more qualified leads</span>
+          </div>
+          <div class="success-quote-metric">
+            <span class="success-quote-metric-val">12k+</span>
+            <span class="success-quote-metric-label">listings managed</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="success-stats" style="margin-top:1px;">
+      <div class="success-stat">
+        <span class="success-stat-eyebrow">Time to launch</span>
+        <span class="success-stat-number">12<em>mo</em></span>
+      </div>
+      <div class="success-stat">
+        <span class="success-stat-eyebrow">After Bolt</span>
+        <span class="success-stat-number">3.5<em>mo</em></span>
+      </div>
+      <div class="success-stat">
+        <span class="success-stat-eyebrow">Team size</span>
+        <span class="success-stat-number">1</span>
+      </div>
+      <div class="success-stat">
+        <span class="success-stat-eyebrow">Countries</span>
+        <span class="success-stat-number">50<em>+</em></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── ENTERPRISE ────────────────────────────────────────────────────────── -->
+<section class="feat-section">
+  <div class="feat-header dsa-reveal">
+    <p class="feat-eyebrow eyebrow-scramble">Enterprise</p>
+    <h2 class="feat-headline">Built for Enterprise</h2>
+    <p class="feat-subheadline">Security, compliance, and support that brokerages and PropTech teams require at scale.</p>
+  </div>
+  <div class="feat-inner">
+    <div class="feat-card">
+      <h3 class="feat-card-title">Secure & Compliant</h3>
+      <ul>
+        <li><span class="feat-check">✓</span> SSO — Okta, Azure AD, SAML</li>
+        <li><span class="feat-check">✓</span> SOC 2 Type 2 Certified</li>
+        <li><span class="feat-check">✓</span> HIPAA & FedRAMP ready</li>
+        <li><span class="feat-check">✓</span> Granular admin controls</li>
+        <li><span class="feat-check">✓</span> Audit logs & access reviews</li>
+      </ul>
+    </div>
+    <div class="feat-card">
+      <h3 class="feat-card-title">Dedicated Support</h3>
+      <ul>
+        <li><span class="feat-check">✓</span> Dedicated customer success manager</li>
+        <li><span class="feat-check">✓</span> Private Slack channel</li>
+        <li><span class="feat-check">✓</span> No token overages or surprises</li>
+        <li><span class="feat-check">✓</span> Onboarding workshops for your team</li>
+        <li><span class="feat-check">✓</span> SLA-backed uptime guarantee</li>
+      </ul>
+    </div>
+    <div class="feat-card">
+      <h3 class="feat-card-title">BYOK Deployment</h3>
+      <ul>
+        <li><span class="feat-check">✓</span> AWS or Azure tenant deployment</li>
+        <li><span class="feat-check">✓</span> Full infrastructure isolation</li>
+        <li><span class="feat-check">✓</span> Bring your own MLS data feeds</li>
+        <li><span class="feat-check">✓</span> Custom AI model integration</li>
+        <li><span class="feat-check">✓</span> VPN & private networking</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FAQ ───────────────────────────────────────────────────────────────── -->
+<section class="ms-faq-section">
+  <div class="ms-faq-inner">
+    <div class="dsa-reveal">
+      <p class="ms-faq-eyebrow eyebrow-scramble">FAQ</p>
+      <h2 class="ms-faq-headline">Common questions</h2>
+    </div>
+    <ul class="ms-faq-list">
+      <li class="ms-faq-item">
+        <button class="ms-faq-q">Do I need to know how to code?<span class="ms-faq-icon">+</span></button>
+        <div class="ms-faq-a"><div class="ms-faq-a-inner">No. Bolt.new is built for non-developers. You describe what you want in plain language and Bolt builds it. Real estate professionals — agents, brokers, and property managers — use Bolt every day without writing a single line of code.</div></div>
+      </li>
+      <li class="ms-faq-item">
+        <button class="ms-faq-q">How long does it take to build a listing site?<span class="ms-faq-icon">+</span></button>
+        <div class="ms-faq-a"><div class="ms-faq-a-inner">Most teams have a working prototype in under an hour and a production-ready app deployed within a day or two. Complex integrations (MLS feeds, payment processing, custom databases) may take a few days of iteration.</div></div>
+      </li>
+      <li class="ms-faq-item">
+        <button class="ms-faq-q">Can I connect to my MLS data?<span class="ms-faq-icon">+</span></button>
+        <div class="ms-faq-a"><div class="ms-faq-a-inner">Yes. Bolt supports custom API integrations including RETS feeds, RESO Web API, and most major MLS data providers. Enterprise customers can also bring their own data connectors or custom data sources.</div></div>
+      </li>
+      <li class="ms-faq-item">
+        <button class="ms-faq-q">What happens to my data?<span class="ms-faq-icon">+</span></button>
+        <div class="ms-faq-a"><div class="ms-faq-a-inner">Your data is yours. Bolt is SOC 2 Type 2 compliant and enterprise customers can deploy into their own AWS or Azure tenant for full data isolation. We never sell or share your customer data.</div></div>
+      </li>
+      <li class="ms-faq-item">
+        <button class="ms-faq-q">Is there a free plan?<span class="ms-faq-icon">+</span></button>
+        <div class="ms-faq-a"><div class="ms-faq-a-inner">Yes — you can start building for free with no credit card required. Free plans include access to the AI builder and basic hosting. Paid plans unlock custom domains, team collaboration, and production-grade infrastructure.</div></div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- ─── FOOTER CTA ─────────────────────────────────────────────────────────── -->
+<section class="footer-section">
+  <p class="footer-eyebrow">Get Started</p>
+  <h2 class="footer-headline">Are you ready?</h2>
+  <p class="footer-subtitle">Start building today. Join thousands of real estate teams shipping faster with Bolt.</p>
+  <form class="footer-form-row" onsubmit="window.location='https://bolt.new';return false;">
+    <input type="email" class="footer-email-input" placeholder="Enter your work email">
+    <button type="submit" class="footer-cta-btn">
+      <div class="btn-bg-hover"></div>
+      <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Started</span><span>Get Started</span></div></div>
+    </button>
+  </form>
+  <div class="footer-spacer"></div>
+  <div class="footer-links">
+    <a href="/pricing" class="footer-link">Pricing</a>
+    <a href="/support" class="footer-link">Support</a>
+    <a href="/blog" class="footer-link">Blog</a>
+    <a href="/status" class="footer-link">Status</a>
+    <a href="/careers" class="footer-link">Careers</a>
+    <a href="/privacy" class="footer-link">Privacy</a>
+    <a href="/terms" class="footer-link">Terms</a>
+  </div>
+  <p class="footer-copyright">© 2026 StackBlitz — All rights reserved</p>
+</section>
+
+<script>
+/* ── hero pixel dots ─────────────────────────────────────────────────────── */
+(function() {
+  var canvas = document.getElementById('hero-pixel-dots');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var dpr = window.devicePixelRatio || 1;
+  var spacing = 22, dotSize = 3;
+  var t = 0;
+  function resize() {
+    var el = canvas.parentElement;
+    canvas.width = el.offsetWidth * dpr;
+    canvas.height = el.offsetHeight * dpr;
+    canvas.style.width = el.offsetWidth + 'px';
+    canvas.style.height = el.offsetHeight + 'px';
+  }
+  function draw() {
+    var w = canvas.width, h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+    var cols = Math.ceil(w / (spacing * dpr)) + 1;
+    var rows = Math.ceil(h / (spacing * dpr)) + 1;
+    for (var r = 0; r < rows; r++) {
+      for (var c = 0; c < cols; c++) {
+        var x = c * spacing * dpr;
+        var y = r * spacing * dpr;
+        var cx = w / 2, cy = h * 0.6;
+        var dx = x - cx, dy = y - cy;
+        var dist = Math.sqrt(dx*dx + dy*dy);
+        var wave = Math.sin(dist / (55 * dpr) - t * 1.4) * 0.5 + 0.5;
+        var distFade = Math.max(0, 1 - dist / (w * 0.65));
+        var alpha = wave * distFade * 0.45;
+        if (alpha < 0.03) continue;
+        ctx.fillStyle = 'rgba(20,136,252,' + alpha + ')';
+        var s = dotSize * dpr;
+        ctx.fillRect(x - s/2, y - s/2, s, s);
+      }
+    }
+    t += 0.018;
+    requestAnimationFrame(draw);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+  draw();
+})();
+
+/* ── scroll animations ───────────────────────────────────────────────────── */
+(function() {
+  var scrambleChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&';
+  function scrambleEl(el) {
+    var final = el.dataset.scrambleFinal || el.textContent.trim();
+    if (!el.dataset.scrambleFinal) el.dataset.scrambleFinal = final;
+    var chars = final.split('');
+    var total = chars.length;
+    var locked = new Array(total).fill(false);
+    var current = chars.map(function(c) { return c === ' ' ? ' ' : scrambleChars[Math.floor(Math.random()*scrambleChars.length)]; });
+    var sTime = null, dur = 600;
+    function tick(ts) {
+      if (!sTime) sTime = ts;
+      var p = Math.min((ts - sTime) / dur, 1);
+      for (var i = 0; i < total; i++) {
+        if (chars[i] === ' ') { locked[i] = true; current[i] = ' '; continue; }
+        if (!locked[i] && p > (i / total) * 0.75 + Math.random() * 0.1) { locked[i] = true; current[i] = chars[i]; }
+        else if (!locked[i]) current[i] = scrambleChars[Math.floor(Math.random()*scrambleChars.length)];
+      }
+      el.textContent = current.join('');
+      if (p < 1 || locked.some(function(l) { return !l; })) requestAnimationFrame(tick);
+      else el.textContent = final;
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function wrapWords(el) {
+    var html = el.innerHTML;
+    var i = 0;
+    el.innerHTML = html.replace(/\S+/g, function(w) { return '<span class="word" style="--i:' + (i++) + '">' + w + '</span>'; });
+  }
+
+  var io = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (!e.isIntersecting) return;
+      var el = e.target;
+      if (el.classList.contains('dsa-reveal')) {
+        el.querySelectorAll('h1,h2').forEach(function(h) { if (!h.dataset.wrapped) { wrapWords(h); h.dataset.wrapped = '1'; } });
+        el.classList.add('is-revealed');
+      } else if (el.classList.contains('eyebrow-scramble')) {
+        scrambleEl(el);
+      }
+      io.unobserve(el);
+    });
+  }, { threshold: 0.2 });
+
+  document.querySelectorAll('.dsa-reveal, .eyebrow-scramble').forEach(function(el) { io.observe(el); });
+})();
+
+/* ── FAQ accordion ───────────────────────────────────────────────────────── */
+(function() {
+  document.querySelectorAll('.ms-faq-q').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var item = btn.closest('.ms-faq-item');
+      var isOpen = item.classList.contains('is-open');
+      document.querySelectorAll('.ms-faq-item.is-open').forEach(function(i) {
+        i.classList.remove('is-open');
+        i.querySelector('.ms-faq-a').style.maxHeight = '0';
+      });
+      if (!isOpen) {
+        item.classList.add('is-open');
+        var a = item.querySelector('.ms-faq-a');
+        a.style.maxHeight = a.scrollHeight + 'px';
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>
