@@ -652,17 +652,6 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 }
 .ms-faq-item:last-child { border-bottom: 1px solid rgba(255,255,255,0.08); }
 @media (hover: hover) { .ms-faq-item:hover { background: rgba(255,255,255,0.02); } }
-/* per-item canvas: fades in when open (CLAUDE.md: .ms-faq-open-canvas) */
-.ms-faq-open-canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%; height: 100%;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.35s ease;
-  z-index: 0;
-}
-.ms-faq-item.is-open .ms-faq-open-canvas { opacity: 1; }
 .ms-faq-q {
   width: 100%;
   display: flex; align-items: center; justify-content: space-between;
@@ -1412,73 +1401,57 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); }
 })();
 
-/* ── FAQ section pixel background canvas ────────────────────────────────── */
+/* ── FAQ section pixel canvas — animated, brand blue only (not bolt.conf palette) */
 (function () {
   var canvas = document.getElementById('faq-pixel-canvas');
   if (!canvas) return;
   var ctx = canvas.getContext('2d');
-  var dpr = window.devicePixelRatio || 1;
+  var SPACING = 9, W, H, cx, cy, maxR, t = 0, resizeTimer;
   function resize() {
-    var el = canvas.parentElement;
-    canvas.width  = el.offsetWidth  * dpr;
-    canvas.height = el.offsetHeight * dpr;
-    canvas.style.width  = el.offsetWidth  + 'px';
-    canvas.style.height = el.offsetHeight + 'px';
-    draw();
+    var r = canvas.parentElement.getBoundingClientRect();
+    W = canvas.width  = Math.round(r.width);
+    H = canvas.height = Math.round(r.height);
+    cx = W * 0.5;
+    var isMobile = W <= 768;
+    cy    = isMobile ? (H + W * 0.15)  : (H * 1.22);
+    maxR  = isMobile ? (W * 0.80)      : (H * 0.42);
   }
+  window.addEventListener('resize', function () { clearTimeout(resizeTimer); resizeTimer = setTimeout(resize, 200); });
+  resize();
   function draw() {
-    var w = canvas.width, h = canvas.height;
-    ctx.clearRect(0, 0, w, h);
-    var spacing = 22 * dpr, dot = 3 * dpr;
-    var cx = w * 0.75, cy = h * 0.25;
-    for (var y = 0; y < h; y += spacing) {
-      for (var x = 0; x < w; x += spacing) {
-        var dx = x - cx, dy = y - cy;
+    t += 0.028;
+    var breathe = 0.80 + Math.sin(t)*0.07 + Math.sin(t*2.7)*0.04 + Math.sin(t*0.53)*0.04;
+    if (!W || !H) { requestAnimationFrame(draw); return; }
+    ctx.clearRect(0, 0, W, H);
+    var cols = Math.ceil(W / SPACING) + 1;
+    var rows = Math.ceil(H / SPACING) + 1;
+    for (var r = 0; r < rows; r++) {
+      for (var c = 0; c < cols; c++) {
+        var px = c * SPACING, py = r * SPACING;
+        var dx = px - cx, dy = py - cy;
         var dist = Math.sqrt(dx*dx + dy*dy);
-        var wave = Math.sin(dist / (60 * dpr)) * 0.5 + 0.5;
-        var alpha = wave * Math.max(0, 1 - dist / (w * 0.7)) * 0.22;
-        if (alpha < 0.02) continue;
-        ctx.fillStyle = 'rgba(20,136,252,' + alpha + ')';
-        ctx.fillRect(x - dot/2, y - dot/2, dot, dot);
+        if (dist > maxR) continue;
+        var norm = dist / maxR;
+        var seed = Math.sin(c * 127.1 + r * 311.7) * 43758.5453;
+        var noise = (seed - Math.floor(seed)) - 0.5;
+        var ripple = Math.sin(t * 1.8 - norm * 6.0 + noise * 2.0) * 0.06;
+        var localBreath = breathe + ripple + noise * 0.05;
+        var dotSize = SPACING * Math.pow(Math.max(0, 1 - norm), 0.9) * localBreath;
+        if (dotSize < 0.5) continue;
+        dotSize = Math.min(dotSize, SPACING);
+        var op = Math.pow(Math.max(0, 1 - norm), 0.6) * localBreath * 0.78;
+        if (op < 0.02) continue;
+        /* brand blue only — #1488FC = rgb(20,136,252) */
+        var half = dotSize * 0.5;
+        ctx.fillStyle = 'rgba(20,136,252,' + op.toFixed(3) + ')';
+        ctx.fillRect(px - half, py - half, dotSize, dotSize);
       }
     }
+    requestAnimationFrame(draw);
   }
-  resize();
-  window.addEventListener('resize', function () { resize(); });
+  requestAnimationFrame(draw);
 })();
 
-/* ── FAQ per-item open canvas (CLAUDE.md: .ms-faq-open-canvas) ──────────── */
-(function () {
-  document.querySelectorAll('.ms-faq-item').forEach(function (item) {
-    var canvas = document.createElement('canvas');
-    canvas.className = 'ms-faq-open-canvas';
-    item.insertBefore(canvas, item.firstChild);
-    var ctx = canvas.getContext('2d');
-    function drawOpen() {
-      var w = item.offsetWidth, h = item.offsetHeight;
-      if (!w || !h) return;
-      canvas.width = w; canvas.height = h;
-      canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
-      ctx.clearRect(0, 0, w, h);
-      var spacing = 11, dot = 4;
-      for (var y = 0; y < h; y += spacing) {
-        for (var x = 0; x < w; x += spacing) {
-          var dx = x - w * 0.5, dy = y - h * 0.5;
-          var dist = Math.sqrt(dx*dx + dy*dy);
-          var wave = Math.sin(dist / 38) * 0.5 + 0.5;
-          var alpha = wave * Math.max(0, 1 - dist / (w * 0.7)) * 0.28;
-          if (alpha < 0.03) continue;
-          ctx.fillStyle = 'rgba(20,136,252,' + alpha + ')';
-          ctx.fillRect(x, y, dot, dot);
-        }
-      }
-    }
-    var obs = new MutationObserver(function () {
-      if (item.classList.contains('is-open')) drawOpen();
-    });
-    obs.observe(item, { attributes: true, attributeFilter: ['class'] });
-  });
-})();
 
 /* ── FAQ accordion ───────────────────────────────────────────────────────── */
 (function () {
