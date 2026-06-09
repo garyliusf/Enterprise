@@ -1089,9 +1089,6 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
       <p class="section-eyebrow eyebrow-scramble">How it works</p>
       <h2 class="section-headline">Describe it. Build it. Ship it.</h2>
       <p class="section-sub">Your expertise and experience shapes the app or website. You describe it, AI builds it. There's no agency or freelance developer between you and the build.</p>
-      <div class="how-learn-more" style="margin-top:24px;">
-        <a href="/platform" class="hero-btn-ghost">Learn More</a>
-      </div>
     </div>
     <div class="how-steps-wrap">
       <div class="how-line-track"></div>
@@ -1755,19 +1752,22 @@ window.addEventListener('load', function () {
   if (prev) prev.addEventListener('click', function () { scrollBy(-1); });
   if (next) next.addEventListener('click', function () { scrollBy(1); });
 
-  /* click-drag to scroll */
+  /* click-drag to scroll — disable snap while dragging for smoothness */
   var isDragging = false, startX = 0, startScroll = 0, hasDragged = false;
   slider.style.cursor = 'grab';
   slider.addEventListener('mousedown', function (e) {
+    if (e.button !== 0) return;
     isDragging = true; hasDragged = false;
     startX = e.pageX; startScroll = slider.scrollLeft;
     slider.style.cursor = 'grabbing';
     slider.style.userSelect = 'none';
+    slider.style.scrollSnapType = 'none'; /* disable snap during drag */
+    e.preventDefault();
   });
   window.addEventListener('mousemove', function (e) {
     if (!isDragging) return;
     var dx = e.pageX - startX;
-    if (Math.abs(dx) > 4) hasDragged = true;
+    if (Math.abs(dx) > 3) hasDragged = true;
     slider.scrollLeft = startScroll - dx;
   });
   window.addEventListener('mouseup', function () {
@@ -1775,6 +1775,8 @@ window.addEventListener('load', function () {
     isDragging = false;
     slider.style.cursor = 'grab';
     slider.style.userSelect = '';
+    /* re-enable snap after a frame so release feels natural */
+    setTimeout(function () { slider.style.scrollSnapType = ''; }, 50);
   });
   /* prevent click-through on links if we dragged */
   slider.addEventListener('click', function (e) {
