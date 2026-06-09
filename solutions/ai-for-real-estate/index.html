@@ -719,28 +719,54 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 .how-learn-more-link:hover { color: #fff; }
 .how-learn-more-link span { color: #1488FC; }
 
-/* ─── QUOTE SECTION ──────────────────────────────────────────────────────── */
+/* ─── QUOTE SECTION — enterprise card style ──────────────────────────────── */
 .quote-section { border-top: 1px solid rgba(255,255,255,0.06); }
-.quote-block {
-  max-width: 860px;
-  margin: 0 auto;
-  text-align: center;
+.quote-card {
+  background: #0d0d0d;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+  padding: 56px 56px 52px;
+  min-height: 420px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 28px;
+  justify-content: space-between;
+  gap: 48px;
+}
+#quote-pixel-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.55;
+}
+.quote-card > * { position: relative; z-index: 1; }
+.quote-card-eyebrow {
+  font-family: 'Silkscreen', monospace;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #1488FC;
 }
 .quote-text {
   font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(22px,2.5vw,30px);
+  font-size: clamp(22px,2.2vw,30px);
   font-weight: 300;
   color: #EDDCC6;
-  line-height: 1.6;
+  line-height: 1.55;
   font-style: normal;
+  max-width: 820px;
 }
-.quote-attr { display: flex; flex-direction: column; gap: 4px; }
+.quote-attr { display: flex; flex-direction: column; gap: 5px; }
 .quote-name { font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.65); }
-.quote-role { font-size: 13px; color: rgba(255,255,255,0.35); }
+.quote-role { font-size: 13px; color: rgba(255,255,255,0.28); }
+@media (max-width: 768px) {
+  .quote-card { padding: 32px 24px 28px; min-height: 0; }
+  .quote-card-eyebrow { font-size: 13px; }
+}
 
 /* ─── TEMPLATES SLIDER ───────────────────────────────────────────────────── */
 .section-header + .template-slider-wrap { margin-top: 48px; }
@@ -953,6 +979,11 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
     </div>
   </div>
 
+  <!-- bolt wordmark — animated, matches bolt.new homepage -->
+  <div class="bolt-image-wrap" style="width:100%;overflow:hidden;position:relative;height:28vw;max-height:280px;flex-shrink:0;">
+    <img src="../../images/bolt-bottom.png" alt="bolt" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;opacity:0.18;">
+  </div>
+
   <!-- scrolling trust logo train -->
   <div class="logo-train">
     <div class="logo-track">
@@ -1092,10 +1123,12 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   </div>
 </section>
 
-<!-- QUOTE -->
+<!-- QUOTE — enterprise card style with pixel canvas -->
 <section class="section quote-section">
   <div class="section-inner">
-    <div class="quote-block">
+    <div class="quote-card">
+      <canvas id="quote-pixel-canvas" aria-hidden="true"></canvas>
+      <p class="quote-card-eyebrow eyebrow-scramble">Customer Stories</p>
       <p class="quote-text">"I had a listing site in my head for two years. Paid a developer quote that never went anywhere, tried three website builders that all looked like everyone else's. Built what I actually wanted on Bolt.new on a Saturday afternoon. It's been live for four months and it's the first thing I send new clients."</p>
       <div class="quote-attr">
         <span class="quote-name">Jordan T.</span>
@@ -1487,6 +1520,71 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   requestAnimationFrame(draw);
 })();
 
+
+/* ── makePixelCanvas helper (from bolt-cli.html) ─────────────────────────── */
+function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
+  color = color || '20,136,252';
+  var canvas = document.getElementById(id);
+  if (!canvas) return;
+  var phases = [];
+  function buildPhases(cols, rows) {
+    phases = Array.from({ length: rows }, function() {
+      return Array.from({ length: cols }, function() { return Math.random() * Math.PI * 2; });
+    });
+  }
+  function resize() {
+    var parent = canvas.parentElement;
+    var w = parent.offsetWidth || parent.getBoundingClientRect().width;
+    var h = parent.offsetHeight || parent.getBoundingClientRect().height;
+    if (!w || !h) return;
+    canvas.width = Math.round(w); canvas.height = Math.round(h);
+    buildPhases(Math.ceil(w / spacing), Math.ceil(h / spacing));
+  }
+  window.addEventListener('load', resize);
+  window.addEventListener('resize', resize);
+  new ResizeObserver(function() { resize(); }).observe(canvas.parentElement);
+  requestAnimationFrame(function() { resize(); });
+  function draw(t) {
+    var w = canvas.width, h = canvas.height;
+    if (!w || !h) { requestAnimationFrame(draw); return; }
+    var ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, w, h);
+    var cols = Math.ceil(w / spacing), rows = Math.ceil(h / spacing);
+    for (var r = 0; r < rows; r++) {
+      for (var c = 0; c < cols; c++) {
+        var phase = (phases[r] && phases[r][c]) || 0;
+        var op = waveFn(c, r, t, phase) * opacity;
+        if (op < 0.04) continue;
+        ctx.fillStyle = 'rgba(' + color + ',' + op.toFixed(3) + ')';
+        ctx.fillRect(c * spacing, r * spacing, dot, dot);
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+}
+
+/* ── Quote pixel canvas ──────────────────────────────────────────────────── */
+window.addEventListener('load', function () {
+  makePixelCanvas('quote-pixel-canvas', 6, 2,
+    function (c, r, t, p) {
+      var px = c * 6, py = r * 6;
+      var vFade = Math.max(0, 1 - py / 200); if (vFade <= 0) return 0;
+      var speedMod = 0.05 + (Math.sin(t * 0.00070 + 1.8) * 0.5 + 0.5) * 0.22;
+      function rwave(scale, rotRate, phase, tMult) {
+        var angle = t * rotRate + phase;
+        var u = (px * Math.cos(angle) + py * Math.sin(angle)) / scale;
+        var v = (-px * Math.sin(angle) + py * Math.cos(angle)) / scale;
+        return Math.sin(u * Math.PI * 2 + t * tMult * speedMod) * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7 * speedMod);
+      }
+      var s1 = rwave(480, 0.00011, 0.5, 0.00028), s2 = rwave(240, 0.00023, 1.8, 0.00060);
+      var s3 = rwave(120, 0.00038, 3.1, 0.00120), s4 = rwave(360, 0.00016, 4.4, 0.00043);
+      var wf = s1 * 0.5 + 0.5, det = s2 * 0.45 + s3 * 0.30 + s4 * 0.25;
+      var raw = wf * (det * 0.5 + 0.5), density = Math.pow(Math.max(0, raw), 0.7);
+      var rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
+      var d = density * vFade; return d > rand ? d * 0.85 : 0;
+    }, 1.0, '90,100,115');
+});
 
 /* ── How It Works line animation ──────────────────────────────────────────── */
 (function () {
