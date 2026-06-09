@@ -277,7 +277,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   flex-shrink: 0;
   animation: scrollLogos 32s linear infinite;
 }
-@keyframes scrollLogos { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes scrollLogos { from { transform: translateX(0); } to { transform: translateX(-33.333%); } }
 .logo-item {
   display: inline-flex;
   align-items: center;
@@ -764,6 +764,32 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   position: relative;
   z-index: 1;
 }
+/* unlock cards — exact bolt-cli.html .unlock-card */
+.unlock-card {
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 4px;
+  padding: 24px 24px 28px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 180px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s ease;
+}
+.unlock-card:hover { border-color: rgba(255,255,255,0.22); }
+.unlock-icon {
+  width: 44px; height: 44px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  display: inline-flex; align-items: center; justify-content: center;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 6px;
+}
+.unlock-title { font-size: 18px; font-weight: 600; color: #fff; margin: 0; letter-spacing: -0.2px; line-height: 1.35; }
+.unlock-desc  { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.55; margin: 0; }
 
 /* ─── WHY SECTION ────────────────────────────────────────────────────────── */
 .why-section { border-top: 1px solid rgba(255,255,255,0.06); }
@@ -1104,6 +1130,14 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
       <span class="logo-item">Luxury Presence</span>
       <span class="logo-item">CBRE</span>
       <span class="logo-item">JLL</span>
+      <span class="logo-item">Keller Williams</span>
+      <span class="logo-item">Compass</span>
+      <span class="logo-item">Realtor.com</span>
+      <span class="logo-item">HomeLight</span>
+      <span class="logo-item">Colliers</span>
+      <span class="logo-item">Luxury Presence</span>
+      <span class="logo-item">CBRE</span>
+      <span class="logo-item">JLL</span>
     </div>
   </div>
 </section>
@@ -1428,44 +1462,56 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
 })();
 
-/* ── Hero pixel dot canvas ───────────────────────────────────────────────── */
+/* ── Hero pixel dots — exact microsoft.html (SPACING=11, skyline+wave) ───── */
 (function () {
   var canvas = document.getElementById('hero-pixel-dots');
   if (!canvas) return;
   var ctx = canvas.getContext('2d');
-  var dpr = window.devicePixelRatio || 1;
-  var spacing = 22, dotSize = 3, t = 0;
-  function resize() {
-    var el = canvas.parentElement;
-    canvas.width  = el.offsetWidth  * dpr;
-    canvas.height = el.offsetHeight * dpr;
-    canvas.style.width  = el.offsetWidth  + 'px';
-    canvas.style.height = el.offsetHeight + 'px';
+  var SPACING = 11, DOT = 2, cols, rows, phases, skyline;
+  function buildSkyline(n) {
+    var h = new Float32Array(n); var c = 0, seed = 0;
+    while (c < n) {
+      var w = 5 + Math.floor(Math.abs(Math.sin(seed * 1.37 + 0.91)) * 12);
+      var g = 2 + Math.floor(Math.abs(Math.sin(seed * 2.11 + 1.73)) * 5);
+      var ht = 0.20 + Math.abs(Math.sin(seed * 0.83 + 3.14)) * 0.75;
+      for (var i = 0; i < w && (c + i) < n; i++) h[c + i] = ht;
+      c += w + g; seed++;
+    }
+    return h;
   }
-  function draw() {
-    var w = canvas.width, h = canvas.height;
-    ctx.clearRect(0, 0, w, h);
-    var cols = Math.ceil(w / (spacing * dpr)) + 1;
-    var rows = Math.ceil(h / (spacing * dpr)) + 1;
-    for (var r = 0; r < rows; r++) {
-      for (var c = 0; c < cols; c++) {
-        var x = c * spacing * dpr, y = r * spacing * dpr;
-        var dx = x - w / 2, dy = y - h * 0.6;
-        var dist = Math.sqrt(dx*dx + dy*dy);
-        var wave = Math.sin(dist / (55 * dpr) - t * 1.4) * 0.5 + 0.5;
-        var alpha = wave * Math.max(0, 1 - dist / (w * 0.65)) * 0.45;
-        if (alpha < 0.03) continue;
-        ctx.fillStyle = 'rgba(20,136,252,' + alpha + ')';
-        var s = dotSize * dpr;
-        ctx.fillRect(x - s/2, y - s/2, s, s);
+  function hMask(f) { var s = 0.13; return Math.exp(-Math.pow(f - 0.5, 2) / (2 * s * s)); }
+  function init() {
+    canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
+    cols = Math.ceil(canvas.width / SPACING) + 1;
+    rows = Math.ceil(canvas.height / SPACING) + 1;
+    phases = Array.from({ length: rows }, function () { return Float32Array.from({ length: cols }, function () { return Math.random() * Math.PI * 2; }); });
+    skyline = buildSkyline(cols);
+  }
+  window.addEventListener('resize', init); init();
+  var start = null;
+  function draw(ts) {
+    if (!start) start = ts; var t = ts - start;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (var c = 0; c < cols; c++) {
+      var cf = c / cols, hm = hMask(cf); if (hm < 0.04) continue;
+      var cb = Math.exp(-Math.pow(cf - 0.5, 2) / (2 * 0.18 * 0.18));
+      var bh = Math.min(0.98, skyline[c] + cb * 0.35); if (bh < 0.01) continue;
+      var top = (1.0 - bh) * rows;
+      for (var r = 0; r < rows; r++) {
+        var rd = r - top; if (rd < 0) continue;
+        var x = c * SPACING, y = r * SPACING;
+        var rf = Math.min(1, rd / 3);
+        var w1 = Math.sin(c * 0.18 + r * 0.22 - t * 0.0018 + phases[r][c]);
+        var w2 = Math.sin(c * 0.09 - r * 0.14 + t * 0.0012 + phases[r][c] * 0.6);
+        var op = hm * rf * Math.max(0, (w1 + w2) * 0.5) * 0.80;
+        if (op < 0.02) continue;
+        ctx.fillStyle = 'rgba(160,185,230,' + op.toFixed(3) + ')';
+        ctx.fillRect(x - DOT, y - DOT, DOT * 2, DOT * 2);
       }
     }
-    t += 0.018;
     requestAnimationFrame(draw);
   }
-  resize();
-  window.addEventListener('resize', resize);
-  draw();
+  requestAnimationFrame(draw);
 })();
 
 /* ── Scroll animations (word-reveal + eyebrow scramble) ─────────────────── */
