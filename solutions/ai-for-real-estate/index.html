@@ -950,25 +950,13 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 }
 
 /* ─── TEMPLATES SLIDER ───────────────────────────────────────────────────── */
-.section-header + .template-slider-wrap { margin-top: 48px; }
-.template-slider-wrap {
-  position: relative;
-  -webkit-mask-image: linear-gradient(to right, black 0%, black 88%, transparent 100%);
-          mask-image: linear-gradient(to right, black 0%, black 88%, transparent 100%);
+.section-header + .template-grid { margin-top: 48px; }
+.template-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
 }
-.template-slider {
-  display: flex;
-  gap: 20px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  padding-bottom: 4px;
-}
-.template-slider::-webkit-scrollbar { display: none; }
 .template-card {
-  flex: 0 0 360px;
-  scroll-snap-align: start;
   border: none;
   border-radius: 8px;
   overflow: hidden;
@@ -1043,24 +1031,6 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 }
 .template-cta { align-self: flex-start; }
 /* slider nav arrows */
-.template-nav {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin-top: 28px;
-}
-.template-nav-btn {
-  width: 40px; height: 40px;
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 2px;
-  background: transparent;
-  color: rgba(255,255,255,0.6);
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: border-color 0.2s, color 0.2s;
-}
-.template-nav-btn:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
-.template-nav-btn svg { width: 16px; height: 16px; }
 
 @media (max-width: 1024px) {
   /* CLAUDE.md: tablet section padding 64px 0 */
@@ -1111,6 +1081,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 
   .unlocks-grid { grid-template-columns: 1fr; }
   .card-grid-3 { grid-template-columns: 1fr; }
+  .template-grid { grid-template-columns: 1fr; }
   .feat-inner { grid-template-columns: 1fr; }
   .deploy-grid { grid-template-columns: 1fr; }
   .deploy-cell { border-right: none !important; }
@@ -1369,8 +1340,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
       <h2 class="section-headline">Not sure where to start? Customize existing real estate templates</h2>
       <p class="section-sub template-sub">Each one was built with plain-English prompts. Open it, see how it works, then rebuild it for your market, your criteria, your clients, and your brand.</p>
     </div>
-    <div class="template-slider-wrap">
-      <div class="template-slider" id="template-slider">
+    <div class="template-grid">
 
         <div class="template-card">
           <div class="template-card-image">
@@ -1424,15 +1394,6 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
           </div>
         </div>
 
-      </div>
-    </div>
-    <div class="template-nav">
-      <button class="template-nav-btn" id="tpl-prev" aria-label="Previous">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-      </button>
-      <button class="template-nav-btn" id="tpl-next" aria-label="Next">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-      </button>
     </div>
   </div>
 </section>
@@ -2071,52 +2032,6 @@ window.addEventListener('load', function () {
     requestAnimationFrame(draw);
   }
   requestAnimationFrame(draw);
-})();
-
-/* ── Template slider — nav + click-drag ─────────────────────────────────── */
-(function () {
-  var slider = document.getElementById('template-slider');
-  var prev   = document.getElementById('tpl-prev');
-  var next   = document.getElementById('tpl-next');
-  if (!slider) return;
-  var card = slider.querySelector('.template-card');
-  function scrollBy(dir) {
-    var w = card ? card.offsetWidth + 20 : 360;
-    slider.scrollBy({ left: dir * w, behavior: 'smooth' });
-  }
-  if (prev) prev.addEventListener('click', function () { scrollBy(-1); });
-  if (next) next.addEventListener('click', function () { scrollBy(1); });
-
-  /* click-drag to scroll — disable snap while dragging for smoothness */
-  var isDragging = false, startX = 0, startScroll = 0, hasDragged = false;
-  slider.style.cursor = 'grab';
-  slider.addEventListener('mousedown', function (e) {
-    if (e.button !== 0) return;
-    isDragging = true; hasDragged = false;
-    startX = e.pageX; startScroll = slider.scrollLeft;
-    slider.style.cursor = 'grabbing';
-    slider.style.userSelect = 'none';
-    slider.style.scrollSnapType = 'none'; /* disable snap during drag */
-    e.preventDefault();
-  });
-  window.addEventListener('mousemove', function (e) {
-    if (!isDragging) return;
-    var dx = e.pageX - startX;
-    if (Math.abs(dx) > 3) hasDragged = true;
-    slider.scrollLeft = startScroll - dx;
-  });
-  window.addEventListener('mouseup', function () {
-    if (!isDragging) return;
-    isDragging = false;
-    slider.style.cursor = 'grab';
-    slider.style.userSelect = '';
-    /* re-enable snap after a frame so release feels natural */
-    setTimeout(function () { slider.style.scrollSnapType = ''; }, 50);
-  });
-  /* prevent click-through on links if we dragged */
-  slider.addEventListener('click', function (e) {
-    if (hasDragged) { e.preventDefault(); e.stopPropagation(); hasDragged = false; }
-  }, true);
 })();
 
 /* ── FAQ accordion — classList only, grid-template-rows handles expand ────── */
