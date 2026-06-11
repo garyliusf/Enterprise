@@ -811,7 +811,9 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 }
 .re-prompt-submit svg { width: 16px; height: 16px; flex: 0 0 auto; }
 .re-prompt-submit:hover { filter: brightness(0.94); transform: translateY(-1px); }
-.template-create { max-width: 700px; margin: 64px auto 0; text-align: center; }
+.template-create { max-width: 700px; margin: 64px auto 0; text-align: center; position: relative; }
+.template-create-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+.template-create > *:not(.template-create-canvas) { position: relative; z-index: 1; }
 .template-create-headline { font-size: clamp(32px, 4vw, 52px); font-weight: 500; color: #fff; letter-spacing: -1px; line-height: 1.2; margin: 0 0 28px; }
 .template-create .re-prompt-shell { text-align: left; }
 .footer-form-row {
@@ -1470,6 +1472,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
     </div>
 
     <div class="template-create">
+      <canvas id="create-pixel-canvas" class="template-create-canvas"></canvas>
       <div class="dsa-reveal"><h2 class="template-create-headline">Create your own</h2></div>
       <div class="re-prompt-shell">
         <label class="sr-only" for="re-prompt-input">Describe what you want to build</label>
@@ -2080,6 +2083,37 @@ window.addEventListener('load', function () {
       var rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
       return density > rand ? density * 0.85 : 0;
     }, 1.0, '220,230,245');
+
+  /* Animated pixel field behind the "Create your own" heading + prompt box */
+  if (document.getElementById('create-pixel-canvas')) {
+    makePixelCanvas('create-pixel-canvas', 6, 2,
+      function (c, r, t, p) {
+        var px = c * 6, py = r * 6;
+        var el = document.getElementById('create-pixel-canvas');
+        var W = el ? el.width : 900, H = el ? el.height : 400;
+        var cx = W / 2, cy = H / 2;
+        var hFade = Math.max(0, 1 - Math.abs(px - cx) / (W * 0.5));
+        var vFade = Math.max(0, 1 - Math.abs(py - cy) / (H * 0.5));
+        var fade = hFade * vFade;
+        if (fade <= 0) return 0;
+        var speedMod = 0.05 + (Math.sin(t * 0.00070 + 2.2) * 0.5 + 0.5) * 0.22;
+        function rwave(scale, rotRate, phase, tMult) {
+          var angle = t * rotRate + phase;
+          var u = (px * Math.cos(angle) + py * Math.sin(angle)) / scale;
+          var v = (-px * Math.sin(angle) + py * Math.cos(angle)) / scale;
+          return Math.sin(u * Math.PI * 2 + t * tMult * speedMod) * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7 * speedMod);
+        }
+        var s1 = rwave(300, 0.00012, 0.3, 0.00030);
+        var s2 = rwave(160, 0.00025, 1.6, 0.00065);
+        var s3 = rwave(80,  0.00042, 2.9, 0.00130);
+        var s4 = rwave(220, 0.00018, 4.2, 0.00048);
+        var wf = s1 * 0.5 + 0.5, det = s2 * 0.45 + s3 * 0.30 + s4 * 0.25;
+        var raw = wf * (det * 0.5 + 0.5);
+        var density = Math.pow(Math.max(0, raw), 0.7) * fade;
+        var rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
+        return density > rand ? density * 0.85 : 0;
+      }, 1.0, '220,230,245');
+  }
 });
 
 /* ── Template card film-grain noise (static, draw once) ─────────────────── */
