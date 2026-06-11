@@ -1673,10 +1673,12 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 (function () {
   function goToBoltWithPrompt() {
     var ta = document.getElementById('re-prompt-input');
-    var url = new URL('https://bolt.new/');
     var prompt = ta && ta.value ? ta.value.trim() : '';
-    if (prompt) url.searchParams.set('prompt', prompt);
-    window.open(url.toString(), '_blank', 'noopener');
+    // bolt.new reads the prompt from the URL hash; ?autosubmit=true sends it immediately
+    var url = prompt
+      ? 'https://bolt.new/?autosubmit=true#prompt=' + encodeURIComponent(prompt)
+      : 'https://bolt.new/';
+    window.open(url, '_blank', 'noopener');
   }
   var ta = document.getElementById('re-prompt-input');
   var link = document.getElementById('re-prompt-build-link');
