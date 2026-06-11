@@ -1071,6 +1071,12 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 .quote-stat { display: flex; flex-direction: column; gap: 8px; }
 .quote-stat-num { font-size: 38px; font-weight: 300; color: #fff; letter-spacing: -1.5px; line-height: 0.9; }
 .quote-stat-label { font-size: 13px; color: rgba(255,255,255,0.45); line-height: 1.4; max-width: 180px; }
+/* stats fade/blur in (matches the header word-reveal feel), after the quote */
+.quote-bottom.dsa-reveal .quote-stat { opacity: 0; transform: translateY(10px); filter: blur(5px); }
+.quote-bottom.dsa-reveal.is-revealed .quote-stat { animation: dsa-word-reveal 0.7s cubic-bezier(0.22,1,0.36,1) forwards; }
+.quote-bottom.dsa-reveal.is-revealed .quote-stat:nth-child(1) { animation-delay: 0.18s; }
+.quote-bottom.dsa-reveal.is-revealed .quote-stat:nth-child(2) { animation-delay: 0.28s; }
+.quote-bottom.dsa-reveal.is-revealed .quote-stat:nth-child(3) { animation-delay: 0.38s; }
 .quote-attr { display: flex; flex-direction: column; gap: 5px; text-align: right; }
 .quote-name { font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.65); }
 .quote-role { font-size: 13px; color: rgba(255,255,255,0.28); }
@@ -1554,8 +1560,8 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
     <div class="quote-card">
       <canvas id="quote-pixel-canvas" aria-hidden="true"></canvas>
       <p class="quote-card-eyebrow eyebrow-scramble">Customer Stories</p>
-      <p class="quote-text">"A developer, or development agency, would've made the task impossible for what we were trying to do."</p>
-      <div class="quote-bottom">
+      <div class="dsa-reveal"><p class="quote-text">"A developer, or development agency, would've made the task impossible for what we were trying to do."</p></div>
+      <div class="quote-bottom dsa-reveal">
         <div class="quote-stats">
           <div class="quote-stat">
             <span class="quote-stat-num">8</span>
@@ -1797,7 +1803,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
       if (!entry.isIntersecting) return;
       var el = entry.target;
       if (el.classList.contains('dsa-reveal')) {
-        el.querySelectorAll('h1, h2').forEach(function (h) {
+        el.querySelectorAll('h1, h2, .quote-text').forEach(function (h) {
           if (!h.dataset.wrapped) { wrapWords(h); h.dataset.wrapped = '1'; }
         });
         el.classList.add('is-revealed');
