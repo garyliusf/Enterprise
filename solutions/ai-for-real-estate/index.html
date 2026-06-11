@@ -1023,8 +1023,17 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   display: flex;
   flex-direction: column;
   transition: border-color 0.3s ease;
+  position: relative;
 }
 .template-card:hover { border-color: rgba(255,255,255,0.25); }
+/* whole-card overlay link makes the entire card clickable */
+.template-card { cursor: pointer; }
+.template-hover-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity 0.45s ease; z-index: 0; }
+.template-card:hover .template-hover-canvas { opacity: 1; }
+.template-card-image { position: relative; z-index: 1; }
+.template-card-body, .template-card-footer { position: relative; z-index: 1; }
+.template-card-link { position: absolute; inset: 0; z-index: 2; }
+.template-cta { position: relative; z-index: 3; }
 /* image area */
 .template-card-image {
   width: 100%;
@@ -1355,6 +1364,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
     <div class="template-grid">
 
         <div class="template-card">
+          <a href="https://bolt.new/~/sb1-bbhjc9wh" class="template-card-link" aria-label="View the Property listing website template"></a>
           <div class="template-card-image">
             <img src="images/listing-preview.png" alt="Property listing website template">
           </div>
@@ -1368,6 +1378,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
         </div>
 
         <div class="template-card">
+          <a href="https://bolt.new/~/sb1-cnmqabol" class="template-card-link" aria-label="View the Buyer rep compensation calculator template"></a>
           <div class="template-card-image">
             <img src="images/buyer-rep-preview.png" alt="Buyer rep compensation calculator template">
           </div>
@@ -1381,6 +1392,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
         </div>
 
         <div class="template-card">
+          <a href="https://bolt.new/~/sb1-tkh3ax23" class="template-card-link" aria-label="View the Tenant screening portal template"></a>
           <div class="template-card-image">
             <img src="images/tenant-preview.png" alt="Tenant screening portal template">
           </div>
@@ -1394,6 +1406,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
         </div>
 
         <div class="template-card">
+          <a href="https://bolt.new/~/sb1-gj6dnalh" class="template-card-link" aria-label="View the Parcel viewer app template"></a>
           <div class="template-card-image">
             <img src="images/parcel-preview.png" alt="Parcel viewer app template">
           </div>
@@ -2009,6 +2022,67 @@ window.addEventListener('load', function () {
   document.querySelectorAll('.template-card-image').forEach(function (wrap) {
     if (wrap.querySelector('img')) makeGrain(wrap);
   });
+})();
+
+/* ── Template card hover pixel field — animated dots fade in on hover ────── */
+(function () {
+  var cards = document.querySelectorAll('.template-card');
+  if (!cards.length) return;
+  var dpr = window.devicePixelRatio || 1;
+  var objs = [];
+  cards.forEach(function (card, idx) {
+    var canvas = document.createElement('canvas');
+    canvas.className = 'template-hover-canvas';
+    card.insertBefore(canvas, card.firstChild);
+    var obj = { canvas: canvas, card: card, phase: idx * 1.7, hover: false };
+    card.addEventListener('mouseenter', function () { obj.hover = true; });
+    card.addEventListener('mouseleave', function () { obj.hover = false; });
+    objs.push(obj);
+  });
+  function resizeAll() {
+    objs.forEach(function (o) {
+      o.canvas.width  = o.card.offsetWidth  * dpr;
+      o.canvas.height = o.card.offsetHeight * dpr;
+    });
+  }
+  resizeAll();
+  window.addEventListener('resize', resizeAll);
+  function draw(t) {
+    objs.forEach(function (o) {
+      if (!o.hover) return;
+      var canvas = o.canvas, h = o.card.offsetHeight;
+      if (canvas.height !== h * dpr) { canvas.width = o.card.offsetWidth * dpr; canvas.height = h * dpr; }
+      var ctx = canvas.getContext('2d');
+      var W = canvas.width, H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+      var sp = 7 * dpr, maxR = 2.2 * dpr;
+      var cols = Math.ceil(W / sp) + 1, rows = Math.ceil(H / sp) + 1;
+      for (var r = 0; r < rows; r++) {
+        for (var c = 0; c < cols; c++) {
+          var px = c * sp, py = r * sp;
+          var angle1 = t * 0.00012 + o.phase;
+          var u1 = (px * Math.cos(angle1) + py * Math.sin(angle1)) / (350 * dpr);
+          var v1 = (-px * Math.sin(angle1) + py * Math.cos(angle1)) / (220 * dpr);
+          var angle2 = t * 0.00022 + o.phase + 1.5;
+          var u2 = (px * Math.cos(angle2) + py * Math.sin(angle2)) / (180 * dpr);
+          var v2 = (-px * Math.sin(angle2) + py * Math.cos(angle2)) / (120 * dpr);
+          var wave = (Math.sin(u1 * Math.PI * 2 + t * 0.00030) * Math.cos(v1 * Math.PI * 1.5))
+                   * 0.55 + (Math.sin(u2 * Math.PI * 2 + t * 0.00060) * 0.45);
+          var density = Math.pow(Math.max(0, wave * 0.5 + 0.5), 0.8);
+          var rand = (Math.sin(c * 127.1 + r * 311.7 + o.phase * 50) * 0.5 + 0.5) * 0.9;
+          if (density > rand) {
+            var alpha = density * 0.22;
+            ctx.beginPath();
+            ctx.arc(px, py, maxR * density, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(180,185,195,' + alpha.toFixed(2) + ')';
+            ctx.fill();
+          }
+        }
+      }
+    });
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
 })();
 
 /* ── Unlock card hover noise — exact microsoft.html feat-hover-canvas ───── */
