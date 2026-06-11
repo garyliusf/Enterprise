@@ -766,6 +766,51 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   .card-form-strip { flex-direction: column; align-items: center; gap: 12px; padding: 16px 12px; }
   .card-form-strip .hero-form-row { width: 100%; max-width: none; flex-basis: auto; }
 }
+/* ─── Bolt prompt box (copied from /use-cases/real-estate) ──────────────── */
+.re-prompt-shell {
+  width: 100%;
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 12px;
+  background: #333336;
+  box-shadow: 0 0 0 6px #1E1E21, 0 20px 48px rgba(0, 0, 0, 0.38);
+  overflow: hidden;
+}
+.re-prompt-input {
+  width: 100%;
+  min-height: 80px;
+  max-height: 200px;
+  resize: none;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font-size: 14px;
+  line-height: 1.5;
+  font-family: 'Inter', sans-serif;
+  padding: 20px 20px 8px;
+  outline: none;
+}
+.re-prompt-input::placeholder { color: rgba(255,255,255,0.45); }
+.re-prompt-actions { display: flex; justify-content: flex-end; padding: 8px 12px 12px; background: transparent; }
+.re-prompt-submit {
+  min-height: 36px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 0;
+  background: #1488FC;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: filter 180ms ease, transform 180ms ease;
+}
+.re-prompt-submit svg { width: 16px; height: 16px; flex: 0 0 auto; }
+.re-prompt-submit:hover { filter: brightness(0.94); transform: translateY(-1px); }
 .footer-form-row {
   display: flex;
   max-width: 460px; width: 100%;
@@ -1545,19 +1590,18 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   <p class="footer-subtitle footer-subtitle-wide">Join thousands of teams shipping faster with our enterprise platform.</p>
   <div style="position:relative;width:100%;max-width:700px;margin-top:-135px;">
     <canvas id="footer-pixel-canvas" style="display:block;width:100%;height:160px;pointer-events:none;opacity:1;"></canvas>
-    <form class="card-form-strip is-carded" style="margin-top:-10px;position:relative;z-index:1;" onsubmit="window.location.href='https://bolt.new'; return false;">
-      <div class="card-strip-text">
-        <p class="card-strip-sub">Schedule a 1:1 with <span class="rotating-name" data-names='["Mason","Joe","Angelo"]'><span class="rotating-name-track"><span class="rotating-name-item">Mason</span></span></span></p>
+    <div class="re-prompt-shell" style="margin-top:-10px;position:relative;z-index:1;">
+      <label class="sr-only" for="re-prompt-input">Describe what you want to build</label>
+      <textarea id="re-prompt-input" class="re-prompt-input" rows="2" placeholder="Describe what you want to build…"></textarea>
+      <div class="re-prompt-actions">
+        <a href="https://bolt.new/" class="re-prompt-submit" id="re-prompt-build-link">
+          <span>Build now</span>
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor">
+            <path d="m4.497 20.835 16.51-7.363c1.324-.59 1.324-2.354 0-2.944L4.497 3.164c-1.495-.667-3.047.814-2.306 2.202l3.152 5.904c.245.459.245 1 0 1.458l-3.152 5.904c-.74 1.388.81 2.87 2.306 2.202Z"></path>
+          </svg>
+        </a>
       </div>
-      <div class="hero-form-row">
-        <label class="sr-only" for="re-email-input">Your work email</label>
-        <input id="re-email-input" type="email" class="hero-email-input" placeholder="Your work email" aria-label="Your work email" required />
-        <button type="submit" class="hero-cta-button" aria-label="Submit email">
-          <div class="btn-bg-hover"></div>
-          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Started</span><span>Get Started</span></div></div>
-        </button>
-      </div>
-    </form>
+    </div>
   </div>
   <div class="footer-spacer"></div>
   <!-- bolt wordmark with shimmer — exact bolt-cli.html implementation -->
@@ -1569,6 +1613,27 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 </section>
 
 <script>
+/* ── Bolt prompt box → carry prompt to bolt.new ─────────────────────────── */
+(function () {
+  function goToBoltWithPrompt() {
+    var ta = document.getElementById('re-prompt-input');
+    var url = new URL('https://bolt.new/');
+    var prompt = ta && ta.value ? ta.value.trim() : '';
+    if (prompt) url.searchParams.set('prompt', prompt);
+    window.open(url.toString(), '_blank', 'noopener');
+  }
+  var ta = document.getElementById('re-prompt-input');
+  var link = document.getElementById('re-prompt-build-link');
+  if (ta) {
+    ta.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); goToBoltWithPrompt(); }
+    });
+  }
+  if (link) {
+    link.addEventListener('click', function (e) { e.preventDefault(); goToBoltWithPrompt(); });
+  }
+})();
+
 /* ── Hero video card click → modal ──────────────────────────────────────── */
 (function () {
   var card  = document.getElementById('hero-video-card');
