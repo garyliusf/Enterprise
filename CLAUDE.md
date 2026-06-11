@@ -272,12 +272,24 @@ For a seamless grid with shared borders (no `gap`):
 - `bolt.conf/index.html` — Bolt Conf event landing page — **Conference style** (keep in its own folder, separate from marketing)
 
 ### Solutions Page Template
-`solutions/ai-for-real-estate/index.html` establishes the pattern for `/solutions/*` pages:
-- Left-aligned hero (vs centered on feature pages like microsoft.html)
-- Breadcrumb: `Solutions / [vertical]` below nav
-- Hero `min-height: 80vh`, inner `gap: 28px`
-- Sections: stats row → use cases (3-col cards) → deploy grid (tiled) → customer story → enterprise cards → FAQ → footer CTA
-- Customer story pull-quote: `font-family: 'Cormorant Garamond', serif`, `26px`, `weight 300`, `color: #EDDCC6`, `font-style: normal`
+`solutions/ai-for-real-estate/index.html` establishes the pattern for `/solutions/*` pages. **Self-contained: all CSS/JS is inlined (duplicated verbatim from `shared-components.*`), NOT linked** — this page deliberately does not `<link>` the shared files (edit inline here). Customer story pull-quote: `font-family: 'Cormorant Garamond', serif`, `26px`, `weight 300`, `color: #EDDCC6`, `font-style: normal`.
+
+**Hero — centered "enterprise" variant (current).** This page now uses the **centered** enterprise-style hero, NOT the original left-aligned solutions hero:
+- `height: 100vh`; `.hero-inner` is `flex-direction: column; align-items: center; max-width: 820px`.
+- H1 `66px` weight `500` `line-height 1.1` `letter-spacing: normal`, **centered, `white-space: nowrap` on desktop** (one line) → `white-space: normal` at ≤1024px. Subtitle centered.
+- Centered **video card** (`max-width: 820px`): poster image + canonical `.hero-play-btn` overlay (56px circle, exact microsoft.html spec) → opens a `.video-modal` that injects a **tella embed iframe** (`data-tella="<slug>"`, built on open, cleared on close). Modal `-inner` has the poster as `background` so there's no black flash while the iframe loads; `<link rel="preconnect">` to tella speeds it up.
+- **Bottom strip** attached to the video card (`.hero-card-strip`, dark `#060606`, rounded only where it meets the card): green-dot social-proof line (`.hero-card-strip--social`, "Join the 1,000+ …") on the left + a **"Start Building" primary CTA on the right** (`.hero-strip-btn`), kept on one row (`flex-wrap: nowrap`, text wraps internally). The button links to `#templates` (smooth-scroll via `html { scroll-behavior: smooth }`). The card click→modal handler **guards** `e.target.closest('.hero-card-strip')` so strip clicks don't open the video.
+
+**Sections:** hero → logo train → why (4-col stat grid) → templates → how it works → quote → FAQ → footer CTA → bolt wordmark.
+
+**Template cards (`.template-card`) — clickable + hover pixel field:**
+- **Whole card is clickable** via a stretched overlay `<a class="template-card-link">` (`position:absolute; inset:0; z-index:2`); image/body/footer sit at `z-index:1`, the visible "View Template" ghost button at `z-index:3`. All template links use `target="_blank" rel="noopener"`.
+- **Animated pixel field on hover:** a per-card `.template-hover-canvas` (injected by JS, `z-index:0`, `opacity:0 → 1` on `:hover`) runs the FAQ open-canvas rotating-wave algo (`rgba(180,185,195,…)`), only drawing while hovered (mouseenter/leave flag).
+- Template card radius is `8px` (its own component — not the `4px` standard stack card).
+
+**"Create your own" prompt box** (below the template grid, `.template-create`, centered, `max-width: 700px`):
+- **Bolt prompt box copied verbatim from `/use-cases/real-estate`** (`.re-prompt-shell`): dark `#333336` shell, `border-radius: 12px`, layered `box-shadow: 0 0 0 6px #1E1E21, 0 20px 48px rgba(0,0,0,.38)`; textarea placeholder "Describe what you want to build…"; pill **"Build now"** submit (`.re-prompt-submit`, `border-radius: 999px`, `#1488FC`, arrow SVG). JS carries the typed text to `bolt.new/?prompt=…` (Enter or click), opening in a **new tab**.
+- H2 "Create your own" wrapped in `.dsa-reveal`. An animated `#create-pixel-canvas` (`makePixelCanvas`, center-fading wave, `220,230,245`) sits behind the heading + box (`z-index:0`; content `z-index:1`).
 
 ## Blog (company repo `stackblitz/bolt-public-pages`, `contentful-blog` branch)
 Contentful-backed SSR blog. Key files: `src/layouts/BlogLayout.astro`, `src/styles/blog.css`, `src/pages/blog/`. **Light theme** (distinct from the dark marketing pages).
