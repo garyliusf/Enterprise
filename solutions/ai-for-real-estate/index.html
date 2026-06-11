@@ -184,7 +184,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 .video-modal { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.88); align-items: center; justify-content: center; }
 .video-modal.open { display: flex; }
 .video-modal-inner { position: relative; width: 90vw; max-width: 1100px; aspect-ratio: 16/9; border-radius: 4px; overflow: hidden; background: #000; }
-.video-modal-inner video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.video-modal-inner video, .video-modal-inner iframe, #modal-video, #modal-video iframe { width: 100%; height: 100%; object-fit: cover; border: 0; display: block; }
 .video-modal-close { position: absolute; top: -40px; right: 0; background: none; border: none; color: rgba(255,255,255,0.7); font-size: 28px; cursor: pointer; line-height: 1; }
 .video-modal-close:hover { color: #fff; }
 /* responsive */
@@ -1206,7 +1206,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   <div class="video-modal" id="video-modal">
     <div class="video-modal-inner">
       <button class="video-modal-close" id="video-modal-close">×</button>
-      <video id="modal-video" src="images/hero-video.mp4" controls></video>
+      <div id="modal-video" data-tella="property-landing-page-a9w3"></div>
     </div>
   </div>
 
@@ -1556,16 +1556,19 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   var closeBtn = document.getElementById('video-modal-close');
   var modalVideo = document.getElementById('modal-video');
   if (!card || !modal) return;
+  var tellaId = modalVideo ? modalVideo.getAttribute('data-tella') : null;
   card.addEventListener('click', function (e) {
     /* don't open modal when interacting with the form strip */
     if (e.target.closest('.hero-card-strip')) return;
     modal.classList.add('open');
-    if (modalVideo) { modalVideo.currentTime = 0; modalVideo.play(); }
+    if (modalVideo && tellaId) {
+      modalVideo.innerHTML = '<iframe src="https://www.tella.tv/video/' + tellaId + '/embed?b=0&title=0&a=1&loop=0&t=0&muted=0&wt=0&o=0" allow="autoplay; fullscreen" allowtransparency></iframe>';
+    }
     if (playBtn) { playBtn.classList.add('clicked'); setTimeout(function () { playBtn.classList.remove('clicked'); playBtn.classList.add('returning'); setTimeout(function () { playBtn.classList.remove('returning'); }, 400); }, 550); }
   });
   function closeModal() {
     modal.classList.remove('open');
-    if (modalVideo) { modalVideo.pause(); modalVideo.currentTime = 0; }
+    if (modalVideo) { modalVideo.innerHTML = ''; }
   }
   if (closeBtn) closeBtn.addEventListener('click', closeModal);
   modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
