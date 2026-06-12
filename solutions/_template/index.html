@@ -867,12 +867,13 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 .has-connect-pixels { position: relative; overflow: visible; }
 .has-connect-pixels > .section-inner { position: relative; z-index: 1; }
 .connect-pixels-wrap {
-  position: absolute; right: 0; bottom: 0; width: 300px; height: 200px;
-  z-index: 0; pointer-events: none; opacity: 0.4;
-  -webkit-mask-image: radial-gradient(ellipse 95% 95% at 100% 100%, #000 0%, transparent 72%);
-          mask-image: radial-gradient(ellipse 95% 95% at 100% 100%, #000 0%, transparent 72%);
+  position: absolute; right: 0; bottom: 0; width: 360px; height: 240px;
+  z-index: 0; pointer-events: none; opacity: 0.6;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.10) 1.4px, transparent 1.6px);
+  background-size: 11px 11px;
+  -webkit-mask-image: radial-gradient(ellipse 100% 100% at 100% 100%, #000 0%, transparent 70%);
+          mask-image: radial-gradient(ellipse 100% 100% at 100% 100%, #000 0%, transparent 70%);
 }
-.connect-pixels-wrap canvas { display: block; width: 100%; height: 100%; }
 @media (max-width: 1024px) { .connect-pixels-wrap { display: none; } }
 .unlocks-visual {
   position: relative;
@@ -1301,39 +1302,27 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   content: ""; width: 6px; height: 6px; border-radius: 50%;
   background: #7FDDC1; flex-shrink: 0;
 }
-/* What's included checklist (4-col grid, dark cards + green checks) */
+/* What's included — reuses the feature-card style + icon next to each label */
 .included-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
 .included-item {
   position: relative; overflow: hidden;
-  display: flex; align-items: flex-start; gap: 13px;
-  border: 1px solid rgba(255,255,255,0.10); border-radius: 8px;
-  padding: 22px 20px;
-  background: linear-gradient(160deg, rgba(255,255,255,0.045) 0%, rgba(255,255,255,0.012) 60%);
-  font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.82); line-height: 1.45;
-  transition: transform 0.3s cubic-bezier(0.22,1,0.36,1), border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+  display: flex; align-items: center; gap: 14px;
+  border: 1px solid rgba(255,255,255,0.10); border-radius: 4px;
+  padding: 20px 20px; min-height: 96px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%);
+  transition: border-color 0.3s ease, transform 0.3s cubic-bezier(0.22,1,0.36,1);
 }
-/* gradient sheen sweep on the left edge, revealed on hover */
-.included-item::before {
-  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
-  background: linear-gradient(180deg, #1488FC, #0f6fd0);
-  transform: scaleY(0); transform-origin: top; transition: transform 0.35s cubic-bezier(0.22,1,0.36,1);
+.included-item:hover { border-color: rgba(255,255,255,0.22); transform: translateY(-3px); }
+.included-item .unlock-hover-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity 0.3s ease; image-rendering: pixelated; z-index: 0; }
+.included-item:hover .unlock-hover-canvas { opacity: 0.10; }
+.included-item > *:not(.unlock-hover-canvas) { position: relative; z-index: 1; }
+.included-icon {
+  flex-shrink: 0; width: 40px; height: 40px; border-radius: 4px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+  display: inline-flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.85);
 }
-.included-item:hover {
-  transform: translateY(-4px);
-  border-color: rgba(20,136,252,0.45);
-  background: linear-gradient(160deg, rgba(20,136,252,0.10) 0%, rgba(255,255,255,0.012) 60%);
-  box-shadow: 0 14px 36px rgba(0,0,0,0.4), 0 0 0 1px rgba(20,136,252,0.15);
-}
-.included-item:hover::before { transform: scaleY(1); }
-.included-check {
-  flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%;
-  background: linear-gradient(150deg, #1488FC, #0f6fd0); color: #fff;
-  display: inline-flex; align-items: center; justify-content: center; margin-top: 1px;
-  box-shadow: 0 0 0 4px rgba(20,136,252,0.10);
-  transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s ease;
-}
-.included-item:hover .included-check { transform: scale(1.12); box-shadow: 0 0 0 5px rgba(20,136,252,0.18); }
-.included-check svg { width: 13px; height: 13px; }
+.included-icon svg { width: 18px; height: 18px; }
+.included-label { font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.82); line-height: 1.4; }
 /* staggered scroll reveal */
 .included-grid.dsa-reveal .included-item { opacity: 0; transform: translateY(14px); filter: blur(5px); }
 .included-grid.dsa-reveal.is-revealed .included-item { animation: dsa-word-reveal 0.6s cubic-bezier(0.22,1,0.36,1) forwards; }
@@ -1499,7 +1488,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 <!-- WHO / CALLOUTS — unlocks-visual with header inside, matching bolt-cli.html -->
 <section class="section section--bordered has-connect-pixels">
   <div class="section-inner">
-    <div class="connect-pixels-wrap"><canvas id="connect-pixel-canvas"></canvas></div>
+    <div class="connect-pixels-wrap" aria-hidden="true"></div>
     <div class="unlocks-visual">
 
       <div class="dsa-reveal unlocks-header">
@@ -1684,14 +1673,46 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
       <h2 class="section-headline">Every portfolio website comes with</h2>
     </div>
     <ul class="included-grid dsa-reveal">
-      <li class="included-item"><span class="included-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Fully responsive layout — mobile, tablet, desktop</li>
-      <li class="included-item"><span class="included-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Custom domain support</li>
-      <li class="included-item"><span class="included-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Contact form with email routing</li>
-      <li class="included-item"><span class="included-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Work / project gallery section</li>
-      <li class="included-item"><span class="included-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>About and bio section</li>
-      <li class="included-item"><span class="included-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>SEO meta tags and Open Graph</li>
-      <li class="included-item"><span class="included-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Fast-loading static or server-side rendering</li>
-      <li class="included-item"><span class="included-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Editable source code — always yours</li>
+      <li class="included-item">
+        <canvas class="unlock-hover-canvas" aria-hidden="true"></canvas>
+        <span class="included-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span>
+        <span class="included-label">Fully responsive layout — mobile, tablet, desktop</span>
+      </li>
+      <li class="included-item">
+        <canvas class="unlock-hover-canvas" aria-hidden="true"></canvas>
+        <span class="included-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span>
+        <span class="included-label">Custom domain support</span>
+      </li>
+      <li class="included-item">
+        <canvas class="unlock-hover-canvas" aria-hidden="true"></canvas>
+        <span class="included-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg></span>
+        <span class="included-label">Contact form with email routing</span>
+      </li>
+      <li class="included-item">
+        <canvas class="unlock-hover-canvas" aria-hidden="true"></canvas>
+        <span class="included-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.5-3.5L9 20"/></svg></span>
+        <span class="included-label">Work / project gallery section</span>
+      </li>
+      <li class="included-item">
+        <canvas class="unlock-hover-canvas" aria-hidden="true"></canvas>
+        <span class="included-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+        <span class="included-label">About and bio section</span>
+      </li>
+      <li class="included-item">
+        <canvas class="unlock-hover-canvas" aria-hidden="true"></canvas>
+        <span class="included-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+        <span class="included-label">SEO meta tags and Open Graph</span>
+      </li>
+      <li class="included-item">
+        <canvas class="unlock-hover-canvas" aria-hidden="true"></canvas>
+        <span class="included-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
+        <span class="included-label">Fast-loading static or server-side rendering</span>
+      </li>
+      <li class="included-item">
+        <canvas class="unlock-hover-canvas" aria-hidden="true"></canvas>
+        <span class="included-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></span>
+        <span class="included-label">Editable source code — always yours</span>
+      </li>
     </ul>
   </div>
 </section>
@@ -2352,27 +2373,6 @@ window.addEventListener('load', function () {
       }, 1.0, '220,230,245');
   }
 
-  /* subtle pixel slice bridging the stats + features sections (right side) */
-  if (document.getElementById('connect-pixel-canvas')) {
-    makePixelCanvas('connect-pixel-canvas', 9, 2,
-      function (c, r, t, p) {
-        var px = c * 9, py = r * 9;
-        var el = document.getElementById('connect-pixel-canvas');
-        var W = el ? el.width : 300, H = el ? el.height : 200;
-        /* concentrate toward the bottom-right corner */
-        var hFade = Math.max(0, (px / W - 0.15) / 0.85);
-        var vFade = Math.max(0, (py / H - 0.15) / 0.85);
-        var fade = hFade * vFade;
-        if (fade <= 0) return 0;
-        var angle = t * 0.00016 + 0.6;
-        var u = (px * Math.cos(angle) + py * Math.sin(angle)) / 240;
-        var v = (-px * Math.sin(angle) + py * Math.cos(angle)) / 180;
-        var wave = Math.sin(u * Math.PI * 2 + t * 0.00035) * Math.cos(v * Math.PI * 1.5 + t * 0.00022);
-        var density = Math.pow(Math.max(0, wave * 0.5 + 0.5), 1.1) * fade;
-        var rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
-        return density > rand ? density * 0.4 : 0;
-      }, 1.0, '150,180,230');
-  }
 });
 
 /* ── Template card film-grain noise (static, draw once) ─────────────────── */
