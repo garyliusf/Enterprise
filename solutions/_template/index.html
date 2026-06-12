@@ -434,7 +434,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 .section-header > .section-eyebrow,
 .how-header > .section-eyebrow,
 .feat-header > .feat-eyebrow,
-.unlocks-header > .section-eyebrow { margin-bottom: 8px; }
+.unlocks-header > .section-eyebrow { margin-bottom: 22px; }
 .section-header.center {
   align-items: center;
   text-align: center;
@@ -2116,19 +2116,20 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 
   var io = new IntersectionObserver(function (entries) {
     entries.forEach(function (entry) {
-      if (!entry.isIntersecting) return;
       var el = entry.target;
       if (el.classList.contains('dsa-reveal')) {
+        if (!entry.isIntersecting) return;
         el.querySelectorAll('h1, h2, .quote-text').forEach(function (h) {
           if (!h.dataset.wrapped) { wrapWords(h); h.dataset.wrapped = '1'; }
         });
         el.classList.add('is-revealed');
+        io.unobserve(el);
       } else if (el.classList.contains('eyebrow-scramble')) {
-        scrambleEl(el);
+        /* re-arm: scramble each time it re-enters view (don't unobserve) */
+        if (entry.isIntersecting) scrambleEl(el);
       }
-      io.unobserve(el);
     });
-  }, { threshold: 0.5 });
+  }, { threshold: 0.4 });
 
   document.querySelectorAll('.dsa-reveal, .eyebrow-scramble').forEach(function (el) { io.observe(el); });
 })();
