@@ -867,13 +867,12 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 .has-connect-pixels { position: relative; overflow: visible; }
 .has-connect-pixels > .section-inner { position: relative; z-index: 1; }
 .connect-pixels-wrap {
-  position: absolute; right: 0; top: -150px; width: 620px; height: 170px;
+  position: absolute; right: 0; top: -160px; width: 680px; height: 190px;
   z-index: 2; pointer-events: none; opacity: 1;
-  background-image: radial-gradient(circle, rgba(255,255,255,0.22) 1.6px, transparent 1.8px);
-  background-size: 12px 12px;
-  -webkit-mask-image: radial-gradient(ellipse 100% 120% at 100% 50%, #000 0%, transparent 76%);
-          mask-image: radial-gradient(ellipse 100% 120% at 100% 50%, #000 0%, transparent 76%);
+  -webkit-mask-image: radial-gradient(ellipse 100% 120% at 100% 50%, #000 0%, transparent 78%);
+          mask-image: radial-gradient(ellipse 100% 120% at 100% 50%, #000 0%, transparent 78%);
 }
+.connect-pixels-wrap canvas { display: block; width: 100%; height: 100%; }
 @media (max-width: 1024px) { .connect-pixels-wrap { display: none; } }
 .unlocks-visual {
   position: relative;
@@ -1542,7 +1541,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 <!-- WHO / CALLOUTS — unlocks-visual with header inside, matching bolt-cli.html -->
 <section class="section has-connect-pixels">
   <div class="section-inner">
-    <div class="connect-pixels-wrap" aria-hidden="true"></div>
+    <div class="connect-pixels-wrap" aria-hidden="true"><canvas id="connect-pixel-canvas"></canvas></div>
     <div class="unlocks-visual">
 
       <div class="dsa-reveal unlocks-header">
@@ -2450,6 +2449,19 @@ window.addEventListener('load', function () {
         var rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
         return density > rand ? density * 0.85 : 0;
       }, 1.0, '220,230,245');
+  }
+
+  /* animated shimmer pixel field bridging stats + features (top-right) */
+  if (document.getElementById('connect-pixel-canvas')) {
+    makePixelCanvas('connect-pixel-canvas', 11, 2,
+      function (c, r, t, p) {
+        var px = c * 11, py = r * 11;
+        var phase = (px * 0.012 + py * 0.018) - t * 0.0018;   /* traveling diagonal band */
+        var band = Math.sin(phase) * 0.5 + 0.5;               /* 0..1 */
+        var highlight = Math.pow(band, 3) * 0.6;              /* crisp moving sweep */
+        var twinkle = (Math.sin(p * 53.7 + t * 0.004) * 0.5 + 0.5) * 0.12;
+        return 0.12 + highlight + twinkle;                    /* faint base + shimmer */
+      }, 1.0, '205,218,238');
   }
 
 });
