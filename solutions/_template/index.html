@@ -863,6 +863,17 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 
 /* ─── RESPONSIVE ─────────────────────────────────────────────────────────── */
 /* ─── UNLOCKS VISUAL (paper grid container — from bolt-cli.html) ─────────── */
+/* subtle animated pixel "slice" bridging the stats section above into features */
+.has-connect-pixels { position: relative; overflow: visible; }
+.has-connect-pixels > .section-inner { position: relative; z-index: 1; }
+.connect-pixels-wrap {
+  position: absolute; right: 0; top: -260px; width: 360px; height: 620px;
+  z-index: 0; pointer-events: none; opacity: 0.5;
+  -webkit-mask-image: radial-gradient(ellipse 120% 60% at 100% 50%, #000 10%, transparent 80%);
+          mask-image: radial-gradient(ellipse 120% 60% at 100% 50%, #000 10%, transparent 80%);
+}
+.connect-pixels-wrap canvas { display: block; width: 100%; height: 100%; }
+@media (max-width: 1024px) { .connect-pixels-wrap { display: none; } }
 .unlocks-visual {
   position: relative;
   width: 100%;
@@ -1486,7 +1497,8 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 </section>
 
 <!-- WHO / CALLOUTS — unlocks-visual with header inside, matching bolt-cli.html -->
-<section class="section section--bordered">
+<section class="section section--bordered has-connect-pixels">
+  <div class="connect-pixels-wrap"><canvas id="connect-pixel-canvas"></canvas></div>
   <div class="section-inner">
     <div class="unlocks-visual">
 
@@ -2338,6 +2350,28 @@ window.addEventListener('load', function () {
         var rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
         return density > rand ? density * 0.85 : 0;
       }, 1.0, '220,230,245');
+  }
+
+  /* subtle pixel slice bridging the stats + features sections (right side) */
+  if (document.getElementById('connect-pixel-canvas')) {
+    makePixelCanvas('connect-pixel-canvas', 9, 2,
+      function (c, r, t, p) {
+        var px = c * 9, py = r * 9;
+        var el = document.getElementById('connect-pixel-canvas');
+        var W = el ? el.width : 360, H = el ? el.height : 620;
+        /* fade toward the left and toward top/bottom edges */
+        var hFade = Math.max(0, (px / W - 0.1) / 0.9);
+        var vFade = Math.max(0, 1 - Math.abs(py - H / 2) / (H / 2));
+        var fade = hFade * vFade;
+        if (fade <= 0) return 0;
+        var angle = t * 0.00016 + 0.6;
+        var u = (px * Math.cos(angle) + py * Math.sin(angle)) / 240;
+        var v = (-px * Math.sin(angle) + py * Math.cos(angle)) / 180;
+        var wave = Math.sin(u * Math.PI * 2 + t * 0.00035) * Math.cos(v * Math.PI * 1.5 + t * 0.00022);
+        var density = Math.pow(Math.max(0, wave * 0.5 + 0.5), 1.1) * fade;
+        var rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
+        return density > rand ? density * 0.4 : 0;
+      }, 1.0, '150,180,230');
   }
 });
 
