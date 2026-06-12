@@ -1318,30 +1318,45 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 .included-grid.dsa-reveal.is-revealed .included-item:nth-child(8) { animation-delay: 0.46s; }
 @media (max-width: 1024px) { .included-grid { grid-template-columns: repeat(2,1fr); } }
 @media (max-width: 560px) { .included-grid { grid-template-columns: 1fr; } }
-/* Testimonial grid (3-up) */
-.testi-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
-.testi-card {
-  border: 1px solid rgba(255,255,255,0.10);
-  border-radius: 4px;
-  padding: 28px 26px 26px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%);
-  display: flex; flex-direction: column; gap: 18px;
-  transition: border-color 0.3s ease;
+/* Testimonial carousel (speaker-style portrait cards) */
+.testi-carousel { position: relative; }
+.testi-track {
+  display: flex; gap: 20px; overflow-x: auto;
+  scroll-snap-type: x mandatory; scroll-behavior: smooth;
+  padding: 4px 0 8px; -ms-overflow-style: none; scrollbar-width: none;
 }
-.testi-card:hover { border-color: rgba(255,255,255,0.22); }
-.testi-stars { color: #1488FC; font-size: 14px; letter-spacing: 2px; }
-.testi-quote { font-size: 15px; color: rgba(255,255,255,0.7); line-height: 1.6; margin: 0; flex: 1; }
-.testi-attr { display: flex; align-items: center; gap: 12px; }
-.testi-avatar {
-  width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
-  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.10);
-  display: inline-flex; align-items: center; justify-content: center;
-  font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.75); letter-spacing: 0.5px;
+.testi-track::-webkit-scrollbar { display: none; }
+.speaker-card { flex: 0 0 300px; scroll-snap-align: start; }
+.speaker-photo {
+  position: relative; aspect-ratio: 3/4; border-radius: 4px; overflow: hidden;
+  background: #111; border: 1px solid rgba(255,255,255,0.06);
 }
-.testi-meta { display: flex; flex-direction: column; gap: 2px; }
-.testi-name { font-size: 14px; font-weight: 600; color: #fff; }
-.testi-role { font-size: 13px; color: rgba(255,255,255,0.45); }
-@media (max-width: 900px) { .testi-grid { grid-template-columns: 1fr; } }
+.speaker-photo img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  filter: grayscale(1) contrast(1.02);
+  transition: filter 0.5s ease, transform 0.6s cubic-bezier(0.22,1,0.36,1);
+}
+.speaker-card:hover .speaker-photo img { filter: grayscale(0); transform: scale(1.05); }
+.speaker-quote-overlay {
+  position: absolute; inset: 0; display: flex; align-items: flex-end; padding: 22px;
+  background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.25) 55%, transparent 100%);
+  opacity: 0; transition: opacity 0.4s ease;
+}
+.speaker-card:hover .speaker-quote-overlay { opacity: 1; }
+.speaker-quote-overlay p { font-size: 14px; color: #fff; line-height: 1.5; margin: 0; }
+.speaker-name { font-size: 18px; font-weight: 600; color: #fff; margin: 16px 0 2px; letter-spacing: -0.2px; }
+.speaker-role { font-size: 14px; color: rgba(255,255,255,0.45); margin: 0; }
+.testi-controls { display: flex; align-items: center; justify-content: flex-end; gap: 16px; margin-top: 28px; }
+.testi-counter { font-family: 'Silkscreen', monospace; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4); }
+.testi-arrow {
+  width: 48px; height: 48px; border: 1px solid rgba(255,255,255,0.2); background: transparent;
+  color: #fff; border-radius: 2px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+  transition: border-color 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+}
+.testi-arrow:hover { border-color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.05); }
+.testi-arrow:disabled { opacity: 0.3; cursor: default; }
+.testi-arrow svg { width: 18px; height: 18px; }
+@media (max-width: 768px) { .speaker-card { flex-basis: 240px; } }
 /* Example-prompt cards (text-only variant of the template card) */
 .prompt-card .template-card-body { gap: 16px; min-height: 150px; justify-content: space-between; padding-top: 26px; }
 .prompt-card-quote { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 300; color: rgba(255,255,255,0.78); line-height: 1.4; margin: 0; }
@@ -1638,35 +1653,73 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
       <p class="section-eyebrow eyebrow-scramble">What builders say</p>
       <h2 class="section-headline">Real results from real portfolio builders</h2>
     </div>
-    <div class="testi-grid">
+    <div class="testi-carousel">
+      <div class="testi-track" id="testi-track">
 
-      <div class="testi-card">
-        <div class="testi-stars" aria-label="5 out of 5 stars">★★★★★</div>
-        <p class="testi-quote">"I had been putting off building a portfolio for two years because I didn't want to deal with a page builder or learn React. Bolt built the whole thing from one prompt. I've had three client inquiries since it went live."</p>
-        <div class="testi-attr">
-          <span class="testi-avatar">MK</span>
-          <span class="testi-meta"><span class="testi-name">Maya K.</span><span class="testi-role">Freelance illustrator</span></span>
-        </div>
+        <article class="speaker-card">
+          <div class="speaker-photo">
+            <img src="https://picsum.photos/seed/maya/440/560?grayscale" alt="" loading="lazy">
+            <div class="speaker-quote-overlay"><p>"I'd put off a portfolio for two years. Bolt built the whole thing from one prompt — three client inquiries since it went live."</p></div>
+          </div>
+          <h3 class="speaker-name">Maya K.</h3>
+          <p class="speaker-role">Freelance illustrator</p>
+        </article>
+
+        <article class="speaker-card">
+          <div class="speaker-photo">
+            <img src="https://picsum.photos/seed/james/440/560?grayscale" alt="" loading="lazy">
+            <div class="speaker-quote-overlay"><p>"I described the layout I'd sketched on paper and it built exactly that — responsive, clean, working contact form. 90 seconds to generate."</p></div>
+          </div>
+          <h3 class="speaker-name">James R.</h3>
+          <p class="speaker-role">UX designer</p>
+        </article>
+
+        <article class="speaker-card">
+          <div class="speaker-photo">
+            <img src="https://picsum.photos/seed/sarahc/440/560?grayscale" alt="" loading="lazy">
+            <div class="speaker-quote-overlay"><p>"Every other portfolio tool felt like a compromise. Bolt let me describe exactly what I wanted and actually built it."</p></div>
+          </div>
+          <h3 class="speaker-name">Sarah C.</h3>
+          <p class="speaker-role">Product manager</p>
+        </article>
+
+        <article class="speaker-card">
+          <div class="speaker-photo">
+            <img src="https://picsum.photos/seed/devp/440/560?grayscale" alt="" loading="lazy">
+            <div class="speaker-quote-overlay"><p>"It pulled my GitHub projects in automatically and shipped a blog. I never touched a config file."</p></div>
+          </div>
+          <h3 class="speaker-name">Devon P.</h3>
+          <p class="speaker-role">Software developer</p>
+        </article>
+
+        <article class="speaker-card">
+          <div class="speaker-photo">
+            <img src="https://picsum.photos/seed/lena/440/560?grayscale" alt="" loading="lazy">
+            <div class="speaker-quote-overlay"><p>"My gallery and booking form were live the same afternoon. Clients book me directly now."</p></div>
+          </div>
+          <h3 class="speaker-name">Lena O.</h3>
+          <p class="speaker-role">Photographer</p>
+        </article>
+
+        <article class="speaker-card">
+          <div class="speaker-photo">
+            <img src="https://picsum.photos/seed/marcus/440/560?grayscale" alt="" loading="lazy">
+            <div class="speaker-quote-overlay"><p>"Sample articles, a clean niche breakdown, and an email form — exactly what I described, no back-and-forth."</p></div>
+          </div>
+          <h3 class="speaker-name">Marcus T.</h3>
+          <p class="speaker-role">Freelance writer</p>
+        </article>
+
       </div>
-
-      <div class="testi-card">
-        <div class="testi-stars" aria-label="5 out of 5 stars">★★★★★</div>
-        <p class="testi-quote">"I described the layout I had sketched on paper and it built exactly that — responsive, clean, with a working contact form. Took 90 seconds to generate and another 10 to deploy."</p>
-        <div class="testi-attr">
-          <span class="testi-avatar">JR</span>
-          <span class="testi-meta"><span class="testi-name">James R.</span><span class="testi-role">UX designer</span></span>
-        </div>
+      <div class="testi-controls">
+        <span class="testi-counter"><span id="testi-index">1</span> of <span id="testi-total">6</span></span>
+        <button class="testi-arrow" id="testi-prev" aria-label="Previous" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button class="testi-arrow" id="testi-next" aria-label="Next">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
       </div>
-
-      <div class="testi-card">
-        <div class="testi-stars" aria-label="5 out of 5 stars">★★★★★</div>
-        <p class="testi-quote">"Every other portfolio tool felt like a compromise. Bolt let me describe exactly what I wanted and actually built it. I iterated for 20 minutes and shipped something I'm proud of."</p>
-        <div class="testi-attr">
-          <span class="testi-avatar">SC</span>
-          <span class="testi-meta"><span class="testi-name">Sarah C.</span><span class="testi-role">Product manager</span></span>
-        </div>
-      </div>
-
     </div>
   </div>
 </section>
@@ -1793,6 +1846,32 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
     var p = a.getAttribute('data-prompt');
     if (p) a.setAttribute('href', 'https://bolt.new/#prompt=' + encodeURIComponent(p));
   });
+})();
+
+/* ── Testimonial carousel ────────────────────────────────────────────────── */
+(function () {
+  var track = document.getElementById('testi-track');
+  if (!track) return;
+  var prev = document.getElementById('testi-prev');
+  var next = document.getElementById('testi-next');
+  var idxEl = document.getElementById('testi-index');
+  var totalEl = document.getElementById('testi-total');
+  var cards = track.querySelectorAll('.speaker-card');
+  var total = cards.length;
+  if (totalEl) totalEl.textContent = total;
+  function step() { var c = track.querySelector('.speaker-card'); return c ? c.offsetWidth + 20 : 320; }
+  function update() {
+    var i = Math.round(track.scrollLeft / step()) + 1;
+    i = Math.max(1, Math.min(total, i));
+    if (idxEl) idxEl.textContent = i;
+    if (prev) prev.disabled = track.scrollLeft <= 4;
+    if (next) next.disabled = track.scrollLeft + track.clientWidth >= track.scrollWidth - 4;
+  }
+  if (prev) prev.addEventListener('click', function () { track.scrollBy({ left: -step(), behavior: 'smooth' }); });
+  if (next) next.addEventListener('click', function () { track.scrollBy({ left: step(), behavior: 'smooth' }); });
+  track.addEventListener('scroll', update);
+  window.addEventListener('resize', update);
+  update();
 })();
 
 /* ── Hero video card click → modal ──────────────────────────────────────── */
