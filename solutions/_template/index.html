@@ -1275,17 +1275,47 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 /* What's included checklist (4-col grid, dark cards + green checks) */
 .included-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
 .included-item {
-  display: flex; align-items: flex-start; gap: 12px;
-  border: 1px solid rgba(255,255,255,0.10); border-radius: 4px;
-  padding: 18px 18px; background: rgba(255,255,255,0.02);
-  font-size: 14px; color: rgba(255,255,255,0.78); line-height: 1.45;
+  position: relative; overflow: hidden;
+  display: flex; align-items: flex-start; gap: 13px;
+  border: 1px solid rgba(255,255,255,0.10); border-radius: 8px;
+  padding: 22px 20px;
+  background: linear-gradient(160deg, rgba(255,255,255,0.045) 0%, rgba(255,255,255,0.012) 60%);
+  font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.82); line-height: 1.45;
+  transition: transform 0.3s cubic-bezier(0.22,1,0.36,1), border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
 }
+/* gradient sheen sweep on the left edge, revealed on hover */
+.included-item::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: linear-gradient(180deg, #1488FC, #0f6fd0);
+  transform: scaleY(0); transform-origin: top; transition: transform 0.35s cubic-bezier(0.22,1,0.36,1);
+}
+.included-item:hover {
+  transform: translateY(-4px);
+  border-color: rgba(20,136,252,0.45);
+  background: linear-gradient(160deg, rgba(20,136,252,0.10) 0%, rgba(255,255,255,0.012) 60%);
+  box-shadow: 0 14px 36px rgba(0,0,0,0.4), 0 0 0 1px rgba(20,136,252,0.15);
+}
+.included-item:hover::before { transform: scaleY(1); }
 .included-check {
-  flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
-  background: rgba(20,136,252,0.12); color: #1488FC;
+  flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%;
+  background: linear-gradient(150deg, #1488FC, #0f6fd0); color: #fff;
   display: inline-flex; align-items: center; justify-content: center; margin-top: 1px;
+  box-shadow: 0 0 0 4px rgba(20,136,252,0.10);
+  transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s ease;
 }
+.included-item:hover .included-check { transform: scale(1.12); box-shadow: 0 0 0 5px rgba(20,136,252,0.18); }
 .included-check svg { width: 13px; height: 13px; }
+/* staggered scroll reveal */
+.included-grid.dsa-reveal .included-item { opacity: 0; transform: translateY(14px); filter: blur(5px); }
+.included-grid.dsa-reveal.is-revealed .included-item { animation: dsa-word-reveal 0.6s cubic-bezier(0.22,1,0.36,1) forwards; }
+.included-grid.dsa-reveal.is-revealed .included-item:nth-child(1) { animation-delay: 0.04s; }
+.included-grid.dsa-reveal.is-revealed .included-item:nth-child(2) { animation-delay: 0.10s; }
+.included-grid.dsa-reveal.is-revealed .included-item:nth-child(3) { animation-delay: 0.16s; }
+.included-grid.dsa-reveal.is-revealed .included-item:nth-child(4) { animation-delay: 0.22s; }
+.included-grid.dsa-reveal.is-revealed .included-item:nth-child(5) { animation-delay: 0.28s; }
+.included-grid.dsa-reveal.is-revealed .included-item:nth-child(6) { animation-delay: 0.34s; }
+.included-grid.dsa-reveal.is-revealed .included-item:nth-child(7) { animation-delay: 0.40s; }
+.included-grid.dsa-reveal.is-revealed .included-item:nth-child(8) { animation-delay: 0.46s; }
 @media (max-width: 1024px) { .included-grid { grid-template-columns: repeat(2,1fr); } }
 @media (max-width: 560px) { .included-grid { grid-template-columns: 1fr; } }
 /* Testimonial grid (3-up) */
@@ -1588,7 +1618,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
       <p class="section-eyebrow eyebrow-scramble">What's included</p>
       <h2 class="section-headline">Every portfolio website comes with</h2>
     </div>
-    <ul class="included-grid">
+    <ul class="included-grid dsa-reveal">
       <li class="included-item"><span class="included-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Fully responsive layout — mobile, tablet, desktop</li>
       <li class="included-item"><span class="included-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Custom domain support</li>
       <li class="included-item"><span class="included-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Contact form with email routing</li>
