@@ -290,6 +290,14 @@ For a seamless grid with shared borders (no `gap`):
 **"Create your own" prompt box** (below the template grid, `.template-create`, centered, `max-width: 700px`):
 - **Bolt prompt box copied verbatim from `/use-cases/real-estate`** (`.re-prompt-shell`): dark `#333336` shell, `border-radius: 12px`, layered `box-shadow: 0 0 0 6px #1E1E21, 0 20px 48px rgba(0,0,0,.38)`; textarea placeholder "Describe what you want to build…"; pill **"Build now"** submit (`.re-prompt-submit`, `border-radius: 999px`, `#1488FC`, arrow SVG). JS carries the typed text to `bolt.new/?prompt=…` (Enter or click), opening in a **new tab**.
 - H2 "Create your own" wrapped in `.dsa-reveal`. An animated `#create-pixel-canvas` (`makePixelCanvas`, center-fading wave, `220,230,245`) sits behind the heading + box (`z-index:0`; content `z-index:1`).
+- Note: heading currently reads "Start building now"; the prompt JS sends the typed text to **`bolt.new/?autosubmit=true#prompt=<encoded>`** (hash, not query) so the prompt prefills AND auto-submits in the bolt composer.
+
+### `solutions/_template/` — reusable clone (simple no-video hero)
+`solutions/_template/index.html` is a clone of the real-estate page for spinning up new `/solutions/*` (or use-case) pages. **Currently filled with portfolio-website-builder example copy.** Two things differ from the real-estate page:
+- **Hero has NO video** — it's the `.hero-section--simple` variant: centered eyebrow → H1 (`white-space:normal`, long headlines wrap) → subtitle → `.hero-btn-group` (primary "Build yours free" + ghost "See how it works" → `#how`) → `.hero-pills` (inline blue-dot feature list). `height:auto; min-height:90vh`. All the video card / tella modal / play-button markup is removed (dead CSS for `.hero-video-*` / `.video-modal` is left in `<style>` but unused — strip if you want a leaner file).
+- **Templates section repurposed as "Example prompts"** — `.template-card.prompt-card` (text-only, no image): a Cormorant `.prompt-card-quote` + uppercase blue `.prompt-card-label`. Reuses the clickable-overlay + hover-pixel-canvas component. Links carry `data-prompt`; JS (`.prompt-card-link`) builds `bolt.new/?autosubmit=true#prompt=<encoded>` and opens a new tab.
+- **Testimonials** use a 3-up `.testi-grid` of `.testi-card`s (stars + quote + avatar/name/role) instead of the single pull-quote+stats card.
+- Section order: simple hero → stats (2×2) → features (6-card `unlocks-grid`) → example prompts (+ "Start building now" prompt box) → how it works → testimonials → FAQ → footer CTA → bolt wordmark. Bolt wordmark uses repo-root `../../images/bolt-bottom.png` (no local `images/` folder).
 
 ## Blog (company repo `stackblitz/bolt-public-pages`, `contentful-blog` branch)
 Contentful-backed SSR blog. Key files: `src/layouts/BlogLayout.astro`, `src/styles/blog.css`, `src/pages/blog/`. **Light theme** (distinct from the dark marketing pages).
