@@ -77,6 +77,13 @@ All buttons must use these exact specs. No inline overrides unless absolutely ne
 - Font size scales to `14px`
 - Apply to: `.hero-btn-primary`, `.hero-btn-ghost`, `.hero-cta-button`, and form input height
 
+### Standalone CTA button min-width (standard)
+**Standalone hero/footer CTA buttons** (`.hero-btn-primary` / `.hero-btn-ghost` — NOT form-attached submits) get an equalizing min-width so single short labels (e.g. "Learn More") don't look small and multiple buttons match:
+- **Desktop:** `min-width: 180px`
+- **Mobile (≤768px):** `min-width: 260px` + `max-width: 100%`, `height: 52px`, `font-size: 16px`, centered/contained (not full-bleed)
+- **Scope to the hero CTA container** so it never hits form buttons: `.hero-btn-group .hero-btn-primary`, `.hero-cta-row .hero-btn-primary`, `.hero-section--simple .hero-btn-group .hero-btn-primary`, etc.
+- **Excluded:** form/input-attached submit buttons (`.hero-cta-button` email strips, `.re-prompt-submit` prompt boxes) — these keep their natural width.
+
 ---
 
 ## Color Tokens
