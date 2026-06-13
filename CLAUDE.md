@@ -379,3 +379,15 @@ Four breakpoints, all in `blog.css`. `--gutter` scales and drives every centered
 - **Enterprise** is LIVE in production via the company repo **`stackblitz/bolt-public-pages`** (`src/pages/enterprise/index.astro` + `src/content/enterprise-body.html`). That is the source of truth — do NOT maintain a static copy here (the old `enterprise-staging.html` prototype was removed to avoid drift).
 - **Blog** lives only in the company repo on the `contentful-blog` branch (not yet merged); deployed `/blog` needs Contentful env vars wired into Cloudflare Pages before the preview will render.
 - This `garyliusf/Enterprise` repo is a **prototyping sandbox** (static HTML on GitHub Pages). Production lives in the company repo; use branch / bolt.host previews as "staging," not hand-synced HTML twins.
+
+## PR / deployment workflow (IMPORTANT)
+- **All PRs go to the company repo `stackblitz/bolt-public-pages` only — never open PRs in the `garyliusf/Enterprise` sandbox.**
+- **Sandbox (`garyliusf/Enterprise`):** iterate/prototype freely; push to `main` for the GitHub Pages preview (`https://garyliusf.github.io/Enterprise/...`). No PRs here.
+- **Company repo (`bolt-public-pages`):** when asked to "create a PR," clone it, branch off `main`, translate the change into its **Astro** structure (page CSS/markup lives in `src/content/*-body.html`, pages in `src/pages/...`), commit, push the branch, and open the PR there for a coworker to review/approve. I have `MAINTAIN` access.
+- Page → file map in the company repo: `microsoft-body.html`, `cli-body.html`, `enterprise-body.html` under `src/content/`; routes under `src/pages/platform/...`.
+- After opening a company-repo PR, note that it's **CSS/HTML only** and the Astro build wasn't run locally — reviewer should verify via the PR's **preview deploy** (or `npm run dev`) at ≤768px.
+
+## Verifying company-repo pages (preview before merge)
+- **Preview deploy (easiest):** the PR should get an automatic preview URL (Cloudflare/Netlify check on the PR). Open it, then the route + DevTools device mode (e.g. iPhone 390px / iPad 834px). Routes: Microsoft `…/platform/integrations/microsoft`, CLI `…/platform/features/cli`.
+- **Local:** `git clone` the repo → `npm install` → `npm run dev` → open the route, resize to ≤768px. (`npm run build` just confirms it compiles.)
+- **What to eyeball at ≤768px** (renders differ from the static sandbox because of the real nav + global styles): hero buttons not overflowing / no horizontal scroll on ~360px; CLI "Request Access" text fits; H1 size matches enterprise; CLI cards have no hard border.
