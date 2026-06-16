@@ -1303,6 +1303,10 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 .hero-section--simple .hero-btn-group { justify-content: center; margin-top: 16px; }
 .hero-section--simple .hero-btn-primary,
 .hero-section--simple .hero-btn-ghost { font-size: 16px; min-width: 180px; }
+/* hero prompt box — bolt composer in the hero */
+.hero-prompt { width: 100%; max-width: 640px; margin: 8px auto 0; }
+.hero-prompt .re-prompt-shell { background: rgba(20,20,24,0.72); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+.hero-prompt .re-prompt-submit { min-height: 40px; padding: 0 18px; font-size: 15px; }
 /* feature pills — static, centered row */
 .hero-pills {
   display: inline-flex; flex-wrap: wrap; justify-content: center; align-items: center;
@@ -1510,17 +1514,24 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
         <!-- SEO: keyword phrase wrapped in .hero-h1-kw — swap this span's text per industry clone -->
         <h1 class="hero-h1" style="white-space:normal;">The fastest <span class="hero-h1-kw">portfolio<br>website builder</span> that ships</h1>
         <p class="hero-subtitle">Describe your portfolio in plain language. Bolt.new writes the code, wires up the design, and puts it live — in under two minutes, no prior coding needed.</p>
-        <div class="hero-btn-group">
-          <a href="https://bolt.new" class="hero-btn-primary">
-            <div class="btn-bg-hover"></div>
-            <div class="btn-text-wrap"><div class="btn-text-inner"><span>Build yours free</span><span>Build yours free</span></div></div>
-          </a>
-          <a href="#how" class="hero-btn-ghost">See how it works</a>
+        <div class="hero-prompt">
+          <div class="re-prompt-shell">
+            <label class="sr-only" for="hero-prompt-input">Describe what you want to build</label>
+            <textarea id="hero-prompt-input" class="re-prompt-input" rows="2" placeholder="Build me a portfolio website with a dark minimal design, a work gallery, about section, and contact form."></textarea>
+            <div class="re-prompt-actions">
+              <a href="https://bolt.new/" class="re-prompt-submit">
+                <span>Get started</span>
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="m4.497 20.835 16.51-7.363c1.324-.59 1.324-2.354 0-2.944L4.497 3.164c-1.495-.667-3.047.814-2.306 2.202l3.152 5.904c.245.459.245 1 0 1.458l-3.152 5.904c-.74 1.388.81 2.87 2.306 2.202Z"></path>
+                </svg>
+              </a>
+            </div>
+          </div>
         </div>
         <ul class="hero-pills">
           <li>Free to start</li>
           <li>No credit card</li>
-          <li>2.4M+ apps built</li>
+          <li>No code builder</li>
         </ul>
       </div>
     </div>
@@ -1940,8 +1951,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 <script>
 /* ── Bolt prompt box → carry prompt to bolt.new ─────────────────────────── */
 (function () {
-  function goToBoltWithPrompt() {
-    var ta = document.getElementById('re-prompt-input');
+  function goToBoltWithPrompt(ta) {
     var prompt = ta && ta.value ? ta.value.trim() : '';
     // bolt.new reads the prompt from the URL hash; ?autosubmit=true sends it immediately
     var url = prompt
@@ -1949,16 +1959,19 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
       : 'https://bolt.new/';
     window.open(url, '_blank', 'noopener');
   }
-  var ta = document.getElementById('re-prompt-input');
-  var link = document.getElementById('re-prompt-build-link');
-  if (ta) {
-    ta.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); goToBoltWithPrompt(); }
-    });
-  }
-  if (link) {
-    link.addEventListener('click', function (e) { e.preventDefault(); goToBoltWithPrompt(); });
-  }
+  /* Wire every prompt box on the page (hero + footer) */
+  document.querySelectorAll('.re-prompt-shell').forEach(function (shell) {
+    var ta = shell.querySelector('.re-prompt-input');
+    var link = shell.querySelector('.re-prompt-submit');
+    if (ta) {
+      ta.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); goToBoltWithPrompt(ta); }
+      });
+    }
+    if (link) {
+      link.addEventListener('click', function (e) { e.preventDefault(); goToBoltWithPrompt(ta); });
+    }
+  });
 
   /* Example-prompt cards → bolt.new hash URL with autosubmit */
   document.querySelectorAll('.prompt-card-link').forEach(function (a) {
