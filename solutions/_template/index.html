@@ -1305,8 +1305,29 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 .hero-section--simple .hero-btn-ghost { font-size: 16px; min-width: 180px; }
 /* hero prompt box — bolt composer in the hero */
 .hero-prompt { width: 100%; max-width: 640px; margin: 8px auto 0; }
-.hero-prompt .re-prompt-shell { background: rgba(20,20,24,0.72); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+.hero-prompt .re-prompt-shell { position: relative; background: rgba(20,20,24,0.72); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
 .hero-prompt .re-prompt-submit { min-height: 40px; padding: 0 18px; font-size: 15px; }
+/* traveling glow that runs around the border (bolt composer) */
+@property --hp-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+.hero-prompt .re-prompt-shell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(from var(--hp-angle),
+    transparent 0deg, transparent 250deg,
+    rgba(20,136,252,0.35) 300deg, #1488FC 335deg, #7cc0ff 350deg, #1488FC 360deg);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          mask-composite: exclude;
+  pointer-events: none;
+  animation: hpBorderSpin 3.6s linear infinite;
+}
+.hero-prompt .re-prompt-shell:focus-within::after { animation-play-state: paused; opacity: 0; }
+@keyframes hpBorderSpin { to { --hp-angle: 360deg; } }
+@media (prefers-reduced-motion: reduce) { .hero-prompt .re-prompt-shell::after { animation: none; } }
 /* feature pills — static, centered row */
 .hero-pills {
   display: inline-flex; flex-wrap: wrap; justify-content: center; align-items: center;
