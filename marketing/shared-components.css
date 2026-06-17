@@ -4,6 +4,7 @@
    leftover inline rules. Edit component styling HERE, not per-page.
 
    Covers: Buttons (primary/ghost/cta) · Eyebrows · FAQ · Footer
+           · Hero video component (narrow)
    Used by: microsoft.html, bolt-cli.html  (Phase 1)
    ============================================================================ */
 
@@ -127,3 +128,82 @@
   .bolt-image-wrap { width: 100vw !important; margin-left: calc(-50vw + 50%) !important; height: 42vw !important; max-height: 42vw !important; }
   .bolt-image-wrap img, #bolt-shimmer-canvas { transform: scale(1.35); transform-origin: center top; }
 }
+
+/* ─── HERO VIDEO COMPONENT — narrow centered card ─────────────────────────────
+   A narrow, height-aware video card that sits centered under a hero H1+subtitle:
+   16:9 poster + play button → opens a fullscreen modal (tella embed); a strip is
+   attached to the bottom edge (social-proof + CTA, a label, or an email form).
+
+   Why "narrow": .hero-video-col is capped to min(640px, 74vh). The 74vh term
+   shrinks the card on shorter viewports so the whole H1 + subtitle + card stack
+   stays centered inside a fixed-height hero (e.g. height: 90vh) without clipping
+   or crowding the top. (The original wide card was a flat max-width: 820px.)
+
+   Required markup:
+     <div class="hero-video-col">
+       <div class="hero-video-card" id="hero-video-card">
+         <div class="hero-video-area">
+           <img src="…poster.webp" alt="" aria-hidden="true"
+                style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+           <div class="hero-video-overlay"></div>
+           <div class="hero-play-btn" id="hero-play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+         </div>
+         <div class="hero-card-strip hero-card-strip--social"> … strip content … </div>
+       </div>
+     </div>
+     <div class="video-modal" id="video-modal" style="--video-poster:url('…poster.webp')">
+       <div class="video-modal-inner">
+         <button class="video-modal-close" id="video-modal-close">×</button>
+         <div id="modal-video" data-tella="<tella-slug>"></div>
+       </div>
+     </div>
+   Behavior (open/close, tella embed, play ripple) lives in shared-components.js.
+   Set the modal poster via the --video-poster custom property (shown above).
+   ──────────────────────────────────────────────────────────────────────────── */
+.hero-video-col { display: flex; flex-direction: column; gap: 0; width: 100%; max-width: min(640px, 74vh); margin: 0 auto; }
+.hero-video-card { border-radius: 4px; overflow: hidden; border: none; cursor: pointer; display: flex; flex-direction: column; box-shadow: 0 24px 64px rgba(0,0,0,0.5); }
+.hero-video-area { position: relative; aspect-ratio: 16/9; background: #000; border-radius: 4px 4px 0 0; overflow: hidden; }
+.hero-video-overlay { position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.45) 100%); z-index: 2; }
+
+/* play button + click ripple/return animations */
+.hero-play-btn {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 4;
+  width: 56px; height: 56px; border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.55); background: rgba(255,255,255,0.08);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), background 0.25s, box-shadow 0.25s;
+  pointer-events: none;
+}
+.hero-video-card:hover .hero-play-btn { transform: translate(-50%,-50%) scale(1.12); background: rgba(255,255,255,0.15); box-shadow: 0 0 24px rgba(255,255,255,0.12); }
+.hero-play-btn svg { width: 26px; height: 26px; fill: #fff; margin-left: 3px; }
+@keyframes play-ripple { 0% { transform:translate(-50%,-50%) scale(1); opacity:1; } 100% { transform:translate(-50%,-50%) scale(1.65); opacity:0; } }
+@keyframes play-fadein { from { opacity:0; transform:translate(-50%,-50%) scale(0.85); } to { opacity:1; transform:translate(-50%,-50%) scale(1); } }
+.hero-play-btn.clicked  { animation: play-ripple 0.55s cubic-bezier(0.22,1,0.36,1) forwards; }
+.hero-play-btn.returning { animation: play-fadein 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+
+/* bottom strip — base + content variants (social-proof / label / email form) */
+.hero-card-strip { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; padding: 14px 20px; background: #060606; }
+.hero-card-strip--social { flex-wrap: nowrap; }
+.hero-card-social-line { display: flex; align-items: flex-start; gap: 10px; flex: 1 1 auto; min-width: 0; }
+.hero-card-social-text { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.5; }
+.hero-card-social-text strong { color: rgba(255,255,255,0.78); font-weight: 600; }
+.hero-social-proof-dot { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; flex-shrink: 0; margin-top: 4px; }
+.hero-card-strip--social .hero-social-proof-dot { margin-top: 6px; }
+.hero-strip-btn { flex-shrink: 0; }
+.hero-card-strip-sub { font-size: 15px; font-weight: 500; color: #fff; margin: 0; line-height: 1.2; display: inline-flex; align-items: baseline; gap: 0.25em; flex-shrink: 0; }
+.hero-card-strip-text { font-size: 14px; color: rgba(255,255,255,0.7); flex-shrink: 0; }
+.hero-card-strip-text em { font-style: italic; color: #FFB093; font-family: 'Cormorant Garamond', serif; font-size: 16px; }
+.hero-card-form { display: flex; gap: 0; flex: 1; max-width: 340px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; }
+.hero-card-input { flex: 1; height: 44px; background: transparent; border: none; padding: 0 14px; font-size: 14px; font-family: 'Inter', sans-serif; color: #fff; outline: none; }
+.hero-card-input::placeholder { color: rgba(255,255,255,0.4); }
+.hero-card-submit { height: 44px; padding: 0 18px; background: #1488FC; border: none; border-radius: 0 2px 2px 0; color: #fff; font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; white-space: nowrap; transition: background 0.2s; }
+.hero-card-submit:hover { background: #0f6fd0; }
+
+/* fullscreen video modal (poster set per-page via --video-poster) */
+.video-modal { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.88); align-items: center; justify-content: center; }
+.video-modal.open { display: flex; }
+.video-modal-inner { position: relative; width: 90vw; max-width: 1100px; aspect-ratio: 16/9; border-radius: 4px; overflow: hidden; background: #000 var(--video-poster, none) center/cover no-repeat; }
+.video-modal-inner video, .video-modal-inner iframe, #modal-video, #modal-video iframe { width: 100%; height: 100%; object-fit: cover; border: 0; display: block; }
+.video-modal-close { position: absolute; top: -40px; right: 0; background: none; border: none; color: rgba(255,255,255,0.7); font-size: 28px; cursor: pointer; line-height: 1; }
+.video-modal-close:hover { color: #fff; }

@@ -2,7 +2,7 @@
    SHARED COMPONENTS JS — behaviors for standardized components.
    Loaded at the end of <body> on each page.
    Currently: FAQ open-state pixel animation (the dotted field that fades in
-   on the right of an open FAQ item).
+   on the right of an open FAQ item) · Hero video card → fullscreen modal.
    ============================================================================ */
 (function () {
   var items = document.querySelectorAll('.ms-faq-item');
@@ -73,4 +73,46 @@
     requestAnimationFrame(draw);
   }
   requestAnimationFrame(draw);
+})();
+
+/* ============================================================================
+   HERO VIDEO COMPONENT — card click → fullscreen modal (tella embed)
+   Markup hooks: #hero-video-card, #hero-play-btn, #video-modal,
+   #video-modal-close, #modal-video[data-tella]. No-ops if absent.
+   The tella slug comes from #modal-video's data-tella attribute. Clicks on the
+   bottom strip (.hero-card-strip) are ignored so the CTA/form still works.
+   ============================================================================ */
+(function () {
+  var card = document.getElementById('hero-video-card');
+  var playBtn = document.getElementById('hero-play-btn');
+  var modal = document.getElementById('video-modal');
+  var closeBtn = document.getElementById('video-modal-close');
+  var modalVideo = document.getElementById('modal-video');
+  if (!card || !modal) return;
+  var tellaId = modalVideo ? modalVideo.getAttribute('data-tella') : null;
+
+  card.addEventListener('click', function (e) {
+    if (e.target.closest('.hero-card-strip')) return; /* let strip CTA/form work */
+    modal.classList.add('open');
+    if (modalVideo && tellaId) {
+      modalVideo.innerHTML = '<iframe src="https://www.tella.tv/video/' + tellaId +
+        '/embed?b=0&title=0&a=1&loop=0&t=0&muted=0&wt=0&o=0" allow="autoplay; fullscreen" allowtransparency></iframe>';
+    }
+    if (playBtn) {
+      playBtn.classList.add('clicked');
+      setTimeout(function () {
+        playBtn.classList.remove('clicked');
+        playBtn.classList.add('returning');
+        setTimeout(function () { playBtn.classList.remove('returning'); }, 400);
+      }, 550);
+    }
+  });
+
+  function closeModal() {
+    modal.classList.remove('open');
+    if (modalVideo) modalVideo.innerHTML = '';
+  }
+  if (closeBtn) closeBtn.addEventListener('click', closeModal);
+  modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
 })();
