@@ -887,7 +887,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   var canvas = document.getElementById('faq-pixel-canvas');
   if (!canvas) return;
   var ctx = canvas.getContext('2d');
-  var SPACING = 9, W, H, cx, cy, maxR, t = 0, resizeTimer;
+  var SPACING = 9, W, H, cx, cy, maxR, intensity, t = 0, resizeTimer;
   function resize() {
     var r = canvas.parentElement.getBoundingClientRect();
     W = canvas.width = Math.round(r.width);
@@ -895,10 +895,13 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     cx = W * 0.5;
     /* On mobile, anchor the glow to width (identical across pages regardless of
        section height) and pin its center just below the section bottom so the
-       glow size/position matches between pages that differ only in question count */
+       glow size/position matches between pages that differ only in question count.
+       Keep it a faint bottom accent: smaller disc pushed further below the edge,
+       so it never washes up into the FAQ text and hurts readability. */
     var isMobile = W <= 768;
-    cy = isMobile ? (H + W * 0.15) : (H * 1.22);
-    maxR = isMobile ? (W * 0.80) : (H * 0.42);
+    cy        = isMobile ? (H + W * 0.30) : (H * 1.22);
+    maxR      = isMobile ? (W * 0.50)     : (H * 0.42);
+    intensity = isMobile ? 0.78           : 0.78;
   }
   window.addEventListener('resize', function() { clearTimeout(resizeTimer); resizeTimer = setTimeout(resize, 200); });
   resize();
@@ -923,7 +926,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
         var dotSize = SPACING * Math.pow(Math.max(0, 1 - norm), 0.9) * localBreath;
         if (dotSize < 0.5) continue;
         dotSize = Math.min(dotSize, SPACING);
-        var op = Math.pow(Math.max(0, 1 - norm), 0.6) * localBreath * 0.78;
+        var op = Math.pow(Math.max(0, 1 - norm), 0.6) * localBreath * intensity;
         if (op < 0.02) continue;
         var rr, gg, bb, p;
         if (norm < 0.28) {

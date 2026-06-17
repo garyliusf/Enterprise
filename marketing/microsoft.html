@@ -1953,7 +1953,7 @@ window.addEventListener('load', function() {
   if (!canvas) return;
   var ctx = canvas.getContext('2d');
   var SPACING = 9;
-  var W, H, cx, cy, maxR;
+  var W, H, cx, cy, maxR, intensity;
   var t = 0;
   var resizeTimer;
 
@@ -1964,10 +1964,13 @@ window.addEventListener('load', function() {
     cx = W * 0.5;
     /* On mobile, anchor the glow to width (identical across pages regardless of
        section height) and pin its center just below the section bottom so the
-       glow size/position matches between pages that differ only in question count */
+       glow size/position matches between pages that differ only in question count.
+       Keep it a faint bottom accent: smaller disc pushed further below the edge,
+       so it never washes up into the FAQ text and hurts readability. */
     var isMobile = W <= 768;
-    cy = isMobile ? (H + W * 0.15) : (H * 1.22);
-    maxR = isMobile ? (W * 0.80) : (H * 0.42);
+    cy        = isMobile ? (H + W * 0.30) : (H * 1.22);
+    maxR      = isMobile ? (W * 0.50)     : (H * 0.42);
+    intensity = isMobile ? 0.78           : 0.78;
   }
   /* debounced window resize only — accordion open/close never triggers a canvas reset */
   window.addEventListener('resize', function() {
@@ -2000,7 +2003,7 @@ window.addEventListener('load', function() {
         var dotSize = SPACING * Math.pow(Math.max(0, 1 - norm), 0.9) * localBreath;
         if (dotSize < 0.5) continue;
         dotSize = Math.min(dotSize, SPACING);
-        var op = Math.pow(Math.max(0, 1 - norm), 0.6) * localBreath * 0.78;
+        var op = Math.pow(Math.max(0, 1 - norm), 0.6) * localBreath * intensity;
         if (op < 0.02) continue;
         var rr, gg, bb;
         /* salmon core → mint mid → blue edge (same palette as bolt.conf) */
