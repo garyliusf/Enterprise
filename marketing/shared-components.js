@@ -89,12 +89,16 @@
   var closeBtn = document.getElementById('video-modal-close');
   var modalVideo = document.getElementById('modal-video');
   if (!card || !modal) return;
+  var ytId = modalVideo ? modalVideo.getAttribute('data-youtube') : null;
   var tellaId = modalVideo ? modalVideo.getAttribute('data-tella') : null;
 
   card.addEventListener('click', function (e) {
     if (e.target.closest('.hero-card-strip')) return; /* let strip CTA/form work */
     modal.classList.add('open');
-    if (modalVideo && tellaId) {
+    if (modalVideo && ytId) {
+      modalVideo.innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + ytId +
+        '?autoplay=1&rel=0&modestbranding=1" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>';
+    } else if (modalVideo && tellaId) {
       modalVideo.innerHTML = '<iframe src="https://www.tella.tv/video/' + tellaId +
         '/embed?b=0&title=0&a=1&loop=0&t=0&muted=0&wt=0&o=0" allow="autoplay; fullscreen" allowtransparency></iframe>';
     }
