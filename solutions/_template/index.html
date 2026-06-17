@@ -748,6 +748,8 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 }
 .footer-headline { font-size: 52px; font-weight: 500; color: #fff; line-height: 1.2; letter-spacing: -1px; margin: 0; }
 .footer-subtitle { font-size: 18px; color: #ABABAB; max-width: 560px; line-height: 1.6; margin: -8px 0 0; }
+/* keep the footer headings above the (now taller) pixel field so text stays crisp */
+.footer-section > .footer-eyebrow, .footer-section > .footer-headline, .footer-section > .footer-subtitle { position: relative; z-index: 1; }
 /* CTA footnote — reuses the green-dot .hero-pills component; sits just below the prompt box */
 .hero-pills.footer-cta-pills { margin-top: 0; }
 /* rotating-name (Schedule a 1:1 with X) — from platform.html, not in shared-components.css */
@@ -2005,8 +2007,9 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   <p class="footer-eyebrow eyebrow-scramble">Get started</p>
   <h2 class="footer-headline">Build your portfolio website right now</h2>
   <p class="footer-subtitle footer-subtitle-wide">Free to start. No account required to generate your first app.</p>
-  <div style="position:relative;width:100%;max-width:700px;margin-top:-135px;">
-    <canvas id="footer-pixel-canvas" style="display:block;width:100%;height:160px;pointer-events:none;opacity:1;"></canvas>
+  <!-- margin-top + canvas height moved up together: the pixel field extends up into the eyebrow→headline gap while the prompt box stays put -->
+  <div style="position:relative;width:100%;max-width:700px;margin-top:-195px;">
+    <canvas id="footer-pixel-canvas" style="display:block;width:100%;height:220px;pointer-events:none;opacity:1;"></canvas>
     <div class="re-prompt-shell" style="margin-top:-10px;position:relative;z-index:1;text-align:left;">
       <label class="sr-only" for="re-prompt-input">Describe what you want to build</label>
       <textarea id="re-prompt-input" class="re-prompt-input" rows="2" placeholder="Describe what you want to build…"></textarea>
@@ -2547,8 +2550,8 @@ window.addEventListener('load', function () {
       var raw = wf * (det * 0.5 + 0.5);
       var density = Math.pow(Math.max(0, raw), 0.7) * fade;
       var rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
-      return density > rand ? density * 0.85 : 0;
-    }, 1.0, '220,230,245');
+      return density > rand ? density * 0.95 : 0;
+    }, 1.4, '220,230,245');
 
   /* Animated pixel field behind the "Create your own" heading + prompt box */
   if (document.getElementById('create-pixel-canvas')) {
