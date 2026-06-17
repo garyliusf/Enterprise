@@ -102,6 +102,8 @@
       modalVideo.innerHTML = '<iframe src="https://www.tella.tv/video/' + tellaId +
         '/embed?b=0&title=0&a=1&loop=0&t=0&muted=0&wt=0&o=0" allow="autoplay; fullscreen" allowtransparency></iframe>';
     }
+    var ifr = modalVideo ? modalVideo.querySelector('iframe') : null;
+    if (ifr) ifr.addEventListener('load', function () { ifr.classList.add('is-loaded'); });
     if (playBtn) {
       playBtn.classList.add('clicked');
       setTimeout(function () {

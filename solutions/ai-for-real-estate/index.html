@@ -195,6 +195,9 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 .video-modal.open { display: flex; }
 .video-modal-inner { position: relative; width: min(92vw, 1280px, 149.33vh); aspect-ratio: 16/9; border-radius: 4px; overflow: hidden; background: #000 url("images/hero-video-poster.webp?v=2") center/cover no-repeat; }
 .video-modal-inner video, .video-modal-inner iframe, #modal-video, #modal-video iframe { width: 100%; height: 100%; object-fit: cover; border: 0; display: block; }
+/* fade the iframe in on load so the poster bridges the gap (no black flash) */
+#modal-video iframe { opacity: 0; transition: opacity 0.4s ease; }
+#modal-video iframe.is-loaded { opacity: 1; }
 .video-modal-close { position: absolute; top: -40px; right: 0; background: none; border: none; color: rgba(255,255,255,0.7); font-size: 28px; cursor: pointer; line-height: 1; }
 .video-modal-close:hover { color: #fff; }
 /* responsive */
@@ -1715,6 +1718,8 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
     } else if (modalVideo && tellaId) {
       modalVideo.innerHTML = '<iframe src="https://www.tella.tv/video/' + tellaId + '/embed?b=0&title=0&a=1&loop=0&t=0&muted=0&wt=0&o=0" allow="autoplay; fullscreen" allowtransparency></iframe>';
     }
+    var _ifr = modalVideo ? modalVideo.querySelector('iframe') : null;
+    if (_ifr) _ifr.addEventListener('load', function () { _ifr.classList.add('is-loaded'); });
     if (playBtn) { playBtn.classList.add('clicked'); setTimeout(function () { playBtn.classList.remove('clicked'); playBtn.classList.add('returning'); setTimeout(function () { playBtn.classList.remove('returning'); }, 400); }, 550); }
   });
   function closeModal() {
