@@ -748,6 +748,8 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 }
 .footer-headline { font-size: 52px; font-weight: 500; color: #fff; line-height: 1.2; letter-spacing: -1px; margin: 0; }
 .footer-subtitle { font-size: 18px; color: #ABABAB; max-width: 560px; line-height: 1.6; margin: -8px 0 0; }
+/* CTA footnote ("No credit card. No install…") — small green text, matching the hero feature pills (#7FDDC1) */
+.footer-cta-note { font-size: 14px; font-weight: 500; color: #7FDDC1; line-height: 1.6; margin: 24px auto 0; }
 /* rotating-name (Schedule a 1:1 with X) — from platform.html, not in shared-components.css */
 .rotating-name { display: inline-block; vertical-align: baseline; overflow: hidden; line-height: 1.2; height: 1.2em; position: relative; color: #FFB093; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.25em; font-weight: 400; font-style: italic; letter-spacing: 0.01em; text-align: left; transform: translateZ(0); -webkit-backface-visibility: hidden; backface-visibility: hidden; contain: paint; }
 .rotating-name-track { display: block; line-height: 1.2; will-change: transform; text-align: left; }
@@ -1307,31 +1309,80 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 .hero-section--simple .hero-btn-group { justify-content: center; margin-top: 16px; }
 .hero-section--simple .hero-btn-primary,
 .hero-section--simple .hero-btn-ghost { font-size: 16px; min-width: 180px; }
-/* hero prompt box — bolt composer in the hero */
-.hero-prompt { width: 100%; max-width: 640px; margin: 8px auto 0; }
-.hero-prompt .re-prompt-shell { position: relative; background: rgba(20,20,24,0.72); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
-.hero-prompt .re-prompt-submit { min-height: 40px; padding: 0 18px; font-size: 15px; }
-/* traveling glow that runs around the border (bolt composer) */
-@property --hp-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
-.hero-prompt .re-prompt-shell::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1.5px;
-  background: conic-gradient(from var(--hp-angle),
-    transparent 0deg, transparent 250deg,
-    rgba(20,136,252,0.35) 300deg, #1488FC 335deg, #7cc0ff 350deg, #1488FC 360deg);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-          mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-          mask-composite: exclude;
-  pointer-events: none;
-  animation: hpBorderSpin 3.6s linear infinite;
+/* Hero prompt box — bolt-app style animated "comet" outline. Ported from the
+   bolt app's .PromptStreamingContainer: a brand-blue radial glow orbits the
+   rounded border via CSS motion path, while an opaque inner panel hides the
+   centre so only the edge lights up. */
+.hero-prompt-shell {
+  max-width: 600px;
+  margin: 4px auto 0;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+  border: 0;
+  padding: 1px;                       /* frame thickness the glow shows through */
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.09); /* flat frame — no static corner glow */
 }
-.hero-prompt .re-prompt-shell:focus-within::after { animation-play-state: paused; opacity: 0; }
-@keyframes hpBorderSpin { to { --hp-angle: 360deg; } }
-@media (prefers-reduced-motion: reduce) { .hero-prompt .re-prompt-shell::after { animation: none; } }
+/* Two glows orbit the border together (matches the app's streaming outline):
+   a large brand-blue comet + a smaller, lighter accent highlight (overlay blend). */
+.hero-prompt-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 0;
+  offset-anchor: 50% 50%;
+  offset-distance: 0%;
+  offset-path: inset(0.5px round 16px);
+  offset-rotate: 0deg;
+  animation: heroPromptOrbit 3.6s linear infinite;
+  will-change: offset-distance;
+}
+.hero-prompt-glow--brand {
+  width: 360px;
+  height: 360px;
+  background: radial-gradient(circle, #1488fc 0%, transparent 42%);
+}
+.hero-prompt-glow--accent {
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle, #8fc1ff 0%, transparent 48%);
+  mix-blend-mode: overlay;
+}
+.hero-prompt-inner {
+  position: relative;
+  z-index: 1;
+  border-radius: 15px;
+  background: #1c1c20;                /* opaque panel — leaves only the 1px frame glowing */
+  overflow: hidden;
+}
+.hero-prompt-shell .re-prompt-input { background: transparent; min-height: 88px; padding-top: 16px; }
+/* Real, crawlable example prompt shown inside the box (replaces the placeholder
+   attribute so the copy is indexable). Sits over the empty textarea; JS hides it
+   on focus/typing. */
+.hero-prompt-example {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 16px 22px 8px;
+  font-size: 16px;
+  line-height: 1.5;
+  font-family: 'Inter', sans-serif;
+  color: rgba(255, 255, 255, 0.5);
+  pointer-events: none;
+  z-index: 1;
+}
+.hero-prompt-example[hidden] { display: none; }
+@keyframes heroPromptOrbit {
+  from { offset-distance: 0%; }
+  to   { offset-distance: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-prompt-glow { animation: none; }
+}
 /* feature pills — static, centered row */
 .hero-pills {
   display: inline-flex; flex-wrap: wrap; justify-content: center; align-items: center;
@@ -1539,10 +1590,15 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
         <!-- SEO: keyword phrase wrapped in .hero-h1-kw — swap this span's text per industry clone -->
         <h1 class="hero-h1" style="white-space:normal;">The fastest <span class="hero-h1-kw">portfolio<br>website builder</span> that ships</h1>
         <p class="hero-subtitle">Describe your portfolio in plain language. Bolt.new writes the code, wires up the design, and puts it live — in under two minutes, no prior coding needed.</p>
-        <div class="hero-prompt">
-          <div class="re-prompt-shell">
+        <!-- Prompt box — bolt-app style animated "comet" outline; wired per-box by class in the script -->
+        <div class="re-prompt-shell hero-prompt-shell">
+          <span class="hero-prompt-glow hero-prompt-glow--brand" aria-hidden="true"></span>
+          <span class="hero-prompt-glow hero-prompt-glow--accent" aria-hidden="true"></span>
+          <div class="hero-prompt-inner">
             <label class="sr-only" for="hero-prompt-input">Describe what you want to build</label>
-            <textarea id="hero-prompt-input" class="re-prompt-input" rows="2" placeholder="Build me a portfolio website with a dark minimal design, a work gallery, about section, and contact form."></textarea>
+            <textarea id="hero-prompt-input" class="re-prompt-input" rows="2" data-example="Build me a portfolio website with a dark minimal design, a work gallery, about section, and contact form."></textarea>
+            <!-- Real, crawlable example text shown inside the box (acts as the placeholder; JS hides it on type). -->
+            <p class="hero-prompt-example">Build me a portfolio website with a dark minimal design, a work gallery, about section, and contact form.</p>
             <div class="re-prompt-actions">
               <a href="https://bolt.new/" class="re-prompt-submit">
                 <span>Get started</span>
@@ -1964,6 +2020,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
       </div>
     </div>
   </div>
+  <p class="footer-cta-note">No credit card. No install. Works in your browser.</p>
   <div class="footer-spacer"></div>
   <!-- bolt wordmark with shimmer — exact bolt-cli.html implementation -->
   <div class="bolt-wrap">
@@ -1976,25 +2033,34 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 <script>
 /* ── Bolt prompt box → carry prompt to bolt.new ─────────────────────────── */
 (function () {
-  function goToBoltWithPrompt(ta) {
+  function goToBolt(ta) {
     var prompt = ta && ta.value ? ta.value.trim() : '';
-    // bolt.new reads the prompt from the URL hash; ?autosubmit=true sends it immediately
+    // Empty box → fall back to the visible example prompt (data-example).
+    if (!prompt && ta) prompt = (ta.getAttribute('data-example') || '').trim();
+    // bolt.new reads the prompt from the URL hash
     var url = prompt
       ? 'https://bolt.new/#prompt=' + encodeURIComponent(prompt)
       : 'https://bolt.new/';
     window.open(url, '_blank', 'noopener');
   }
-  /* Wire every prompt box on the page (hero + footer) */
+  // Wire every prompt box on the page (hero + footer CTA) independently, so we
+  // don't depend on unique ids and adding more boxes "just works".
   document.querySelectorAll('.re-prompt-shell').forEach(function (shell) {
     var ta = shell.querySelector('.re-prompt-input');
     var link = shell.querySelector('.re-prompt-submit');
+    // The hero box shows a real (crawlable) example <p> as its placeholder;
+    // hide it once the user types so it doesn't overlap their text.
+    var example = shell.querySelector('.hero-prompt-example');
+    if (ta && example) {
+      ta.addEventListener('input', function () { example.hidden = ta.value.length > 0; });
+    }
     if (ta) {
       ta.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); goToBoltWithPrompt(ta); }
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); goToBolt(ta); }
       });
     }
     if (link) {
-      link.addEventListener('click', function (e) { e.preventDefault(); goToBoltWithPrompt(ta); });
+      link.addEventListener('click', function (e) { e.preventDefault(); goToBolt(ta); });
     }
   });
 
