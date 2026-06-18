@@ -27,6 +27,68 @@
 html { scroll-behavior: smooth; }
 body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; color: #fff; }
 
+/* ─── PROMO ANNOUNCEMENT BANNER (BiggerPockets) ──────────────────────────── */
+.bp-page { --bp-banner-h: 44px; }
+.promo-banner {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 60;
+  min-height: var(--bp-banner-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  background: #1488FC;
+  overflow: hidden;
+}
+.promo-banner-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 0;
+  pointer-events: none;
+}
+.promo-banner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: rgba(9, 40, 78, 0.55);
+  pointer-events: none;
+}
+.promo-banner-text {
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #fff;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.35);
+}
+.promo-banner-code {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #fff;
+  color: #0b2f5e;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  vertical-align: baseline;
+  text-shadow: none;
+}
+body.bp-page { padding-top: var(--bp-banner-h); }
+@media (max-width: 560px) {
+  .bp-page { --bp-banner-h: 66px; }
+  .promo-banner-text { font-size: 13px; line-height: 1.7; }
+}
+
 /* ─── WORD REVEAL ANIMATION ─────────────────────────────────────────────── */
 .dsa-reveal .word {
   display: inline-block;
@@ -1357,7 +1419,16 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 }
 </style>
 </head>
-<body>
+<body class="bp-page">
+
+<!-- PROMO BANNER (BiggerPockets) -->
+<div class="promo-banner" role="region" aria-label="BiggerPockets offer">
+  <canvas class="promo-banner-canvas" id="promo-banner-canvas" aria-hidden="true"></canvas>
+  <p class="promo-banner-text">
+    BiggerPockets members get a 30-day free trial with code
+    <span class="promo-banner-code">BP26</span>
+  </p>
+</div>
 
 <!-- HERO -->
 <section class="hero-section">
@@ -2689,6 +2760,39 @@ window.addEventListener('load', function () {
   function arm() { setTimeout(nudge, 120); setTimeout(nudge, 600); }
   if (document.readyState === 'complete') arm();
   else window.addEventListener('load', arm);
+})();
+
+/* ── Promo banner: animated bolt-blue pixel noise ─────────────────────── */
+(function () {
+  var cv = document.getElementById('promo-banner-canvas');
+  if (!cv || !cv.getContext) return;
+  var ctx = cv.getContext('2d');
+  var bar = cv.parentElement;
+  function syncHeight() {
+    var h = Math.round(bar.getBoundingClientRect().height);
+    if (h) document.body.style.setProperty('--bp-banner-h', h + 'px');
+  }
+  syncHeight();
+  window.addEventListener('resize', syncHeight, { passive: true });
+  setTimeout(syncHeight, 500);
+  function draw() {
+    var r = cv.getBoundingClientRect();
+    var w = Math.max(1, Math.round(r.width));
+    var h = Math.max(1, Math.round(r.height));
+    if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+    var img = ctx.createImageData(w, h);
+    var d = img.data;
+    for (var i = 0; i < d.length; i += 4) {
+      var n = (Math.random() - 0.5) * 90;
+      d[i]   = Math.max(0, Math.min(255, 20  + n));
+      d[i+1] = Math.max(0, Math.min(255, 136 + n));
+      d[i+2] = Math.max(0, Math.min(255, 252 + n));
+      d[i+3] = 255;
+    }
+    ctx.putImageData(img, 0, 0);
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
 })();
 </script>
 </body>
