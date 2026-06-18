@@ -825,6 +825,57 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 .template-create > *:not(.template-create-canvas) { position: relative; z-index: 1; }
 .template-create-headline { font-size: clamp(32px, 4vw, 52px); font-weight: 500; color: #fff; letter-spacing: -1px; line-height: 1.2; margin: 0 0 28px; }
 .template-create .re-prompt-shell { text-align: left; }
+/* ── Hero prompt box — animated "comet" outline + green-dot pills (from solutions/_template) ── */
+.hero-prompt-shell {
+  max-width: 600px;
+  margin: 4px auto 0;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+  border: 0;
+  padding: 1px;                       /* frame thickness the glow shows through */
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.09);
+}
+.hero-prompt-glow {
+  position: absolute; top: 0; left: 0;
+  pointer-events: none; z-index: 0;
+  offset-anchor: 50% 50%;
+  offset-distance: 0%;
+  offset-path: inset(0.5px round 16px);
+  offset-rotate: 0deg;
+  animation: heroPromptOrbit 3.6s linear infinite;
+  will-change: offset-distance;
+}
+.hero-prompt-glow--brand { width: 360px; height: 360px; background: radial-gradient(circle, #1488fc 0%, transparent 42%); }
+.hero-prompt-glow--accent { width: 120px; height: 120px; background: radial-gradient(circle, #8fc1ff 0%, transparent 48%); mix-blend-mode: overlay; }
+.hero-prompt-inner { position: relative; z-index: 1; border-radius: 15px; background: #1c1c20; overflow: hidden; }
+.hero-prompt-shell .re-prompt-input { background: transparent; min-height: 88px; padding-top: 16px; }
+.hero-prompt-example {
+  position: absolute; top: 0; left: 0; right: 0; margin: 0;
+  padding: 16px 22px 8px;
+  font-size: 16px; line-height: 1.5; font-family: 'Inter', sans-serif;
+  color: rgba(255, 255, 255, 0.5); pointer-events: none; z-index: 1;
+}
+.hero-prompt-example[hidden] { display: none; }
+@keyframes heroPromptOrbit { from { offset-distance: 0%; } to { offset-distance: 100%; } }
+@media (prefers-reduced-motion: reduce) { .hero-prompt-glow { animation: none; } }
+.hero-pills {
+  display: inline-flex; flex-wrap: wrap; justify-content: center; align-items: center;
+  gap: 8px 18px; list-style: none; margin: 16px auto 0; padding: 11px 24px;
+  background: rgba(255,255,255,0.035);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 999px;
+}
+.hero-pills li { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; font-size: 14px; font-weight: 500; color: #7FDDC1; }
+.hero-pills li::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #7FDDC1; flex-shrink: 0; }
+/* video relocated to its own section below the hero */
+.video-section .hero-video-col { max-width: 820px; }
+@media (max-width: 768px) {
+  .hero-pills { flex-direction: row; flex-wrap: nowrap; justify-content: center; align-items: center; gap: 0 12px; border-radius: 999px; padding: 10px 16px; margin-top: 20px; }
+  .hero-pills li { font-size: 11px; gap: 6px; white-space: nowrap; }
+  .hero-pills li::before { width: 5px; height: 5px; }
+}
 .footer-form-row {
   display: flex;
   max-width: 460px; width: 100%;
@@ -1291,37 +1342,30 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
         <p class="hero-subtitle">Build the app, CRM, screening portal, listing site, or lead scoring tool your business needs with Bolt.new's no-code AI builder</p>
       </div>
 
-      <!-- centered video card with attached form strip -->
-      <div class="hero-video-col">
-        <div class="hero-video-card" id="hero-video-card">
-          <div class="hero-video-area">
-            <img src="images/hero-video-poster.webp?v=2" alt="" aria-hidden="true" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;">
-            <div class="hero-video-overlay"></div>
-            <div class="hero-play-btn" id="hero-play-btn">
-              <svg viewBox="0 0 24 24" aria-hidden="true" style="margin-left:3px;"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="hero-card-strip hero-card-strip--social">
-            <span class="hero-card-social-line">
-              <span class="hero-social-proof-dot"></span>
-              <span class="hero-card-social-text">Join the <strong>57,000+</strong> real estate professionals building custom websites, apps, and AI-powered software.</span>
-            </span>
-            <a href="#templates" class="hero-btn-primary hero-strip-btn">
-              <div class="btn-bg-hover"></div>
-              <div class="btn-text-wrap"><div class="btn-text-inner"><span>Start Building</span><span>Start Building</span></div></div>
+      <!-- Prompt box — bolt-app style animated "comet" outline (from solutions/_template) -->
+      <div class="re-prompt-shell hero-prompt-shell">
+        <span class="hero-prompt-glow hero-prompt-glow--brand" aria-hidden="true"></span>
+        <span class="hero-prompt-glow hero-prompt-glow--accent" aria-hidden="true"></span>
+        <div class="hero-prompt-inner">
+          <label class="sr-only" for="hero-prompt-input">Describe what you want to build</label>
+          <textarea id="hero-prompt-input" class="re-prompt-input" rows="2" data-example="Build me a real estate CRM with lead tracking, a property listings page, and automated client follow-up emails."></textarea>
+          <p class="hero-prompt-example">Build me a real estate CRM with lead tracking, a property listings page, and automated client follow-up emails.</p>
+          <div class="re-prompt-actions">
+            <a href="https://bolt.new/" class="re-prompt-submit">
+              <span>Get started</span>
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor">
+                <path d="m4.497 20.835 16.51-7.363c1.324-.59 1.324-2.354 0-2.944L4.497 3.164c-1.495-.667-3.047.814-2.306 2.202l3.152 5.904c.245.459.245 1 0 1.458l-3.152 5.904c-.74 1.388.81 2.87 2.306 2.202Z"></path>
+              </svg>
             </a>
           </div>
         </div>
       </div>
+      <ul class="hero-pills">
+        <li>Free to start</li>
+        <li>No credit card</li>
+        <li>No code builder</li>
+      </ul>
 
-    </div>
-  </div>
-
-  <!-- video modal -->
-  <div class="video-modal" id="video-modal">
-    <div class="video-modal-inner">
-      <button class="video-modal-close" id="video-modal-close">×</button>
-      <div id="modal-video" data-youtube="ddv19NUwz7c"></div>
     </div>
   </div>
 
@@ -1353,6 +1397,40 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
       <span class="logo-item logo-item--padded"><img src="images/logos/luxury-presence.webp" alt="Luxury Presence"></span>
       <span class="logo-item logo-item--sm"><img src="images/logos/cbre.png" alt="CBRE"></span>
       <span class="logo-item"><img src="images/logos/jll.png" alt="JLL"></span>
+    </div>
+  </div>
+</section>
+
+<!-- VIDEO SECTION (moved out of hero) -->
+<section class="section video-section">
+  <div class="section-inner">
+    <div class="hero-video-col">
+      <div class="hero-video-card" id="hero-video-card">
+        <div class="hero-video-area">
+          <img src="images/hero-video-poster.webp?v=2" alt="" aria-hidden="true" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;">
+          <div class="hero-video-overlay"></div>
+          <div class="hero-play-btn" id="hero-play-btn">
+            <svg viewBox="0 0 24 24" aria-hidden="true" style="margin-left:3px;"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+        </div>
+        <div class="hero-card-strip hero-card-strip--social">
+          <span class="hero-card-social-line">
+            <span class="hero-social-proof-dot"></span>
+            <span class="hero-card-social-text">Join the <strong>57,000+</strong> real estate professionals building custom websites, apps, and AI-powered software.</span>
+          </span>
+          <a href="#templates" class="hero-btn-primary hero-strip-btn">
+            <div class="btn-bg-hover"></div>
+            <div class="btn-text-wrap"><div class="btn-text-inner"><span>Start Building</span><span>Start Building</span></div></div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- video modal -->
+  <div class="video-modal" id="video-modal">
+    <div class="video-modal-inner">
+      <button class="video-modal-close" id="video-modal-close">×</button>
+      <div id="modal-video" data-youtube="ddv19NUwz7c"></div>
     </div>
   </div>
 </section>
@@ -1690,25 +1768,34 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 <script>
 /* ── Bolt prompt box → carry prompt to bolt.new ─────────────────────────── */
 (function () {
-  function goToBoltWithPrompt() {
-    var ta = document.getElementById('re-prompt-input');
+  function goToBolt(ta) {
     var prompt = ta && ta.value ? ta.value.trim() : '';
+    // Empty box → fall back to the visible example prompt (data-example).
+    if (!prompt && ta) prompt = (ta.getAttribute('data-example') || '').trim();
     // bolt.new reads the prompt from the URL hash; ?autosubmit=true sends it immediately
     var url = prompt
       ? 'https://bolt.new/?autosubmit=true#prompt=' + encodeURIComponent(prompt)
       : 'https://bolt.new/';
     window.open(url, '_blank', 'noopener');
   }
-  var ta = document.getElementById('re-prompt-input');
-  var link = document.getElementById('re-prompt-build-link');
-  if (ta) {
-    ta.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); goToBoltWithPrompt(); }
-    });
-  }
-  if (link) {
-    link.addEventListener('click', function (e) { e.preventDefault(); goToBoltWithPrompt(); });
-  }
+  // Wire every prompt box on the page (hero + "Create your own") independently.
+  document.querySelectorAll('.re-prompt-shell').forEach(function (shell) {
+    var ta = shell.querySelector('.re-prompt-input');
+    var link = shell.querySelector('.re-prompt-submit');
+    // Hero box shows a real (crawlable) example <p> as its placeholder; hide on type.
+    var example = shell.querySelector('.hero-prompt-example');
+    if (ta && example) {
+      ta.addEventListener('input', function () { example.hidden = ta.value.length > 0; });
+    }
+    if (ta) {
+      ta.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); goToBolt(ta); }
+      });
+    }
+    if (link) {
+      link.addEventListener('click', function (e) { e.preventDefault(); goToBolt(ta); });
+    }
+  });
 })();
 
 /* ── Hero video card click → modal ──────────────────────────────────────── */
