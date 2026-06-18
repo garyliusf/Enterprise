@@ -1143,83 +1143,88 @@ body.bp-page { padding-top: var(--bp-banner-h); }
 .bespoke-row--neg::before { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff66' stroke-width='2' stroke-linecap='round'><line x1='5' y1='12' x2='19' y2='12'/></svg>"); }
 .bespoke-row--pos::before { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231488FC' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><polyline points='4 12 10 18 20 6'/></svg>"); }
 
-/* ─── CUSTOMER STORIES SLIDER (CMS: Customer Testimonial entries, horizontal carousel) ─── */
-.story-slider { position: relative; margin-top: 48px; }
-.story-track {
-  display: flex;
-  gap: 20px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  padding: 4px 4px 24px;
-  margin: -4px -4px 0;
-  scroll-padding-left: 4px;
+/* ─── CUSTOMER STORIES SLIDER (CMS: Customer Testimonial entries) — bolt.conf speaker-style ── */
+.stories-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin: 48px 0 28px; }
+.stories-header-left { flex: 1; }
+.stories-header .section-headline { margin-top: 8px; }
+.stories-header .section-sub { margin-top: 14px; max-width: 580px; }
+.stories-nav { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.stories-count { font-family: 'Silkscreen', monospace; font-size: 12px; letter-spacing: 1.5px; color: rgba(255,255,255,0.5); margin-right: 8px; }
+.stories-arrow {
+  width: 40px; height: 40px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: none;
+  color: #fff;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s, border-color 0.15s;
 }
-.story-track::-webkit-scrollbar { display: none; }
+.stories-arrow:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.32); }
+.stories-arrow:disabled { opacity: 0.25; cursor: default; }
+
+.stories-track-wrap { overflow: hidden; position: relative; }
+.stories-track {
+  display: flex;
+  gap: 16px;
+  transition: transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
 .story-card {
-  flex: 0 0 320px;
-  scroll-snap-align: start;
-  min-height: 420px;
-  border: 1px solid rgba(255,255,255,0.10);
-  border-radius: 10px;
-  padding: 32px 28px 28px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.035) 0%, rgba(255,255,255,0.005) 100%);
+  flex-shrink: 0;
+  /* 3.5 cards visible — 4th half-visible, clipped by track-wrap */
+  width: calc((100% - 16px * 2.5) / 3.5);
   display: flex;
   flex-direction: column;
-  gap: 22px;
-  transition: border-color 0.3s ease, transform 0.3s ease;
 }
-.story-card:hover { border-color: rgba(255,255,255,0.25); transform: translateY(-2px); }
-.story-card-head { display: flex; align-items: center; gap: 12px; }
-.story-avatar {
-  width: 38px; height: 38px;
-  border-radius: 999px;
-  background: rgba(20,136,252,0.15);
-  color: #1488FC;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px; font-weight: 600; letter-spacing: 0.5px;
-  flex-shrink: 0;
+.story-card-visual {
+  width: 100%;
+  aspect-ratio: 3/4;
+  background: var(--story-grad, linear-gradient(155deg, #1a1a1a 0%, #2a2a2a 100%));
+  position: relative;
+  padding: 22px 22px 24px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.06);
 }
-.story-eyebrow {
-  font-family: 'Silkscreen', monospace;
-  font-size: 11px; letter-spacing: 2px;
-  text-transform: uppercase;
-  color: #1488FC;
-  margin: 0;
-}
-.story-quote {
-  font-size: 15px; color: rgba(255,255,255,0.72);
-  line-height: 1.6; margin: 0;
-}
-.story-byline { display: flex; flex-direction: column; gap: 2px; margin-top: auto; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.06); }
-.story-name { color: #fff; font-weight: 600; font-size: 14px; padding-top: 14px; }
-.story-company { color: rgba(255,255,255,0.55); font-size: 13px; }
-
-/* slider arrows */
-.story-slider-arrow {
+.story-card-visual::after {
+  content: '';
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+  opacity: 0.5; pointer-events: none; mix-blend-mode: overlay;
+}
+.story-card-visual > * { position: relative; z-index: 1; }
+.story-card-visual .story-avatar {
   width: 44px; height: 44px;
   border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.18);
-  background: rgba(10,10,12,0.85);
-  backdrop-filter: blur(8px);
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(4px);
   color: #fff;
   display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
-  z-index: 3;
-  transition: background 0.2s, border-color 0.2s, opacity 0.2s;
+  font-size: 15px; font-weight: 600; letter-spacing: 0.5px;
 }
-.story-slider-arrow:hover { background: rgba(20,136,252,0.18); border-color: rgba(20,136,252,0.4); }
-.story-slider-arrow[disabled] { opacity: 0.3; pointer-events: none; }
-.story-slider-arrow--prev { left: -22px; }
-.story-slider-arrow--next { right: -22px; }
+.story-card-visual .story-eyebrow {
+  font-family: 'Silkscreen', monospace;
+  font-size: 10px; letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.8);
+  margin: 12px 0 0;
+}
+.story-card-visual .story-quote {
+  font-size: 14px; color: #fff;
+  line-height: 1.5; margin: auto 0 0;
+  font-weight: 400;
+}
+.story-info { padding: 14px 0 0; }
+.story-name { font-size: 15px; font-weight: 600; color: #fff; margin: 0; }
+.story-company { font-size: 13px; color: rgba(255,255,255,0.55); margin: 2px 0 0; }
+
+@media (max-width: 1024px) {
+  .story-card { width: calc((100% - 16px * 1.5) / 2.5); }
+}
 @media (max-width: 768px) {
-  .story-card { flex: 0 0 280px; min-height: 380px; padding: 26px 22px 24px; }
-  .story-slider-arrow { display: none; }
+  .stories-header { flex-direction: column; align-items: flex-start; }
+  .story-card { width: calc((100% - 16px * 0.5) / 1.5); }
 }
 
 /* centered variant — used when the section has no H2 above the grid */
@@ -1766,80 +1771,84 @@ body.bp-page { padding-top: var(--bp-banner-h); }
      PORT NOTE: add a `customerStories: References, many → Customer Testimonial` field on the Solution content type and loop in SolutionPageBody.astro. -->
 <section class="section section--bordered" id="templates">
   <div class="section-inner">
-    <div class="section-header dsa-reveal">
-      <p class="section-eyebrow eyebrow-scramble">Real examples</p>
-      <h2 class="section-headline">Owners building custom software</h2>
-      <p class="section-sub template-sub">Real founders. Real businesses. Real software they built themselves on Bolt.new.</p>
+    <div class="stories-header">
+      <div class="stories-header-left dsa-reveal">
+        <p class="section-eyebrow eyebrow-scramble">Real examples</p>
+        <h2 class="section-headline">Owners building custom software</h2>
+        <p class="section-sub template-sub">Real founders. Real businesses. Real software they built themselves on Bolt.new.</p>
+      </div>
+      <div class="stories-nav" data-story-slider>
+        <span class="stories-count"><span data-slider-current>1</span> OF <span data-slider-total>5</span></span>
+        <button class="stories-arrow" type="button" aria-label="Previous stories" data-slider-prev>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button class="stories-arrow" type="button" aria-label="Next stories" data-slider-next>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
     </div>
 
-    <div class="story-slider" data-story-slider>
-      <button class="story-slider-arrow story-slider-arrow--prev" type="button" aria-label="Previous stories" data-slider-prev>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-      </button>
-      <button class="story-slider-arrow story-slider-arrow--next" type="button" aria-label="Next stories" data-slider-next>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-      </button>
-
-      <div class="story-track" data-slider-track>
+    <div class="stories-track-wrap">
+      <div class="stories-track" data-slider-track>
 
         <article class="story-card">
-          <header class="story-card-head">
+          <div class="story-card-visual" style="--story-grad:linear-gradient(155deg, #11203a 0%, #1a2e54 55%, #0b1626 100%);">
             <span class="story-avatar" aria-hidden="true">PL</span>
             <p class="story-eyebrow">Transportation logistics</p>
-          </header>
-          <p class="story-quote">Was paying $70,000 a year for software to run his carrier network. Built his own replacement on Bolt.new in a few weeks. Now 10 carriers pay him $3,000 a month to use it.</p>
-          <footer class="story-byline">
-            <span class="story-name">Paul Laviolette</span>
-            <span class="story-company">TradeWeave</span>
-          </footer>
+            <p class="story-quote">Was paying $70,000/year for software to run his carrier network. Built his own replacement on Bolt.new in a few weeks. Now 10 carriers pay him $3,000/month to use it.</p>
+          </div>
+          <div class="story-info">
+            <p class="story-name">Paul Laviolette</p>
+            <p class="story-company">Founder, TradeWeave</p>
+          </div>
         </article>
 
         <article class="story-card">
-          <header class="story-card-head">
+          <div class="story-card-visual" style="--story-grad:linear-gradient(155deg, #1b2e22 0%, #1f4334 55%, #0d1a12 100%);">
             <span class="story-avatar" aria-hidden="true">M</span>
             <p class="story-eyebrow">Healthcare · Argentina</p>
-          </header>
-          <p class="story-quote">Solo non-technical founder. Built a production telehealth platform from scratch. 60+ healthcare professionals onboarded. 7,800+ patient applications. Now partnered with Novo Nordisk.</p>
-          <footer class="story-byline">
-            <span class="story-name">Martin</span>
-            <span class="story-company">NetDoctor</span>
-          </footer>
+            <p class="story-quote">Solo non-technical founder. Built a production telehealth platform from scratch. 60+ healthcare professionals onboarded. 7,800+ patient applications. Now partnered with Novo Nordisk.</p>
+          </div>
+          <div class="story-info">
+            <p class="story-name">Martin</p>
+            <p class="story-company">Founder, NetDoctor</p>
+          </div>
         </article>
 
         <article class="story-card">
-          <header class="story-card-head">
+          <div class="story-card-visual" style="--story-grad:linear-gradient(155deg, #321f0a 0%, #5a3712 55%, #1a0f04 100%);">
             <span class="story-avatar" aria-hidden="true">BM</span>
             <p class="story-eyebrow">Flag football stats</p>
-          </header>
-          <p class="story-quote">Customers in 8 states. 50,000 pageviews in 60 days. Closing his first round of funding to build 10 more sports apps on the platform.</p>
-          <footer class="story-byline">
-            <span class="story-name">Bradley Metrock</span>
-            <span class="story-company">FlagStat</span>
-          </footer>
+            <p class="story-quote">Customers in 8 states. 50,000 pageviews in 60 days. Closing his first round of funding to build 10 more sports apps on the platform.</p>
+          </div>
+          <div class="story-info">
+            <p class="story-name">Bradley Metrock</p>
+            <p class="story-company">Founder, FlagStat</p>
+          </div>
         </article>
 
         <article class="story-card">
-          <header class="story-card-head">
+          <div class="story-card-visual" style="--story-grad:linear-gradient(155deg, #2b1838 0%, #4a2658 55%, #170c1d 100%);">
             <span class="story-avatar" aria-hidden="true">MF</span>
             <p class="story-eyebrow">Newsletter platform</p>
-          </header>
-          <p class="story-quote">Built an autonomous newsletter platform that ingests content, generates images, and schedules sends. Plus 11 bonus AI apps. Paid users in the first week.</p>
-          <footer class="story-byline">
-            <span class="story-name">Mark Fulton</span>
-            <span class="story-company">Founder Wins</span>
-          </footer>
+            <p class="story-quote">Built an autonomous newsletter platform that ingests content, generates images, and schedules sends. Plus 11 bonus AI apps. Paid users in the first week.</p>
+          </div>
+          <div class="story-info">
+            <p class="story-name">Mark Fulton</p>
+            <p class="story-company">Founder, Founder Wins</p>
+          </div>
         </article>
 
         <article class="story-card">
-          <header class="story-card-head">
+          <div class="story-card-visual" style="--story-grad:linear-gradient(155deg, #1f2030 0%, #2b3055 55%, #0b0d1a 100%);">
             <span class="story-avatar" aria-hidden="true">M</span>
             <p class="story-eyebrow">AI platform</p>
-          </header>
-          <p class="story-quote">Combined GPT, Claude, and Gemini in one app. Built user logins, chat history, model switching, and pricing pages. First version live. Demoing to investors now.</p>
-          <footer class="story-byline">
-            <span class="story-name">Mubarak</span>
-            <span class="story-company">Super LLM</span>
-          </footer>
+            <p class="story-quote">Combined GPT, Claude, and Gemini in one app. Built user logins, chat history, model switching, and pricing pages. First version live. Demoing to investors now.</p>
+          </div>
+          <div class="story-info">
+            <p class="story-name">Mubarak</p>
+            <p class="story-company">Founder, Super LLM</p>
+          </div>
         </article>
 
       </div>
@@ -2907,27 +2916,41 @@ window.addEventListener('load', function () {
   setInterval(function () { send('seekTo', [15, true]); send('playVideo'); }, 15000);
 })();
 
-/* ── Customer stories slider: prev/next + arrow disable state ─────────── */
+/* ── Customer stories slider: bolt.conf-style transform slides + counter ── */
 (function () {
-  document.querySelectorAll('[data-story-slider]').forEach(function (root) {
-    var track = root.querySelector('[data-slider-track]');
-    var prev = root.querySelector('[data-slider-prev]');
-    var next = root.querySelector('[data-slider-next]');
+  document.querySelectorAll('[data-story-slider]').forEach(function (nav) {
+    var track = document.querySelector('[data-slider-track]');
+    var prev = nav.querySelector('[data-slider-prev]');
+    var next = nav.querySelector('[data-slider-next]');
+    var curEl = nav.querySelector('[data-slider-current]');
+    var totalEl = nav.querySelector('[data-slider-total]');
     if (!track) return;
+    var cards = track.querySelectorAll('.story-card');
+    if (totalEl) totalEl.textContent = cards.length;
+    var idx = 0;
     function step() {
-      var card = track.querySelector('.story-card');
-      return card ? card.getBoundingClientRect().width + 20 : 320;
+      var card = cards[0];
+      if (!card) return 0;
+      var style = getComputedStyle(track);
+      var gap = parseFloat(style.gap || style.columnGap || '0');
+      return card.getBoundingClientRect().width + gap;
+    }
+    function maxIdx() {
+      var wrap = track.parentElement;
+      if (!wrap) return cards.length - 1;
+      var fit = Math.floor(wrap.clientWidth / step());
+      return Math.max(0, cards.length - Math.max(1, fit));
     }
     function update() {
-      if (!prev || !next) return;
-      var max = track.scrollWidth - track.clientWidth - 1;
-      prev.disabled = track.scrollLeft <= 1;
-      next.disabled = track.scrollLeft >= max;
+      track.style.transform = 'translateX(' + (-idx * step()) + 'px)';
+      if (curEl) curEl.textContent = idx + 1;
+      var m = maxIdx();
+      if (prev) prev.disabled = idx <= 0;
+      if (next) next.disabled = idx >= m;
     }
-    if (prev) prev.addEventListener('click', function () { track.scrollBy({ left: -step(), behavior: 'smooth' }); });
-    if (next) next.addEventListener('click', function () { track.scrollBy({ left: step(), behavior: 'smooth' }); });
-    track.addEventListener('scroll', update, { passive: true });
-    window.addEventListener('resize', update, { passive: true });
+    if (prev) prev.addEventListener('click', function () { if (idx > 0) { idx--; update(); } });
+    if (next) next.addEventListener('click', function () { if (idx < maxIdx()) { idx++; update(); } });
+    window.addEventListener('resize', function () { if (idx > maxIdx()) idx = maxIdx(); update(); }, { passive: true });
     update();
     setTimeout(update, 200);
   });
