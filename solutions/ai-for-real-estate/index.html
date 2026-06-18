@@ -2276,19 +2276,21 @@ window.addEventListener('load', function () {
         var nd = Math.max(Math.abs(px - cx) / (W * 0.5), Math.abs(py - cy) / (H * 0.5));
         var fade = nd <= 0.62 ? 1 : Math.max(0, 1 - (nd - 0.62) / 0.36);
         if (fade <= 0) return 0;
-        var speedMod = 0.05 + (Math.sin(t * 0.00070 + 1.4) * 0.5 + 0.5) * 0.22;
+        // STATIC field — sampled at a fixed time so the dots hold still (no animation)
+        var T = 8000;
         function rwave(scale, rotRate, phase, tMult) {
-          var angle = t * rotRate + phase;
+          var angle = T * rotRate + phase;
           var u = (px * Math.cos(angle) + py * Math.sin(angle)) / scale;
           var v = (-px * Math.sin(angle) + py * Math.cos(angle)) / scale;
-          return Math.sin(u * Math.PI * 2 + t * tMult * speedMod) * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7 * speedMod);
+          return Math.sin(u * Math.PI * 2 + T * tMult) * Math.cos(v * Math.PI * 1.5 + T * tMult * 0.7);
         }
-        var s1 = rwave(420, 0.00011, 0.5, 0.00028), s2 = rwave(220, 0.00023, 1.8, 0.00060);
-        var s3 = rwave(110, 0.00038, 3.1, 0.00120), s4 = rwave(320, 0.00016, 4.4, 0.00043);
-        var wf = s1 * 0.5 + 0.5, det = s2 * 0.45 + s3 * 0.30 + s4 * 0.25;
-        var raw = wf * (det * 0.5 + 0.5), density = Math.pow(Math.max(0, raw), 0.8) * fade;
+        var s1 = rwave(560, 0.00004, 0.5, 0.00009);
+        var s2 = rwave(300, 0.00009, 1.8, 0.00018);
+        var s3 = rwave(180, 0.00015, 3.1, 0.00030);
+        var wf = s1 * 0.5 + 0.5, det = s2 * 0.55 + s3 * 0.30;
+        var raw = wf * (det * 0.5 + 0.5), density = Math.pow(Math.max(0, raw), 0.9) * fade;
         var rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
-        return density > rand ? density * 0.95 : 0;
+        return density > rand ? density * 0.9 : 0;
       }, 1.0, '205,218,242');
   }
 
