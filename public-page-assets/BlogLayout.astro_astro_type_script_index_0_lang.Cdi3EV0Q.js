@@ -1,0 +1,1 @@
+import{_ as t}from"./preload-helper.BlTxHScW.js";document.documentElement.dataset.preview==="true"&&t(async()=>{const{ContentfulLivePreview:e}=await import("./index.CMMPE6cm.js");return{ContentfulLivePreview:e}},[]).then(({ContentfulLivePreview:e})=>{e.init({locale:"en-US",enableInspectorMode:!0,enableLiveUpdates:!0})});
