@@ -2779,23 +2779,13 @@ window.addEventListener('load', function () {
       f.contentWindow.postMessage(JSON.stringify({ event: 'command', func: func, args: args || [] }), '*');
     } catch (e) {}
   }
-  /* subscribe to player state changes so we know when playback actually starts */
-  f.addEventListener('load', function () {
-    try {
-      f.contentWindow.postMessage(JSON.stringify({ event: 'listening', id: 'hero-preview-iframe' }), '*');
-      f.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'addEventListener', args: ['onStateChange'] }), '*');
-    } catch (e) {}
-  });
-  window.addEventListener('message', function (ev) {
-    if (!ev.data) return;
-    var d;
-    try { d = typeof ev.data === 'string' ? JSON.parse(ev.data) : ev.data; } catch (e) { return; }
-    /* YT state 1 = playing */
-    if (d && d.event === 'onStateChange' && d.info === 1 && cover) {
+  /* fade the poster cover out after a couple seconds, by which point YouTube has loaded past its branded chrome */
+  if (cover) {
+    setTimeout(function () {
       cover.style.opacity = '0';
       setTimeout(function () { cover.style.display = 'none'; }, 700);
-    }
-  });
+    }, 2500);
+  }
   setInterval(function () { send('seekTo', [15, true]); send('playVideo'); }, 15000);
 })();
 
