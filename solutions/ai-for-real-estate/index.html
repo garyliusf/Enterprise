@@ -1515,6 +1515,7 @@ body.bp-page { padding-top: var(--bp-banner-h); }
       <div class="hero-video-card" id="hero-video-card">
         <!-- kygo-style player: inline looping video framed by the edge pixel canvas (exact bolt.conf .video-strip effect) -->
         <div class="hero-video-area">
+          <img id="hero-preview-cover" src="images/hero-video-poster.webp?v=2" alt="" aria-hidden="true" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;z-index:1;transition:opacity 0.6s ease;">
           <iframe
             id="hero-preview-iframe"
             src="https://www.youtube-nocookie.com/embed/ddv19NUwz7c?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&iv_load_policy=3&disablekb=1&playsinline=1&showinfo=0&enablejsapi=1&start=15"
@@ -2768,15 +2769,33 @@ window.addEventListener('load', function () {
   else window.addEventListener('load', arm);
 })();
 
-/* ── Hero preview YouTube: loop 0–15s via postMessage ─────────────────── */
+/* ── Hero preview YouTube: loop 15–30s + fade-out poster cover ──────────── */
 (function () {
   var f = document.getElementById('hero-preview-iframe');
+  var cover = document.getElementById('hero-preview-cover');
   if (!f) return;
   function send(func, args) {
     try {
       f.contentWindow.postMessage(JSON.stringify({ event: 'command', func: func, args: args || [] }), '*');
     } catch (e) {}
   }
+  /* subscribe to player state changes so we know when playback actually starts */
+  f.addEventListener('load', function () {
+    try {
+      f.contentWindow.postMessage(JSON.stringify({ event: 'listening', id: 'hero-preview-iframe' }), '*');
+      f.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'addEventListener', args: ['onStateChange'] }), '*');
+    } catch (e) {}
+  });
+  window.addEventListener('message', function (ev) {
+    if (!ev.data) return;
+    var d;
+    try { d = typeof ev.data === 'string' ? JSON.parse(ev.data) : ev.data; } catch (e) { return; }
+    /* YT state 1 = playing */
+    if (d && d.event === 'onStateChange' && d.info === 1 && cover) {
+      cover.style.opacity = '0';
+      setTimeout(function () { cover.style.display = 'none'; }, 700);
+    }
+  });
   setInterval(function () { send('seekTo', [15, true]); send('playVideo'); }, 15000);
 })();
 
