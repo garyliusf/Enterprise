@@ -896,9 +896,13 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 .hero-pills li::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #7FDDC1; flex-shrink: 0; }
 /* video relocated to its own section below the hero */
 .video-section .hero-video-col { max-width: 820px; }
-/* kygo-style player: inline looping video + edge-frame pixel canvas overlay (from bolt.conf .video-strip) */
+/* kygo-style player: inline looping video + edge-frame pixel canvas overlay (from bolt.conf .video-strip).
+   The .hero-video-frame wraps the card so the canvas can extend beyond the video for breathing room. */
+.hero-video-frame { position: relative; padding: 64px 80px; }
+.hero-video-frame .hero-video-card { position: relative; z-index: 1; }
 .hero-video-area video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
-#video-pixel-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 3; }
+#video-pixel-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+@media (max-width: 768px) { .hero-video-frame { padding: 36px 24px; } }
 @media (max-width: 768px) {
   .hero-pills { flex-direction: row; flex-wrap: nowrap; justify-content: center; align-items: center; gap: 0 12px; border-radius: 999px; padding: 10px 16px; margin-top: 20px; }
   .hero-pills li { font-size: 11px; gap: 6px; white-space: nowrap; }
@@ -1433,6 +1437,9 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 <section class="section video-section">
   <div class="section-inner">
     <div class="hero-video-col">
+      <!-- wrapper extends past the card edges so the kygo edge-frame canvas has room to breathe around the video -->
+      <div class="hero-video-frame">
+        <canvas id="video-pixel-canvas" aria-hidden="true"></canvas>
       <div class="hero-video-card">
         <!-- kygo-style player: inline looping video framed by the edge pixel canvas (exact bolt.conf .video-strip effect) -->
         <div class="hero-video-area">
@@ -1440,7 +1447,6 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
             <source src="images/hero-video.mp4" type="video/mp4">
           </video>
           <div class="hero-video-overlay"></div>
-          <canvas id="video-pixel-canvas" aria-hidden="true"></canvas>
         </div>
         <div class="hero-card-strip hero-card-strip--social">
           <span class="hero-card-social-line">
@@ -1453,6 +1459,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
           </a>
         </div>
       </div>
+      </div><!-- /.hero-video-frame -->
     </div>
   </div>
 </section>
