@@ -2916,7 +2916,7 @@ window.addEventListener('load', function () {
   setInterval(function () { send('seekTo', [15, true]); send('playVideo'); }, 15000);
 })();
 
-/* ── Customer stories slider: bolt.conf-style transform slides + counter ── */
+/* ── Customer stories slider: bolt.conf-style transform slides + counter + pointer drag ── */
 (function () {
   document.querySelectorAll('[data-story-slider]').forEach(function (nav) {
     var track = document.querySelector('[data-slider-track]');
@@ -2941,7 +2941,8 @@ window.addEventListener('load', function () {
       var fit = Math.floor(wrap.clientWidth / step());
       return Math.max(0, cards.length - Math.max(1, fit));
     }
-    function update() {
+    function update(animate) {
+      track.style.transition = animate === false ? 'none' : '';
       track.style.transform = 'translateX(' + (-idx * step()) + 'px)';
       if (curEl) curEl.textContent = idx + 1;
       var m = maxIdx();
@@ -2951,6 +2952,48 @@ window.addEventListener('load', function () {
     if (prev) prev.addEventListener('click', function () { if (idx > 0) { idx--; update(); } });
     if (next) next.addEventListener('click', function () { if (idx < maxIdx()) { idx++; update(); } });
     window.addEventListener('resize', function () { if (idx > maxIdx()) idx = maxIdx(); update(); }, { passive: true });
+
+    /* pointer drag — captures mouse + touch + pen */
+    var dragging = false, startX = 0, baseTx = 0, moved = 0;
+    var wrap = track.parentElement;
+    if (wrap) {
+      wrap.style.touchAction = 'pan-y';
+      wrap.style.cursor = 'grab';
+    }
+    track.addEventListener('pointerdown', function (e) {
+      if (e.button !== undefined && e.button !== 0) return;
+      dragging = true;
+      moved = 0;
+      startX = e.clientX;
+      baseTx = -idx * step();
+      track.style.transition = 'none';
+      if (wrap) wrap.style.cursor = 'grabbing';
+      track.setPointerCapture && track.setPointerCapture(e.pointerId);
+    });
+    track.addEventListener('pointermove', function (e) {
+      if (!dragging) return;
+      moved = e.clientX - startX;
+      track.style.transform = 'translateX(' + (baseTx + moved) + 'px)';
+    });
+    function endDrag(e) {
+      if (!dragging) return;
+      dragging = false;
+      if (wrap) wrap.style.cursor = 'grab';
+      var s = step();
+      var threshold = s * 0.18;
+      if (moved < -threshold && idx < maxIdx()) idx++;
+      else if (moved > threshold && idx > 0) idx--;
+      update();
+      if (e && track.releasePointerCapture && e.pointerId !== undefined) {
+        try { track.releasePointerCapture(e.pointerId); } catch (_) {}
+      }
+    }
+    track.addEventListener('pointerup', endDrag);
+    track.addEventListener('pointercancel', endDrag);
+    track.addEventListener('pointerleave', endDrag);
+    /* prevent native drag of internal images/text breaking the swipe */
+    track.addEventListener('dragstart', function (e) { e.preventDefault(); });
+
     update();
     setTimeout(update, 200);
   });
