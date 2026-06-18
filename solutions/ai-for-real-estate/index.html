@@ -998,7 +998,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 .bolt-fade { position: absolute; inset: 0; background: linear-gradient(to bottom, #000 0%, transparent 22%, transparent 88%, #000 100%); z-index: 3; }
 
 /* ─── WHY SECTION ────────────────────────────────────────────────────────── */
-.why-section { border-top: none; } /* divider dropped — the video section's pixel canvas separates it from the hero/video above */
+.why-section { border-top: 1px solid rgba(255,255,255,0.06); }
 .why-layout { display: flex; flex-direction: column; gap: 48px; }
 /* stat grid — exact microsoft.html .success-stats */
 .why-stats-grid {
@@ -2245,10 +2245,13 @@ window.addEventListener('load', function () {
         var sp = 7, px = c * sp, py = r * sp;
         var el = document.getElementById('video-pixel-canvas');
         var W = el ? el.width : 1400, H = el ? el.height : 600;
-        // fade only near the outer edges; the centered video card hides the middle
-        var fx = Math.min(1, Math.min(px, W - px) / (W * 0.12));
-        var fy = Math.min(1, Math.min(py, H - py) / (H * 0.12));
-        var fade = Math.max(0, Math.min(fx, fy));
+        // radial fade from center: dots are strongest right around the (centered)
+        // video card and fall off toward the section edges, so the outer ring stays
+        // faint and unobtrusive
+        var cx = W / 2, cy = H / 2;
+        var hFade = Math.max(0, 1 - Math.abs(px - cx) / (W * 0.5));
+        var vFade = Math.max(0, 1 - Math.abs(py - cy) / (H * 0.5));
+        var fade = hFade * vFade;
         if (fade <= 0) return 0;
         var speedMod = 0.05 + (Math.sin(t * 0.00070 + 1.4) * 0.5 + 0.5) * 0.22;
         function rwave(scale, rotRate, phase, tMult) {
