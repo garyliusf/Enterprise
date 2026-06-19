@@ -1096,6 +1096,20 @@ body.bp-page { padding-top: var(--bp-banner-h); }
 
 /* ─── WHY SECTION ────────────────────────────────────────────────────────── */
 .why-section { border-top: 1px solid rgba(255,255,255,0.06); padding: 64px 0; }
+/* pixel band bridging the stats grid (WHY) into the WHO section — capped to section-inner width, pulls WHO up so it overlaps the bottom of the dots */
+.why-who-transition {
+  position: relative;
+  width: min(1120px, calc(100vw - 160px));
+  margin: -80px auto -160px;
+  height: 240px;
+  pointer-events: none; overflow: hidden;
+  z-index: 1;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 40%, #000 60%, transparent 100%);
+          mask-image: linear-gradient(to bottom, transparent 0%, #000 40%, #000 60%, transparent 100%);
+}
+.why-who-transition canvas { display: block; width: 100%; height: 100%; }
+@media (max-width: 1024px) { .why-who-transition { width: min(900px, calc(100vw - 80px)); } }
+@media (max-width: 768px)  { .why-who-transition { width: calc(100vw - 32px); height: 180px; margin: -60px auto -100px; } }
 .why-layout { display: flex; flex-direction: column; gap: 0; }
 /* stat grid — exact microsoft.html .success-stats */
 .why-stats-grid {
@@ -1679,6 +1693,11 @@ body.bp-page { padding-top: var(--bp-banner-h); }
     </div>
   </div>
 </section>
+
+<!-- transition pixel field bridging the stats grid into the WHO section -->
+<div class="why-who-transition" aria-hidden="true">
+  <canvas id="why-who-pixel-canvas"></canvas>
+</div>
 
 <!-- WHO / CALLOUTS — unlocks-visual with header inside, matching bolt-cli.html -->
 <section class="section section--bordered">
@@ -2423,6 +2442,21 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
   }
   requestAnimationFrame(draw);
 }
+
+/* ── Why -> Who transition pixel field (shimmerField — traveling diagonal band + twinkle) */
+window.addEventListener('load', function () {
+  if (document.getElementById('why-who-pixel-canvas')) {
+    makePixelCanvas('why-who-pixel-canvas', 11, 2,
+      function (c, r, t, p) {
+        var px = c * 11, py = r * 11;
+        var phase = (px * 0.012 + py * 0.018) - t * 0.0018 + 1.0;
+        var band = Math.sin(phase) * 0.5 + 0.5;
+        var highlight = Math.pow(band, 3) * 0.6;
+        var twinkle = (Math.sin(p * 53.7 + t * 0.004) * 0.5 + 0.5) * 0.12;
+        return 0.12 + highlight + twinkle;
+      }, 1.0, '205,218,238');
+  }
+});
 
 /* ── Quote pixel canvas ──────────────────────────────────────────────────── */
 window.addEventListener('load', function () {
