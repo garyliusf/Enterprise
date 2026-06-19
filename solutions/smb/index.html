@@ -1145,23 +1145,20 @@ body.bp-page { padding-top: var(--bp-banner-h); }
 .bespoke-row--neg:hover { background: rgba(255,255,255,0.025); }
 .bespoke-row--pos:hover { background: rgba(20,136,252,0.06); }
 .bespoke-row::before { content: ""; width: 18px; height: 18px; flex: 0 0 18px; background-repeat: no-repeat; background-position: center; background-size: contain; }
-/* final CTA row on the bespoke side — same row pattern (check + text), but
-   the whole cell is a link with a slow animated gradient sweep behind it */
+/* final CTA row on the bespoke side — same row pattern (check + text); whole
+   cell is a link with an animated pixel field behind it (#bespoke-cta-canvas). */
 .bespoke-row--cta-link {
   text-decoration: none;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(110deg, rgba(20,136,252,0.04) 0%, rgba(20,136,252,0.22) 45%, rgba(20,136,252,0.04) 90%);
-  background-size: 220% 100%;
-  animation: bespokeCtaSweep 5.4s linear infinite;
+  background: #050608;
   cursor: pointer;
+  min-height: 64px;
 }
-.bespoke-row--cta-link:hover { background-color: rgba(20,136,252,0.12); }
-@keyframes bespokeCtaSweep {
-  0%   { background-position: 120% 50%; }
-  100% { background-position: -120% 50%; }
-}
-@media (prefers-reduced-motion: reduce) { .bespoke-row--cta-link { animation: none; } }
+.bespoke-row--cta-link:hover { background: #07090c; }
+.bespoke-cta-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; display: block; }
+.bespoke-row--cta-link .bespoke-cta-text { position: relative; z-index: 1; }
+.bespoke-row--cta-link::before { position: relative; z-index: 1; }
 .bespoke-row--neg::before { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff66' stroke='none' shape-rendering='crispEdges'><path d='M0 10h3v3h-3zM6 10h3v3h-3zM12 10h3v3h-3zM18 10h3v3h-3z'/></svg>"); }
 .bespoke-row--pos::before { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231488FC' stroke='none' shape-rendering='crispEdges'><path d='M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z'/></svg>"); }
 
@@ -1774,7 +1771,10 @@ body.bp-page { padding-top: var(--bp-banner-h); }
       <div class="bespoke-row bespoke-row--neg">Use 5 of 100 features</div>
       <div class="bespoke-row bespoke-row--pos">Ships in 24 hours</div>
       <div class="bespoke-row bespoke-row--neg">Annual contract, 90-day implementation</div>
-      <a href="https://bolt.new/" class="bespoke-row bespoke-row--pos bespoke-row--cta-link">Start building now…</a>
+      <a href="https://bolt.new/" class="bespoke-row bespoke-row--pos bespoke-row--cta-link">
+        <canvas id="bespoke-cta-canvas" class="bespoke-cta-canvas" aria-hidden="true"></canvas>
+        <span class="bespoke-cta-text">Start building now…</span>
+      </a>
     </div>
   </div>
 </section>
@@ -2473,6 +2473,37 @@ window.addEventListener('load', function () {
       var rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
       return density > rand ? density * 0.85 : 0;
     }, 1.0, '220,230,245');
+
+  /* Bespoke CTA row pixel field — same center-bright/edge-fade rotating wave as the footer canvas,
+     but blue-mint tinted to fit the brand and the bespoke-side color scheme. */
+  if (document.getElementById('bespoke-cta-canvas')) {
+    makePixelCanvas('bespoke-cta-canvas', 6, 2,
+      function (c, r, t, p) {
+        var px = c * 6, py = r * 6;
+        var el = document.getElementById('bespoke-cta-canvas');
+        var W = el ? el.width : 700, H = el ? el.height : 64;
+        var cx = W / 2, cy = H / 2;
+        var hFade = Math.max(0, 1 - Math.abs(px - cx) / (W * 0.55));
+        var vFade = Math.max(0, 1 - Math.abs(py - cy) / (H * 0.7));
+        var fade = hFade * vFade;
+        if (fade <= 0) return 0;
+        var speedMod = 0.05 + (Math.sin(t * 0.00070 + 2.2) * 0.5 + 0.5) * 0.22;
+        function rwave(scale, rotRate, phase, tMult) {
+          var angle = t * rotRate + phase;
+          var u = (px * Math.cos(angle) + py * Math.sin(angle)) / scale;
+          var v = (-px * Math.sin(angle) + py * Math.cos(angle)) / scale;
+          return Math.sin(u * Math.PI * 2 + t * tMult * speedMod) * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7 * speedMod);
+        }
+        var s1 = rwave(280, 0.00014, 0.3, 0.00030);
+        var s2 = rwave(150, 0.00028, 1.6, 0.00065);
+        var s3 = rwave(80,  0.00045, 2.9, 0.00130);
+        var wf = s1 * 0.5 + 0.5, det = s2 * 0.55 + s3 * 0.45;
+        var raw = wf * (det * 0.5 + 0.5);
+        var density = Math.pow(Math.max(0, raw), 0.7) * fade;
+        var rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
+        return density > rand ? density * 0.95 : 0;
+      }, 1.0, '120,180,240');
+  }
 
   /* kygo-style edge-frame pixel canvas over the video — exact copy of bolt.conf #kygo-pixel-canvas */
   (function () {
