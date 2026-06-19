@@ -2643,7 +2643,18 @@ window.addEventListener('load', function () {
   }
   shimmerField('connect-pixel-canvas', 0);
   shimmerField('connect-pixel-canvas-2', 2.1);
-  shimmerField('why-who-pixel-canvas', 1.0);
+  /* why-who band — dimmer variant of shimmerField (wider canvas, so the live page reads more subtly) */
+  if (document.getElementById('why-who-pixel-canvas')) {
+    makePixelCanvas('why-who-pixel-canvas', 11, 2,
+      function (c, r, t, p) {
+        var px = c * 11, py = r * 11;
+        var phase = (px * 0.012 + py * 0.018) - t * 0.0018 + 1.0;
+        var band = Math.sin(phase) * 0.5 + 0.5;
+        var highlight = Math.pow(band, 3) * 0.32;
+        var twinkle = (Math.sin(p * 53.7 + t * 0.004) * 0.5 + 0.5) * 0.07;
+        return 0.06 + highlight + twinkle;
+      }, 1.0, '170,185,210');
+  }
 
 });
 
