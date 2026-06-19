@@ -1558,6 +1558,10 @@ body.bp-page { padding-top: var(--bp-banner-h); }
   .success-stat:last-child { border-bottom: none; }
 }
 </style>
+
+<!-- Plyr (MIT) — modal video player for the hero video card -->
+<link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css">
+<script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js" defer></script>
 </head>
 <body>
 
@@ -1642,18 +1646,21 @@ body.bp-page { padding-top: var(--bp-banner-h); }
       <div class="hero-video-frame">
         <canvas id="video-pixel-canvas" aria-hidden="true"></canvas>
       <div class="hero-video-card" id="hero-video-card">
-        <!-- kygo-style player: inline looping video framed by the edge pixel canvas (exact bolt.conf .video-strip effect) -->
+        <!-- Self-hosted muted autoplay loop — reliable autoplay, zero YouTube chrome.
+             Click opens the full narrated video (with sound) in the Plyr modal below. -->
         <div class="hero-video-area">
-          <img id="hero-preview-cover" src="images/hero-video-poster.webp?v=2" alt="" aria-hidden="true" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;z-index:1;transition:opacity 0.6s ease;">
-          <iframe
-            id="hero-preview-iframe"
-            src="https://www.youtube-nocookie.com/embed/ddv19NUwz7c?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&iv_load_policy=3&disablekb=1&playsinline=1&showinfo=0&enablejsapi=1&start=15"
-            title=""
-            aria-hidden="true"
-            frameborder="0"
-            allow="autoplay; encrypted-media"
-            style="position:absolute;top:50%;left:50%;width:100%;height:100%;transform:translate(-50%,-50%) scale(1.08);transform-origin:center;pointer-events:none;border:0;display:block;"
-          ></iframe>
+          <video
+            class="hero-preview-video"
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="metadata"
+            poster="images/hero-video-poster.webp?v=2"
+            style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;"
+          >
+            <source src="images/hero-video.mp4" type="video/mp4">
+          </video>
           <div class="hero-video-overlay"></div>
           <div class="hero-play-btn" id="hero-play-btn">
             <svg viewBox="0 0 24 24"><path d="M8 5.14v14l11-7-11-7z"/></svg>
@@ -1672,10 +1679,11 @@ body.bp-page { padding-top: var(--bp-banner-h); }
       </div>
       </div><!-- /.hero-video-frame -->
 
+<!-- Full narrated video (with sound) — Plyr opens on click. -->
 <div class="video-modal" id="video-modal">
   <div class="video-modal-inner">
-    <button class="video-modal-close" id="video-modal-close">×</button>
-    <div id="modal-video" data-youtube="ddv19NUwz7c"></div>
+    <button class="video-modal-close" id="video-modal-close" aria-label="Close video">×</button>
+    <div id="modal-plyr" data-plyr-provider="youtube" data-plyr-embed-id="ddv19NUwz7c"></div>
   </div>
 </div>
     </div>
@@ -2069,33 +2077,49 @@ body.bp-page { padding-top: var(--bp-banner-h); }
   });
 })();
 
-/* ── Hero video card click → modal ──────────────────────────────────────── */
+/* ── Hero video — muted autoplay MP4 preview, click → full video in a Plyr modal ──
+   The inline <video> autoplays muted + looped via its HTML attributes. Clicking
+   the card opens the full narrated video with sound in a Plyr (MIT) player,
+   built lazily on first open so a user gesture backs the with-sound playback. */
 (function () {
-  var card  = document.getElementById('hero-video-card');
+  var card = document.getElementById('hero-video-card');
   var playBtn = document.getElementById('hero-play-btn');
   var modal = document.getElementById('video-modal');
   var closeBtn = document.getElementById('video-modal-close');
-  var modalVideo = document.getElementById('modal-video');
-  if (!card || !modal) return;
-  var ytId = modalVideo ? modalVideo.getAttribute('data-youtube') : null;
-  var tellaId = modalVideo ? modalVideo.getAttribute('data-tella') : null;
-  card.addEventListener('click', function (e) {
-    /* don't open modal when interacting with the form strip */
-    if (e.target.closest('.hero-card-strip')) return;
+  var target = document.getElementById('modal-plyr');
+  if (!card || !modal || !target) return;
+  var player = null;
+
+  function open() {
     modal.classList.add('open');
-    if (modalVideo && ytId) {
-      modalVideo.innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + ytId + '?autoplay=1&rel=0&modestbranding=1" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>';
-    } else if (modalVideo && tellaId) {
-      modalVideo.innerHTML = '<iframe src="https://www.tella.tv/video/' + tellaId + '/embed?b=0&title=0&a=1&loop=0&t=0&muted=0&wt=0&o=0" allow="autoplay; fullscreen" allowtransparency></iframe>';
+    if (!player && typeof Plyr !== 'undefined') {
+      player = new Plyr(target, {
+        autoplay: true,
+        controls: ['play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'],
+        youtube: { noCookie: true, rel: 0, modestbranding: 1, playsinline: 1, iv_load_policy: 3 },
+      });
+      player.on('ready', function () { try { player.play(); } catch (e) {} });
+    } else if (player) {
+      try { player.restart(); player.play(); } catch (e) {}
     }
-    var _ifr = modalVideo ? modalVideo.querySelector('iframe') : null;
-    if (_ifr) _ifr.addEventListener('load', function () { _ifr.classList.add('is-loaded'); });
-    if (playBtn) { playBtn.classList.add('clicked'); setTimeout(function () { playBtn.classList.remove('clicked'); playBtn.classList.add('returning'); setTimeout(function () { playBtn.classList.remove('returning'); }, 400); }, 550); }
-  });
+    if (playBtn) {
+      playBtn.classList.add('clicked');
+      setTimeout(function () {
+        playBtn.classList.remove('clicked');
+        playBtn.classList.add('returning');
+        setTimeout(function () { playBtn.classList.remove('returning'); }, 400);
+      }, 550);
+    }
+  }
   function closeModal() {
     modal.classList.remove('open');
-    if (modalVideo) { modalVideo.innerHTML = ''; }
+    if (player) { try { player.pause(); } catch (e) {} }
   }
+
+  card.addEventListener('click', function (e) {
+    if (e.target.closest('.hero-card-strip')) return;
+    open();
+  });
   if (closeBtn) closeBtn.addEventListener('click', closeModal);
   modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
@@ -2970,26 +2994,6 @@ window.addEventListener('load', function () {
   function arm() { setTimeout(nudge, 120); setTimeout(nudge, 600); }
   if (document.readyState === 'complete') arm();
   else window.addEventListener('load', arm);
-})();
-
-/* ── Hero preview YouTube: loop 15–30s + fade-out poster cover ──────────── */
-(function () {
-  var f = document.getElementById('hero-preview-iframe');
-  var cover = document.getElementById('hero-preview-cover');
-  if (!f) return;
-  function send(func, args) {
-    try {
-      f.contentWindow.postMessage(JSON.stringify({ event: 'command', func: func, args: args || [] }), '*');
-    } catch (e) {}
-  }
-  /* fade the poster cover out after a couple seconds, by which point YouTube has loaded past its branded chrome */
-  if (cover) {
-    setTimeout(function () {
-      cover.style.opacity = '0';
-      setTimeout(function () { cover.style.display = 'none'; }, 700);
-    }, 4500);
-  }
-  setInterval(function () { send('seekTo', [15, true]); send('playVideo'); }, 15000);
 })();
 
 /* ── Customer stories slider: bolt.conf-style transform slides + counter + pointer drag ── */
