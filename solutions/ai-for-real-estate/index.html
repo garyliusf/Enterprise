@@ -40,7 +40,12 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   padding: 8px 16px;
   background: #1488FC;
   overflow: hidden;
+  transition: transform 0.38s cubic-bezier(0.4,0,0.2,1), opacity 0.32s ease;
+  will-change: transform, opacity;
 }
+.promo-banner.is-closing { transform: translateY(-100%); opacity: 0; }
+body.bp-page { transition: padding-top 0.38s cubic-bezier(0.4,0,0.2,1); }
+body.bp-page.is-banner-closing { padding-top: 0; }
 .promo-banner-canvas {
   position: absolute;
   inset: 0;
@@ -2875,9 +2880,17 @@ window.addEventListener('load', function () {
   if (!btn || !bar) return;
   try { if (sessionStorage.getItem('bp-banner-dismissed') === '1') { bar.remove(); document.body.classList.remove('bp-page'); return; } } catch (e) {}
   btn.addEventListener('click', function () {
-    bar.remove();
-    document.body.classList.remove('bp-page');
+    bar.classList.add('is-closing');
+    document.body.classList.add('is-banner-closing');
     try { sessionStorage.setItem('bp-banner-dismissed', '1'); } catch (e) {}
+    var done = false;
+    var finish = function () {
+      if (done) return; done = true;
+      bar.remove();
+      document.body.classList.remove('bp-page', 'is-banner-closing');
+    };
+    bar.addEventListener('transitionend', function (e) { if (e.propertyName === 'transform') finish(); });
+    setTimeout(finish, 500);
   });
 })();
 
