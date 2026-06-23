@@ -70,6 +70,28 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   text-align: center;
   text-shadow: 0 1px 2px rgba(0,0,0,0.35);
 }
+.promo-banner-close {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 999px;
+  opacity: 0.85;
+  transition: opacity 0.15s ease, background 0.15s ease;
+  padding: 0;
+}
+.promo-banner-close:hover { opacity: 1; background: rgba(255,255,255,0.12); }
+.promo-banner-close svg { width: 12px; height: 12px; display: block; }
 .promo-banner-code {
   display: inline-block;
   margin-left: 8px;
@@ -1449,6 +1471,12 @@ body.bp-page { padding-top: var(--bp-banner-h); }
     BiggerPockets members get a 30-day free trial with code
     <span class="promo-banner-code">BP26</span>
   </p>
+  <button type="button" class="promo-banner-close" id="promo-banner-close" aria-label="Dismiss banner">
+    <svg viewBox="0 0 10 10" fill="none" aria-hidden="true">
+      <line x1="1" y1="1" x2="9" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="9" y1="1" x2="1" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+  </button>
 </div>
 
 <!-- HERO -->
@@ -2838,6 +2866,19 @@ window.addEventListener('load', function () {
     }, 4500);
   }
   setInterval(function () { send('seekTo', [15, true]); send('playVideo'); }, 15000);
+})();
+
+/* ── Promo banner: close button ───────────────────────────────────────── */
+(function () {
+  var btn = document.getElementById('promo-banner-close');
+  var bar = document.querySelector('.promo-banner');
+  if (!btn || !bar) return;
+  try { if (sessionStorage.getItem('bp-banner-dismissed') === '1') { bar.remove(); document.body.classList.remove('bp-page'); return; } } catch (e) {}
+  btn.addEventListener('click', function () {
+    bar.remove();
+    document.body.classList.remove('bp-page');
+    try { sessionStorage.setItem('bp-banner-dismissed', '1'); } catch (e) {}
+  });
 })();
 
 /* ── Promo banner: animated bolt-blue pixel noise ─────────────────────── */
