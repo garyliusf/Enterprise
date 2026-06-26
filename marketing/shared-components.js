@@ -130,3 +130,115 @@
    .btn-bg-hover + .btn-text-inner translate in shared-components.css
    is the official hover for any page that only links the shared files
    (e.g. /marketing/integrations). */
+
+/* ============================================================================
+   BOLT WORDMARK SHIMMER — animates light strips across the BOLT wordmark
+   image at the bottom of marketing/solutions pages. Auto-initializes on any
+   page that includes a #bolt-shimmer-canvas inside a parent <img>. The image
+   must be loaded same-origin (or with crossorigin="anonymous") so getImageData
+   can sample bright vertical strips from the wordmark.
+   ============================================================================ */
+(function () {
+  var canvas = document.getElementById('bolt-shimmer-canvas');
+  if (!canvas || !canvas.getContext) return;
+  var wrap = canvas.parentElement;
+  var img  = wrap && wrap.querySelector('img');
+  if (!img) return;
+  var ctx = canvas.getContext('2d');
+  var W, H, strips = [], t = 0;
+  var hoverT = 0, isHovered = false, splashT = 0, splashStart = null, splashDuration = 300;
+
+  var observer = new IntersectionObserver(function (entries) {
+    if (entries[0].isIntersecting && !splashStart) { splashStart = Date.now(); observer.disconnect(); }
+  }, { threshold: 0.1 });
+  observer.observe(wrap);
+
+  function sampleStrips() {
+    var SW = 400, SH = 200;
+    var s = document.createElement('canvas');
+    s.width = SW; s.height = SH;
+    var sc = s.getContext('2d');
+    try { sc.drawImage(img, 0, 0, SW, SH); } catch (e) { return; }
+    var data;
+    try { data = sc.getImageData(0, 0, SW, SH).data; } catch (e) { return; }
+    strips = [];
+    var inStrip = false, stripStart = 0;
+    for (var x = 0; x < SW; x++) {
+      var b = 0;
+      for (var y = 20; y < SH - 20; y++) {
+        var idx = (y * SW + x) * 4;
+        b += (data[idx] + data[idx + 1] + data[idx + 2]) / 3;
+      }
+      b /= (SH - 40);
+      if (b > 28 && !inStrip) { inStrip = true; stripStart = x; }
+      else if (b <= 28 && inStrip) {
+        inStrip = false;
+        var cx = (stripStart + x) / 2 / SW;
+        var w = (x - stripStart) / SW;
+        strips.push({
+          cx: cx, w: w,
+          phase: Math.random() * Math.PI * 2,
+          freq: 0.5 + Math.random() * 1.2,
+          yPhase: Math.random() * Math.PI * 2,
+          yFreq: 0.35 + Math.random() * 0.7,
+          speedMult: 0.6 + Math.random() * 0.8,
+        });
+      }
+    }
+  }
+
+  function init() {
+    var r = wrap.getBoundingClientRect();
+    W = canvas.width = r.width; H = canvas.height = r.height;
+    t = Math.random() * 80;
+    sampleStrips();
+    var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+    if (isTouch) splashDuration = 1500;
+    else {
+      wrap.addEventListener('mouseenter', function () { isHovered = true; });
+      wrap.addEventListener('mouseleave', function () { isHovered = false; });
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function tick() {
+    var splashRaw = splashStart ? Math.max(0, 1 - (Date.now() - splashStart) / splashDuration) : 0;
+    splashT = splashRaw * splashRaw * splashRaw;
+    t += 0.028 + hoverT * 0.016;
+    hoverT += ((isHovered ? 1 : 0) - hoverT) * (isHovered ? 0.07 : 0.025);
+
+    ctx.clearRect(0, 0, W, H);
+    for (var i = 0; i < strips.length; i++) {
+      var st = strips[i];
+      var brightness = (Math.sin(t * st.freq * st.speedMult + st.phase) * 0.5 + 0.5);
+      if (brightness < 0.01) continue;
+      var x = st.cx * W;
+      var w = Math.max(st.w * W, 3);
+      var centerY = (Math.sin(t * st.yFreq * st.speedMult + st.yPhase) * 0.5 + 0.5) * H;
+      var spread = H * (0.55 + hoverT * 0.25);
+
+      var baseA  = brightness * 0.11;
+      var peakA  = brightness * 0.28;
+      var boost  = Math.max(hoverT, splashT);
+      var a  = (baseA + (peakA - baseA) * boost).toFixed(3);
+      var a2 = (parseFloat(a) * 1.4).toFixed(3);
+
+      var grad = ctx.createLinearGradient(0, centerY - spread, 0, centerY + spread);
+      grad.addColorStop(0, 'rgba(255,255,255,0)');
+      grad.addColorStop(0.45, 'rgba(255,255,255,' + a + ')');
+      grad.addColorStop(0.5, 'rgba(255,255,255,' + a2 + ')');
+      grad.addColorStop(0.55, 'rgba(255,255,255,' + a + ')');
+      grad.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(x - w / 2, 0, w, H);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  if (img.complete && img.naturalWidth) init();
+  else img.addEventListener('load', init, { once: true });
+  window.addEventListener('resize', function () {
+    var r = wrap.getBoundingClientRect();
+    W = canvas.width = r.width; H = canvas.height = r.height;
+  });
+})();
