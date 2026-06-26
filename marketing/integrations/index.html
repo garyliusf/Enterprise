@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Integrations — Bolt</title>
+<meta name="description" content="Bolt connects to the tools you already use. Databases, APIs, AI models, design systems, and more.">
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Silkscreen:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;1,400;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared-components.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: #000;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+  a { color: inherit; text-decoration: none; }
+
+  /* ─── HERO ─────────────────────────────────────────────────────────────── */
+  .hero-section {
+    width: 100%;
+    min-height: 80vh;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(96px, 16vh, 160px) 0 clamp(64px, 10vh, 120px);
+    background: #050507 radial-gradient(ellipse 70% 50% at 50% 30%, rgba(20,136,252,0.18) 0%, transparent 70%);
+  }
+  #hero-pixel-dots {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.55;
+  }
+  .hero-inner {
+    position: relative;
+    z-index: 3;
+    width: min(900px, calc(100vw - 64px));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    text-align: center;
+  }
+  .hero-eyebrow {
+    font-family: 'Silkscreen', monospace;
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #1488FC;
+    margin: 0;
+  }
+  .hero-h1 {
+    font-size: clamp(40px, 5.5vw, 66px);
+    font-weight: 500;
+    line-height: 1.08;
+    letter-spacing: -0.5px;
+    margin: 0;
+    color: #fff;
+  }
+  .hero-h1-kw {
+    background: linear-gradient(105deg, #fff 0%, #fff 34%, #1488FC 45%, #7FDDC1 55%, #fff 66%, #fff 100%);
+    background-size: 220% 100%;
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent; color: transparent;
+    animation: kwShimmer 2.9s cubic-bezier(0.45,0,0.25,1) infinite;
+  }
+  @keyframes kwShimmer { 0% { background-position: 120% 50%; } 83%, 100% { background-position: -20% 50%; } }
+  @media (prefers-reduced-motion: reduce) { .hero-h1-kw { animation: none; -webkit-text-fill-color: #fff; color: #fff; } }
+  .hero-subtitle {
+    font-size: clamp(16px, 1.4vw, 20px);
+    line-height: 1.55;
+    color: #ABABAB;
+    max-width: 640px;
+    margin: 0;
+  }
+  .hero-btn-group {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* ─── SECTION SCAFFOLDING ─────────────────────────────────────────────── */
+  .section {
+    width: 100%;
+    padding: clamp(80px, 12vh, 140px) 0;
+    position: relative;
+  }
+  .section-inner {
+    width: min(1200px, calc(100vw - 160px));
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+  }
+  .section-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 56px;
+  }
+  .section-eyebrow {
+    font-family: 'Silkscreen', monospace;
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #1488FC;
+    margin: 0;
+  }
+  .section-headline {
+    font-size: clamp(32px, 4vw, 52px);
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: -1px;
+    color: #fff;
+    margin: 0;
+  }
+  .section-sub {
+    font-size: clamp(15px, 1.1vw, 17px);
+    line-height: 1.65;
+    color: rgba(255,255,255,0.5);
+    max-width: 640px;
+    margin: 0;
+  }
+
+  /* ─── FEATURED INTEGRATIONS ──────────────────────────────────────────── */
+  .featured-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  .int-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 24px;
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 4px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%);
+    transition: border-color 0.25s ease, transform 0.25s ease;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .int-card:hover { border-color: rgba(255,255,255,0.22); transform: translateY(-2px); }
+  .int-card-hover-canvas { position: absolute; inset: 0; z-index: 0; opacity: 0; transition: opacity 0.5s ease; pointer-events: none; }
+  .int-card:hover .int-card-hover-canvas { opacity: 1; }
+  .int-card > * { position: relative; z-index: 1; }
+  .int-logo {
+    width: 44px; height: 44px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Silkscreen', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .int-logo[data-color="blue"]   { background: rgba(20,136,252,0.12);  color: #6BB6FF; border-color: rgba(20,136,252,0.35); }
+  .int-logo[data-color="mint"]   { background: rgba(127,221,193,0.10); color: #7FDDC1; border-color: rgba(127,221,193,0.30); }
+  .int-logo[data-color="salmon"] { background: rgba(255,176,147,0.10); color: #FFB093; border-color: rgba(255,176,147,0.30); }
+  .int-logo[data-color="purple"] { background: rgba(168,140,255,0.10); color: #C7B6FF; border-color: rgba(168,140,255,0.30); }
+  .int-logo[data-color="amber"]  { background: rgba(250,182,98,0.10);  color: #FAB662; border-color: rgba(250,182,98,0.30); }
+  .int-name { font-size: 18px; font-weight: 600; color: #fff; margin: 0; letter-spacing: -0.2px; }
+  .int-desc { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.55; margin: 0; flex: 1; }
+  .int-tag {
+    align-self: flex-start;
+    font-family: 'Silkscreen', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+    padding: 4px 8px;
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 2px;
+  }
+
+  /* ─── CATALOG ────────────────────────────────────────────────────────── */
+  .catalog-section { background: #050508; }
+  .catalog-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 32px;
+  }
+  .catalog-filter-btn {
+    height: 34px;
+    padding: 0 14px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: transparent;
+    color: rgba(255,255,255,0.7);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .catalog-filter-btn:hover { color: #fff; border-color: rgba(255,255,255,0.28); }
+  .catalog-filter-btn.is-active { background: #1488FC; border-color: #1488FC; color: #fff; }
+  .catalog-search-wrap { position: relative; margin-left: auto; min-width: 220px; }
+  .catalog-search {
+    width: 100%;
+    height: 34px;
+    padding: 0 14px 0 36px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 999px;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  .catalog-search:focus { border-color: rgba(20,136,252,0.5); background: rgba(255,255,255,0.06); }
+  .catalog-search::placeholder { color: rgba(255,255,255,0.35); }
+  .catalog-search-wrap::before {
+    content: '';
+    position: absolute;
+    left: 14px; top: 50%;
+    width: 14px; height: 14px;
+    transform: translateY(-50%);
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='rgba(255,255,255,0.45)' stroke-width='2'><circle cx='11' cy='11' r='7'/><path d='m20 20-3-3'/></svg>") center/contain no-repeat;
+    pointer-events: none;
+  }
+  .catalog-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .catalog-card.int-card { padding: 18px 20px; flex-direction: row; align-items: center; gap: 14px; }
+  .catalog-card .int-logo { width: 36px; height: 36px; font-size: 14px; border-radius: 6px; }
+  .catalog-card .int-body { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+  .catalog-card .int-name { font-size: 15px; }
+  .catalog-card .int-desc { font-size: 13px; }
+  .catalog-card .int-tag { font-size: 9px; padding: 3px 7px; align-self: center; flex-shrink: 0; }
+  .catalog-empty { padding: 40px; text-align: center; color: rgba(255,255,255,0.4); font-size: 14px; }
+  .catalog-empty[hidden] { display: none; }
+
+  /* ─── FOOTER CTA ─────────────────────────────────────────────────────── */
+  .footer-section {
+    width: 100%;
+    padding: clamp(80px, 12vh, 140px) 0 clamp(40px, 8vh, 80px);
+    position: relative;
+    text-align: center;
+    overflow: hidden;
+  }
+  #footer-pixel-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; opacity: 0.6; }
+  .footer-inner {
+    position: relative;
+    z-index: 2;
+    width: min(720px, calc(100vw - 48px));
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+  .footer-eyebrow {
+    font-family: 'Silkscreen', monospace;
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #1488FC;
+    margin: 0;
+  }
+  .footer-headline {
+    font-size: clamp(32px, 4vw, 52px);
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: -1px;
+    color: #fff;
+    margin: 0;
+  }
+  .footer-sub {
+    font-size: clamp(15px, 1.1vw, 17px);
+    line-height: 1.65;
+    color: rgba(255,255,255,0.55);
+    margin: 0;
+    max-width: 540px;
+  }
+  .footer-btn-group { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 8px; }
+
+  /* ─── BOLT WORDMARK ──────────────────────────────────────────────────── */
+  .bolt-image-wrap {
+    width: 100%;
+    height: 32vw;
+    max-height: 460px;
+    overflow: hidden;
+    position: relative;
+  }
+  .bolt-image-wrap img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: top;
+    opacity: 0.18;
+  }
+  .bolt-fade {
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, #000 0%, transparent 25%, transparent 85%, #000 100%);
+    pointer-events: none;
+  }
+
+  /* ─── MOBILE ─────────────────────────────────────────────────────────── */
+  @media (max-width: 1024px) {
+    .section-inner { width: min(900px, calc(100vw - 80px)); }
+    .featured-grid { grid-template-columns: repeat(2, 1fr); }
+    .catalog-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 768px) {
+    .hero-eyebrow, .section-eyebrow, .footer-eyebrow { font-size: 13px; }
+    .hero-h1 { font-size: clamp(37px, 10.45vw, 51px); }
+    .section { padding: 64px 0; }
+    .section-inner { width: calc(100vw - 24px); }
+    .section-header { margin-bottom: 40px; gap: 12px; }
+    .featured-grid { grid-template-columns: 1fr; gap: 12px; }
+    .catalog-grid { grid-template-columns: 1fr; }
+    .catalog-filters { gap: 6px; }
+    .catalog-search-wrap { margin-left: 0; width: 100%; min-width: 0; }
+    .catalog-filter-btn { font-size: 12px; padding: 0 10px; height: 30px; }
+    .footer-section { padding: 64px 0 40px; }
+    .footer-headline { font-size: clamp(28px, 8vw, 40px); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ─── HERO ──────────────────────────────────────────────────────────────── -->
+<section class="hero-section">
+  <canvas id="hero-pixel-dots" aria-hidden="true"></canvas>
+  <div class="hero-inner">
+    <p class="hero-eyebrow eyebrow-scramble">Integrations</p>
+    <h1 class="hero-h1">Connect Bolt to <span class="hero-h1-kw">everything you ship with</span></h1>
+    <p class="hero-subtitle">Databases, APIs, AI models, design systems, and your favorite dev tools — wire them into a Bolt app in minutes, not weeks.</p>
+    <div class="hero-btn-group">
+      <a href="https://bolt.new/" target="_blank" rel="noopener" class="hero-btn-primary">
+        <div class="btn-bg-hover"></div>
+        <div class="btn-text-wrap"><div class="btn-text-inner"><span>Start Building</span><span>Start Building</span></div></div>
+      </a>
+      <a href="#contact" class="hero-btn-ghost">
+        <div class="btn-bg-hover"></div>
+        <div class="btn-text-wrap"><div class="btn-text-inner"><span>Talk to Sales</span><span>Talk to Sales</span></div></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FEATURED ──────────────────────────────────────────────────────────── -->
+<section class="section featured-section">
+  <div class="section-inner">
+    <div class="dsa-reveal">
+      <div class="section-header">
+        <p class="section-eyebrow eyebrow-scramble">Most popular</p>
+        <h2 class="section-headline">The tools your team already uses</h2>
+        <p class="section-sub">A curated set of the integrations Bolt teams reach for first.</p>
+      </div>
+    </div>
+    <div class="featured-grid" id="featured-grid">
+      <!-- featured cards injected by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- ─── CATALOG ───────────────────────────────────────────────────────────── -->
+<section class="section catalog-section" id="catalog">
+  <div class="section-inner">
+    <div class="dsa-reveal">
+      <div class="section-header">
+        <p class="section-eyebrow eyebrow-scramble">All integrations</p>
+        <h2 class="section-headline">Browse the full catalog</h2>
+        <p class="section-sub">Filter by category or search by name. Missing one? <a href="#contact" style="color:#1488FC;text-decoration:underline;">Request an integration</a>.</p>
+      </div>
+    </div>
+    <div class="catalog-filters" id="catalog-filters">
+      <button class="catalog-filter-btn is-active" data-filter="all">All</button>
+      <button class="catalog-filter-btn" data-filter="database">Database</button>
+      <button class="catalog-filter-btn" data-filter="api">API</button>
+      <button class="catalog-filter-btn" data-filter="ai">AI</button>
+      <button class="catalog-filter-btn" data-filter="dev">Developer</button>
+      <button class="catalog-filter-btn" data-filter="crm">CRM</button>
+      <button class="catalog-filter-btn" data-filter="analytics">Analytics</button>
+      <button class="catalog-filter-btn" data-filter="messaging">Messaging</button>
+      <button class="catalog-filter-btn" data-filter="payment">Payment</button>
+      <div class="catalog-search-wrap">
+        <input type="search" class="catalog-search" id="catalog-search" placeholder="Search integrations…" aria-label="Search integrations">
+      </div>
+    </div>
+    <div class="catalog-grid" id="catalog-grid">
+      <!-- catalog cards injected by JS -->
+    </div>
+    <p class="catalog-empty" id="catalog-empty" hidden>No integrations match your filter.</p>
+  </div>
+</section>
+
+<!-- ─── FOOTER CTA ────────────────────────────────────────────────────────── -->
+<section class="footer-section">
+  <canvas id="footer-pixel-canvas" aria-hidden="true"></canvas>
+  <div class="footer-inner">
+    <p class="footer-eyebrow eyebrow-scramble">Get Started</p>
+    <h2 class="footer-headline">Stop wiring data by hand</h2>
+    <p class="footer-sub">Connect your stack to Bolt in one click and build the internal app you'd otherwise spend a quarter shipping.</p>
+    <div class="footer-btn-group">
+      <a href="https://bolt.new/" target="_blank" rel="noopener" class="hero-btn-primary">
+        <div class="btn-bg-hover"></div>
+        <div class="btn-text-wrap"><div class="btn-text-inner"><span>Start for Free</span><span>Start for Free</span></div></div>
+      </a>
+      <a href="#contact" class="hero-btn-ghost">
+        <div class="btn-bg-hover"></div>
+        <div class="btn-text-wrap"><div class="btn-text-inner"><span>Book a Demo</span><span>Book a Demo</span></div></div>
+      </a>
+    </div>
+  </div>
+  <div class="bolt-image-wrap" style="margin-top:48px;">
+    <img src="../../enterprise-v2/assets/bolt-bottom.webp" alt="" aria-hidden="true" loading="lazy">
+    <div class="bolt-fade"></div>
+  </div>
+</section>
+
+<script src="../shared-components.js"></script>
+<script>
+/* ── Integration data ──────────────────────────────────────────────────── */
+var FEATURED = [
+  { name: 'PostgreSQL',   abbr: 'PG', color: 'blue',   tag: 'database', desc: 'Query and write to your Postgres clusters directly from Bolt apps.' },
+  { name: 'Stripe',       abbr: 'S',  color: 'purple', tag: 'payment',  desc: 'Charges, customers, and subscriptions in your internal admin tools.' },
+  { name: 'OpenAI',       abbr: 'AI', color: 'mint',   tag: 'ai',       desc: 'Drop GPT-4 into any workflow without leaving the editor.' },
+  { name: 'Slack',        abbr: 'SL', color: 'salmon', tag: 'messaging',desc: 'Post messages, open channels, and trigger workflows from your app.' },
+  { name: 'Salesforce',   abbr: 'SF', color: 'blue',   tag: 'crm',      desc: 'Read and update accounts, contacts, and opportunities in real time.' },
+  { name: 'Supabase',     abbr: 'SB', color: 'mint',   tag: 'database', desc: 'Auth, storage, and Postgres for the apps you build with Bolt.' },
+  { name: 'GitHub',       abbr: 'GH', color: 'purple', tag: 'dev',      desc: 'Pull issues, PRs, and deployments into operational dashboards.' },
+  { name: 'Segment',      abbr: 'SG', color: 'amber',  tag: 'analytics',desc: 'Trigger events and pull profiles into your internal tools.' },
+];
+
+var CATALOG = [
+  { name: 'Airtable',   abbr: 'AT', color: 'amber',  tag: 'database', desc: 'Read and write to bases and views as if they were Postgres tables.' },
+  { name: 'Algolia',    abbr: 'AG', color: 'blue',   tag: 'api',      desc: 'Index records and run typeahead search inside Bolt apps.' },
+  { name: 'Anthropic',  abbr: 'AN', color: 'salmon', tag: 'ai',       desc: 'Use Claude for long-context reasoning, summarization, and tools.' },
+  { name: 'AWS S3',     abbr: 'S3', color: 'amber',  tag: 'dev',      desc: 'Upload, list, and stream objects directly from your app.' },
+  { name: 'BigQuery',   abbr: 'BQ', color: 'blue',   tag: 'database', desc: 'Warehouse-scale SQL with cached result sets.' },
+  { name: 'Cloudflare', abbr: 'CF', color: 'amber',  tag: 'dev',      desc: 'KV, R2, and Workers calls baked into your build.' },
+  { name: 'DynamoDB',   abbr: 'DY', color: 'blue',   tag: 'database', desc: 'Single-table reads/writes with low-latency lookups.' },
+  { name: 'Figma',      abbr: 'FG', color: 'purple', tag: 'dev',      desc: 'Pull components and design tokens straight into the agent.' },
+  { name: 'Firebase',   abbr: 'FB', color: 'amber',  tag: 'database', desc: 'Realtime DB + auth + storage in one binding.' },
+  { name: 'GraphQL',    abbr: 'GQ', color: 'salmon', tag: 'api',      desc: 'Generic GraphQL client with introspection.' },
+  { name: 'HubSpot',    abbr: 'HS', color: 'salmon', tag: 'crm',      desc: 'Sync contacts, deals, and lifecycle stages.' },
+  { name: 'Intercom',   abbr: 'IC', color: 'blue',   tag: 'messaging',desc: 'Conversations, contacts, and macros from any view.' },
+  { name: 'Linear',     abbr: 'LN', color: 'purple', tag: 'dev',      desc: 'Create issues, watch projects, and update cycles.' },
+  { name: 'MongoDB',    abbr: 'MG', color: 'mint',   tag: 'database', desc: 'Run aggregations and document queries with auto types.' },
+  { name: 'MySQL',      abbr: 'MY', color: 'blue',   tag: 'database', desc: 'Classic MySQL with parameterized queries and pooled connections.' },
+  { name: 'Notion',     abbr: 'NT', color: 'amber',  tag: 'dev',      desc: 'Read pages and databases, write new entries.' },
+  { name: 'OpenSearch', abbr: 'OS', color: 'mint',   tag: 'api',      desc: 'Full-text and vector search over your indexed data.' },
+  { name: 'PagerDuty',  abbr: 'PD', color: 'mint',   tag: 'messaging',desc: 'Incidents, schedules, and on-call escalations.' },
+  { name: 'Posthog',    abbr: 'PH', color: 'amber',  tag: 'analytics',desc: 'Product analytics events and feature-flag checks.' },
+  { name: 'REST API',   abbr: 'RA', color: 'blue',   tag: 'api',      desc: 'Generic REST client with auth helpers and schema hints.' },
+  { name: 'Sendgrid',   abbr: 'SD', color: 'blue',   tag: 'messaging',desc: 'Transactional email with templates and dynamic data.' },
+  { name: 'Sentry',     abbr: 'SE', color: 'purple', tag: 'dev',      desc: 'Pipe issues and releases into ops dashboards.' },
+  { name: 'Snowflake',  abbr: 'SN', color: 'blue',   tag: 'database', desc: 'Warehouse queries with role-based row policies.' },
+  { name: 'Twilio',     abbr: 'TW', color: 'salmon', tag: 'messaging',desc: 'SMS, voice, and verification flows.' },
+  { name: 'Vercel',     abbr: 'VC', color: 'purple', tag: 'dev',      desc: 'Deployments, env vars, and project metadata.' },
+  { name: 'Zendesk',    abbr: 'ZD', color: 'mint',   tag: 'crm',      desc: 'Tickets, users, and macros inside support tools.' },
+];
+
+var TAG_LABELS = {
+  database: 'Database', api: 'API', ai: 'AI', dev: 'Developer',
+  crm: 'CRM', analytics: 'Analytics', messaging: 'Messaging', payment: 'Payment',
+};
+
+/* ── Render featured grid ─────────────────────────────────────────────── */
+(function () {
+  var grid = document.getElementById('featured-grid');
+  if (!grid) return;
+  grid.innerHTML = FEATURED.map(function (i) {
+    return '<a href="#" class="int-card">'
+      + '<canvas class="int-card-hover-canvas" aria-hidden="true"></canvas>'
+      + '<div class="int-logo" data-color="' + i.color + '">' + i.abbr + '</div>'
+      + '<h3 class="int-name">' + i.name + '</h3>'
+      + '<p class="int-desc">' + i.desc + '</p>'
+      + '<span class="int-tag">' + TAG_LABELS[i.tag] + '</span>'
+      + '</a>';
+  }).join('');
+})();
+
+/* ── Render + filter catalog ──────────────────────────────────────────── */
+(function () {
+  var grid    = document.getElementById('catalog-grid');
+  var empty   = document.getElementById('catalog-empty');
+  var search  = document.getElementById('catalog-search');
+  var filters = document.querySelectorAll('#catalog-filters .catalog-filter-btn');
+  if (!grid) return;
+
+  function render(items) {
+    grid.innerHTML = items.map(function (i) {
+      return '<a href="#" class="int-card catalog-card">'
+        + '<canvas class="int-card-hover-canvas" aria-hidden="true"></canvas>'
+        + '<div class="int-logo" data-color="' + i.color + '">' + i.abbr + '</div>'
+        + '<div class="int-body">'
+        +   '<h3 class="int-name">' + i.name + '</h3>'
+        +   '<p class="int-desc">' + i.desc + '</p>'
+        + '</div>'
+        + '<span class="int-tag">' + TAG_LABELS[i.tag] + '</span>'
+        + '</a>';
+    }).join('');
+    empty.hidden = items.length > 0;
+  }
+
+  var activeFilter = 'all';
+  function apply() {
+    var q = (search.value || '').trim().toLowerCase();
+    var filtered = CATALOG.filter(function (i) {
+      var matchTag = activeFilter === 'all' || i.tag === activeFilter;
+      var matchQ   = !q || i.name.toLowerCase().indexOf(q) !== -1 || i.desc.toLowerCase().indexOf(q) !== -1;
+      return matchTag && matchQ;
+    });
+    render(filtered);
+  }
+  filters.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      filters.forEach(function (b) { b.classList.remove('is-active'); });
+      btn.classList.add('is-active');
+      activeFilter = btn.dataset.filter;
+      apply();
+    });
+  });
+  search.addEventListener('input', apply);
+  render(CATALOG);
+})();
+
+/* ── Hero pixel-dots (same SMB algo) ──────────────────────────────────── */
+(function () {
+  var canvas = document.getElementById('hero-pixel-dots');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var SPACING = 11, DOT = 2, cols, rows, phases, skyline;
+  function buildSkyline(n) {
+    var h = new Float32Array(n), c = 0, seed = 0;
+    while (c < n) {
+      var w = 5 + Math.floor(Math.abs(Math.sin(seed * 1.37 + 0.91)) * 12);
+      var g = 2 + Math.floor(Math.abs(Math.sin(seed * 2.11 + 1.73)) * 5);
+      var ht = 0.20 + Math.abs(Math.sin(seed * 0.83 + 3.14)) * 0.75;
+      for (var i = 0; i < w && (c + i) < n; i++) h[c + i] = ht;
+      c += w + g; seed++;
+    }
+    return h;
+  }
+  function hMask(f) { var s = 0.13; return Math.exp(-Math.pow(f - 0.5, 2) / (2 * s * s)); }
+  function init() {
+    canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
+    cols = Math.ceil(canvas.width / SPACING) + 1;
+    rows = Math.ceil(canvas.height / SPACING) + 1;
+    phases = Array.from({ length: rows }, function () { return Float32Array.from({ length: cols }, function () { return Math.random() * Math.PI * 2; }); });
+    skyline = buildSkyline(cols);
+  }
+  window.addEventListener('resize', init); init();
+  var start = null;
+  function draw(ts) {
+    if (!start) start = ts; var t = ts - start;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (var c = 0; c < cols; c++) {
+      var cf = c / cols, hm = hMask(cf); if (hm < 0.04) continue;
+      var cb = Math.exp(-Math.pow(cf - 0.5, 2) / (2 * 0.18 * 0.18));
+      var bh = Math.min(0.98, skyline[c] + cb * 0.35); if (bh < 0.01) continue;
+      var top = (1.0 - bh) * rows;
+      for (var r = 0; r < rows; r++) {
+        var rd = r - top; if (rd < 0) continue;
+        var x = c * SPACING, y = r * SPACING;
+        var rf = Math.min(1, rd / 3);
+        var w1 = Math.sin(c * 0.18 + r * 0.22 - t * 0.0018 + phases[r][c]);
+        var w2 = Math.sin(c * 0.09 - r * 0.14 + t * 0.0012 + phases[r][c] * 0.6);
+        var op = hm * rf * Math.max(0, (w1 + w2) * 0.5) * 0.80;
+        if (op < 0.02) continue;
+        ctx.fillStyle = 'rgba(160,185,230,' + op.toFixed(3) + ')';
+        ctx.fillRect(x - DOT, y - DOT, DOT * 2, DOT * 2);
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+
+/* ── Footer pixel canvas (uses shared makePixelCanvas if available) ───── */
+(function () {
+  if (typeof makePixelCanvas === 'function') {
+    makePixelCanvas('footer-pixel-canvas', 6, 2,
+      function (cf, rf, t) {
+        var cx = (cf - 0.5), cy = (rf - 0.5);
+        var d = Math.sqrt(cx*cx + cy*cy);
+        return Math.max(0, 1 - d * 2) * (0.55 + 0.45 * Math.sin(t * 0.0008 + d * 12));
+      },
+      0.55, [20,136,252]);
+  }
+})();
+</script>
+</body>
+</html>
