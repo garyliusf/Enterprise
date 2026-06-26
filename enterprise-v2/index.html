@@ -160,7 +160,7 @@
   .hero-video-section {
     width: 100%;
     background: #000;
-    padding: 64px 0 96px;
+    padding: 80px 0;
     display: flex;
     justify-content: center;
     position: relative;
@@ -177,13 +177,12 @@
   }
   .hero-video-section .hero-video-col {
     width: min(1000px, calc(100vw - 64px));
-    margin-top: -180px;
     position: relative;
     z-index: 5;
   }
   @media (max-width: 900px) {
-    .hero-video-section { padding: 32px 0 56px; }
-    .hero-video-section .hero-video-col { margin-top: -100px; width: calc(100vw - 32px); }
+    .hero-video-section { padding: 48px 0; }
+    .hero-video-section .hero-video-col { width: calc(100vw - 32px); }
   }
 
   /* ── V2 centered: H1 → sub → form → video, all stacked ── */
@@ -3309,48 +3308,31 @@
   if (img.complete) init(); else img.addEventListener('load', init);
 })();
 
-// ── V2: standalone video section pixel dots (mirrors SMB hero pattern) ──
+// ── V2: standalone video section pixel dots (full-bleed wave) ───────────
 (function () {
   var canvas = document.getElementById('video-section-pixel-dots');
   if (!canvas) return;
   var ctx = canvas.getContext('2d');
-  var SPACING = 11, DOT = 2, cols, rows, phases, skyline;
-  function buildSkyline(n) {
-    var h = new Float32Array(n), c = 0, seed = 0;
-    while (c < n) {
-      var w = 5 + Math.floor(Math.abs(Math.sin(seed * 1.37 + 0.91)) * 12);
-      var g = 2 + Math.floor(Math.abs(Math.sin(seed * 2.11 + 1.73)) * 5);
-      var ht = 0.20 + Math.abs(Math.sin(seed * 0.83 + 3.14)) * 0.75;
-      for (var i = 0; i < w && (c + i) < n; i++) h[c + i] = ht;
-      c += w + g; seed++;
-    }
-    return h;
-  }
-  function hMask(f) { var s = 0.13; return Math.exp(-Math.pow(f - 0.5, 2) / (2 * s * s)); }
+  var SPACING = 11, DOT = 2, cols, rows, phases;
   function init() {
     canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
     cols = Math.ceil(canvas.width / SPACING) + 1;
     rows = Math.ceil(canvas.height / SPACING) + 1;
-    phases = Array.from({ length: rows }, function () { return Float32Array.from({ length: cols }, function () { return Math.random() * Math.PI * 2; }); });
-    skyline = buildSkyline(cols);
+    phases = Array.from({ length: rows }, function () {
+      return Float32Array.from({ length: cols }, function () { return Math.random() * Math.PI * 2; });
+    });
   }
   window.addEventListener('resize', init); init();
   var start = null;
   function draw(ts) {
     if (!start) start = ts; var t = ts - start;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for (var c = 0; c < cols; c++) {
-      var cf = c / cols, hm = hMask(cf); if (hm < 0.04) continue;
-      var cb = Math.exp(-Math.pow(cf - 0.5, 2) / (2 * 0.18 * 0.18));
-      var bh = Math.min(0.98, skyline[c] + cb * 0.35); if (bh < 0.01) continue;
-      var top = (1.0 - bh) * rows;
-      for (var r = 0; r < rows; r++) {
-        var rd = r - top; if (rd < 0) continue;
+    for (var r = 0; r < rows; r++) {
+      for (var c = 0; c < cols; c++) {
         var x = c * SPACING, y = r * SPACING;
-        var rf = Math.min(1, rd / 3);
         var w1 = Math.sin(c * 0.18 + r * 0.22 - t * 0.0018 + phases[r][c]);
         var w2 = Math.sin(c * 0.09 - r * 0.14 + t * 0.0012 + phases[r][c] * 0.6);
-        var op = hm * rf * Math.max(0, (w1 + w2) * 0.5) * 0.80;
+        var op = Math.max(0, (w1 + w2) * 0.5) * 0.55;
         if (op < 0.02) continue;
         ctx.fillStyle = 'rgba(160,185,230,' + op.toFixed(3) + ')';
         ctx.fillRect(x - DOT, y - DOT, DOT * 2, DOT * 2);
