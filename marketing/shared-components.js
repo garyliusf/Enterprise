@@ -204,7 +204,7 @@
   function tick() {
     var splashRaw = splashStart ? Math.max(0, 1 - (Date.now() - splashStart) / splashDuration) : 0;
     splashT = splashRaw * splashRaw * splashRaw;
-    t += 0.018 + hoverT * 0.012;          /* slower, calmer drift */
+    t += 0.028 + hoverT * 0.016;
     hoverT += ((isHovered ? 1 : 0) - hoverT) * (isHovered ? 0.07 : 0.025);
 
     ctx.clearRect(0, 0, W, H);
@@ -217,8 +217,8 @@
       var centerY = (Math.sin(t * st.yFreq * st.speedMult + st.yPhase) * 0.5 + 0.5) * H;
       var spread = H * (0.55 + hoverT * 0.25);
 
-      var baseA  = brightness * 0.08;       /* dimmer idle */
-      var peakA  = brightness * 0.22;       /* dimmer peak */
+      var baseA  = brightness * 0.11;
+      var peakA  = brightness * 0.28;
       var boost  = Math.max(hoverT, splashT);
       var a  = (baseA + (peakA - baseA) * boost).toFixed(3);
       var a2 = (parseFloat(a) * 1.4).toFixed(3);
