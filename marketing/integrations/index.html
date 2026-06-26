@@ -140,62 +140,92 @@
     margin: 0;
   }
 
-  /* ─── FEATURED INTEGRATIONS ──────────────────────────────────────────── */
+  /* ─── INTEGRATION CARDS (Retool-style: logo top-left, name, desc, tag + pixel arrow at bottom) ── */
   .featured-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
+    gap: 12px;
   }
   .int-card {
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 18px;
     padding: 24px;
+    min-height: 260px;
     border: 1px solid rgba(255,255,255,0.10);
     border-radius: 4px;
     background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%);
     transition: border-color 0.25s ease, transform 0.25s ease;
     overflow: hidden;
     cursor: pointer;
+    text-decoration: none;
   }
   .int-card:hover { border-color: rgba(255,255,255,0.22); transform: translateY(-2px); }
+  .int-card:hover .int-arrow { transform: translateX(4px); color: #fff; }
   .int-card-hover-canvas { position: absolute; inset: 0; z-index: 0; opacity: 0; transition: opacity 0.5s ease; pointer-events: none; }
   .int-card:hover .int-card-hover-canvas { opacity: 1; }
-  .int-card > * { position: relative; z-index: 1; }
+  .int-card > *:not(.int-card-hover-canvas) { position: relative; z-index: 1; }
   .int-logo {
     width: 44px; height: 44px;
-    border-radius: 8px;
+    border-radius: 50%;
     background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.10);
     display: flex;
     align-items: center;
     justify-content: center;
     font-family: 'Silkscreen', monospace;
-    font-size: 18px;
+    font-size: 14px;
     font-weight: 700;
     color: #fff;
     flex-shrink: 0;
   }
-  .int-logo[data-color="blue"]   { background: rgba(20,136,252,0.12);  color: #6BB6FF; border-color: rgba(20,136,252,0.35); }
-  .int-logo[data-color="mint"]   { background: rgba(127,221,193,0.10); color: #7FDDC1; border-color: rgba(127,221,193,0.30); }
-  .int-logo[data-color="salmon"] { background: rgba(255,176,147,0.10); color: #FFB093; border-color: rgba(255,176,147,0.30); }
-  .int-logo[data-color="purple"] { background: rgba(168,140,255,0.10); color: #C7B6FF; border-color: rgba(168,140,255,0.30); }
-  .int-logo[data-color="amber"]  { background: rgba(250,182,98,0.10);  color: #FAB662; border-color: rgba(250,182,98,0.30); }
-  .int-name { font-size: 18px; font-weight: 600; color: #fff; margin: 0; letter-spacing: -0.2px; }
-  .int-desc { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.55; margin: 0; }
-  .int-card .int-tag { margin-top: auto; }
+  .int-logo[data-color="blue"]   { background: rgba(20,136,252,0.14);  color: #8AC7FF; border-color: rgba(20,136,252,0.40); }
+  .int-logo[data-color="mint"]   { background: rgba(127,221,193,0.12); color: #7FDDC1; border-color: rgba(127,221,193,0.35); }
+  .int-logo[data-color="salmon"] { background: rgba(255,176,147,0.12); color: #FFB093; border-color: rgba(255,176,147,0.35); }
+  .int-logo[data-color="purple"] { background: rgba(168,140,255,0.12); color: #C7B6FF; border-color: rgba(168,140,255,0.35); }
+  .int-logo[data-color="amber"]  { background: rgba(250,182,98,0.12);  color: #FAB662; border-color: rgba(250,182,98,0.35); }
+  .int-name {
+    font-size: 22px;
+    font-weight: 500;
+    color: #fff;
+    margin: 0;
+    letter-spacing: -0.3px;
+    line-height: 1.2;
+  }
+  .int-desc {
+    font-size: 15px;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.5;
+    margin: 0;
+  }
+  .int-card-foot {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
   .int-tag {
-    align-self: flex-start;
     font-family: 'Silkscreen', monospace;
-    font-size: 10px;
+    font-size: 11px;
     letter-spacing: 1.5px;
     text-transform: uppercase;
-    color: rgba(255,255,255,0.45);
-    padding: 4px 8px;
-    border: 1px solid rgba(255,255,255,0.10);
+    color: rgba(255,255,255,0.55);
+    padding: 6px 10px;
+    border: 1px solid rgba(255,255,255,0.18);
     border-radius: 2px;
+    background: transparent;
   }
+  /* Pixel arrow — blocky 8-bit step shape, brightens + slides right on hover */
+  .int-arrow {
+    width: 28px;
+    height: 14px;
+    color: rgba(255,255,255,0.55);
+    flex-shrink: 0;
+    transition: transform 0.2s ease, color 0.2s ease;
+  }
+  .int-arrow svg { width: 100%; height: 100%; display: block; }
 
   /* ─── CATALOG ────────────────────────────────────────────────────────── */
   .catalog-section { background: #050508; }
@@ -280,7 +310,9 @@
   .catalog-card:hover .int-card-hover-canvas { opacity: 1; }
   .catalog-card > *:not(.int-card-hover-canvas) { position: relative; z-index: 1; }
   .catalog-card .int-logo { width: 36px; height: 36px; font-size: 14px; border-radius: 6px; flex-shrink: 0; }
-  .catalog-card .int-body { display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-width: 0; }
+  .catalog-card .int-body { display: flex; flex-direction: column; gap: 6px; flex: 1 1 auto; min-width: 0; }
+  .catalog-card .int-card-foot { margin-top: 6px; }
+  .catalog-card .int-arrow { width: 22px; height: 11px; }
   .catalog-card .int-name { font-size: 15px; font-weight: 600; color: #fff; margin: 0; letter-spacing: -0.2px; line-height: 1.3; }
   .catalog-card .int-desc { font-size: 13px; color: rgba(255,255,255,0.55); line-height: 1.5; margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .catalog-card .int-tag { font-size: 9px; padding: 3px 7px; flex-shrink: 0; align-self: center; margin-top: 0; font-family: 'Silkscreen', monospace; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.45); border: 1px solid rgba(255,255,255,0.10); border-radius: 2px; }
@@ -511,6 +543,14 @@ var CATALOG = [
   { name: 'Zendesk',    abbr: 'ZD', color: 'mint',   tag: 'crm',      desc: 'Tickets, users, and macros inside support tools.' },
 ];
 
+/* Pixel "step" arrow — blocky 8-bit shape that brightens on card hover */
+var ARROW_SVG = '<svg viewBox="0 0 16 8" fill="currentColor" preserveAspectRatio="xMidYMid meet">'
+  + '<rect x="0" y="3" width="10" height="2"/>'
+  + '<rect x="9" y="2" width="2" height="4"/>'
+  + '<rect x="11" y="1" width="2" height="6"/>'
+  + '<rect x="13" y="0" width="2" height="8"/>'
+  + '</svg>';
+
 var TAG_LABELS = {
   database: 'Database', api: 'API', ai: 'AI', dev: 'Developer',
   crm: 'CRM', analytics: 'Analytics', messaging: 'Messaging', payment: 'Payment',
@@ -526,7 +566,10 @@ var TAG_LABELS = {
       + '<div class="int-logo" data-color="' + i.color + '">' + i.abbr + '</div>'
       + '<h3 class="int-name">' + i.name + '</h3>'
       + '<p class="int-desc">' + i.desc + '</p>'
-      + '<span class="int-tag">' + TAG_LABELS[i.tag] + '</span>'
+      + '<div class="int-card-foot">'
+      +   '<span class="int-tag">' + TAG_LABELS[i.tag] + '</span>'
+      +   '<span class="int-arrow" aria-hidden="true">' + ARROW_SVG + '</span>'
+      + '</div>'
       + '</a>';
   }).join('');
 })();
@@ -547,8 +590,11 @@ var TAG_LABELS = {
         + '<div class="int-body">'
         +   '<h3 class="int-name">' + i.name + '</h3>'
         +   '<p class="int-desc">' + i.desc + '</p>'
+        +   '<div class="int-card-foot">'
+        +     '<span class="int-tag">' + TAG_LABELS[i.tag] + '</span>'
+        +     '<span class="int-arrow" aria-hidden="true">' + ARROW_SVG + '</span>'
+        +   '</div>'
         + '</div>'
-        + '<span class="int-tag">' + TAG_LABELS[i.tag] + '</span>'
         + '</a>';
     }).join('');
     empty.hidden = items.length > 0;
