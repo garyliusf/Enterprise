@@ -122,3 +122,85 @@
   modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
 })();
+
+/* ============================================================================
+   PIXEL-FILL BUTTON HOVER — canonical "latest" hover for primary/ghost/footer
+   CTAs across all marketing pages. Each button gets a <canvas> child + the
+   .btn-pixelized class; on mouseenter the canvas fills with brand-blue dots
+   (with a subtle flicker when fully filled), on mouseleave it fades back.
+   ============================================================================ */
+(function () {
+  function attach(btn, color) {
+    if (btn.__pixelized) return;
+    btn.__pixelized = true;
+    btn.classList.add('btn-pixelized');
+    var canvas = document.createElement('canvas');
+    canvas.className = 'btn-pixel-canvas';
+    btn.insertBefore(canvas, btn.firstChild);
+    var ctx = canvas.getContext('2d');
+    var spacing = 4, dot = 2, cols = 0, rows = 0, noise = [];
+    function resize() {
+      var r = btn.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      canvas.width = Math.round(r.width);
+      canvas.height = Math.round(r.height);
+      cols = Math.ceil(canvas.width / spacing);
+      rows = Math.ceil(canvas.height / spacing);
+      noise = [];
+      for (var y = 0; y < rows; y++) {
+        noise[y] = [];
+        for (var x = 0; x < cols; x++) {
+          var bias = 1 - (y / Math.max(1, rows - 1));
+          noise[y][x] = bias * 0.55 + Math.random() * 0.55;
+        }
+      }
+      draw();
+    }
+    try { new ResizeObserver(resize).observe(btn); } catch (e) {}
+    window.addEventListener('resize', resize);
+    requestAnimationFrame(resize);
+    var progress = 0, target = 0, raf = null, last = 0;
+    function tick(t) {
+      if (!last) last = t;
+      var dt = Math.min(0.05, (t - last) / 1000); last = t;
+      progress += (target - progress) * Math.min(1, dt * 8);
+      if (Math.abs(target - progress) < 0.003) progress = target;
+      draw();
+      if (progress !== target) { raf = requestAnimationFrame(tick); }
+      else { raf = null; last = 0; if (target === 1) flickerLoop(); }
+    }
+    function flickerLoop() {
+      requestAnimationFrame(function step() {
+        if (target !== 1) return;
+        draw(true);
+        setTimeout(function () { requestAnimationFrame(step); }, 120);
+      });
+    }
+    function draw(flicker) {
+      if (!canvas.width) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = color;
+      var threshold = progress * 1.3;
+      for (var y = 0; y < rows; y++) {
+        for (var x = 0; x < cols; x++) {
+          var n = noise[y][x];
+          if (n < threshold) {
+            if (flicker && target === 1 && Math.random() < 0.015) continue;
+            var edge = threshold - n;
+            if (edge < 0.08 && Math.random() < 0.45) continue;
+            ctx.fillRect(x * spacing, y * spacing, dot, dot);
+          }
+        }
+      }
+    }
+    btn.addEventListener('mouseenter', function () { target = 1; if (!raf) { last = 0; raf = requestAnimationFrame(tick); } });
+    btn.addEventListener('mouseleave', function () { target = 0; if (!raf) { last = 0; raf = requestAnimationFrame(tick); } });
+  }
+  function init() {
+    document.querySelectorAll('.hero-btn-primary').forEach(function (b) { attach(b, '#0a5aa8'); });
+    document.querySelectorAll('.hero-btn-ghost').forEach(function (b) { attach(b, 'rgba(255,255,255,0.18)'); });
+    document.querySelectorAll('.footer-cta-btn').forEach(function (b) { attach(b, '#0a5aa8'); });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
