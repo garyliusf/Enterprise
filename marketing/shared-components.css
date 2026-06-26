@@ -28,9 +28,25 @@
 .hero-btn-ghost .btn-text-inner span { display: block; line-height: 1.2; }
 .hero-btn-ghost:hover .btn-text-inner { transform: translateY(-50%); }
 
-/* Page-local pixel-fill hover (used by solutions + microsoft pages) keeps its
-   own .btn-pixel-canvas / .btn-pixelized CSS inline alongside its JS. Not
-   promoted to shared here to avoid the cross-page leakage seen previously. */
+/* ─── PIXEL-FILL BUTTON HOVER (canonical, matches ai-for-real-estate/smb/microsoft) ───
+   JS attaches a <canvas class="btn-pixel-canvas"> as the first child of each
+   .hero-btn-primary / .hero-btn-ghost / .footer-cta-btn and toggles .btn-pixelized.
+   When pixelized: slide-up bg layer + text duplicate hide; the canvas fills with
+   brand-blue dots on mouseenter, fades on mouseleave, with a subtle flicker at peak. */
+.btn-pixel-canvas { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
+.hero-btn-ghost .btn-pixel-canvas { z-index: 1; border-radius: 2px; }
+.hero-btn-primary.btn-pixelized .btn-bg-hover,
+.hero-btn-ghost.btn-pixelized .btn-bg-hover,
+.footer-cta-btn.btn-pixelized .btn-bg-hover { display: none !important; }
+.hero-btn-primary.btn-pixelized .btn-text-inner,
+.hero-btn-ghost.btn-pixelized .btn-text-inner,
+.footer-cta-btn.btn-pixelized .btn-text-inner { transform: none !important; }
+.hero-btn-primary.btn-pixelized .btn-text-inner span:nth-child(2),
+.hero-btn-ghost.btn-pixelized .btn-text-inner span:nth-child(2),
+.footer-cta-btn.btn-pixelized .btn-text-inner span:nth-child(2) { display: none; }
+.hero-btn-primary.btn-pixelized .btn-text-wrap,
+.hero-btn-ghost.btn-pixelized .btn-text-wrap,
+.footer-cta-btn.btn-pixelized .btn-text-wrap { z-index: 3; }
 
 /* ─── SCROLL-IN ANIMATIONS (canonical across all marketing pages) ──────────
    .dsa-reveal wraps an H1/H2 and triggers per-word blur-fade reveal on scroll.
