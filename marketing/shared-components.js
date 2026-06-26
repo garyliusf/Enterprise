@@ -242,3 +242,69 @@
     W = canvas.width = r.width; H = canvas.height = r.height;
   });
 })();
+
+/* ============================================================================
+   SCROLL ANIMATIONS — eyebrow scramble + word reveal
+   Canonical across every marketing page. Triggers when an element scrolls
+   into view (50% threshold):
+   - .eyebrow-scramble → letter-by-letter scramble entrance, re-fires every 6s
+   - .dsa-reveal       → per-word blur+slide reveal on the h1/h2 inside
+   ============================================================================ */
+(function () {
+  if (typeof IntersectionObserver === 'undefined') return;
+  var scrambleChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&';
+
+  function scrambleEl(el) {
+    var final = el.dataset.sf || el.textContent.trim();
+    el.dataset.sf = final;
+    var chars = final.split('');
+    var locked = chars.map(function () { return false; });
+    var cur = chars.map(function (c) { return c === ' ' ? ' ' : scrambleChars[Math.floor(Math.random() * scrambleChars.length)]; });
+    var start = null, dur = 600;
+    (function tick(ts) {
+      if (!start) start = ts;
+      var p = Math.min((ts - start) / dur, 1);
+      chars.forEach(function (ch, i) {
+        if (ch === ' ') { locked[i] = true; cur[i] = ' '; return; }
+        if (!locked[i] && p > (i / chars.length) * 0.75 + Math.random() * 0.1) { locked[i] = true; cur[i] = ch; }
+        else if (!locked[i]) cur[i] = scrambleChars[Math.floor(Math.random() * scrambleChars.length)];
+      });
+      el.textContent = cur.join('');
+      if (p < 1 || locked.some(function (l) { return !l; })) requestAnimationFrame(tick);
+      else el.textContent = final;
+    })(performance.now());
+  }
+
+  function wrapWords(el) {
+    var i = 0;
+    el.innerHTML = el.innerHTML.replace(/\S+/g, function (w) {
+      return '<span class="word" style="--i:' + (i++) + '">' + w + '</span>';
+    });
+  }
+
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      var el = entry.target;
+      if (el.classList.contains('dsa-reveal')) {
+        el.querySelectorAll('h1, h2').forEach(function (h) {
+          if (!h.dataset.wrapped) { wrapWords(h); h.dataset.wrapped = '1'; }
+        });
+        el.classList.add('is-revealed');
+      } else if (el.classList.contains('eyebrow-scramble')) {
+        scrambleEl(el);
+        if (!el.dataset.scrambleLoop) {
+          el.dataset.scrambleLoop = '1';
+          setInterval(function () { scrambleEl(el); }, 6000);
+        }
+      }
+      io.unobserve(el);
+    });
+  }, { threshold: 0.5 });
+
+  function bind() {
+    document.querySelectorAll('.dsa-reveal, .eyebrow-scramble').forEach(function (el) { io.observe(el); });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
+  else bind();
+})();

@@ -32,6 +32,26 @@
    own .btn-pixel-canvas / .btn-pixelized CSS inline alongside its JS. Not
    promoted to shared here to avoid the cross-page leakage seen previously. */
 
+/* ─── SCROLL-IN ANIMATIONS (canonical across all marketing pages) ──────────
+   .dsa-reveal wraps an H1/H2 and triggers per-word blur-fade reveal on scroll.
+   .eyebrow-scramble triggers a 600ms letter-scramble entrance and re-fires
+   every 6s while visible. JS lives in shared-components.js. */
+.dsa-reveal .word {
+  display: inline-block;
+  opacity: 0;
+  transform: translate(-10px, -7px);
+  filter: blur(5px);
+  will-change: opacity, transform, filter;
+}
+.dsa-reveal.is-revealed .word {
+  animation: dsa-word-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--i, 0) * 28ms);
+}
+@keyframes dsa-word-reveal {
+  from { opacity: 0; transform: translate(-10px, -7px); filter: blur(5px); }
+  to   { opacity: 1; transform: translate(0, 0);        filter: blur(0);   }
+}
+
 /* Email-capture submit button */
 .hero-cta-button {
   width: auto; padding: 0 24px; height: 52px; flex-shrink: 0; background: #1488FC;
