@@ -224,11 +224,11 @@
       var a2 = (parseFloat(a) * 1.4).toFixed(3);
 
       var grad = ctx.createLinearGradient(0, centerY - spread, 0, centerY + spread);
-      grad.addColorStop(0, 'rgba(255,255,255,0)');
-      grad.addColorStop(0.45, 'rgba(255,255,255,' + a + ')');
+      grad.addColorStop(0,   'rgba(220,225,240,0)');
+      grad.addColorStop(0.3, 'rgba(220,225,240,' + a + ')');
       grad.addColorStop(0.5, 'rgba(255,255,255,' + a2 + ')');
-      grad.addColorStop(0.55, 'rgba(255,255,255,' + a + ')');
-      grad.addColorStop(1, 'rgba(255,255,255,0)');
+      grad.addColorStop(0.7, 'rgba(220,225,240,' + a + ')');
+      grad.addColorStop(1,   'rgba(220,225,240,0)');
       ctx.fillStyle = grad;
       ctx.fillRect(x - w / 2, 0, w, H);
     }
