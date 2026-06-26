@@ -278,7 +278,7 @@
   function tick() {
     var splashRaw = splashStart ? Math.max(0, 1 - (Date.now() - splashStart) / splashDuration) : 0;
     splashT = splashRaw * splashRaw * splashRaw;
-    t += 0.028 + hoverT * 0.016;
+    t += 0.012 + hoverT * 0.008;  /* canonical: matches ai-for-real-estate / bolt-cli.html — enterprise-v2's 0.028 was an outlier */
     hoverT += ((isHovered ? 1 : 0) - hoverT) * (isHovered ? 0.07 : 0.025);
 
     ctx.clearRect(0, 0, W, H);
