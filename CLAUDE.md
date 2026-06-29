@@ -309,9 +309,17 @@ For a seamless grid with shared borders (no `gap`):
 - Section order: simple hero → stats (2×2) → features (6-card `unlocks-grid`) → example prompts (+ "Start building now" prompt box) → how it works → testimonials → FAQ → footer CTA → bolt wordmark. Bolt wordmark uses repo-root `../../images/bolt-bottom.png` (no local `images/` folder).
 
 ### Simple-hero height rule
-**Canonical for `.hero-section--simple`** (used by `/use-cases/*` and the no-video `/solutions/*` pages). Ported from `src/styles/solution-page.css` so both page families render identical hero heights. Lives in `src/styles/use-case-page.css` in production and inline in `solutions/_template/index.html` in the sandbox.
+**Canonical for `.hero-section--simple`** (used by `/use-cases/*` and the no-video `/solutions/*` pages). Ported from `src/styles/solution-page.css` so both page families render identical hero heights. Lives in `src/styles/use-case-page.css` in production and inline in `solutions/_template/index.html` in the sandbox. Landed via [bolt-public-pages#120](https://github.com/stackblitz/bolt-public-pages/pull/120) + [#121](https://github.com/stackblitz/bolt-public-pages/pull/121).
+
+**Two variants by content density:**
+
+| Variant | When to use | min-height | Examples |
+|---|---|---|---|
+| **Tall** (default) | Hero has prompt box + pills (the bolt prompt input + trust pills) | `min(80vh, 900px)` / `min(80dvh, 900px)` | `/use-cases/*`, `/solutions/ai-for-real-estate`, `solutions/_template` |
+| **Short** | Content-light hero — just H1 + 1 CTA (or H1 + subtitle + 1 CTA) | `min(65vh, 720px)` / `min(65dvh, 720px)` | `marketing/use-cases/` catalog (sandbox), other index/landing heroes with minimal stack |
 
 ```css
+/* Tall variant — prompt-box pages */
 .hero-section--simple {
   height: auto;
   min-height: min(80vh, 900px);   /* fallback */
@@ -320,20 +328,25 @@ For a seamless grid with shared borders (no `gap`):
   padding-bottom: clamp(72px, 8vh, 112px);
   justify-content: center;
 }
-.hero-section--simple .hero-content-area { align-items: flex-start; }
 @media (max-width: 768px) {
   .hero-section--simple { min-height: 0; padding: 92px 0 56px; }
+}
+
+/* Short variant — H1 + CTA only, no prompt box */
+.hero-section {  /* or .hero-section--short — whichever class fits */
+  min-height: min(65vh, 720px);
+  min-height: min(65dvh, 720px);
+  /* same padding + justify-content as the tall variant */
 }
 ```
 
 Why these values:
-- **`min(80vh, 900px)`** scales with the viewport but caps at 900px so the hero doesn't dominate tall (1440px+) monitors.
-- **No px floor / no `:has()` variant** — the section grows past `min-height` when content needs it; one rule serves both 1-line and 2-line H1 pages.
-- **`80dvh` upgrade** matches the solution-page.css pattern so the rule plays well with mobile browsers that change the visible viewport when the URL bar collapses.
+- **`min(<vh>, <px-cap>)`** scales with the viewport but caps so the hero never dominates tall (1440px+) monitors.
+- **No px floor / no `:has()` variant** — the section grows past `min-height` when content needs it; one rule per variant serves both 1-line and 2-line H1 pages within that variant.
+- **`<dvh>` upgrade** matches the solution-page.css pattern so the rule plays well with mobile browsers that change the visible viewport when the URL bar collapses.
 - **`justify-content: center`** centers the content stack within the section; without it, a short H1 leaves dead space below on tall displays.
-- **Mobile override** drops `min-height` to 0 and uses padding-only since 80dvh on a phone is way too much for hero content.
-
-When in doubt: **copy this block verbatim** — don't invent per-page variants. Land via [bolt-public-pages#120](https://github.com/stackblitz/bolt-public-pages/pull/120) (in flight).
+- **Picking a variant**: count the items in the hero content stack. Prompt box (with its own ~180px height) + pills row ≈ tall. Just an H1 + subtitle + button ≈ short. If in doubt, prototype short first — easier to bump up if the hero feels cramped than to shrink a too-tall hero.
+- **Don't invent in-between values** — stick to the two variants so all pages feel like they belong to the same system.
 
 ## Blog (company repo `stackblitz/bolt-public-pages`, `contentful-blog` branch)
 Contentful-backed SSR blog. Key files: `src/layouts/BlogLayout.astro`, `src/styles/blog.css`, `src/pages/blog/`. **Light theme** (distinct from the dark marketing pages).
