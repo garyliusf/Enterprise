@@ -301,12 +301,39 @@ For a seamless grid with shared borders (no `gap`):
 
 ### `solutions/_template/` — reusable clone (simple no-video hero)
 `solutions/_template/index.html` is a clone of the real-estate page for spinning up new `/solutions/*` (or use-case) pages. **Currently filled with portfolio-website-builder example copy.** Two things differ from the real-estate page:
-- **Hero has NO video** — it's the `.hero-section--simple` variant, **full-height** (`min-height: 100dvh`, `100vh` fallback): centered eyebrow → H1 (`white-space:normal`, long headlines wrap) → subtitle → **bolt prompt box** → `.hero-pills` (inline green-dot feature list). Hero side gutters match the section standard (80 desktop / 40 tablet / 16 mobile).
+- **Hero has NO video** — it's the `.hero-section--simple` variant: centered eyebrow → H1 (`white-space:normal`, long headlines wrap) → subtitle → **bolt prompt box** → `.hero-pills` (inline green-dot feature list). Hero side gutters match the section standard (80 desktop / 40 tablet / 16 mobile). For the canonical height rule, see **[Simple-hero height rule](#simple-hero-height-rule)** below.
   - **Prompt box = production's animated "comet" outline** (`.re-prompt-shell.hero-prompt-shell`): two glows (`.hero-prompt-glow--brand`/`--accent`) orbit the 1px border via `offset-path`, an opaque `.hero-prompt-inner` (#1c1c20) hides the centre, and a real crawlable `.hero-prompt-example` `<p>` (SEO) shows as the placeholder and hides on type (`data-example` fallback). JS `goToBolt()` carries the text to `bolt.new/#prompt=…` in a new tab. (Earlier conic-gradient `@property` glow was replaced to match the live page.)
   - Dead CSS for `.hero-video-*` / `.video-modal` is left in `<style>` but unused — strip if you want a leaner file.
 - **Templates section repurposed as "Example prompts"** — `.template-card.prompt-card` (text-only, no image): a Cormorant `.prompt-card-quote` + uppercase blue `.prompt-card-label`. Reuses the clickable-overlay + hover-pixel-canvas component. Links carry `data-prompt`; JS (`.prompt-card-link`) builds `bolt.new/?autosubmit=true#prompt=<encoded>` and opens a new tab.
 - **Testimonials** use a 3-up `.testi-grid` of `.testi-card`s (stars + quote + avatar/name/role) instead of the single pull-quote+stats card.
 - Section order: simple hero → stats (2×2) → features (6-card `unlocks-grid`) → example prompts (+ "Start building now" prompt box) → how it works → testimonials → FAQ → footer CTA → bolt wordmark. Bolt wordmark uses repo-root `../../images/bolt-bottom.png` (no local `images/` folder).
+
+### Simple-hero height rule
+**Canonical for `.hero-section--simple`** (used by `/use-cases/*` and the no-video `/solutions/*` pages). Ported from `src/styles/solution-page.css` so both page families render identical hero heights. Lives in `src/styles/use-case-page.css` in production and inline in `solutions/_template/index.html` in the sandbox.
+
+```css
+.hero-section--simple {
+  height: auto;
+  min-height: min(80vh, 900px);   /* fallback */
+  min-height: min(80dvh, 900px);  /* mobile-viewport correct (dvh excludes URL bar) */
+  padding-top: clamp(132px, 14vh, 184px);
+  padding-bottom: clamp(72px, 8vh, 112px);
+  justify-content: center;
+}
+.hero-section--simple .hero-content-area { align-items: flex-start; }
+@media (max-width: 768px) {
+  .hero-section--simple { min-height: 0; padding: 92px 0 56px; }
+}
+```
+
+Why these values:
+- **`min(80vh, 900px)`** scales with the viewport but caps at 900px so the hero doesn't dominate tall (1440px+) monitors.
+- **No px floor / no `:has()` variant** — the section grows past `min-height` when content needs it; one rule serves both 1-line and 2-line H1 pages.
+- **`80dvh` upgrade** matches the solution-page.css pattern so the rule plays well with mobile browsers that change the visible viewport when the URL bar collapses.
+- **`justify-content: center`** centers the content stack within the section; without it, a short H1 leaves dead space below on tall displays.
+- **Mobile override** drops `min-height` to 0 and uses padding-only since 80dvh on a phone is way too much for hero content.
+
+When in doubt: **copy this block verbatim** — don't invent per-page variants. Land via [bolt-public-pages#120](https://github.com/stackblitz/bolt-public-pages/pull/120) (in flight).
 
 ## Blog (company repo `stackblitz/bolt-public-pages`, `contentful-blog` branch)
 Contentful-backed SSR blog. Key files: `src/layouts/BlogLayout.astro`, `src/styles/blog.css`, `src/pages/blog/`. **Light theme** (distinct from the dark marketing pages).
