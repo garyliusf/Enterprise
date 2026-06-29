@@ -286,6 +286,80 @@
   .int-card:hover .int-arrow,
   .catalog-card:hover .int-arrow { opacity: 1; transform: translateX(0); color: #6BB6FF; }
 
+  /* ─── FEATURED CARD VARIANT — big real-estate cards with placeholder UI image ── */
+  .featured-grid { grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .int-card--featured {
+    padding: 0;
+    min-height: 0;
+    gap: 0;
+    border-radius: 6px;
+  }
+  .int-card--featured .int-card-image {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    background:
+      radial-gradient(120% 80% at 100% 0%, rgba(20,136,252,0.22) 0%, transparent 55%),
+      radial-gradient(100% 70% at 0% 100%, rgba(127,221,193,0.10) 0%, transparent 60%),
+      linear-gradient(165deg, #15151c 0%, #0a0a10 60%, #050508 100%);
+  }
+  /* color-tint the image per card */
+  .int-card--featured[data-color="purple"] .int-card-image { background-image:
+    radial-gradient(120% 80% at 100% 0%, rgba(168,140,255,0.22) 0%, transparent 55%),
+    radial-gradient(100% 70% at 0% 100%, rgba(168,140,255,0.08) 0%, transparent 60%),
+    linear-gradient(165deg, #16121f 0%, #0a0810 60%, #050407 100%); }
+  .int-card--featured[data-color="amber"] .int-card-image { background-image:
+    radial-gradient(120% 80% at 100% 0%, rgba(250,182,98,0.20) 0%, transparent 55%),
+    radial-gradient(100% 70% at 0% 100%, rgba(250,182,98,0.07) 0%, transparent 60%),
+    linear-gradient(165deg, #1a160f 0%, #0c0a07 60%, #050403 100%); }
+  .int-card--featured[data-color="mint"] .int-card-image { background-image:
+    radial-gradient(120% 80% at 100% 0%, rgba(127,221,193,0.22) 0%, transparent 55%),
+    radial-gradient(100% 70% at 0% 100%, rgba(20,136,252,0.08) 0%, transparent 60%),
+    linear-gradient(165deg, #0f1a17 0%, #070d0b 60%, #040605 100%); }
+  /* Film-grain noise overlay */
+  .int-card--featured .int-card-image::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.55 0 0 0 0 0.55 0 0 0 0 0.55 0 0 0 0.9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    background-size: 220px 220px;
+    mix-blend-mode: overlay;
+    opacity: 0.32;
+    pointer-events: none;
+  }
+  .int-card-image-logo {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 52px;
+    height: 52px;
+    font-size: 16px;
+    z-index: 2;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+  }
+  .int-card--featured .int-card-body {
+    padding: 24px 24px 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex: 1;
+  }
+  .int-card--featured .int-name { font-size: 24px; }
+  .int-card--featured .int-desc { font-size: 15px; }
+  @media (max-width: 1024px) {
+    .featured-grid { grid-template-columns: repeat(2, 1fr); }
+    .int-card--featured:nth-child(3) { grid-column: 1 / -1; }
+    .int-card--featured:nth-child(3) .int-card-image { aspect-ratio: 21 / 9; }
+  }
+  @media (max-width: 768px) {
+    .featured-grid { grid-template-columns: 1fr; gap: 16px; }
+    .int-card--featured:nth-child(3) .int-card-image { aspect-ratio: 16 / 10; }
+    .int-card--featured .int-card-body { padding: 20px; }
+    .int-card-image-logo { width: 44px; height: 44px; font-size: 14px; top: 16px; left: 16px; }
+  }
+
   /* ─── CATALOG ────────────────────────────────────────────────────────── */
   .catalog-section { background: #050508; }
   /* Blog-style filter bar — mono pill chips + inline search */
@@ -470,7 +544,6 @@
   @media (max-width: 1024px) {
     .section-inner { width: min(900px, calc(100vw - 80px)); }
     .featured-bridge { width: min(900px, calc(100vw - 80px)); }
-    .featured-grid { grid-template-columns: repeat(2, 1fr); }
     .catalog-grid { grid-template-columns: repeat(2, 1fr); }
   }
   @media (max-width: 768px) {
@@ -480,7 +553,6 @@
     .section-inner { width: calc(100vw - 24px); }
     .section-header { margin-bottom: 40px; gap: 12px; }
     .featured-bridge { width: calc(100vw - 24px); height: 160px; margin-bottom: -100px; }
-    .featured-grid { grid-template-columns: 1fr; gap: 12px; }
     .catalog-grid { grid-template-columns: 1fr; }
     .unlocks-visual { padding: 28px 20px; }
     .catalog-filters { gap: 6px; }
@@ -601,14 +673,9 @@
 <script>
 /* ── Use case data ─────────────────────────────────────────────────────── */
 var FEATURED = [
-  { name: 'Portfolio Website',   abbr: 'PW', color: 'purple', tag: 'websites', desc: 'A personal site that shows your work without a CMS in the way.' },
-  { name: 'Landing Page',        abbr: 'LP', color: 'blue',   tag: 'websites', desc: 'Pixel-tight launch pages with a hero, social proof, and a CTA.' },
-  { name: 'Marketing Website',   abbr: 'MW', color: 'mint',   tag: 'websites', desc: 'Multi-page brand site — home, pricing, about — fully responsive.' },
-  { name: 'MVP App',             abbr: 'MV', color: 'salmon', tag: 'apps',     desc: 'Functional product prototype with auth, data, and a real UI.' },
-  { name: 'Internal Tool',       abbr: 'IT', color: 'amber',  tag: 'tools',    desc: 'Replace a spreadsheet with a real app your team can actually use.' },
-  { name: 'Admin Dashboard',     abbr: 'AD', color: 'blue',   tag: 'tools',    desc: 'Charts, tables, filters — wired up to your live data sources.' },
-  { name: 'AI Chat App',         abbr: 'AI', color: 'mint',   tag: 'apps',     desc: 'A chatbot or assistant powered by your favorite LLM API.' },
-  { name: 'Ecommerce Store',     abbr: 'EC', color: 'purple', tag: 'apps',     desc: 'Product catalog, cart, and Stripe checkout in a single afternoon.' },
+  { name: 'Portfolio Website', abbr: 'PW', color: 'purple', tag: 'websites', desc: 'A personal site that shows your work without a CMS in the way.' },
+  { name: 'Internal Tool',     abbr: 'IT', color: 'amber',  tag: 'tools',    desc: 'Replace a spreadsheet with a real app your team can actually use.' },
+  { name: 'AI Chat App',       abbr: 'AI', color: 'mint',   tag: 'apps',     desc: 'A chatbot or assistant powered by your favorite LLM API.' },
 ];
 
 var CATALOG = [
@@ -659,14 +726,18 @@ var TAG_LABELS = {
   var grid = document.getElementById('featured-grid');
   if (!grid) return;
   grid.innerHTML = FEATURED.map(function (i) {
-    return '<a href="#" class="int-card">'
+    return '<a href="#" class="int-card int-card--featured" data-color="' + i.color + '">'
       + '<canvas class="int-card-hover-canvas" aria-hidden="true"></canvas>'
-      + '<div class="int-logo" data-color="' + i.color + '">' + i.abbr + '</div>'
-      + '<h3 class="int-name">' + i.name + '</h3>'
-      + '<p class="int-desc">' + i.desc + '</p>'
-      + '<div class="int-card-foot">'
-      +   '<span class="int-tag">' + TAG_LABELS[i.tag] + '</span>'
-      +   '<span class="int-arrow" aria-hidden="true">' + ARROW_SVG + '</span>'
+      + '<div class="int-card-image" aria-hidden="true">'
+      +   '<span class="int-card-image-logo int-logo" data-color="' + i.color + '">' + i.abbr + '</span>'
+      + '</div>'
+      + '<div class="int-card-body">'
+      +   '<h3 class="int-name">' + i.name + '</h3>'
+      +   '<p class="int-desc">' + i.desc + '</p>'
+      +   '<div class="int-card-foot">'
+      +     '<span class="int-tag">' + TAG_LABELS[i.tag] + '</span>'
+      +     '<span class="int-arrow" aria-hidden="true">' + ARROW_SVG + '</span>'
+      +   '</div>'
       + '</div>'
       + '</a>';
   }).join('');
