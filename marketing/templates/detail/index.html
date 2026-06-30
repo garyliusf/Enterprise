@@ -22,7 +22,7 @@
     width: 100%;
     max-width: 1280px;
     margin: 0 auto;
-    padding: 120px clamp(20px, 4vw, 64px) clamp(56px, 8vh, 96px);
+    padding: 120px clamp(20px, 4vw, 64px) clamp(120px, 14vh, 160px);
   }
 
   /* ─── BREADCRUMB ─────────────────────────────────────────────────── */
@@ -219,10 +219,85 @@
     .related-grid { grid-template-columns: repeat(3, 1fr); gap: 44px 16px; }
   }
   @media (max-width: 768px) {
-    .detail-shell { padding-top: 96px; }
+    .detail-shell { padding-top: 96px; padding-bottom: 120px; }
     .detail-name { font-size: 32px; }
     .feature-grid { grid-template-columns: 1fr; }
     .related-grid { grid-template-columns: repeat(2, 1fr); gap: 36px 12px; }
+  }
+
+  /* ─── STICKY BOTTOM BANNER — appears after the user scrolls past the hero ─── */
+  .sticky-banner {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 50;
+    padding: 14px clamp(20px, 4vw, 64px);
+    background: rgba(8,8,12,0.85);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-top: 1px solid rgba(255,255,255,0.10);
+    transform: translateY(110%);
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .sticky-banner.is-visible { transform: translateY(0); }
+  .sticky-banner-inner {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .sticky-banner-meta {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+  }
+  .sticky-banner-thumb {
+    width: 52px;
+    height: 52px;
+    border-radius: 4px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #0a0a10;
+    border: 1px solid rgba(255,255,255,0.10);
+  }
+  .sticky-banner-thumb svg { width: 100%; height: 100%; display: block; }
+  .sticky-banner-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .sticky-banner-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: -0.1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .sticky-banner-sub {
+    font-family: 'Silkscreen', monospace;
+    font-size: 10px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+  }
+  .sticky-banner-ctas {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  /* Smaller CTA height inside the banner (52px on the hero feels too tall here) */
+  .sticky-banner .hero-btn-primary,
+  .sticky-banner .hero-btn-ghost { height: 42px; min-width: 120px; padding: 0 22px; font-size: 14px; }
+  @media (max-width: 640px) {
+    .sticky-banner { padding: 10px 16px; }
+    .sticky-banner-meta { gap: 10px; }
+    .sticky-banner-thumb { width: 40px; height: 40px; }
+    .sticky-banner-sub { display: none; }
+    .sticky-banner .hero-btn-primary,
+    .sticky-banner .hero-btn-ghost { height: 38px; min-width: 0; padding: 0 14px; font-size: 13px; }
+    .sticky-banner .hero-btn-ghost { display: none; } /* keep only Clone on tight phones */
   }
 </style>
 </head>
@@ -308,6 +383,29 @@
     <div class="related-grid" id="related-grid"></div>
   </section>
 
+</div>
+
+<!-- STICKY BOTTOM BANNER -->
+<div class="sticky-banner" id="sticky-banner" aria-hidden="true">
+  <div class="sticky-banner-inner">
+    <div class="sticky-banner-meta">
+      <div class="sticky-banner-thumb" id="sb-thumb" aria-hidden="true"></div>
+      <div class="sticky-banner-text">
+        <span class="sticky-banner-name" id="sb-name">Template</span>
+        <span class="sticky-banner-sub" id="sb-sub">Category · Free</span>
+      </div>
+    </div>
+    <div class="sticky-banner-ctas">
+      <a href="#" id="sb-preview" target="_blank" rel="noopener" class="hero-btn-ghost">
+        <div class="btn-bg-hover"></div>
+        <div class="btn-text-wrap"><div class="btn-text-inner"><span>Preview</span><span>Preview</span></div></div>
+      </a>
+      <a href="https://bolt.new/" target="_blank" rel="noopener" class="hero-btn-primary">
+        <div class="btn-bg-hover"></div>
+        <div class="btn-text-wrap"><div class="btn-text-inner"><span>Clone</span><span>Clone</span></div></div>
+      </a>
+    </div>
+  </div>
 </div>
 
 <script src="../../shared-components.js"></script>
@@ -406,6 +504,27 @@ function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace
       + '</div>'
       + '</a>';
   }).join('');
+
+  /* Sticky banner — populate from the current template */
+  var banner = document.getElementById('sticky-banner');
+  document.getElementById('sb-thumb').innerHTML = PREVIEW_MOCKS[idx % PREVIEW_MOCKS.length];
+  document.getElementById('sb-name').textContent = item.name;
+  document.getElementById('sb-sub').textContent = TAG_LABELS[item.tag] + ' · Free to clone';
+  document.getElementById('sb-preview').href = document.getElementById('detail-preview-link').href;
+
+  /* Reveal once the hero is mostly scrolled past so the banner doesn't compete with the hero CTAs */
+  var hero = document.querySelector('.detail-hero');
+  if (hero && 'IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.intersectionRatio < 0.25) banner.classList.add('is-visible');
+        else banner.classList.remove('is-visible');
+      });
+    }, { threshold: [0, 0.25, 0.5, 1] });
+    io.observe(hero);
+  } else {
+    banner.classList.add('is-visible');
+  }
 })();
 </script>
 
