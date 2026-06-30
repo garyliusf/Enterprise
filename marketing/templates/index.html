@@ -364,34 +364,58 @@
 
   /* ─── CATALOG ────────────────────────────────────────────────────────── */
   .catalog-section { background: #050508; }
-  /* Blog-style filter bar — mono pill chips + inline search */
+  /* Icon-row filter bar — vertical icon+label cells, horizontal scroll on overflow */
   .catalog-filters {
     display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 4px;
+    align-items: stretch;
+    gap: 0;
     margin-bottom: 32px;
-    padding: 6px 0;
-    border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 4px 0;
     border-bottom: 1px solid rgba(255,255,255,0.08);
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
   }
+  .catalog-filters::-webkit-scrollbar { display: none; }
   .catalog-filter-btn {
-    font-family: 'Silkscreen', monospace;
-    font-size: 12px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
+    flex: 0 0 auto;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 22px 14px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
     color: rgba(255,255,255,0.55);
     background: none;
     border: none;
-    border-radius: 4px;
-    padding: 8px 16px;
-    margin: 6px 2px;
+    border-bottom: 1px solid transparent;
     cursor: pointer;
     white-space: nowrap;
-    transition: color 0.2s ease, background 0.2s ease;
+    transition: color 0.2s ease, border-color 0.2s ease;
+    position: relative;
+    margin-bottom: -1px;
   }
+  .catalog-filter-btn svg { width: 22px; height: 22px; stroke: currentColor; flex-shrink: 0; }
   .catalog-filter-btn:hover { color: #fff; }
-  .catalog-filter-btn.is-active { color: #0b6e57; background: #BCE6D7; }
+  .catalog-filter-btn.is-active { color: #fff; border-bottom-color: #fff; }
+  /* row that wraps the scroll-bar + search */
+  .catalog-filter-row {
+    display: flex;
+    align-items: stretch;
+    gap: 16px;
+    margin-bottom: 32px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .catalog-filter-row .catalog-filters { flex: 1; min-width: 0; border-bottom: none; margin-bottom: 0; }
+  .catalog-filter-row .catalog-search-wrap { margin-left: 0; }
+  @media (max-width: 768px) {
+    .catalog-filter-row { flex-direction: column; gap: 8px; }
+    .catalog-filter-row .catalog-search-wrap { width: 100%; }
+    .catalog-filter-btn { padding: 10px 16px 12px; font-size: 12px; gap: 6px; }
+    .catalog-filter-btn svg { width: 18px; height: 18px; }
+  }
   .catalog-search-wrap {
     display: flex;
     align-items: center;
@@ -620,11 +644,61 @@
         <p class="section-sub">Filter by category or search by name. Don't see yours? <a href="#contact" style="color:#fff;font-weight:600;text-decoration:none;">Request a template</a>.</p>
       </div>
     </div>
-    <div class="catalog-filters" id="catalog-filters">
-      <button class="catalog-filter-btn is-active" data-filter="all">All</button>
-      <button class="catalog-filter-btn" data-filter="tools">Tools</button>
-      <button class="catalog-filter-btn" data-filter="websites">Websites</button>
-      <button class="catalog-filter-btn" data-filter="apps">Apps</button>
+    <div class="catalog-filter-row">
+      <div class="catalog-filters" id="catalog-filters">
+        <button class="catalog-filter-btn is-active" data-filter="all" aria-label="All templates">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          <span>All templates</span>
+        </button>
+        <button class="catalog-filter-btn" data-filter="websites" aria-label="Websites">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
+          <span>Websites</span>
+        </button>
+        <button class="catalog-filter-btn" data-filter="apps" aria-label="Apps">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+          <span>Apps</span>
+        </button>
+        <button class="catalog-filter-btn" data-filter="portfolio" aria-label="Portfolio">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          <span>Portfolio</span>
+        </button>
+        <button class="catalog-filter-btn" data-filter="saas" aria-label="SaaS">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.5 19a4.5 4.5 0 0 0 .5-8.97A6 6 0 0 0 6.18 11.4 4 4 0 0 0 7 19h10.5z"/></svg>
+          <span>SaaS</span>
+        </button>
+        <button class="catalog-filter-btn" data-filter="blog" aria-label="Blog">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="14" y2="17"/></svg>
+          <span>Blog</span>
+        </button>
+        <button class="catalog-filter-btn" data-filter="internal" aria-label="Internal Tools">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 13h18"/></svg>
+          <span>Internal Tools</span>
+        </button>
+        <button class="catalog-filter-btn" data-filter="developer" aria-label="Developer Tools">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 8 4 12 9 16"/><polyline points="15 8 20 12 15 16"/></svg>
+          <span>Developer Tools</span>
+        </button>
+        <button class="catalog-filter-btn" data-filter="editorial" aria-label="Editorial">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="m12.5 14 2.5 2.5L18 13"/></svg>
+          <span>Editorial</span>
+        </button>
+        <button class="catalog-filter-btn" data-filter="music" aria-label="Music">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+          <span>Music</span>
+        </button>
+        <button class="catalog-filter-btn" data-filter="product" aria-label="Product Management">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.1 8.6 22 9.6 17 14.6 18.2 21.5 12 18.2 5.8 21.5 7 14.6 2 9.6 8.9 8.6 12 2"/></svg>
+          <span>Product Management</span>
+        </button>
+        <button class="catalog-filter-btn" data-filter="ecommerce" aria-label="Ecommerce">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.5 13a1.5 1.5 0 0 0 1.5 1.2h9.5a1.5 1.5 0 0 0 1.5-1.2L22 6H6"/></svg>
+          <span>Ecommerce</span>
+        </button>
+        <button class="catalog-filter-btn" data-filter="project" aria-label="Project Management">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="6" height="13" rx="1"/><rect x="11" y="3" width="6" height="9" rx="1"/><rect x="19" y="3" width="2" height="6" rx="1"/></svg>
+          <span>Project Management</span>
+        </button>
+      </div>
       <div class="catalog-search-wrap">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>
         <input type="search" class="catalog-search" id="catalog-search" placeholder="Search" aria-label="Search templates">
@@ -670,42 +744,47 @@
 <script>
 /* ── Template data ─────────────────────────────────────────────────────── */
 var FEATURED = [
-  { name: 'Portfolio Website', abbr: 'PW', color: 'purple', tag: 'websites', desc: 'A personal site that shows your work without a CMS in the way.' },
-  { name: 'Internal Tool',     abbr: 'IT', color: 'amber',  tag: 'tools',    desc: 'Replace a spreadsheet with a real app your team can actually use.' },
-  { name: 'AI Chat App',       abbr: 'AI', color: 'mint',   tag: 'apps',     desc: 'A chatbot or assistant powered by your favorite LLM API.' },
+  { name: 'Portfolio Website', abbr: 'PW', color: 'purple', tag: 'portfolio', desc: 'A personal site that shows your work without a CMS in the way.' },
+  { name: 'SaaS Landing',      abbr: 'SL', color: 'amber',  tag: 'saas',      desc: 'Hero + features + pricing + signup — the classic SaaS stack.' },
+  { name: 'AI Chat App',       abbr: 'AI', color: 'mint',   tag: 'apps',      desc: 'A chatbot or assistant powered by your favorite LLM API.' },
 ];
 
 var CATALOG = [
-  { name: 'AI Agent',              abbr: 'AG', color: 'mint',   tag: 'apps',     desc: 'Tool-using agent with memory, function calls, and a chat UI.' },
-  { name: 'AI Image Generator',    abbr: 'IG', color: 'purple', tag: 'apps',     desc: 'Prompt-to-image app on top of your model of choice.' },
-  { name: 'Analytics Dashboard',   abbr: 'AN', color: 'blue',   tag: 'tools',    desc: 'Funnel, retention, and revenue charts pulled from your warehouse.' },
-  { name: 'Blog Site',             abbr: 'BL', color: 'salmon', tag: 'websites', desc: 'MDX-driven blog with categories, RSS, and SEO baked in.' },
-  { name: 'Booking App',           abbr: 'BK', color: 'amber',  tag: 'apps',     desc: 'Calendar availability, reservations, and confirmation emails.' },
-  { name: 'CRM Lite',              abbr: 'CR', color: 'blue',   tag: 'tools',    desc: 'Contacts, pipelines, and deal stages your team can fork weekly.' },
-  { name: 'Coming Soon Page',      abbr: 'CS', color: 'mint',   tag: 'websites', desc: 'Email capture + countdown for a pre-launch waitlist.' },
-  { name: 'Documentation Site',    abbr: 'DC', color: 'amber',  tag: 'websites', desc: 'Searchable docs with a sidebar, code blocks, and dark mode.' },
-  { name: 'Designer Portfolio',    abbr: 'DP', color: 'purple', tag: 'websites', desc: 'A visual case-study site for design and creative work.' },
-  { name: 'Developer Portfolio',   abbr: 'DV', color: 'blue',   tag: 'websites', desc: 'Resume + projects with live previews and GitHub links.' },
-  { name: 'Event Site',            abbr: 'EV', color: 'salmon', tag: 'websites', desc: 'Schedule, speakers, sponsors, and ticket signup in one page.' },
-  { name: 'Forum / Community',     abbr: 'FM', color: 'mint',   tag: 'apps',     desc: 'Threads, replies, and user profiles for a niche community.' },
-  { name: 'Inventory Tracker',     abbr: 'IV', color: 'amber',  tag: 'tools',    desc: 'SKU list, stock levels, and low-stock alerts for ops teams.' },
-  { name: 'Invoice Generator',     abbr: 'IN', color: 'blue',   tag: 'tools',    desc: 'Line items, totals, and PDF export for freelancers and SMBs.' },
-  { name: 'Job Board',             abbr: 'JB', color: 'salmon', tag: 'apps',     desc: 'Post, filter, and apply to listings — niche communities only.' },
-  { name: 'Lead-Gen Page',         abbr: 'LG', color: 'mint',   tag: 'websites', desc: 'Long-form sales page with form, testimonials, and FAQ.' },
-  { name: 'Newsletter Site',       abbr: 'NL', color: 'amber',  tag: 'websites', desc: 'Subscribe form + archive — wired to your ESP of choice.' },
-  { name: 'Onboarding Flow',       abbr: 'OB', color: 'purple', tag: 'tools',    desc: 'Multi-step new-user wizard with progress and persistence.' },
-  { name: 'Photographer Portfolio',abbr: 'PH', color: 'salmon', tag: 'websites', desc: 'Image-first grid + lightbox for shoots and series.' },
-  { name: 'Pricing Page',          abbr: 'PR', color: 'blue',   tag: 'websites', desc: 'Tiered plans, feature matrix, and CTA — A/B-ready.' },
-  { name: 'Product Catalog',       abbr: 'PC', color: 'mint',   tag: 'apps',     desc: 'Filterable storefront grid with details, variants, and search.' },
-  { name: 'Restaurant Site',       abbr: 'RS', color: 'salmon', tag: 'websites', desc: 'Menu, hours, location, and a reservation form on one page.' },
-  { name: 'SaaS Landing',          abbr: 'SL', color: 'purple', tag: 'websites', desc: 'Hero + features + pricing + signup — the classic stack.' },
-  { name: 'Shopify Storefront',    abbr: 'SH', color: 'amber',  tag: 'apps',     desc: 'Custom headless storefront for your existing Shopify catalog.' },
-  { name: 'Stripe Checkout',       abbr: 'ST', color: 'blue',   tag: 'apps',     desc: 'One-product or subscription checkout with Stripe in minutes.' },
-  { name: 'Support Helpdesk',      abbr: 'SP', color: 'mint',   tag: 'tools',    desc: 'Ticket queue, statuses, and replies — internal-tool style.' },
-  { name: 'Survey Builder',        abbr: 'SV', color: 'purple', tag: 'tools',    desc: 'Branching question flows with response export.' },
-  { name: 'Team Site',             abbr: 'TM', color: 'salmon', tag: 'websites', desc: 'About + team + careers page for early-stage companies.' },
-  { name: 'Voice Assistant',       abbr: 'VA', color: 'mint',   tag: 'apps',     desc: 'Whisper + LLM + TTS — talk-and-reply demo in a browser tab.' },
-  { name: 'Writer Portfolio',      abbr: 'WP', color: 'amber',  tag: 'websites', desc: 'A clean reading-first site for essays, clips, and bylines.' },
+  { name: 'AI Agent',              abbr: 'AG', color: 'mint',   tag: 'apps',      desc: 'Tool-using agent with memory, function calls, and a chat UI.' },
+  { name: 'AI Image Generator',    abbr: 'IG', color: 'purple', tag: 'apps',      desc: 'Prompt-to-image app on top of your model of choice.' },
+  { name: 'Analytics Dashboard',   abbr: 'AN', color: 'blue',   tag: 'internal',  desc: 'Funnel, retention, and revenue charts pulled from your warehouse.' },
+  { name: 'Blog Site',             abbr: 'BL', color: 'salmon', tag: 'blog',      desc: 'MDX-driven blog with categories, RSS, and SEO baked in.' },
+  { name: 'Booking App',           abbr: 'BK', color: 'amber',  tag: 'apps',      desc: 'Calendar availability, reservations, and confirmation emails.' },
+  { name: 'CRM Lite',              abbr: 'CR', color: 'blue',   tag: 'internal',  desc: 'Contacts, pipelines, and deal stages your team can fork weekly.' },
+  { name: 'Coming Soon Page',      abbr: 'CS', color: 'mint',   tag: 'websites',  desc: 'Email capture + countdown for a pre-launch waitlist.' },
+  { name: 'Documentation Site',    abbr: 'DC', color: 'amber',  tag: 'developer', desc: 'Searchable docs with a sidebar, code blocks, and dark mode.' },
+  { name: 'Designer Portfolio',    abbr: 'DP', color: 'purple', tag: 'portfolio', desc: 'A visual case-study site for design and creative work.' },
+  { name: 'Developer Portfolio',   abbr: 'DV', color: 'blue',   tag: 'portfolio', desc: 'Resume + projects with live previews and GitHub links.' },
+  { name: 'Event Site',            abbr: 'EV', color: 'salmon', tag: 'websites',  desc: 'Schedule, speakers, sponsors, and ticket signup in one page.' },
+  { name: 'Forum / Community',     abbr: 'FM', color: 'mint',   tag: 'apps',      desc: 'Threads, replies, and user profiles for a niche community.' },
+  { name: 'Inventory Tracker',     abbr: 'IV', color: 'amber',  tag: 'internal',  desc: 'SKU list, stock levels, and low-stock alerts for ops teams.' },
+  { name: 'Invoice Generator',     abbr: 'IN', color: 'blue',   tag: 'internal',  desc: 'Line items, totals, and PDF export for freelancers and SMBs.' },
+  { name: 'Job Board',             abbr: 'JB', color: 'salmon', tag: 'apps',      desc: 'Post, filter, and apply to listings — niche communities only.' },
+  { name: 'Kanban Board',          abbr: 'KB', color: 'mint',   tag: 'project',   desc: 'Drag-and-drop columns, cards, and assignees for any team workflow.' },
+  { name: 'Lead-Gen Page',         abbr: 'LG', color: 'mint',   tag: 'websites',  desc: 'Long-form sales page with form, testimonials, and FAQ.' },
+  { name: 'Magazine Layout',       abbr: 'MG', color: 'salmon', tag: 'editorial', desc: 'Long-form article reader with featured stories and serif type.' },
+  { name: 'Music Player',          abbr: 'MP', color: 'purple', tag: 'music',     desc: 'Audio player with playlist, controls, and waveform preview.' },
+  { name: 'Newsletter Site',       abbr: 'NL', color: 'amber',  tag: 'editorial', desc: 'Subscribe form + archive — wired to your ESP of choice.' },
+  { name: 'Onboarding Flow',       abbr: 'OB', color: 'purple', tag: 'internal',  desc: 'Multi-step new-user wizard with progress and persistence.' },
+  { name: 'Photographer Portfolio',abbr: 'PH', color: 'salmon', tag: 'portfolio', desc: 'Image-first grid + lightbox for shoots and series.' },
+  { name: 'Podcast Site',          abbr: 'PD', color: 'amber',  tag: 'music',     desc: 'Episode list, inline audio player, RSS feed, and show notes.' },
+  { name: 'Pricing Page',          abbr: 'PR', color: 'blue',   tag: 'saas',      desc: 'Tiered plans, feature matrix, and CTA — A/B-ready.' },
+  { name: 'Product Catalog',       abbr: 'PC', color: 'mint',   tag: 'ecommerce', desc: 'Filterable storefront grid with details, variants, and search.' },
+  { name: 'Product Roadmap',       abbr: 'PM', color: 'blue',   tag: 'product',   desc: 'Public roadmap with quarter columns, status pills, and voting.' },
+  { name: 'REST API Console',      abbr: 'RA', color: 'mint',   tag: 'developer', desc: 'In-browser API explorer with auth, headers, and response viewer.' },
+  { name: 'Restaurant Site',       abbr: 'RS', color: 'salmon', tag: 'websites',  desc: 'Menu, hours, location, and a reservation form on one page.' },
+  { name: 'Shopify Storefront',    abbr: 'SH', color: 'amber',  tag: 'ecommerce', desc: 'Custom headless storefront for your existing Shopify catalog.' },
+  { name: 'Stripe Checkout',       abbr: 'ST', color: 'blue',   tag: 'ecommerce', desc: 'One-product or subscription checkout with Stripe in minutes.' },
+  { name: 'Support Helpdesk',      abbr: 'SP', color: 'mint',   tag: 'internal',  desc: 'Ticket queue, statuses, and replies — internal-tool style.' },
+  { name: 'Survey Builder',        abbr: 'SV', color: 'purple', tag: 'product',   desc: 'Branching question flows with response export.' },
+  { name: 'Team Site',             abbr: 'TM', color: 'salmon', tag: 'websites',  desc: 'About + team + careers page for early-stage companies.' },
+  { name: 'Voice Assistant',       abbr: 'VA', color: 'mint',   tag: 'apps',      desc: 'Whisper + LLM + TTS — talk-and-reply demo in a browser tab.' },
+  { name: 'Writer Portfolio',      abbr: 'WP', color: 'amber',  tag: 'editorial', desc: 'A clean reading-first site for essays, clips, and bylines.' },
 ];
 
 /* Thin right-arrow — slides + brightens on card hover */
@@ -715,7 +794,10 @@ var ARROW_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stro
   + '</svg>';
 
 var TAG_LABELS = {
-  tools: 'Tools', websites: 'Websites', apps: 'Apps',
+  websites: 'Websites', apps: 'Apps', portfolio: 'Portfolio', saas: 'SaaS',
+  blog: 'Blog', internal: 'Internal Tools', developer: 'Developer Tools',
+  editorial: 'Editorial', music: 'Music', product: 'Product Management',
+  ecommerce: 'Ecommerce', project: 'Project Management',
 };
 
 /* ── Render featured grid ─────────────────────────────────────────────── */
