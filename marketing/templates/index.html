@@ -196,11 +196,11 @@
   .unlocks-header { margin-bottom: clamp(32px, 5vh, 52px); position: relative; z-index: 1; }
   .unlocks-header .section-header { margin-bottom: 0; }
 
-  /* ─── INTEGRATION CARDS (Retool-style: logo top-left, name, desc, tag + pixel arrow at bottom) ── */
+  /* ─── FEATURED (4-up template-card grid, same look as the catalog) ── */
   .featured-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 56px 20px;
     position: relative;
     z-index: 1;
   }
@@ -289,7 +289,7 @@
   .catalog-card:hover .int-arrow { opacity: 1; transform: translateX(0); color: #1488FC; }
 
   /* ─── FEATURED CARD VARIANT — big real-estate cards with placeholder UI image ── */
-  .featured-grid { grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .featured-grid { grid-template-columns: repeat(4, 1fr); }
   .int-card--featured {
     padding: 0;
     min-height: 0;
@@ -351,12 +351,12 @@
   .int-card--featured .int-name { font-size: 24px; }
   .int-card--featured .int-desc { font-size: 15px; }
   @media (max-width: 1024px) {
-    .featured-grid { grid-template-columns: repeat(2, 1fr); }
+    .featured-grid { grid-template-columns: repeat(3, 1fr); gap: 44px 16px; }
     .int-card--featured:nth-child(3) { grid-column: 1 / -1; }
     .int-card--featured:nth-child(3) .int-card-image { aspect-ratio: 21 / 9; }
   }
   @media (max-width: 768px) {
-    .featured-grid { grid-template-columns: 1fr; gap: 16px; }
+    .featured-grid { grid-template-columns: repeat(2, 1fr); gap: 36px 12px; }
     .int-card--featured:nth-child(3) .int-card-image { aspect-ratio: 16 / 10; }
     .int-card--featured .int-card-body { padding: 20px; }
     .int-card-image-logo { width: 44px; height: 44px; font-size: 14px; top: 16px; left: 16px; }
@@ -773,6 +773,7 @@ var FEATURED = [
   { name: 'Portfolio Website', abbr: 'PW', color: 'purple', tag: 'portfolio', desc: 'A personal site that shows your work without a CMS in the way.' },
   { name: 'SaaS Landing',      abbr: 'SL', color: 'amber',  tag: 'saas',      desc: 'Hero + features + pricing + signup — the classic SaaS stack.' },
   { name: 'AI Chat App',       abbr: 'AI', color: 'mint',   tag: 'apps',      desc: 'A chatbot or assistant powered by your favorite LLM API.' },
+  { name: 'Analytics Dashboard',abbr: 'AN',color: 'blue',   tag: 'internal',  desc: 'Funnel, retention, and revenue charts pulled from your warehouse.' },
 ];
 
 var CATALOG = [
@@ -826,27 +827,7 @@ var TAG_LABELS = {
   ecommerce: 'Ecommerce', project: 'Project Management',
 };
 
-/* ── Render featured grid ─────────────────────────────────────────────── */
-(function () {
-  var grid = document.getElementById('featured-grid');
-  if (!grid) return;
-  grid.innerHTML = FEATURED.map(function (i) {
-    return '<a href="#" class="int-card int-card--featured" data-color="' + i.color + '">'
-      + '<canvas class="int-card-hover-canvas" aria-hidden="true"></canvas>'
-      + '<div class="int-card-image" aria-hidden="true">'
-      +   '<span class="int-card-image-logo int-logo" data-color="' + i.color + '">' + i.abbr + '</span>'
-      + '</div>'
-      + '<div class="int-card-body">'
-      +   '<h3 class="int-name">' + i.name + '</h3>'
-      +   '<p class="int-desc">' + i.desc + '</p>'
-      +   '<div class="int-card-foot">'
-      +     '<span class="int-tag">' + TAG_LABELS[i.tag] + '</span>'
-      +     '<span class="int-arrow" aria-hidden="true">' + ARROW_SVG + '</span>'
-      +   '</div>'
-      + '</div>'
-      + '</a>';
-  }).join('');
-})();
+/* PREVIEW_MOCKS array — defined first so both render IIFEs (featured + catalog) can use it */
 
 /* ── Mock preview generator — 10 distinct fake-website SVG thumbnails ─── */
 /* Each takes a 400x500 viewBox and returns an SVG string. Styled to mimic a
@@ -874,6 +855,21 @@ var PREVIEW_MOCKS = [
   /* 9 — ECOMMERCE / PRODUCT GRID */
   '<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="500" fill="#f5f5f0"/><rect x="0" y="0" width="400" height="42" fill="#fff"/><text x="40" y="27" font-family="Inter" font-size="13" font-weight="600" fill="#1a1a1a">SHOP</text><text x="365" y="27" font-family="Inter" font-size="13" fill="#1a1a1a" text-anchor="end">🛒</text><text x="200" y="80" font-family="Georgia" font-size="20" font-weight="700" fill="#1a1a1a" text-anchor="middle">Spring 2026</text><rect x="20" y="100" width="170" height="200" rx="6" fill="#d8c8b0"/><circle cx="105" cy="200" r="50" fill="#a89070"/><rect x="210" y="100" width="170" height="200" rx="6" fill="#cdd6c4"/><rect x="240" y="140" width="110" height="120" rx="6" fill="#7a8c70"/><rect x="20" y="310" width="170" height="14" rx="2" fill="#1a1a1a"/><rect x="20" y="332" width="50" height="10" rx="2" fill="#888"/><rect x="210" y="310" width="170" height="14" rx="2" fill="#1a1a1a"/><rect x="210" y="332" width="50" height="10" rx="2" fill="#888"/><rect x="20" y="360" width="360" height="120" rx="6" fill="#1a1a1a"/><text x="200" y="425" font-family="Georgia" font-size="20" font-weight="700" fill="#fff" text-anchor="middle">Shop the Look</text></svg>'
 ];
+
+/* ── Render featured grid (same card style as catalog) ────────────────── */
+(function () {
+  var grid = document.getElementById('featured-grid');
+  if (!grid) return;
+  grid.innerHTML = FEATURED.map(function (i, idx) {
+    return '<a href="#" class="catalog-card">'
+      + '<div class="catalog-card-preview" aria-hidden="true">' + PREVIEW_MOCKS[idx % PREVIEW_MOCKS.length] + '</div>'
+      + '<div class="catalog-card-foot">'
+      +   '<span class="catalog-card-name">' + i.name + '</span>'
+      +   '<span class="catalog-card-tag">' + TAG_LABELS[i.tag] + '</span>'
+      + '</div>'
+      + '</a>';
+  }).join('');
+})();
 
 /* ── Render + filter catalog ──────────────────────────────────────────── */
 (function () {
