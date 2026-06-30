@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Template Detail — Bolt</title>
+<meta name="description" content="Bolt template detail — preview, features, and one-click clone to start customizing.">
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Silkscreen:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;1,400;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../shared-components.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: #000; color: #fff; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+
+  /* ─── PAGE SHELL ─────────────────────────────────────────────────── */
+  .detail-shell {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 120px clamp(20px, 4vw, 64px) clamp(56px, 8vh, 96px);
+  }
+
+  /* ─── BREADCRUMB ─────────────────────────────────────────────────── */
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Silkscreen', monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+    margin-bottom: 40px;
+  }
+  .breadcrumb a { color: rgba(255,255,255,0.55); transition: color 0.2s ease; }
+  .breadcrumb a:hover { color: #fff; }
+  .breadcrumb .sep { color: rgba(255,255,255,0.25); }
+  .breadcrumb .current { color: rgba(255,255,255,0.85); }
+
+  /* ─── HERO (2-col: preview + info sidebar) ───────────────────────── */
+  .detail-hero {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 48px;
+    align-items: start;
+    margin-bottom: clamp(64px, 9vh, 120px);
+  }
+  .detail-preview {
+    aspect-ratio: 4 / 3;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #0a0a10;
+    border: 1px solid rgba(255,255,255,0.10);
+  }
+  .detail-preview svg { width: 100%; height: 100%; display: block; }
+  .detail-info { display: flex; flex-direction: column; gap: 20px; }
+  .detail-category {
+    font-family: 'Silkscreen', monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #7FDDC1;
+  }
+  .detail-name {
+    font-size: 40px;
+    font-weight: 500;
+    letter-spacing: -0.8px;
+    line-height: 1.05;
+    margin: 0;
+    color: #fff;
+  }
+  .detail-desc {
+    font-size: 16px;
+    line-height: 1.6;
+    color: rgba(255,255,255,0.65);
+    margin: 0;
+  }
+  .detail-cta-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 4px;
+  }
+  .detail-cta-row .hero-btn-primary,
+  .detail-cta-row .hero-btn-ghost { width: 100%; min-width: 0; height: 52px; }
+
+  /* Quick-fact strip below CTAs */
+  .detail-facts {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  .detail-fact {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: rgba(255,255,255,0.55);
+  }
+  .detail-fact b { color: rgba(255,255,255,0.85); font-weight: 500; }
+
+  /* ─── INCLUDED ───────────────────────────────────────────────────── */
+  .section-block { margin-bottom: clamp(64px, 9vh, 120px); }
+  .section-eyebrow {
+    font-family: 'Silkscreen', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #1488FC;
+    margin: 0 0 12px;
+  }
+  .section-headline {
+    font-size: clamp(28px, 3.4vw, 40px);
+    font-weight: 500;
+    letter-spacing: -0.6px;
+    line-height: 1.15;
+    margin: 0 0 32px;
+    color: #fff;
+  }
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .feature-card {
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 4px;
+    padding: 24px 24px 28px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%);
+    transition: border-color 0.25s ease;
+  }
+  .feature-card:hover { border-color: rgba(255,255,255,0.22); }
+  .feature-icon {
+    width: 36px; height: 36px;
+    border-radius: 4px;
+    background: rgba(20,136,252,0.10);
+    border: 1px solid rgba(20,136,252,0.30);
+    display: flex; align-items: center; justify-content: center;
+    color: #1488FC;
+    margin-bottom: 16px;
+  }
+  .feature-icon svg { width: 18px; height: 18px; }
+  .feature-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    margin: 0 0 8px;
+    letter-spacing: -0.2px;
+  }
+  .feature-desc {
+    font-size: 14px;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  /* ─── RELATED ────────────────────────────────────────────────────── */
+  .related-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 56px 20px;
+  }
+  .catalog-card {
+    display: flex;
+    flex-direction: column;
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: transform 0.25s ease;
+  }
+  .catalog-card:hover { transform: translateY(-3px); }
+  .catalog-card-preview {
+    aspect-ratio: 4 / 5;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #0a0a10;
+    border: 1px solid rgba(255,255,255,0.08);
+    transition: border-color 0.25s ease;
+  }
+  .catalog-card:hover .catalog-card-preview { border-color: rgba(255,255,255,0.22); }
+  .catalog-card-preview svg { width: 100%; height: 100%; display: block; }
+  .catalog-card-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 4px 0;
+  }
+  .catalog-card-name {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.92);
+    letter-spacing: -0.1px;
+  }
+  .catalog-card-tag {
+    font-family: 'Silkscreen', monospace;
+    font-size: 10px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    white-space: nowrap;
+  }
+
+  /* ─── RESPONSIVE ─────────────────────────────────────────────────── */
+  @media (max-width: 1024px) {
+    .detail-hero { grid-template-columns: 1fr; gap: 32px; }
+    .detail-info { max-width: 700px; }
+    .feature-grid { grid-template-columns: repeat(2, 1fr); }
+    .related-grid { grid-template-columns: repeat(3, 1fr); gap: 44px 16px; }
+  }
+  @media (max-width: 768px) {
+    .detail-shell { padding-top: 96px; }
+    .detail-name { font-size: 32px; }
+    .feature-grid { grid-template-columns: 1fr; }
+    .related-grid { grid-template-columns: repeat(2, 1fr); gap: 36px 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="detail-shell">
+
+  <!-- BREADCRUMB -->
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="../">Templates</a>
+    <span class="sep">/</span>
+    <span class="current" id="crumb-current">Template</span>
+  </nav>
+
+  <!-- HERO -->
+  <section class="detail-hero">
+    <div class="detail-preview" id="detail-preview" aria-hidden="true"></div>
+    <aside class="detail-info">
+      <p class="detail-category" id="detail-category">Category</p>
+      <h1 class="detail-name" id="detail-name">Template</h1>
+      <p class="detail-desc" id="detail-desc">Description goes here.</p>
+      <div class="detail-cta-row">
+        <a href="https://bolt.new/" target="_blank" rel="noopener" class="hero-btn-primary">
+          <div class="btn-bg-hover"></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Use this template</span><span>Use this template</span></div></div>
+        </a>
+        <a href="#" id="detail-preview-link" target="_blank" rel="noopener" class="hero-btn-ghost">
+          <div class="btn-bg-hover"></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Live preview</span><span>Live preview</span></div></div>
+        </a>
+      </div>
+      <div class="detail-facts">
+        <div class="detail-fact"><span>Category</span><b id="fact-category">Category</b></div>
+        <div class="detail-fact"><span>Build time</span><b>~60 seconds</b></div>
+        <div class="detail-fact"><span>Tech</span><b>Bolt.new · React · Tailwind</b></div>
+        <div class="detail-fact"><span>License</span><b>Free to use</b></div>
+      </div>
+    </aside>
+  </section>
+
+  <!-- WHAT'S INCLUDED -->
+  <section class="section-block">
+    <p class="section-eyebrow">What's included</p>
+    <h2 class="section-headline">Production-ready out of the box.</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
+        <h3 class="feature-title">Responsive by default</h3>
+        <p class="feature-desc">Mobile, tablet, and desktop layouts handled automatically by Bolt — every breakpoint just works.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+        <h3 class="feature-title">Edit code in the browser</h3>
+        <p class="feature-desc">Open the template in Bolt's in-browser IDE. Tweak the markup, prompt iterative changes, or rewrite a whole section.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16 16l-4-4-4 4"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg></div>
+        <h3 class="feature-title">One-click deploy</h3>
+        <p class="feature-desc">Bolt publishes to a live URL automatically. Connect a custom domain in minutes — no server management, no DevOps.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M16 12a4 4 0 1 1-8 0M9.17 14.83a4 4 0 0 1 5.66 0"/><path d="M20 12a8 8 0 1 1-16 0 8 8 0 0 1 16 0z"/></svg></div>
+        <h3 class="feature-title">SEO baked in</h3>
+        <p class="feature-desc">Semantic markup, meta tags, sitemap, and Open Graph defaults configured — ready to index from day one.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <h3 class="feature-title">Live in under two minutes</h3>
+        <p class="feature-desc">From clone to deploy, the average build takes under 60 seconds — even the first time.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></svg></div>
+        <h3 class="feature-title">Full-stack support</h3>
+        <p class="feature-desc">Add APIs, databases, and auth flows in the same project. Bolt scaffolds the backend alongside the template.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- RELATED -->
+  <section class="section-block">
+    <p class="section-eyebrow">Keep exploring</p>
+    <h2 class="section-headline">More templates from the catalog</h2>
+    <div class="related-grid" id="related-grid"></div>
+  </section>
+
+</div>
+
+<script src="../../shared-components.js"></script>
+<script>
+/* Shared template data — duplicated from marketing/templates/index.html for the sandbox. If the data grows we should extract to a shared data.js. */
+var CATALOG = [
+  { name: 'Portfolio Website',     tag: 'portfolio', desc: 'A personal site that shows your work without a CMS in the way.' },
+  { name: 'SaaS Landing',          tag: 'saas',      desc: 'Hero + features + pricing + signup — the classic SaaS stack.' },
+  { name: 'AI Chat App',           tag: 'apps',      desc: 'A chatbot or assistant powered by your favorite LLM API.' },
+  { name: 'Analytics Dashboard',   tag: 'internal',  desc: 'Funnel, retention, and revenue charts pulled from your warehouse.' },
+  { name: 'AI Agent',              tag: 'apps',      desc: 'Tool-using agent with memory, function calls, and a chat UI.' },
+  { name: 'AI Image Generator',    tag: 'apps',      desc: 'Prompt-to-image app on top of your model of choice.' },
+  { name: 'Blog Site',             tag: 'blog',      desc: 'MDX-driven blog with categories, RSS, and SEO baked in.' },
+  { name: 'Booking App',           tag: 'apps',      desc: 'Calendar availability, reservations, and confirmation emails.' },
+  { name: 'CRM Lite',              tag: 'internal',  desc: 'Contacts, pipelines, and deal stages your team can fork weekly.' },
+  { name: 'Coming Soon Page',      tag: 'websites',  desc: 'Email capture + countdown for a pre-launch waitlist.' },
+  { name: 'Documentation Site',    tag: 'developer', desc: 'Searchable docs with a sidebar, code blocks, and dark mode.' },
+  { name: 'Designer Portfolio',    tag: 'portfolio', desc: 'A visual case-study site for design and creative work.' },
+  { name: 'Developer Portfolio',   tag: 'portfolio', desc: 'Resume + projects with live previews and GitHub links.' },
+  { name: 'Event Site',            tag: 'websites',  desc: 'Schedule, speakers, sponsors, and ticket signup in one page.' },
+  { name: 'Forum / Community',     tag: 'apps',      desc: 'Threads, replies, and user profiles for a niche community.' },
+  { name: 'Inventory Tracker',     tag: 'internal',  desc: 'SKU list, stock levels, and low-stock alerts for ops teams.' },
+  { name: 'Invoice Generator',     tag: 'internal',  desc: 'Line items, totals, and PDF export for freelancers and SMBs.' },
+  { name: 'Job Board',             tag: 'apps',      desc: 'Post, filter, and apply to listings — niche communities only.' },
+  { name: 'Kanban Board',          tag: 'project',   desc: 'Drag-and-drop columns, cards, and assignees for any team workflow.' },
+  { name: 'Lead-Gen Page',         tag: 'websites',  desc: 'Long-form sales page with form, testimonials, and FAQ.' },
+  { name: 'Magazine Layout',       tag: 'editorial', desc: 'Long-form article reader with featured stories and serif type.' },
+  { name: 'Music Player',          tag: 'music',     desc: 'Audio player with playlist, controls, and waveform preview.' },
+  { name: 'Newsletter Site',       tag: 'editorial', desc: 'Subscribe form + archive — wired to your ESP of choice.' },
+  { name: 'Onboarding Flow',       tag: 'internal',  desc: 'Multi-step new-user wizard with progress and persistence.' },
+  { name: 'Photographer Portfolio',tag: 'portfolio', desc: 'Image-first grid + lightbox for shoots and series.' },
+  { name: 'Podcast Site',          tag: 'music',     desc: 'Episode list, inline audio player, RSS feed, and show notes.' },
+  { name: 'Pricing Page',          tag: 'saas',      desc: 'Tiered plans, feature matrix, and CTA — A/B-ready.' },
+  { name: 'Product Catalog',       tag: 'ecommerce', desc: 'Filterable storefront grid with details, variants, and search.' },
+  { name: 'Product Roadmap',       tag: 'product',   desc: 'Public roadmap with quarter columns, status pills, and voting.' },
+  { name: 'REST API Console',      tag: 'developer', desc: 'In-browser API explorer with auth, headers, and response viewer.' },
+  { name: 'Restaurant Site',       tag: 'websites',  desc: 'Menu, hours, location, and a reservation form on one page.' },
+  { name: 'Shopify Storefront',    tag: 'ecommerce', desc: 'Custom headless storefront for your existing Shopify catalog.' },
+  { name: 'Stripe Checkout',       tag: 'ecommerce', desc: 'One-product or subscription checkout with Stripe in minutes.' },
+  { name: 'Support Helpdesk',      tag: 'internal',  desc: 'Ticket queue, statuses, and replies — internal-tool style.' },
+  { name: 'Survey Builder',        tag: 'product',   desc: 'Branching question flows with response export.' },
+  { name: 'Team Site',             tag: 'websites',  desc: 'About + team + careers page for early-stage companies.' },
+  { name: 'Voice Assistant',       tag: 'apps',      desc: 'Whisper + LLM + TTS — talk-and-reply demo in a browser tab.' },
+  { name: 'Writer Portfolio',      tag: 'editorial', desc: 'A clean reading-first site for essays, clips, and bylines.' },
+];
+
+var TAG_LABELS = {
+  websites: 'Websites', apps: 'Apps', portfolio: 'Portfolio', saas: 'SaaS',
+  blog: 'Blog', internal: 'Internal Tools', developer: 'Developer Tools',
+  editorial: 'Editorial', music: 'Music', product: 'Product Management',
+  ecommerce: 'Ecommerce', project: 'Project Management',
+};
+
+/* Same mock SVGs as the index page (cycled by index for visual variety) */
+var PREVIEW_MOCKS = [
+  '<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="500" fill="#0e0e12"/><rect x="20" y="20" width="80" height="14" rx="3" fill="#FFD400"/><rect x="320" y="20" width="60" height="14" rx="7" fill="#FFD400"/><text x="200" y="200" font-family="Inter" font-size="42" font-weight="700" fill="#fff" text-anchor="middle">Stop posting</text><text x="200" y="244" font-family="Inter" font-size="42" font-weight="700" fill="#FFD400" text-anchor="middle">into the void.</text><rect x="140" y="280" width="120" height="34" rx="3" fill="#FFD400"/><rect x="40" y="380" width="160" height="80" fill="#23c47b"/><rect x="200" y="380" width="160" height="80" fill="#ff5a3c"/></svg>',
+  '<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="500" fill="#3a3e1c"/><rect x="20" y="20" width="360" height="180" fill="#1c1e0e"/><circle cx="200" cy="110" r="60" fill="#bfd14b" opacity="0.9"/><text x="200" y="260" font-family="Georgia" font-size="34" font-weight="700" fill="#e8e8d8" text-anchor="middle">DIGITAL</text><text x="200" y="298" font-family="Georgia" font-size="34" font-weight="700" fill="#bfd14b" text-anchor="middle">AGENCY</text><rect x="40" y="340" width="320" height="2" fill="#bfd14b" opacity="0.4"/><rect x="40" y="360" width="240" height="6" rx="2" fill="#e8e8d8" opacity="0.55"/><rect x="40" y="376" width="200" height="6" rx="2" fill="#e8e8d8" opacity="0.55"/><rect x="40" y="392" width="180" height="6" rx="2" fill="#e8e8d8" opacity="0.55"/></svg>',
+  '<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="500" fill="#f56560"/><rect x="20" y="20" width="360" height="220" rx="6" fill="#11121b"/><text x="40" y="68" font-family="Inter" font-size="32" font-weight="700" fill="#fff">Credit</text><text x="40" y="100" font-family="Inter" font-size="13" fill="#aaa">Banking that works</text><text x="40" y="116" font-family="Inter" font-size="13" fill="#aaa">at your speed</text><rect x="40" y="160" width="60" height="60" rx="8" fill="#1f2030"/><rect x="110" y="160" width="60" height="60" rx="8" fill="#1f2030"/><rect x="180" y="160" width="60" height="60" rx="8" fill="#1f2030"/><rect x="20" y="260" width="360" height="220" rx="6" fill="#fff"/><rect x="40" y="280" width="120" height="10" rx="2" fill="#222"/><rect x="40" y="300" width="180" height="6" rx="2" fill="#888"/><path d="M40 410 L100 380 L160 400 L220 360 L280 380 L340 350" stroke="#f56560" stroke-width="2" fill="none"/><rect x="240" y="290" width="120" height="120" rx="60" fill="#f56560" opacity="0.18"/></svg>',
+  '<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="500" fill="#eee8d0"/><rect x="0" y="0" width="400" height="220" fill="#193a2c"/><text x="200" y="100" font-family="Inter" font-size="13" font-weight="600" fill="#fff" text-anchor="middle">PIXELFROG IS A</text><text x="200" y="120" font-family="Inter" font-size="13" font-weight="600" fill="#fff" text-anchor="middle">CREATIVE DIGITAL</text><text x="200" y="140" font-family="Inter" font-size="13" font-weight="600" fill="#fff" text-anchor="middle">AGENCY</text><rect x="0" y="220" width="400" height="40" fill="#ff5a3c"/><text x="200" y="247" font-family="Inter" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">CRAFTING BOLD · MEANINGFUL · LOUD</text><text x="40" y="300" font-family="Inter" font-size="18" font-weight="700" fill="#193a2c">PIXELFROG IS A</text><text x="40" y="324" font-family="Inter" font-size="18" font-weight="700" fill="#193a2c">CREATIVE DIGITAL</text><text x="40" y="348" font-family="Inter" font-size="18" font-weight="700" fill="#193a2c">AGENCY FOCUSED</text><circle cx="320" cy="380" r="40" fill="#ff5a3c"/><text x="320" y="385" font-family="Inter" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">BUILD</text><text x="320" y="400" font-family="Inter" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">THE FUN</text></svg>',
+  '<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="500" fill="#fff"/><rect x="20" y="40" width="360" height="190" fill="#fff" stroke="#000" stroke-width="1.5"/><text x="40" y="120" font-family="Georgia" font-size="36" font-weight="800" fill="#000">OFFSITES</text><rect x="240" y="70" width="110" height="130" fill="#fcdb2d" transform="rotate(-6 295 135)"/><rect x="255" y="80" width="110" height="130" fill="#fff" stroke="#000" transform="rotate(-3 310 145)"/><circle cx="305" cy="135" r="22" fill="#000"/><rect x="0" y="240" width="400" height="260" fill="#000"/><text x="200" y="370" font-family="Inter" font-size="42" font-weight="800" fill="#fff" text-anchor="middle">STUSY</text><text x="200" y="400" font-family="Inter" font-size="11" fill="#bbb" text-anchor="middle">03 — 13:48</text><circle cx="200" cy="430" r="40" fill="none" stroke="#444" stroke-width="1"/></svg>',
+  '<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="500" fill="#fff7f2"/><rect x="0" y="0" width="60" height="500" fill="#ff5a3c"/><rect x="80" y="20" width="60" height="14" rx="3" fill="#222"/><rect x="290" y="20" width="80" height="22" rx="11" fill="#222"/><text x="200" y="120" font-family="Georgia" font-size="22" font-weight="800" fill="#222" text-anchor="middle">We Build Brands</text><text x="200" y="148" font-family="Georgia" font-size="22" font-weight="800" fill="#222" text-anchor="middle">That Actually Grow</text><rect x="100" y="180" width="80" height="60" rx="6" fill="#d4c1b8"/><rect x="190" y="180" width="80" height="60" rx="6" fill="#a37050"/><rect x="280" y="180" width="80" height="60" rx="6" fill="#d8d8d4"/><path d="M80 380 L150 360 L220 340 L290 320 L360 290" stroke="#ff5a3c" stroke-width="2" fill="none"/><circle cx="150" cy="360" r="4" fill="#ff5a3c"/><circle cx="220" cy="340" r="4" fill="#ff5a3c"/><circle cx="290" cy="320" r="4" fill="#ff5a3c"/><text x="120" y="450" font-family="Inter" font-size="20" font-weight="700" fill="#222">$1.2B+</text><text x="220" y="450" font-family="Inter" font-size="14" fill="#666">18+</text><text x="320" y="450" font-family="Inter" font-size="14" fill="#666">75+</text></svg>',
+  '<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="500" fill="#3a1820"/><text x="200" y="60" font-family="Georgia" font-size="20" font-weight="600" fill="#f0e4d8" text-anchor="middle">Green materials and</text><text x="200" y="88" font-family="Georgia" font-style="italic" font-size="20" font-weight="600" fill="#f0e4d8" text-anchor="middle">mindful design choices.</text><rect x="40" y="110" width="65" height="55" fill="#8e6d52"/><rect x="115" y="110" width="65" height="55" fill="#a18268"/><rect x="190" y="110" width="65" height="55" fill="#6b4f3b"/><rect x="265" y="110" width="65" height="55" fill="#b59673"/><text x="200" y="240" font-family="Inter" font-size="22" font-weight="800" fill="#f0e4d8" text-anchor="middle">WE CRAFT</text><text x="200" y="270" font-family="Inter" font-size="22" font-weight="800" fill="#f0e4d8" text-anchor="middle">INTERIORS THAT</text><text x="200" y="300" font-family="Inter" font-size="22" font-weight="800" fill="#f0e4d8" text-anchor="middle">ELEVATE DAILY</text><text x="200" y="330" font-family="Inter" font-size="22" font-weight="800" fill="#f0e4d8" text-anchor="middle">LIVING</text><rect x="60" y="400" width="280" height="2" fill="#f0e4d8" opacity="0.4"/><rect x="60" y="420" width="280" height="6" rx="2" fill="#f0e4d8" opacity="0.6"/><rect x="60" y="436" width="220" height="6" rx="2" fill="#f0e4d8" opacity="0.6"/></svg>',
+  '<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="500" fill="#e9dcfa"/><rect x="20" y="20" width="360" height="40" rx="6" fill="#fff"/><text x="40" y="44" font-family="Inter" font-size="13" font-weight="600" fill="#222">Hypen</text><circle cx="350" cy="40" r="8" fill="#9b86d6"/><text x="40" y="120" font-family="Inter" font-size="22" font-weight="700" fill="#1a1a1a">Digital human</text><text x="40" y="148" font-family="Inter" font-size="22" font-weight="700" fill="#1a1a1a"><tspan fill="#9b86d6">visual</tspan> built for firm.</text><rect x="220" y="80" width="160" height="100" rx="8" fill="#fff"/><rect x="240" y="100" width="60" height="60" rx="6" fill="#d2b8f0"/><text x="40" y="240" font-family="Inter" font-size="15" font-weight="600" fill="#1a1a1a">A design partner built for</text><text x="40" y="262" font-family="Inter" font-size="15" font-weight="600" fill="#1a1a1a">execution and scale</text><rect x="40" y="290" width="320" height="60" rx="6" fill="#fff"/><rect x="40" y="360" width="320" height="40" rx="6" fill="#fff"/><rect x="40" y="410" width="320" height="40" rx="6" fill="#fff"/></svg>',
+  '<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="500" fill="#0c0c10"/><rect x="20" y="20" width="360" height="30" rx="4" fill="#1a1a22"/><circle cx="35" cy="35" r="4" fill="#ff5f56"/><circle cx="50" cy="35" r="4" fill="#febc2e"/><circle cx="65" cy="35" r="4" fill="#28c840"/><text x="40" y="100" font-family="monospace" font-size="11" fill="#7FDDC1">$ bolt new my-app</text><text x="40" y="120" font-family="monospace" font-size="11" fill="#7FDDC1">→ scaffolding...</text><text x="40" y="140" font-family="monospace" font-size="11" fill="rgba(255,255,255,0.55)">✓ project ready</text><text x="40" y="160" font-family="monospace" font-size="11" fill="rgba(255,255,255,0.55)">✓ deps installed</text><text x="40" y="180" font-family="monospace" font-size="11" fill="rgba(255,255,255,0.55)">✓ dev server up</text><text x="40" y="220" font-family="monospace" font-size="11" fill="#1488FC">[ready] http://localhost:5173</text><rect x="20" y="260" width="360" height="2" fill="rgba(255,255,255,0.10)"/><rect x="40" y="290" width="200" height="14" rx="2" fill="#fff" opacity="0.85"/><rect x="40" y="316" width="320" height="8" rx="2" fill="rgba(255,255,255,0.30)"/><rect x="40" y="332" width="280" height="8" rx="2" fill="rgba(255,255,255,0.30)"/><rect x="40" y="370" width="120" height="36" rx="3" fill="#1488FC"/><text x="100" y="393" font-family="Inter" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">Get Started</text></svg>',
+  '<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="500" fill="#f5f5f0"/><rect x="0" y="0" width="400" height="42" fill="#fff"/><text x="40" y="27" font-family="Inter" font-size="13" font-weight="600" fill="#1a1a1a">SHOP</text><text x="365" y="27" font-family="Inter" font-size="13" fill="#1a1a1a" text-anchor="end">🛒</text><text x="200" y="80" font-family="Georgia" font-size="20" font-weight="700" fill="#1a1a1a" text-anchor="middle">Spring 2026</text><rect x="20" y="100" width="170" height="200" rx="6" fill="#d8c8b0"/><circle cx="105" cy="200" r="50" fill="#a89070"/><rect x="210" y="100" width="170" height="200" rx="6" fill="#cdd6c4"/><rect x="240" y="140" width="110" height="120" rx="6" fill="#7a8c70"/><rect x="20" y="310" width="170" height="14" rx="2" fill="#1a1a1a"/><rect x="20" y="332" width="50" height="10" rx="2" fill="#888"/><rect x="210" y="310" width="170" height="14" rx="2" fill="#1a1a1a"/><rect x="210" y="332" width="50" height="10" rx="2" fill="#888"/><rect x="20" y="360" width="360" height="120" rx="6" fill="#1a1a1a"/><text x="200" y="425" font-family="Georgia" font-size="20" font-weight="700" fill="#fff" text-anchor="middle">Shop the Look</text></svg>'
+];
+
+function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); }
+
+/* Read ?slug= from URL; default to the first catalog entry if missing/unknown */
+(function () {
+  var params = new URLSearchParams(window.location.search);
+  var slug = params.get('slug') || '';
+  var item = CATALOG.find(function (i) { return slugify(i.name) === slug; }) || CATALOG[0];
+  var idx = CATALOG.indexOf(item);
+
+  document.title = item.name + ' — Bolt';
+  document.getElementById('crumb-current').textContent = item.name;
+  document.getElementById('detail-category').textContent = TAG_LABELS[item.tag];
+  document.getElementById('detail-name').textContent = item.name;
+  document.getElementById('detail-desc').textContent = item.desc;
+  document.getElementById('fact-category').textContent = TAG_LABELS[item.tag];
+  document.getElementById('detail-preview').innerHTML = PREVIEW_MOCKS[idx % PREVIEW_MOCKS.length];
+  document.getElementById('detail-preview-link').href = 'https://bolt.new/?prompt=' + encodeURIComponent('Build me a ' + item.name.toLowerCase() + '. ' + item.desc);
+
+  /* Related templates — 4 random others from the catalog (excluding the current one) */
+  var others = CATALOG.filter(function (i) { return i !== item; });
+  for (var i = others.length - 1; i > 0; i--) { var j = Math.floor((i * 9301 + 49297) % 233280 / 233280 * (i + 1)); var t = others[i]; others[i] = others[j]; others[j] = t; }
+  var related = others.slice(0, 4);
+  document.getElementById('related-grid').innerHTML = related.map(function (r, ridx) {
+    return '<a href="./?slug=' + slugify(r.name) + '" class="catalog-card">'
+      + '<div class="catalog-card-preview" aria-hidden="true">' + PREVIEW_MOCKS[(CATALOG.indexOf(r)) % PREVIEW_MOCKS.length] + '</div>'
+      + '<div class="catalog-card-foot">'
+      +   '<span class="catalog-card-name">' + r.name + '</span>'
+      +   '<span class="catalog-card-tag">' + TAG_LABELS[r.tag] + '</span>'
+      + '</div>'
+      + '</a>';
+  }).join('');
+})();
+</script>
+
+</body>
+</html>

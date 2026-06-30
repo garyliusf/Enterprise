@@ -849,12 +849,15 @@ var PREVIEW_MOCKS = [
   '<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="500" fill="#f5f5f0"/><rect x="0" y="0" width="400" height="42" fill="#fff"/><text x="40" y="27" font-family="Inter" font-size="13" font-weight="600" fill="#1a1a1a">SHOP</text><text x="365" y="27" font-family="Inter" font-size="13" fill="#1a1a1a" text-anchor="end">🛒</text><text x="200" y="80" font-family="Georgia" font-size="20" font-weight="700" fill="#1a1a1a" text-anchor="middle">Spring 2026</text><rect x="20" y="100" width="170" height="200" rx="6" fill="#d8c8b0"/><circle cx="105" cy="200" r="50" fill="#a89070"/><rect x="210" y="100" width="170" height="200" rx="6" fill="#cdd6c4"/><rect x="240" y="140" width="110" height="120" rx="6" fill="#7a8c70"/><rect x="20" y="310" width="170" height="14" rx="2" fill="#1a1a1a"/><rect x="20" y="332" width="50" height="10" rx="2" fill="#888"/><rect x="210" y="310" width="170" height="14" rx="2" fill="#1a1a1a"/><rect x="210" y="332" width="50" height="10" rx="2" fill="#888"/><rect x="20" y="360" width="360" height="120" rx="6" fill="#1a1a1a"/><text x="200" y="425" font-family="Georgia" font-size="20" font-weight="700" fill="#fff" text-anchor="middle">Shop the Look</text></svg>'
 ];
 
+/* Slug helper — turns "AI Chat App" into "ai-chat-app" so a card can deep-link to ./detail/?slug=ai-chat-app */
+function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); }
+
 /* ── Render featured grid (same card style as catalog) ────────────────── */
 (function () {
   var grid = document.getElementById('featured-grid');
   if (!grid) return;
   grid.innerHTML = FEATURED.map(function (i, idx) {
-    return '<a href="#" class="catalog-card">'
+    return '<a href="./detail/?slug=' + slugify(i.name) + '" class="catalog-card">'
       + '<div class="catalog-card-preview" aria-hidden="true">' + PREVIEW_MOCKS[idx % PREVIEW_MOCKS.length] + '</div>'
       + '<div class="catalog-card-foot">'
       +   '<span class="catalog-card-name">' + i.name + '</span>'
@@ -876,7 +879,7 @@ var PREVIEW_MOCKS = [
 
   function render(items) {
     grid.innerHTML = items.map(function (i, idx) {
-      return '<a href="#" class="catalog-card">'
+      return '<a href="./detail/?slug=' + slugify(i.name) + '" class="catalog-card">'
         + '<div class="catalog-card-preview" aria-hidden="true">' + previewFor(idx) + '</div>'
         + '<div class="catalog-card-foot">'
         +   '<span class="catalog-card-name">' + i.name + '</span>'
