@@ -109,14 +109,18 @@
 
   /* ─── INCLUDED ───────────────────────────────────────────────────── */
   .section-block { margin-bottom: clamp(64px, 9vh, 120px); }
+  /* Canonical blue eyebrow — exact spec from CLAUDE.md (16px Silkscreen, brand blue, 2px tracking, uppercase) */
   .section-eyebrow {
     font-family: 'Silkscreen', monospace;
-    font-size: 11px;
+    font-size: 16px;
+    font-weight: 400;
     letter-spacing: 2px;
     text-transform: uppercase;
     color: #1488FC;
-    margin: 0 0 12px;
+    margin: 0 0 16px;
+    display: inline-block;
   }
+  @media (max-width: 1024px) { .section-eyebrow { font-size: 13px; } }
   .section-headline {
     font-size: clamp(28px, 3.4vw, 40px);
     font-weight: 500;
@@ -125,42 +129,74 @@
     margin: 0 0 32px;
     color: #fff;
   }
-  .feature-grid {
+  /* Canonical visual container — radial gradient + paper-grid overlay + elevation shadow (matches solutions/_template .unlocks-visual) */
+  .unlocks-visual {
+    position: relative;
+    width: 100%;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 4px;
+    background: radial-gradient(600px 320px at 22% 80%, rgba(14,28,40,0.55), transparent 60%),
+                linear-gradient(180deg, #050608 0%, #000000 100%);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.04);
+    overflow: hidden;
+    padding: clamp(32px, 3.5vw, 56px);
+  }
+  .unlocks-visual::after {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(circle at 50% 50%, #000 25%, transparent 78%);
+    -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 25%, transparent 78%);
+    pointer-events: none;
+  }
+  .unlocks-visual > * { position: relative; z-index: 1; }
+  .unlocks-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
+    gap: 20px;
+    position: relative;
+    z-index: 1;
   }
-  .feature-card {
-    border: 1px solid rgba(255,255,255,0.10);
+  /* unlock cards — exact bolt-cli.html / solutions-template .unlock-card */
+  .unlock-card {
+    border: none;
     border-radius: 4px;
     padding: 24px 24px 28px;
     background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%);
-    transition: border-color 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 180px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s ease;
   }
-  .feature-card:hover { border-color: rgba(255,255,255,0.22); }
-  .feature-icon {
-    width: 36px; height: 36px;
+  .unlock-card:hover { border-color: rgba(255,255,255,0.22); }
+  .unlock-hover-canvas {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    image-rendering: pixelated;
+    z-index: 0;
+  }
+  .unlock-card:hover .unlock-hover-canvas { opacity: 0.10; }
+  .unlock-card > *:not(.unlock-hover-canvas) { position: relative; z-index: 1; }
+  .unlock-icon {
+    width: 44px; height: 44px;
     border-radius: 4px;
-    background: rgba(20,136,252,0.10);
-    border: 1px solid rgba(20,136,252,0.30);
-    display: flex; align-items: center; justify-content: center;
-    color: #1488FC;
-    margin-bottom: 16px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.85);
+    margin-bottom: 6px;
   }
-  .feature-icon svg { width: 18px; height: 18px; }
-  .feature-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: #fff;
-    margin: 0 0 8px;
-    letter-spacing: -0.2px;
-  }
-  .feature-desc {
-    font-size: 14px;
-    color: rgba(255,255,255,0.55);
-    line-height: 1.5;
-    margin: 0;
-  }
+  .unlock-icon svg { width: 20px; height: 20px; }
+  .unlock-title { font-size: 18px; font-weight: 600; color: #fff; margin: 0; letter-spacing: -0.2px; line-height: 1.35; }
+  .unlock-desc  { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.55; margin: 0; }
 
   /* ─── RELATED ────────────────────────────────────────────────────── */
   .related-grid {
@@ -215,13 +251,13 @@
   @media (max-width: 1024px) {
     .detail-hero { grid-template-columns: 1fr; gap: 32px; }
     .detail-info { max-width: 700px; }
-    .feature-grid { grid-template-columns: repeat(2, 1fr); }
+    .unlocks-grid { grid-template-columns: repeat(2,1fr); }
     .related-grid { grid-template-columns: repeat(3, 1fr); gap: 44px 16px; }
   }
   @media (max-width: 768px) {
     .detail-shell { padding-top: 96px; padding-bottom: 120px; }
     .detail-name { font-size: 32px; }
-    .feature-grid { grid-template-columns: 1fr; }
+    .unlocks-grid { grid-template-columns: 1fr; }
     .related-grid { grid-template-columns: repeat(2, 1fr); gap: 36px 12px; }
   }
 
@@ -340,46 +376,52 @@
 
   <!-- WHAT'S INCLUDED -->
   <section class="section-block">
-    <p class="section-eyebrow">What's included</p>
-    <h2 class="section-headline">Production-ready out of the box.</h2>
-    <div class="feature-grid">
-      <div class="feature-card">
-        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
-        <h3 class="feature-title">Responsive by default</h3>
-        <p class="feature-desc">Mobile, tablet, and desktop layouts handled automatically by Bolt — every breakpoint just works.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
-        <h3 class="feature-title">Edit code in the browser</h3>
-        <p class="feature-desc">Open the template in Bolt's in-browser IDE. Tweak the markup, prompt iterative changes, or rewrite a whole section.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16 16l-4-4-4 4"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg></div>
-        <h3 class="feature-title">One-click deploy</h3>
-        <p class="feature-desc">Bolt publishes to a live URL automatically. Connect a custom domain in minutes — no server management, no DevOps.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M16 12a4 4 0 1 1-8 0M9.17 14.83a4 4 0 0 1 5.66 0"/><path d="M20 12a8 8 0 1 1-16 0 8 8 0 0 1 16 0z"/></svg></div>
-        <h3 class="feature-title">SEO baked in</h3>
-        <p class="feature-desc">Semantic markup, meta tags, sitemap, and Open Graph defaults configured — ready to index from day one.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-        <h3 class="feature-title">Live in under two minutes</h3>
-        <p class="feature-desc">From clone to deploy, the average build takes under 60 seconds — even the first time.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></svg></div>
-        <h3 class="feature-title">Full-stack support</h3>
-        <p class="feature-desc">Add APIs, databases, and auth flows in the same project. Bolt scaffolds the backend alongside the template.</p>
+    <div class="dsa-reveal">
+      <p class="section-eyebrow eyebrow-scramble">What's included</p>
+      <h2 class="section-headline">Production-ready out of the box.</h2>
+    </div>
+    <div class="unlocks-visual">
+      <div class="unlocks-grid">
+        <div class="unlock-card"><canvas class="unlock-hover-canvas" aria-hidden="true"></canvas>
+          <div class="unlock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
+          <h3 class="unlock-title">Responsive by default</h3>
+          <p class="unlock-desc">Mobile, tablet, and desktop layouts handled automatically by Bolt — every breakpoint just works.</p>
+        </div>
+        <div class="unlock-card"><canvas class="unlock-hover-canvas" aria-hidden="true"></canvas>
+          <div class="unlock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+          <h3 class="unlock-title">Edit code in the browser</h3>
+          <p class="unlock-desc">Open the template in Bolt's in-browser IDE. Tweak the markup, prompt iterative changes, or rewrite a whole section.</p>
+        </div>
+        <div class="unlock-card"><canvas class="unlock-hover-canvas" aria-hidden="true"></canvas>
+          <div class="unlock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 16l-4-4-4 4"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg></div>
+          <h3 class="unlock-title">One-click deploy</h3>
+          <p class="unlock-desc">Bolt publishes to a live URL automatically. Connect a custom domain in minutes — no server management, no DevOps.</p>
+        </div>
+        <div class="unlock-card"><canvas class="unlock-hover-canvas" aria-hidden="true"></canvas>
+          <div class="unlock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M16 12a4 4 0 1 1-8 0M9.17 14.83a4 4 0 0 1 5.66 0"/><path d="M20 12a8 8 0 1 1-16 0 8 8 0 0 1 16 0z"/></svg></div>
+          <h3 class="unlock-title">SEO baked in</h3>
+          <p class="unlock-desc">Semantic markup, meta tags, sitemap, and Open Graph defaults configured — ready to index from day one.</p>
+        </div>
+        <div class="unlock-card"><canvas class="unlock-hover-canvas" aria-hidden="true"></canvas>
+          <div class="unlock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <h3 class="unlock-title">Live in under two minutes</h3>
+          <p class="unlock-desc">From clone to deploy, the average build takes under 60 seconds — even the first time.</p>
+        </div>
+        <div class="unlock-card"><canvas class="unlock-hover-canvas" aria-hidden="true"></canvas>
+          <div class="unlock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></svg></div>
+          <h3 class="unlock-title">Full-stack support</h3>
+          <p class="unlock-desc">Add APIs, databases, and auth flows in the same project. Bolt scaffolds the backend alongside the template.</p>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- RELATED -->
   <section class="section-block">
-    <p class="section-eyebrow">Keep exploring</p>
-    <h2 class="section-headline">More templates from the catalog</h2>
+    <div class="dsa-reveal">
+      <p class="section-eyebrow eyebrow-scramble">Keep exploring</p>
+      <h2 class="section-headline">More templates from the catalog</h2>
+    </div>
     <div class="related-grid" id="related-grid"></div>
   </section>
 
@@ -525,6 +567,31 @@ function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace
   } else {
     banner.classList.add('is-visible');
   }
+})();
+
+/* ── Unlock card hover noise — exact solutions/_template implementation ─── */
+(function () {
+  var dpr = window.devicePixelRatio || 1;
+  function drawHoverNoise(canvas) {
+    var w = Math.round(canvas.offsetWidth * dpr);
+    var h = Math.round(canvas.offsetHeight * dpr);
+    if (!w || !h) return;
+    canvas.width = w; canvas.height = h;
+    canvas.style.width = canvas.offsetWidth + 'px';
+    canvas.style.height = canvas.offsetHeight + 'px';
+    var ctx = canvas.getContext('2d');
+    var imgData = ctx.createImageData(w, h);
+    for (var i = 0; i < imgData.data.length; i += 4) {
+      var v = Math.floor(Math.random() * 80 + 30);
+      imgData.data[i] = v; imgData.data[i+1] = v; imgData.data[i+2] = v; imgData.data[i+3] = 255;
+    }
+    ctx.putImageData(imgData, 0, 0);
+  }
+  requestAnimationFrame(function () {
+    requestAnimationFrame(function () {
+      document.querySelectorAll('.unlock-hover-canvas').forEach(drawHoverNoise);
+    });
+  });
 })();
 </script>
 
