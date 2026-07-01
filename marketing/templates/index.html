@@ -231,13 +231,112 @@
   .unlocks-header { margin-bottom: clamp(32px, 5vh, 52px); position: relative; z-index: 1; }
   .unlocks-header .section-header { margin-bottom: 0; }
 
-  /* ─── FEATURED (4-up template-card grid, same look as the catalog) ── */
-  .featured-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 56px 20px;
+  /* ─── COLLECTIONS (bundled template packs — one collection per row) ── */
+  .collections-list {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
     position: relative;
     z-index: 1;
+  }
+  .collection-row {
+    display: grid;
+    grid-template-columns: minmax(0, 260px) 1fr;
+    gap: 40px;
+    align-items: start;
+    padding: 28px 0;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  .collection-row:first-child { border-top: none; padding-top: 0; }
+  .collection-side { display: flex; flex-direction: column; gap: 14px; }
+  .collection-eyebrow {
+    font-family: 'Silkscreen', monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #7FDDC1;
+    margin: 0;
+  }
+  .collection-name {
+    font-size: 22px;
+    font-weight: 500;
+    color: #fff;
+    margin: 0;
+    letter-spacing: -0.3px;
+    line-height: 1.25;
+  }
+  .collection-desc {
+    font-size: 14px;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.55;
+    margin: 0;
+  }
+  .collection-cta {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+    padding: 0;
+    background: none;
+    border: none;
+    color: #1488FC;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: -0.1px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.2s ease, gap 0.2s ease;
+  }
+  .collection-cta:hover { color: #8AC7FF; gap: 12px; }
+  .collection-cta svg { width: 14px; height: 14px; }
+  .collection-tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+  }
+  .collection-tile {
+    display: flex;
+    flex-direction: column;
+    background: transparent;
+    border: none;
+    padding: 0;
+    text-decoration: none;
+    transition: transform 0.25s ease;
+  }
+  .collection-tile:hover { transform: translateY(-2px); }
+  .collection-tile-preview {
+    aspect-ratio: 4 / 5;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #0a0a10;
+    border: 1px solid rgba(255,255,255,0.08);
+    transition: border-color 0.25s ease;
+  }
+  .collection-tile:hover .collection-tile-preview { border-color: rgba(255,255,255,0.22); }
+  .collection-tile-preview svg { width: 100%; height: 100%; display: block; }
+  .collection-tile-name {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.85);
+    margin-top: 10px;
+    letter-spacing: -0.1px;
+  }
+  .collection-tile-role {
+    font-family: 'Silkscreen', monospace;
+    font-size: 9px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    margin-top: 3px;
+  }
+  @media (max-width: 900px) {
+    .collection-row { grid-template-columns: 1fr; gap: 20px; padding: 24px 0; }
+  }
+  @media (max-width: 640px) {
+    .collection-tiles { grid-template-columns: repeat(2, 1fr); gap: 12px; }
   }
   .int-card {
     position: relative;
@@ -797,13 +896,13 @@
     <div class="unlocks-visual">
       <div class="dsa-reveal unlocks-header">
         <div class="section-header">
-          <p class="section-eyebrow eyebrow-scramble">Most popular</p>
-          <h2 class="section-headline">Templates teams reach for first</h2>
-          <p class="section-sub">A curated set of the templates Bolt teams clone on day one.</p>
+          <p class="section-eyebrow eyebrow-scramble">Collections</p>
+          <h2 class="section-headline">Everything you need, bundled</h2>
+          <p class="section-sub">Grab a stack of templates that fit together — spin up a full workflow in an afternoon instead of building each piece from scratch.</p>
         </div>
       </div>
-      <div class="featured-grid" id="featured-grid">
-        <!-- featured cards injected by JS -->
+      <div class="collections-list" id="collections-list">
+        <!-- collection rows injected by JS -->
       </div>
     </div>
   </div>
@@ -841,11 +940,48 @@
 <script src="../shared-components.js"></script>
 <script>
 /* ── Template data ─────────────────────────────────────────────────────── */
-var FEATURED = [
-  { name: 'Portfolio Website', abbr: 'PW', color: 'purple', tag: 'portfolio', desc: 'A personal site that shows your work without a CMS in the way.' },
-  { name: 'SaaS Landing',      abbr: 'SL', color: 'amber',  tag: 'saas',      desc: 'Hero + features + pricing + signup — the classic SaaS stack.' },
-  { name: 'AI Chat App',       abbr: 'AI', color: 'mint',   tag: 'apps',      desc: 'A chatbot or assistant powered by your favorite LLM API.' },
-  { name: 'Analytics Dashboard',abbr: 'AN',color: 'blue',   tag: 'internal',  desc: 'Funnel, retention, and revenue charts pulled from your warehouse.' },
+/* Bundled template packs. Each `templates` entry is { name, role }; the `name`
+   must match a CATALOG entry so the tile can deep-link to that detail page
+   and reuse the same PREVIEW_MOCK. `role` is the label shown under each tile
+   describing what job that template does inside the bundle. */
+var COLLECTIONS = [
+  {
+    key:  'service-business',
+    eyebrow: 'Service business',
+    name: 'Everything you need to run a services business',
+    desc: 'Website, CRM, scheduler, quote intake, and invoicing — the full stack for plumbers, agencies, consultants, and studios.',
+    templates: [
+      { name: 'Team Site',         role: 'Website' },
+      { name: 'CRM Lite',          role: 'CRM' },
+      { name: 'Booking App',       role: 'Scheduler' },
+      { name: 'Lead-Gen Page',     role: 'Quotes' },
+      { name: 'Invoice Generator', role: 'Invoicing' },
+    ],
+  },
+  {
+    key:  'saas-launch',
+    eyebrow: 'B2B SaaS launch',
+    name: 'Ship a SaaS product from marketing to metrics',
+    desc: 'Landing page, pricing, docs, and an internal dashboard — the pieces every SaaS team wires up in week one.',
+    templates: [
+      { name: 'SaaS Landing',        role: 'Marketing' },
+      { name: 'Pricing Page',        role: 'Pricing' },
+      { name: 'Documentation Site',  role: 'Docs' },
+      { name: 'Analytics Dashboard', role: 'Metrics' },
+    ],
+  },
+  {
+    key:  'creator-stack',
+    eyebrow: 'Creator stack',
+    name: 'Publish, distribute, and grow an audience',
+    desc: 'Portfolio + blog + newsletter + podcast — one place to route people to everything you make.',
+    templates: [
+      { name: 'Writer Portfolio', role: 'Portfolio' },
+      { name: 'Blog Site',        role: 'Blog' },
+      { name: 'Newsletter Site',  role: 'Newsletter' },
+      { name: 'Podcast Site',     role: 'Podcast' },
+    ],
+  },
 ];
 
 var CATALOG = [
@@ -945,18 +1081,40 @@ function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace
   host.innerHTML = halfHtml + halfHtml;
 })();
 
-/* ── Render featured grid (same card style as catalog) ────────────────── */
+/* ── Render collections list ──────────────────────────────────────────── */
 (function () {
-  var grid = document.getElementById('featured-grid');
-  if (!grid) return;
-  grid.innerHTML = FEATURED.map(function (i, idx) {
-    return '<a href="./detail/?slug=' + slugify(i.name) + '" class="catalog-card">'
-      + '<div class="catalog-card-preview" aria-hidden="true">' + PREVIEW_MOCKS[idx % PREVIEW_MOCKS.length] + '</div>'
-      + '<div class="catalog-card-foot">'
-      +   '<span class="catalog-card-name">' + i.name + '</span>'
-      +   '<span class="catalog-card-tag">' + TAG_LABELS[i.tag] + '</span>'
-      + '</div>'
-      + '</a>';
+  var host = document.getElementById('collections-list');
+  if (!host) return;
+  /* Build a name → CATALOG index map once so each tile's SVG stays deterministic
+     (mock cycled by the catalog position of the template, matching how the
+     catalog page below renders it). */
+  var catalogIdx = {};
+  CATALOG.forEach(function (t, i) { catalogIdx[t.name] = i; });
+
+  host.innerHTML = COLLECTIONS.map(function (c) {
+    var tiles = c.templates.map(function (t) {
+      var idx = catalogIdx[t.name];
+      var mock = idx != null ? PREVIEW_MOCKS[idx % PREVIEW_MOCKS.length] : PREVIEW_MOCKS[0];
+      var href = idx != null ? './detail/?slug=' + slugify(t.name) : '#';
+      return '<a href="' + href + '" class="collection-tile">'
+        +   '<div class="collection-tile-preview" aria-hidden="true">' + mock + '</div>'
+        +   '<div class="collection-tile-name">' + t.name + '</div>'
+        +   '<div class="collection-tile-role">' + t.role + '</div>'
+        + '</a>';
+    }).join('');
+
+    return '<div class="collection-row" id="collection-' + c.key + '">'
+      +   '<div class="collection-side">'
+      +     '<p class="collection-eyebrow">' + c.eyebrow + '</p>'
+      +     '<h3 class="collection-name">' + c.name + '</h3>'
+      +     '<p class="collection-desc">' + c.desc + '</p>'
+      +     '<a href="https://bolt.new/" target="_blank" rel="noopener" class="collection-cta">'
+      +       '<span>Clone the collection</span>'
+      +       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>'
+      +     '</a>'
+      +   '</div>'
+      +   '<div class="collection-tiles">' + tiles + '</div>'
+      + '</div>';
   }).join('');
 })();
 
