@@ -982,6 +982,11 @@
     margin: 0 0 4px;
   }
   .mkt-nav-panel-col a {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    align-self: flex-start;
     font-family: 'Inter', sans-serif;
     font-size: 15px;
     font-weight: 500;
@@ -989,9 +994,24 @@
     text-decoration: none;
     line-height: 1.4;
     padding: 4px 0;
-    transition: color 0.15s ease, transform 0.15s ease;
+    transition: color 0.18s ease, opacity 0.18s ease, transform 0.18s ease;
   }
-  .mkt-nav-panel-col a:hover { color: #1488FC; transform: translateX(2px); }
+  /* Slide-in arrow on the currently-hovered link — hidden until hover. */
+  .mkt-nav-panel-col a::after {
+    content: '→';
+    font-family: 'Inter', sans-serif;
+    color: currentColor;
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+  }
+  .mkt-nav-panel-col a:hover { color: #fff; }
+  .mkt-nav-panel-col a:hover::after { opacity: 1; transform: translateX(0); }
+  /* Focus-mode dim: when a specific link inside the panel is being hovered, dim every other link + heading + intro block so the hovered item pops. Uses :has() for a precise scope — only kicks in on a real link hover, not when the pointer is just anywhere in the panel. */
+  .mkt-nav-panel:has(.mkt-nav-panel-col a:hover) .mkt-nav-panel-col a,
+  .mkt-nav-panel:has(.mkt-nav-panel-col a:hover) .mkt-nav-panel-heading,
+  .mkt-nav-panel:has(.mkt-nav-panel-col a:hover) .mkt-nav-panel-intro { opacity: 0.32; }
+  .mkt-nav-panel:has(.mkt-nav-panel-col a:hover) .mkt-nav-panel-col a:hover { opacity: 1; }
   /* Overlay backdrop dim while a menu is open — subtle so the nav still shows through */
   .mkt-nav-scrim {
     position: fixed;
