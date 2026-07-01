@@ -964,7 +964,8 @@
     color: rgba(255,255,255,0.55);
     margin: 0;
   }
-  .mkt-nav-panel-col { display: flex; flex-direction: column; gap: 12px; }
+  /* No gap between links — each link's vertical padding fills the space instead so the entire column is one continuous hover zone (no dead pixels between links that would drop focus-mode dim state). */
+  .mkt-nav-panel-col { display: flex; flex-direction: column; gap: 0; }
   .mkt-nav-panel-heading {
     font-family: 'Silkscreen', monospace;
     font-size: 11px;
@@ -975,17 +976,18 @@
   }
   .mkt-nav-panel-col a {
     position: relative;
-    display: inline-flex;
+    /* display:flex (not inline-flex) + no align-self stretches the link across the whole column so cursor motion within the column stays hovered — even the empty right side of a link now counts as a hover, no cursor-triangle dropout between rows. */
+    display: flex;
     align-items: center;
     gap: 8px;
-    align-self: flex-start;
     font-family: 'Inter', sans-serif;
     font-size: 15px;
     font-weight: 500;
     color: rgba(255,255,255,0.85);
     text-decoration: none;
     line-height: 1.4;
-    padding: 4px 0;
+    /* Vertical padding replaces the column gap (12px) — total hit zone per link ≈ 20px + text height; no dead pixels between siblings. */
+    padding: 10px 0;
     transition: color 0.18s ease, opacity 0.18s ease, transform 0.18s ease;
   }
   /* Slide-in arrow on the currently-hovered link — hidden until hover. */
