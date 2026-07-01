@@ -903,7 +903,10 @@
     height: 1.5px;
     background: #fff;
     border-radius: 1px;
-    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), width 0.28s ease;
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+                width 0.28s ease,
+                left 0.28s ease,
+                opacity 0.18s ease;
     transform-origin: center;
   }
   .mkt-nav-burger span:nth-child(1) { top: 13px; }
@@ -911,6 +914,11 @@
   .mkt-nav-burger span:nth-child(3) { top: 25px; }
   /* Hover: middle bar extends to full width — subtle animated cue. */
   .mkt-nav-burger:hover span:nth-child(2) { width: 18px; left: 10px; }
+  /* Open state: three lines morph into an X. Top rotates 45° and drops to the middle row; middle fades; bottom rotates -45° and rises to the middle row. */
+  .mkt-nav-burger.is-open span { left: 10px; width: 18px; }
+  .mkt-nav-burger.is-open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+  .mkt-nav-burger.is-open span:nth-child(2) { opacity: 0; transform: scaleX(0.5); }
+  .mkt-nav-burger.is-open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
 
   /* Mega-menu panel — one panel per data-panel, anchors under the sticky nav */
   .mkt-nav-panel {
@@ -1097,10 +1105,12 @@
      ═══════════════════════════════════════════════════════════════════════ */
   .mkt-nav-mobile {
     position: fixed;
-    top: 0; left: 0; right: 0;
-    height: 100vh;
-    height: 100dvh;
-    z-index: 200;
+    /* Sits below the 68px sticky nav so the morphing hamburger stays visible + interactive above the drawer. */
+    top: 68px;
+    left: 0; right: 0;
+    height: calc(100vh - 68px);
+    height: calc(100dvh - 68px);
+    z-index: 90;
     background: rgba(10,10,16,0.98);
     -webkit-backdrop-filter: blur(24px);
             backdrop-filter: blur(24px);
@@ -1118,13 +1128,15 @@
   .mkt-nav-mobile-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    height: 68px;
+    justify-content: flex-start;
+    height: 52px;
     padding: 0 clamp(16px, 4vw, 40px);
-    border-bottom: 1px solid rgba(255,255,255,0.06);
     flex-shrink: 0;
   }
-  .mkt-nav-mobile-header .mkt-nav-logo svg { height: 20px; }
+  /* On home view the drawer header collapses — the nav bar above already shows the bolt.new logo and the morphed hamburger. Only the Back button matters, and it only appears on submenu views. */
+  .mkt-nav-mobile:not(.is-on-submenu) .mkt-nav-mobile-header { height: 0; padding: 0; overflow: hidden; }
+  .mkt-nav-mobile-header .mkt-nav-logo,
+  .mkt-nav-mobile-close { display: none; }
   .mkt-nav-mobile-close,
   .mkt-nav-mobile-back {
     background: none;
@@ -2064,14 +2076,12 @@ window.addEventListener('load', function () {
   if (scrim) scrim.addEventListener('click', function () { setOpen(null); });
 })();
 
-/* ── Mobile drawer — burger opens the full-screen sheet; drill-down navigation for Platform / Solutions / Resources with a back button; Escape or close-X exits. ─── */
+/* ── Mobile drawer — hamburger toggles the sheet + morphs into an X; drill-down navigation for Platform / Solutions / Resources with a Back button; Escape exits. The drawer sits below the sticky nav so the hamburger stays visible + interactive as the persistent close control. ─── */
 (function () {
   var drawer = document.getElementById('mkt-nav-mobile');
   if (!drawer) return;
   var burger = document.querySelector('.mkt-nav-burger');
-  var closeBtn = drawer.querySelector('.mkt-nav-mobile-close');
   var backBtn = drawer.querySelector('.mkt-nav-mobile-back');
-  var logo = drawer.querySelector('[data-mobile-role="logo"]');
   var views = drawer.querySelectorAll('.mkt-nav-mobile-view');
   var drills = drawer.querySelectorAll('[data-drill]');
 
@@ -2079,28 +2089,36 @@ window.addEventListener('load', function () {
     drawer.classList.add('is-open');
     drawer.setAttribute('aria-hidden', 'false');
     document.body.classList.add('mkt-nav-mobile-open');
-    if (burger) burger.setAttribute('aria-expanded', 'true');
-    /* Reset to home whenever it opens fresh. */
+    if (burger) {
+      burger.classList.add('is-open');
+      burger.setAttribute('aria-expanded', 'true');
+      burger.setAttribute('aria-label', 'Close menu');
+    }
     setView('home');
   }
   function closeDrawer() {
     drawer.classList.remove('is-open');
     drawer.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('mkt-nav-mobile-open');
-    if (burger) burger.setAttribute('aria-expanded', 'false');
+    if (burger) {
+      burger.classList.remove('is-open');
+      burger.setAttribute('aria-expanded', 'false');
+      burger.setAttribute('aria-label', 'Open menu');
+    }
+  }
+  function toggleDrawer() {
+    if (drawer.classList.contains('is-open')) closeDrawer();
+    else openDrawer();
   }
   function setView(key) {
     views.forEach(function (v) {
       v.classList.toggle('is-active', v.getAttribute('data-view') === key);
     });
-    /* Header swap — logo hides on submenus, Back button shows. */
-    var onHome = key === 'home';
-    if (logo) logo.hidden = !onHome;
-    if (backBtn) backBtn.hidden = onHome;
+    drawer.classList.toggle('is-on-submenu', key !== 'home');
+    if (backBtn) backBtn.hidden = key === 'home';
   }
 
-  if (burger) burger.addEventListener('click', openDrawer);
-  if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
+  if (burger) burger.addEventListener('click', toggleDrawer);
   if (backBtn) backBtn.addEventListener('click', function () { setView('home'); });
   drills.forEach(function (btn) {
     btn.addEventListener('click', function () {
