@@ -932,6 +932,82 @@
   }
   /* No gap between links — each link's vertical padding fills the space instead so the entire column is one continuous hover zone (no dead pixels between links that would drop focus-mode dim state). */
   .mkt-nav-panel-col { display: flex; flex-direction: column; gap: 0; }
+
+  /* Featured card on the left of each panel — desktop only. Not a link column, so it doesn't participate in the focus-mode dim of sibling anchors. */
+  .mkt-nav-panel-feature {
+    display: none;
+    padding: 14px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    text-decoration: none;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  .mkt-nav-panel-feature:hover { border-color: rgba(255,255,255,0.22); background: rgba(255,255,255,0.045); }
+  .mkt-nav-panel-feature-visual {
+    aspect-ratio: 3 / 2;
+    border-radius: 4px;
+    margin-bottom: 14px;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, rgba(20,136,252,0.85) 0%, rgba(127,221,193,0.4) 100%);
+  }
+  .mkt-nav-panel[data-panel="solutions"] .mkt-nav-panel-feature-visual { background: linear-gradient(135deg, rgba(250,182,98,0.85) 0%, rgba(255,90,60,0.55) 100%); }
+  .mkt-nav-panel[data-panel="resources"] .mkt-nav-panel-feature-visual { background: linear-gradient(135deg, rgba(127,221,193,0.85) 0%, rgba(20,136,252,0.55) 100%); }
+  .mkt-nav-panel-feature-visual::after {
+    /* Pixel-dot overlay for a subtle bolt texture across every gradient. */
+    content: '';
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.18) 1px, transparent 1px);
+    background-size: 8px 8px;
+    opacity: 0.55;
+  }
+  .mkt-nav-panel-feature-eyebrow {
+    font-family: 'Silkscreen', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    margin: 0 0 8px;
+  }
+  .mkt-nav-panel-feature-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+    color: #fff;
+    letter-spacing: -0.2px;
+    line-height: 1.25;
+    margin: 0 0 10px;
+  }
+  .mkt-nav-panel-feature-title::after {
+    content: '→';
+    font-size: 15px;
+    transition: transform 0.18s ease;
+  }
+  .mkt-nav-panel-feature:hover .mkt-nav-panel-feature-title::after { transform: translateX(4px); }
+  .mkt-nav-panel-feature-desc {
+    font-size: 13px;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.55;
+    margin: 0;
+  }
+  @media (min-width: 1025px) {
+    .mkt-nav-panel-feature { display: block; }
+    .mkt-nav-panel[data-panel="platform"] .mkt-nav-panel-inner {
+      grid-template-columns: 260px minmax(0, 300px);
+      max-width: 1120px;
+      justify-content: start;
+      gap: 40px;
+    }
+    .mkt-nav-panel[data-panel="solutions"] .mkt-nav-panel-inner,
+    .mkt-nav-panel[data-panel="resources"] .mkt-nav-panel-inner {
+      grid-template-columns: 260px repeat(3, minmax(0, 1fr));
+      gap: 32px 20px;
+    }
+  }
   .mkt-nav-panel-heading {
     font-family: 'Silkscreen', monospace;
     font-size: 11px;
@@ -1053,6 +1129,12 @@
   <!-- Mega panels — one per top-level menu, JS toggles .is-open on the matching data-panel -->
   <div class="mkt-nav-panel" data-panel="platform" aria-hidden="true">
     <div class="mkt-nav-panel-inner">
+      <a href="../bolt-cli.html" class="mkt-nav-panel-feature">
+        <div class="mkt-nav-panel-feature-visual" aria-hidden="true"></div>
+        <p class="mkt-nav-panel-feature-eyebrow">Featured</p>
+        <p class="mkt-nav-panel-feature-title">Build with the CLI</p>
+        <p class="mkt-nav-panel-feature-desc">Ship full-stack apps from your terminal — same model, no browser tab required.</p>
+      </a>
       <div class="mkt-nav-panel-col">
         <p class="mkt-nav-panel-heading">Product Overview</p>
         <a href="#">Platform (Build, Deploy, Govern)</a>
@@ -1066,6 +1148,12 @@
 
   <div class="mkt-nav-panel" data-panel="solutions" aria-hidden="true">
     <div class="mkt-nav-panel-inner">
+      <a href="../../solutions/ai-for-real-estate/" class="mkt-nav-panel-feature">
+        <div class="mkt-nav-panel-feature-visual" aria-hidden="true"></div>
+        <p class="mkt-nav-panel-feature-eyebrow">Featured solution</p>
+        <p class="mkt-nav-panel-feature-title">AI for Real Estate</p>
+        <p class="mkt-nav-panel-feature-desc">Templates and playbooks for agents, brokers, and prop-tech teams shipping with Bolt.</p>
+      </a>
       <div class="mkt-nav-panel-col">
         <p class="mkt-nav-panel-heading">Top Use Cases</p>
         <a href="#">AI App Builder</a>
@@ -1091,6 +1179,12 @@
 
   <div class="mkt-nav-panel" data-panel="resources" aria-hidden="true">
     <div class="mkt-nav-panel-inner">
+      <a href="#" class="mkt-nav-panel-feature">
+        <div class="mkt-nav-panel-feature-visual" aria-hidden="true"></div>
+        <p class="mkt-nav-panel-feature-eyebrow">Featured collection</p>
+        <p class="mkt-nav-panel-feature-title">Build with AI</p>
+        <p class="mkt-nav-panel-feature-desc">Guides for agents, AI-powered workflows, and full-stack apps with AI-assisted coding.</p>
+      </a>
       <div class="mkt-nav-panel-col">
         <p class="mkt-nav-panel-heading">Support</p>
         <a href="#">Community</a>
