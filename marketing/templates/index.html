@@ -401,6 +401,24 @@
   .catalog-section { background: #050508; }
   /* Tighten the eyebrow → search gap on the catalog specifically (shared .section-header uses 56px; that felt airy now that the H2 was removed). */
   .catalog-section .section-header { margin-bottom: 32px; }
+  /* Wrapping frame lets us paint a fade-out on the right edge to hint at more categories below the fold. Uses ::after so no extra DOM. Fade blends to the catalog-section bg (#050508). */
+  .catalog-filters-wrap {
+    position: relative;
+  }
+  .catalog-filters-wrap::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 1px;                 /* sit just above the border-bottom underline */
+    width: 84px;
+    pointer-events: none;
+    background: linear-gradient(90deg, rgba(5,5,8,0) 0%, rgba(5,5,8,0.75) 55%, #050508 100%);
+    -webkit-backdrop-filter: blur(0.5px);
+            backdrop-filter: blur(0.5px);
+    z-index: 2;
+  }
+  @media (max-width: 640px) { .catalog-filters-wrap::after { width: 56px; } }
   /* Icon-row filter bar — vertical icon+label cells, horizontal scroll on overflow */
   .catalog-filters {
     display: flex;
@@ -705,6 +723,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>
       <input type="search" class="catalog-search" id="catalog-search" placeholder="Search templates by name or category" aria-label="Search templates">
     </div>
+    <div class="catalog-filters-wrap">
     <div class="catalog-filters" id="catalog-filters">
         <button class="catalog-filter-btn is-active" data-filter="all" aria-label="All templates">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
@@ -759,6 +778,7 @@
           <span>Project Management</span>
         </button>
       </div>
+    </div>
     <div class="catalog-grid" id="catalog-grid">
       <!-- catalog cards injected by JS -->
     </div>
