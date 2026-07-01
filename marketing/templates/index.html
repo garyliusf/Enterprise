@@ -60,19 +60,31 @@
   }
   .hero-template-grid-inner {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 18px;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 22px;
     width: 100%;
     padding: 0 clamp(24px, 4vw, 80px);
-    filter: grayscale(1) contrast(0.85) blur(0.4px);
-    opacity: 0.11;
+    filter: grayscale(1) contrast(0.85) blur(0.5px);
+    opacity: 0.13;
+    /* Slow upward drift — the inner is rendered as TWO identical tile halves
+       stacked vertically, so translating up by exactly -50% jumps back to
+       the starting position seamlessly (no visible loop point). */
+    animation: heroTileDrift 60s linear infinite;
+    will-change: transform;
+  }
+  @keyframes heroTileDrift {
+    from { transform: translate3d(0, 0, 0); }
+    to   { transform: translate3d(0, -50%, 0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-template-grid-inner { animation: none; }
   }
   .hero-template-grid-tile {
     aspect-ratio: 4 / 5;
-    border-radius: 3px;
+    border-radius: 4px;
     overflow: hidden;
     background: #0a0a10;
-    border: 1px solid rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.06);
   }
   .hero-template-grid-tile svg { width: 100%; height: 100%; display: block; }
   @media (max-width: 768px) {
@@ -565,29 +577,56 @@
     line-height: 1.6;
     margin: -16px 0 0;
   }
-  /* Rotating name (odometer-style slide-up) — same as enterprise-v2 */
-  .rotating-name {
-    display: inline-block;
-    vertical-align: baseline;
+  /* ─── BOLT PROMPT BOX (copied verbatim from solutions/*, capped at 600px) ─── */
+  .re-prompt-shell {
+    width: 100%;
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 16px;
+    background: rgba(28,28,32,0.85);
     overflow: hidden;
-    line-height: 1.2;
-    height: 1.2em;
-    position: relative;
-    color: #FFB093;
-    font-family: 'Cormorant Garamond', Georgia, serif;
-    font-weight: 400;
-    font-style: italic;
-    font-size: 1.25em;
-    letter-spacing: 0.01em;
-    text-align: left;
-    transform: translateZ(0);
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    contain: paint;
+    transition: border-color 180ms ease, box-shadow 180ms ease;
   }
-  .rotating-name-track { display: block; line-height: 1.2; will-change: transform; text-align: left; }
-  @media (min-width: 768px) { .rotating-name-track { transform: translateZ(0); } }
-  .rotating-name-item { display: block; line-height: 1.2; white-space: nowrap; text-align: left; }
+  .re-prompt-shell:focus-within {
+    border-color: #1488FC;
+    box-shadow: 0 0 0 1px #1488FC;
+  }
+  .re-prompt-input {
+    width: 100%;
+    min-height: 92px;
+    max-height: 220px;
+    resize: none;
+    border: 0;
+    background: transparent;
+    color: #fff;
+    font-size: 15px;
+    line-height: 1.5;
+    font-family: 'Inter', sans-serif;
+    padding: 22px 22px 8px;
+    outline: none;
+  }
+  .re-prompt-input::placeholder { color: rgba(255,255,255,0.25); }
+  .re-prompt-input:focus::placeholder { color: transparent; }
+  .re-prompt-actions { display: flex; justify-content: flex-end; align-items: center; padding: 10px 14px 14px; background: transparent; }
+  .re-prompt-submit {
+    min-height: 36px;
+    padding: 0 16px;
+    border-radius: 999px;
+    border: 0;
+    background: #1488FC;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: filter 180ms ease, transform 180ms ease;
+  }
+  .re-prompt-submit svg { width: 16px; height: 16px; flex: 0 0 auto; }
+  .re-prompt-submit:hover { filter: brightness(0.94); transform: translateY(-1px); }
 
   /* ─── BOLT WORDMARK (verbatim from enterprise-v2) ────────────────────── */
   .bolt-image-wrap {
@@ -773,18 +812,18 @@
     <h2 class="footer-headline">Start building today</h2>
     <p class="footer-subtitle">Join thousands of teams shipping faster with our enterprise platform.</p>
   </div>
-  <div style="position:relative;width:100%;max-width:700px;margin-top:-152px;display:flex;flex-direction:column;align-items:center;">
-    <canvas id="footer-pixel-canvas" style="display:block;width:100%;height:192px;pointer-events:none;opacity:1;"></canvas>
-    <div class="card-form-strip" style="width:100%;border:1px solid rgba(255,255,255,0.08);border-radius:2px;margin-top:-16px;position:relative;z-index:1;">
-      <div class="card-strip-text">
-        <p class="card-strip-sub">Schedule a 1:1 with <span class="rotating-name" data-names='["Mason","Joe","Angelo"]'><span class="rotating-name-track"><span class="rotating-name-item">Mason</span></span></span></p>
-      </div>
-      <div class="hero-form-row">
-        <label class="sr-only" for="footer-email-input">Your work email</label><input id="footer-email-input" type="email" class="hero-email-input" placeholder="Your work email" aria-label="Your work email" />
-        <button class="hero-cta-button">
-          <div class="btn-bg-hover"></div>
-          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Started</span><span>Get Started</span></div></div>
-        </button>
+  <div style="position:relative;width:100%;max-width:600px;margin-top:-135px;">
+    <canvas id="footer-pixel-canvas" style="display:block;width:100%;height:160px;pointer-events:none;opacity:1;"></canvas>
+    <div class="re-prompt-shell" style="margin-top:-10px;position:relative;z-index:1;text-align:left;">
+      <label class="sr-only" for="footer-prompt-input">Describe what you want to build</label>
+      <textarea id="footer-prompt-input" class="re-prompt-input" rows="2" placeholder="Describe what you want to build…"></textarea>
+      <div class="re-prompt-actions">
+        <a href="https://bolt.new/" class="re-prompt-submit" id="footer-prompt-submit">
+          <span>Build now</span>
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor">
+            <path d="m4.497 20.835 16.51-7.363c1.324-.59 1.324-2.354 0-2.944L4.497 3.164c-1.495-.667-3.047.814-2.306 2.202l3.152 5.904c.245.459.245 1 0 1.458l-3.152 5.904c-.74 1.388.81 2.87 2.306 2.202Z"></path>
+          </svg>
+        </a>
       </div>
     </div>
   </div>
@@ -892,13 +931,14 @@ function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace
 (function () {
   var host = document.getElementById('hero-template-grid');
   if (!host) return;
-  /* ~32 tiles is enough to fill a wide viewport at 120px minmax; the CSS mask fades out anything past the visible band anyway. */
-  var TILES = 32;
-  var html = '';
-  for (var i = 0; i < TILES; i++) {
-    html += '<div class="hero-template-grid-tile">' + PREVIEW_MOCKS[i % PREVIEW_MOCKS.length] + '</div>';
+  /* Render ONE half of the tiles (~30 tiles fills a wide viewport at 170px minmax);
+     duplicate the block so translating up -50% wraps seamlessly. */
+  var HALF = 30;
+  var halfHtml = '';
+  for (var i = 0; i < HALF; i++) {
+    halfHtml += '<div class="hero-template-grid-tile">' + PREVIEW_MOCKS[i % PREVIEW_MOCKS.length] + '</div>';
   }
-  host.innerHTML = html;
+  host.innerHTML = halfHtml + halfHtml;
 })();
 
 /* ── Render featured grid (same card style as catalog) ────────────────── */
@@ -1104,76 +1144,6 @@ window.addEventListener('load', function () {
   );
 });
 
-/* ── Rotating name ("Schedule a 1:1 with X") — seamless loop, no stutter ─ */
-(function () {
-  var rotators = document.querySelectorAll('.rotating-name');
-  if (!rotators.length) return;
-  rotators.forEach(function (root) {
-    var track = root.querySelector('.rotating-name-track');
-    if (!track) return;
-    var names;
-    try { names = JSON.parse(root.getAttribute('data-names') || '[]'); } catch (e) { names = []; }
-    if (!Array.isArray(names) || names.length < 2) return;
-    track.innerHTML = '';
-    names.concat(names[0]).forEach(function (n) {
-      var s = document.createElement('span');
-      s.className = 'rotating-name-item';
-      s.textContent = n;
-      track.appendChild(s);
-    });
-    var isMobile = window.matchMedia && window.matchMedia('(max-width: 767px)').matches;
-    function itemHeightPx() {
-      var first = track.querySelector('.rotating-name-item');
-      return first ? first.getBoundingClientRect().height : 0;
-    }
-    function offsetForIdx(i) {
-      return isMobile ? (i * 1.2) + 'em' : (i * itemHeightPx()) + 'px';
-    }
-    function lockWidth() {
-      var probe = document.createElement('span');
-      probe.style.cssText = 'visibility:hidden;position:absolute;white-space:nowrap;';
-      root.appendChild(probe);
-      var maxW = 0;
-      for (var i = 0; i < names.length; i++) {
-        probe.textContent = names[i];
-        var w = probe.getBoundingClientRect().width;
-        if (w > maxW) maxW = w;
-      }
-      probe.remove();
-      if (maxW > 0) root.style.minWidth = Math.ceil(maxW) + 'px';
-    }
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(lockWidth);
-    else setTimeout(lockWidth, 200);
-    window.addEventListener('load', lockWidth);
-
-    var idx = 0;
-    function tick() {
-      idx += 1;
-      track.style.transition = 'transform 0.5s cubic-bezier(0.22, 1, 0.36, 1)';
-      track.style.transform = 'translateY(-' + offsetForIdx(idx) + ')';
-      if (idx === names.length) {
-        track.addEventListener('transitionend', function onEnd() {
-          track.removeEventListener('transitionend', onEnd);
-          track.style.transition = 'none';
-          track.style.transform = 'translateY(0)';
-          void track.offsetHeight;
-          idx = 0;
-        }, { once: true });
-      }
-    }
-    var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReduced) {
-      setInterval(function () {
-        idx = (idx + 1) % names.length;
-        track.style.transition = 'none';
-        track.style.transform = 'translateY(-' + offsetForIdx(idx) + ')';
-      }, 2500);
-      return;
-    }
-    setInterval(tick, 2500);
-  });
-})();
-
 /* ── Featured-bridge pixel canvas (horizontal band above the section) ── */
 (function () {
   if (typeof makePixelCanvas === 'function') {
@@ -1186,6 +1156,24 @@ window.addEventListener('load', function () {
       },
       0.75, [180, 200, 235]);
   }
+})();
+
+/* ── Footer prompt box → carry typed text to bolt.new/#prompt=<encoded>&autosubmit=true ─── */
+(function () {
+  var ta = document.getElementById('footer-prompt-input');
+  var btn = document.getElementById('footer-prompt-submit');
+  if (!ta || !btn) return;
+  function goToBolt(e) {
+    var text = (ta.value || '').trim();
+    var url = 'https://bolt.new/';
+    if (text) url += '?autosubmit=true#prompt=' + encodeURIComponent(text);
+    if (e) e.preventDefault();
+    window.open(url, '_blank', 'noopener');
+  }
+  btn.addEventListener('click', goToBolt);
+  ta.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) { goToBolt(e); }
+  });
 })();
 </script>
 </body>
