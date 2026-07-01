@@ -43,9 +43,41 @@
     inset: 0;
     width: 100%;
     height: 100%;
-    z-index: 1;
+    z-index: 2;
     pointer-events: none;
     opacity: 0.25;
+  }
+  /* Subtle template-tile field filling the empty lower half of the hero. Rendered behind the pixel canvas + hero content; grayscale + low opacity so it reads as a decorative wallpaper, not competing UI. Vertical linear-gradient mask fades in below the CTA and fades out before the featured section. */
+  .hero-template-grid {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 62%;
+    z-index: 1;
+    pointer-events: none;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 38%, #000 72%, transparent 100%);
+            mask-image: linear-gradient(180deg, transparent 0%, #000 38%, #000 72%, transparent 100%);
+  }
+  .hero-template-grid-inner {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 18px;
+    width: 100%;
+    padding: 0 clamp(24px, 4vw, 80px);
+    filter: grayscale(1) contrast(0.85) blur(0.4px);
+    opacity: 0.11;
+  }
+  .hero-template-grid-tile {
+    aspect-ratio: 4 / 5;
+    border-radius: 3px;
+    overflow: hidden;
+    background: #0a0a10;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  .hero-template-grid-tile svg { width: 100%; height: 100%; display: block; }
+  @media (max-width: 768px) {
+    /* Hero is tight on phones — the wallpaper reads as clutter, so hide it. */
+    .hero-template-grid { display: none; }
   }
   .hero-inner {
     position: relative;
@@ -615,6 +647,10 @@
 <!-- ─── HERO ──────────────────────────────────────────────────────────────── -->
 <section class="hero-section">
   <canvas id="hero-pixel-dots" aria-hidden="true"></canvas>
+  <!-- Decorative template-tile wallpaper (populated by JS from PREVIEW_MOCKS) -->
+  <div class="hero-template-grid" aria-hidden="true">
+    <div class="hero-template-grid-inner" id="hero-template-grid"></div>
+  </div>
   <div class="hero-inner">
     <h1 class="hero-h1">Start from a <span class="hero-h1-kw">template</span>,<br>ship the same day</h1>
     <p class="hero-subtitle">Portfolios, landing pages, internal tools, MVPs, dashboards, ecommerce — clone a working template and customize it in Bolt.</p>
@@ -851,6 +887,19 @@ var PREVIEW_MOCKS = [
 
 /* Slug helper — turns "AI Chat App" into "ai-chat-app" so a card can deep-link to ./detail/?slug=ai-chat-app */
 function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); }
+
+/* ── Hero decorative template-tile wallpaper ─────────────────────────── */
+(function () {
+  var host = document.getElementById('hero-template-grid');
+  if (!host) return;
+  /* ~32 tiles is enough to fill a wide viewport at 120px minmax; the CSS mask fades out anything past the visible band anyway. */
+  var TILES = 32;
+  var html = '';
+  for (var i = 0; i < TILES; i++) {
+    html += '<div class="hero-template-grid-tile">' + PREVIEW_MOCKS[i % PREVIEW_MOCKS.length] + '</div>';
+  }
+  host.innerHTML = html;
+})();
 
 /* ── Render featured grid (same card style as catalog) ────────────────── */
 (function () {
