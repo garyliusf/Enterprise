@@ -512,6 +512,10 @@
     -ms-overflow-style: none;
   }
   .catalog-filters::-webkit-scrollbar { display: none; }
+  /* Drag-to-scroll affordance — same pattern as the detail-page gallery. */
+  .catalog-filters { cursor: grab; -webkit-user-select: none; user-select: none; }
+  .catalog-filters.is-dragging { cursor: grabbing; }
+  .catalog-filters.is-dragging .catalog-filter-btn { pointer-events: none; }
   .catalog-filter-btn {
     flex: 0 0 auto;
     display: inline-flex;
@@ -1920,6 +1924,42 @@ function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace
   });
   search.addEventListener('input', apply);
   render(CATALOG);
+
+  /* Click-hold-drag horizontal scroll on the filter row — mirrors the detail gallery pattern. Window-bound pointermove/pointerup so a drag survives the cursor leaving the row; click swallowed above 5px of movement so an accidental drag doesn't fire a filter button. */
+  (function () {
+    var isDown = false, startX = 0, startScroll = 0, moved = 0;
+    function onMove(e) {
+      if (!isDown) return;
+      if (e.cancelable) e.preventDefault();
+      var dx = e.clientX - startX;
+      moved = Math.max(moved, Math.abs(dx));
+      filtersRow.scrollLeft = startScroll - dx;
+    }
+    function onUp() {
+      if (!isDown) return;
+      isDown = false;
+      filtersRow.classList.remove('is-dragging');
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', onUp);
+    }
+    var filtersRow = document.getElementById('catalog-filters');
+    if (!filtersRow) return;
+    filtersRow.addEventListener('pointerdown', function (e) {
+      if (e.button !== undefined && e.button !== 0) return;
+      /* Only kick in if the row is actually scrollable — no drag if everything fits. */
+      if (filtersRow.scrollWidth <= filtersRow.clientWidth + 1) return;
+      isDown = true; moved = 0;
+      startX = e.clientX; startScroll = filtersRow.scrollLeft;
+      filtersRow.classList.add('is-dragging');
+      window.addEventListener('pointermove', onMove, { passive: false });
+      window.addEventListener('pointerup', onUp);
+      window.addEventListener('pointercancel', onUp);
+    });
+    filtersRow.addEventListener('click', function (e) {
+      if (moved > 5) { e.preventDefault(); e.stopPropagation(); }
+    }, true);
+  })();
 })();
 
 /* ── makePixelCanvas helper (verbatim from enterprise-v2) ──────────────── */
