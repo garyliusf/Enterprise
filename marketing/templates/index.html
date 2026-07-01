@@ -13,6 +13,9 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
+  /* Kill any incidental horizontal page scroll — the collections strip + hero wallpaper bleed intentionally to the right edge, and any pixel-rounding elsewhere can push a child past 100vw. */
+  html { overflow-x: hidden; }
+  body { overflow-x: hidden; }
   body {
     background: #000;
     color: #fff;
@@ -513,8 +516,8 @@
     -ms-overflow-style: none;
   }
   .catalog-filters::-webkit-scrollbar { display: none; }
-  /* Drag-to-scroll affordance — same pattern as the detail-page gallery. */
-  .catalog-filters { cursor: grab; -webkit-user-select: none; user-select: none; }
+  /* Drag-to-scroll affordance — same pattern as the detail-page gallery. touch-action:pan-x tells the browser this element only handles horizontal gestures — vertical swipes pass through to scroll the page, so users can't accidentally drag the row up/down. */
+  .catalog-filters { cursor: grab; -webkit-user-select: none; user-select: none; touch-action: pan-x; }
   .catalog-filters.is-dragging { cursor: grabbing; }
   .catalog-filters.is-dragging .catalog-filter-btn { pointer-events: none; }
   .catalog-filter-btn {
