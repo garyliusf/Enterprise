@@ -540,19 +540,7 @@
     transition: color 0.2s ease;
     position: relative;
   }
-  /* Active-underline is a pseudo-element pinned near the bottom of the button — deterministic position, not affected by label line-box. 5px gap between the label and this underline so it never crowds the text. */
-  .catalog-filter-btn::after {
-    content: '';
-    position: absolute;
-    left: 12px;
-    right: 12px;
-    bottom: 5px;
-    height: 2px;
-    background: transparent;
-    transition: background 0.2s ease;
-    border-radius: 2px;
-  }
-  .catalog-filter-btn.is-active::after { background: #7FDDC1; }
+  /* Underline pseudo removed entirely — active category is signalled by mint color on the icon + label only. */
   .catalog-filter-btn svg { width: 22px; height: 22px; stroke: currentColor; flex-shrink: 0; }
   .catalog-filter-btn:hover { color: #fff; }
   .catalog-filter-btn.is-active { color: #7FDDC1; }
@@ -604,6 +592,12 @@
     .catalog-search { font-size: 12px; }
   }
   .catalog-search::-webkit-search-cancel-button { -webkit-appearance: none; }
+  /* Small fade-up animation replays every time the grid re-renders after a filter change or search input (JS toggles .is-fresh with a reflow between). */
+  @keyframes catalogGridFade {
+    from { opacity: 0.15; transform: translateY(4px); }
+    to   { opacity: 1;    transform: translateY(0); }
+  }
+  .catalog-grid.is-fresh { animation: catalogGridFade 0.3s cubic-bezier(0.22, 1, 0.36, 1) both; }
   .catalog-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1947,6 +1941,10 @@ function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace
         + '</a>';
     }).join('');
     empty.hidden = items.length > 0;
+    /* Replay the fade-up animation: drop the class, force a reflow, re-add. Without the reflow the browser coalesces the class toggle and no animation plays. */
+    grid.classList.remove('is-fresh');
+    void grid.offsetWidth;
+    grid.classList.add('is-fresh');
   }
 
   var activeFilter = 'all';
