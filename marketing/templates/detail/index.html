@@ -56,8 +56,49 @@
     overflow: hidden;
     background: #0a0a10;
     border: 1px solid rgba(255,255,255,0.10);
+    position: relative;
   }
   .detail-preview svg { width: 100%; height: 100%; display: block; }
+
+  /* ─── HORIZONTAL DRAG GALLERY (replaces the single preview) ───────── */
+  .detail-gallery { display: flex; flex-direction: column; gap: 14px; }
+  .detail-gallery-track {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    cursor: grab;
+    -webkit-user-select: none; user-select: none;
+    scroll-behavior: smooth;
+  }
+  .detail-gallery-track::-webkit-scrollbar { display: none; }
+  .detail-gallery-track.is-dragging { cursor: grabbing; scroll-behavior: auto; }
+  .detail-gallery-track.is-dragging .detail-gallery-slide { pointer-events: none; }
+  .detail-gallery-slide {
+    flex: 0 0 100%;
+    height: 100%;
+    scroll-snap-align: start;
+    display: block;
+  }
+  .detail-gallery-slide svg { width: 100%; height: 100%; display: block; pointer-events: none; }
+  /* Dot indicators below the gallery */
+  .detail-gallery-dots { display: flex; justify-content: center; gap: 8px; }
+  .detail-gallery-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.20);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+  .detail-gallery-dot:hover { background: rgba(255,255,255,0.45); }
+  .detail-gallery-dot.is-active { background: rgba(255,255,255,0.85); transform: scale(1.2); }
   .detail-info { display: flex; flex-direction: column; gap: 20px; }
   .detail-category {
     font-family: 'Silkscreen', monospace;
@@ -324,16 +365,13 @@
     flex-shrink: 0;
   }
   /* Smaller CTA height inside the banner (52px on the hero feels too tall here) */
-  .sticky-banner .hero-btn-primary,
-  .sticky-banner .hero-btn-ghost { height: 42px; min-width: 120px; padding: 0 22px; font-size: 14px; }
+  .sticky-banner .hero-btn-primary { height: 42px; min-width: 120px; padding: 0 22px; font-size: 14px; }
   @media (max-width: 640px) {
     .sticky-banner { padding: 10px 16px; }
     .sticky-banner-meta { gap: 10px; }
     .sticky-banner-thumb { width: 40px; height: 40px; }
     .sticky-banner-sub { display: none; }
-    .sticky-banner .hero-btn-primary,
-    .sticky-banner .hero-btn-ghost { height: 38px; min-width: 0; padding: 0 14px; font-size: 13px; }
-    .sticky-banner .hero-btn-ghost { display: none; } /* keep only Clone on tight phones */
+    .sticky-banner .hero-btn-primary { height: 38px; min-width: 0; padding: 0 14px; font-size: 13px; }
   }
 </style>
 </head>
@@ -350,7 +388,12 @@
 
   <!-- HERO -->
   <section class="detail-hero">
-    <div class="detail-preview" id="detail-preview" aria-hidden="true"></div>
+    <div class="detail-gallery">
+      <div class="detail-preview">
+        <div class="detail-gallery-track" id="detail-gallery-track" aria-hidden="true"></div>
+      </div>
+      <div class="detail-gallery-dots" id="detail-gallery-dots" role="tablist" aria-label="Preview gallery pagination"></div>
+    </div>
     <aside class="detail-info">
       <p class="detail-category" id="detail-category">Category</p>
       <h1 class="detail-name" id="detail-name">Template</h1>
@@ -358,11 +401,7 @@
       <div class="detail-cta-row">
         <a href="https://bolt.new/" target="_blank" rel="noopener" class="hero-btn-primary">
           <div class="btn-bg-hover"></div>
-          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Use this template</span><span>Use this template</span></div></div>
-        </a>
-        <a href="#" id="detail-preview-link" target="_blank" rel="noopener" class="hero-btn-ghost">
-          <div class="btn-bg-hover"></div>
-          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Live preview</span><span>Live preview</span></div></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Clone Template</span><span>Clone Template</span></div></div>
         </a>
       </div>
       <div class="detail-facts">
@@ -438,13 +477,9 @@
       </div>
     </div>
     <div class="sticky-banner-ctas">
-      <a href="#" id="sb-preview" target="_blank" rel="noopener" class="hero-btn-ghost">
-        <div class="btn-bg-hover"></div>
-        <div class="btn-text-wrap"><div class="btn-text-inner"><span>Preview</span><span>Preview</span></div></div>
-      </a>
       <a href="https://bolt.new/" target="_blank" rel="noopener" class="hero-btn-primary">
         <div class="btn-bg-hover"></div>
-        <div class="btn-text-wrap"><div class="btn-text-inner"><span>Clone</span><span>Clone</span></div></div>
+        <div class="btn-text-wrap"><div class="btn-text-inner"><span>Clone Template</span><span>Clone Template</span></div></div>
       </a>
     </div>
   </div>
@@ -530,8 +565,65 @@ function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace
   document.getElementById('detail-name').textContent = item.name;
   document.getElementById('detail-desc').textContent = item.desc;
   document.getElementById('fact-category').textContent = TAG_LABELS[item.tag];
-  document.getElementById('detail-preview').innerHTML = PREVIEW_MOCKS[idx % PREVIEW_MOCKS.length];
-  document.getElementById('detail-preview-link').href = 'https://bolt.new/?prompt=' + encodeURIComponent('Build me a ' + item.name.toLowerCase() + '. ' + item.desc);
+  /* Gallery — 3 placeholder slides cycled from PREVIEW_MOCKS for visual variety */
+  var track = document.getElementById('detail-gallery-track');
+  var dotsWrap = document.getElementById('detail-gallery-dots');
+  var slideCount = 3;
+  var slidesHtml = '';
+  var dotsHtml = '';
+  for (var s = 0; s < slideCount; s++) {
+    slidesHtml += '<div class="detail-gallery-slide">' + PREVIEW_MOCKS[(idx + s) % PREVIEW_MOCKS.length] + '</div>';
+    dotsHtml   += '<button type="button" class="detail-gallery-dot' + (s === 0 ? ' is-active' : '') + '" data-slide="' + s + '" aria-label="Go to slide ' + (s + 1) + '"></button>';
+  }
+  track.innerHTML = slidesHtml;
+  dotsWrap.innerHTML = dotsHtml;
+
+  /* Click-hold-drag horizontal scroll + dot sync */
+  (function () {
+    var isDown = false, startX = 0, startScroll = 0, moved = 0;
+    track.addEventListener('pointerdown', function (e) {
+      isDown = true; moved = 0;
+      startX = e.clientX; startScroll = track.scrollLeft;
+      track.classList.add('is-dragging');
+      try { track.setPointerCapture(e.pointerId); } catch (err) {}
+    });
+    track.addEventListener('pointermove', function (e) {
+      if (!isDown) return;
+      var dx = e.clientX - startX;
+      moved = Math.max(moved, Math.abs(dx));
+      track.scrollLeft = startScroll - dx;
+    });
+    function end(e) {
+      if (!isDown) return;
+      isDown = false;
+      track.classList.remove('is-dragging');
+      try { track.releasePointerCapture(e.pointerId); } catch (err) {}
+      /* Snap to the nearest slide after a release (scroll-snap handles the rest) */
+      var w = track.clientWidth || 1;
+      var target = Math.round(track.scrollLeft / w) * w;
+      track.scrollTo({ left: target, behavior: 'smooth' });
+    }
+    track.addEventListener('pointerup', end);
+    track.addEventListener('pointercancel', end);
+    track.addEventListener('pointerleave', function (e) { if (isDown) end(e); });
+    /* Suppress click events that bubble up from a real drag (so the page doesn't think you tapped a slide) */
+    track.addEventListener('click', function (e) { if (moved > 5) { e.preventDefault(); e.stopPropagation(); } }, true);
+
+    /* Sync dot active state to the current slide index */
+    var dots = dotsWrap.querySelectorAll('.detail-gallery-dot');
+    function syncDots() {
+      var w = track.clientWidth || 1;
+      var i = Math.round(track.scrollLeft / w);
+      dots.forEach(function (d, di) { d.classList.toggle('is-active', di === i); });
+    }
+    track.addEventListener('scroll', function () { window.requestAnimationFrame(syncDots); });
+    dots.forEach(function (d) {
+      d.addEventListener('click', function () {
+        var i = parseInt(d.getAttribute('data-slide'), 10) || 0;
+        track.scrollTo({ left: i * track.clientWidth, behavior: 'smooth' });
+      });
+    });
+  })();
 
   /* Related templates — 4 random others from the catalog (excluding the current one) */
   var others = CATALOG.filter(function (i) { return i !== item; });
@@ -552,7 +644,6 @@ function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace
   document.getElementById('sb-thumb').innerHTML = PREVIEW_MOCKS[idx % PREVIEW_MOCKS.length];
   document.getElementById('sb-name').textContent = item.name;
   document.getElementById('sb-sub').textContent = TAG_LABELS[item.tag] + ' · Free to clone';
-  document.getElementById('sb-preview').href = document.getElementById('detail-preview-link').href;
 
   /* Reveal once the hero is mostly scrolled past so the banner doesn't compete with the hero CTAs */
   var hero = document.querySelector('.detail-hero');
