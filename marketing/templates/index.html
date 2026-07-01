@@ -86,8 +86,8 @@
   }
   .hero-template-grid-tile svg { width: 100%; height: 100%; display: block; }
   @media (max-width: 768px) {
-    /* Hero is tight on phones — the wallpaper reads as clutter, so hide it. */
-    .hero-template-grid { display: none; }
+    /* Smaller tiles on phones so the wallpaper still reads as a grid without dominating the tight hero. */
+    .hero-template-grid-inner { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 14px; opacity: 0.10; }
   }
   .hero-inner {
     position: relative;
@@ -560,6 +560,8 @@
   @media (max-width: 768px) {
     .catalog-filter-btn { padding: 10px 12px 12px; font-size: 9px; letter-spacing: 0.5px; gap: 6px; }
     .catalog-filter-btn svg { width: 15px; height: 15px; }
+    /* Kill the active mint underline entirely on phones — active state is signalled by color alone. */
+    .catalog-filter-btn::after { display: none; }
   }
   @media (max-width: 480px) {
     .catalog-filter-btn { padding: 10px 10px 12px; font-size: 8.5px; gap: 6px; }
@@ -1970,10 +1972,14 @@ function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace
     var isDown = false, startX = 0, startScroll = 0, moved = 0;
     function onMove(e) {
       if (!isDown) return;
-      if (e.cancelable) e.preventDefault();
       var dx = e.clientX - startX;
       moved = Math.max(moved, Math.abs(dx));
-      filtersRow.scrollLeft = startScroll - dx;
+      /* Only enter drag mode after a real movement threshold — a pure tap never adds .is-dragging, so buttons keep their click behavior on mobile. */
+      if (moved > 4) {
+        if (!filtersRow.classList.contains('is-dragging')) filtersRow.classList.add('is-dragging');
+        if (e.cancelable) e.preventDefault();
+        filtersRow.scrollLeft = startScroll - dx;
+      }
     }
     function onUp() {
       if (!isDown) return;
@@ -1987,11 +1993,10 @@ function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace
     if (!filtersRow) return;
     filtersRow.addEventListener('pointerdown', function (e) {
       if (e.button !== undefined && e.button !== 0) return;
-      /* Only kick in if the row is actually scrollable — no drag if everything fits. */
       if (filtersRow.scrollWidth <= filtersRow.clientWidth + 1) return;
       isDown = true; moved = 0;
       startX = e.clientX; startScroll = filtersRow.scrollLeft;
-      filtersRow.classList.add('is-dragging');
+      /* NOTE: .is-dragging is only added inside onMove once movement exceeds 4px. */
       window.addEventListener('pointermove', onMove, { passive: false });
       window.addEventListener('pointerup', onUp);
       window.addEventListener('pointercancel', onUp);
