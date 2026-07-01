@@ -231,72 +231,42 @@
   .unlocks-header { margin-bottom: clamp(32px, 5vh, 52px); position: relative; z-index: 1; }
   .unlocks-header .section-header { margin-bottom: 0; }
 
-  /* ─── COLLECTIONS (bundled template packs — one collection per row) ── */
+  /* ─── COLLECTIONS (bundled template packs — one horizontal scroller per collection, bleeds to viewport right edge with a linear-gradient fade so the affordance to scroll is obvious) ── */
+  /* Left offset matches .section-inner's centered content so the eyebrow + first tile align with the catalog above. */
   .collections-list {
+    --collections-gutter: max(80px, calc((100vw - 1200px) / 2));
+    position: relative;
+    width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 32px;
-    position: relative;
-    z-index: 1;
+    gap: 44px;
+    margin-top: 40px;
   }
-  .collection-row {
-    display: grid;
-    grid-template-columns: minmax(0, 260px) 1fr;
-    gap: 40px;
-    align-items: start;
-    padding: 28px 0;
-    border-top: 1px solid rgba(255,255,255,0.08);
-  }
-  .collection-row:first-child { border-top: none; padding-top: 0; }
-  .collection-side { display: flex; flex-direction: column; gap: 14px; }
+  .collection-row { position: relative; }
   .collection-eyebrow {
     font-family: 'Silkscreen', monospace;
     font-size: 11px;
     letter-spacing: 1.5px;
     text-transform: uppercase;
     color: #7FDDC1;
-    margin: 0;
+    margin: 0 0 20px;
+    padding-left: var(--collections-gutter);
   }
-  .collection-name {
-    font-size: 22px;
-    font-weight: 500;
-    color: #fff;
-    margin: 0;
-    letter-spacing: -0.3px;
-    line-height: 1.25;
-  }
-  .collection-desc {
-    font-size: 14px;
-    color: rgba(255,255,255,0.55);
-    line-height: 1.55;
-    margin: 0;
-  }
-  .collection-cta {
-    align-self: flex-start;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 6px;
-    padding: 0;
-    background: none;
-    border: none;
-    color: #1488FC;
-    font-family: 'Inter', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    letter-spacing: -0.1px;
-    cursor: pointer;
-    text-decoration: none;
-    transition: color 0.2s ease, gap 0.2s ease;
-  }
-  .collection-cta:hover { color: #8AC7FF; gap: 12px; }
-  .collection-cta svg { width: 14px; height: 14px; }
   .collection-tiles {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 16px;
+    display: flex;
+    gap: 20px;
+    padding: 4px var(--collections-gutter) 4px var(--collections-gutter);
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    scroll-behavior: smooth;
+    /* Right-edge fade masks the last ~120px so it's clear more content sits offscreen. */
+    -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 calc(100% - 120px), transparent 100%);
+            mask-image: linear-gradient(90deg, #000 0%, #000 calc(100% - 120px), transparent 100%);
   }
+  .collection-tiles::-webkit-scrollbar { display: none; }
   .collection-tile {
+    flex: 0 0 240px;
     display: flex;
     flex-direction: column;
     background: transparent;
@@ -305,7 +275,7 @@
     text-decoration: none;
     transition: transform 0.25s ease;
   }
-  .collection-tile:hover { transform: translateY(-2px); }
+  .collection-tile:hover { transform: translateY(-3px); }
   .collection-tile-preview {
     aspect-ratio: 4 / 5;
     border-radius: 4px;
@@ -316,27 +286,34 @@
   }
   .collection-tile:hover .collection-tile-preview { border-color: rgba(255,255,255,0.22); }
   .collection-tile-preview svg { width: 100%; height: 100%; display: block; }
+  .collection-tile-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 4px 0;
+  }
   .collection-tile-name {
     font-family: 'Inter', sans-serif;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 500;
-    color: rgba(255,255,255,0.85);
-    margin-top: 10px;
+    color: rgba(255,255,255,0.92);
     letter-spacing: -0.1px;
   }
   .collection-tile-role {
     font-family: 'Silkscreen', monospace;
-    font-size: 9px;
+    font-size: 10px;
     letter-spacing: 1.2px;
     text-transform: uppercase;
-    color: rgba(255,255,255,0.4);
-    margin-top: 3px;
+    color: rgba(255,255,255,0.5);
+    white-space: nowrap;
   }
-  @media (max-width: 900px) {
-    .collection-row { grid-template-columns: 1fr; gap: 20px; padding: 24px 0; }
+  @media (max-width: 1024px) {
+    .collections-list { --collections-gutter: 40px; }
   }
-  @media (max-width: 640px) {
-    .collection-tiles { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  @media (max-width: 768px) {
+    .collections-list { --collections-gutter: 16px; gap: 36px; }
+    .collection-tile { flex: 0 0 200px; }
   }
   .int-card {
     position: relative;
@@ -890,21 +867,20 @@
   <canvas id="section-transition-canvas"></canvas>
 </div>
 
-<!-- ─── FEATURED ──────────────────────────────────────────────────────────── -->
+<!-- ─── COLLECTIONS ───────────────────────────────────────────────────────── -->
 <section class="section featured-section">
   <div class="section-inner">
-    <div class="unlocks-visual">
-      <div class="dsa-reveal unlocks-header">
-        <div class="section-header">
-          <p class="section-eyebrow eyebrow-scramble">Collections</p>
-          <h2 class="section-headline">Everything you need, bundled</h2>
-          <p class="section-sub">Grab a stack of templates that fit together — spin up a full workflow in an afternoon instead of building each piece from scratch.</p>
-        </div>
-      </div>
-      <div class="collections-list" id="collections-list">
-        <!-- collection rows injected by JS -->
+    <div class="dsa-reveal">
+      <div class="section-header">
+        <p class="section-eyebrow eyebrow-scramble">Collections</p>
+        <h2 class="section-headline">Everything you need, bundled</h2>
+        <p class="section-sub">Grab a stack of templates that fit together — spin up a full workflow in an afternoon instead of building each piece from scratch.</p>
       </div>
     </div>
+  </div>
+  <!-- Collections list sits outside .section-inner so each row's tile scroller can bleed to the viewport's right edge. Left offset is handled per-row via --collections-gutter. -->
+  <div class="collections-list" id="collections-list">
+    <!-- collection rows injected by JS -->
   </div>
 </section>
 
@@ -1098,21 +1074,15 @@ function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace
       var href = idx != null ? './detail/?slug=' + slugify(t.name) : '#';
       return '<a href="' + href + '" class="collection-tile">'
         +   '<div class="collection-tile-preview" aria-hidden="true">' + mock + '</div>'
-        +   '<div class="collection-tile-name">' + t.name + '</div>'
-        +   '<div class="collection-tile-role">' + t.role + '</div>'
+        +   '<div class="collection-tile-foot">'
+        +     '<span class="collection-tile-name">' + t.name + '</span>'
+        +     '<span class="collection-tile-role">' + t.role + '</span>'
+        +   '</div>'
         + '</a>';
     }).join('');
 
     return '<div class="collection-row" id="collection-' + c.key + '">'
-      +   '<div class="collection-side">'
-      +     '<p class="collection-eyebrow">' + c.eyebrow + '</p>'
-      +     '<h3 class="collection-name">' + c.name + '</h3>'
-      +     '<p class="collection-desc">' + c.desc + '</p>'
-      +     '<a href="https://bolt.new/" target="_blank" rel="noopener" class="collection-cta">'
-      +       '<span>Clone the collection</span>'
-      +       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>'
-      +     '</a>'
-      +   '</div>'
+      +   '<p class="collection-eyebrow">' + c.eyebrow + '</p>'
       +   '<div class="collection-tiles">' + tiles + '</div>'
       + '</div>';
   }).join('');
