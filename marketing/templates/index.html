@@ -1062,12 +1062,173 @@
     .mkt-nav-items { display: none; }
     .mkt-nav-signin { display: none; }
     .mkt-nav-burger { display: inline-flex; }
-    /* On tablet+phone the mega menu collapses into a full-viewport sheet driven by the burger — kept simple for the prototype: same panel styles, stacked columns. */
-    .mkt-nav-panel-inner,
-    .mkt-nav-panel[data-panel="platform"] .mkt-nav-panel-inner,
-    .mkt-nav-panel[data-panel="solutions"] .mkt-nav-panel-inner,
-    .mkt-nav-panel[data-panel="resources"] .mkt-nav-panel-inner { grid-template-columns: 1fr; gap: 32px; padding: 32px 20px; }
+    /* On tablet+phone the desktop mega-panels are hidden entirely — the mobile drawer below takes over. */
+    .mkt-nav-panel { display: none !important; }
   }
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     MOBILE DRAWER — full-screen slide-in sheet with drill-down navigation.
+     Only visible on ≤1024px. Home view lists top-level items; tapping a
+     "Platform" / "Solutions" / "Resources" pushes a submenu view; a Back
+     button returns to home. Sticky footer holds primary CTAs.
+     ═══════════════════════════════════════════════════════════════════════ */
+  .mkt-nav-mobile {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 100vh;
+    height: 100dvh;
+    z-index: 200;
+    background: #0a0a10;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+    visibility: hidden;
+  }
+  .mkt-nav-mobile.is-open {
+    transform: translateX(0);
+    visibility: visible;
+  }
+  .mkt-nav-mobile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 68px;
+    padding: 0 clamp(16px, 4vw, 40px);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    flex-shrink: 0;
+  }
+  .mkt-nav-mobile-header .mkt-nav-logo svg { height: 20px; }
+  .mkt-nav-mobile-close,
+  .mkt-nav-mobile-back {
+    background: none;
+    border: none;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    padding: 8px;
+  }
+  .mkt-nav-mobile-close svg { width: 20px; height: 20px; }
+  .mkt-nav-mobile-back svg { width: 16px; height: 16px; }
+  .mkt-nav-mobile-body {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+  .mkt-nav-mobile-view {
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+    padding: 28px clamp(16px, 4vw, 40px) 28px;
+    transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.32s ease;
+    pointer-events: none;
+  }
+  /* Home slides out to the left when a submenu takes over. */
+  .mkt-nav-mobile-view[data-view="home"] { transform: translateX(-30%); opacity: 0.4; }
+  /* Submenus start off-screen to the right. */
+  .mkt-nav-mobile-view:not([data-view="home"]) { transform: translateX(100%); }
+  .mkt-nav-mobile-view.is-active {
+    transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .mkt-nav-mobile-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 14px 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 20px;
+    font-weight: 500;
+    color: #fff;
+    background: none;
+    border: none;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .mkt-nav-mobile-item svg { width: 16px; height: 16px; color: rgba(255,255,255,0.4); }
+  .mkt-nav-mobile-heading {
+    font-family: 'Silkscreen', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+    margin: 20px 0 4px;
+    padding-left: 12px;
+    border-left: 1px solid rgba(255,255,255,0.08);
+  }
+  .mkt-nav-mobile-links {
+    display: flex;
+    flex-direction: column;
+    padding-left: 12px;
+    border-left: 1px solid rgba(255,255,255,0.08);
+    margin: 4px 0 12px;
+  }
+  .mkt-nav-mobile-links a {
+    padding: 10px 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+    color: #fff;
+    text-decoration: none;
+  }
+  .mkt-nav-mobile-feature {
+    display: block;
+    padding: 4px 0 16px;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    margin-bottom: 8px;
+  }
+  .mkt-nav-mobile-feature-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 22px;
+    font-weight: 500;
+    color: #fff;
+    letter-spacing: -0.2px;
+    margin: 0 0 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .mkt-nav-mobile-feature-desc {
+    font-size: 14px;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.5;
+    margin: 0;
+  }
+  .mkt-nav-mobile-footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px clamp(16px, 4vw, 40px);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    flex-shrink: 0;
+  }
+  .mkt-nav-mobile-footer .hero-btn-primary {
+    flex: 1;
+    height: 44px;
+    padding: 0 20px;
+    font-size: 14px;
+    border-radius: 999px;
+  }
+  .mkt-nav-mobile-footer .mkt-nav-mobile-signin {
+    color: rgba(255,255,255,0.75);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    text-decoration: none;
+    padding: 0 8px;
+    flex-shrink: 0;
+  }
+  @media (min-width: 1025px) { .mkt-nav-mobile { display: none; } }
+  /* When the mobile drawer is open, lock body scroll. Class added by JS. */
+  body.mkt-nav-mobile-open { overflow: hidden; }
 </style>
 </head>
 <body>
@@ -1205,6 +1366,129 @@
   </div>
 </nav>
 <div class="mkt-nav-scrim" aria-hidden="true"></div>
+
+<!-- Mobile drawer — full-screen slide-in sheet with drill-down. Only rendered on ≤1024px via CSS. -->
+<div class="mkt-nav-mobile" id="mkt-nav-mobile" aria-hidden="true" role="dialog" aria-label="Menu">
+  <div class="mkt-nav-mobile-header">
+    <!-- Left slot swaps: logo on home view, Back on submenu views. Both live in the DOM; JS toggles which is visible via a class on the drawer. -->
+    <a href="../../" class="mkt-nav-logo" aria-label="bolt.new home" data-mobile-role="logo">
+      <svg viewBox="0 0 85 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M26.1121 20.9491C21.0582 20.9491 18.4869 17.9995 18.4869 14.3126C18.4869 9.9472 21.9744 5.99476 27.0283 5.99476C32.0822 5.99476 34.6535 8.94434 34.6535 12.6313C34.6535 16.9967 31.166 20.9491 26.1121 20.9491ZM26.319 16.2593C28.0923 16.2593 29.2154 14.6665 29.2154 12.8968C29.2154 11.481 28.2992 10.6846 26.8214 10.6846C25.0481 10.6846 23.925 12.2774 23.925 14.0471C23.925 15.4629 24.8412 16.2593 26.319 16.2593Z" fill="#fff"/>
+        <path d="M40.0368 20.5952H34.717L39.0615 0.921487H44.3814L40.0368 20.5952Z" fill="#fff"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M10.4272 20.9491C8.80168 20.9491 7.20572 20.3592 6.28951 19.0909L5.96635 20.5867L0 23.75L0.644095 20.5867L4.9891 0.921487H10.309L8.77213 7.853C10.0134 6.49619 11.1661 5.99476 12.6438 5.99476C15.8358 5.99476 17.9637 8.08896 17.9637 11.9234C17.9637 15.8758 15.5107 20.9491 10.4272 20.9491ZM12.4665 13.0443C12.4665 14.873 11.1661 16.2593 9.48145 16.2593C8.53569 16.2593 7.6786 15.9053 7.11705 15.2859L7.94459 11.658C8.56524 11.0385 9.27456 10.6846 10.1021 10.6846C11.373 10.6846 12.4665 11.6285 12.4665 13.0443Z" fill="#fff"/>
+        <path d="M49.9163 20.9491C46.8426 20.9491 44.6555 19.8283 44.6555 17.3506C44.6555 17.1442 44.6851 16.6427 44.7737 16.2298L45.9264 10.9501H43.562L44.5964 6.34871H46.9608L47.8179 2.45527L53.7735 0L53.1378 2.46127L52.2807 6.34871H55.1771L54.1426 10.9501H51.2462L50.4778 14.4306C50.4187 14.696 50.3892 14.991 50.3892 15.109C50.3892 15.7874 50.8029 16.2593 51.7191 16.2593C51.9851 16.2593 52.3693 16.1708 52.458 16.1118V20.3592C51.8965 20.7427 50.8916 20.9491 49.9163 20.9491Z" fill="#fff"/>
+        <path d="M56.461 21.0087C55.7527 21.0087 55.1886 20.4196 55.1886 19.7127C55.1886 18.8879 55.897 18.1941 56.7234 18.1941C57.4317 18.1941 57.9958 18.7832 57.9958 19.4901C57.9958 20.3149 57.2875 21.0087 56.461 21.0087Z" fill="#fff"/>
+        <path d="M65.3576 20.8386H62.9964L63.7309 17.5133C63.7572 17.3955 63.8097 17.186 63.8097 17.0289C63.8097 16.5969 63.4292 16.4398 63.0488 16.4398C62.5372 16.4398 62.183 16.7016 61.9338 16.9242L61.068 20.8386H58.7068L60.1104 14.5153H62.4716L62.3011 15.2354C62.7602 14.8164 63.3374 14.3582 64.295 14.3582C65.6199 14.3582 66.3807 15.0783 66.3807 16.0209C66.3807 16.1256 66.3414 16.4136 66.3151 16.5314L65.3576 20.8386Z" fill="#fff"/>
+        <path d="M70.256 20.9956C68.2096 20.9956 66.7929 19.9745 66.7929 18.1155C66.7929 16.0994 68.3408 14.3582 70.5577 14.3582C72.1319 14.3582 73.5223 15.3139 73.5223 17.2384C73.5223 17.6704 73.4436 18.1679 73.3781 18.4035H69.1279V18.4166C69.1279 18.5083 69.5083 19.2021 70.4265 19.2021C70.925 19.2021 71.5153 19.0843 71.8039 18.8879L72.5254 20.4196C71.8826 20.8255 71.0169 20.9956 70.256 20.9956ZM69.3509 16.9111H71.4366V16.8718C71.4366 16.6885 71.2136 16.1518 70.4659 16.1518C69.8363 16.1518 69.4296 16.6362 69.3509 16.9111Z" fill="#fff"/>
+        <path d="M81.7599 20.8386H79.1888L78.9265 17.3038L77.1293 20.8386H74.5582L74.1254 14.5153H76.4866L76.5521 17.9977L78.4411 14.5153H80.5531L80.881 17.9977L82.4945 14.5153H85L81.7599 20.8386Z" fill="#fff"/>
+      </svg>
+    </a>
+    <button class="mkt-nav-mobile-back" data-back hidden aria-label="Back to menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+      BACK
+    </button>
+    <button class="mkt-nav-mobile-close" aria-label="Close menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+    </button>
+  </div>
+
+  <div class="mkt-nav-mobile-body">
+    <!-- Home view — top-level items -->
+    <div class="mkt-nav-mobile-view is-active" data-view="home">
+      <button class="mkt-nav-mobile-item" data-drill="platform">
+        Platform
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <button class="mkt-nav-mobile-item" data-drill="solutions">
+        Solutions
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <button class="mkt-nav-mobile-item" data-drill="resources">
+        Resources
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <a class="mkt-nav-mobile-item" href="./">Templates</a>
+      <a class="mkt-nav-mobile-item" href="../../enterprise">Enterprise</a>
+      <a class="mkt-nav-mobile-item" href="../pricing.html">Pricing</a>
+    </div>
+
+    <!-- Platform submenu -->
+    <div class="mkt-nav-mobile-view" data-view="platform">
+      <a href="../bolt-cli.html" class="mkt-nav-mobile-feature">
+        <p class="mkt-nav-mobile-feature-title">Build with the CLI →</p>
+        <p class="mkt-nav-mobile-feature-desc">Ship full-stack apps from your terminal — same model, no browser tab required.</p>
+      </a>
+      <p class="mkt-nav-mobile-heading">Product Overview</p>
+      <div class="mkt-nav-mobile-links">
+        <a href="#">Platform (Build, Deploy, Govern)</a>
+        <a href="#">Security &amp; Trust</a>
+        <a href="#">Technology</a>
+        <a href="#">Product Updates</a>
+        <a href="#">Integrations &amp; Connectors</a>
+      </div>
+    </div>
+
+    <!-- Solutions submenu -->
+    <div class="mkt-nav-mobile-view" data-view="solutions">
+      <a href="../../solutions/ai-for-real-estate/" class="mkt-nav-mobile-feature">
+        <p class="mkt-nav-mobile-feature-title">AI for Real Estate →</p>
+        <p class="mkt-nav-mobile-feature-desc">Templates and playbooks for agents, brokers, and prop-tech teams shipping with Bolt.</p>
+      </a>
+      <p class="mkt-nav-mobile-heading">Top Use Cases</p>
+      <div class="mkt-nav-mobile-links">
+        <a href="#">AI App Builder</a>
+        <a href="#">AI Website Builder</a>
+      </div>
+      <p class="mkt-nav-mobile-heading">Roles</p>
+      <div class="mkt-nav-mobile-links">
+        <a href="#">Product Management</a>
+        <a href="#">Marketing</a>
+        <a href="#">Sales</a>
+        <a href="#">Designers</a>
+        <a href="#">Web Development</a>
+        <a href="#">Founders</a>
+        <a href="#">People Operations</a>
+      </div>
+      <p class="mkt-nav-mobile-heading">Business Type</p>
+      <div class="mkt-nav-mobile-links">
+        <a href="../../solutions/smb/">Small Business</a>
+        <a href="../../enterprise">Enterprise</a>
+      </div>
+    </div>
+
+    <!-- Resources submenu -->
+    <div class="mkt-nav-mobile-view" data-view="resources">
+      <a href="#" class="mkt-nav-mobile-feature">
+        <p class="mkt-nav-mobile-feature-title">Build with AI →</p>
+        <p class="mkt-nav-mobile-feature-desc">Guides for agents, AI-powered workflows, and full-stack apps with AI-assisted coding.</p>
+      </a>
+      <p class="mkt-nav-mobile-heading">Support</p>
+      <div class="mkt-nav-mobile-links">
+        <a href="#">Community</a>
+        <a href="#">Help Center</a>
+        <a href="#">Become a partner</a>
+        <a href="#">How-to Demos Library</a>
+      </div>
+      <p class="mkt-nav-mobile-heading">Partners</p>
+      <div class="mkt-nav-mobile-links">
+        <a href="#">Become a partner</a>
+      </div>
+      <p class="mkt-nav-mobile-heading">Learn</p>
+      <div class="mkt-nav-mobile-links">
+        <a href="#">Blog</a>
+        <a href="#">Customer Stories</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="mkt-nav-mobile-footer">
+    <a href="https://bolt.new/" target="_blank" rel="noopener" class="hero-btn-primary">
+      <div class="btn-bg-hover"></div>
+      <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Started</span><span>Get Started</span></div></div>
+    </a>
+    <a href="https://bolt.new/signin" class="mkt-nav-mobile-signin">Sign in</a>
+  </div>
+</div>
 
 <!-- ─── HERO ──────────────────────────────────────────────────────────────── -->
 <section class="hero-section">
@@ -1755,6 +2039,54 @@ window.addEventListener('load', function () {
     if (e.key === 'Escape' && openKey) setOpen(null);
   });
   if (scrim) scrim.addEventListener('click', function () { setOpen(null); });
+})();
+
+/* ── Mobile drawer — burger opens the full-screen sheet; drill-down navigation for Platform / Solutions / Resources with a back button; Escape or close-X exits. ─── */
+(function () {
+  var drawer = document.getElementById('mkt-nav-mobile');
+  if (!drawer) return;
+  var burger = document.querySelector('.mkt-nav-burger');
+  var closeBtn = drawer.querySelector('.mkt-nav-mobile-close');
+  var backBtn = drawer.querySelector('.mkt-nav-mobile-back');
+  var logo = drawer.querySelector('[data-mobile-role="logo"]');
+  var views = drawer.querySelectorAll('.mkt-nav-mobile-view');
+  var drills = drawer.querySelectorAll('[data-drill]');
+
+  function openDrawer() {
+    drawer.classList.add('is-open');
+    drawer.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('mkt-nav-mobile-open');
+    if (burger) burger.setAttribute('aria-expanded', 'true');
+    /* Reset to home whenever it opens fresh. */
+    setView('home');
+  }
+  function closeDrawer() {
+    drawer.classList.remove('is-open');
+    drawer.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('mkt-nav-mobile-open');
+    if (burger) burger.setAttribute('aria-expanded', 'false');
+  }
+  function setView(key) {
+    views.forEach(function (v) {
+      v.classList.toggle('is-active', v.getAttribute('data-view') === key);
+    });
+    /* Header swap — logo hides on submenus, Back button shows. */
+    var onHome = key === 'home';
+    if (logo) logo.hidden = !onHome;
+    if (backBtn) backBtn.hidden = onHome;
+  }
+
+  if (burger) burger.addEventListener('click', openDrawer);
+  if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
+  if (backBtn) backBtn.addEventListener('click', function () { setView('home'); });
+  drills.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      setView(btn.getAttribute('data-drill'));
+    });
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && drawer.classList.contains('is-open')) closeDrawer();
+  });
 })();
 </script>
 </body>
