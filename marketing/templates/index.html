@@ -770,9 +770,332 @@
     .footer-section { padding: 64px 16px 0; }
     .footer-headline { font-size: clamp(28px, 8vw, 40px); }
   }
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     NAVBAR — sticky top chrome + mega-menu dropdown pattern (retool-inspired,
+     applied to our design tokens: Silkscreen eyebrows, Inter body, brand blue,
+     rgba(5,5,7,0.72) glass background with backdrop-blur, 2px borders/radii)
+     ═══════════════════════════════════════════════════════════════════════ */
+  .mkt-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    width: 100%;
+    background: rgba(5,5,7,0.72);
+    -webkit-backdrop-filter: saturate(140%) blur(18px);
+            backdrop-filter: saturate(140%) blur(18px);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .mkt-nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    height: 68px;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 clamp(16px, 4vw, 80px);
+  }
+  /* Logo */
+  .mkt-nav-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+  .mkt-nav-logo-mark {
+    width: 26px; height: 26px;
+    border-radius: 4px;
+    background: #1488FC;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-family: 'Silkscreen', monospace;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  /* Nav items (center row) */
+  .mkt-nav-items {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    flex: 1;
+    justify-content: center;
+  }
+  .mkt-nav-items li { margin: 0; }
+  .mkt-nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 14px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.75);
+    background: none;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.15s ease, background 0.15s ease;
+  }
+  .mkt-nav-link:hover { color: #fff; background: rgba(255,255,255,0.05); }
+  .mkt-nav-link.is-active { color: #fff; }
+  .mkt-nav-link.is-active::after {
+    /* Active-page underline dot — sits on the sticky nav border so it visually anchors to the page below. */
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: #1488FC;
+  }
+  .mkt-nav-link { position: relative; }
+  .mkt-nav-link .mkt-nav-chev {
+    width: 12px; height: 12px;
+    transition: transform 0.2s ease;
+  }
+  .mkt-nav-link.is-open .mkt-nav-chev { transform: rotate(180deg); }
+  .mkt-nav-link.is-open { color: #fff; background: rgba(255,255,255,0.05); }
+  /* Right-side actions */
+  .mkt-nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-shrink: 0;
+  }
+  .mkt-nav-signin {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.75);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+  .mkt-nav-signin:hover { color: #fff; }
+  .mkt-nav-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 38px;
+    padding: 0 18px;
+    border-radius: 2px;
+    background: #1488FC;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.1px;
+    text-decoration: none;
+    transition: background 0.15s ease, transform 0.15s ease;
+  }
+  .mkt-nav-cta:hover { background: #0f6fd0; transform: translateY(-1px); }
+  /* Hamburger (mobile) */
+  .mkt-nav-burger {
+    display: none;
+    width: 36px; height: 36px;
+    background: none;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 4px;
+    color: #fff;
+    align-items: center; justify-content: center;
+    cursor: pointer;
+  }
+  .mkt-nav-burger svg { width: 18px; height: 18px; }
+
+  /* Mega-menu panel — one panel per data-panel, anchors under the sticky nav */
+  .mkt-nav-panel {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(8,8,12,0.98);
+    -webkit-backdrop-filter: saturate(140%) blur(24px);
+            backdrop-filter: saturate(140%) blur(24px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.55);
+    opacity: 0;
+    transform: translateY(-6px);
+    pointer-events: none;
+    transition: opacity 0.18s ease, transform 0.18s ease;
+  }
+  .mkt-nav-panel.is-open {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  .mkt-nav-panel-inner {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr 1fr;
+    gap: 48px;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 40px clamp(16px, 4vw, 80px) 48px;
+  }
+  .mkt-nav-panel-intro { display: flex; flex-direction: column; gap: 14px; padding-right: 12px; border-right: 1px solid rgba(255,255,255,0.06); }
+  .mkt-nav-panel-eyebrow {
+    font-family: 'Silkscreen', monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #1488FC;
+    margin: 0;
+  }
+  .mkt-nav-panel-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: -0.4px;
+    line-height: 1.2;
+    color: #fff;
+    margin: 0;
+  }
+  .mkt-nav-panel-desc {
+    font-size: 14px;
+    line-height: 1.55;
+    color: rgba(255,255,255,0.55);
+    margin: 0;
+  }
+  .mkt-nav-panel-col { display: flex; flex-direction: column; gap: 12px; }
+  .mkt-nav-panel-heading {
+    font-family: 'Silkscreen', monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    margin: 0 0 4px;
+  }
+  .mkt-nav-panel-col a {
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.85);
+    text-decoration: none;
+    line-height: 1.4;
+    padding: 4px 0;
+    transition: color 0.15s ease, transform 0.15s ease;
+  }
+  .mkt-nav-panel-col a:hover { color: #1488FC; transform: translateX(2px); }
+  /* Overlay backdrop dim while a menu is open — subtle so the nav still shows through */
+  .mkt-nav-scrim {
+    position: fixed;
+    top: 68px; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.18s ease;
+    z-index: 99;
+  }
+  .mkt-nav-scrim.is-open { opacity: 1; pointer-events: auto; }
+
+  @media (max-width: 1024px) {
+    .mkt-nav-items { display: none; }
+    .mkt-nav-signin { display: none; }
+    .mkt-nav-burger { display: inline-flex; }
+    /* On tablet+phone the mega menu collapses into a full-viewport sheet driven by the burger — kept simple for the prototype: same panel styles, stacked columns. */
+    .mkt-nav-panel-inner { grid-template-columns: 1fr; gap: 32px; padding: 32px 20px; }
+    .mkt-nav-panel-intro { padding-right: 0; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 24px; }
+  }
 </style>
 </head>
 <body>
+
+<!-- ─── NAVBAR ────────────────────────────────────────────────────────────── -->
+<nav class="mkt-nav" aria-label="Primary">
+  <div class="mkt-nav-inner">
+    <a href="../../" class="mkt-nav-logo" aria-label="Bolt home">
+      <span class="mkt-nav-logo-mark">b</span>
+      <span>Bolt</span>
+    </a>
+
+    <ul class="mkt-nav-items">
+      <li>
+        <button class="mkt-nav-link" data-menu="platform" aria-haspopup="true" aria-expanded="false">
+          Platform
+          <svg class="mkt-nav-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </li>
+      <li>
+        <button class="mkt-nav-link" data-menu="solutions" aria-haspopup="true" aria-expanded="false">
+          Solutions
+          <svg class="mkt-nav-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </li>
+      <li><a href="./" class="mkt-nav-link is-active">Templates</a></li>
+      <li><a href="../pricing.html" class="mkt-nav-link">Pricing</a></li>
+      <li><a href="../../enterprise" class="mkt-nav-link">Enterprise</a></li>
+    </ul>
+
+    <div class="mkt-nav-actions">
+      <a href="https://bolt.new/signin" class="mkt-nav-signin">Sign in</a>
+      <a href="https://bolt.new/" target="_blank" rel="noopener" class="mkt-nav-cta">Get Started</a>
+    </div>
+
+    <button class="mkt-nav-burger" aria-label="Open menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+    </button>
+  </div>
+
+  <!-- Mega panels — one per top-level menu, JS toggles .is-open on the matching data-panel -->
+  <div class="mkt-nav-panel" data-panel="platform" aria-hidden="true">
+    <div class="mkt-nav-panel-inner">
+      <div class="mkt-nav-panel-intro">
+        <p class="mkt-nav-panel-eyebrow">Platform</p>
+        <p class="mkt-nav-panel-title">Ship full-stack apps from a prompt</p>
+        <p class="mkt-nav-panel-desc">Everything you need to go from an idea to a live URL — preview, iterate, and deploy in your browser.</p>
+      </div>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Product</p>
+        <a href="https://bolt.new">Bolt.new</a>
+        <a href="../bolt-cli.html">Bolt CLI</a>
+        <a href="../microsoft.html">Microsoft integration</a>
+        <a href="../../enterprise">Bolt for Enterprise</a>
+      </div>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Capabilities</p>
+        <a href="#">Agents</a>
+        <a href="#">App builder</a>
+        <a href="#">Workflows</a>
+        <a href="#">Deploy anywhere</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="mkt-nav-panel" data-panel="solutions" aria-hidden="true">
+    <div class="mkt-nav-panel-inner">
+      <div class="mkt-nav-panel-intro">
+        <p class="mkt-nav-panel-eyebrow">Solutions</p>
+        <p class="mkt-nav-panel-title">Purpose-built for the way you work</p>
+        <p class="mkt-nav-panel-desc">Guides, template bundles, and integrations tuned to specific industries and roles.</p>
+      </div>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">By industry</p>
+        <a href="../../solutions/ai-for-real-estate/">AI for Real Estate</a>
+        <a href="../../solutions/smb/">Small Business</a>
+        <a href="#">Financial Services</a>
+        <a href="#">Healthcare</a>
+      </div>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">By role</p>
+        <a href="#">Product Managers</a>
+        <a href="#">Designers</a>
+        <a href="#">Marketers</a>
+        <a href="#">Founders</a>
+      </div>
+    </div>
+  </div>
+</nav>
+<div class="mkt-nav-scrim" aria-hidden="true"></div>
 
 <!-- ─── HERO ──────────────────────────────────────────────────────────────── -->
 <section class="hero-section">
@@ -1258,6 +1581,67 @@ window.addEventListener('load', function () {
   ta.addEventListener('keydown', function (e) {
     if (e.key === 'Enter' && !e.shiftKey) { goToBolt(e); }
   });
+})();
+
+/* ── Navbar mega-menu — hover to preview, click to lock, outside-click/ESC closes ─── */
+(function () {
+  var nav = document.querySelector('.mkt-nav');
+  if (!nav) return;
+  var scrim = document.querySelector('.mkt-nav-scrim');
+  var triggers = nav.querySelectorAll('.mkt-nav-link[data-menu]');
+  var panels = nav.querySelectorAll('.mkt-nav-panel');
+  var openKey = null;         /* which menu is currently open, if any */
+  var hoverTimer = null;
+
+  function setOpen(key) {
+    openKey = key;
+    triggers.forEach(function (t) {
+      var active = t.getAttribute('data-menu') === key;
+      t.classList.toggle('is-open', active);
+      t.setAttribute('aria-expanded', active ? 'true' : 'false');
+    });
+    panels.forEach(function (p) {
+      var active = p.getAttribute('data-panel') === key;
+      p.classList.toggle('is-open', active);
+      p.setAttribute('aria-hidden', active ? 'false' : 'true');
+    });
+    if (scrim) scrim.classList.toggle('is-open', !!key);
+  }
+
+  triggers.forEach(function (t) {
+    /* Click toggles; useful for touch / keyboard users. */
+    t.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var key = t.getAttribute('data-menu');
+      setOpen(openKey === key ? null : key);
+    });
+    /* Hover opens after a short delay to avoid triggering on incidental mouseovers. */
+    t.addEventListener('mouseenter', function () {
+      var key = t.getAttribute('data-menu');
+      clearTimeout(hoverTimer);
+      hoverTimer = setTimeout(function () { setOpen(key); }, 80);
+    });
+  });
+
+  /* Keep the menu open when the pointer is inside the panel, close when both trigger + panel are left. */
+  panels.forEach(function (p) {
+    p.addEventListener('mouseenter', function () { clearTimeout(hoverTimer); });
+    p.addEventListener('mouseleave', function () {
+      hoverTimer = setTimeout(function () { setOpen(null); }, 120);
+    });
+  });
+  nav.addEventListener('mouseleave', function () {
+    hoverTimer = setTimeout(function () { setOpen(null); }, 120);
+  });
+
+  /* Outside-click + Escape close. */
+  document.addEventListener('click', function (e) {
+    if (openKey && !nav.contains(e.target)) setOpen(null);
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && openKey) setOpen(null);
+  });
+  if (scrim) scrim.addEventListener('click', function () { setOpen(null); });
 })();
 </script>
 </body>
