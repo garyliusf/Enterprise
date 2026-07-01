@@ -535,18 +535,27 @@
     color: rgba(255,255,255,0.55);
     background: none;
     border: none;
-    border-bottom: 1px solid transparent;
     cursor: pointer;
     white-space: nowrap;
-    transition: color 0.2s ease, border-color 0.2s ease;
+    transition: color 0.2s ease;
     position: relative;
-    margin-bottom: -1px;
   }
+  /* Active-underline is a pseudo-element pinned to the very bottom of the button — deterministic 2px position, not affected by label line-box / Silkscreen metrics / any surrounding padding. */
+  .catalog-filter-btn::after {
+    content: '';
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 0;
+    height: 2px;
+    background: transparent;
+    transition: background 0.2s ease;
+  }
+  .catalog-filter-btn.is-active::after { background: #7FDDC1; }
   .catalog-filter-btn svg { width: 22px; height: 22px; stroke: currentColor; flex-shrink: 0; }
   .catalog-filter-btn:hover { color: #fff; }
-  .catalog-filter-btn.is-active { color: #7FDDC1; border-bottom-color: #7FDDC1; }
-  /* Tight predictable label line-box. Silkscreen has generous internal metrics — line-height:1 tames that, and margin-bottom on the span forces a visible pixel gap between the last row of the glyph and the button's border-bottom below. */
-  .catalog-filter-btn span { line-height: 1; display: inline-block; margin-bottom: 6px; }
+  .catalog-filter-btn.is-active { color: #7FDDC1; }
+  .catalog-filter-btn span { line-height: 1; display: block; }
   @media (max-width: 768px) {
     .catalog-filter-btn { padding: 10px 12px 12px; font-size: 9px; letter-spacing: 0.5px; gap: 6px; }
     .catalog-filter-btn svg { width: 15px; height: 15px; }
