@@ -828,9 +828,15 @@
   @media (max-width: 1024px) {
     .mkt-nav-logo svg { height: 24px; }
   }
-  /* Nav-bar Back button — only visible on mobile when a submenu is open. Replaces the logo in the same slot. */
+  /* Logo ↔ Back slot: both live stacked in the same left-anchored slot so we can crossfade + rotate one out while the other rotates + fades in. Logo is visible by default; adding .is-on-submenu on .mkt-nav flips them. */
+  .mkt-nav-logo,
   .mkt-nav-back {
-    display: none;
+    transition: opacity 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    transform-origin: left center;
+  }
+  .mkt-nav-back {
+    display: inline-flex;
     align-items: center;
     gap: 6px;
     background: none;
@@ -843,10 +849,28 @@
     letter-spacing: 1.5px;
     text-transform: uppercase;
     cursor: pointer;
+    position: absolute;
+    left: 0;
+    /* Start hidden and slightly rotated so the entrance animates in. */
+    opacity: 0;
+    transform: rotate(-6deg) translateX(-8px);
+    pointer-events: none;
   }
   .mkt-nav-back svg { width: 16px; height: 16px; }
-  .mkt-nav.is-on-submenu .mkt-nav-logo { display: none; }
-  .mkt-nav.is-on-submenu .mkt-nav-back { display: inline-flex; }
+  /* Wrap the left-slot in the nav-inner via CSS positioning: logo is the natural inline element; back sits on top of it. Use position:relative on the logo so the absolute Back anchors to the same slot. */
+  .mkt-nav-logo { position: relative; }
+  .mkt-nav.is-on-submenu .mkt-nav-logo {
+    opacity: 0;
+    transform: rotate(6deg) translateX(-8px);
+    pointer-events: none;
+  }
+  .mkt-nav.is-on-submenu .mkt-nav-back {
+    opacity: 1;
+    transform: rotate(0) translateX(0);
+    pointer-events: auto;
+  }
+  /* Only show the back button target on mobile — desktop nav has real dropdowns and never enters submenu state. */
+  @media (min-width: 1025px) { .mkt-nav-back { display: none; } }
   /* Nav items (center row) */
   .mkt-nav-items {
     display: flex;
@@ -1158,18 +1182,8 @@
     visibility: visible;
     transition: opacity 0.28s ease, visibility 0s;
   }
-  .mkt-nav-mobile-header {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    height: 52px;
-    padding: 0 clamp(16px, 4vw, 40px);
-    flex-shrink: 0;
-  }
-  /* On home view the drawer header collapses — the nav bar above already shows the bolt.new logo and the morphed hamburger. Only the Back button matters, and it only appears on submenu views. */
-  .mkt-nav-mobile:not(.is-on-submenu) .mkt-nav-mobile-header { height: 0; padding: 0; overflow: hidden; }
-  .mkt-nav-mobile-header .mkt-nav-logo,
-  .mkt-nav-mobile-close { display: none; }
+  /* Drawer header is fully retired — the sticky nav bar above the drawer owns the logo/back/close controls now. */
+  .mkt-nav-mobile-header { display: none; }
   .mkt-nav-mobile-close,
   .mkt-nav-mobile-back {
     background: none;
