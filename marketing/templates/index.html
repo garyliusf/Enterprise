@@ -814,6 +814,29 @@
   }
   .mkt-nav-logo:hover { opacity: 0.85; }
   .mkt-nav-logo svg { height: 20px; width: auto; display: block; }
+  /* Slight bump on tablet/phone — logo has more room to breathe here. */
+  @media (max-width: 1024px) {
+    .mkt-nav-logo svg { height: 24px; }
+  }
+  /* Nav-bar Back button — only visible on mobile when a submenu is open. Replaces the logo in the same slot. */
+  .mkt-nav-back {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    padding: 8px 0;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .mkt-nav-back svg { width: 16px; height: 16px; }
+  .mkt-nav.is-on-submenu .mkt-nav-logo { display: none; }
+  .mkt-nav.is-on-submenu .mkt-nav-back { display: inline-flex; }
   /* Nav items (center row) */
   .mkt-nav-items {
     display: flex;
@@ -883,19 +906,19 @@
     gap: 12px;
     flex-shrink: 0;
   }
-  /* Hamburger (mobile) — 3 SVG-less lines drawn with spans so we can animate stroke on hover. */
+  /* Hamburger (mobile) — 3 SVG-less lines drawn with spans so we can animate stroke on hover. Borderless. */
   .mkt-nav-burger {
     display: none;
     width: 40px; height: 40px;
     background: none;
-    border: 1px solid rgba(255,255,255,0.14);
+    border: none;
     border-radius: 4px;
     padding: 0;
     cursor: pointer;
     position: relative;
-    transition: border-color 0.2s ease, background 0.2s ease;
+    transition: background 0.2s ease;
   }
-  .mkt-nav-burger:hover { border-color: rgba(255,255,255,0.32); background: rgba(255,255,255,0.04); }
+  .mkt-nav-burger:hover { background: rgba(255,255,255,0.04); }
   .mkt-nav-burger span {
     position: absolute;
     left: 10px;
@@ -1270,6 +1293,11 @@
 <!-- ─── NAVBAR ────────────────────────────────────────────────────────────── -->
 <nav class="mkt-nav" aria-label="Primary">
   <div class="mkt-nav-inner">
+    <!-- Nav-bar Back button — only appears on mobile when a submenu is active (JS toggles .is-on-submenu on .mkt-nav). Replaces the logo in the same slot. -->
+    <button class="mkt-nav-back" data-mobile-back aria-label="Back to main menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+      Back
+    </button>
     <a href="../../" class="mkt-nav-logo" aria-label="bolt.new home">
       <!-- Canonical bolt.new wordmark (from images/bolt-new.svg) — inlined so the nav renders without an extra network request. -->
       <svg viewBox="0 0 85 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -2080,8 +2108,10 @@ window.addEventListener('load', function () {
 (function () {
   var drawer = document.getElementById('mkt-nav-mobile');
   if (!drawer) return;
+  var navEl = document.querySelector('.mkt-nav');
   var burger = document.querySelector('.mkt-nav-burger');
-  var backBtn = drawer.querySelector('.mkt-nav-mobile-back');
+  /* Back button now lives in the sticky nav bar (data-mobile-back) — the drawer's own header back button is legacy DOM that stays for a safety net if the nav one isn't found. */
+  var backBtns = document.querySelectorAll('[data-mobile-back], .mkt-nav-mobile-back');
   var views = drawer.querySelectorAll('.mkt-nav-mobile-view');
   var drills = drawer.querySelectorAll('[data-drill]');
 
@@ -2100,6 +2130,8 @@ window.addEventListener('load', function () {
     drawer.classList.remove('is-open');
     drawer.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('mkt-nav-mobile-open');
+    /* Reset submenu state so the next open lands on home. */
+    if (navEl) navEl.classList.remove('is-on-submenu');
     if (burger) {
       burger.classList.remove('is-open');
       burger.setAttribute('aria-expanded', 'false');
@@ -2114,12 +2146,14 @@ window.addEventListener('load', function () {
     views.forEach(function (v) {
       v.classList.toggle('is-active', v.getAttribute('data-view') === key);
     });
-    drawer.classList.toggle('is-on-submenu', key !== 'home');
-    if (backBtn) backBtn.hidden = key === 'home';
+    var onSubmenu = key !== 'home';
+    drawer.classList.toggle('is-on-submenu', onSubmenu);
+    /* Also flip .is-on-submenu on the sticky nav so the nav-bar Back button appears (and the logo hides) in the same header row. */
+    if (navEl) navEl.classList.toggle('is-on-submenu', onSubmenu);
   }
 
   if (burger) burger.addEventListener('click', toggleDrawer);
-  if (backBtn) backBtn.addEventListener('click', function () { setView('home'); });
+  backBtns.forEach(function (b) { b.addEventListener('click', function () { setView('home'); }); });
   drills.forEach(function (btn) {
     btn.addEventListener('click', function () {
       setView(btn.getAttribute('data-drill'));
