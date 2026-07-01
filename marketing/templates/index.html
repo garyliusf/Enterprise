@@ -801,7 +801,7 @@
     .mkt-nav-inner { width: min(900px, calc(100vw - 80px)); }
   }
   @media (max-width: 768px) {
-    .mkt-nav-inner { width: calc(100vw - 24px); }
+    .mkt-nav-inner { width: calc(100vw - 32px); }
   }
   /* Logo — inline bolt.new wordmark SVG, height 20px sits comfortably in the 68px bar. */
   .mkt-nav-logo {
@@ -876,18 +876,41 @@
     min-width: 0;
   }
   .mkt-nav-cta.hero-btn-primary .btn-text-wrap { height: 1.15em; }
-  /* Hamburger (mobile) */
+  /* Right group — actions + burger stay together on the right, no big gap between them on mobile. */
+  .mkt-nav-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+  /* Hamburger (mobile) — 3 SVG-less lines drawn with spans so we can animate stroke on hover. */
   .mkt-nav-burger {
     display: none;
-    width: 36px; height: 36px;
+    width: 40px; height: 40px;
     background: none;
-    border: 1px solid rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.14);
     border-radius: 4px;
-    color: #fff;
-    align-items: center; justify-content: center;
+    padding: 0;
     cursor: pointer;
+    position: relative;
+    transition: border-color 0.2s ease, background 0.2s ease;
   }
-  .mkt-nav-burger svg { width: 18px; height: 18px; }
+  .mkt-nav-burger:hover { border-color: rgba(255,255,255,0.32); background: rgba(255,255,255,0.04); }
+  .mkt-nav-burger span {
+    position: absolute;
+    left: 10px;
+    width: 18px;
+    height: 1.5px;
+    background: #fff;
+    border-radius: 1px;
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), width 0.28s ease;
+    transform-origin: center;
+  }
+  .mkt-nav-burger span:nth-child(1) { top: 13px; }
+  .mkt-nav-burger span:nth-child(2) { top: 19px; width: 12px; left: 16px; }
+  .mkt-nav-burger span:nth-child(3) { top: 25px; }
+  /* Hover: middle bar extends to full width — subtle animated cue. */
+  .mkt-nav-burger:hover span:nth-child(2) { width: 18px; left: 10px; }
 
   /* Mega-menu panel — one panel per data-panel, anchors under the sticky nav */
   .mkt-nav-panel {
@@ -1078,16 +1101,19 @@
     height: 100vh;
     height: 100dvh;
     z-index: 200;
-    background: #0a0a10;
+    background: rgba(10,10,16,0.98);
+    -webkit-backdrop-filter: blur(24px);
+            backdrop-filter: blur(24px);
     display: flex;
     flex-direction: column;
-    transform: translateX(100%);
-    transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+    opacity: 0;
+    transition: opacity 0.28s ease, visibility 0s linear 0.28s;
     visibility: hidden;
   }
   .mkt-nav-mobile.is-open {
-    transform: translateX(0);
+    opacity: 1;
     visibility: visible;
+    transition: opacity 0.28s ease, visibility 0s;
   }
   .mkt-nav-mobile-header {
     display: flex;
@@ -1274,17 +1300,18 @@
       <li><a href="../pricing.html" class="mkt-nav-link">Pricing</a></li>
     </ul>
 
-    <div class="mkt-nav-actions">
-      <a href="https://bolt.new/signin" class="mkt-nav-signin">Sign in</a>
-      <a href="https://bolt.new/" target="_blank" rel="noopener" class="mkt-nav-cta hero-btn-primary">
-        <div class="btn-bg-hover"></div>
-        <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Started</span><span>Get Started</span></div></div>
-      </a>
+    <div class="mkt-nav-right">
+      <div class="mkt-nav-actions">
+        <a href="https://bolt.new/signin" class="mkt-nav-signin">Sign in</a>
+        <a href="https://bolt.new/" target="_blank" rel="noopener" class="mkt-nav-cta hero-btn-primary">
+          <div class="btn-bg-hover"></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Started</span><span>Get Started</span></div></div>
+        </a>
+      </div>
+      <button class="mkt-nav-burger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
     </div>
-
-    <button class="mkt-nav-burger" aria-label="Open menu" aria-expanded="false">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
-    </button>
   </div>
 
   <!-- Mega panels — one per top-level menu, JS toggles .is-open on the matching data-panel -->
