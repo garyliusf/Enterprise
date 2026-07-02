@@ -272,6 +272,10 @@
             mask-image: linear-gradient(90deg, #000 0%, #000 calc(100% - 120px), transparent 100%);
   }
   .collection-tiles::-webkit-scrollbar { display: none; }
+  /* Drag-to-scroll affordance — same pattern as the filter row + detail gallery. touch-action:pan-x keeps vertical page swipes passing through on touch devices. */
+  .collection-tiles { cursor: grab; -webkit-user-select: none; user-select: none; touch-action: pan-x; }
+  .collection-tiles.is-dragging { cursor: grabbing; }
+  .collection-tiles.is-dragging .collection-tile { pointer-events: none; }
   .collection-tile {
     flex: 0 0 240px;
     display: flex;
@@ -1984,6 +1988,41 @@ function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace
       +   '<div class="collection-tiles">' + tiles + '</div>'
       + '</div>';
   }).join('');
+
+  /* Click-hold-drag horizontal scroll on each collection's tile strip — same pattern as the catalog filter row + detail gallery. .is-dragging only added after >4px movement so pure taps still fire the tile <a> link. */
+  host.querySelectorAll('.collection-tiles').forEach(function (row) {
+    var isDown = false, startX = 0, startScroll = 0, moved = 0;
+    function onMove(e) {
+      if (!isDown) return;
+      var dx = e.clientX - startX;
+      moved = Math.max(moved, Math.abs(dx));
+      if (moved > 4) {
+        if (!row.classList.contains('is-dragging')) row.classList.add('is-dragging');
+        if (e.cancelable) e.preventDefault();
+        row.scrollLeft = startScroll - dx;
+      }
+    }
+    function onUp() {
+      if (!isDown) return;
+      isDown = false;
+      row.classList.remove('is-dragging');
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', onUp);
+    }
+    row.addEventListener('pointerdown', function (e) {
+      if (e.button !== undefined && e.button !== 0) return;
+      if (row.scrollWidth <= row.clientWidth + 1) return;
+      isDown = true; moved = 0;
+      startX = e.clientX; startScroll = row.scrollLeft;
+      window.addEventListener('pointermove', onMove, { passive: false });
+      window.addEventListener('pointerup', onUp);
+      window.addEventListener('pointercancel', onUp);
+    });
+    row.addEventListener('click', function (e) {
+      if (moved > 5) { e.preventDefault(); e.stopPropagation(); }
+    }, true);
+  });
 })();
 
 /* ── Render + filter catalog ──────────────────────────────────────────── */
