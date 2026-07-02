@@ -250,14 +250,30 @@
     margin-top: 40px;
   }
   .collection-row { position: relative; }
+  .collection-header {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-left: var(--collections-gutter);
+    margin: 0 0 22px;
+  }
+  .collection-icon {
+    width: 26px; height: 26px;
+    color: #7FDDC1;
+    stroke-width: 1.5;
+    fill: none;
+  }
   .collection-eyebrow {
     font-family: 'Silkscreen', monospace;
-    font-size: 11px;
-    letter-spacing: 1.5px;
+    font-size: 14px;
+    letter-spacing: 2px;
     text-transform: uppercase;
     color: #7FDDC1;
-    margin: 0 0 20px;
-    padding-left: var(--collections-gutter);
+    margin: 0;
+  }
+  @media (max-width: 768px) {
+    .collection-eyebrow { font-size: 12px; }
+    .collection-icon { width: 22px; height: 22px; }
   }
   .collection-tiles {
     display: flex;
@@ -1822,10 +1838,13 @@
    must match a CATALOG entry so the tile can deep-link to that detail page
    and reuse the same PREVIEW_MOCK. `role` is the label shown under each tile
    describing what job that template does inside the bundle. */
+/* Icon SVG paths per collection — inline strings so the render can bake them straight in. Lucide-style stroke icons at 24×24 viewBox, drawn with stroke="currentColor" so they inherit the mint eyebrow color. */
 var COLLECTIONS = [
   {
     key:  'service-business',
     eyebrow: 'Service business',
+    /* briefcase */
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" class="collection-icon"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M2 13h20"/></svg>',
     name: 'Everything you need to run a services business',
     desc: 'Website, CRM, scheduler, quote intake, and invoicing — the full stack for plumbers, agencies, consultants, and studios.',
     templates: [
@@ -1839,6 +1858,8 @@ var COLLECTIONS = [
   {
     key:  'saas-launch',
     eyebrow: 'B2B SaaS launch',
+    /* rocket */
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" class="collection-icon"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>',
     name: 'Ship a SaaS product from marketing to metrics',
     desc: 'Landing page, pricing, docs, and an internal dashboard — the pieces every SaaS team wires up in week one.',
     templates: [
@@ -1851,6 +1872,8 @@ var COLLECTIONS = [
   {
     key:  'creator-stack',
     eyebrow: 'Creator stack',
+    /* pen/edit */
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" class="collection-icon"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>',
     name: 'Publish, distribute, and grow an audience',
     desc: 'Portfolio + blog + newsletter + podcast — one place to route people to everything you make.',
     templates: [
@@ -1984,7 +2007,10 @@ function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace
     }).join('');
 
     return '<div class="collection-row" id="collection-' + c.key + '">'
-      +   '<p class="collection-eyebrow">' + c.eyebrow + '</p>'
+      +   '<div class="collection-header">'
+      +     (c.icon || '')
+      +     '<p class="collection-eyebrow">' + c.eyebrow + '</p>'
+      +   '</div>'
       +   '<div class="collection-tiles">' + tiles + '</div>'
       + '</div>';
   }).join('');
