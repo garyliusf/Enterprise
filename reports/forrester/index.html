@@ -270,8 +270,15 @@ a { color: inherit; text-decoration: none; }
 .footer-headline { font-size: clamp(32px, 4vw, 52px); font-weight: 500; color: #fff; line-height: 1.2; letter-spacing: -1px; margin: 0; }
 .footer-subtitle { font-size: 18px; color: #ABABAB; max-width: 560px; line-height: 1.6; margin: -8px auto 0; }
 
-/* Canvas + wrap + bolt-image-wrap sizing is inlined on the elements (matches
-   the microsoft.html pattern exactly). No additional selectors needed here. */
+/* Layered CTA wrapper — pulls the pixel canvas up behind the button on desktop.
+   On mobile the pull is smaller because the canvas is much shorter, so the
+   button stays cleanly below the subtitle. */
+.footer-cta-wrap { position: relative; width: 100%; max-width: 700px; margin-top: -152px; display: flex; flex-direction: column; align-items: center; }
+#footer-pixel-canvas { display: block; width: 100%; height: 192px; pointer-events: none; opacity: 1; }
+.footer-cta-anchor { position: relative; z-index: 1; margin-top: -16px; height: 52px; padding: 0 28px; font-size: 15px; }
+
+.bolt-image-wrap { margin-top: 0; width: 100%; overflow: hidden; position: relative; height: 32vw; max-height: 32vw; }
+.bolt-image-wrap img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; opacity: 0.20; }
 
 /* ─── PRIMARY BUTTON (canonical structure — mirror of shared-components.css)
    Kept inline so the CSS-only slide-up fallback works even before the shared
@@ -343,7 +350,10 @@ a { color: inherit; text-decoration: none; }
   .footer-section > *:not(.bolt-image-wrap) { padding-left: 12px; padding-right: 12px; box-sizing: border-box; width: 100%; }
   .footer-headline { font-size: clamp(26px, 8vw, 36px); line-height: 1.1; }
   .footer-subtitle { font-size: 16px; max-width: 310px; }
-  #footer-pixel-canvas { height: 60px !important; }
+  /* Ease the layering on mobile — desktop -152 was pulling the CTA up onto the H2. */
+  .footer-cta-wrap { margin-top: 0; }
+  #footer-pixel-canvas { height: 60px; }
+  .footer-cta-anchor { margin-top: -8px; }
   .bolt-image-wrap { width: 100vw !important; margin-left: 0 !important; height: 42vw !important; max-height: 42vw !important; }
 }
 </style>
@@ -502,9 +512,9 @@ a { color: inherit; text-decoration: none; }
   <p class="footer-eyebrow eyebrow-scramble" style="font-weight:400;letter-spacing:2px;text-transform:uppercase;color:#1488FC;margin:0;font-family:'Silkscreen',monospace;">Ready to try Bolt?</p>
   <h2 class="footer-headline">See what your team can ship</h2>
   <p class="footer-subtitle">Turn a prompt into a working product. No credit card required.</p>
-  <div style="position:relative;width:100%;max-width:700px;margin-top:-152px;display:flex;flex-direction:column;align-items:center;">
-    <canvas id="footer-pixel-canvas" style="display:block;width:100%;height:192px;pointer-events:none;opacity:1;"></canvas>
-    <a href="https://bolt.new" target="_blank" rel="noopener" class="hero-btn-primary" style="position:relative;z-index:1;margin-top:-16px;height:52px;padding:0 28px;font-size:15px;">
+  <div class="footer-cta-wrap">
+    <canvas id="footer-pixel-canvas"></canvas>
+    <a href="https://bolt.new" target="_blank" rel="noopener" class="hero-btn-primary footer-cta-anchor">
       <div class="btn-bg-hover"></div>
       <div class="btn-text-wrap"><div class="btn-text-inner"><span>Start building</span><span>Start building</span></div></div>
     </a>
