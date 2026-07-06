@@ -232,13 +232,20 @@ a { color: inherit; text-decoration: none; }
 /* ─── INSIDE THE REPORT — 3-card standard stack ─────────────────────────── */
 .inside-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
 .inside-card {
+  position: relative;
+  overflow: hidden;
   border: 1px solid rgba(255,255,255,0.10);
   border-radius: 4px;
   padding: 24px 24px 28px;
   background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%);
   transition: border-color 0.3s ease;
 }
-.inside-card:hover { border-color: rgba(255,255,255,0.22); }
+.inside-card:hover { border-color: rgba(255,255,255,0.25); }
+/* Rotating-wave pixel field on hover — same pattern as .template-card in
+   solutions/_template. Canvas is JS-injected as the card's first child. */
+.inside-hover-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity 0.45s ease; z-index: 0; }
+.inside-card:hover .inside-hover-canvas { opacity: 1; }
+.inside-card > *:not(.inside-hover-canvas) { position: relative; z-index: 1; }
 .inside-card-num {
   font-family: 'Silkscreen', monospace;
   font-size: 12px; font-weight: 400; color: #1488FC;
@@ -653,6 +660,69 @@ makePixelCanvas('footer-pixel-canvas', 6, 2,
     const rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
     return density > rand ? density * 0.85 : 0;
   }, 1.0, '220,230,245');
+
+/* ─── INSIDE-CARD HOVER PIXEL FIELD (rotating-wave, matches .template-card
+   in solutions/_template) — injects a canvas as the first child of each card
+   and only draws while hovered. ───────────────────────────────────────── */
+(function () {
+  var cards = document.querySelectorAll('.inside-card');
+  if (!cards.length) return;
+  var dpr = window.devicePixelRatio || 1;
+  var objs = [];
+  cards.forEach(function (card, idx) {
+    var canvas = document.createElement('canvas');
+    canvas.className = 'inside-hover-canvas';
+    card.insertBefore(canvas, card.firstChild);
+    var obj = { canvas: canvas, card: card, phase: idx * 1.7, hover: false };
+    card.addEventListener('mouseenter', function () { obj.hover = true; });
+    card.addEventListener('mouseleave', function () { obj.hover = false; });
+    objs.push(obj);
+  });
+  function resizeAll() {
+    objs.forEach(function (o) {
+      o.canvas.width  = o.card.offsetWidth  * dpr;
+      o.canvas.height = o.card.offsetHeight * dpr;
+    });
+  }
+  resizeAll();
+  window.addEventListener('resize', resizeAll);
+  function draw(t) {
+    objs.forEach(function (o) {
+      if (!o.hover) return;
+      var canvas = o.canvas, h = o.card.offsetHeight;
+      if (canvas.height !== h * dpr) { canvas.width = o.card.offsetWidth * dpr; canvas.height = h * dpr; }
+      var ctx = canvas.getContext('2d');
+      var W = canvas.width, H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+      var sp = 7 * dpr, maxR = 2.2 * dpr;
+      var cols = Math.ceil(W / sp) + 1, rows = Math.ceil(H / sp) + 1;
+      for (var r = 0; r < rows; r++) {
+        for (var c = 0; c < cols; c++) {
+          var px = c * sp, py = r * sp;
+          var angle1 = t * 0.00012 + o.phase;
+          var u1 = (px * Math.cos(angle1) + py * Math.sin(angle1)) / (350 * dpr);
+          var v1 = (-px * Math.sin(angle1) + py * Math.cos(angle1)) / (220 * dpr);
+          var angle2 = t * 0.00022 + o.phase + 1.5;
+          var u2 = (px * Math.cos(angle2) + py * Math.sin(angle2)) / (180 * dpr);
+          var v2 = (-px * Math.sin(angle2) + py * Math.cos(angle2)) / (120 * dpr);
+          var wave = (Math.sin(u1 * Math.PI * 2 + t * 0.00030) * Math.cos(v1 * Math.PI * 1.5))
+                   * 0.55 + (Math.sin(u2 * Math.PI * 2 + t * 0.00060) * 0.45);
+          var density = Math.pow(Math.max(0, wave * 0.5 + 0.5), 0.8);
+          var rand = (Math.sin(c * 127.1 + r * 311.7 + o.phase * 50) * 0.5 + 0.5) * 0.9;
+          if (density > rand) {
+            var alpha = density * 0.22;
+            ctx.beginPath();
+            ctx.arc(px, py, maxR * density, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(180,185,195,' + alpha.toFixed(2) + ')';
+            ctx.fill();
+          }
+        }
+      }
+    });
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
 
 /* ─── FORM SUBMIT (prototype — no backend yet) ─────────────────────────── */
 document.getElementById('report-form').addEventListener('submit', function(e) {
