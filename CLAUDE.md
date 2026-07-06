@@ -348,8 +348,15 @@ Why these values:
 - **Picking a variant**: count the items in the hero content stack. Prompt box (with its own ~180px height) + pills row ≈ tall. Just an H1 + subtitle + button ≈ short. If in doubt, prototype short first — easier to bump up if the hero feels cramped than to shrink a too-tall hero.
 - **Don't invent in-between values** — stick to the two variants so all pages feel like they belong to the same system.
 
-## Blog (company repo `stackblitz/bolt-public-pages`, `contentful-blog` branch)
-Contentful-backed SSR blog. Key files: `src/layouts/BlogLayout.astro`, `src/styles/blog.css`, `src/pages/blog/`. **Light theme** (distinct from the dark marketing pages).
+## Blog (company repo `stackblitz/bolt-public-pages` — LIVE at bolt.new/blog)
+Contentful-backed SSR blog (`/blog` renders on-demand, reading PUBLISHED content from the Contentful Delivery API at request time — not static/prerendered). Key files: `src/layouts/BlogLayout.astro`, `src/styles/blog.css`, `src/pages/blog/`. **Light theme** (distinct from the dark marketing pages).
+
+**`contentful-blog` branch is merged and dead** — don't branch off it or reference it, it's 0 commits ahead of `main` (as of 2026-07-06). Blog code lives on `main` like everything else now.
+
+**Workflow — work directly in the company repo, not the sandbox.** Unlike `solutions/_template` (an actively-maintained dual-source-of-truth pair with `/use-cases/*`), the blog never had that relationship — the sandbox's `/blog` static snapshot was a one-off "for sharing" mirror, not a synced pair, and it's gone stale (last touched 2026-06-17, hundreds of commits behind `main`). Because the real blog is SSR + CMS-backed, a static mirror can't represent it anyway (no real pagination, no real long-title wrapping, no real image variety). So:
+- **Design/layout/CSS/animation changes**: branch off `main` in `bolt-public-pages`, run `npm run dev` (Astro dev server, `http://localhost:4321`) with a local `.env` populated with `CONTENTFUL_SPACE_ID` / `CONTENTFUL_DELIVERY_TOKEN` / `CONTENTFUL_ENVIRONMENT` (see `.env.example`) so `/blog` renders real live content while you iterate — then open a PR as usual.
+- **Actual post content** (new articles, edits, tags/categories): that's in Contentful itself, not in either repo.
+- Cloudflare Pages branch previews work too, but haven't been confirmed to have Contentful credentials wired into the **Preview** environment scope (separate from Production) — verify before relying on a preview link to share a WIP blog change.
 
 ### Blog fonts
 | Role | Family | Token |
@@ -426,7 +433,7 @@ Four breakpoints, all in `blog.css`. `--gutter` scales and drives every centered
 
 ## Source of truth
 - **Enterprise** is LIVE in production via the company repo **`stackblitz/bolt-public-pages`** (`src/pages/enterprise/index.astro` + `src/content/enterprise-body.html`). That is the source of truth — do NOT maintain a static copy here (the old `enterprise-staging.html` prototype was removed to avoid drift).
-- **Blog** lives only in the company repo on the `contentful-blog` branch (not yet merged); deployed `/blog` needs Contentful env vars wired into Cloudflare Pages before the preview will render.
+- **Blog** is LIVE in production at bolt.new/blog via the company repo (`main` branch — `contentful-blog` was merged and is now dead, don't use it). Work directly in `bolt-public-pages` using local dev with real Contentful credentials (see the Blog section above) — do NOT treat the sandbox's `/blog` static snapshot as a source of truth; it's a stale one-off mirror, not an actively-synced pair like `_template`.
 - This `garyliusf/Enterprise` repo is a **prototyping sandbox** (static HTML on GitHub Pages). Production lives in the company repo; use branch / bolt.host previews as "staging," not hand-synced HTML twins.
 - **`solutions/_template` ↔ live `/use-cases/*` are kept in sync** (as of 2026-06-17). The sandbox `_template/index.html` is the **design source of truth** for the use-case template; production renders the same design from `src/pages/use-cases/[slug].astro` + `src/styles/use-case-page.css` + `public/public-page-assets/use-cases/use-case-page.js` (CMS-driven content). Prototype in `_template`, then port to those three files via a company-repo PR. **Intended, permanent differences** (not drift): image paths (`images/` vs `/public-page-assets/use-cases/`) and the CMS-only initials avatar (`.testi-card-avatar--initials`; sandbox uses example `<img>`s). Keep CSS/JS otherwise identical.
 
