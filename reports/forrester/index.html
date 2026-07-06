@@ -270,12 +270,18 @@ a { color: inherit; text-decoration: none; }
 .footer-headline { font-size: clamp(32px, 4vw, 52px); font-weight: 500; color: #fff; line-height: 1.2; letter-spacing: -1px; margin: 0; }
 .footer-subtitle { font-size: 18px; color: #ABABAB; max-width: 560px; line-height: 1.6; margin: -8px auto 0; }
 
-/* Layered CTA wrapper — pulls the pixel canvas up behind the button on desktop.
-   On mobile the pull is smaller because the canvas is much shorter, so the
-   button stays cleanly below the subtitle. */
-.footer-cta-wrap { position: relative; width: 100%; max-width: 700px; margin-top: -152px; display: flex; flex-direction: column; align-items: center; }
-#footer-pixel-canvas { display: block; width: 100%; height: 192px; pointer-events: none; opacity: 1; }
+/* Layered CTA wrapper — mirrors solutions/_template's tuned pattern.
+   Key invariant: canvas MUST be taller than |margin-top| so the button lands
+   at (or just below) its natural post-subtitle position. On mobile, the
+   headline stack wraps so we raise the field further AND grow the canvas
+   the same amount, keeping the visual gap unchanged. */
+.footer-cta-wrap { position: relative; width: 100%; max-width: 700px; margin-top: -150px; display: flex; flex-direction: column; align-items: center; }
+#footer-pixel-canvas { display: block; width: 100%; height: 175px; pointer-events: none; opacity: 1; }
 .footer-cta-anchor { position: relative; z-index: 1; margin-top: -16px; height: 52px; padding: 0 28px; font-size: 15px; }
+/* Keep the heading stack above the pixel field */
+.footer-section > .footer-eyebrow,
+.footer-section > .dsa-reveal,
+.footer-section > .footer-subtitle { position: relative; z-index: 1; }
 
 .bolt-image-wrap { margin-top: 0; width: 100%; overflow: hidden; position: relative; height: 32vw; max-height: 32vw; }
 .bolt-image-wrap img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; opacity: 0.20; }
@@ -350,10 +356,11 @@ a { color: inherit; text-decoration: none; }
   .footer-section > *:not(.bolt-image-wrap) { padding-left: 12px; padding-right: 12px; box-sizing: border-box; width: 100%; }
   .footer-headline { font-size: clamp(26px, 8vw, 36px); line-height: 1.1; }
   .footer-subtitle { font-size: 16px; max-width: 310px; }
-  /* Ease the layering on mobile — desktop -152 was pulling the CTA up onto the H2. */
-  .footer-cta-wrap { margin-top: 0; }
-  #footer-pixel-canvas { height: 60px; }
-  .footer-cta-anchor { margin-top: -8px; }
+  /* On mobile the headline wraps so raise the field further; grow the canvas
+     the same amount to keep the button at its natural position. Matches
+     solutions/_template exactly. */
+  .footer-cta-wrap { margin-top: -175px; }
+  .footer-cta-wrap #footer-pixel-canvas { height: 185px !important; }
   .bolt-image-wrap { width: 100vw !important; margin-left: 0 !important; height: 42vw !important; max-height: 42vw !important; }
 }
 </style>
