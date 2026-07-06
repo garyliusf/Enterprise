@@ -86,13 +86,25 @@ a { color: inherit; text-decoration: none; }
 .hero-meta-label { font-family: 'Silkscreen', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #1488FC; }
 .hero-meta-value { font-size: 14px; color: rgba(255,255,255,0.9); font-weight: 500; }
 
-/* ─── HERO→SECTION DIVIDER (rotating-wave pixel field fading from top,
-   ported from microsoft.html's unused .success-gap-canvas pattern) ────── */
-.hero-divider { position: relative; width: 100%; height: 160px; overflow: hidden; background: #000; }
-#hero-divider-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-@media (max-width: 768px) {
-  .hero-divider { height: 100px; }
+/* ─── HERO→SECTION DIVIDER (subtle shimmer band, ported from
+   solutions/smb's .why-who-transition — a traveling diagonal shimmer +
+   twinkle, NOT the blotchy rotating-wave pattern). Capped to section-inner
+   width and masked to fade in/out top+bottom; negative margins pull it to
+   overlap the hero's bottom padding and pull the next section up close. */
+.hero-divider {
+  position: relative;
+  width: min(1120px, calc(100vw - 160px));
+  margin: -40px auto -90px;
+  height: 200px;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 40%, #000 60%, transparent 100%);
+          mask-image: linear-gradient(to bottom, transparent 0%, #000 40%, #000 60%, transparent 100%);
 }
+#hero-divider-canvas { display: block; width: 100%; height: 100%; }
+@media (max-width: 1024px) { .hero-divider { width: min(900px, calc(100vw - 80px)); } }
+@media (max-width: 768px)  { .hero-divider { width: calc(100vw - 32px); height: 150px; margin: -30px auto -60px; } }
 
 /* ─── FORM CARD (right column of hero) ─────────────────────────────────── */
 .form-card {
@@ -578,29 +590,17 @@ makePixelCanvas('footer-pixel-canvas', 6, 2,
     return density > rand ? density * 0.85 : 0;
   }, 1.0, '220,230,245');
 
-/* ─── HERO→SECTION DIVIDER CANVAS (rotating-wave fading from top, ported
-   from microsoft.html's success-gap-canvas wave function) ─────────────── */
-makePixelCanvas('hero-divider-canvas', 6, 2,
-  function(c, r, t, p) {
-    const px = c * 6, py = r * 6;
-    const el = document.getElementById('hero-divider-canvas');
-    const H = el ? el.height : 160;
-    const vFade = Math.max(0, 1 - py / (H * 0.9));
-    const speedMod = 0.05 + (Math.sin(t * 0.00070 + 0.9) * 0.5 + 0.5) * 0.22;
-    function rwave(scale, rotRate, phase, tMult) {
-      const angle = t * rotRate + phase;
-      const u = (px * Math.cos(angle) + py * Math.sin(angle)) / scale;
-      const v = (-px * Math.sin(angle) + py * Math.cos(angle)) / scale;
-      return Math.sin(u * Math.PI * 2 + t * tMult * speedMod) * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7 * speedMod);
-    }
-    const s1 = rwave(500, 0.00012, 0.0, 0.00030), s2 = rwave(260, 0.00025, 1.1, 0.00065);
-    const s3 = rwave(130, 0.00042, 2.5, 0.00130), s4 = rwave(380, 0.00018, 3.9, 0.00048);
-    const wf = s1 * 0.5 + 0.5, det = s2 * 0.45 + s3 * 0.30 + s4 * 0.25;
-    const raw = wf * (det * 0.5 + 0.5), density = Math.pow(Math.max(0, raw), 0.7);
-    const rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
-    const d = density * vFade;
-    return d > rand ? d * 0.85 : 0;
-  }, 1.0, '90,100,115');
+/* ─── HERO→SECTION DIVIDER CANVAS (subtle traveling diagonal shimmer +
+   twinkle, ported verbatim from solutions/smb's why-who-pixel-canvas) ──── */
+makePixelCanvas('hero-divider-canvas', 11, 2,
+  function (c, r, t, p) {
+    const px = c * 11, py = r * 11;
+    const phase = (px * 0.012 + py * 0.018) - t * 0.0018 + 1.0;
+    const band = Math.sin(phase) * 0.5 + 0.5;
+    const highlight = Math.pow(band, 3) * 0.32;
+    const twinkle = (Math.sin(p * 53.7 + t * 0.004) * 0.5 + 0.5) * 0.07;
+    return 0.06 + highlight + twinkle;
+  }, 1.0, '170,185,210');
 
 /* ─── INSIDE-CARD HOVER PIXEL FIELD (rotating-wave, matches .template-card
    in solutions/_template) — injects a canvas as the first child of each card
