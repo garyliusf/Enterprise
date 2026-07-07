@@ -202,30 +202,12 @@ a { color: inherit; text-decoration: none; }
 }
 
 
-/* ─── INSIDE THE REPORT — 3-card standard stack ─────────────────────────── */
-.inside-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-.inside-card {
-  position: relative;
-  overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.10);
-  border-radius: 4px;
-  padding: 24px 24px 28px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%);
-  transition: border-color 0.3s ease;
-}
-.inside-card:hover { border-color: rgba(255,255,255,0.25); }
-/* Rotating-wave pixel field on hover — same pattern as .template-card in
-   solutions/_template. Canvas is JS-injected as the card's first child. */
-.inside-hover-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity 0.45s ease; z-index: 0; }
-.inside-card:hover .inside-hover-canvas { opacity: 1; }
-.inside-card > *:not(.inside-hover-canvas) { position: relative; z-index: 1; }
-.inside-card-num {
-  font-family: 'Silkscreen', monospace;
-  font-size: 12px; font-weight: 400; color: #1488FC;
-  letter-spacing: 1.5px; margin-bottom: 20px;
-}
-.inside-card h3 { font-size: 18px; font-weight: 600; color: #fff; line-height: 1.35; letter-spacing: -0.2px; margin-bottom: 10px; }
-.inside-card p { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.55; }
+/* ─── INSIDE THE REPORT — plain icon list (matches the "Key findings"
+   reference: no cards/borders, just an icon + flowing paragraph per row) ── */
+.inside-list { display: flex; flex-direction: column; gap: 30px; max-width: 720px; margin: 0 auto; }
+.inside-item { display: flex; align-items: flex-start; gap: 16px; }
+.inside-item-icon { flex-shrink: 0; width: 22px; height: 22px; margin-top: 2px; color: #1488FC; }
+.inside-item p { font-size: 16px; line-height: 1.65; color: rgba(255,255,255,0.6); margin: 0; }
 
 .section-cta { display: flex; justify-content: center; margin-top: 56px; }
 
@@ -306,7 +288,7 @@ a { color: inherit; text-decoration: none; }
   .hero-inner { width: min(900px, calc(100vw - 80px)); grid-template-columns: 1fr; gap: 48px; }
   .hero-subtitle { font-size: 18px; }
   .section-inner { width: min(900px, calc(100vw - 80px)); }
-  .inside-grid { grid-template-columns: 1fr; gap: 16px; }
+  .inside-list { gap: 22px; }
   .section { padding: 64px 0; }
 }
 @media (max-width: 768px) {
@@ -423,21 +405,18 @@ a { color: inherit; text-decoration: none; }
       <p class="section-sub">Forrester's overview of the agentic development platform market.</p>
     </div>
 
-    <div class="inside-grid">
-      <div class="inside-card">
-        <div class="inside-card-num">01</div>
-        <h3>How Forrester defines the category</h3>
-        <p>Why "agentic development platform" is a distinct market, not another name for code assistants — and what separates a platform from a point tool.</p>
+    <div class="inside-list">
+      <div class="inside-item">
+        <svg class="inside-item-icon" viewBox="0 0 24 24" fill="none"><circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="1.6"/><path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M7.5 10.5h6M10.5 7.5v6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <p>How Forrester defines the category — why "agentic development platform" is a distinct market, not another name for code assistants, and what separates a platform from a point tool.</p>
       </div>
-      <div class="inside-card">
-        <div class="inside-card-num">02</div>
-        <h3>How the vendors differ</h3>
-        <p>The core and extended use cases buyers look for, and how to evaluate options by size, focus, and deployment.</p>
+      <div class="inside-item">
+        <svg class="inside-item-icon" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="7" height="16" rx="1.2" stroke="currentColor" stroke-width="1.6"/><rect x="13" y="4" width="7" height="10" rx="1.2" stroke="currentColor" stroke-width="1.6"/></svg>
+        <p>How the vendors differ — the core and extended use cases buyers look for, and how to evaluate options by size, focus, and deployment.</p>
       </div>
-      <div class="inside-card">
-        <div class="inside-card-num">03</div>
-        <h3>What value to expect</h3>
-        <p>Where teams see real gains, and the questions to ask before you commit — including the hard ones about cost and governance.</p>
+      <div class="inside-item">
+        <svg class="inside-item-icon" viewBox="0 0 24 24" fill="none"><path d="M4 17l5-5 4 4 7-8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 8h5v5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <p>What value to expect — where teams see real gains, and the questions to ask before you commit, including the hard ones about cost and governance.</p>
       </div>
     </div>
 
@@ -550,69 +529,6 @@ makePixelCanvas('hero-divider-canvas', 11, 2,
     const twinkle = (Math.sin(p * 53.7 + t * 0.004) * 0.5 + 0.5) * 0.07;
     return 0.06 + highlight + twinkle;
   }, 1.0, '170,185,210');
-
-/* ─── INSIDE-CARD HOVER PIXEL FIELD (rotating-wave, matches .template-card
-   in solutions/_template) — injects a canvas as the first child of each card
-   and only draws while hovered. ───────────────────────────────────────── */
-(function () {
-  var cards = document.querySelectorAll('.inside-card');
-  if (!cards.length) return;
-  var dpr = window.devicePixelRatio || 1;
-  var objs = [];
-  cards.forEach(function (card, idx) {
-    var canvas = document.createElement('canvas');
-    canvas.className = 'inside-hover-canvas';
-    card.insertBefore(canvas, card.firstChild);
-    var obj = { canvas: canvas, card: card, phase: idx * 1.7, hover: false };
-    card.addEventListener('mouseenter', function () { obj.hover = true; });
-    card.addEventListener('mouseleave', function () { obj.hover = false; });
-    objs.push(obj);
-  });
-  function resizeAll() {
-    objs.forEach(function (o) {
-      o.canvas.width  = o.card.offsetWidth  * dpr;
-      o.canvas.height = o.card.offsetHeight * dpr;
-    });
-  }
-  resizeAll();
-  window.addEventListener('resize', resizeAll);
-  function draw(t) {
-    objs.forEach(function (o) {
-      if (!o.hover) return;
-      var canvas = o.canvas, h = o.card.offsetHeight;
-      if (canvas.height !== h * dpr) { canvas.width = o.card.offsetWidth * dpr; canvas.height = h * dpr; }
-      var ctx = canvas.getContext('2d');
-      var W = canvas.width, H = canvas.height;
-      ctx.clearRect(0, 0, W, H);
-      var sp = 7 * dpr, maxR = 2.2 * dpr;
-      var cols = Math.ceil(W / sp) + 1, rows = Math.ceil(H / sp) + 1;
-      for (var r = 0; r < rows; r++) {
-        for (var c = 0; c < cols; c++) {
-          var px = c * sp, py = r * sp;
-          var angle1 = t * 0.00012 + o.phase;
-          var u1 = (px * Math.cos(angle1) + py * Math.sin(angle1)) / (350 * dpr);
-          var v1 = (-px * Math.sin(angle1) + py * Math.cos(angle1)) / (220 * dpr);
-          var angle2 = t * 0.00022 + o.phase + 1.5;
-          var u2 = (px * Math.cos(angle2) + py * Math.sin(angle2)) / (180 * dpr);
-          var v2 = (-px * Math.sin(angle2) + py * Math.cos(angle2)) / (120 * dpr);
-          var wave = (Math.sin(u1 * Math.PI * 2 + t * 0.00030) * Math.cos(v1 * Math.PI * 1.5))
-                   * 0.55 + (Math.sin(u2 * Math.PI * 2 + t * 0.00060) * 0.45);
-          var density = Math.pow(Math.max(0, wave * 0.5 + 0.5), 0.8);
-          var rand = (Math.sin(c * 127.1 + r * 311.7 + o.phase * 50) * 0.5 + 0.5) * 0.9;
-          if (density > rand) {
-            var alpha = density * 0.22;
-            ctx.beginPath();
-            ctx.arc(px, py, maxR * density, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(180,185,195,' + alpha.toFixed(2) + ')';
-            ctx.fill();
-          }
-        }
-      }
-    });
-    requestAnimationFrame(draw);
-  }
-  requestAnimationFrame(draw);
-})();
 
 /* ─── FORM SUBMIT (prototype — no backend yet) ─────────────────────────── */
 document.getElementById('report-form').addEventListener('submit', function(e) {
