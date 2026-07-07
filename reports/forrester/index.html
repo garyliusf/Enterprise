@@ -42,16 +42,26 @@ a { color: inherit; text-decoration: none; }
   width: 100%;
   padding: 0 min(80px, 5vw);
 }
+/* Named grid areas so the cover image can reorder above "Key findings" on
+   mobile (single column) while staying above the form on desktop (2 cols)
+   — no DOM reordering needed, just a different template per breakpoint. */
 .hero-inner {
   width: min(1120px, calc(100vw - 160px));
   margin: 0 auto;
   display: grid;
   grid-template-columns: 1.1fr 1fr;
-  gap: 64px;
+  grid-template-areas:
+    "top    cover"
+    "bottom form";
+  row-gap: 22px;
+  column-gap: 64px;
   align-items: start;
 }
-.hero-text { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
-.hero-text .section-eyebrow { margin-bottom: 0; }
+.hero-text-top { grid-area: top; display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
+.hero-text-top .section-eyebrow { margin-bottom: 0; }
+.hero-text-bottom { grid-area: bottom; display: flex; flex-direction: column; align-items: flex-start; }
+.report-cover { grid-area: cover; }
+#report-form-card { grid-area: form; }
 /* H1 sized down from the canonical 66px because this title is unusually long
    (10 words). Uses the section-headline scale so it still reads as hero
    typography without over-dominating the two-column layout. */
@@ -96,8 +106,7 @@ a { color: inherit; text-decoration: none; }
 @media (max-width: 1024px) { .hero-divider { width: min(900px, calc(100vw - 80px)); } }
 @media (max-width: 768px)  { .hero-divider { width: calc(100vw - 32px); height: 90px; margin: -48px auto -36px; } }
 
-/* ─── RIGHT COLUMN (cover image + form card) ────────────────────────────── */
-.form-col { display: flex; flex-direction: column; gap: 20px; }
+/* ─── COVER IMAGE (grid area "cover" — see .hero-inner) ─────────────────── */
 .report-cover {
   width: 100%;
   aspect-ratio: 3 / 2;
@@ -283,7 +292,12 @@ a { color: inherit; text-decoration: none; }
   /* Match hero-content-area padding to hero-inner's calc so the inner
      never overflows the content area's padded box. */
   .hero-content-area { padding: 0 40px; }
-  .hero-inner { width: min(900px, calc(100vw - 80px)); grid-template-columns: 1fr; gap: 48px; }
+  .hero-inner {
+    width: min(900px, calc(100vw - 80px));
+    grid-template-columns: 1fr;
+    grid-template-areas: "top" "cover" "bottom" "form";
+    row-gap: 32px;
+  }
   .hero-subtitle { font-size: 18px; }
 }
 @media (max-width: 768px) {
@@ -320,12 +334,18 @@ a { color: inherit; text-decoration: none; }
 <section class="hero-section">
   <div class="hero-content-area">
     <div class="hero-inner">
-      <!-- LEFT: content -->
-      <div class="hero-text">
+      <!-- LEFT (top): eyebrow, H1, subtitle -->
+      <div class="hero-text-top">
         <p class="section-eyebrow eyebrow-scramble">Forrester Research</p>
         <h1 class="hero-h1">The Forrester Agentic Development Platforms Landscape, Q3 2026<sup class="hero-h1-tm">™</sup></h1>
         <p class="hero-subtitle">Bolt.new is named as a notable vendor in Forrester's latest research on agentic development tools.</p>
+      </div>
 
+      <!-- RIGHT (top): cover image — reorders above "Key findings" on mobile -->
+      <img class="report-cover" src="images/report-cover.jpg" alt="The Forrester Agentic Development Platforms Landscape, Q3 2026 report cover">
+
+      <!-- LEFT (bottom): key findings -->
+      <div class="hero-text-bottom">
         <div class="hero-divider-line"></div>
         <p class="hero-findings-label">Key findings</p>
         <div class="inside-list">
@@ -344,10 +364,8 @@ a { color: inherit; text-decoration: none; }
         </div>
       </div>
 
-      <!-- RIGHT: cover image + signup form -->
-      <div class="form-col">
-        <img class="report-cover" src="images/report-cover.jpg" alt="The Forrester Agentic Development Platforms Landscape, Q3 2026 report cover">
-        <aside class="form-card" id="report-form-card">
+      <!-- RIGHT (bottom): signup form -->
+      <aside class="form-card" id="report-form-card">
         <form id="report-form" class="form-body" novalidate>
           <h2 class="form-headline">Get the report</h2>
           <p class="form-subhead">Enter your details to view the report instantly.</p>
@@ -397,8 +415,7 @@ a { color: inherit; text-decoration: none; }
             <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M1 5h12m0 0L9 1m4 4L9 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </a>
         </div>
-        </aside>
-      </div>
+      </aside>
     </div>
   </div>
 </section>
