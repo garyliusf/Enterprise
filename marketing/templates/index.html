@@ -1460,11 +1460,15 @@
     color: rgba(255,255,255,0.4);
     margin: 0 0 4px;
   }
-  .site-footer-links { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+  /* gap:0 + per-link vertical padding so adjacent links touch (no dead pixels
+     between them) — moving down a column stays "on a link" the whole way, so
+     the focus overlay never flickers between rows (nav padding trick). */
+  .site-footer-links { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0; }
   .site-footer-links a {
     position: relative;
     display: inline-flex; align-items: center; gap: 6px;
     align-self: flex-start;
+    padding: 6px 0;
     font-size: 14px; color: rgba(255,255,255,0.7); text-decoration: none;
     transition: color 0.18s ease, opacity 0.18s ease;
   }
@@ -1476,13 +1480,12 @@
   }
   .site-footer-links a:hover { color: #fff; }
   .site-footer-links a:hover::after { opacity: 1; transform: translateX(0); }
-  /* Focus-mode dim: driven by hovering a whole column (:has(.site-footer-col
-     :hover)), not an individual link — so the overlay stays stable while the
-     cursor moves between links within a column, and turns off cleanly when the
-     cursor is in the gaps between columns (or out of the footer). The hovered
-     link stays lit; labels stay visible so the category is still readable. */
-  .site-footer-cols:has(.site-footer-col:hover) a { opacity: 0.5; }
-  .site-footer-cols:has(.site-footer-col:hover) a:hover { opacity: 1; }
+  /* Focus-mode dim: driven by hovering an actual link (:has(a:hover)) so the
+     overlay is off in the empty space beside/between columns and only turns on
+     over the links themselves. The padding trick above keeps it stable while
+     moving down a column. The hovered link stays lit; labels stay visible. */
+  .site-footer-cols:has(a:hover) a { opacity: 0.5; }
+  .site-footer-cols:has(a:hover) a:hover { opacity: 1; }
 
   .site-footer-col--connect { flex: 0 0 auto; min-width: 0; }
 
