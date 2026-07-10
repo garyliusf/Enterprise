@@ -488,19 +488,66 @@ makePixelCanvas('hero-divider-canvas', 11, 2,
     return 0.06 + highlight + twinkle;
   }, 1.0, '170,185,210');
 
-/* ─── FORM SUBMIT (prototype — no backend yet) ─────────────────────────── */
-document.getElementById('report-form').addEventListener('submit', function(e) {
+/* ─── FORM SUBMIT — posts to HubSpot, opens the Forrester report in a new
+   tab on success, then redirects the current tab to the access confirmation
+   page. Uses the canonical Forrester landing form endpoint. ─────────────── */
+const HUBSPOT_ENDPOINT =
+  "https://api.hsforms.com/submissions/v3/integration/submit/45403856/211ca623-60ba-4acd-8f8c-e2c923b10907";
+
+const REPORT_URL = "https://www.forrester.com/report/RES198045";
+
+async function submitForresterLandingEmail(email, company, jobTitle) {
+  // hubspotutk cookie ties the submission to the visitor's analytics history
+  const hutk = (document.cookie.match(/hubspotutk=([^;]+)/) || [])[1];
+  const body = {
+    fields: [
+      { name: "email", value: email },
+      { name: "company", value: company },
+      { name: "jobtitle", value: jobTitle },
+    ],
+    context: {
+      pageUri: window.location.href,
+      pageName: document.title, // shows per-submission in HubSpot — keeps blog attribution separate
+      ...(hutk ? { hutk } : {}),
+    },
+  };
+  const res = await fetch(HUBSPOT_ENDPOINT, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (res.ok) window.open(REPORT_URL, "_blank");
+  return res.ok;
+}
+
+document.getElementById('report-form').addEventListener('submit', async function(e) {
   e.preventDefault();
   const form = e.currentTarget;
   const required = form.querySelectorAll('[required]');
-  let ok = true;
+  let valid = true;
   required.forEach(f => {
-    if (!f.value.trim()) { f.style.borderColor = 'rgba(255,90,90,0.6)'; ok = false; }
+    if (!f.value.trim()) { f.style.borderColor = 'rgba(255,90,90,0.6)'; valid = false; }
     else { f.style.borderColor = ''; }
   });
-  if (!ok) return;
-  // TODO: wire up to backend (Marketo / HubSpot / Contentful). For now, just redirect.
-  window.location.href = './access/';
+  if (!valid) return;
+
+  const submitBtn = form.querySelector('button[type="submit"]');
+  const btnSpans = submitBtn ? submitBtn.querySelectorAll('.btn-text-inner span') : [];
+  if (submitBtn) submitBtn.disabled = true;
+  btnSpans.forEach(s => { s.textContent = 'Submitting…'; });
+
+  const email = form.querySelector('#email').value.trim();
+  const company = form.querySelector('#company').value.trim();
+  const jobTitle = form.querySelector('#role').value.trim();
+
+  const ok = await submitForresterLandingEmail(email, company, jobTitle);
+  if (ok) {
+    window.location.href = './access/';
+  } else {
+    if (submitBtn) submitBtn.disabled = false;
+    btnSpans.forEach(s => { s.textContent = 'Read the Report'; });
+    alert('Something went wrong submitting the form. Please try again.');
+  }
 });
 </script>
 
