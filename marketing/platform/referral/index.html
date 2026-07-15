@@ -149,39 +149,37 @@ a { color: inherit; text-decoration: none; }
    shared-components.css — no local redefinition. Eyebrow→headline spacing is
    handled by the flex `gap` on .hero-text and .section-header. */
 
-/* ─── HOW IT WORKS — 3-card standard stack ─────────────────────────────── */
-.how-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-.how-card {
-  position: relative;
-  overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.10);
-  border-radius: 4px;
-  padding: 28px 28px 32px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%);
-  transition: border-color 0.3s ease;
-}
-.how-card:hover { border-color: rgba(255,255,255,0.25); }
-.how-hover-canvas {
-  position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;
-  opacity: 0; transition: opacity 0.45s ease; z-index: 0;
-}
-.how-card:hover .how-hover-canvas { opacity: 1; }
-.how-card > *:not(.how-hover-canvas) { position: relative; z-index: 1; }
-.how-card-num {
-  font-family: 'Silkscreen', monospace;
-  font-size: 12px; font-weight: 400; color: #1488FC;
-  letter-spacing: 1.5px; margin-bottom: 24px;
-}
-.how-card-icon {
-  width: 44px; height: 44px; border-radius: 6px;
-  background: rgba(20,136,252,0.10);
-  border: 1px solid rgba(20,136,252,0.28);
-  display: inline-flex; align-items: center; justify-content: center;
-  color: #1488FC;
-  margin-bottom: 16px;
-}
-.how-card h3 { font-size: 20px; font-weight: 600; color: #fff; line-height: 1.3; letter-spacing: -0.2px; margin-bottom: 10px; }
-.how-card p { font-size: 15px; color: rgba(255,255,255,0.6); line-height: 1.6; }
+/* ─── HOW IT WORKS — canonical horizontal timeline (line-draw + node pop +
+   blur-in text on scroll). Ported verbatim from the shared how-it-works
+   component (solutions/smb, microsoft, bolt-cli). Header is left-aligned. ── */
+.how-header { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; margin-bottom: clamp(40px,6vh,72px); }
+.how-header > * { margin: 0; }
+.how-steps-wrap { position: relative; }
+.how-line-track { position: absolute; top: 19px; left: 0; right: 0; height: 1px; background: rgba(255,255,255,0.07); pointer-events: none; z-index: 0; }
+.how-line-fill { position: absolute; top: 19px; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, rgba(20,136,252,0.25), rgba(20,136,252,0.8) 20%, rgba(20,136,252,0.8) 80%, rgba(20,136,252,0.25)); pointer-events: none; z-index: 1; transform: scaleX(0); transform-origin: left center; }
+.how-line-glow { position: absolute; top: 16px; left: 0; height: 7px; width: 80px; background: radial-gradient(ellipse at center, rgba(120,200,255,0.9) 0%, transparent 70%); border-radius: 4px; pointer-events: none; z-index: 2; opacity: 0; }
+.how-steps-wrap.line-active .how-line-fill { animation: howLineDraw 1.4s cubic-bezier(0.4,0,0.2,1) 0.1s both; }
+.how-steps-wrap.line-active .how-line-glow { animation: howGlowTravel 1.4s cubic-bezier(0.4,0,0.2,1) 0.1s both; }
+@keyframes howLineDraw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes howGlowTravel { 0% { opacity:0; transform:translateX(0); } 8% { opacity:1; } 88% { opacity:1; } 100% { opacity:0; transform:translateX(var(--glow-dist,700px)); } }
+.how-steps { display: grid; grid-template-columns: repeat(3,1fr); gap: 0; position: relative; }
+.how-step { display: flex; flex-direction: column; padding: 0 28px 0 0; }
+.how-step:last-child { padding-right: 0; }
+.how-step-node { width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(20,136,252,0.5); background: #000; display: flex; align-items: center; justify-content: center; margin-bottom: 28px; position: relative; z-index: 1; flex-shrink: 0; transform: scale(0); }
+.how-steps-wrap.line-active .how-step:nth-child(1) .how-step-node { animation: nodePop 0.45s cubic-bezier(0.34,1.56,0.64,1) 0.15s both; }
+.how-steps-wrap.line-active .how-step:nth-child(2) .how-step-node { animation: nodePop 0.45s cubic-bezier(0.34,1.56,0.64,1) 0.65s both; }
+.how-steps-wrap.line-active .how-step:nth-child(3) .how-step-node { animation: nodePop 0.45s cubic-bezier(0.34,1.56,0.64,1) 1.15s both; }
+@keyframes nodePop { from { transform: scale(0); } to { transform: scale(1); } }
+.how-step-number { font-family: 'Silkscreen', monospace; font-size: 10px; color: #1488FC; }
+.how-step-title { font-size: 18px; font-weight: 600; color: #fff; margin: 0 0 10px; letter-spacing: -0.2px; line-height: 1.35; opacity: 0; transform: translateY(14px); filter: blur(10px); }
+.how-step-desc { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.55; margin: 0; opacity: 0; transform: translateY(14px); filter: blur(10px); }
+@keyframes howStepIn { from { opacity:0; transform:translateY(14px); filter:blur(10px); } to { opacity:1; transform:translateY(0); filter:blur(0); } }
+.how-steps-wrap.line-active .how-step:nth-child(1) .how-step-title { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 0.28s both; }
+.how-steps-wrap.line-active .how-step:nth-child(1) .how-step-desc  { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 0.40s both; }
+.how-steps-wrap.line-active .how-step:nth-child(2) .how-step-title { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 0.78s both; }
+.how-steps-wrap.line-active .how-step:nth-child(2) .how-step-desc  { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 0.90s both; }
+.how-steps-wrap.line-active .how-step:nth-child(3) .how-step-title { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 1.28s both; }
+.how-steps-wrap.line-active .how-step:nth-child(3) .how-step-desc  { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 1.40s both; }
 
 /* ─── FAQ ───────────────────────────────────────────────────────────────
    The accordion itself (.ms-faq-list / .ms-faq-item / .ms-faq-q / .ms-faq-icon
@@ -231,7 +229,7 @@ a { color: inherit; text-decoration: none; }
   .hero-inner { width: min(900px, calc(100vw - 80px)); grid-template-columns: 1fr; gap: 48px; }
   .hero-subtitle { font-size: 17px; }
   .section-inner { width: min(900px, calc(100vw - 80px)); }
-  .how-grid { grid-template-columns: 1fr; gap: 16px; }
+  .how-steps { grid-template-columns: repeat(3,1fr); }
   .section { padding: 64px 0; }
 }
 @media (max-width: 768px) {
@@ -243,6 +241,8 @@ a { color: inherit; text-decoration: none; }
   .hero-cta-row .hero-btn-primary, .hero-cta-row .hero-btn-ghost { min-width: 0; width: 100%; max-width: 320px; }
   .reward-card { padding: 22px 22px 24px; }
   .section-inner { width: calc(100vw - 32px); }
+  .how-steps { grid-template-columns: 1fr; gap: 40px; }
+  .how-line-track, .how-line-fill, .how-line-glow { display: none; }
   .section { padding: 48px 0; }
 }
 </style>
@@ -305,40 +305,32 @@ a { color: inherit; text-decoration: none; }
 </div>
 
 <!-- ─── HOW IT WORKS ─────────────────────────────────────────────────────── -->
-<section class="section" id="how-it-works">
+<section class="section how-section" id="how-it-works">
   <div class="section-inner">
-    <div class="section-header">
+    <div class="how-header dsa-reveal">
       <p class="section-eyebrow eyebrow-scramble">Referral Program</p>
-      <h2 class="section-headline">How it works</h2>
-      <p class="section-sub">Three steps. Share Bolt with your network, they save, you earn.</p>
+      <h2 class="section-headline">How it works.</h2>
     </div>
-
-    <div class="how-grid">
-      <div class="how-card">
-        <div class="how-card-num">01</div>
-        <div class="how-card-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <div class="how-steps-wrap">
+      <div class="how-line-track"></div>
+      <div class="how-line-fill"></div>
+      <div class="how-line-glow"></div>
+      <div class="how-steps">
+        <div class="how-step">
+          <div class="how-step-node"><span class="how-step-number">01</span></div>
+          <h3 class="how-step-title">Get your referral link.</h3>
+          <p class="how-step-desc">Sign up or log in to your Bolt account and grab your unique referral link.</p>
         </div>
-        <h3>Get your referral link</h3>
-        <p>Sign up or login to your Bolt account and get your unique referral link.</p>
-      </div>
-
-      <div class="how-card">
-        <div class="how-card-num">02</div>
-        <div class="how-card-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="18" cy="5" r="3" stroke="currentColor" stroke-width="1.7"/><circle cx="6" cy="12" r="3" stroke="currentColor" stroke-width="1.7"/><circle cx="18" cy="19" r="3" stroke="currentColor" stroke-width="1.7"/><path d="M8.59 13.51 15.42 17.49M15.41 6.51 8.59 10.49" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        <div class="how-step">
+          <div class="how-step-node"><span class="how-step-number">02</span></div>
+          <h3 class="how-step-title">Share it with your network.</h3>
+          <p class="how-step-desc">Send it to friends, colleagues, and across your socials. They save 20% for three months.</p>
         </div>
-        <h3>Share referral link</h3>
-        <p>Share your referral link with friends, colleagues, and across your social networks. They save 20% on their subscription for three months.</p>
-      </div>
-
-      <div class="how-card">
-        <div class="how-card-num">03</div>
-        <div class="how-card-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9v6a3 3 0 0 0 3 3h6a3 3 0 0 0 3-3V9M6 9a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3M6 9H4M18 9h2M12 12v3M9 15h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="6" r="2" stroke="currentColor" stroke-width="1.7"/></svg>
+        <div class="how-step">
+          <div class="how-step-node"><span class="how-step-number">03</span></div>
+          <h3 class="how-step-title">Earn rewards.</h3>
+          <p class="how-step-desc">When they subscribe, you earn 15% of their subscription — up to $50 per referral.</p>
         </div>
-        <h3>Earn rewards</h3>
-        <p>When new users subscribe to Bolt with your link, you get 15% of their subscription costs, up to $50 per referral.</p>
       </div>
     </div>
   </div>
@@ -557,65 +549,18 @@ makePixelCanvas('footer-pixel-canvas', 6, 2,
     return density > rand ? density * 0.85 : 0;
   }, 1.0, '220,230,245');
 
-/* ─── HOW-IT-WORKS CARD HOVER PIXEL FIELD ──────────────────────────────── */
+/* ─── HOW IT WORKS — line-draw + node/text reveal on scroll (canonical) ──── */
 (function () {
-  var cards = document.querySelectorAll('.how-card');
-  if (!cards.length) return;
-  var dpr = window.devicePixelRatio || 1;
-  var objs = [];
-  cards.forEach(function (card, idx) {
-    var canvas = document.createElement('canvas');
-    canvas.className = 'how-hover-canvas';
-    card.insertBefore(canvas, card.firstChild);
-    var obj = { canvas: canvas, card: card, phase: idx * 1.7, hover: false };
-    card.addEventListener('mouseenter', function () { obj.hover = true; });
-    card.addEventListener('mouseleave', function () { obj.hover = false; });
-    objs.push(obj);
-  });
-  function resizeAll() {
-    objs.forEach(function (o) {
-      o.canvas.width  = o.card.offsetWidth  * dpr;
-      o.canvas.height = o.card.offsetHeight * dpr;
+  var wrap = document.querySelector('.how-steps-wrap');
+  if (!wrap) return;
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) { wrap.classList.add('line-active'); io.unobserve(wrap); }
     });
-  }
-  resizeAll();
-  window.addEventListener('resize', resizeAll);
-  function draw(t) {
-    objs.forEach(function (o) {
-      if (!o.hover) return;
-      var canvas = o.canvas, h = o.card.offsetHeight;
-      if (canvas.height !== h * dpr) { canvas.width = o.card.offsetWidth * dpr; canvas.height = h * dpr; }
-      var ctx = canvas.getContext('2d');
-      var W = canvas.width, H = canvas.height;
-      ctx.clearRect(0, 0, W, H);
-      var sp = 7 * dpr, maxR = 2.2 * dpr;
-      var cols = Math.ceil(W / sp) + 1, rows = Math.ceil(H / sp) + 1;
-      for (var r = 0; r < rows; r++) {
-        for (var c = 0; c < cols; c++) {
-          var px = c * sp, py = r * sp;
-          var angle1 = t * 0.00012 + o.phase;
-          var u1 = (px * Math.cos(angle1) + py * Math.sin(angle1)) / (350 * dpr);
-          var v1 = (-px * Math.sin(angle1) + py * Math.cos(angle1)) / (220 * dpr);
-          var angle2 = t * 0.00022 + o.phase + 1.5;
-          var u2 = (px * Math.cos(angle2) + py * Math.sin(angle2)) / (180 * dpr);
-          var v2 = (-px * Math.sin(angle2) + py * Math.cos(angle2)) / (120 * dpr);
-          var wave = (Math.sin(u1 * Math.PI * 2 + t * 0.00030) * Math.cos(v1 * Math.PI * 1.5))
-                   * 0.55 + (Math.sin(u2 * Math.PI * 2 + t * 0.00060) * 0.45);
-          var density = Math.pow(Math.max(0, wave * 0.5 + 0.5), 0.8);
-          var rand = (Math.sin(c * 127.1 + r * 311.7 + o.phase * 50) * 0.5 + 0.5) * 0.9;
-          if (density > rand) {
-            var alpha = density * 0.22;
-            ctx.beginPath();
-            ctx.arc(px, py, maxR * density, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(180,185,195,' + alpha.toFixed(2) + ')';
-            ctx.fill();
-          }
-        }
-      }
-    });
-    requestAnimationFrame(draw);
-  }
-  requestAnimationFrame(draw);
+  }, { threshold: 0.3 });
+  io.observe(wrap);
+  /* set glow travel distance to the full track width */
+  wrap.style.setProperty('--glow-dist', wrap.offsetWidth + 'px');
 })();
 
 /* ─── FAQ ACCORDION toggle — shared-components.js injects/animates the per-item
