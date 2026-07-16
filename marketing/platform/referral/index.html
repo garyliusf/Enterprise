@@ -142,6 +142,22 @@ a { color: inherit; text-decoration: none; }
 @media (max-width: 1024px) { .hero-divider { width: min(900px, calc(100vw - 80px)); } }
 @media (max-width: 768px)  { .hero-divider { width: calc(100vw - 32px); height: 90px; margin: -48px auto -36px; } }
 
+/* ─── MID-SECTION DIVIDER (taller animated pixel field: rewards → how) ───── */
+.section-divider {
+  position: relative;
+  width: min(1120px, calc(100vw - 160px));
+  margin: -80px auto -80px;
+  height: 320px;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 30%, #000 76%, transparent 100%);
+          mask-image: linear-gradient(to bottom, transparent 0%, #000 30%, #000 76%, transparent 100%);
+}
+#mid-divider-canvas { display: block; width: 100%; height: 100%; }
+@media (max-width: 1024px) { .section-divider { width: min(900px, calc(100vw - 80px)); height: 260px; margin: -64px auto -64px; } }
+@media (max-width: 768px)  { .section-divider { width: calc(100vw - 32px); height: 200px; margin: -48px auto -48px; } }
+
 /* ─── SECTIONS (canonical .section + .section-inner) ───────────────────── */
 .section { padding: clamp(80px, 12vh, 140px) 0; position: relative; }
 .section-inner { width: min(1120px, calc(100vw - 160px)); margin: 0 auto; }
@@ -330,6 +346,11 @@ a { color: inherit; text-decoration: none; }
     </div>
   </div>
 </section>
+
+<!-- ─── REWARDS→HOW-IT-WORKS DIVIDER (tall animated pixel field) ──────────── -->
+<div class="section-divider">
+  <canvas id="mid-divider-canvas"></canvas>
+</div>
 
 <!-- ─── HOW IT WORKS ─────────────────────────────────────────────────────── -->
 <section class="section how-section" id="how-it-works">
@@ -524,6 +545,17 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
 
 /* ─── HERO→SECTION DIVIDER CANVAS (traveling diagonal shimmer + twinkle) ─ */
 makePixelCanvas('hero-divider-canvas', 11, 2,
+  function(c, r, t, p) {
+    const px = c * 11, py = r * 11;
+    const phase = (px * 0.012 + py * 0.018) - t * 0.0018 + 1.0;
+    const band = Math.sin(phase) * 0.5 + 0.5;
+    const highlight = Math.pow(band, 3) * 0.32;
+    const twinkle = (Math.sin(p * 53.7 + t * 0.004) * 0.5 + 0.5) * 0.07;
+    return 0.06 + highlight + twinkle;
+  }, 1.0, '170,185,210');
+
+/* ─── MID-SECTION DIVIDER CANVAS (same traveling shimmer, taller field) ──── */
+makePixelCanvas('mid-divider-canvas', 11, 2,
   function(c, r, t, p) {
     const px = c * 11, py = r * 11;
     const phase = (px * 0.012 + py * 0.018) - t * 0.0018 + 1.0;
