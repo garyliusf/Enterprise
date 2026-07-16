@@ -529,19 +529,18 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
   requestAnimationFrame(draw);
 }
 
-/* ─── HERO BACKGROUND PIXEL FIELD (subtle diagonal shimmer, fades downward) ─ */
-makePixelCanvas('hero-pixel-canvas', 13, 2,
+/* ─── HERO BACKGROUND PIXEL FIELD (square-pixel diagonal wave, mimics the
+   other pages: use-cases/launch). Blue-tinted, fades toward the bottom. ─── */
+makePixelCanvas('hero-pixel-canvas', 11, 3,
   function(c, r, t, p) {
     const el = document.getElementById('hero-pixel-canvas');
     const H = el ? el.height : 800;
-    const px = c * 13, py = r * 13;
-    const vFade = Math.max(0, 1 - py / (H * 1.15));  // fade toward the content/bottom
-    const phase = (px * 0.010 + py * 0.015) - t * 0.0015 + 1.0;
-    const band = Math.sin(phase) * 0.5 + 0.5;
-    const highlight = Math.pow(band, 3) * 0.20;
-    const twinkle = (Math.sin(p * 53.7 + t * 0.0035) * 0.5 + 0.5) * 0.05;
-    return vFade * (0.035 + highlight + twinkle);
-  }, 0.6, '150,172,214');
+    const py = r * 11;
+    const vFade = Math.max(0, 1 - py / (H * 1.25));  // fade toward the content/bottom
+    const w1 = Math.sin(c * 0.18 + r * 0.22 - t * 0.0018 + p);
+    const w2 = Math.sin(c * 0.09 - r * 0.14 + t * 0.0012 + p * 0.6);
+    return vFade * Math.max(0, (w1 + w2) * 0.5) * 0.55;
+  }, 1.0, '160,185,230');
 
 /* ─── MID-SECTION DIVIDER CANVAS (same traveling shimmer, taller field) ──── */
 makePixelCanvas('mid-divider-canvas', 11, 2,
