@@ -42,6 +42,11 @@ a { color: inherit; text-decoration: none; }
 .hero-inner {
   width: min(1120px, calc(100vw - 160px));
   margin: 0 auto;
+  /* Two-column: text on the left ~60%, right ~40% reserved for a future
+     visual. With only .hero-text present, it occupies the first column. */
+  display: grid;
+  grid-template-columns: 60% 40%;
+  align-items: center;
 }
 .hero-text { display: flex; flex-direction: column; align-items: flex-start; gap: 20px; }
 .hero-text .section-eyebrow { margin-bottom: 0; }
@@ -52,7 +57,7 @@ a { color: inherit; text-decoration: none; }
   line-height: 1.1;
   letter-spacing: normal;
   margin: 0;
-  max-width: 560px;
+  max-width: 100%;
 }
 .hero-h1 .accent { color: #7FDDC1; }
 .hero-subtitle {
@@ -60,7 +65,7 @@ a { color: inherit; text-decoration: none; }
   font-weight: 400;
   color: #ABABAB;
   line-height: 1.55;
-  max-width: 520px;
+  max-width: 540px;
   margin: 0;
 }
 .hero-cta-row { display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap; }
@@ -76,22 +81,25 @@ a { color: inherit; text-decoration: none; }
   overflow: hidden;
   transition: border-color 0.3s ease, transform 0.3s ease;
 }
-.reward-card:hover { transform: translateY(-3px); }
-.reward-card--you { border-color: rgba(20,136,252,0.28); }
-.reward-card--you:hover { border-color: rgba(20,136,252,0.5); }
+.reward-card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.20); }
+/* Subtle per-variant background tint (no colored border). */
 .reward-card--you::before {
   content: ""; position: absolute; inset: 0; z-index: 0;
-  background: radial-gradient(ellipse 90% 70% at 15% 0%, rgba(20,136,252,0.14) 0%, transparent 62%);
+  background: radial-gradient(ellipse 90% 70% at 15% 0%, rgba(20,136,252,0.12) 0%, transparent 62%);
   pointer-events: none;
 }
-.reward-card--them { border-color: rgba(127,221,193,0.24); }
-.reward-card--them:hover { border-color: rgba(127,221,193,0.45); }
 .reward-card--them::before {
   content: ""; position: absolute; inset: 0; z-index: 0;
-  background: radial-gradient(ellipse 90% 70% at 15% 0%, rgba(127,221,193,0.12) 0%, transparent 62%);
+  background: radial-gradient(ellipse 90% 70% at 15% 0%, rgba(127,221,193,0.10) 0%, transparent 62%);
   pointer-events: none;
 }
-.reward-card > * { position: relative; z-index: 1; }
+/* Hover pixel field (injected by JS) — fades in on hover, tinted per variant. */
+.reward-hover-canvas {
+  position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;
+  opacity: 0; transition: opacity 0.45s ease; z-index: 0;
+}
+.reward-card:hover .reward-hover-canvas { opacity: 1; }
+.reward-card > *:not(.reward-hover-canvas) { position: relative; z-index: 1; }
 /* Friendly rounded pill badge (Inter) — replaces the Silkscreen mono label */
 .reward-badge {
   display: inline-flex; align-items: center; gap: 10px;
@@ -228,7 +236,7 @@ a { color: inherit; text-decoration: none; }
 /* ─── RESPONSIVE (page-specific layout only) ───────────────────────────── */
 @media (max-width: 1024px) {
   .hero-content-area { padding: 0 40px; }
-  .hero-inner { width: min(900px, calc(100vw - 80px)); }
+  .hero-inner { width: min(900px, calc(100vw - 80px)); grid-template-columns: 1fr; }
   /* Collapsed single-column hero: the 66px/560px desktop H1 wraps to 4 cramped
      lines here. Step down and let it use the full column so it reads as ~2. */
   .hero-h1 { font-size: clamp(34px, 5vw, 44px); max-width: none; }
@@ -567,6 +575,66 @@ makePixelCanvas('footer-pixel-canvas', 6, 2,
     const rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
     return density > rand ? density * 0.85 : 0;
   }, 1.0, '220,230,245');
+
+/* ─── REWARD CARD HOVER PIXEL FIELD (rotating wave, tinted per variant) ──── */
+(function () {
+  var cards = document.querySelectorAll('.reward-card');
+  if (!cards.length) return;
+  var dpr = window.devicePixelRatio || 1;
+  var objs = [];
+  cards.forEach(function (card, idx) {
+    var canvas = document.createElement('canvas');
+    canvas.className = 'reward-hover-canvas';
+    card.insertBefore(canvas, card.firstChild);
+    var color = card.classList.contains('reward-card--them') ? '127,221,193' : '104,176,255';
+    var obj = { canvas: canvas, card: card, phase: idx * 2.1, hover: false, color: color };
+    card.addEventListener('mouseenter', function () { obj.hover = true; });
+    card.addEventListener('mouseleave', function () { obj.hover = false; });
+    objs.push(obj);
+  });
+  function resizeAll() {
+    objs.forEach(function (o) {
+      o.canvas.width  = o.card.offsetWidth  * dpr;
+      o.canvas.height = o.card.offsetHeight * dpr;
+    });
+  }
+  resizeAll();
+  window.addEventListener('resize', resizeAll);
+  function draw(t) {
+    objs.forEach(function (o) {
+      if (!o.hover) return;
+      var canvas = o.canvas;
+      if (canvas.height !== o.card.offsetHeight * dpr) resizeAll();
+      var ctx = canvas.getContext('2d');
+      var W = canvas.width, H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+      var sp = 7 * dpr, maxR = 2.2 * dpr;
+      var cols = Math.ceil(W / sp) + 1, rows = Math.ceil(H / sp) + 1;
+      for (var r = 0; r < rows; r++) {
+        for (var c = 0; c < cols; c++) {
+          var px = c * sp, py = r * sp;
+          var angle1 = t * 0.00012 + o.phase;
+          var u1 = (px * Math.cos(angle1) + py * Math.sin(angle1)) / (350 * dpr);
+          var v1 = (-px * Math.sin(angle1) + py * Math.cos(angle1)) / (220 * dpr);
+          var angle2 = t * 0.00022 + o.phase + 1.5;
+          var u2 = (px * Math.cos(angle2) + py * Math.sin(angle2)) / (180 * dpr);
+          var wave = (Math.sin(u1 * Math.PI * 2 + t * 0.00030) * Math.cos(v1 * Math.PI * 1.5))
+                   * 0.55 + (Math.sin(u2 * Math.PI * 2 + t * 0.00060) * 0.45);
+          var density = Math.pow(Math.max(0, wave * 0.5 + 0.5), 0.8);
+          var rand = (Math.sin(c * 127.1 + r * 311.7 + o.phase * 50) * 0.5 + 0.5) * 0.9;
+          if (density > rand) {
+            ctx.beginPath();
+            ctx.arc(px, py, maxR * density, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(' + o.color + ',' + (density * 0.22).toFixed(2) + ')';
+            ctx.fill();
+          }
+        }
+      }
+    });
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
 
 /* ─── HOW IT WORKS — line-draw + node/text reveal on scroll (canonical) ──── */
 (function () {
