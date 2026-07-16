@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>bolt.new — Instant Deploy (launch loop)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* ── Recording stage: fixed 1920×1080, scaled to fit the viewport ────────── */
+  .stage-wrap {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+  }
+  .stage {
+    position: relative;
+    width: 1920px;
+    height: 1080px;
+    flex: 0 0 auto;
+    overflow: hidden;
+    transform: scale(var(--stage-scale, 1));
+    transform-origin: center center;
+    /* Pricing-page hero treatment: navy→black base, dominant blue glow lower-left,
+       soft light-blue, small warm-orange accent top-right */
+    background:
+      radial-gradient(1150px 900px at 14% 82%, rgba(20,136,252,0.42) 0%, transparent 62%),
+      radial-gradient(760px 620px at 24% 54%, rgba(180,200,230,0.14) 0%, transparent 70%),
+      radial-gradient(1000px 900px at 96% -2%, rgba(255,170,110,0.30) 0%, transparent 62%),
+      linear-gradient(180deg, #0b1a2f 0%, #0a0f1c 55%, #050608 100%);
+  }
+
+  /* ── Content: a single centered morph container ──────────────────────────── */
+  .center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+  }
+
+  /* The morph: a prompt box that expands into a browser window and back */
+  .morph {
+    position: relative;
+    width: 1140px;
+    height: 340px;
+    padding: 3px;                 /* gradient-border thickness */
+    border-radius: 44px;
+    /* blue glow brightest at top-left, fading — over the dark border base */
+    background:
+      radial-gradient(150% 130% at 8% -6%, #2BA6FF 0%, rgba(43,166,255,0) 46%),
+      #171717;
+    box-shadow: 0 34px 90px rgba(2, 14, 40, 0.5);
+    transition: width 720ms cubic-bezier(0.22, 1, 0.36, 1),
+                height 720ms cubic-bezier(0.22, 1, 0.36, 1),
+                padding 720ms cubic-bezier(0.22, 1, 0.36, 1),
+                border-radius 720ms ease,
+                box-shadow 720ms ease;
+  }
+  .stage.is-expanded .morph {
+    width: 1320px;
+    height: 900px;
+    border-radius: 15px;
+    padding: 0;                 /* no gradient border in browser state */
+    background: none;
+  }
+
+  .morph-clip {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 41px;
+    overflow: hidden;
+    background: #171717;
+    perspective: 2000px;         /* depth for the skill-3 peel */
+    transition: border-radius 720ms ease;
+  }
+  .stage.is-expanded .morph-clip { border-radius: 15px; }
+
+  /* Two crossfading layers filling the clip */
+  .morph-prompt,
+  .morph-browser {
+    position: absolute;
+    inset: 0;
+    transition: opacity 300ms ease;
+  }
+  .morph-prompt { opacity: 1; }
+  .morph-browser { opacity: 0; }
+  .stage.is-expanded .morph-prompt { opacity: 0; transition-duration: 220ms; }
+  .stage.is-expanded .morph-browser { opacity: 1; transition-delay: 240ms; transition-duration: 460ms; }
+
+  /* ── Prompt layer ────────────────────────────────────────────────────────── */
+  .morph-prompt {
+    display: flex;
+    flex-direction: column;
+    padding: 46px 46px 40px;
+  }
+
+  .prompt-text-wrap {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+  .prompt-text {
+    font-size: 38px;
+    font-weight: 400;
+    letter-spacing: -0.4px;
+    color: #DDDCD8;
+    white-space: nowrap;
+    transition: opacity 200ms ease;
+  }
+  .prompt-placeholder {
+    position: absolute;
+    top: 0; left: 0;
+    font-size: 38px;
+    font-weight: 400;
+    letter-spacing: -0.4px;
+    color: rgba(221, 220, 216, 0.32);
+    white-space: nowrap;
+    transition: opacity 200ms ease;
+  }
+  .stage.has-text .prompt-placeholder { opacity: 0; }
+
+  /* Actions row: + (left)  ·  submit (right) */
+  .prompt-actions-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .prompt-add {
+    width: 62px; height: 62px;
+    border-radius: 50%;
+    border: 0;
+    background: rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.5);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+  }
+  .prompt-add svg { width: 30px; height: 30px; }
+
+  /* Blue circle submit button with a white up-arrow */
+  .prompt-submit {
+    width: 78px; height: 78px;
+    border-radius: 50%;
+    border: 0;
+    background: #1488FC;
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: transform 160ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 200ms ease;
+  }
+  .prompt-submit svg { width: 34px; height: 34px; }
+  .stage.is-submitting .prompt-submit {
+    animation: press 460ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 0 0 12px rgba(20, 136, 252, 0.18);
+  }
+  @keyframes press {
+    0% { transform: scale(1); }
+    35% { transform: scale(0.82); }
+    100% { transform: scale(1); }
+  }
+
+
+  /* ── Browser layer (chrome + live site iframe) ───────────────────────────── */
+  .morph-browser {
+    display: flex;
+    flex-direction: column;
+    background: #0c1220;
+  }
+  .browser-bar {
+    flex: 0 0 auto;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 0 20px;
+    background: #232329;
+    border-bottom: 1px solid #2c2c34;
+  }
+  .browser-dots { display: flex; gap: 9px; flex: 0 0 auto; }
+  .browser-dot { width: 12px; height: 12px; border-radius: 50%; background: #4a4a52; }
+
+  .url-bar {
+    flex: 1 1 auto;
+    height: 34px;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 16px;
+    border-radius: 999px;
+    background: #16161a;
+    border: 1px solid #34343c;
+  }
+  .url-lock { width: 14px; height: 14px; flex: 0 0 auto; color: #16a34a; }
+  .url-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 17px;
+    color: rgba(255,255,255,0.82);
+    white-space: nowrap;
+  }
+  .url-scheme { color: rgba(255,255,255,0.4); }
+
+  .deployed-pill {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 32px;
+    padding: 0 14px;
+    border-radius: 999px;
+    background: rgba(22, 163, 74, 0.16);
+    border: 1px solid rgba(22, 163, 74, 0.45);
+    color: #46d17f;
+    font-size: 15px;
+    font-weight: 600;
+    opacity: 0;
+    transform: scale(0.7);
+    transition: opacity 300ms ease, transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .stage.is-expanded .deployed-pill { opacity: 1; transform: scale(1); transition-delay: 640ms; }
+  .deployed-pill svg { width: 15px; height: 15px; }
+
+  /* Live site preview (iframe fixed at desktop size, clipped by content area) */
+  .browser-content {
+    position: relative;
+    flex: 1 1 auto;
+    overflow: hidden;
+    background: #0c1220;
+  }
+  .site-frame {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1320px;
+    height: 844px;
+    border: 0;
+    display: block;
+    background: #0c1220;
+  }
+
+  /* Generic "before" site — clean but generic, default "AI app" palette
+     (indigo/violet/blue/emerald, gradient buttons + heading) */
+  .generic-site {
+    position: absolute; inset: 0; z-index: 3; overflow: hidden;
+    background: #f8fafc; color: #0f172a;
+    font-family: 'Inter', -apple-system, sans-serif;
+  }
+  .gs-nav { display: flex; align-items: center; padding: 20px 44px; background: #fff; border-bottom: 1px solid #e2e8f0; }
+  .gs-logo { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; display: flex; align-items: center; gap: 10px; }
+  .gs-logo::before { content: ''; width: 22px; height: 22px; border-radius: 7px; background: linear-gradient(135deg,#6366f1,#8b5cf6); }
+  .gs-links { display: flex; gap: 26px; margin-left: 44px; }
+  .gs-links a { color: #64748b; font-size: 15px; font-weight: 500; }
+  .gs-cart { margin-left: auto; font-size: 14px; font-weight: 600; color: #fff; padding: 9px 18px; border-radius: 8px; background: linear-gradient(135deg,#6366f1,#8b5cf6); }
+  .gs-hero { display: flex; align-items: center; gap: 48px; padding: 60px 44px 44px; }
+  .gs-hero-text { flex: 1 1 auto; }
+  .gs-eyebrow { font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: #6366f1; font-weight: 600; margin: 0 0 16px; }
+  .gs-h1 {
+    font-size: 60px; line-height: 1.03; font-weight: 800; letter-spacing: -2px; margin: 0 0 20px;
+    background: linear-gradient(92deg,#4f46e5,#7c3aed 48%,#2563eb);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .gs-sub { font-size: 20px; color: #64748b; line-height: 1.5; max-width: 540px; margin: 0 0 28px; }
+  .gs-btns { display: flex; gap: 14px; }
+  .gs-btn { font-family: inherit; font-size: 15px; font-weight: 600; padding: 13px 24px; border-radius: 8px; cursor: pointer; border: 1px solid transparent; }
+  .gs-btn--primary { background: linear-gradient(135deg,#6366f1,#8b5cf6); color: #fff; box-shadow: 0 8px 20px rgba(99,102,241,0.35); }
+  .gs-btn--ghost { background: #fff; border: 1px solid #e2e8f0; color: #334155; }
+  .gs-hero-art { flex: 0 0 auto; width: 320px; height: 320px; display: flex; align-items: center; justify-content: center; }
+  /* Real vinyl record in the hero (mirrors the live site) */
+  .gs-disc {
+    width: 300px; height: 300px; border-radius: 50%; position: relative;
+    background: repeating-radial-gradient(circle at 50% 50%, #141109 0 2px, #241f18 2px 4px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+  }
+  .gs-disc::after {
+    content: ''; position: absolute; inset: 34%; border-radius: 50%;
+    background: radial-gradient(circle, #d9a441 0 58%, #c0532e 58%);
+  }
+  .gs-grid { display: flex; gap: 22px; padding: 12px 44px 44px; }
+  .gs-card { flex: 1 1 0; }
+  /* Album cover = cream photo frame + moody photo + catalog-label chip (matches the live site) */
+  .gs-thumb { position: relative; width: 100%; aspect-ratio: 4 / 5; background: #efe9df; padding: 9px 9px 26px; border-radius: 3px; box-shadow: 0 8px 22px rgba(15,23,42,0.14); }
+  .gs-photo { width: 100%; height: 100%; object-fit: cover; border-radius: 2px; display: block; background: #ddd; }
+  .gs-cat {
+    position: absolute; top: 17px; right: 17px;
+    background: #efe9df; color: #2a2622;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; letter-spacing: 0.5px;
+    padding: 3px 7px; border-radius: 2px;
+  }
+
+  /* Skeleton "generating" state — white page of shimmering placeholder blocks */
+  .skeleton {
+    position: absolute; inset: 0; z-index: 4;
+    background: linear-gradient(#0e1b34 0 0) top / 100% 4px no-repeat,
+                linear-gradient(#0e1b34 0 0) bottom / 100% 4px no-repeat,
+                #f6f7f9;
+    overflow: hidden;
+    opacity: 1;
+  }
+  .sk-block {
+    position: absolute; border-radius: 12px;
+    background: #e4e9f1;
+  }
+  /* shimmer sweep across the whole skeleton */
+  .skeleton::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(105deg, transparent 38%, rgba(255,255,255,0.75) 50%, transparent 62%);
+    transform: translateX(-100%);
+    animation: sk-shimmer 1.5s linear infinite;
+  }
+  @keyframes sk-shimmer { to { transform: translateX(100%); } }
+  .sk-spark {
+    position: absolute; color: #6db0f0; font-size: 22px; line-height: 1;
+    opacity: 0; transform: scale(0.4);
+    animation: sk-twinkle 1.8s ease-in-out infinite;
+  }
+  @keyframes sk-twinkle {
+    0%, 100% { opacity: 0; transform: scale(0.4); }
+    50%      { opacity: 1; transform: scale(1); }
+  }
+
+  /* ── Skills overlay: staged effects + chips (clipped to browser) ─────────────
+     Hidden by default; GSAP reveals during the skills sequence. z above browser. */
+  .fx-sweep, .fx-motion, .figma-panel, .skills-tray { position: absolute; z-index: 6; }
+
+  /* Skill 1 — UI polish: a diagonal light sweep across the browser */
+  .fx-sweep {
+    top: 56px; left: 0;
+    width: 46%; height: calc(100% - 56px);
+    background: linear-gradient(105deg, transparent 0%, rgba(160,200,255,0.10) 35%, rgba(255,255,255,0.55) 50%, rgba(160,200,255,0.10) 65%, transparent 100%);
+    opacity: 0;                 /* transform owned by GSAP (xPercent + skewX) */
+    pointer-events: none;
+    mix-blend-mode: screen;
+  }
+
+  /* Skill 2 — motion: ripple + particles (dots injected by JS) */
+  .fx-motion { top: 56px; left: 0; right: 0; bottom: 0; pointer-events: none; }
+  .fx-ripple {
+    position: absolute; top: 50%; left: 50%;
+    width: 120px; height: 120px; margin: -60px 0 0 -60px;
+    border-radius: 50%; border: 3px solid rgba(20,136,252,0.7);
+    opacity: 0; transform: scale(0.2);
+  }
+  .fx-dot {
+    position: absolute; top: 50%; left: 50%; margin: -5px 0 0 -5px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: #1488FC; opacity: 0; will-change: transform, opacity;
+  }
+
+  /* Skill 3 — design-system panel (slides in from the right) */
+  .figma-panel {
+    top: 56px; right: 0;
+    width: 400px; height: calc(100% - 56px);
+    background: rgba(14,15,20,0.92);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border-left: 1px solid rgba(255,255,255,0.10);
+    box-shadow: -30px 0 60px rgba(0,0,0,0.4);
+    padding: 30px; opacity: 0;  /* transform (x) owned by GSAP */
+    color: #fff; font-family: 'Inter', sans-serif;
+  }
+  .fp-head { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 600; letter-spacing: -0.3px; margin-bottom: 6px; }
+  .fp-dot { width: 12px; height: 12px; border-radius: 3px; background: linear-gradient(135deg,#e5533c,#d9a441 45%,#7a8b6f); }
+  .fp-label { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin: 24px 0 12px; }
+  .fp-swatches { display: flex; gap: 10px; }
+  .fp-swatches span { width: 52px; height: 52px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.12); }
+  .fp-type { display: flex; align-items: baseline; gap: 20px; color: #EDE6D8; font-family: Georgia, serif; }
+  .fp-components { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .fp-btn { height: 40px; padding: 0 20px; display: inline-flex; align-items: center; border-radius: 8px; background: #C0532E; color: #fff; font-size: 14px; font-weight: 600; }
+  .fp-btn--ghost { background: transparent; border: 1px solid rgba(255,255,255,0.25); }
+  .fp-input { height: 40px; padding: 0 16px; display: inline-flex; align-items: center; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); color: rgba(255,255,255,0.4); font-size: 14px; min-width: 150px; }
+  .fp-card { width: 100%; height: 70px; border-radius: 10px; background: linear-gradient(135deg, rgba(192,83,46,0.25), rgba(217,164,65,0.15)); border: 1px solid rgba(255,255,255,0.10); }
+
+  /* Applied-skills tray — chips dock along the bottom of the browser */
+  .skills-tray { left: 0; right: 0; bottom: 30px; display: flex; justify-content: center; gap: 18px; pointer-events: none; }
+  .skill-chip {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 20px 12px 12px; border-radius: 14px;
+    background: rgba(16,17,22,0.86);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.12);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.45);
+    opacity: 0;
+  }
+  .chip-icon { width: 42px; height: 42px; flex: 0 0 auto; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; color: #fff; }
+  .chip-icon--fd    { background: linear-gradient(135deg,#f0876a,#e5533c); }
+  .chip-icon--seo   { background: linear-gradient(135deg,#22c9a0,#0ea5e9); }
+  .chip-icon--gsap  { background: #0ae448; color: #064e2b; }
+
+  /* Backend/blueprint layer — revealed when the page peels (skill 3) */
+  .backend-layer {
+    position: absolute; inset: 0; z-index: 0; overflow: hidden;
+    background:
+      linear-gradient(rgba(90,169,255,0.06) 1px, transparent 1px) 0 0 / 100% 42px,
+      linear-gradient(90deg, rgba(90,169,255,0.06) 1px, transparent 1px) 0 0 / 42px 100%,
+      #07101f;
+  }
+  .bl-eyebrow {
+    position: absolute; top: 26px; right: 30px;
+    font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 2px;
+    text-transform: uppercase; color: #5aa9ff;
+  }
+  .bl-wire {
+    position: absolute; border: 1.5px dashed rgba(120,180,255,0.45);
+    border-radius: 8px; background: rgba(90,169,255,0.04);
+  }
+  .bl-wire::before {
+    content: attr(data-l); position: absolute; top: 8px; left: 12px;
+    font-family: 'JetBrains Mono', monospace; font-size: 13px; color: rgba(150,195,255,0.85);
+  }
+  .bl-tokens { position: absolute; bottom: 26px; left: 6%; display: flex; gap: 10px; }
+  .bl-tokens span {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #8fd3ff;
+    border: 1px solid rgba(120,180,255,0.35); border-radius: 6px; padding: 6px 10px;
+    background: rgba(90,169,255,0.06);
+  }
+
+  /* ── Skill 2 — SEO: dim scrim + elevated metadata panel ─────────────────── */
+  .seo-dim {
+    position: absolute; top: 56px; left: 0; right: 0; bottom: 0; z-index: 5;
+    background: rgba(8,12,22,0.5);
+    backdrop-filter: blur(7px); -webkit-backdrop-filter: blur(7px);
+    opacity: 0; pointer-events: none;
+  }
+  .seo-panel {
+    position: absolute; z-index: 7;
+    top: 180px; left: 50%; margin-left: -380px; width: 760px;
+    background: rgba(17,19,27,0.97);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 16px;
+    box-shadow: 0 44px 110px rgba(0,0,0,0.62);
+    padding: 26px 30px 20px;
+    opacity: 0;
+  }
+  .seo-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .seo-title { font-size: 18px; font-weight: 600; color: #fff; letter-spacing: -0.2px; font-family: 'Inter', sans-serif; }
+  .seo-score {
+    font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 600;
+    color: #46d17f; background: rgba(22,163,74,0.14); border: 1px solid rgba(22,163,74,0.4);
+    padding: 5px 12px; border-radius: 999px;
+  }
+  .seo-score i { font-style: normal; color: rgba(70,209,127,0.6); }
+  .seo-row {
+    display: flex; align-items: center; gap: 14px; padding: 10px 0;
+    border-top: 1px solid rgba(255,255,255,0.06); opacity: 0;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .seo-k { flex: 0 0 128px; color: #5aa9ff; font-size: 14px; }
+  .seo-v { flex: 1 1 auto; color: rgba(255,255,255,0.72); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .seo-chk {
+    flex: 0 0 auto; width: 22px; height: 22px; border-radius: 50%;
+    background: rgba(22,163,74,0.2); border: 1px solid rgba(22,163,74,0.5); color: #46d17f;
+    display: flex; align-items: center; justify-content: center; font-size: 12px; opacity: 0;
+  }
+  .chip-icon svg { width: 22px; height: 22px; }
+  .chip-icon--figma { background: #17171a; }              /* neutral tile for the colour logo */
+  .chip-icon--figma svg { width: 17px; height: auto; }
+  .chip-text { display: flex; flex-direction: column; line-height: 1.25; }
+  .chip-text b { font-size: 16px; font-weight: 600; color: #fff; }
+  .chip-text i { font-size: 13px; font-style: normal; color: rgba(255,255,255,0.5); }
+
+  /* Full-field pixel-dot texture (halftone) behind everything */
+  #pixel-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.9;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .morph, .morph-clip, .morph-prompt, .morph-browser,
+    .prompt-submit, .deployed-pill { transition: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="stage-wrap">
+    <div class="stage" id="stage">
+      <canvas id="pixel-canvas"></canvas>
+
+      <div class="center">
+        <!-- Morph: prompt box ⇄ browser window -->
+        <div class="morph" id="morph">
+          <div class="morph-clip">
+
+            <!-- Behind-the-scenes blueprint layer (revealed when the page peels) -->
+            <div class="backend-layer" aria-hidden="true">
+              <span class="bl-eyebrow bl-fade">Behind the scenes</span>
+              <div class="bl-wire bl-fade" data-l="&lt;Header /&gt;" style="top:12%;left:6%;width:60%;height:9%"></div>
+              <div class="bl-wire bl-fade" data-l="&lt;Hero /&gt;" style="top:26%;left:6%;width:74%;height:26%"></div>
+              <div class="bl-wire bl-fade" data-l="&lt;ProductGrid /&gt;" style="top:56%;left:6%;width:74%;height:24%"></div>
+              <div class="bl-wire bl-fade" data-l="&lt;Footer /&gt;" style="top:84%;left:6%;width:74%;height:8%"></div>
+              <div class="bl-tokens bl-fade">
+                <span>--brand</span><span>--ink</span><span>space-4</span><span>radius-lg</span><span>text-xl</span>
+              </div>
+            </div>
+
+            <!-- Browser layer (crossfades in on expand) -->
+            <div class="morph-browser">
+              <div class="browser-bar">
+                <div class="browser-dots">
+                  <span class="browser-dot"></span>
+                  <span class="browser-dot"></span>
+                  <span class="browser-dot"></span>
+                </div>
+                <div class="url-bar">
+                  <svg class="url-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4.5" y="10.5" width="15" height="10" rx="2"></rect>
+                    <path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"></path>
+                  </svg>
+                  <span class="url-text"><span class="url-scheme">https://</span>soulpress.bolt.host</span>
+                </div>
+                <div class="deployed-pill">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 6 9 17l-5-5"></path>
+                  </svg>
+                  <span>Deployed</span>
+                </div>
+              </div>
+              <div class="browser-content">
+                <iframe class="site-frame" src="https://soulpress.bolt.host/" title="Deployed site preview" loading="eager" scrolling="no"></iframe>
+
+                <!-- Generic "before" site — clean but generic + black-and-white -->
+                <div class="generic-site" aria-hidden="true">
+                  <div class="gs-nav">
+                    <span class="gs-logo">Soul Press Records</span>
+                    <span class="gs-links"><a>Catalog</a><a>Artists</a><a>About</a><a>Shop</a></span>
+                    <span class="gs-cart">Cart (0)</span>
+                  </div>
+                  <div class="gs-hero">
+                    <div class="gs-hero-text">
+                      <p class="gs-eyebrow">Independent Vinyl Label — Est. 1970</p>
+                      <h1 class="gs-h1">Records Worth Keeping</h1>
+                      <p class="gs-sub">Soul, jazz, funk, and blues pressed on heavy vinyl since 1970.</p>
+                      <div class="gs-btns">
+                        <button class="gs-btn gs-btn--primary">Browse Catalog</button>
+                        <button class="gs-btn gs-btn--ghost">Our Story</button>
+                      </div>
+                    </div>
+                    <div class="gs-hero-art"><span class="gs-disc"></span></div>
+                  </div>
+                  <div class="gs-grid">
+                    <div class="gs-card">
+                      <div class="gs-thumb"><img class="gs-photo" src="https://images.pexels.com/photos/9419393/pexels-photo-9419393.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Midnight Groove"><span class="gs-cat">SP-1207</span></div>
+                    </div>
+                    <div class="gs-card">
+                      <div class="gs-thumb"><img class="gs-photo" src="https://images.pexels.com/photos/34576113/pexels-photo-34576113.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Blue Hour Sessions"><span class="gs-cat">BLU-034</span></div>
+                    </div>
+                    <div class="gs-card">
+                      <div class="gs-thumb"><img class="gs-photo" src="https://images.pexels.com/photos/8041259/pexels-photo-8041259.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Funk Machine"><span class="gs-cat">SP-1212</span></div>
+                    </div>
+                    <div class="gs-card">
+                      <div class="gs-thumb"><img class="gs-photo" src="https://images.pexels.com/photos/878999/pexels-photo-878999.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Delta Dirt"><span class="gs-cat">BLU-019</span></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Skeleton "generating" state — shown right after submit, before the site -->
+                <div class="skeleton" aria-hidden="true">
+                  <span class="sk-block" style="top:6%;left:4%;width:16%;height:4.5%"></span>
+                  <span class="sk-block" style="top:6%;right:4%;width:12%;height:4.5%"></span>
+                  <span class="sk-block" style="top:20%;left:4%;width:60%;height:12%"></span>
+                  <span class="sk-block" style="top:39%;left:4%;width:42%;height:11%"></span>
+                  <span class="sk-block" style="top:59%;left:4%;width:47%;height:5%"></span>
+                  <span class="sk-block" style="top:67%;left:4%;width:40%;height:5%"></span>
+                  <span class="sk-block" style="top:80%;left:4%;width:20%;height:15%"></span>
+                  <span class="sk-block" style="top:80%;left:27%;width:20%;height:15%"></span>
+                  <span class="sk-block" style="top:80%;left:50%;width:20%;height:15%"></span>
+                  <span class="sk-block" style="top:80%;left:73%;width:20%;height:15%"></span>
+                  <span class="sk-spark" style="top:32%;left:63%;animation-delay:0s">✦</span>
+                  <span class="sk-spark" style="top:70%;left:46%;animation-delay:.5s">✕</span>
+                  <span class="sk-spark" style="top:76%;left:95%;animation-delay:.9s">✦</span>
+                  <span class="sk-spark" style="top:12%;left:30%;animation-delay:1.3s">✕</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Prompt layer (bolt-branded composer) -->
+            <div class="morph-prompt">
+              <div class="prompt-text-wrap">
+                <span class="prompt-placeholder">Describe what you want to build…</span>
+                <span class="prompt-text" id="prompt-text"></span>
+              </div>
+              <div class="prompt-actions-row">
+                <button class="prompt-add" aria-label="Add">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+                    <path d="M12 5v14"></path>
+                    <path d="M5 12h14"></path>
+                  </svg>
+                </button>
+                <button class="prompt-submit" aria-label="Submit">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 20V5"></path>
+                    <path d="M6 11l6-6 6 6"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- ── Skills overlay: staged effects + chips (clipped to browser) ── -->
+            <div class="fx-sweep" aria-hidden="true"></div>
+            <div class="fx-motion" aria-hidden="true"><span class="fx-ripple"></span></div>
+
+            <div class="figma-panel" aria-hidden="true">
+              <div class="fp-head"><span class="fp-dot"></span>Design System</div>
+              <div class="fp-label">Palette</div>
+              <div class="fp-swatches">
+                <span style="background:#F1E9DC"></span>
+                <span style="background:#171512"></span>
+                <span style="background:#C0532E"></span>
+                <span style="background:#D9A441"></span>
+                <span style="background:#7A8B6F"></span>
+              </div>
+              <div class="fp-label">Type scale</div>
+              <div class="fp-type">
+                <span style="font-size:16px">Aa</span>
+                <span style="font-size:24px">Aa</span>
+                <span style="font-size:36px">Aa</span>
+              </div>
+              <div class="fp-label">Components</div>
+              <div class="fp-components">
+                <span class="fp-btn">Button</span>
+                <span class="fp-btn fp-btn--ghost">Ghost</span>
+                <span class="fp-input">Search…</span>
+                <span class="fp-card"></span>
+              </div>
+            </div>
+
+            <!-- Skill 2 — SEO: dim the site + elevate a metadata layer -->
+            <div class="seo-dim" aria-hidden="true"></div>
+            <div class="seo-panel" aria-hidden="true">
+              <div class="seo-head">
+                <span class="seo-title">&lt;head&gt; — SEO metadata</span>
+                <span class="seo-score">SEO 98<i>/100</i></span>
+              </div>
+              <div class="seo-rows">
+                <div class="seo-row"><span class="seo-k">title</span><span class="seo-v">Soul Press Records — Vinyl Since 1970</span><span class="seo-chk">✓</span></div>
+                <div class="seo-row"><span class="seo-k">description</span><span class="seo-v">Independent vinyl label pressing soul, jazz &amp; funk since 1970.</span><span class="seo-chk">✓</span></div>
+                <div class="seo-row"><span class="seo-k">og:image</span><span class="seo-v">/og/soulpress-cover.jpg</span><span class="seo-chk">✓</span></div>
+                <div class="seo-row"><span class="seo-k">canonical</span><span class="seo-v">https://soulpress.bolt.host/</span><span class="seo-chk">✓</span></div>
+                <div class="seo-row"><span class="seo-k">JSON-LD</span><span class="seo-v">MusicGroup + Product schema</span><span class="seo-chk">✓</span></div>
+                <div class="seo-row"><span class="seo-k">sitemap</span><span class="seo-v">sitemap.xml · 24 URLs indexed</span><span class="seo-chk">✓</span></div>
+              </div>
+            </div>
+
+            <div class="skills-tray" aria-hidden="true">
+              <div class="skill-chip" data-skill="frontend-design">
+                <span class="chip-icon chip-icon--fd">
+                  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.09 6.26L20 10l-5.91 1.74L12 18l-2.09-6.26L4 10l5.91-1.74L12 2z"/><path d="M19 15l.7 2.1L22 18l-2.3.7L19 21l-.7-2.3L16 18l2.3-.9L19 15z"/></svg>
+                </span>
+                <span class="chip-text"><b>frontend-design</b><i>UI Polish</i></span>
+              </div>
+              <div class="skill-chip" data-skill="seo">
+                <span class="chip-icon chip-icon--seo">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.6-4.6"/></svg>
+                </span>
+                <span class="chip-text"><b>claude-seo</b><i>SEO Boost</i></span>
+              </div>
+              <div class="skill-chip" data-skill="figma">
+                <span class="chip-icon chip-icon--figma">
+                  <svg viewBox="0 0 38 57" aria-hidden="true">
+                    <path fill="#1abcfe" d="M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z"/>
+                    <path fill="#0acf83" d="M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0z"/>
+                    <path fill="#ff7262" d="M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z"/>
+                    <path fill="#f24e1e" d="M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z"/>
+                    <path fill="#a259ff" d="M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z"/>
+                  </svg>
+                </span>
+                <span class="chip-text"><b>figma-generate-library</b><i>Design System</i></span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- GSAP (powers the motion — showcased via the gsap-plugins skill) -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+<script>
+/* ── Scale the 1920×1080 stage to fit the viewport ───────────────────────── */
+function fitStage() {
+  const s = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+  document.querySelector('.stage').style.setProperty('--stage-scale', s);
+}
+fitStage();
+window.addEventListener('resize', fitStage);
+
+/* ── Config ──────────────────────────────────────────────────────────────── */
+/* Each skill gets its own prompt → expand → apply → contract cycle */
+const SKILLS = [
+  { prompt: 'Build a storefront for my vinyl label', skill: 'frontend-design', fx: () => fxPolish(), skeleton: true,  hold: 0.7 },
+  { prompt: 'Boost my search ranking',               skill: 'seo',             fx: () => fxSEO(),    skeleton: false, hold: 0.3 },
+  { prompt: 'Generate a design system',              skill: 'figma',           fx: () => fxPeel(),   skeleton: false, hold: 1.3 },
+];
+const stage  = document.getElementById('stage');
+const textEl = document.getElementById('prompt-text');
+const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* Build the motion-effect particle dots once */
+const motionLayer = document.querySelector('.fx-motion');
+const DOTS = [];
+for (let i = 0; i < 18; i++) {
+  const d = document.createElement('span');
+  d.className = 'fx-dot';
+  motionLayer.appendChild(d);
+  DOTS.push(d);
+}
+
+/* The live site iframe + a greyscale→color helper (real filter on the element) */
+const siteFrame = document.querySelector('.site-frame');
+function setGray(v) {
+  siteFrame.style.filter = `grayscale(${v}) contrast(${(1 - 0.12 * v).toFixed(3)}) brightness(${(1 - 0.06 * v).toFixed(3)})`;
+}
+
+/* GSAP typewriter: proxy tween → textContent (no caret) */
+function typeTween(el, text, dur) {
+  const o = { n: 0 };
+  return gsap.to(o, {
+    n: text.length, duration: reduce ? 0.01 : dur, ease: 'none',
+    onUpdate() { el.textContent = text.slice(0, Math.round(o.n)); }
+  });
+}
+
+/* Per-cycle reset — clears a skill's overlays but KEEPS the site's colour
+   (colour is applied in cycle 1 and persists through cycles 2 & 3) */
+function resetCycle() {
+  gsap.set('.skills-tray', { opacity: 1 });
+  gsap.set('.skill-chip', { opacity: 0, y: 90, scale: 0.85, display: 'none' });
+  gsap.set('.fx-sweep', { opacity: 0, xPercent: -160, skewX: -12 });
+  gsap.set('.seo-dim', { opacity: 0 });
+  gsap.set('.seo-panel', { opacity: 0, y: 40, scale: 0.94 });
+  gsap.set('.seo-row', { opacity: 0 });
+  gsap.set('.seo-chk', { opacity: 0 });
+  gsap.set('.morph-browser', { rotateY: 0, x: 0, scale: 1 });
+  gsap.set('.backend-layer .bl-fade', { opacity: 0, y: 16 });
+}
+
+/* Full reset at the start of each loop */
+function resetAll() {
+  stage.classList.remove('has-text', 'is-submitting', 'is-expanded');
+  textEl.textContent = '';
+  gsap.set('.morph-clip', { scale: 1 });
+  gsap.set('.skeleton', { opacity: 1 });
+  gsap.set('.generic-site', { opacity: 1 });   // the plain "before" (revealed after skeleton)
+  resetCycle();
+}
+
+/* ── Per-skill effect sub-timelines ─────────────────────────────────────── */
+function fxPolish() {           // frontend-design — generic "before" → real polished site
+  return gsap.timeline()
+    .set('.fx-sweep', { opacity: 1, xPercent: -160, skewX: -12 }, 0)
+    .to('.fx-sweep', { xPercent: 260, duration: 1.3, ease: 'power2.inOut' }, 0)
+    .to('.generic-site', { opacity: 0, duration: 0.85, ease: 'power2.inOut' }, 0.4)  // reveal the real site
+    .set('.fx-sweep', { opacity: 0 });
+}
+function fxMotion() {           // gsap-plugins — ripple + particle burst + bounce
+  const tl = gsap.timeline();
+  tl.set('.fx-ripple', { opacity: 0.9, scale: 0.2 }, 0)
+    .to('.fx-ripple', { scale: 3.6, opacity: 0, duration: 0.95, ease: 'power2.out' }, 0);
+  tl.to('.morph-clip', { scale: 1.014, duration: 0.18, yoyo: true, repeat: 1, ease: 'power2.inOut' }, 0);
+  DOTS.forEach((d, i) => {
+    const ang = (i / DOTS.length) * Math.PI * 2;
+    const dist = 190 + (i % 3) * 70;
+    tl.set(d, { opacity: 1, x: 0, y: 0, scale: 1 }, 0.05)
+      .to(d, { x: Math.cos(ang) * dist, y: Math.sin(ang) * dist, opacity: 0, scale: 0.4,
+        duration: 0.95, ease: 'power2.out' }, 0.05);
+  });
+  return tl;
+}
+function fxSEO() {              // claude-seo — site recedes, elevated metadata layer
+  const tl = gsap.timeline();
+  tl.to('.seo-dim', { opacity: 1, duration: 0.5, ease: 'power2.out' }, 0);
+  tl.to('.seo-panel', { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: 'back.out(1.4)' }, 0.15);
+  tl.to('.seo-row', { opacity: 1, stagger: 0.11, duration: 0.3, ease: 'power2.out' }, 0.45);
+  tl.to('.seo-chk', { opacity: 1, stagger: 0.11, duration: 0.28, ease: 'back.out(2)' }, 0.6);
+  tl.to({}, { duration: 1.1 });                                   // hold to read
+  tl.to(['.seo-panel', '.seo-dim'], { opacity: 0, duration: 0.45, ease: 'power2.in' });  // recede
+  return tl;
+}
+function fxPeel() {             // figma-generate-library — peel the page to reveal the blueprint
+  return gsap.timeline()
+    .to('.morph-browser', { rotateY: 28, x: 150, scale: 0.9, transformOrigin: 'right center', duration: 0.95, ease: 'power3.inOut' }, 0)
+    .to('.backend-layer .bl-fade', { opacity: 1, y: 0, stagger: 0.07, duration: 0.5, ease: 'power2.out' }, 0.35);
+}
+function chipIn(el) {
+  return gsap.to(el, { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: 'back.out(1.6)' });
+}
+
+/* ── Master timeline: one expand/contract cycle per skill, looping ────────── */
+function buildMaster() {
+  const tl = gsap.timeline({ repeat: -1, defaults: { ease: 'power2.out' } });
+  tl.call(resetAll);
+
+  SKILLS.forEach((s) => {
+    const chip = document.querySelector('.skill-chip[data-skill="' + s.skill + '"]');
+
+    // Rest at an empty prompt box
+    tl.call(() => { stage.classList.remove('is-expanded', 'is-submitting', 'has-text'); textEl.textContent = ''; });
+    tl.call(resetCycle);
+    tl.to({}, { duration: 0.55 });
+
+    // Type this skill's prompt → submit
+    tl.call(() => stage.classList.add('has-text'));
+    tl.add(typeTween(textEl, s.prompt, 1.15));
+    tl.to({}, { duration: 0.4 });
+    tl.call(() => stage.classList.add('is-submitting'));
+    tl.to({}, { duration: 0.45 });
+
+    // Expand into the browser
+    tl.call(() => stage.classList.add('is-expanded'));
+    tl.to({}, { duration: 1.1 });
+    if (s.skeleton) {                                        // first build shows the generating skeleton
+      tl.to({}, { duration: 0.7 });
+      tl.to('.skeleton', { opacity: 0, duration: 0.5 });
+      tl.to({}, { duration: 0.35 });
+    }
+
+    // Apply the skill (chip + effect)
+    tl.call(() => gsap.set(chip, { display: 'flex' }));
+    tl.add(chipIn(chip), '-=0.05');
+    tl.add(s.fx(), '-=0.1');
+    tl.to({}, { duration: s.hold });
+
+    // Contract back to the prompt box
+    tl.to(chip, { opacity: 0, y: 30, duration: 0.35 });
+    tl.to('.morph-browser', { rotateY: 0, x: 0, scale: 1, duration: 0.45 }, '<');
+    tl.to('.backend-layer .bl-fade', { opacity: 0, duration: 0.3 }, '<');
+    tl.call(() => stage.classList.remove('is-expanded', 'is-submitting'));
+    tl.to({}, { duration: 0.95 });
+  });
+
+  return tl;
+}
+
+function startShow() {
+  resetAll();
+  if (reduce) {                       // static end-state, no looping motion
+    stage.classList.add('has-text', 'is-submitting', 'is-expanded');
+    textEl.textContent = SKILLS[2].prompt;
+    gsap.set('.skeleton', { opacity: 0 });
+    gsap.set('.generic-site', { opacity: 0 });
+    const figChip = document.querySelector('.skill-chip[data-skill="figma"]');
+    gsap.set(figChip, { opacity: 1, y: 0, scale: 1, display: 'flex' });
+    gsap.set('.morph-browser', { rotateY: 28, x: 150, scale: 0.9, transformOrigin: 'right center' });
+    gsap.set('.backend-layer .bl-fade', { opacity: 1, y: 0 });
+    return;
+  }
+  window.__master = buildMaster();
+}
+
+/* ── Subtle pixel-dot texture behind the prompt (makePixelCanvas engine) ──── */
+function makePixelCanvas(canvas, spacing, dot, waveFn, opacity, color) {
+  const ctx = canvas.getContext('2d');
+  let cells = [];
+  function resize() {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    cells = [];
+    for (let x = 0; x < canvas.width; x += spacing)
+      for (let y = 0; y < canvas.height; y += spacing)
+        cells.push({ x, y, phase: (x * 13 + y * 7) % 100 / 100 * Math.PI * 2 });
+  }
+  resize();
+  window.addEventListener('resize', resize);
+  let t = 0;
+  (function frame() {
+    t += 0.016;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (const c of cells) {
+      const op = waveFn(c.x, c.y, t, c.phase) * opacity;
+      if (op <= 0.002) continue;
+      ctx.fillStyle = 'rgba(' + color + ',' + op.toFixed(3) + ')';
+      ctx.fillRect(c.x, c.y, dot, dot);
+    }
+    requestAnimationFrame(frame);
+  })();
+}
+
+const canvas = document.getElementById('pixel-canvas');
+// Full-field halftone: fine dots with a soft radial vignette + gentle shimmer
+const CW = 1920, CH = 1080, PCX = CW * 0.5, PCY = CH * 0.42, PMAX = Math.hypot(CW * 0.72, CH * 0.72);
+makePixelCanvas(canvas, 15, 2, (x, y, t, phase) => {
+  const d = Math.hypot(x - PCX, y - PCY);
+  const fall = Math.max(0, 1 - d / PMAX);
+  const shimmer = reduce ? 0.85 : (0.72 + 0.28 * Math.sin(t * 0.8 + x * 0.008 + y * 0.006 + phase));
+  return fall * shimmer;
+}, 0.6, '150,175,220');
+
+if (window.gsap) startShow();
+else window.addEventListener('load', () => window.gsap && startShow());
+</script>
+</body>
+</html>
