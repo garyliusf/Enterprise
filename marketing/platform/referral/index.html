@@ -158,8 +158,13 @@ a { color: inherit; text-decoration: none; }
   pointer-events: none;
   overflow: visible;
 }
-.tube-halo { filter: blur(11px); animation: tubePulse 5.4s ease-in-out infinite; }
-.tube-glow { filter: blur(5px);  animation: tubePulse 5.4s ease-in-out infinite; }
+/* Each tube layer is its own full-stage SVG (position: absolute, inset:0)
+   so applying CSS filter blur uses the SVG root's bounds — the whole stage
+   — as the filter effect region. That eliminates the rectangular halo cut-
+   off around the line's tight stroke bounding box. */
+.hero-visual-tube { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; overflow: visible; }
+.tube-halo { filter: blur(11px);  animation: tubePulse 5.4s ease-in-out infinite; }
+.tube-glow { filter: blur(5px);   animation: tubePulse 5.4s ease-in-out infinite; }
 .tube-body { filter: blur(2.2px); animation: tubePulse 5.4s ease-in-out infinite; }
 @keyframes tubePulse {
   0%, 100% { opacity: 0.8; }
@@ -435,10 +440,19 @@ a { color: inherit; text-decoration: none; }
                widths and less blur build a proper 3D tube: outer blue aurora
                halo → mint glow → mint-white body → bright cyan core. Round
                linecaps land at each hole; b portholes reveal the ends. -->
-          <svg class="hero-visual-tube" viewBox="0 0 100 120" preserveAspectRatio="none" fill="none">
-            <line class="tube-halo" x1="21" y1="78" x2="67" y2="67" stroke="rgba(20,136,252,0.75)"  stroke-width="15" stroke-linecap="round"/>
-            <line class="tube-glow" x1="21" y1="78" x2="67" y2="67" stroke="rgba(127,221,193,0.9)"  stroke-width="8" stroke-linecap="round"/>
-            <line class="tube-body" x1="21" y1="78" x2="67" y2="67" stroke="rgba(200,247,228,0.85)" stroke-width="4" stroke-linecap="round"/>
+          <!-- Cylindrical light tube — split into 3 separate SVGs (one per
+               layer) so each SVG spans the whole stage. CSS filter: blur() is
+               then applied to each SVG root; its filter effect region is the
+               SVG's box (whole stage), NOT the individual line's tight bounds
+               — so the blur doesn't get clipped at a rectangular halo edge. -->
+          <svg class="hero-visual-tube tube-halo" viewBox="0 0 100 120" preserveAspectRatio="none" fill="none">
+            <line x1="21" y1="78" x2="67" y2="67" stroke="rgba(20,136,252,0.75)"  stroke-width="15" stroke-linecap="round"/>
+          </svg>
+          <svg class="hero-visual-tube tube-glow" viewBox="0 0 100 120" preserveAspectRatio="none" fill="none">
+            <line x1="21" y1="78" x2="67" y2="67" stroke="rgba(127,221,193,0.9)"  stroke-width="8" stroke-linecap="round"/>
+          </svg>
+          <svg class="hero-visual-tube tube-body" viewBox="0 0 100 120" preserveAspectRatio="none" fill="none">
+            <line x1="21" y1="78" x2="67" y2="67" stroke="rgba(200,247,228,0.85)" stroke-width="4" stroke-linecap="round"/>
           </svg>
           <img src="../../../images/referral-hero-b.png" alt="" class="hero-visual-b-mini" loading="eager">
           <img src="../../../images/referral-hero-b.png" alt="Bolt" class="hero-visual-img" loading="eager">
