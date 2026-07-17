@@ -97,18 +97,96 @@ a { color: inherit; text-decoration: none; }
 }
 .hero-cta-row { display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap; }
 
-/* Right-column 3D "b" visual */
+/* ─── HERO VISUAL — referral loop stage (right column) ─────────────────────
+   Layered inside a square-ish positioning stage:
+   1. Main "b" (right/center)  — the referrer / user
+   2. Small companion "b" (lower-left) — the friend who joined
+   3. Dashed mint arc connecting them (dashes crawl along the path)
+   4. "+$50" credit chip that rides the arc periodically, right → user
+   Together this reads: friend joined via your link → you earned. */
 .hero-visual { display: flex; align-items: center; justify-content: center; }
-.hero-visual-img {
+.hero-visual-stage {
+  position: relative;
   width: 100%;
-  max-width: 400px;
+  max-width: 480px;
+  aspect-ratio: 5 / 6;   /* taller than wide — matches the b's tall aspect */
+}
+.hero-visual-img {
+  position: absolute;
+  right: -4%;
+  top: 6%;
+  width: 74%;
   height: auto;
   display: block;
+  z-index: 3;
   filter: drop-shadow(0 30px 70px rgba(0,0,0,0.55));
   animation: heroFloat 6s ease-in-out infinite;
 }
-@keyframes heroFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-16px); } }
-@media (prefers-reduced-motion: reduce) { .hero-visual-img { animation: none; } }
+@keyframes heroFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+.hero-visual-b-mini {
+  position: absolute;
+  left: -2%;
+  bottom: -2%;
+  width: 30%;
+  height: auto;
+  display: block;
+  z-index: 1;
+  opacity: 0.4;
+  filter: blur(0.5px) brightness(0.7) saturate(0.85);
+  animation: heroFloatMini 10s ease-in-out infinite;
+  animation-delay: -3s;
+}
+@keyframes heroFloatMini { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+.hero-visual-arc {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+  overflow: visible;
+}
+.hero-visual-arc path {
+  animation: arcDash 8s linear infinite;
+}
+@keyframes arcDash { to { stroke-dashoffset: -36; } }
+.hero-visual-chip {
+  position: absolute;
+  left: 16%;
+  top: 66%;
+  z-index: 4;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 12px 6px 10px;
+  border-radius: 999px;
+  background: rgba(15,20,30,0.88);
+  border: 1px solid rgba(127,221,193,0.35);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.35), 0 0 0 3px rgba(127,221,193,0.06);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px; font-weight: 600;
+  color: #9fe6d0;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  animation: chipRide 7s ease-in-out infinite;
+}
+.hero-visual-chip-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #7FDDC1;
+  box-shadow: 0 0 8px rgba(127,221,193,0.7);
+}
+/* Chip starts near the small b (bottom-left), rises + drifts along the arc
+   toward the main b (upper-right), fades in, holds, fades out. */
+@keyframes chipRide {
+  0%   { transform: translate(0, 0)      scale(0.92); opacity: 0; }
+  10%  { transform: translate(6px, -6px)  scale(1);    opacity: 1; }
+  55%  { transform: translate(140px, -80px) scale(1);  opacity: 1; }
+  75%  { transform: translate(210px, -120px) scale(0.96); opacity: 0; }
+  100% { transform: translate(210px, -120px) scale(0.96); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-visual-img, .hero-visual-b-mini, .hero-visual-arc path, .hero-visual-chip { animation: none; }
+  .hero-visual-chip { opacity: 1; transform: translate(6px, -6px); }
+}
 
 /* ─── REWARDS — friendly "You get / They get" pair (horizontal) ─────────── */
 .rewards-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
@@ -331,9 +409,22 @@ a { color: inherit; text-decoration: none; }
         </div>
       </div>
 
-      <!-- RIGHT: 3D bolt "b" visual -->
+      <!-- RIGHT: 3D bolt "b" visual — referral loop stage.
+           Main b (right), small companion b (lower-left, "your friend"),
+           dashed arc between them, and a "+$50" credit chip that rides the
+           arc from the small b toward the main b, cycling every ~7s. -->
       <div class="hero-visual">
-        <img src="../../../images/referral-hero-b.png" alt="Bolt" class="hero-visual-img" loading="eager">
+        <div class="hero-visual-stage" aria-hidden="true">
+          <img src="../../../images/referral-hero-b.png" alt="" class="hero-visual-b-mini" loading="eager">
+          <svg class="hero-visual-arc" viewBox="0 0 100 100" preserveAspectRatio="none" fill="none">
+            <path d="M 22 82 C 34 62, 52 46, 72 38" stroke="rgba(127,221,193,0.45)" stroke-width="1.1" stroke-dasharray="2.6 3.4" stroke-linecap="round"/>
+          </svg>
+          <img src="../../../images/referral-hero-b.png" alt="Bolt" class="hero-visual-img" loading="eager">
+          <span class="hero-visual-chip">
+            <span class="hero-visual-chip-dot"></span>
+            +$50
+          </span>
+        </div>
       </div>
 
     </div>
