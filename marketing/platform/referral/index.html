@@ -146,10 +146,19 @@ a { color: inherit; text-decoration: none; }
   pointer-events: none;
   overflow: visible;
 }
-.hero-visual-arc path {
-  animation: arcDash 8s linear infinite;
+/* Soft beam: blurred glow layer behind, thin bright core in front. Both
+   pulse in unison so the whole beam breathes. */
+.hero-visual-arc-glow {
+  filter: blur(2.5px);
+  animation: beamPulse 4.2s ease-in-out infinite;
 }
-@keyframes arcDash { to { stroke-dashoffset: -36; } }
+.hero-visual-arc-core {
+  animation: beamPulse 4.2s ease-in-out infinite;
+}
+@keyframes beamPulse {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 1;    }
+}
 .hero-visual-chip {
   position: absolute;
   left: 16%;
@@ -184,7 +193,7 @@ a { color: inherit; text-decoration: none; }
   100% { transform: translate(210px, -120px) scale(0.96); opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .hero-visual-img, .hero-visual-b-mini, .hero-visual-arc path, .hero-visual-chip { animation: none; }
+  .hero-visual-img, .hero-visual-b-mini, .hero-visual-arc-glow, .hero-visual-arc-core, .hero-visual-chip { animation: none; }
   .hero-visual-chip { opacity: 1; transform: translate(6px, -6px); }
 }
 
@@ -417,7 +426,10 @@ a { color: inherit; text-decoration: none; }
         <div class="hero-visual-stage" aria-hidden="true">
           <img src="../../../images/referral-hero-b.png" alt="" class="hero-visual-b-mini" loading="eager">
           <svg class="hero-visual-arc" viewBox="0 0 100 100" preserveAspectRatio="none" fill="none">
-            <path d="M 22 82 C 34 62, 52 46, 72 38" stroke="rgba(127,221,193,0.45)" stroke-width="1.1" stroke-dasharray="2.6 3.4" stroke-linecap="round"/>
+            <!-- Two stacked paths make a soft beam: wide blurred glow behind,
+                 thin bright core in front. Both fade in/out via CSS. -->
+            <path class="hero-visual-arc-glow" d="M 22 82 C 34 62, 52 46, 72 38" stroke="rgba(127,221,193,0.55)" stroke-width="3.2" stroke-linecap="round"/>
+            <path class="hero-visual-arc-core" d="M 22 82 C 34 62, 52 46, 72 38" stroke="rgba(200,247,228,0.85)" stroke-width="0.9" stroke-linecap="round"/>
           </svg>
           <img src="../../../images/referral-hero-b.png" alt="Bolt" class="hero-visual-img" loading="eager">
           <span class="hero-visual-chip">
