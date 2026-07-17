@@ -173,42 +173,37 @@ a { color: inherit; text-decoration: none; }
   0%, 100% { opacity: 0.8; }
   50%      { opacity: 1;   }
 }
-.hero-visual-chip {
+/* Mint ripple rings emerging from the main b's hole. Three rings with
+   staggered start times so a new ripple emits every ~1.7s, giving a
+   continuous soft pulse. Each ring grows from ~hole-size to ~2x while
+   fading opacity. Centered on the main b's hole (86.8% x, 64.4% y). */
+.hero-visual-ripple {
   position: absolute;
-  left: 30%;
-  top: 44%;
-  z-index: 6;
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 6px 12px 6px 10px;
-  border-radius: 999px;
-  background: rgba(15,20,30,0.88);
-  border: 1px solid rgba(127,221,193,0.35);
-  box-shadow: 0 6px 24px rgba(0,0,0,0.35), 0 0 0 3px rgba(127,221,193,0.06);
-  font-family: 'Inter', sans-serif;
-  font-size: 13px; font-weight: 600;
-  color: #9fe6d0;
-  white-space: nowrap;
+  left: 86.8%;
+  top: 64.4%;
+  width: 42px;
+  height: 42px;
+  margin: -21px 0 0 -21px;         /* center the box on left/top */
+  border-radius: 50%;
+  border: 1.4px solid rgba(127,221,193,0.7);
+  box-shadow: 0 0 12px rgba(127,221,193,0.35);
   opacity: 0;
   pointer-events: none;
-  animation: chipRide 7s ease-in-out infinite;
+  z-index: 5;                       /* above main b so it radiates outward */
+  animation: rippleOut 5.1s ease-out infinite;
 }
-.hero-visual-chip-dot {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: #7FDDC1;
-  box-shadow: 0 0 8px rgba(127,221,193,0.7);
-}
-/* Chip starts near the small b (bottom-left), rises + drifts along the arc
-   toward the main b (upper-right), fades in, holds, fades out. */
-@keyframes chipRide {
-  0%   { transform: translate(0, 0)        scale(0.92); opacity: 0; }
-  10%  { transform: translate(10px, -2px)  scale(1);    opacity: 1; }
-  55%  { transform: translate(140px, -6px) scale(1);    opacity: 1; }
-  75%  { transform: translate(200px, -12px) scale(0.96); opacity: 0; }
-  100% { transform: translate(200px, -12px) scale(0.96); opacity: 0; }
+.ripple-1 { animation-delay: 0s; }
+.ripple-2 { animation-delay: 1.7s; }
+.ripple-3 { animation-delay: 3.4s; }
+@keyframes rippleOut {
+  0%   { transform: scale(0.45); opacity: 0; }
+  15%  { opacity: 0.85; }
+  70%  { opacity: 0.35; }
+  100% { transform: scale(3.4);  opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .hero-visual-img, .hero-visual-b-mini, .tube-halo, .tube-glow, .tube-body, .hero-visual-chip { animation: none; }
-  .hero-visual-chip { opacity: 1; transform: translate(6px, -6px); }
+  .hero-visual-img, .hero-visual-b-mini, .tube-halo, .tube-glow, .tube-body, .hero-visual-ripple { animation: none; }
+  .hero-visual-ripple { opacity: 0; }
 }
 
 /* ─── REWARDS — friendly "You get / They get" pair (horizontal) ─────────── */
@@ -467,10 +462,12 @@ a { color: inherit; text-decoration: none; }
           </svg>
           <img src="../../../images/referral-hero-b.png" alt="" class="hero-visual-b-mini" loading="eager">
           <img src="../../../images/referral-hero-b.png" alt="Bolt" class="hero-visual-img" loading="eager">
-          <span class="hero-visual-chip">
-            <span class="hero-visual-chip-dot"></span>
-            +$50
-          </span>
+          <!-- Mint ripples emerging from the main b's hole (86.8% x, 64.4% y
+               in stage coords). Three staggered ripples create a continuous
+               "radiating value" pulse without any explicit text. -->
+          <span class="hero-visual-ripple ripple-1"></span>
+          <span class="hero-visual-ripple ripple-2"></span>
+          <span class="hero-visual-ripple ripple-3"></span>
         </div>
       </div>
 
