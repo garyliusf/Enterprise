@@ -118,6 +118,16 @@ a { color: inherit; text-decoration: none; }
   width: 100%;
   max-width: 480px;
   aspect-ratio: 5 / 6;   /* taller than wide — matches the b's tall aspect */
+  /* Hold the whole stage hidden until the b PNGs are decoded, then fade in
+     together — otherwise the instant CSS/SVG light tube paints ~a second
+     before the images load. JS adds .is-ready; a timeout fallback guarantees
+     reveal even if the images error or JS is slow. */
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.hero-visual-stage.is-ready { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .hero-visual-stage { transition: none; }
 }
 .hero-visual-img {
   position: absolute;
@@ -843,6 +853,24 @@ makePixelCanvas('footer-pixel-canvas', 6, 2,
   io.observe(wrap);
   /* set glow travel distance to the full track width */
   wrap.style.setProperty('--glow-dist', wrap.offsetWidth + 'px');
+})();
+
+/* ─── HERO VISUAL reveal — wait for the b PNGs to decode, then fade the whole
+   stage (tube + both b's) in together so the light beam doesn't flash in
+   ~1s before the images. Fallback timeout guarantees it never stays hidden. */
+(function () {
+  var stage = document.querySelector('.hero-visual-stage');
+  if (!stage) return;
+  var imgs = stage.querySelectorAll('img');
+  var pending = imgs.length;
+  function reveal() { stage.classList.add('is-ready'); }
+  if (!pending) { reveal(); return; }
+  function one() { if (--pending <= 0) reveal(); }
+  imgs.forEach(function (img) {
+    if (img.complete && img.naturalWidth) { one(); }
+    else { img.addEventListener('load', one); img.addEventListener('error', one); }
+  });
+  setTimeout(reveal, 3000);   // safety net — reveal regardless
 })();
 
 /* ─── FAQ ACCORDION toggle — shared-components.js injects/animates the per-item
