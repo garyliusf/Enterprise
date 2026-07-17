@@ -109,6 +109,7 @@
     display: flex;
     flex-direction: column;
     padding: 46px 46px 40px;
+    background: #171717;         /* solid fill so the blueprint grid doesn't show through in the idle prompt */
   }
 
   .prompt-text-wrap {
@@ -174,6 +175,52 @@
     35% { transform: scale(0.82); }
     100% { transform: scale(1); }
   }
+
+  /* ── Slash skill-picker (command palette inside the composer) ─────────────── */
+  .slash-menu {
+    position: absolute; left: 49px; top: 112px; width: 590px; z-index: 6;
+    background: #1c1c20; border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 16px; padding: 8px;
+    box-shadow: 0 30px 70px rgba(0,0,0,0.55);
+    opacity: 0;                 /* GSAP-controlled */
+  }
+  .slash-menu-head {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; letter-spacing: 1.6px; text-transform: uppercase;
+    color: rgba(255,255,255,0.34); padding: 7px 12px 9px;
+  }
+  .slash-menu-head::before { content: '/'; font-family: 'JetBrains Mono', monospace; color: #1488FC; font-size: 14px; }
+  .slash-item {
+    display: flex; align-items: center; gap: 14px;
+    padding: 9px 14px; border-radius: 11px;
+    transition: opacity 0.22s ease, background 0.22s ease;
+  }
+  .slash-item.is-active { background: rgba(255,255,255,0.07); }
+  .slash-item.is-dim { opacity: 0.2; }
+  .slash-item .chip-icon { width: 40px; height: 40px; font-size: 20px; }
+  .slash-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 2px; }
+  .slash-text b { font-size: 18px; font-weight: 600; color: #fff; letter-spacing: -0.2px; }
+  .slash-text i { font-size: 14px; font-style: normal; color: rgba(255,255,255,0.45); }
+  .slash-enter {
+    flex: 0 0 auto; font-family: 'JetBrains Mono', monospace; font-size: 14px;
+    color: rgba(255,255,255,0.55); border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 7px; padding: 3px 10px; opacity: 0; transition: opacity 0.2s ease;
+  }
+  .slash-item.is-active .slash-enter { opacity: 1; }
+
+  /* Selected-skill token that lands in the composer */
+  .skill-pill {
+    position: absolute; top: -5px; left: 0;
+    display: none; align-items: center; gap: 12px;
+    height: 58px; padding: 0 22px 0 10px; border-radius: 14px;
+    background: rgba(20,136,252,0.14); border: 1px solid rgba(20,136,252,0.42);
+  }
+  .skill-pill-mark {
+    width: 36px; height: 36px; border-radius: 8px; flex: 0 0 auto;
+    background: #1488FC; color: #fff; display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 600;
+  }
+  .skill-pill-name { font-size: 30px; font-weight: 500; color: #fff; letter-spacing: -0.5px; }
 
 
   /* ── Browser layer (chrome + live site iframe) ───────────────────────────── */
@@ -248,10 +295,11 @@
     top: 0;
     left: 0;
     width: 1320px;
-    height: 844px;
+    height: 2400px;            /* taller than the viewport so there's page below to reveal on scroll */
     border: 0;
     display: block;
     background: #0c1220;
+    will-change: transform;
   }
 
   /* Generic "before" site — clean but generic, default "AI app" palette
@@ -291,17 +339,19 @@
     content: ''; position: absolute; inset: 34%; border-radius: 50%;
     background: radial-gradient(circle, #d9a441 0 58%, #c0532e 58%);
   }
-  .gs-grid { display: flex; gap: 22px; padding: 12px 44px 44px; }
-  .gs-card { flex: 1 1 0; }
-  /* Album cover = cream photo frame + moody photo + catalog-label chip (matches the live site) */
-  .gs-thumb { position: relative; width: 100%; aspect-ratio: 4 / 5; background: #efe9df; padding: 9px 9px 26px; border-radius: 3px; box-shadow: 0 8px 22px rgba(15,23,42,0.14); }
-  .gs-photo { width: 100%; height: 100%; object-fit: cover; border-radius: 2px; display: block; background: #ddd; }
-  .gs-cat {
-    position: absolute; top: 17px; right: 17px;
-    background: #efe9df; color: #2a2622;
-    font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; letter-spacing: 0.5px;
-    padding: 3px 7px; border-radius: 2px;
-  }
+  /* Inner page wrapper — taller than the clip so it scrolls (mirrors the iframe pattern) */
+  .gs-page { will-change: transform; }
+  .gs-section { padding: 4px 44px 52px; }
+  .gs-h2 { font-size: 27px; font-weight: 700; letter-spacing: -0.7px; color: #0f172a; margin: 0 0 22px; }
+  .gs-grid { display: flex; gap: 22px; margin-bottom: 22px; }
+  /* Generic e-commerce product card — plain white, the bland "AI default" look */
+  .gs-card { flex: 1 1 0; background: #fff; border: 1px solid #e6e9ef; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 2px rgba(15,23,42,0.05); }
+  .gs-thumb { width: 100%; aspect-ratio: 1 / 1; background: #e2e8f0; }
+  .gs-photo { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .gs-body { padding: 13px 15px 16px; }
+  .gs-title { font-size: 15px; font-weight: 600; color: #0f172a; letter-spacing: -0.2px; }
+  .gs-meta { font-size: 13px; color: #64748b; margin-top: 3px; }
+  .gs-price { font-size: 14px; font-weight: 600; color: #6366f1; margin-top: 11px; }
 
   /* Skeleton "generating" state — white page of shimmering placeholder blocks */
   .skeleton {
@@ -341,8 +391,8 @@
   /* Skill 1 — UI polish: a diagonal light sweep across the browser */
   .fx-sweep {
     top: 56px; left: 0;
-    width: 46%; height: calc(100% - 56px);
-    background: linear-gradient(105deg, transparent 0%, rgba(160,200,255,0.10) 35%, rgba(255,255,255,0.55) 50%, rgba(160,200,255,0.10) 65%, transparent 100%);
+    width: 62%; height: calc(100% - 56px);
+    background: linear-gradient(105deg, transparent 0%, rgba(160,200,255,0.16) 30%, rgba(255,255,255,0.88) 50%, rgba(160,200,255,0.16) 70%, transparent 100%);
     opacity: 0;                 /* transform owned by GSAP (xPercent + skewX) */
     pointer-events: none;
     mix-blend-mode: screen;
@@ -438,34 +488,35 @@
   }
   .seo-panel {
     position: absolute; z-index: 7;
-    top: 180px; left: 50%; margin-left: -380px; width: 760px;
+    top: 150px; left: 50%; margin-left: -460px; width: 920px;
     background: rgba(17,19,27,0.97);
     border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 16px;
+    border-radius: 18px;
     box-shadow: 0 44px 110px rgba(0,0,0,0.62);
-    padding: 26px 30px 20px;
+    padding: 34px 40px 28px;
     opacity: 0;
   }
-  .seo-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-  .seo-title { font-size: 18px; font-weight: 600; color: #fff; letter-spacing: -0.2px; font-family: 'Inter', sans-serif; }
+  .seo-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+  .seo-title { font-size: 24px; font-weight: 600; color: #fff; letter-spacing: -0.2px; font-family: 'Inter', sans-serif; }
   .seo-score {
-    font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 600;
+    font-family: 'JetBrains Mono', monospace; font-size: 19px; font-weight: 600;
     color: #46d17f; background: rgba(22,163,74,0.14); border: 1px solid rgba(22,163,74,0.4);
-    padding: 5px 12px; border-radius: 999px;
+    padding: 7px 16px; border-radius: 999px;
   }
   .seo-score i { font-style: normal; color: rgba(70,209,127,0.6); }
   .seo-row {
-    display: flex; align-items: center; gap: 14px; padding: 10px 0;
+    display: flex; align-items: center; gap: 18px; padding: 15px 0;
     border-top: 1px solid rgba(255,255,255,0.06); opacity: 0;
     font-family: 'JetBrains Mono', monospace;
   }
-  .seo-k { flex: 0 0 128px; color: #5aa9ff; font-size: 14px; }
-  .seo-v { flex: 1 1 auto; color: rgba(255,255,255,0.72); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .seo-k { flex: 0 0 170px; color: #5aa9ff; font-size: 18px; }
+  .seo-v { flex: 1 1 auto; color: rgba(255,255,255,0.72); font-size: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .seo-chk {
-    flex: 0 0 auto; width: 22px; height: 22px; border-radius: 50%;
-    background: rgba(22,163,74,0.2); border: 1px solid rgba(22,163,74,0.5); color: #46d17f;
-    display: flex; align-items: center; justify-content: center; font-size: 12px; opacity: 0;
+    flex: 0 0 auto; width: 28px; height: 28px; border-radius: 50%;
+    background: #16a34a; border: 0; color: #fff;
+    display: flex; align-items: center; justify-content: center; opacity: 0;
   }
+  .seo-chk svg { width: 15px; height: 15px; display: block; }
   .chip-icon svg { width: 22px; height: 22px; }
   .chip-icon--figma { background: #17171a; }              /* neutral tile for the colour logo */
   .chip-icon--figma svg { width: 17px; height: auto; }
@@ -536,37 +587,64 @@
               <div class="browser-content">
                 <iframe class="site-frame" src="https://soulpress.bolt.host/" title="Deployed site preview" loading="eager" scrolling="no"></iframe>
 
-                <!-- Generic "before" site — clean but generic + black-and-white -->
+                <!-- Generic "before" site — a bland, AI-default storefront template -->
                 <div class="generic-site" aria-hidden="true">
-                  <div class="gs-nav">
-                    <span class="gs-logo">Soul Press Records</span>
-                    <span class="gs-links"><a>Catalog</a><a>Artists</a><a>About</a><a>Shop</a></span>
-                    <span class="gs-cart">Cart (0)</span>
-                  </div>
-                  <div class="gs-hero">
-                    <div class="gs-hero-text">
-                      <p class="gs-eyebrow">Independent Vinyl Label — Est. 1970</p>
-                      <h1 class="gs-h1">Records Worth Keeping</h1>
-                      <p class="gs-sub">Soul, jazz, funk, and blues pressed on heavy vinyl since 1970.</p>
-                      <div class="gs-btns">
-                        <button class="gs-btn gs-btn--primary">Browse Catalog</button>
-                        <button class="gs-btn gs-btn--ghost">Our Story</button>
+                  <div class="gs-page">
+                    <div class="gs-nav">
+                      <span class="gs-logo">Soul Press Records</span>
+                      <span class="gs-links"><a>Catalog</a><a>Artists</a><a>About</a><a>Shop</a></span>
+                      <span class="gs-cart">Cart (0)</span>
+                    </div>
+                    <div class="gs-hero">
+                      <div class="gs-hero-text">
+                        <p class="gs-eyebrow">Independent Vinyl Label — Est. 1970</p>
+                        <h1 class="gs-h1">Records Worth Keeping</h1>
+                        <p class="gs-sub">Soul, jazz, funk, and blues pressed on heavy vinyl since 1970.</p>
+                        <div class="gs-btns">
+                          <button class="gs-btn gs-btn--primary">Browse Catalog</button>
+                          <button class="gs-btn gs-btn--ghost">Our Story</button>
+                        </div>
                       </div>
+                      <div class="gs-hero-art"><span class="gs-disc"></span></div>
                     </div>
-                    <div class="gs-hero-art"><span class="gs-disc"></span></div>
-                  </div>
-                  <div class="gs-grid">
-                    <div class="gs-card">
-                      <div class="gs-thumb"><img class="gs-photo" src="https://images.pexels.com/photos/9419393/pexels-photo-9419393.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Midnight Groove"><span class="gs-cat">SP-1207</span></div>
-                    </div>
-                    <div class="gs-card">
-                      <div class="gs-thumb"><img class="gs-photo" src="https://images.pexels.com/photos/34576113/pexels-photo-34576113.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Blue Hour Sessions"><span class="gs-cat">BLU-034</span></div>
-                    </div>
-                    <div class="gs-card">
-                      <div class="gs-thumb"><img class="gs-photo" src="https://images.pexels.com/photos/8041259/pexels-photo-8041259.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Funk Machine"><span class="gs-cat">SP-1212</span></div>
-                    </div>
-                    <div class="gs-card">
-                      <div class="gs-thumb"><img class="gs-photo" src="https://images.pexels.com/photos/878999/pexels-photo-878999.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Delta Dirt"><span class="gs-cat">BLU-019</span></div>
+                    <div class="gs-section">
+                      <h2 class="gs-h2">Our Catalog</h2>
+                      <div class="gs-grid">
+                        <div class="gs-card">
+                          <div class="gs-thumb"><img class="gs-photo" src="https://images.pexels.com/photos/9419393/pexels-photo-9419393.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Midnight Groove"></div>
+                          <div class="gs-body"><div class="gs-title">Midnight Groove</div><div class="gs-meta">The Nightingales · Soul</div><div class="gs-price">$28.00</div></div>
+                        </div>
+                        <div class="gs-card">
+                          <div class="gs-thumb"><img class="gs-photo" src="https://images.pexels.com/photos/34576113/pexels-photo-34576113.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Blue Hour Sessions"></div>
+                          <div class="gs-body"><div class="gs-title">Blue Hour Sessions</div><div class="gs-meta">Marcus Vane · Blues</div><div class="gs-price">$26.00</div></div>
+                        </div>
+                        <div class="gs-card">
+                          <div class="gs-thumb"><img class="gs-photo" src="https://images.pexels.com/photos/8041259/pexels-photo-8041259.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Funk Machine"></div>
+                          <div class="gs-body"><div class="gs-title">Funk Machine</div><div class="gs-meta">Delroy Banks · Funk</div><div class="gs-price">$30.00</div></div>
+                        </div>
+                        <div class="gs-card">
+                          <div class="gs-thumb"><img class="gs-photo" src="https://images.pexels.com/photos/878999/pexels-photo-878999.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Delta Dirt"></div>
+                          <div class="gs-body"><div class="gs-title">Delta Dirt</div><div class="gs-meta">Ruby Fontaine · Blues</div><div class="gs-price">$26.00</div></div>
+                        </div>
+                      </div>
+                      <div class="gs-grid">
+                        <div class="gs-card">
+                          <div class="gs-thumb"><img class="gs-photo" src="https://images.pexels.com/photos/8041259/pexels-photo-8041259.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Late Set"></div>
+                          <div class="gs-body"><div class="gs-title">Late Set</div><div class="gs-meta">The Nightingales · Jazz</div><div class="gs-price">$28.00</div></div>
+                        </div>
+                        <div class="gs-card">
+                          <div class="gs-thumb"><img class="gs-photo" src="https://images.pexels.com/photos/9419393/pexels-photo-9419393.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Slow Burn"></div>
+                          <div class="gs-body"><div class="gs-title">Slow Burn</div><div class="gs-meta">Marcus Vane · Soul</div><div class="gs-price">$27.00</div></div>
+                        </div>
+                        <div class="gs-card">
+                          <div class="gs-thumb"><img class="gs-photo" src="https://images.pexels.com/photos/878999/pexels-photo-878999.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Backroom Tapes"></div>
+                          <div class="gs-body"><div class="gs-title">Backroom Tapes</div><div class="gs-meta">Delroy Banks · Funk</div><div class="gs-price">$30.00</div></div>
+                        </div>
+                        <div class="gs-card">
+                          <div class="gs-thumb"><img class="gs-photo" src="https://images.pexels.com/photos/34576113/pexels-photo-34576113.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Night Pressing"></div>
+                          <div class="gs-body"><div class="gs-title">Night Pressing</div><div class="gs-meta">Ruby Fontaine · Blues</div><div class="gs-price">$26.00</div></div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -594,8 +672,12 @@
             <!-- Prompt layer (bolt-branded composer) -->
             <div class="morph-prompt">
               <div class="prompt-text-wrap">
-                <span class="prompt-placeholder">Describe what you want to build…</span>
+                <span class="prompt-placeholder">Type / to add a skill…</span>
                 <span class="prompt-text" id="prompt-text"></span>
+                <span class="skill-pill" aria-hidden="true">
+                  <span class="skill-pill-mark">/</span>
+                  <span class="skill-pill-name"></span>
+                </span>
               </div>
               <div class="prompt-actions-row">
                 <button class="prompt-add" aria-label="Add">
@@ -650,12 +732,12 @@
                 <span class="seo-score">SEO 98<i>/100</i></span>
               </div>
               <div class="seo-rows">
-                <div class="seo-row"><span class="seo-k">title</span><span class="seo-v">Soul Press Records — Vinyl Since 1970</span><span class="seo-chk">✓</span></div>
-                <div class="seo-row"><span class="seo-k">description</span><span class="seo-v">Independent vinyl label pressing soul, jazz &amp; funk since 1970.</span><span class="seo-chk">✓</span></div>
-                <div class="seo-row"><span class="seo-k">og:image</span><span class="seo-v">/og/soulpress-cover.jpg</span><span class="seo-chk">✓</span></div>
-                <div class="seo-row"><span class="seo-k">canonical</span><span class="seo-v">https://soulpress.bolt.host/</span><span class="seo-chk">✓</span></div>
-                <div class="seo-row"><span class="seo-k">JSON-LD</span><span class="seo-v">MusicGroup + Product schema</span><span class="seo-chk">✓</span></div>
-                <div class="seo-row"><span class="seo-k">sitemap</span><span class="seo-v">sitemap.xml · 24 URLs indexed</span><span class="seo-chk">✓</span></div>
+                <div class="seo-row"><span class="seo-k">title</span><span class="seo-v">Soul Press Records — Vinyl Since 1970</span><span class="seo-chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span></div>
+                <div class="seo-row"><span class="seo-k">description</span><span class="seo-v">Independent vinyl label pressing soul, jazz &amp; funk since 1970.</span><span class="seo-chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span></div>
+                <div class="seo-row"><span class="seo-k">og:image</span><span class="seo-v">/og/soulpress-cover.jpg</span><span class="seo-chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span></div>
+                <div class="seo-row"><span class="seo-k">canonical</span><span class="seo-v">https://soulpress.bolt.host/</span><span class="seo-chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span></div>
+                <div class="seo-row"><span class="seo-k">JSON-LD</span><span class="seo-v">MusicGroup + Product schema</span><span class="seo-chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span></div>
+                <div class="seo-row"><span class="seo-k">sitemap</span><span class="seo-v">sitemap.xml · 24 URLs indexed</span><span class="seo-chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span></div>
               </div>
             </div>
 
@@ -687,6 +769,38 @@
             </div>
 
           </div>
+
+          <!-- Slash skill-picker menu — sibling of the clip so it floats past the box edge (not clipped) -->
+          <div class="slash-menu" aria-hidden="true">
+            <div class="slash-menu-head">Skills</div>
+            <div class="slash-item" data-skill="frontend-design">
+              <span class="chip-icon chip-icon--fd">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.09 6.26L20 10l-5.91 1.74L12 18l-2.09-6.26L4 10l5.91-1.74L12 2z"/><path d="M19 15l.7 2.1L22 18l-2.3.7L19 21l-.7-2.3L16 18l2.3-.9L19 15z"/></svg>
+              </span>
+              <span class="slash-text"><b>frontend-design</b><i>Polish UI &amp; visual design</i></span>
+              <span class="slash-enter">↵ enter</span>
+            </div>
+            <div class="slash-item" data-skill="seo">
+              <span class="chip-icon chip-icon--seo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.6-4.6"/></svg>
+              </span>
+              <span class="slash-text"><b>claude-seo</b><i>Improve search ranking</i></span>
+              <span class="slash-enter">↵ enter</span>
+            </div>
+            <div class="slash-item" data-skill="figma">
+              <span class="chip-icon chip-icon--figma">
+                <svg viewBox="0 0 38 57" aria-hidden="true">
+                  <path fill="#1abcfe" d="M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z"/>
+                  <path fill="#0acf83" d="M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0z"/>
+                  <path fill="#ff7262" d="M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z"/>
+                  <path fill="#f24e1e" d="M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z"/>
+                  <path fill="#a259ff" d="M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z"/>
+                </svg>
+              </span>
+              <span class="slash-text"><b>figma-generate-library</b><i>Generate a design system</i></span>
+              <span class="slash-enter">↵ enter</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -706,9 +820,9 @@ window.addEventListener('resize', fitStage);
 /* ── Config ──────────────────────────────────────────────────────────────── */
 /* Each skill gets its own prompt → expand → apply → contract cycle */
 const SKILLS = [
-  { prompt: 'Build a storefront for my vinyl label', skill: 'frontend-design', fx: () => fxPolish(), skeleton: true,  hold: 0.7 },
-  { prompt: 'Boost my search ranking',               skill: 'seo',             fx: () => fxSEO(),    skeleton: false, hold: 0.3 },
-  { prompt: 'Generate a design system',              skill: 'figma',           fx: () => fxPeel(),   skeleton: false, hold: 1.3 },
+  { query: 'front', pill: 'frontend-design',        skill: 'frontend-design', fx: () => fxPolish(), reveal: true,  hold: 0.7 },
+  { query: 'seo',   pill: 'claude-seo',             skill: 'seo',             fx: () => fxSEO(),    reveal: false, morphClose: true, hold: 0.3 },
+  { query: 'figma', pill: 'figma-generate-library', skill: 'figma',           fx: () => fxFigma(),  reveal: false, morphClose: true, hold: 0.3 },
 ];
 const stage  = document.getElementById('stage');
 const textEl = document.getElementById('prompt-text');
@@ -738,10 +852,46 @@ function typeTween(el, text, dur) {
     onUpdate() { el.textContent = text.slice(0, Math.round(o.n)); }
   });
 }
+/* Continue typing onto an already-typed prefix (types full[startLen..end]) */
+function typeAppend(el, full, startLen, dur) {
+  const o = { n: startLen };
+  return gsap.to(o, {
+    n: full.length, duration: reduce ? 0.01 : dur, ease: 'none',
+    onUpdate() { el.textContent = full.slice(0, Math.round(o.n)); }
+  });
+}
+
+/* ── Slash skill-picker helpers ──────────────────────────────────────────── */
+const slashItems = () => document.querySelectorAll('.slash-item');
+function showSlash() {                        // open the picker, all skills neutral
+  slashItems().forEach(i => i.classList.remove('is-active', 'is-dim'));
+  gsap.fromTo('.slash-menu', { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.28, ease: 'power2.out' });
+  gsap.to('.prompt-actions-row', { opacity: 0, duration: 0.2 });   // clear the +/submit while searching
+}
+function slashFilter(key) {                   // as the query narrows, spotlight the match
+  slashItems().forEach(i => {
+    const hit = i.dataset.skill === key;
+    i.classList.toggle('is-active', hit);
+    i.classList.toggle('is-dim', !hit);
+  });
+}
+function selectSlash(s) {                      // "enter" — close menu, drop the skill token into the composer
+  gsap.to('.slash-menu', { opacity: 0, y: 6, duration: 0.2, ease: 'power2.in' });
+  textEl.textContent = '';
+  const pill = document.querySelector('.skill-pill');
+  pill.querySelector('.skill-pill-name').textContent = s.pill;
+  gsap.set(pill, { display: 'inline-flex' });
+  gsap.fromTo(pill, { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.32, ease: 'back.out(1.6)' });
+  gsap.to('.prompt-actions-row', { opacity: 1, duration: 0.25, delay: 0.1 });
+}
 
 /* Per-cycle reset — clears a skill's overlays but KEEPS the site's colour
    (colour is applied in cycle 1 and persists through cycles 2 & 3) */
 function resetCycle() {
+  gsap.set('.slash-menu', { opacity: 0, y: 10 });
+  slashItems().forEach(i => i.classList.remove('is-active', 'is-dim'));
+  gsap.set('.skill-pill', { opacity: 0, display: 'none' });
+  gsap.set('.prompt-actions-row', { opacity: 1 });
   gsap.set('.skills-tray', { opacity: 1 });
   gsap.set('.skill-chip', { opacity: 0, y: 90, scale: 0.85, display: 'none' });
   gsap.set('.fx-sweep', { opacity: 0, xPercent: -160, skewX: -12 });
@@ -750,26 +900,39 @@ function resetCycle() {
   gsap.set('.seo-row', { opacity: 0 });
   gsap.set('.seo-chk', { opacity: 0 });
   gsap.set('.morph-browser', { rotateY: 0, x: 0, scale: 1 });
+  gsap.set('.site-frame', { filter: 'none' });   // clear any leftover greyscale from the SEO beat
+  gsap.set('.figma-panel', { opacity: 0, x: 60 });
   gsap.set('.backend-layer .bl-fade', { opacity: 0, y: 16 });
 }
 
-/* Full reset at the start of each loop */
+/* Full reset at the start of each loop — opens at the empty prompt box */
 function resetAll() {
   stage.classList.remove('has-text', 'is-submitting', 'is-expanded');
   textEl.textContent = '';
   gsap.set('.morph-clip', { scale: 1 });
-  gsap.set('.skeleton', { opacity: 1 });
-  gsap.set('.generic-site', { opacity: 1 });   // the plain "before" (revealed after skeleton)
+  gsap.set(['.site-frame', '.gs-page'], { y: 0 });
+  gsap.set('.site-frame', { filter: 'none' });
+  gsap.set('.skeleton', { opacity: 0 });        // the site already exists — no "generating" state
+  gsap.set('.generic-site', { opacity: 1 });    // show the plain "before" when the box expands
   resetCycle();
 }
 
 /* ── Per-skill effect sub-timelines ─────────────────────────────────────── */
-function fxPolish() {           // frontend-design — generic "before" → real polished site
-  return gsap.timeline()
-    .set('.fx-sweep', { opacity: 1, xPercent: -160, skewX: -12 }, 0)
-    .to('.fx-sweep', { xPercent: 260, duration: 1.3, ease: 'power2.inOut' }, 0)
-    .to('.generic-site', { opacity: 0, duration: 0.85, ease: 'power2.inOut' }, 0.4)  // reveal the real site
+function fxPolish() {           // frontend-design — "before" → real polished site, splashy sweep + pop
+  const tl = gsap.timeline();
+  // bigger, brighter diagonal light sweep
+  tl.set('.fx-sweep', { opacity: 1, xPercent: -175, skewX: -12 }, 0)
+    .to('.fx-sweep', { xPercent: 275, duration: 1.15, ease: 'power2.inOut' }, 0)
+    .to('.generic-site', { opacity: 0, duration: 0.6, ease: 'power2.inOut' }, 0.45)   // reveal the after
     .set('.fx-sweep', { opacity: 0 });
+  // POP — a quick scale bump + colour punch as the after snaps in
+  tl.fromTo('.morph-clip', { scale: 1 }, { scale: 1.022, duration: 0.24, ease: 'power2.out' }, 0.6)
+    .to('.morph-clip', { scale: 1, duration: 0.55, ease: 'power2.inOut' }, 0.84);
+  tl.fromTo('.site-frame', { filter: 'saturate(2) brightness(1.14)' },
+                           { filter: 'saturate(1) brightness(1)', duration: 0.95, ease: 'power2.out' }, 0.55);
+  // a slight scroll down to show a bit more of the finished page
+  tl.to('.site-frame', { y: -480, duration: 1.6, ease: 'power2.out' }, 1.05);
+  return tl;
 }
 function fxMotion() {           // gsap-plugins — ripple + particle burst + bounce
   const tl = gsap.timeline();
@@ -785,20 +948,24 @@ function fxMotion() {           // gsap-plugins — ripple + particle burst + bo
   });
   return tl;
 }
-function fxSEO() {              // claude-seo — site recedes, elevated metadata layer
+function fxSEO() {              // claude-seo — site recedes to greyscale, elevated metadata layer
+  const g = { v: 0 };
+  const applyGray = () => { siteFrame.style.filter = `grayscale(${g.v}) brightness(${(1 - 0.06 * g.v).toFixed(3)})`; };
   const tl = gsap.timeline();
   tl.to('.seo-dim', { opacity: 1, duration: 0.5, ease: 'power2.out' }, 0);
-  tl.to('.seo-panel', { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: 'back.out(1.4)' }, 0.15);
-  tl.to('.seo-row', { opacity: 1, stagger: 0.11, duration: 0.3, ease: 'power2.out' }, 0.45);
-  tl.to('.seo-chk', { opacity: 1, stagger: 0.11, duration: 0.28, ease: 'back.out(2)' }, 0.6);
-  tl.to({}, { duration: 1.1 });                                   // hold to read
-  tl.to(['.seo-panel', '.seo-dim'], { opacity: 0, duration: 0.45, ease: 'power2.in' });  // recede
-  return tl;
+  tl.to(g, { v: 1, duration: 0.55, ease: 'power2.out', onUpdate: applyGray }, 0);   // drain the colour → B&W
+  tl.to('.seo-panel', { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: 'back.out(1.4)' }, 0.15);
+  tl.to('.seo-row', { opacity: 1, stagger: 0.19, duration: 0.34, ease: 'power2.out' }, 0.5);
+  tl.to('.seo-chk', { opacity: 1, stagger: 0.19, duration: 0.3, ease: 'back.out(2)' }, 0.7);
+  tl.to({}, { duration: 1.4 });                                   // hold to read
+  return tl;   // panel stays up — the contract morphs it straight into the prompt box (page never re-revealed)
 }
-function fxPeel() {             // figma-generate-library — peel the page to reveal the blueprint
-  return gsap.timeline()
-    .to('.morph-browser', { rotateY: 28, x: 150, scale: 0.9, transformOrigin: 'right center', duration: 0.95, ease: 'power3.inOut' }, 0)
-    .to('.backend-layer .bl-fade', { opacity: 1, y: 0, stagger: 0.07, duration: 0.5, ease: 'power2.out' }, 0.35);
+function fxFigma() {            // figma-generate-library — dim the site, slide in the generated design-system panel
+  const tl = gsap.timeline();
+  tl.to('.seo-dim', { opacity: 1, duration: 0.5, ease: 'power2.out' }, 0);              // reuse the dim scrim
+  tl.fromTo('.figma-panel', { opacity: 0, x: 60 }, { opacity: 1, x: 0, duration: 0.6, ease: 'power3.out' }, 0.2);
+  tl.to({}, { duration: 1.6 });   // hold to read
+  return tl;   // panel stays up — morphClose collapses it into the prompt box
 }
 function chipIn(el) {
   return gsap.to(el, { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: 'back.out(1.6)' });
@@ -817,50 +984,75 @@ function buildMaster() {
     tl.call(resetCycle);
     tl.to({}, { duration: 0.55 });
 
-    // Type this skill's prompt → submit
+    // Type "/" → open the skill picker → search → select the skill → submit
     tl.call(() => stage.classList.add('has-text'));
-    tl.add(typeTween(textEl, s.prompt, 1.15));
-    tl.to({}, { duration: 0.4 });
+    tl.add(typeTween(textEl, '/', 0.12));
+    tl.call(showSlash);
+    tl.to({}, { duration: 0.32 });
+    tl.add(typeAppend(textEl, '/' + s.query, 1, 0.5));   // type the search term after "/"
+    tl.call(() => slashFilter(s.skill));
+    tl.to({}, { duration: 0.75 });                        // read the highlighted result
+    tl.call(() => selectSlash(s));                        // "enter" → skill token drops in
+    tl.to({}, { duration: 0.55 });
     tl.call(() => stage.classList.add('is-submitting'));
     tl.to({}, { duration: 0.45 });
 
-    // Expand into the browser
+    // Expand into the browser (the reveal skill briefly shows the "before" again, then transforms it)
     tl.call(() => stage.classList.add('is-expanded'));
-    tl.to({}, { duration: 1.1 });
-    if (s.skeleton) {                                        // first build shows the generating skeleton
-      tl.to({}, { duration: 0.7 });
-      tl.to('.skeleton', { opacity: 0, duration: 0.5 });
-      tl.to({}, { duration: 0.35 });
-    }
+    tl.to({}, { duration: s.reveal ? 0.75 : 1.1 });
 
     // Apply the skill (chip + effect)
     tl.call(() => gsap.set(chip, { display: 'flex' }));
     tl.add(chipIn(chip), '-=0.05');
     tl.add(s.fx(), '-=0.1');
-    tl.to({}, { duration: s.hold });
 
-    // Contract back to the prompt box
-    tl.to(chip, { opacity: 0, y: 30, duration: 0.35 });
-    tl.to('.morph-browser', { rotateY: 0, x: 0, scale: 1, duration: 0.45 }, '<');
-    tl.to('.backend-layer .bl-fade', { opacity: 0, duration: 0.3 }, '<');
-    tl.call(() => stage.classList.remove('is-expanded', 'is-submitting'));
-    tl.to({}, { duration: 0.95 });
+    if (s.reveal) {
+      // frontend-design: scroll straight back up with a gentle settle at the top (power2.inOut
+      // still hits ~0 velocity at the bottom turnaround, so no pause there), then collapse into
+      // the prompt box the instant it lands — chip fades during the final beat, no gap.
+      tl.to('.site-frame', { y: 0, duration: 1.2, ease: 'power2.inOut' });
+      tl.to(chip, { opacity: 0, y: 30, duration: 0.35 }, '-=0.3');
+      tl.call(() => stage.classList.remove('is-expanded', 'is-submitting'));
+      tl.to('.backend-layer .bl-fade', { opacity: 0, duration: 0.3 }, '<');
+      tl.to({}, { duration: 0.95 });
+    } else if (s.morphClose) {
+      // SEO: morph straight into the prompt box with the modal still up — collapse the box and
+      // fade the modal over it (fast, before the shrink clips it) so the page is never re-revealed.
+      tl.to({}, { duration: s.hold });
+      tl.call(() => stage.classList.remove('is-expanded', 'is-submitting'));
+      tl.to('.seo-dim', { opacity: 0, duration: 0.28, ease: 'power2.in' }, '<');
+      tl.to('.seo-panel', { opacity: 0, scale: 0.94, duration: 0.28, ease: 'power2.in' }, '<');
+      tl.to('.figma-panel', { opacity: 0, x: 50, duration: 0.28, ease: 'power2.in' }, '<');
+      tl.to(chip, { opacity: 0, y: 30, duration: 0.32 }, '<');
+      tl.to({}, { duration: 0.95 });
+    } else {
+      tl.to({}, { duration: s.hold });
+      // Contract back to the prompt box
+      tl.to(chip, { opacity: 0, y: 30, duration: 0.35 });
+      tl.to('.morph-browser', { rotateY: 0, x: 0, scale: 1, duration: 0.45 }, '<');
+      tl.to('.backend-layer .bl-fade', { opacity: 0, duration: 0.3 }, '<');
+      tl.call(() => stage.classList.remove('is-expanded', 'is-submitting'));
+      tl.to({}, { duration: 0.95 });
+    }
   });
 
   return tl;
 }
 
 function startShow() {
-  resetAll();
   if (reduce) {                       // static end-state, no looping motion
+    resetAll();
     stage.classList.add('has-text', 'is-submitting', 'is-expanded');
-    textEl.textContent = SKILLS[2].prompt;
+    textEl.textContent = '';
+    const fig = document.querySelector('.skill-pill');
+    fig.querySelector('.skill-pill-name').textContent = SKILLS[2].pill;
+    gsap.set(fig, { display: 'inline-flex', opacity: 1 });
     gsap.set('.skeleton', { opacity: 0 });
     gsap.set('.generic-site', { opacity: 0 });
     const figChip = document.querySelector('.skill-chip[data-skill="figma"]');
     gsap.set(figChip, { opacity: 1, y: 0, scale: 1, display: 'flex' });
-    gsap.set('.morph-browser', { rotateY: 28, x: 150, scale: 0.9, transformOrigin: 'right center' });
-    gsap.set('.backend-layer .bl-fade', { opacity: 1, y: 0 });
+    gsap.set('.seo-dim', { opacity: 1 });
+    gsap.set('.figma-panel', { opacity: 1, x: 0 });
     return;
   }
   window.__master = buildMaster();
