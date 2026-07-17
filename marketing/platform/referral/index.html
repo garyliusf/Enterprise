@@ -144,57 +144,27 @@ a { color: inherit; text-decoration: none; }
 }
 @keyframes heroFloatMini { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
-/* Aurora that specifically CONNECTS the two b's through their holes.
-   Positioned as a horizontal-ish band aligned with the hole heights (mini
-   b's hole ~65% from top, main b's hole ~56% from top), so the band cuts
-   across both holes. Heavy blur lets the light bleed. Behind both b's
-   (z-index 1); the b's have small porthole masks so the aurora shows
-   through their holes AND fills the space between them. */
-/* Aurora spans from the mini b's hole (~21% x, 65% y) to the main b's hole
-   (~67% x, 56% y). Positioned as a horizontal band with a bright glow at
-   each hole location + a wide connecting body. Moderate blur (12px) so it
-   reads as a defined-but-soft beam, not just diffuse haze. */
-.hero-visual-aurora {
+/* Cylindrical tube of light connecting the two b's through their holes.
+   The 4 stacked stroked lines each have a different width + blur, building
+   up a proper 3D-cylinder cross-section (bright thin core -> softer body ->
+   mint mid-glow -> wide blue aurora halo). Behind both b's (z-index 1) so
+   the b's porthole masks reveal the tube endpoints inside each hole. */
+.hero-visual-tube {
   position: absolute;
-  left: 8%;
-  right: 12%;
-  top: 40%;
-  height: 34%;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   z-index: 1;
   pointer-events: none;
-  filter: blur(12px);
-  background:
-    /* Intense white-cyan glow at the MAIN b hole */
-    radial-gradient(ellipse 22% 140% at 88% 30%, rgba(230,252,244,1)   0%, transparent 60%),
-    /* Mint aurora band */
-    radial-gradient(ellipse 55% 130% at 68% 32%, rgba(127,221,193,1)   0%, transparent 65%),
-    /* Blue aurora band */
-    radial-gradient(ellipse 65% 130% at 42% 74%, rgba(20,136,252,1)    0%, transparent 65%),
-    /* Mint glow at the MINI b hole */
-    radial-gradient(ellipse 20% 140% at 10% 76%, rgba(127,221,193,0.9) 0%, transparent 55%);
-  animation: auroraPulse 6s ease-in-out infinite;
+  overflow: visible;
 }
-/* Faint horizontal streaks that shift slowly — reads as flowing energy. */
-.hero-visual-aurora-rays {
-  position: absolute; inset: -4%;
-  background: repeating-linear-gradient(
-    92deg,
-    transparent 0px, transparent 18px,
-    rgba(220,240,255,0.22) 18px, rgba(220,240,255,0.22) 19px,
-    transparent 19px, transparent 42px
-  );
-  filter: blur(2px);
-  mix-blend-mode: screen;
-  opacity: 0.6;
-  animation: auroraFlow 6.5s linear infinite;
-}
-@keyframes auroraPulse {
+.tube-halo { filter: blur(10px); animation: tubePulse 5.4s ease-in-out infinite; }
+.tube-glow { filter: blur(4px);  animation: tubePulse 5.4s ease-in-out infinite; }
+.tube-body { filter: blur(1px);  animation: tubePulse 5.4s ease-in-out infinite; }
+.tube-core {                     animation: tubePulse 5.4s ease-in-out infinite; }
+@keyframes tubePulse {
   0%, 100% { opacity: 0.8; }
   50%      { opacity: 1;   }
-}
-@keyframes auroraFlow {
-  from { transform: translateX(0); }
-  to   { transform: translateX(60px); }
 }
 .hero-visual-chip {
   position: absolute;
@@ -230,7 +200,7 @@ a { color: inherit; text-decoration: none; }
   100% { transform: translate(200px, -12px) scale(0.96); opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .hero-visual-img, .hero-visual-b-mini, .hero-visual-beam-halo, .hero-visual-beam-mid, .hero-visual-beam-core, .hero-visual-chip { animation: none; }
+  .hero-visual-img, .hero-visual-b-mini, .tube-halo, .tube-glow, .tube-body, .tube-core, .hero-visual-chip { animation: none; }
   .hero-visual-chip { opacity: 1; transform: translate(6px, -6px); }
 }
 
@@ -461,13 +431,17 @@ a { color: inherit; text-decoration: none; }
            arc from the small b toward the main b, cycling every ~7s. -->
       <div class="hero-visual">
         <div class="hero-visual-stage" aria-hidden="true">
-          <!-- Wide aurora beam BEHIND both b's — layered soft glows in
-               mint/blue with a bright core near the main b. Heavy blur lets
-               the light bleed around each b's silhouette so both letterforms
-               feel bathed in the aurora between them. -->
-          <div class="hero-visual-aurora">
-            <div class="hero-visual-aurora-rays"></div>
-          </div>
+          <!-- Cylindrical tube of light BEHIND both b's connecting their
+               holes. Four stacked stroked lines with progressively smaller
+               widths and less blur build a proper 3D tube: outer blue aurora
+               halo → mint glow → mint-white body → bright cyan core. Round
+               linecaps land at each hole; b portholes reveal the ends. -->
+          <svg class="hero-visual-tube" viewBox="0 0 100 120" preserveAspectRatio="none" fill="none">
+            <line class="tube-halo" x1="21" y1="78" x2="67" y2="67" stroke="rgba(20,136,252,0.75)"   stroke-width="13" stroke-linecap="round"/>
+            <line class="tube-glow" x1="21" y1="78" x2="67" y2="67" stroke="rgba(127,221,193,0.85)"  stroke-width="6.5" stroke-linecap="round"/>
+            <line class="tube-body" x1="21" y1="78" x2="67" y2="67" stroke="rgba(200,247,228,0.95)"  stroke-width="2.6" stroke-linecap="round"/>
+            <line class="tube-core" x1="21" y1="78" x2="67" y2="67" stroke="rgba(230,252,244,1)"     stroke-width="0.8" stroke-linecap="round"/>
+          </svg>
           <img src="../../../images/referral-hero-b.png" alt="" class="hero-visual-b-mini" loading="eager">
           <img src="../../../images/referral-hero-b.png" alt="Bolt" class="hero-visual-img" loading="eager">
           <span class="hero-visual-chip">
