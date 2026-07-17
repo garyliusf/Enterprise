@@ -118,7 +118,7 @@ a { color: inherit; text-decoration: none; }
   width: 74%;
   height: auto;
   display: block;
-  z-index: 3;
+  z-index: 4;
   filter: drop-shadow(0 30px 70px rgba(0,0,0,0.55));
   animation: heroFloat 6s ease-in-out infinite;
 }
@@ -144,7 +144,8 @@ a { color: inherit; text-decoration: none; }
   inset: 0;
   width: 100%;
   height: 100%;
-  z-index: 1;
+  /* Above the mini b (so beam emerges from its hole) but below the main b. */
+  z-index: 3;
   pointer-events: none;
   overflow: visible;
 }
@@ -157,15 +158,24 @@ a { color: inherit; text-decoration: none; }
 .hero-visual-arc-core {
   animation: beamPulse 4.2s ease-in-out infinite;
 }
+/* Bright emitter blob at the hole — reads as "the light is coming from here" */
+.hero-visual-arc-emitter {
+  filter: drop-shadow(0 0 4px rgba(127,221,193,0.9));
+  animation: emitterPulse 4.2s ease-in-out infinite;
+}
 @keyframes beamPulse {
   0%, 100% { opacity: 0.55; }
   50%      { opacity: 1;    }
+}
+@keyframes emitterPulse {
+  0%, 100% { opacity: 0.7; transform-origin: 16px 90px; transform: scale(0.9); }
+  50%      { opacity: 1;   transform-origin: 16px 90px; transform: scale(1.15); }
 }
 .hero-visual-chip {
   position: absolute;
   left: 16%;
   top: 66%;
-  z-index: 4;
+  z-index: 5;
   display: inline-flex; align-items: center; gap: 8px;
   padding: 6px 12px 6px 10px;
   border-radius: 999px;
@@ -195,7 +205,7 @@ a { color: inherit; text-decoration: none; }
   100% { transform: translate(210px, -120px) scale(0.96); opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .hero-visual-img, .hero-visual-b-mini, .hero-visual-arc-glow, .hero-visual-arc-core, .hero-visual-chip { animation: none; }
+  .hero-visual-img, .hero-visual-b-mini, .hero-visual-arc-glow, .hero-visual-arc-core, .hero-visual-arc-emitter, .hero-visual-chip { animation: none; }
   .hero-visual-chip { opacity: 1; transform: translate(6px, -6px); }
 }
 
@@ -428,10 +438,13 @@ a { color: inherit; text-decoration: none; }
         <div class="hero-visual-stage" aria-hidden="true">
           <img src="../../../images/referral-hero-b.png" alt="" class="hero-visual-b-mini" loading="eager">
           <svg class="hero-visual-arc" viewBox="0 0 100 100" preserveAspectRatio="none" fill="none">
-            <!-- Two stacked paths make a soft beam: wide blurred glow behind,
-                 thin bright core in front. Both fade in/out via CSS. -->
-            <path class="hero-visual-arc-glow" d="M 22 82 C 34 62, 52 46, 72 38" stroke="rgba(127,221,193,0.55)" stroke-width="3.2" stroke-linecap="round"/>
-            <path class="hero-visual-arc-core" d="M 22 82 C 34 62, 52 46, 72 38" stroke="rgba(200,247,228,0.85)" stroke-width="0.9" stroke-linecap="round"/>
+            <!-- Beam emerges from the hole of the small "b" and curves up to
+                 the main "b". Two stacked paths: wide blurred glow + thin
+                 bright core. The path starts inside the mini b's hole. -->
+            <path class="hero-visual-arc-glow" d="M 16 90 C 26 68, 50 46, 72 38" stroke="rgba(127,221,193,0.55)" stroke-width="3.2" stroke-linecap="round"/>
+            <path class="hero-visual-arc-core" d="M 16 90 C 26 68, 50 46, 72 38" stroke="rgba(200,247,228,0.85)" stroke-width="0.9" stroke-linecap="round"/>
+            <!-- Bright emitter dot at the hole where the beam originates -->
+            <circle class="hero-visual-arc-emitter" cx="16" cy="90" r="1.6" fill="rgba(200,247,228,0.95)"/>
           </svg>
           <img src="../../../images/referral-hero-b.png" alt="Bolt" class="hero-visual-img" loading="eager">
           <span class="hero-visual-chip">
