@@ -319,7 +319,8 @@
   .gs-hero-text { flex: 1 1 auto; }
   .gs-eyebrow { font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: #6366f1; font-weight: 600; margin: 0 0 16px; }
   .gs-h1 {
-    font-size: 60px; line-height: 1.03; font-weight: 800; letter-spacing: -2px; margin: 0 0 20px;
+    font-size: 60px; line-height: 1.12; font-weight: 800; letter-spacing: -2px; margin: 0 0 18px;
+    padding-bottom: 4px;   /* room for g/p descenders (background-clip:text crops to the line box) */
     background: linear-gradient(92deg,#4f46e5,#7c3aed 48%,#2563eb);
     -webkit-background-clip: text; background-clip: text; color: transparent;
   }
@@ -386,7 +387,7 @@
 
   /* ── Skills overlay: staged effects + chips (clipped to browser) ─────────────
      Hidden by default; GSAP reveals during the skills sequence. z above browser. */
-  .fx-sweep, .fx-motion, .figma-panel, .skills-tray { position: absolute; z-index: 6; }
+  .fx-sweep, .fx-motion, .figma-board, .skills-tray { position: absolute; z-index: 6; }
 
   /* Skill 1 — UI polish: a diagonal light sweep across the browser */
   .fx-sweep {
@@ -412,28 +413,68 @@
     background: #1488FC; opacity: 0; will-change: transform, opacity;
   }
 
-  /* Skill 3 — design-system panel (slides in from the right) */
-  .figma-panel {
-    top: 56px; right: 0;
-    width: 400px; height: calc(100% - 56px);
-    background: rgba(14,15,20,0.92);
-    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-    border-left: 1px solid rgba(255,255,255,0.10);
-    box-shadow: -30px 0 60px rgba(0,0,0,0.4);
-    padding: 30px; opacity: 0;  /* transform (x) owned by GSAP */
-    color: #fff; font-family: 'Inter', sans-serif;
+  /* Skill 3 — figma-generate-library: a Figma "Components" library board takeover */
+  .figma-board {
+    top: 56px; left: 0; right: 0; bottom: 0;
+    overflow: hidden; opacity: 0;                   /* GSAP-controlled */
+    background:
+      radial-gradient(rgba(124,58,237,0.07) 1.2px, transparent 1.2px) 0 0 / 24px 24px,
+      #F4F2F7;
+    padding: 30px 40px; color: #1a1523; font-family: 'Inter', sans-serif;
   }
-  .fp-head { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 600; letter-spacing: -0.3px; margin-bottom: 6px; }
-  .fp-dot { width: 12px; height: 12px; border-radius: 3px; background: linear-gradient(135deg,#e5533c,#d9a441 45%,#7a8b6f); }
-  .fp-label { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin: 24px 0 12px; }
-  .fp-swatches { display: flex; gap: 10px; }
-  .fp-swatches span { width: 52px; height: 52px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.12); }
-  .fp-type { display: flex; align-items: baseline; gap: 20px; color: #EDE6D8; font-family: Georgia, serif; }
-  .fp-components { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
-  .fp-btn { height: 40px; padding: 0 20px; display: inline-flex; align-items: center; border-radius: 8px; background: #C0532E; color: #fff; font-size: 14px; font-weight: 600; }
-  .fp-btn--ghost { background: transparent; border: 1px solid rgba(255,255,255,0.25); }
-  .fp-input { height: 40px; padding: 0 16px; display: inline-flex; align-items: center; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); color: rgba(255,255,255,0.4); font-size: 14px; min-width: 150px; }
-  .fp-card { width: 100%; height: 70px; border-radius: 10px; background: linear-gradient(135deg, rgba(192,83,46,0.25), rgba(217,164,65,0.15)); border: 1px solid rgba(255,255,255,0.10); }
+  .fb-title {
+    font-size: 46px; font-weight: 800; letter-spacing: -1.5px; line-height: 1; margin-bottom: 5px;
+    background: linear-gradient(90deg,#EAB59C,#C9AEE9 55%,#A78BFA);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .fb-sub { font-size: 14px; font-weight: 600; color: rgba(124,58,237,0.5); margin-bottom: 26px; }
+  .fb-grid { display: flex; gap: 30px; align-items: flex-start; margin-bottom: 34px; flex-wrap: wrap; }
+  .fb-sec-label { font-size: 13px; color: #8a8496; margin-bottom: 14px; }
+
+  /* dashed component frames + ❖ label */
+  .fb-frame {
+    position: relative; border: 1.5px dashed rgba(124,58,237,0.32);
+    border-radius: 8px; background: rgba(255,255,255,0.4); padding: 20px 16px 16px;
+  }
+  .fb-label {
+    position: absolute; top: -11px; left: 12px;
+    display: flex; align-items: center; gap: 7px;
+    font-size: 13px; font-weight: 600; color: #7C3AED;
+    background: #F4F2F7; padding: 0 6px;
+  }
+  .fb-label::before {
+    content: ''; width: 11px; height: 11px; flex: 0 0 auto; background: #7C3AED;
+    clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  }
+
+  /* Colors + icons blocks */
+  .fb-swatches { display: grid; grid-template-columns: repeat(5, 28px); grid-auto-rows: 28px; gap: 9px; }
+  .fb-swatches span { border-radius: 6px; border: 1px solid rgba(0,0,0,0.06); }
+  .fb-icons { display: grid; grid-template-columns: repeat(8, 22px); grid-auto-rows: 22px; gap: 14px 16px; color: #4a4458; }
+  .fb-icons svg { width: 18px; height: 18px; display: block; }
+
+  /* mini component placeholders */
+  .fb-btnrow { display: grid; grid-template-columns: repeat(3, auto); gap: 9px; }
+  .fb-mini-btn { height: 27px; padding: 0 12px; display: inline-flex; align-items: center; border-radius: 6px; font-size: 12px; font-weight: 600; background: #7C3AED; color: #fff; white-space: nowrap; }
+  .fb-mini-btn.is-ghost { background: rgba(124,58,237,0.1); color: #7C3AED; border: 1px solid rgba(124,58,237,0.3); }
+  .fb-inputrow { display: flex; flex-direction: column; gap: 9px; width: 200px; }
+  .fb-mini-input { height: 28px; border-radius: 6px; background: #fff; border: 1px solid rgba(0,0,0,0.1); }
+  .fb-mini-input.is-focus { border-color: #7C3AED; box-shadow: 0 0 0 3px rgba(124,58,237,0.12); }
+  .fb-chip { display: inline-flex; align-items: center; gap: 7px; height: 25px; padding: 0 11px; border-radius: 999px; background: rgba(124,58,237,0.1); color: #7C3AED; font-size: 12px; font-weight: 600; }
+  .fb-lines { display: flex; flex-direction: column; gap: 9px; width: 150px; }
+  .fb-lines i { height: 6px; border-radius: 3px; background: rgba(124,58,237,0.18); }
+  .fb-lines i:nth-child(2) { width: 78%; } .fb-lines i:nth-child(3) { width: 55%; }
+  .fb-tooltip { display: inline-flex; align-items: center; height: 27px; padding: 0 12px; border-radius: 6px; background: #2a2536; color: #fff; font-size: 12px; }
+  .fb-toggle { width: 34px; height: 20px; border-radius: 999px; background: #A3E635; position: relative; flex: 0 0 auto; }
+  .fb-toggle::after { content: ''; position: absolute; top: 2px; right: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; }
+  .fb-divider { display: flex; flex-direction: column; gap: 12px; width: 130px; }
+  .fb-divider hr { border: 0; border-top: 1px solid rgba(0,0,0,0.12); width: 100%; }
+  .fb-scroll { width: 120px; height: 76px; border-radius: 6px; background: #fff; border: 1px solid rgba(0,0,0,0.08); position: relative; }
+  .fb-scroll::after { content: ''; position: absolute; top: 8px; right: 6px; width: 5px; height: 44px; border-radius: 3px; background: rgba(124,58,237,0.3); }
+  .fb-table { display: flex; flex-direction: column; gap: 12px; width: 320px; }
+  .fb-trow { display: flex; align-items: center; gap: 14px; }
+  .fb-bar { height: 8px; border-radius: 4px; background: rgba(124,58,237,0.22); flex: 1 1 auto; }
+  .fb-cell { height: 8px; width: 46px; border-radius: 4px; background: rgba(0,0,0,0.08); flex: 0 0 auto; }
 
   /* Applied-skills tray — chips dock along the bottom of the browser */
   .skills-tray { left: 0; right: 0; bottom: 30px; display: flex; justify-content: center; gap: 18px; pointer-events: none; }
@@ -699,28 +740,74 @@
             <div class="fx-sweep" aria-hidden="true"></div>
             <div class="fx-motion" aria-hidden="true"><span class="fx-ripple"></span></div>
 
-            <div class="figma-panel" aria-hidden="true">
-              <div class="fp-head"><span class="fp-dot"></span>Design System</div>
-              <div class="fp-label">Palette</div>
-              <div class="fp-swatches">
-                <span style="background:#F1E9DC"></span>
-                <span style="background:#171512"></span>
-                <span style="background:#C0532E"></span>
-                <span style="background:#D9A441"></span>
-                <span style="background:#7A8B6F"></span>
+            <!-- Skill 3 — figma-generate-library: Figma "Components" library board -->
+            <div class="figma-board" aria-hidden="true">
+              <div class="fb-block fb-title">Components</div>
+              <div class="fb-block fb-sub">UI font: Bolt Sans</div>
+
+              <div class="fb-grid">
+                <div class="fb-block">
+                  <div class="fb-sec-label">Colors</div>
+                  <div class="fb-swatches">
+                    <span style="background:#171512"></span><span style="background:#7C3AED"></span>
+                    <span style="background:#C4B5FD"></span><span style="background:#3B82F6"></span>
+                    <span style="background:#F4F0FB"></span><span style="background:#4A4458"></span>
+                    <span style="background:#A78BFA"></span><span style="background:#FDF6B2"></span>
+                    <span style="background:#A3E635"></span><span style="background:#EAE7F2"></span>
+                  </div>
+                </div>
+                <div class="fb-block">
+                  <div class="fb-sec-label">icons-set</div>
+                  <div class="fb-icons">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg>
+                    <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 0 1 14-5M20 12a8 8 0 0 1-14 5"/><path d="M18 4v3h-3M6 20v-3h3"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18M6 12h12M10 19h4"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.6-4.6"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 12l2 2 4-4"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7l-4 5 4 5M16 7l4 5-4 5"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.5 5 5.5.8-4 3.9 1 5.5L12 21l-4.9 2.7 1-5.5-4-3.9 5.5-.8z"/></svg>
+                  </div>
+                </div>
               </div>
-              <div class="fp-label">Type scale</div>
-              <div class="fp-type">
-                <span style="font-size:16px">Aa</span>
-                <span style="font-size:24px">Aa</span>
-                <span style="font-size:36px">Aa</span>
+
+              <div class="fb-grid">
+                <div class="fb-block fb-frame"><span class="fb-label">scrollbar</span><div class="fb-scroll"></div></div>
+                <div class="fb-block fb-frame"><span class="fb-label">divider</span>
+                  <div class="fb-divider"><span class="fb-toggle"></span><hr><hr></div>
+                </div>
+                <div class="fb-block fb-frame"><span class="fb-label">tooltip</span><span class="fb-tooltip">Open calendar</span></div>
+                <div class="fb-block fb-frame"><span class="fb-label">chips</span><span class="fb-chip">Value ✕</span></div>
+                <div class="fb-block fb-frame"><span class="fb-label">li-item</span><div class="fb-lines"><i></i><i></i><i></i></div></div>
               </div>
-              <div class="fp-label">Components</div>
-              <div class="fp-components">
-                <span class="fp-btn">Button</span>
-                <span class="fp-btn fp-btn--ghost">Ghost</span>
-                <span class="fp-input">Search…</span>
-                <span class="fp-card"></span>
+
+              <div class="fb-grid">
+                <div class="fb-block fb-frame"><span class="fb-label">btns-set</span>
+                  <div class="fb-btnrow">
+                    <span class="fb-mini-btn">Basic</span><span class="fb-mini-btn is-ghost">Basic</span><span class="fb-mini-btn">＋ Icon</span>
+                    <span class="fb-mini-btn is-ghost">Ghost</span><span class="fb-mini-btn">Wrapped</span><span class="fb-mini-btn is-ghost">Wrapped</span>
+                  </div>
+                </div>
+                <div class="fb-block fb-frame"><span class="fb-label">inputs-set</span>
+                  <div class="fb-inputrow">
+                    <span class="fb-mini-input"></span><span class="fb-mini-input is-focus"></span><span class="fb-mini-input"></span>
+                  </div>
+                </div>
+                <div class="fb-block fb-frame"><span class="fb-label">table-block</span>
+                  <div class="fb-table">
+                    <div class="fb-trow"><span class="fb-toggle"></span><span class="fb-cell"></span><span class="fb-bar"></span></div>
+                    <div class="fb-trow"><span class="fb-toggle"></span><span class="fb-cell"></span><span class="fb-bar"></span></div>
+                    <div class="fb-trow"><span class="fb-toggle"></span><span class="fb-cell"></span><span class="fb-bar"></span></div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -900,8 +987,10 @@ function resetCycle() {
   gsap.set('.seo-row', { opacity: 0 });
   gsap.set('.seo-chk', { opacity: 0 });
   gsap.set('.morph-browser', { rotateY: 0, x: 0, scale: 1 });
-  gsap.set('.site-frame', { filter: 'none' });   // clear any leftover greyscale from the SEO beat
-  gsap.set('.figma-panel', { opacity: 0, x: 60 });
+  gsap.set('.site-frame', { filter: 'none', scale: 1, y: 0 });   // clear greyscale (SEO) + zoom-out (figma)
+  gsap.set('.browser-content', { backgroundColor: '#0c1220' });
+  gsap.set('.figma-board', { opacity: 0 });
+  gsap.set('.figma-board .fb-block', { opacity: 0 });
   gsap.set('.backend-layer .bl-fade', { opacity: 0, y: 16 });
 }
 
@@ -960,12 +1049,17 @@ function fxSEO() {              // claude-seo — site recedes to greyscale, ele
   tl.to({}, { duration: 1.1 });                                   // hold to read
   return tl;   // panel stays up — the contract morphs it straight into the prompt box (page never re-revealed)
 }
-function fxFigma() {            // figma-generate-library — dim the site, slide in the generated design-system panel
+function fxFigma() {            // figma-generate-library — the site zooms out onto a Figma "Components" canvas
   const tl = gsap.timeline();
-  tl.to('.seo-dim', { opacity: 1, duration: 0.5, ease: 'power2.out' }, 0);              // reuse the dim scrim
-  tl.fromTo('.figma-panel', { opacity: 0, x: 60 }, { opacity: 1, x: 0, duration: 0.6, ease: 'power3.out' }, 0.2);
-  tl.to({}, { duration: 1.6 });   // hold to read
-  return tl;   // panel stays up — morphClose collapses it into the prompt box
+  gsap.set('.browser-content', { backgroundColor: '#F4F2F7' });   // canvas colour so the zoom-out reads as a frame
+  // 1) the live site scales down, like a frame being placed on the canvas
+  tl.to('.site-frame', { scale: 0.8, y: 40, duration: 0.8, ease: 'power2.inOut', transformOrigin: '50% 20%' }, 0);
+  // 2) the Figma components board fades in and the frames generate
+  tl.fromTo('.figma-board', { opacity: 0 }, { opacity: 1, duration: 0.55, ease: 'power2.out' }, 0.62);
+  tl.fromTo('.figma-board .fb-block', { opacity: 0, y: 18, scale: 0.95 },
+            { opacity: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.05, ease: 'back.out(1.3)' }, 0.88);
+  tl.to({}, { duration: 1.6 });   // hold to read the library
+  return tl;   // board stays up — morphClose collapses it into the prompt box
 }
 function chipIn(el) {
   return gsap.to(el, { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: 'back.out(1.6)' });
@@ -1022,7 +1116,7 @@ function buildMaster() {
       tl.call(() => stage.classList.remove('is-expanded', 'is-submitting'));
       tl.to('.seo-dim', { opacity: 0, duration: 0.28, ease: 'power2.in' }, '<');
       tl.to('.seo-panel', { opacity: 0, scale: 0.94, duration: 0.28, ease: 'power2.in' }, '<');
-      tl.to('.figma-panel', { opacity: 0, x: 50, duration: 0.28, ease: 'power2.in' }, '<');
+      tl.to('.figma-board', { opacity: 0, duration: 0.3, ease: 'power2.in' }, '<');
       tl.to(chip, { opacity: 0, y: 30, duration: 0.32 }, '<');
       tl.to({}, { duration: 0.95 });
     } else {
@@ -1051,8 +1145,8 @@ function startShow() {
     gsap.set('.generic-site', { opacity: 0 });
     const figChip = document.querySelector('.skill-chip[data-skill="figma"]');
     gsap.set(figChip, { opacity: 1, y: 0, scale: 1, display: 'flex' });
-    gsap.set('.seo-dim', { opacity: 1 });
-    gsap.set('.figma-panel', { opacity: 1, x: 0 });
+    gsap.set('.figma-board', { opacity: 1 });
+    gsap.set('.figma-board .fb-block', { opacity: 1, y: 0, scale: 1 });
     return;
   }
   window.__master = buildMaster();
