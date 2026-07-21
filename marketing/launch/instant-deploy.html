@@ -1134,9 +1134,10 @@ function resetCycle() {
   gsap.set('.seo-panel', { opacity: 0, y: 40, scale: 0.94 });
   gsap.set('.seo-row', { opacity: 0 });
   gsap.set('.seo-chk', { opacity: 0 });
-  gsap.set('.morph-browser', { rotateY: 0, x: 0, scale: 1 });
+  gsap.set('.morph-browser', { rotateY: 0, x: 0, scale: 1, borderRadius: 0, boxShadow: 'none', clearProps: 'overflow' });
   gsap.set('.site-frame', { filter: 'none', scale: 1, y: 0 });   // clear greyscale (SEO) + zoom-out (figma)
   gsap.set('.browser-content', { backgroundColor: '#0c1220' });
+  gsap.set('.morph-clip', { backgroundColor: '#171717' });       // restore clip bg (figma sets it to canvas grey)
   gsap.set('.figma-board', { opacity: 0 });
   gsap.set('.figma-board .fb-block', { opacity: 0 });
   gsap.set('.backend-layer .bl-fade', { opacity: 0, y: 16 });
@@ -1199,10 +1200,13 @@ function fxSEO() {              // claude-seo — site recedes to greyscale, ele
 }
 function fxFigma() {            // figma-generate-library — the site zooms out onto a Figma "Components" canvas
   const tl = gsap.timeline();
-  gsap.set('.browser-content', { backgroundColor: '#1e1e1e' });   // Figma canvas colour behind the zoom-out
+  gsap.set('.morph-clip', { backgroundColor: '#1e1e1e' });        // Figma canvas colour behind the zoom-out
+  gsap.set('.morph-browser', { overflow: 'hidden' });             // round the shrunk window's own corners
   gsap.set('.skills-tray', { bottom: 90 });                       // lift the chip clear of Figma's bottom toolbar
-  // 1) the live site scales down slightly, centered — like zooming out on a canvas
-  tl.to('.site-frame', { scale: 0.9, duration: 0.7, ease: 'power2.inOut', transformOrigin: '50% 422px' }, 0);
+  // 1) the whole deployed browser zooms out as a single unit — a frame on the canvas with EVEN
+  //    padding on all four sides (scaling the tall inner iframe left the bottom running off-edge)
+  tl.to('.morph-browser', { scale: 0.9, borderRadius: 10, boxShadow: '0 34px 90px rgba(0,0,0,0.5)',
+        duration: 0.7, ease: 'power2.inOut', transformOrigin: '50% 50%' }, 0);
   // 2) the Figma components board fades in and the frames generate
   tl.fromTo('.figma-board', { opacity: 0 }, { opacity: 1, duration: 0.55, ease: 'power2.out' }, 0.55);
   tl.fromTo('.figma-board .fb-block', { opacity: 0, y: 18, scale: 0.95 },
