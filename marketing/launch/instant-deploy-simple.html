@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>bolt.new — Skills menu (launch loop)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://soulpress.bolt.host">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; background: #000; overflow: hidden; font-family: 'Inter', sans-serif; }
+
+  .stage-wrap { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: #000; }
+  .stage {
+    position: relative; width: 1920px; height: 1080px; flex: 0 0 auto; overflow: hidden;
+    transform: scale(var(--stage-scale, 1)); transform-origin: center center;
+    background:
+      radial-gradient(1150px 900px at 14% 82%, rgba(20,136,252,0.18) 0%, transparent 58%),
+      radial-gradient(1000px 900px at 96% -2%, rgba(255,170,110,0.09) 0%, transparent 58%),
+      linear-gradient(180deg, #05070c 0%, #020304 55%, #000 100%);
+  }
+  #pixel-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; opacity: 0.5; }
+  .scene { position: absolute; inset: 0; z-index: 1; }
+  .backdrop { position: absolute; inset: 0; transform-origin: center center; will-change: transform, opacity; }
+
+  /* ── Dimmed background browser: the real deployed site ───────────────────── */
+  .bg-browser {
+    position: absolute; top: 158px; left: 50%; width: 1740px; z-index: 1;
+    transform: translateX(-50%) scale(0.72); transform-origin: top center;
+    border-radius: 16px; overflow: hidden; box-shadow: 0 44px 120px rgba(0,0,0,0.55);
+    opacity: 0.4; transition: opacity 0.4s ease, filter 0.4s ease; filter: saturate(0.96);
+  }
+  .bg-bar { height: 52px; background: #dfe0e2; display: flex; align-items: center; gap: 10px; padding: 0 22px; }
+  .bg-dot { width: 13px; height: 13px; border-radius: 50%; background: #bfbfbf; }
+  .bg-url { margin-left: 18px; height: 28px; flex: 0 0 460px; border-radius: 8px; background: #ececec; display: flex; align-items: center; padding: 0 14px;
+    font-family: 'JetBrains Mono', monospace; font-size: 15px; color: #8a8a8a; }
+  .bg-view { width: 1740px; height: 980px; overflow: hidden; }
+  .bg-frame { width: 1740px; height: 1200px; border: 0; display: block; background: #efe7d8; transform: translateY(-150px); }   /* scroll the site up ~150px to reveal the record cards */
+
+  /* ── Composer (centered bolt prompt box) ─────────────────────────────────── */
+  .composer { position: absolute; top: 386px; left: 50%; transform: translateX(-50%); width: 1040px; padding: 3px; border-radius: 44px; z-index: 3;
+    background: radial-gradient(150% 130% at 8% -6%, #2BA6FF 0%, rgba(43,166,255,0) 46%), #171717; box-shadow: 0 44px 100px rgba(2, 10, 30, 0.66); }
+  .composer-inner { position: relative; border-radius: 41px; background: #171717; overflow: hidden; padding: 46px 50px 40px; display: flex; flex-direction: column; min-height: 300px; }
+  .composer-text-wrap { position: relative; flex: 1 1 auto; min-height: 110px; }
+  .composer-ph, .composer-text { font-size: 37px; font-weight: 400; letter-spacing: -0.4px; white-space: nowrap; }
+  .composer-ph { position: absolute; top: 0; left: 0; color: rgba(221,220,216,0.32); transition: opacity 200ms ease; }
+  .stage.has-text .composer-ph { opacity: 0; }
+  .composer-text { color: #DDDCD8; }
+  .composer-actions { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+  .composer-add { width: 62px; height: 62px; border-radius: 50%; border: 0; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.5);
+    display: flex; align-items: center; justify-content: center; transition: background 160ms ease, transform 150ms cubic-bezier(0.34,1.56,0.64,1); }
+  .composer-add svg { width: 30px; height: 30px; }
+  .composer-add.is-open { background: rgba(255,255,255,0.16); color: #fff; }
+  .composer-add.is-tap { transform: scale(0.86); }
+  .composer-submit { width: 78px; height: 78px; border-radius: 50%; border: 0; background: #1488FC; color: #fff; display: flex; align-items: center; justify-content: center; }
+  .composer-submit svg { width: 34px; height: 34px; }
+
+  /* ── Context menu ────────────────────────────────────────────────────────── */
+  .menu { position: absolute; z-index: 6; background: #202023; border: 1px solid rgba(255,255,255,0.10); border-radius: 15px; padding: 8px;
+    box-shadow: 0 42px 100px rgba(0,0,0,0.62), 0 4px 14px rgba(0,0,0,0.4); opacity: 0; transform-origin: left bottom; }
+  .menu-item { display: flex; align-items: center; gap: 16px; padding: 12px 15px; border-radius: 10px; color: #f1f1f1; font-size: 21px; font-weight: 400; white-space: nowrap; }
+  .menu-item .mi-ic { flex: 0 0 auto; width: 26px; height: 26px; color: #b2b2b2; display: flex; align-items: center; justify-content: center; }
+  .menu-item .mi-ic svg { width: 25px; height: 25px; }
+  .menu-item .mi-label { flex: 1 1 auto; }
+  .menu-item .mi-chev { flex: 0 0 auto; color: #7c7c7c; display: flex; }
+  .menu-item .mi-chev svg { width: 20px; height: 20px; }
+  .menu-item.is-hi { background: linear-gradient(90deg, rgba(34,201,160,0.26) 0%, rgba(20,136,252,0.32) 100%); }
+  .menu-item.is-hi .mi-ic { color: #fff; }
+  /* floating creator tag beside each user-built skill row (annotation, not part of the menu) */
+  #skills-menu .menu-item { position: relative; }
+  .skill-tag { position: absolute; left: calc(100% + 48px); top: 50%; transform: translateY(-50%); pointer-events: none; z-index: 2; }
+  .skill-tag-in { display: flex; align-items: center; gap: 11px; padding: 5px 17px 5px 5px; border-radius: 999px;
+    background: rgba(13,15,23,0.8); border: 1px solid rgba(255,255,255,0.13); box-shadow: 0 12px 28px rgba(0,0,0,0.5);
+    -webkit-backdrop-filter: blur(7px); backdrop-filter: blur(7px);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease; }
+  .skill-tag-in img { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; flex: 0 0 auto; }
+  .skill-tag-in b { font-size: 17px; font-weight: 600; color: #fff; white-space: nowrap; }
+  .menu-item.is-hi .skill-tag-in { border-color: rgba(34,201,160,0.5); box-shadow: 0 12px 32px rgba(20,136,252,0.4); }
+  /* animated green→blue "Built by" label heading the avatar stack */
+  .skill-tag--head { transform: translateY(calc(-50% - 10px)); }
+  .tags-head { font-family: 'Inter', sans-serif; font-size: 40px; font-weight: 700; letter-spacing: -0.3px; white-space: nowrap; padding-left: 0; margin-left: -2px;
+    background: linear-gradient(100deg, #2fe0b0 0%, #22C9A0 22%, #1488FC 50%, #22C9A0 78%, #2fe0b0 100%); background-size: 220% 100%;
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;
+    animation: gradslide 3s linear infinite; }
+  @keyframes gradslide { to { background-position: 220% 0; } }
+  #add-menu { left: 426px; top: 318px; width: 436px; }
+  #skills-menu { left: 866px; top: 352px; width: 452px; }
+
+  .cursor { position: absolute; top: 0; left: 0; z-index: 8; pointer-events: none; will-change: transform; }
+  .cursor svg { width: 34px; height: 34px; display: block; filter: drop-shadow(0 3px 5px rgba(0,0,0,0.45)); }
+
+  @media (prefers-reduced-motion: reduce) { .composer-add, .bg-browser { transition: none; } }
+</style>
+</head>
+<body>
+  <div class="stage-wrap">
+    <div class="stage" id="stage">
+      <canvas id="pixel-canvas"></canvas>
+
+      <div class="scene">
+        <!-- Site + prompt box recede together as one backdrop when the menu opens -->
+        <div class="backdrop" id="backdrop">
+        <!-- Dimmed real site behind -->
+        <div class="bg-browser" id="bg-browser">
+          <div class="bg-bar"><span class="bg-dot"></span><span class="bg-dot"></span><span class="bg-dot"></span>
+            <span class="bg-url">soulpress.bolt.host</span></div>
+          <div class="bg-view"><iframe class="bg-frame" src="https://soulpress.bolt.host/" title="Deployed site" loading="eager" scrolling="no"></iframe></div>
+        </div>
+
+        <!-- Centered composer -->
+        <div class="composer">
+          <div class="composer-inner">
+            <div class="composer-text-wrap">
+              <span class="composer-ph">Type / to add a skill…</span>
+              <span class="composer-text" id="composer-text"></span>
+            </div>
+            <div class="composer-actions">
+              <button class="composer-add" id="add-btn" aria-label="Add">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+              </button>
+              <button class="composer-submit" aria-label="Submit">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V5"></path><path d="M6 11l6-6 6 6"></path></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        </div><!-- /backdrop -->
+
+        <!-- "+" context menu -->
+        <div class="menu" id="add-menu">
+          <div class="menu-item"><span class="mi-ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l1.5 4.6L18 8.5l-4.5 1.4L12 14.5l-1.5-4.6L6 8.5l4.5-1.4z"/><path d="M18.5 13l.9 2.7 2.6.8-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.8z"/></svg></span><span class="mi-label">Enhance prompt</span></div>
+          <div class="menu-item"><span class="mi-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.4 2.3c-.8.4-1 .9-1 1.7" stroke-linecap="round"/><circle cx="12" cy="16.6" r="0.7" fill="currentColor" stroke="none"/></svg></span><span class="mi-label">Search Help Center</span></div>
+          <div class="menu-item"><span class="mi-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/><path d="M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></svg></span><span class="mi-label">Database</span><span class="mi-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span></div>
+          <div class="menu-item"><span class="mi-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="6" cy="12" r="2.4"/><circle cx="17" cy="6.5" r="2.4"/><circle cx="17" cy="17.5" r="2.4"/><path d="M8.2 11l6.6-3.4M8.2 13l6.6 3.4"/></svg></span><span class="mi-label">Connectors</span><span class="mi-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span></div>
+          <div class="menu-item" id="skills-row"><span class="mi-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5"/><path d="M9 8h5M9 12h3.5"/><path d="M18.2 12.4l.8 2.1 2.1.8-2.1.8-.8 2.1-.8-2.1-2.1-.8 2.1-.8z" fill="currentColor" stroke="none"/></svg></span><span class="mi-label">Skills</span><span class="mi-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span></div>
+        </div>
+
+        <!-- Skills submenu -->
+        <div class="menu" id="skills-menu"></div>
+
+        <!-- cursor -->
+        <div class="cursor" id="cursor">
+          <svg viewBox="0 0 24 24"><path d="M5 2.5l15.5 8.8-6.7 1.5L11 21.5 5 2.5z" fill="#fff" stroke="#111" stroke-width="1.1" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+<script>
+function fitStage() {
+  const s = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+  document.querySelector('.stage').style.setProperty('--stage-scale', s);
+}
+fitStage(); window.addEventListener('resize', fitStage);
+
+const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const stage = document.getElementById('stage');
+const addBtn = document.getElementById('add-btn');
+const addMenu = document.getElementById('add-menu');
+const skillsMenu = document.getElementById('skills-menu');
+const skillsRow = document.getElementById('skills-row');
+const cursor = document.getElementById('cursor');
+const bg = document.getElementById('bg-browser');
+
+const SKILL_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-9"/><path d="M9 9h6M9 13h5M9 17h4"/><path d="M18 11.4l.8 2.1 2.1.8-2.1.8-.8 2.1-.8-2.1-2.1-.8 2.1-.8z" fill="currentColor" stroke="none"/></svg>';
+/* Menu stays clean product UI; each user-built skill floats its creator's avatar + name beside the row */
+const SKILLS = [
+  { name: 'Skill Creator' },
+  { name: 'Web Design Guidelines', owner: 'Sarah',  photo: 'https://randomuser.me/api/portraits/women/90.jpg' },
+  { name: 'Writing Guidelines',    owner: 'Elena',  photo: 'https://randomuser.me/api/portraits/women/68.jpg' },
+  { name: 'Brand Voice',           owner: 'Marcus', photo: 'https://randomuser.me/api/portraits/men/32.jpg' },
+  { name: 'Conversion Patterns',   owner: 'Mateo',  photo: 'https://randomuser.me/api/portraits/men/41.jpg' },
+  { name: 'SEO / GEO',             owner: 'Priya',  photo: 'https://randomuser.me/api/portraits/women/53.jpg' },
+  { name: 'Accessibility',         owner: 'Jordan', photo: 'https://randomuser.me/api/portraits/men/75.jpg' },
+];
+skillsMenu.innerHTML = SKILLS.map((s, i) =>
+  '<div class="menu-item">' +
+    '<span class="mi-ic">' + SKILL_ICON + '</span>' +
+    '<span class="mi-label">' + s.name + '</span>' +
+    (s.photo ? '<span class="skill-tag"><span class="skill-tag-in"><img src="' + s.photo + '" alt="" loading="eager"><b>' + s.owner + '</b></span></span>'
+             : (i === 0 ? '<span class="skill-tag skill-tag--head"><span class="tags-head">Built by</span></span>' : '')) +
+  '</div>'
+).join('');
+const skillItems = Array.from(skillsMenu.querySelectorAll('.menu-item'));
+
+function ptOf(el, ox, oy) {
+  const stageEl = document.querySelector('.stage');
+  const s = parseFloat(getComputedStyle(stageEl).getPropertyValue('--stage-scale')) || 1;
+  const sr = stageEl.getBoundingClientRect(), r = el.getBoundingClientRect();
+  return { x: (r.left - sr.left) / s + (ox ?? r.width * 0.5 / s), y: (r.top - sr.top) / s + (oy ?? r.height * 0.5 / s) };
+}
+function moveCursor(el, ox, oy, dur, ease) {
+  const p = ptOf(el, ox, oy);
+  return gsap.to(cursor, { x: p.x, y: p.y, duration: reduce ? 0.01 : (dur ?? 0.4), ease: ease || 'power2.inOut' });
+}
+function clearHi() { document.querySelectorAll('.menu-item.is-hi').forEach(e => e.classList.remove('is-hi')); }
+
+function resetAll() {
+  stage.classList.remove('has-text');
+  addBtn.classList.remove('is-open', 'is-tap');
+  clearHi();
+  gsap.set([addMenu, skillsMenu], { opacity: 0, scale: 0.94 });
+  gsap.set(cursor, { x: 900, y: 560 });
+  gsap.set(bg, { opacity: 0.4 });
+  gsap.set('.composer', { opacity: 1, filter: 'blur(0px)' });
+  gsap.set('#backdrop', { scale: 1, opacity: 1, filter: 'blur(0px)' });
+}
+
+/* ~4.5s loop */
+function build() {
+  const tl = gsap.timeline({ repeat: -1, defaults: { ease: 'power2.out' } });
+  tl.call(resetAll);
+  tl.to({}, { duration: 0.35 });
+
+  // click "+"
+  tl.add(moveCursor(addBtn, 25, 25, 0.42));
+  tl.call(() => addBtn.classList.add('is-tap'));
+  tl.to({}, { duration: 0.1 });
+  tl.call(() => { addBtn.classList.remove('is-tap'); addBtn.classList.add('is-open'); });
+  tl.to(addMenu, { opacity: 1, scale: 1, duration: 0.24, ease: 'back.out(1.5)' }, '<0.02');
+  tl.to('#backdrop', { scale: 0.95, opacity: 0.62, filter: 'blur(4px)', duration: 0.42, ease: 'power2.out' }, '<');   // recede + softly blur the whole scene behind the menu
+  tl.to({}, { duration: 0.2 });
+
+  // hover "Skills" → open submenu
+  tl.add(moveCursor(skillsRow, 55, 28, 0.3));
+  tl.call(() => { clearHi(); skillsRow.classList.add('is-hi'); });
+  tl.to(skillsMenu, { opacity: 1, scale: 1, duration: 0.24, ease: 'back.out(1.5)' }, '<0.04');
+  tl.to({}, { duration: 0.18 });
+
+  // glide down the list — each row lights up + the site pulses (skill applied)
+  const applyRow = (i) => {
+    skillItems.forEach(e => e.classList.remove('is-hi')); skillItems[i].classList.add('is-hi');
+    gsap.fromTo(bg, { opacity: 0.58, filter: 'saturate(1.05)' }, { opacity: 0.4, filter: 'saturate(0.96)', duration: 0.5, ease: 'power2.out' });
+  };
+  tl.add(moveCursor(skillItems[0], 50, 28, 0.26));
+  tl.call(() => applyRow(0));
+  tl.to({}, { duration: 0.16 });
+  for (let i = 1; i < skillItems.length; i++) {
+    tl.add(moveCursor(skillItems[i], 50, 28, 0.2, 'none'));   // linear = smooth glide
+    tl.call(() => applyRow(i));
+  }
+
+  // brief hold, then close everything back to the prompt — ease the scene forward (no snap)
+  tl.to({}, { duration: 0.55 });
+  tl.to([skillsMenu, addMenu], { opacity: 0, scale: 0.96, duration: 0.3, ease: 'power2.inOut' });
+  tl.to('#backdrop', { scale: 1, opacity: 1, filter: 'blur(0px)', duration: 0.5, ease: 'power3.out' }, '<');   // un-recede + unblur smoothly as the menu closes
+  tl.call(() => addBtn.classList.remove('is-open'), null, '<');
+  tl.to({}, { duration: 0.5 });
+  return tl;
+}
+
+/* Pixel-dot texture */
+function makePixelCanvas(canvas, spacing, dot, waveFn, opacity, color) {
+  const ctx = canvas.getContext('2d'); let cells = [];
+  function resize() {
+    canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; cells = [];
+    for (let x = 0; x < canvas.width; x += spacing) for (let y = 0; y < canvas.height; y += spacing)
+      cells.push({ x, y, phase: (x * 13 + y * 7) % 100 / 100 * Math.PI * 2 });
+  }
+  resize(); window.addEventListener('resize', resize);
+  let t = 0;
+  (function frame() {
+    t += 0.016; ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (const c of cells) { const op = waveFn(c.x, c.y, t, c.phase) * opacity; if (op <= 0.002) continue;
+      ctx.fillStyle = 'rgba(' + color + ',' + op.toFixed(3) + ')'; ctx.fillRect(c.x, c.y, dot, dot); }
+    requestAnimationFrame(frame);
+  })();
+}
+const canvas = document.getElementById('pixel-canvas');
+const CW = 1920, CH = 1080, PCX = CW * 0.5, PCY = CH * 0.5, PMAX = Math.hypot(CW * 0.72, CH * 0.72);
+makePixelCanvas(canvas, 16, 2, (x, y, t, phase) => {
+  const d = Math.hypot(x - PCX, y - PCY); const fall = Math.max(0, 1 - d / PMAX);
+  const shimmer = reduce ? 0.85 : (0.72 + 0.28 * Math.sin(t * 0.8 + x * 0.008 + y * 0.006 + phase));
+  return fall * shimmer;
+}, 0.45, '150,175,220');
+
+function start() {
+  resetAll();
+  if (reduce) {
+    gsap.set([addMenu, skillsMenu], { opacity: 1, scale: 1 });
+    skillsRow.classList.add('is-hi'); skillItems[3].classList.add('is-hi');
+    return;
+  }
+  window.__tl = build();
+}
+if (window.gsap) start(); else window.addEventListener('load', () => window.gsap && start());
+</script>
+</body>
+</html>
