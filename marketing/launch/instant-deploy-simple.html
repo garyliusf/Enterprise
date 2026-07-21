@@ -23,7 +23,7 @@
   }
   #pixel-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; opacity: 0.5; }
   .scene { position: absolute; inset: 0; z-index: 1; }
-  .backdrop { position: absolute; inset: 0; transform-origin: center center; will-change: transform, opacity; }
+  .backdrop { position: absolute; inset: 0; transform-origin: center center; will-change: transform, opacity, filter; }
 
   /* ── Dimmed background browser: the real deployed site ───────────────────── */
   .bg-browser {
@@ -202,7 +202,7 @@ function resetAll() {
   stage.classList.remove('has-text');
   addBtn.classList.remove('is-open', 'is-tap');
   clearHi();
-  gsap.set([addMenu, skillsMenu], { opacity: 0, scale: 0.94 });
+  gsap.set([addMenu, skillsMenu], { opacity: 0, scale: 0.97 });
   gsap.set(cursor, { x: 900, y: 560 });
   gsap.set(bg, { opacity: 0.4 });
   gsap.set('.composer', { opacity: 1, filter: 'blur(0px)' });
@@ -211,42 +211,54 @@ function resetAll() {
 
 /* ~4.5s loop */
 function build() {
-  const tl = gsap.timeline({ repeat: -1, defaults: { ease: 'power2.out' } });
+  const tl = gsap.timeline({ repeat: -1, defaults: { ease: 'power2.out', force3D: true } });
   tl.call(resetAll);
   tl.to({}, { duration: 0.35 });
 
   // click "+"
-  tl.add(moveCursor(addBtn, 25, 25, 0.42));
+  tl.add(moveCursor(addBtn, 25, 25, 0.5, 'power3.inOut'));
   tl.call(() => addBtn.classList.add('is-tap'));
   tl.to({}, { duration: 0.1 });
   tl.call(() => { addBtn.classList.remove('is-tap'); addBtn.classList.add('is-open'); });
-  tl.to(addMenu, { opacity: 1, scale: 1, duration: 0.24, ease: 'back.out(1.5)' }, '<0.02');
-  tl.to('#backdrop', { scale: 0.95, opacity: 0.62, filter: 'blur(4px)', duration: 0.42, ease: 'power2.out' }, '<');   // recede + softly blur the whole scene behind the menu
-  tl.to({}, { duration: 0.2 });
+  tl.to(addMenu, { opacity: 1, scale: 1, duration: 0.32, ease: 'power3.out' }, '<0.02');
+  tl.to('#backdrop', { scale: 0.95, opacity: 0.62, filter: 'blur(3px)', duration: 0.55, ease: 'power2.inOut' }, '<');   // recede + softly blur the whole scene behind the menu
+  tl.to({}, { duration: 0.24 });
 
   // hover "Skills" → open submenu
-  tl.add(moveCursor(skillsRow, 55, 28, 0.3));
+  tl.add(moveCursor(skillsRow, 55, 28, 0.4, 'power3.inOut'));
   tl.call(() => { clearHi(); skillsRow.classList.add('is-hi'); });
-  tl.to(skillsMenu, { opacity: 1, scale: 1, duration: 0.24, ease: 'back.out(1.5)' }, '<0.04');
-  tl.to({}, { duration: 0.18 });
+  tl.to(skillsMenu, { opacity: 1, scale: 1, duration: 0.32, ease: 'power3.out' }, '<0.06');
+  tl.to({}, { duration: 0.2 });
 
-  // glide down the list — each row lights up + the site pulses (skill applied)
+  // glide down the list — one continuous sweep; rows light up as the cursor passes,
+  // the site gives a soft single pulse (skill applied) that blends between rows
+  let curRow = -1;
   const applyRow = (i) => {
+    if (i === curRow) return; curRow = i;
     skillItems.forEach(e => e.classList.remove('is-hi')); skillItems[i].classList.add('is-hi');
-    gsap.fromTo(bg, { opacity: 0.58, filter: 'saturate(1.05)' }, { opacity: 0.4, filter: 'saturate(0.96)', duration: 0.5, ease: 'power2.out' });
+    gsap.fromTo(bg, { opacity: 0.52 }, { opacity: 0.4, duration: 0.8, ease: 'sine.out', overwrite: 'auto' });
   };
-  tl.add(moveCursor(skillItems[0], 50, 28, 0.26));
+  const rowY = skillItems.map(el => ptOf(el, 50, 28).y);
+  const lastPt = ptOf(skillItems[skillItems.length - 1], 50, 28);
+
+  tl.add(moveCursor(skillItems[0], 50, 28, 0.42, 'power2.inOut'));
   tl.call(() => applyRow(0));
-  tl.to({}, { duration: 0.16 });
-  for (let i = 1; i < skillItems.length; i++) {
-    tl.add(moveCursor(skillItems[i], 50, 28, 0.2, 'none'));   // linear = smooth glide
-    tl.call(() => applyRow(i));
-  }
+  tl.to({}, { duration: 0.14 });
+  // single smooth tween down the whole column — nearest row activates on the way
+  tl.to(cursor, {
+    x: lastPt.x, y: lastPt.y, duration: 1.25, ease: 'power1.inOut',
+    onUpdate: () => {
+      const cy = gsap.getProperty(cursor, 'y');
+      let best = 0, bd = Infinity;
+      for (let i = 0; i < rowY.length; i++) { const d = Math.abs(rowY[i] - cy); if (d < bd) { bd = d; best = i; } }
+      applyRow(best);
+    }
+  });
 
   // brief hold, then close everything back to the prompt — ease the scene forward (no snap)
-  tl.to({}, { duration: 0.55 });
-  tl.to([skillsMenu, addMenu], { opacity: 0, scale: 0.96, duration: 0.3, ease: 'power2.inOut' });
-  tl.to('#backdrop', { scale: 1, opacity: 1, filter: 'blur(0px)', duration: 0.5, ease: 'power3.out' }, '<');   // un-recede + unblur smoothly as the menu closes
+  tl.to({}, { duration: 0.6 });
+  tl.to([skillsMenu, addMenu], { opacity: 0, scale: 0.97, duration: 0.36, ease: 'power2.inOut' });
+  tl.to('#backdrop', { scale: 1, opacity: 1, filter: 'blur(0px)', duration: 0.6, ease: 'power2.inOut' }, '<');   // un-recede + unblur smoothly as the menu closes
   tl.call(() => addBtn.classList.remove('is-open'), null, '<');
   tl.to({}, { duration: 0.5 });
   return tl;
