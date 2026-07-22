@@ -674,6 +674,29 @@
   }
   .catalog-card:hover .catalog-card-preview { border-color: rgba(255,255,255,0.22); }
   .catalog-card-preview svg { width: 100%; height: 100%; display: block; }
+
+  /* Real full-page screenshots (templates carrying a `shot`). The image is the
+     ENTIRE page, so it's far taller than the 4/5 card — it sits flush to the top
+     at rest and pans down on hover to reveal the rest of the page. translateY
+     of -(100% - cardHeight) is unknowable in CSS, so we pan by a fixed
+     percentage of the image's own height and let overflow:hidden clip it. */
+  .catalog-card-shot { width: 100%; height: auto; display: block; }
+  .catalog-card-shot-wrap { position: relative; width: 100%; height: 100%; overflow: hidden; }
+  .catalog-card-shot-wrap .catalog-card-shot {
+    position: absolute; top: 0; left: 0;
+    transition: transform 2.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  /* Pan to the bottom: shift up by (imageHeight - cardHeight). translateY on an
+     element resolves % against its OWN height, so --shot-card-h is the card's
+     height as a % of the image's height. For the 800x2245 shot in a 4/5 card:
+     cardH = 1.25W, imageH = 2.806W, so 1.25 / 2.806 = 44.5%. */
+  .catalog-card:hover .catalog-card-shot-wrap .catalog-card-shot {
+    transform: translateY(calc(-100% + var(--shot-card-h, 44.5%)));
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .catalog-card-shot-wrap .catalog-card-shot { transition: none; }
+    .catalog-card:hover .catalog-card-shot-wrap .catalog-card-shot { transform: none; }
+  }
   .catalog-card-foot {
     display: flex;
     /* Top-align so the category tag stays at the top when the template name wraps to two lines — center alignment made the tag float mid-way down the name. */
@@ -2070,7 +2093,7 @@ var CATALOG = [
   { name: 'CRM Lite',              abbr: 'CR', color: 'blue',   tag: 'internal',  desc: 'Contacts, pipelines, and deal stages your team can fork weekly.' },
   { name: 'Coming Soon Page',      abbr: 'CS', color: 'mint',   tag: 'websites',  desc: 'Email capture + countdown for a pre-launch waitlist.' },
   { name: 'Documentation Site',    abbr: 'DC', color: 'amber',  tag: 'developer', desc: 'Searchable docs with a sidebar, code blocks, and dark mode.' },
-  { name: 'Designer Portfolio',    abbr: 'DP', color: 'purple', tag: 'portfolio', desc: 'A visual case-study site for design and creative work.' },
+  { name: 'Designer Portfolio',    abbr: 'DP', color: 'purple', tag: 'portfolio', desc: 'A visual case-study site for design and creative work.', shot: 'images/architect-portfolio.webp' },
   { name: 'Developer Portfolio',   abbr: 'DV', color: 'blue',   tag: 'portfolio', desc: 'Resume + projects with live previews and GitHub links.' },
   { name: 'Event Site',            abbr: 'EV', color: 'salmon', tag: 'websites',  desc: 'Schedule, speakers, sponsors, and ticket signup in one page.' },
   { name: 'Forum / Community',     abbr: 'FM', color: 'mint',   tag: 'apps',      desc: 'Threads, replies, and user profiles for a niche community.' },
@@ -2237,10 +2260,27 @@ function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace
 
   function previewFor(idx) { return PREVIEW_MOCKS[idx % PREVIEW_MOCKS.length]; }
 
+  /* Templates with a real full-page screenshot (`shot`) render an <img> that
+     pans on hover; everything else falls back to the placeholder SVG mock. */
+  function mediaFor(i, idx) {
+    if (!i.shot) return previewFor(idx);
+    return '<div class="catalog-card-shot-wrap">'
+      /* width/height are required, not cosmetic: the image is absolutely
+         positioned with height:auto, so without intrinsic dimensions its box
+         measures 0x0 and the lazy-load intersection check never fires. */
+      + '<img class="catalog-card-shot" src="' + i.shot + '" alt=""'
+      +   ' width="' + (i.shotW || 800) + '" height="' + (i.shotH || 2245) + '"'
+      /* eager, not lazy: a card that fails to lazy-load shows an empty box,
+         which is a worse failure than the ~46KB cost. Revisit if many
+         templates gain shots. */
+      +   ' loading="eager" decoding="async">'
+      + '</div>';
+  }
+
   function render(items) {
     grid.innerHTML = items.map(function (i, idx) {
       return '<a href="./detail/?slug=' + slugify(i.name) + '" class="catalog-card" style="--i:' + idx + ';">'
-        + '<div class="catalog-card-preview" aria-hidden="true">' + previewFor(idx) + '</div>'
+        + '<div class="catalog-card-preview" aria-hidden="true">' + mediaFor(i, idx) + '</div>'
         + '<div class="catalog-card-foot">'
         +   '<span class="catalog-card-name">' + i.name + '</span>'
         +   '<span class="catalog-card-tag">' + TAG_LABELS[i.tag] + '</span>'
