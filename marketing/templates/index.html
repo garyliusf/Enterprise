@@ -671,9 +671,44 @@
     background: #0a0a10;
     border: 1px solid rgba(255,255,255,0.08);
     transition: border-color 0.25s ease;
+    /* Anchors the hover overlay. */
+    position: relative;
   }
   .catalog-card:hover .catalog-card-preview { border-color: rgba(255,255,255,0.22); }
   .catalog-card-preview svg { width: 100%; height: 100%; display: block; }
+
+  /* Hover affordance — a soft scrim rising from the bottom of the preview with a
+     Silkscreen "View Details" label. The gradient is dark rather than light
+     because previews run both dark (mock SVGs) and near-white (real shots), and
+     only a dark scrim keeps white text legible over both. */
+  .catalog-card-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 18px;
+    background: linear-gradient(180deg, rgba(5,5,8,0) 45%, rgba(5,5,8,0.55) 80%, rgba(5,5,8,0.82) 100%);
+    opacity: 0;
+    transition: opacity 0.32s ease;
+    pointer-events: none;
+  }
+  .catalog-card:hover .catalog-card-overlay { opacity: 1; }
+  .catalog-card-overlay span {
+    font-family: 'Silkscreen', monospace;
+    font-size: 10px;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+    color: #fff;
+    transform: translateY(6px);
+    transition: transform 0.32s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  .catalog-card:hover .catalog-card-overlay span { transform: translateY(0); }
+  @media (prefers-reduced-motion: reduce) {
+    .catalog-card-overlay span,
+    .catalog-card:hover .catalog-card-overlay span { transform: none; transition: none; }
+  }
 
   /* Real full-page screenshots (templates carrying a `shot`). The image is the
      ENTIRE page, so it's far taller than the 4/5 card — it sits flush to the top
@@ -2284,7 +2319,9 @@ function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace
   function render(items) {
     grid.innerHTML = items.map(function (i, idx) {
       return '<a href="./detail/?slug=' + slugify(i.name) + '" class="catalog-card" style="--i:' + idx + ';">'
-        + '<div class="catalog-card-preview" aria-hidden="true">' + mediaFor(i, idx) + '</div>'
+        + '<div class="catalog-card-preview" aria-hidden="true">' + mediaFor(i, idx)
+        +   '<div class="catalog-card-overlay"><span>View Details</span></div>'
+        + '</div>'
         + '<div class="catalog-card-foot">'
         +   '<span class="catalog-card-name">' + i.name + '</span>'
         +   '<span class="catalog-card-tag">' + TAG_LABELS[i.tag] + '</span>'
