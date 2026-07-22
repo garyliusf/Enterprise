@@ -210,10 +210,28 @@
     margin: 0 0 32px;
     color: #fff;
   }
+  /* ─── SECTION DIVIDER (animated pixel wave) ─────────────────────────────
+     Decorative band between the hero gallery and the first content section. */
+  .section-divider {
+    position: relative;
+    width: 100%;
+    height: clamp(120px, 16vh, 190px);
+    margin: clamp(20px, 3vh, 40px) 0 clamp(4px, 1.5vh, 20px);
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .section-divider canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  /* Purely decorative, and its whole point is the motion — drop it entirely
+     rather than leave a static dot field behind. */
+  @media (prefers-reduced-motion: reduce) { .section-divider { display: none; } }
+
   /* ─── ABOUT THIS TEMPLATE ───────────────────────────────────────────────
      Long-form prose, so the column is capped to a comfortable measure rather
      than running the full 1280px shell. */
   .about-body { max-width: 780px; }
+  /* Cap the headline to the body measure — at full shell width it ran well past
+     the prose beneath it and read as a different column. */
+  .about-section .section-headline { max-width: 780px; }
   .about-p {
     font-size: 16px;
     color: rgba(255,255,255,0.62);
@@ -318,6 +336,9 @@
   .int-chip:hover { border-color: rgba(255,255,255,0.20); transform: translateY(-2px); }
   .int-chip:hover .int-chip-logo { color: #fff; }
   .int-chip:hover .int-chip-label { color: #fff; }
+  /* Extra breathing room before "Keep exploring" — the borderless logo row ends
+     without a strong visual edge, so the standard section gap read as too tight. */
+  .int-section { margin-bottom: clamp(96px, 14vh, 176px); }
   @media (max-width: 900px) { .int-copy-sub { max-width: none; } }
   @media (max-width: 768px) {
     .int-chip { padding: 18px 10px; gap: 10px; }
@@ -583,8 +604,13 @@
     </aside>
   </section>
 
+  <!-- DIVIDER -->
+  <div class="section-divider" aria-hidden="true">
+    <canvas id="divider-pixel-canvas"></canvas>
+  </div>
+
   <!-- ABOUT THIS TEMPLATE -->
-  <section class="section-block">
+  <section class="section-block about-section">
     <div class="dsa-reveal">
       <p class="section-eyebrow eyebrow-scramble">About this template</p>
       <h2 class="section-headline" id="about-lede">About this template</h2>
@@ -635,7 +661,7 @@
   </section>
 
   <!-- INTEGRATIONS -->
-  <section class="section-block">
+  <section class="section-block int-section">
     <div class="int-split">
       <div class="dsa-reveal">
         <p class="section-eyebrow eyebrow-scramble">Integrations</p>
@@ -985,6 +1011,71 @@ function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace
     });
   });
 })();
+
+/* ── Animated pixel-wave divider ────────────────────────────────────────────
+   Same engine as the other marketing pages (bolt-cli.html / platform.html):
+   a grid of dots whose opacity is driven by a wave function, redrawn each
+   frame. Ported here rather than shared because those copies live inline too. */
+function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
+  color = color || '20,136,252';
+  var canvas = document.getElementById(id);
+  if (!canvas) return;
+  var phases = [];
+  function buildPhases(cols, rows) {
+    phases = Array.from({ length: rows }, function () {
+      return Array.from({ length: cols }, function () { return Math.random() * Math.PI * 2; });
+    });
+  }
+  function resize() {
+    var parent = canvas.parentElement;
+    var w = parent.offsetWidth || parent.getBoundingClientRect().width;
+    var h = parent.offsetHeight || parent.getBoundingClientRect().height;
+    if (!w || !h) return;
+    canvas.width = Math.round(w); canvas.height = Math.round(h);
+    buildPhases(Math.ceil(w / spacing), Math.ceil(h / spacing));
+  }
+  window.addEventListener('resize', resize);
+  new ResizeObserver(function () { resize(); }).observe(canvas.parentElement);
+  /* Size synchronously — rAF doesn't fire while the tab is hidden, which would
+     otherwise leave the canvas at its 300x150 default until first focus. */
+  resize();
+  requestAnimationFrame(function () { resize(); });
+  function draw(t) {
+    var w = canvas.width, h = canvas.height;
+    if (!w || !h) { requestAnimationFrame(draw); return; }
+    var ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, w, h);
+    var cols = Math.ceil(w / spacing), rows = Math.ceil(h / spacing);
+    for (var r = 0; r < rows; r++) {
+      for (var c = 0; c < cols; c++) {
+        var phase = (phases[r] && phases[r][c]) || 0;
+        var op = waveFn(c, r, t, phase, w, h) * opacity;
+        if (op < 0.04) continue;
+        ctx.fillStyle = 'rgba(' + color + ',' + op.toFixed(3) + ')';
+        ctx.fillRect(c * spacing, r * spacing, dot, dot);
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+}
+
+if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  makePixelCanvas('divider-pixel-canvas', 7, 2, function (c, r, t, p, W, H) {
+    var px = c * 7, py = r * 7;
+    /* Brightest along the horizontal centreline, gone by the top/bottom edges,
+       so the band reads as a divider rather than a filled block. */
+    var vFade = Math.max(0, 1 - Math.abs(py - H / 2) / (H * 0.5));
+    /* Ease the left/right ends out so it doesn't hard-cut at the shell edge. */
+    var hFade = Math.min(1, Math.min(px, W - px) / (W * 0.22));
+    var fade = vFade * vFade * hFade;
+    if (fade <= 0) return 0;
+    /* Wave travels left to right; the py term tilts the crests slightly so the
+       band shimmers diagonally instead of pulsing as one solid column. */
+    var wave = Math.sin(px * 0.013 - t * 0.0016 + py * 0.010 + p * 0.25);
+    return Math.max(0, wave) * fade;
+  }, 0.55, '20,136,252');
+}
 </script>
 
 </body>
