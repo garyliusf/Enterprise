@@ -716,10 +716,28 @@
      of -(100% - cardHeight) is unknowable in CSS, so we pan by a fixed
      percentage of the image's own height and let overflow:hidden clip it. */
   .catalog-card-shot { width: 100%; height: auto; display: block; }
+  /* Fill mode — single-screen template cover-fills the card, anchored to the top
+     so headers/nav stay visible; a slow zoom on hover gives it a little life
+     without scrolling. */
+  .catalog-card-fill {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: 50% 0%;
+    display: block;
+    transform: scale(1);
+    transition: transform 1.2s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  .catalog-card:hover .catalog-card-fill { transform: scale(1.04); }
+  @media (prefers-reduced-motion: reduce) {
+    .catalog-card-fill, .catalog-card:hover .catalog-card-fill { transition: none; transform: none; }
+  }
   .catalog-card-shot-wrap { position: relative; width: 100%; height: 100%; overflow: hidden; }
   .catalog-card-shot-wrap .catalog-card-shot {
     position: absolute; top: 0; left: 0;
-    transition: transform 2.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+    /* Duration is per-card (--shot-pan-dur, set by JS) so every card pans at the
+       same visual speed. A fixed duration made tall shots whip past and short
+       ones crawl. Linear easing keeps that speed constant end to end. */
+    transition: transform var(--shot-pan-dur, 2.4s) linear;
   }
   /* Pan to the bottom: shift up by (imageHeight - cardHeight). translateY on an
      element resolves % against its OWN height, so --shot-card-h is the card's
@@ -2127,24 +2145,24 @@ var COLLECTIONS = [
    Live: https://template-minimalist-architect-portfolio.bolt.host/ */
 var CATALOG = [
   { name: 'Architect Portfolio',    abbr: 'AR', color: 'amber', tag: 'portfolio', desc: 'A quiet, typographic studio site for architecture and interior practices.', shot: 'images/architect-portfolio.webp', shotW: 800, shotH: 2245 },
-  { name: 'SaaS Landing',           abbr: 'SL', color: 'blue', tag: 'saas', desc: 'Product landing page with metrics, feature grid, and pricing.', shot: 'images/premium-saas-dashboard-lp.webp', shotW: 800, shotH: 3344 },
+  { name: 'SaaS Landing',           abbr: 'SL', color: 'blue', tag: 'saas', desc: 'Product landing page with metrics, feature grid, and pricing.', shot: 'images/premium-saas-dashboard-lp.webp', shotW: 800, shotH: 3339 },
   { name: 'Revenue Dashboard',      abbr: 'RD', color: 'blue', tag: 'internal', desc: 'Dark analytics console for revenue, traffic, and live activity.', shot: 'images/vantage-dashboard.webp', shotW: 800, shotH: 3889 },
   { name: 'Commerce Admin',         abbr: 'CA', color: 'mint', tag: 'internal', desc: 'Order, inventory, and customer management for an online store.', shot: 'images/vendora-dashboard.webp', shotW: 800, shotH: 3889 },
   { name: 'Social Analytics',       abbr: 'SA', color: 'mint', tag: 'internal', desc: 'Engagement, reach, and top-post reporting across social platforms.', shot: 'images/social-pulse.webp', shotW: 800, shotH: 3889 },
-  { name: 'Finance Tracker',        abbr: 'FT', color: 'blue', tag: 'apps', desc: 'Personal budgeting with cash-flow charts, limits, and transactions.', shot: 'images/ledger-finance.webp', shotW: 800, shotH: 961 },
+  { name: 'Finance Tracker',        abbr: 'FT', color: 'blue', tag: 'apps', desc: 'Personal budgeting with cash-flow charts, limits, and transactions.', shot: 'images/ledger-finance.webp', fill: true },
   { name: 'Real Estate',            abbr: 'RE', color: 'mint', tag: 'websites', desc: 'Property search with filters, collections, and listing cards.', shot: 'images/nestora-real-estate.webp', shotW: 800, shotH: 3889 },
   { name: 'Events Guide',           abbr: 'EG', color: 'salmon', tag: 'websites', desc: 'A local what\'s-on guide with day-by-day listings and editor\'s picks.', shot: 'images/townhall-events.webp', shotW: 800, shotH: 3889 },
-  { name: 'Market Guide',           abbr: 'MG', color: 'amber', tag: 'websites', desc: 'Farmers-market directory with schedules, regions, and vendor detail.', shot: 'images/harvest-guide.webp', shotW: 800, shotH: 3885 },
-  { name: 'Venture Capital',        abbr: 'VC', color: 'blue', tag: 'websites', desc: 'A conviction-led investment firm site with thesis and portfolio.', shot: 'images/meridian-capital.webp', shotW: 800, shotH: 3889 },
-  { name: 'Nonprofit Site',         abbr: 'NP', color: 'mint', tag: 'websites', desc: 'Foundation site for programmes, impact reporting, and donations.', shot: 'images/nonprofit-website.webp', shotW: 800, shotH: 3889 },
+  { name: 'Market Guide',           abbr: 'MG', color: 'amber', tag: 'websites', desc: 'Farmers-market directory with schedules, regions, and vendor detail.', shot: 'images/harvest-guide.webp', shotW: 800, shotH: 3879 },
+  { name: 'Venture Capital',        abbr: 'VC', color: 'blue', tag: 'websites', desc: 'A conviction-led investment firm site with thesis and portfolio.', shot: 'images/meridian-capital.webp', shotW: 800, shotH: 3067 },
+  { name: 'Nonprofit Site',         abbr: 'NP', color: 'mint', tag: 'websites', desc: 'Foundation site for programmes, impact reporting, and donations.', shot: 'images/nonprofit-website.webp', shotW: 800, shotH: 3883 },
   { name: 'Space Tourism',          abbr: 'ST', color: 'purple', tag: 'websites', desc: 'Cinematic booking site for commercial spaceflight itineraries.', shot: 'images/astralis-space-tourism.webp', shotW: 800, shotH: 3889 },
   { name: 'Studio Portfolio',       abbr: 'SP', color: 'purple', tag: 'portfolio', desc: 'A stark black-canvas portfolio for a design or film studio.' },
   { name: 'Meditation App',         abbr: 'MA', color: 'mint', tag: 'apps', desc: 'A calm practice app with sessions, pricing, and onboarding.' },
   { name: 'Skincare Brand',         abbr: 'SK', color: 'salmon', tag: 'ecommerce', desc: 'Minimal beauty storefront with product ritual and shade detail.', shot: 'images/lumiere-skin.webp', shotW: 800, shotH: 3889 },
-  { name: 'Recipe Finder',          abbr: 'RF', color: 'salmon', tag: 'apps', desc: 'Search recipes by what\'s already in your fridge, with filters.', shot: 'images/forkful-recipe.webp', shotW: 800, shotH: 1812 },
-  { name: 'Design Magazine',        abbr: 'DM', color: 'amber', tag: 'editorial', desc: 'Long-form design and architecture criticism with photo essays.', shot: 'images/meridian-journal.webp', shotW: 800, shotH: 1894 },
+  { name: 'Recipe Finder',          abbr: 'RF', color: 'salmon', tag: 'apps', desc: 'Search recipes by what\'s already in your fridge, with filters.', shot: 'images/forkful-recipe.webp', shotW: 800, shotH: 1806 },
+  { name: 'Design Magazine',        abbr: 'DM', color: 'amber', tag: 'editorial', desc: 'Long-form design and architecture criticism with photo essays.', shot: 'images/meridian-journal.webp', shotW: 800, shotH: 1889 },
   { name: 'Urban Journal',          abbr: 'UJ', color: 'salmon', tag: 'editorial', desc: 'City-focused reporting, features, and photo-essay collections.', shot: 'images/gridline-journal.webp', shotW: 800, shotH: 3889 },
-  { name: 'Travel Journal',         abbr: 'TJ', color: 'purple', tag: 'editorial', desc: 'Slow-travel destinations, itineraries, and atelier stories.', shot: 'images/maison-voyage.webp', shotW: 800, shotH: 3889 },
+  { name: 'Travel Journal',         abbr: 'TJ', color: 'purple', tag: 'editorial', desc: 'Slow-travel destinations, itineraries, and atelier stories.', shot: 'images/maison-voyage.webp', shotW: 800, shotH: 3862 },
 ];
 
 /* Thin right-arrow — slides + brightens on card hover */
@@ -2289,11 +2307,23 @@ function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace
      pans on hover; everything else falls back to the placeholder SVG mock. */
   function mediaFor(i, idx) {
     if (!i.shot) return previewFor(idx);
+    /* Single-screen templates (dashboards, app views) have no scroll to reveal,
+       so they cover-fill the card instead of panning — no black strip, no
+       motion. */
+    if (i.fill) {
+      return '<img class="catalog-card-fill" src="' + i.shot + '" alt=""'
+        + ' loading="eager" decoding="async">';
+    }
     var sw = i.shotW || 800, sh = i.shotH || 2245;
     /* Card is 4/5, so cardH = 1.25 x cardW. Capped at 100% for shots shorter
        than the card, which have nothing to pan through. */
-    var pan = Math.min(100, 1.25 * sw / sh * 100).toFixed(2);
-    return '<div class="catalog-card-shot-wrap" style="--shot-card-h:' + pan + '%">'
+    var cardPct = Math.min(100, 1.25 * sw / sh * 100);
+    /* Pan the same fraction of card-heights per second on every card, so a tall
+       shot doesn't whip by. travelFrac is how many card-heights the image moves
+       (imageH/cardH - 1); duration scales with it, clamped to a sane range. */
+    var travelFrac = Math.max(0, (100 / cardPct) - 1);
+    var dur = Math.min(6, Math.max(1.6, travelFrac * 1.4)).toFixed(2);
+    return '<div class="catalog-card-shot-wrap" style="--shot-card-h:' + cardPct.toFixed(2) + '%;--shot-pan-dur:' + dur + 's">'
       /* width/height are required, not cosmetic: the image is absolutely
          positioned with height:auto, so without intrinsic dimensions its box
          measures 0x0 and the lazy-load intersection check never fires. */
