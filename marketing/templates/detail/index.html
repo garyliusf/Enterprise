@@ -218,7 +218,7 @@
     position: relative;
     width: 100%;
     height: 260px;
-    margin: -40px auto -72px;
+    margin: -90px auto -72px;
     overflow: hidden;
     pointer-events: none;
     z-index: 1;
@@ -226,8 +226,8 @@
             mask-image: linear-gradient(to bottom, transparent 0%, #000 30%, #000 76%, transparent 100%);
   }
   .section-divider canvas { display: block; width: 100%; height: 100%; }
-  @media (max-width: 1024px) { .section-divider { height: 200px; margin: -32px auto -56px; } }
-  @media (max-width: 768px)  { .section-divider { height: 140px; margin: -24px auto -40px; } }
+  @media (max-width: 1024px) { .section-divider { height: 200px; margin: -70px auto -56px; } }
+  @media (max-width: 768px)  { .section-divider { height: 140px; margin: -44px auto -40px; } }
   /* Purely decorative, and its whole point is the motion — drop it entirely
      rather than leave a static dot field behind. */
   @media (prefers-reduced-motion: reduce) { .section-divider { display: none; } }
@@ -236,6 +236,52 @@
      Long-form prose, so the column is capped to a comfortable measure rather
      than running the full 1280px shell. */
   .about-body { max-width: 780px; }
+
+  /* Collapsed by JS only when the prose actually overflows — short copy is left
+     alone and the button stays hidden. */
+  .about-collapse { position: relative; max-width: 780px; }
+  .about-collapse[data-collapsible="true"] {
+    max-height: 600px;
+    overflow: hidden;
+    transition: max-height 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  /* --about-full is the measured content height, set by JS. */
+  .about-collapse.is-expanded { max-height: var(--about-full, 4000px); }
+  /* Gradient scrim + a light progressive blur, itself masked so the blur ramps
+     in rather than starting at a hard edge. */
+  .about-fade {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 190px;
+    pointer-events: none;
+    background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.72) 58%, #000 100%);
+    -webkit-backdrop-filter: blur(2px);
+            backdrop-filter: blur(2px);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 55%);
+            mask-image: linear-gradient(to bottom, transparent 0%, #000 55%);
+    opacity: 1;
+    transition: opacity 0.4s ease;
+  }
+  /* display (not opacity) when there's nothing to collapse, so the fade never
+     transitions in on load — it should simply be there or not be there. */
+  .about-collapse:not([data-collapsible="true"]) .about-fade { display: none; }
+  .about-collapse.is-expanded .about-fade { opacity: 0; }
+  .about-more-btn {
+    font-family: 'Silkscreen', monospace;
+    font-size: 10px;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.85);
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 4px;
+    padding: 13px 22px;
+    margin-top: 24px;
+    cursor: pointer;
+    transition: border-color 0.3s ease, color 0.3s ease;
+  }
+  .about-more-btn:hover { border-color: rgba(255,255,255,0.32); color: #fff; }
+  .about-more-btn[hidden] { display: none; }
   /* Cap the headline to the body measure — at full shell width it ran well past
      the prose beneath it and read as a different column. */
   .about-section .section-headline { max-width: 780px; }
@@ -622,7 +668,11 @@
       <p class="section-eyebrow eyebrow-scramble">About this template</p>
       <h2 class="section-headline" id="about-lede">About this template</h2>
     </div>
-    <div class="about-body" id="about-body"></div>
+    <div class="about-collapse" id="about-collapse">
+      <div class="about-body" id="about-body"></div>
+      <div class="about-fade" aria-hidden="true"></div>
+    </div>
+    <button type="button" class="about-more-btn" id="about-more" aria-expanded="false" aria-controls="about-body" hidden>View More</button>
   </section>
 
   <!-- WHAT'S INCLUDED -->
@@ -864,6 +914,74 @@ function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace
     }
   });
   document.getElementById('about-body').innerHTML = aboutHtml;
+
+  /* Collapse the About prose past a fixed height, behind a fade, with a
+     View More toggle. Measured after the content is in the DOM; short copy
+     stays uncollapsed and the button never appears. */
+  (function () {
+    var COLLAPSE_AT = 600;
+    var wrap = document.getElementById('about-collapse');
+    var btn = document.getElementById('about-more');
+    if (!wrap || !btn) return;
+
+    var body = document.getElementById('about-body');
+    function measure() {
+      /* Read the inner body — it's never height-constrained, so its
+         scrollHeight is the true content height even while the wrap is capped. */
+      return body.scrollHeight;
+    }
+    function apply() {
+      var full = measure();
+      wrap.style.setProperty('--about-full', full + 'px');
+      if (full > COLLAPSE_AT) {
+        wrap.setAttribute('data-collapsible', 'true');
+        btn.hidden = false;
+      } else {
+        wrap.removeAttribute('data-collapsible');
+        wrap.classList.remove('is-expanded');
+        btn.hidden = true;
+        btn.setAttribute('aria-expanded', 'false');
+      }
+    }
+    apply();
+    /* Late web-font loads and reflow both change the content height, and a
+       stale --about-full would clip the bottom of the expanded prose. Keep it
+       in sync rather than trusting the one measurement taken at render time. */
+    if (window.ResizeObserver) new ResizeObserver(apply).observe(body);
+    window.addEventListener('resize', apply);
+
+    /* Once expanded, drop the cap entirely so content can never be clipped by
+       a measurement that drifted after the transition started. */
+    wrap.addEventListener('transitionend', function (e) {
+      if (e.propertyName === 'max-height' && wrap.classList.contains('is-expanded')) {
+        wrap.style.maxHeight = 'none';
+      }
+    });
+
+    btn.addEventListener('click', function () {
+      var expanding = !wrap.classList.contains('is-expanded');
+      if (expanding) {
+        wrap.style.setProperty('--about-full', measure() + 'px');
+        wrap.style.maxHeight = '';
+        wrap.classList.add('is-expanded');
+      } else {
+        /* Pin the current height first so the collapse animates from a concrete
+           value rather than from `none`, which wouldn't transition. */
+        wrap.style.maxHeight = wrap.scrollHeight + 'px';
+        void wrap.offsetHeight;
+        wrap.style.maxHeight = '';
+        wrap.classList.remove('is-expanded');
+      }
+      btn.setAttribute('aria-expanded', expanding ? 'true' : 'false');
+      btn.textContent = expanding ? 'View Less' : 'View More';
+      /* Collapsing from far down the page would strand the reader below the
+         section, so bring the section back into view. */
+      if (!expanding) {
+        var top = wrap.getBoundingClientRect().top + window.scrollY - 120;
+        if (window.scrollY > top) window.scrollTo({ top: top, behavior: 'smooth' });
+      }
+    });
+  })();
 
   /* Integrations — rendered from a per-template list, falling back to the
      default stack. Swap DEFAULT_INTEGRATIONS for a CMS field (item.integrations)
