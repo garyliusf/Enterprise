@@ -201,6 +201,65 @@
     margin: 0 0 32px;
     color: #fff;
   }
+  /* ─── INTEGRATIONS ──────────────────────────────────────────────────────
+     Two-column split: copy block left, chip grid right. Chips are code-style
+     (<Stripe />) rather than brand logos — no image assets, and the JSX-ish
+     framing reinforces that these ship as wired-up code, not just badges. */
+  .int-split {
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr);
+    gap: clamp(32px, 5vw, 72px);
+    align-items: start;
+  }
+  /* Headline sits tighter to its subtitle here than the shared 32px bottom margin allows. */
+  .int-split .section-headline { margin-bottom: 16px; }
+  .int-copy-sub {
+    font-size: 15px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.65;
+    margin: 0;
+    max-width: 42ch;
+  }
+  .int-chip-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    /* Nudge the first chip row onto the headline's optical baseline. */
+    padding-top: 6px;
+  }
+  .int-chip {
+    /* Plain monospace, NOT Silkscreen — Silkscreen has no lowercase glyphs, so
+       it would flatten "Stripe" to "STRIPE" and lose the code-literal read. */
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 14px;
+    letter-spacing: 0.2px;
+    color: rgba(255,255,255,0.88);
+    background: #0d0f16;
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 6px;
+    padding: 14px 20px;
+    white-space: nowrap;
+    transition: border-color 0.3s ease, background 0.3s ease, transform 0.3s ease;
+  }
+  /* The angle brackets carry the "this is code" read — kept muted so the
+     integration name stays the thing you actually scan. */
+  .int-chip-bracket { color: #8B8BD0; }
+  .int-chip:hover {
+    border-color: rgba(255,255,255,0.24);
+    background: #12151f;
+    transform: translateY(-2px);
+  }
+  @media (max-width: 900px) {
+    .int-split { grid-template-columns: 1fr; gap: 32px; }
+    .int-chip-grid { padding-top: 0; }
+    .int-copy-sub { max-width: none; }
+  }
+  @media (max-width: 768px) {
+    .int-chip { font-size: 12px; padding: 12px 16px; }
+    .int-chip-grid { gap: 10px; }
+  }
+
   /* Canonical visual container — radial gradient + paper-grid overlay + elevation shadow (matches solutions/_template .unlocks-visual) */
   .unlocks-visual {
     position: relative;
@@ -491,6 +550,18 @@
     </div>
   </section>
 
+  <!-- INTEGRATIONS -->
+  <section class="section-block">
+    <div class="int-split">
+      <div class="dsa-reveal">
+        <p class="section-eyebrow eyebrow-scramble">Integrations</p>
+        <h2 class="section-headline">Connects to the tools you already use</h2>
+        <p class="int-copy-sub">Each integration ships pre-configured. Swap any of them out through a prompt.</p>
+      </div>
+      <div class="int-chip-grid" id="int-chip-grid"></div>
+    </div>
+  </section>
+
   <!-- RELATED -->
   <section class="section-block">
     <div class="dsa-reveal">
@@ -572,6 +643,9 @@ var TAG_LABELS = {
   ecommerce: 'Ecommerce', project: 'Project Management',
 };
 
+/* Default integration stack shown when a template carries no `integrations` list. */
+var DEFAULT_INTEGRATIONS = ['Stripe', 'Supabase', 'Clerk', 'Resend', 'Vercel', 'GitHub'];
+
 /* Same mock SVGs as the index page (cycled by index for visual variety) */
 var PREVIEW_MOCKS = [
   '<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="500" fill="#0e0e12"/><rect x="20" y="20" width="80" height="14" rx="3" fill="#FFD400"/><rect x="320" y="20" width="60" height="14" rx="7" fill="#FFD400"/><text x="200" y="200" font-family="Inter" font-size="42" font-weight="700" fill="#fff" text-anchor="middle">Stop posting</text><text x="200" y="244" font-family="Inter" font-size="42" font-weight="700" fill="#FFD400" text-anchor="middle">into the void.</text><rect x="140" y="280" width="120" height="34" rx="3" fill="#FFD400"/><rect x="40" y="380" width="160" height="80" fill="#23c47b"/><rect x="200" y="380" width="160" height="80" fill="#ff5a3c"/></svg>',
@@ -601,6 +675,18 @@ function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace
   document.getElementById('detail-name').textContent = item.name;
   document.getElementById('detail-desc').textContent = item.desc;
   document.getElementById('fact-category').textContent = TAG_LABELS[item.tag];
+
+  /* Integrations — rendered from a per-template list, falling back to the
+     default stack. Swap DEFAULT_INTEGRATIONS for a CMS field (item.integrations)
+     when the template data grows one. */
+  var ints = item.integrations || DEFAULT_INTEGRATIONS;
+  document.getElementById('int-chip-grid').innerHTML = ints.map(function (n) {
+    return '<div class="int-chip">'
+      + '<span class="int-chip-bracket">&lt;</span>' + n
+      + '<span class="int-chip-bracket"> /&gt;</span>'
+      + '</div>';
+  }).join('');
+
   /* Gallery — 3 placeholder slides cycled from PREVIEW_MOCKS for visual variety */
   var track = document.getElementById('detail-gallery-track');
   var dotsWrap = document.getElementById('detail-gallery-dots');
