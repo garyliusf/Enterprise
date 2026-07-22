@@ -210,17 +210,24 @@
     margin: 0 0 32px;
     color: #fff;
   }
-  /* ─── SECTION DIVIDER (animated pixel wave) ─────────────────────────────
-     Decorative band between the hero gallery and the first content section. */
+  /* ─── SECTION DIVIDER (animated pixel field) ────────────────────────────
+     Ported from the referral page's rewards→how-it-works divider so the two
+     pages share one divider treatment. The top/bottom fade is a mask (not a
+     wave term) so the field stays even across its full height. */
   .section-divider {
     position: relative;
     width: 100%;
-    height: clamp(120px, 16vh, 190px);
-    margin: clamp(20px, 3vh, 40px) 0 clamp(4px, 1.5vh, 20px);
+    height: 260px;
+    margin: -40px auto -72px;
     overflow: hidden;
     pointer-events: none;
+    z-index: 1;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 30%, #000 76%, transparent 100%);
+            mask-image: linear-gradient(to bottom, transparent 0%, #000 30%, #000 76%, transparent 100%);
   }
-  .section-divider canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .section-divider canvas { display: block; width: 100%; height: 100%; }
+  @media (max-width: 1024px) { .section-divider { height: 200px; margin: -32px auto -56px; } }
+  @media (max-width: 768px)  { .section-divider { height: 140px; margin: -24px auto -40px; } }
   /* Purely decorative, and its whole point is the motion — drop it entirely
      rather than leave a static dot field behind. */
   @media (prefers-reduced-motion: reduce) { .section-divider { display: none; } }
@@ -1060,21 +1067,19 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
   requestAnimationFrame(draw);
 }
 
+/* Traveling shimmer — identical parameters to the referral page's
+   #mid-divider-canvas: a diagonal band sweeping across a dim resting field,
+   plus a slow per-cell twinkle. The vertical fade is handled by the CSS mask. */
 if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-  makePixelCanvas('divider-pixel-canvas', 7, 2, function (c, r, t, p, W, H) {
-    var px = c * 7, py = r * 7;
-    /* Brightest along the horizontal centreline, gone by the top/bottom edges,
-       so the band reads as a divider rather than a filled block. */
-    var vFade = Math.max(0, 1 - Math.abs(py - H / 2) / (H * 0.5));
-    /* Ease the left/right ends out so it doesn't hard-cut at the shell edge. */
-    var hFade = Math.min(1, Math.min(px, W - px) / (W * 0.22));
-    var fade = vFade * vFade * hFade;
-    if (fade <= 0) return 0;
-    /* Wave travels left to right; the py term tilts the crests slightly so the
-       band shimmers diagonally instead of pulsing as one solid column. */
-    var wave = Math.sin(px * 0.013 - t * 0.0016 + py * 0.010 + p * 0.25);
-    return Math.max(0, wave) * fade;
-  }, 0.55, '20,136,252');
+  makePixelCanvas('divider-pixel-canvas', 11, 2,
+    function (c, r, t, p) {
+      var px = c * 11, py = r * 11;
+      var phase = (px * 0.012 + py * 0.018) - t * 0.0018 + 1.0;
+      var band = Math.sin(phase) * 0.5 + 0.5;
+      var highlight = Math.pow(band, 3) * 0.32;
+      var twinkle = (Math.sin(p * 53.7 + t * 0.004) * 0.5 + 0.5) * 0.07;
+      return 0.06 + highlight + twinkle;
+    }, 1.0, '170,185,210');
 }
 </script>
 
