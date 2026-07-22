@@ -202,15 +202,7 @@
     color: #fff;
   }
   /* ─── INTEGRATIONS ──────────────────────────────────────────────────────
-     Two-column split: copy block left, chip grid right. Chips are code-style
-     (<Stripe />) rather than brand logos — no image assets, and the JSX-ish
-     framing reinforces that these ship as wired-up code, not just badges. */
-  .int-split {
-    display: grid;
-    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr);
-    gap: clamp(32px, 5vw, 72px);
-    align-items: start;
-  }
+     Header block, then a full-width row of integration tiles beneath it. */
   /* Headline sits tighter to its subtitle here than the shared 32px bottom margin allows. */
   .int-split .section-headline { margin-bottom: 16px; }
   .int-copy-sub {
@@ -219,44 +211,58 @@
     color: rgba(255,255,255,0.5);
     line-height: 1.65;
     margin: 0;
-    max-width: 42ch;
+    max-width: 52ch;
   }
+  /* Even 6-up row under the header; collapses to 3-up then 2-up on smaller screens. */
   .int-chip-grid {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 12px;
-    /* Nudge the first chip row onto the headline's optical baseline. */
-    padding-top: 6px;
+    margin-top: clamp(32px, 4vw, 48px);
   }
+  @media (max-width: 900px) { .int-chip-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 560px) { .int-chip-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  /* Logo tile — mark stacked over the wordmark, centred in the grid cell. */
   .int-chip {
-    /* Plain monospace, NOT Silkscreen — Silkscreen has no lowercase glyphs, so
-       it would flatten "Stripe" to "STRIPE" and lose the code-literal read. */
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    font-size: 14px;
-    letter-spacing: 0.2px;
-    color: rgba(255,255,255,0.88);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
     background: #0d0f16;
     border: 1px solid rgba(255,255,255,0.10);
     border-radius: 6px;
-    padding: 14px 20px;
-    white-space: nowrap;
+    padding: 26px 12px;
     transition: border-color 0.3s ease, background 0.3s ease, transform 0.3s ease;
   }
-  /* The angle brackets carry the "this is code" read — kept muted so the
-     integration name stays the thing you actually scan. */
-  .int-chip-bracket { color: #8B8BD0; }
+  .int-chip-logo {
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+    /* Marks rest slightly dimmed so the row reads as one texture, then come up
+       to full white on hover. */
+    color: rgba(255,255,255,0.72);
+    transition: color 0.3s ease;
+  }
+  .int-chip-label {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: -0.1px;
+    color: rgba(255,255,255,0.62);
+    transition: color 0.3s ease;
+  }
   .int-chip:hover {
     border-color: rgba(255,255,255,0.24);
     background: #12151f;
     transform: translateY(-2px);
   }
-  @media (max-width: 900px) {
-    .int-split { grid-template-columns: 1fr; gap: 32px; }
-    .int-chip-grid { padding-top: 0; }
-    .int-copy-sub { max-width: none; }
-  }
+  .int-chip:hover .int-chip-logo { color: #fff; }
+  .int-chip:hover .int-chip-label { color: #fff; }
+  @media (max-width: 900px) { .int-copy-sub { max-width: none; } }
   @media (max-width: 768px) {
-    .int-chip { font-size: 12px; padding: 12px 16px; }
+    .int-chip { padding: 20px 10px; gap: 10px; }
+    .int-chip-logo { width: 22px; height: 22px; }
+    .int-chip-label { font-size: 12px; }
     .int-chip-grid { gap: 10px; }
   }
 
@@ -643,8 +649,21 @@ var TAG_LABELS = {
   ecommerce: 'Ecommerce', project: 'Project Management',
 };
 
+/* Brand marks from Simple Icons (simpleicons.org) — single-path, monochrome, no
+   baked-in fill, so they inherit currentColor and recolour from CSS. Inlined
+   rather than shipped as files because an <img> can't inherit currentColor
+   (the marks would render black on this dark page) and these total ~2KB. */
+var INTEGRATION_LOGOS = {
+  'stripe': { label: 'Stripe', path: 'M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.594-7.305h.003z' },
+  'supabase': { label: 'Supabase', path: 'M11.9 1.036c-.015-.986-1.26-1.41-1.874-.637L.764 12.05C-.33 13.427.65 15.455 2.409 15.455h9.579l.113 7.51c.014.985 1.259 1.408 1.873.636l9.262-11.653c1.093-1.375.113-3.403-1.645-3.403h-9.642z' },
+  'clerk': { label: 'Clerk', path: 'm21.47 20.829-2.881-2.881a.572.572 0 0 0-.7-.084 6.854 6.854 0 0 1-7.081 0 .576.576 0 0 0-.7.084l-2.881 2.881a.576.576 0 0 0-.103.69.57.57 0 0 0 .166.186 12 12 0 0 0 14.113 0 .58.58 0 0 0 .239-.423.576.576 0 0 0-.172-.453Zm.002-17.668-2.88 2.88a.569.569 0 0 1-.701.084A6.857 6.857 0 0 0 8.724 8.08a6.862 6.862 0 0 0-1.222 3.692 6.86 6.86 0 0 0 .978 3.764.573.573 0 0 1-.083.699l-2.881 2.88a.567.567 0 0 1-.864-.063A11.993 11.993 0 0 1 6.771 2.7a11.99 11.99 0 0 1 14.637-.405.566.566 0 0 1 .232.418.57.57 0 0 1-.168.448Zm-7.118 12.261a3.427 3.427 0 1 0 0-6.854 3.427 3.427 0 0 0 0 6.854Z' },
+  'resend': { label: 'Resend', path: 'M14.679 0c4.648 0 7.413 2.765 7.413 6.434s-2.765 6.434-7.413 6.434H12.33L24 24h-8.245l-8.88-8.44c-.636-.588-.93-1.273-.93-1.86 0-.831.587-1.565 1.713-1.883l4.574-1.224c1.737-.465 2.936-1.81 2.936-3.572 0-2.153-1.761-3.4-3.939-3.4H0V0z' },
+  'vercel': { label: 'Vercel', path: 'm12 1.608 12 20.784H0Z' },
+  'github': { label: 'GitHub', path: 'M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12' },
+};
+
 /* Default integration stack shown when a template carries no `integrations` list. */
-var DEFAULT_INTEGRATIONS = ['Stripe', 'Supabase', 'Clerk', 'Resend', 'Vercel', 'GitHub'];
+var DEFAULT_INTEGRATIONS = ['stripe', 'supabase', 'clerk', 'resend', 'vercel', 'github'];
 
 /* Same mock SVGs as the index page (cycled by index for visual variety) */
 var PREVIEW_MOCKS = [
@@ -680,10 +699,14 @@ function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace
      default stack. Swap DEFAULT_INTEGRATIONS for a CMS field (item.integrations)
      when the template data grows one. */
   var ints = item.integrations || DEFAULT_INTEGRATIONS;
-  document.getElementById('int-chip-grid').innerHTML = ints.map(function (n) {
+  document.getElementById('int-chip-grid').innerHTML = ints.map(function (key) {
+    var logo = INTEGRATION_LOGOS[key];
+    if (!logo) return '';
     return '<div class="int-chip">'
-      + '<span class="int-chip-bracket">&lt;</span>' + n
-      + '<span class="int-chip-bracket"> /&gt;</span>'
+      + '<svg class="int-chip-logo" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">'
+      +   '<path d="' + logo.path + '"/>'
+      + '</svg>'
+      + '<span class="int-chip-label">' + logo.label + '</span>'
       + '</div>';
   }).join('');
 
