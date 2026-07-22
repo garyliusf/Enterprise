@@ -723,8 +723,10 @@
   }
   /* Pan to the bottom: shift up by (imageHeight - cardHeight). translateY on an
      element resolves % against its OWN height, so --shot-card-h is the card's
-     height as a % of the image's height. For the 800x2245 shot in a 4/5 card:
-     cardH = 1.25W, imageH = 2.806W, so 1.25 / 2.806 = 44.5%. */
+     height as a % of the image's height: cardH = 1.25 x cardW, imageH scales to
+     cardW, so the ratio is 1.25 x imgW / imgH. Shots differ in height, so JS
+     sets this per card — a single hardcoded value would over- or under-pan
+     every image that isn't the same aspect as the first one. */
   .catalog-card:hover .catalog-card-shot-wrap .catalog-card-shot {
     transform: translateY(calc(-100% + var(--shot-card-h, 44.5%)));
   }
@@ -2124,42 +2126,25 @@ var COLLECTIONS = [
    site, which the card pans through on hover.
    Live: https://template-minimalist-architect-portfolio.bolt.host/ */
 var CATALOG = [
-  { name: 'Architect Portfolio',   abbr: 'AR', color: 'amber',  tag: 'portfolio', desc: 'A quiet, typographic studio site for architecture and interior practices.', shot: 'images/architect-portfolio.webp' },
-  { name: 'AI Agent',              abbr: 'AG', color: 'mint',   tag: 'apps',      desc: 'Tool-using agent with memory, function calls, and a chat UI.' },
-  { name: 'AI Image Generator',    abbr: 'IG', color: 'purple', tag: 'apps',      desc: 'Prompt-to-image app on top of your model of choice.' },
-  { name: 'Analytics Dashboard',   abbr: 'AN', color: 'blue',   tag: 'internal',  desc: 'Funnel, retention, and revenue charts pulled from your warehouse.' },
-  { name: 'Blog Site',             abbr: 'BL', color: 'salmon', tag: 'blog',      desc: 'MDX-driven blog with categories, RSS, and SEO baked in.' },
-  { name: 'Booking App',           abbr: 'BK', color: 'amber',  tag: 'apps',      desc: 'Calendar availability, reservations, and confirmation emails.' },
-  { name: 'CRM Lite',              abbr: 'CR', color: 'blue',   tag: 'internal',  desc: 'Contacts, pipelines, and deal stages your team can fork weekly.' },
-  { name: 'Coming Soon Page',      abbr: 'CS', color: 'mint',   tag: 'websites',  desc: 'Email capture + countdown for a pre-launch waitlist.' },
-  { name: 'Documentation Site',    abbr: 'DC', color: 'amber',  tag: 'developer', desc: 'Searchable docs with a sidebar, code blocks, and dark mode.' },
-  { name: 'Designer Portfolio',    abbr: 'DP', color: 'purple', tag: 'portfolio', desc: 'A visual case-study site for design and creative work.' },
-  { name: 'Developer Portfolio',   abbr: 'DV', color: 'blue',   tag: 'portfolio', desc: 'Resume + projects with live previews and GitHub links.' },
-  { name: 'Event Site',            abbr: 'EV', color: 'salmon', tag: 'websites',  desc: 'Schedule, speakers, sponsors, and ticket signup in one page.' },
-  { name: 'Forum / Community',     abbr: 'FM', color: 'mint',   tag: 'apps',      desc: 'Threads, replies, and user profiles for a niche community.' },
-  { name: 'Inventory Tracker',     abbr: 'IV', color: 'amber',  tag: 'internal',  desc: 'SKU list, stock levels, and low-stock alerts for ops teams.' },
-  { name: 'Invoice Generator',     abbr: 'IN', color: 'blue',   tag: 'internal',  desc: 'Line items, totals, and PDF export for freelancers and SMBs.' },
-  { name: 'Job Board',             abbr: 'JB', color: 'salmon', tag: 'apps',      desc: 'Post, filter, and apply to listings — niche communities only.' },
-  { name: 'Kanban Board',          abbr: 'KB', color: 'mint',   tag: 'project',   desc: 'Drag-and-drop columns, cards, and assignees for any team workflow.' },
-  { name: 'Lead-Gen Page',         abbr: 'LG', color: 'mint',   tag: 'websites',  desc: 'Long-form sales page with form, testimonials, and FAQ.' },
-  { name: 'Magazine Layout',       abbr: 'MG', color: 'salmon', tag: 'editorial', desc: 'Long-form article reader with featured stories and serif type.' },
-  { name: 'Music Player',          abbr: 'MP', color: 'purple', tag: 'music',     desc: 'Audio player with playlist, controls, and waveform preview.' },
-  { name: 'Newsletter Site',       abbr: 'NL', color: 'amber',  tag: 'editorial', desc: 'Subscribe form + archive — wired to your ESP of choice.' },
-  { name: 'Onboarding Flow',       abbr: 'OB', color: 'purple', tag: 'internal',  desc: 'Multi-step new-user wizard with progress and persistence.' },
-  { name: 'Photographer Portfolio',abbr: 'PH', color: 'salmon', tag: 'portfolio', desc: 'Image-first grid + lightbox for shoots and series.' },
-  { name: 'Podcast Site',          abbr: 'PD', color: 'amber',  tag: 'music',     desc: 'Episode list, inline audio player, RSS feed, and show notes.' },
-  { name: 'Pricing Page',          abbr: 'PR', color: 'blue',   tag: 'saas',      desc: 'Tiered plans, feature matrix, and CTA — A/B-ready.' },
-  { name: 'Product Catalog',       abbr: 'PC', color: 'mint',   tag: 'ecommerce', desc: 'Filterable storefront grid with details, variants, and search.' },
-  { name: 'Product Roadmap',       abbr: 'PM', color: 'blue',   tag: 'product',   desc: 'Public roadmap with quarter columns, status pills, and voting.' },
-  { name: 'REST API Console',      abbr: 'RA', color: 'mint',   tag: 'developer', desc: 'In-browser API explorer with auth, headers, and response viewer.' },
-  { name: 'Restaurant Site',       abbr: 'RS', color: 'salmon', tag: 'websites',  desc: 'Menu, hours, location, and a reservation form on one page.' },
-  { name: 'Shopify Storefront',    abbr: 'SH', color: 'amber',  tag: 'ecommerce', desc: 'Custom headless storefront for your existing Shopify catalog.' },
-  { name: 'Stripe Checkout',       abbr: 'ST', color: 'blue',   tag: 'ecommerce', desc: 'One-product or subscription checkout with Stripe in minutes.' },
-  { name: 'Support Helpdesk',      abbr: 'SP', color: 'mint',   tag: 'internal',  desc: 'Ticket queue, statuses, and replies — internal-tool style.' },
-  { name: 'Survey Builder',        abbr: 'SV', color: 'purple', tag: 'product',   desc: 'Branching question flows with response export.' },
-  { name: 'Team Site',             abbr: 'TM', color: 'salmon', tag: 'websites',  desc: 'About + team + careers page for early-stage companies.' },
-  { name: 'Voice Assistant',       abbr: 'VA', color: 'mint',   tag: 'apps',      desc: 'Whisper + LLM + TTS — talk-and-reply demo in a browser tab.' },
-  { name: 'Writer Portfolio',      abbr: 'WP', color: 'amber',  tag: 'editorial', desc: 'A clean reading-first site for essays, clips, and bylines.' },
+  { name: 'Architect Portfolio',    abbr: 'AR', color: 'amber', tag: 'portfolio', desc: 'A quiet, typographic studio site for architecture and interior practices.', shot: 'images/architect-portfolio.webp', shotW: 800, shotH: 2245 },
+  { name: 'SaaS Landing',           abbr: 'SL', color: 'blue', tag: 'saas', desc: 'Product landing page with metrics, feature grid, and pricing.', shot: 'images/premium-saas-dashboard-lp.webp', shotW: 800, shotH: 3344 },
+  { name: 'Revenue Dashboard',      abbr: 'RD', color: 'blue', tag: 'internal', desc: 'Dark analytics console for revenue, traffic, and live activity.', shot: 'images/vantage-dashboard.webp', shotW: 800, shotH: 3889 },
+  { name: 'Commerce Admin',         abbr: 'CA', color: 'mint', tag: 'internal', desc: 'Order, inventory, and customer management for an online store.', shot: 'images/vendora-dashboard.webp', shotW: 800, shotH: 3889 },
+  { name: 'Social Analytics',       abbr: 'SA', color: 'mint', tag: 'internal', desc: 'Engagement, reach, and top-post reporting across social platforms.', shot: 'images/social-pulse.webp', shotW: 800, shotH: 3889 },
+  { name: 'Finance Tracker',        abbr: 'FT', color: 'blue', tag: 'apps', desc: 'Personal budgeting with cash-flow charts, limits, and transactions.', shot: 'images/ledger-finance.webp', shotW: 800, shotH: 961 },
+  { name: 'Real Estate',            abbr: 'RE', color: 'mint', tag: 'websites', desc: 'Property search with filters, collections, and listing cards.', shot: 'images/nestora-real-estate.webp', shotW: 800, shotH: 3889 },
+  { name: 'Events Guide',           abbr: 'EG', color: 'salmon', tag: 'websites', desc: 'A local what\'s-on guide with day-by-day listings and editor\'s picks.', shot: 'images/townhall-events.webp', shotW: 800, shotH: 3889 },
+  { name: 'Market Guide',           abbr: 'MG', color: 'amber', tag: 'websites', desc: 'Farmers-market directory with schedules, regions, and vendor detail.', shot: 'images/harvest-guide.webp', shotW: 800, shotH: 3885 },
+  { name: 'Venture Capital',        abbr: 'VC', color: 'blue', tag: 'websites', desc: 'A conviction-led investment firm site with thesis and portfolio.', shot: 'images/meridian-capital.webp', shotW: 800, shotH: 3889 },
+  { name: 'Nonprofit Site',         abbr: 'NP', color: 'mint', tag: 'websites', desc: 'Foundation site for programmes, impact reporting, and donations.', shot: 'images/nonprofit-website.webp', shotW: 800, shotH: 3889 },
+  { name: 'Space Tourism',          abbr: 'ST', color: 'purple', tag: 'websites', desc: 'Cinematic booking site for commercial spaceflight itineraries.', shot: 'images/astralis-space-tourism.webp', shotW: 800, shotH: 3889 },
+  { name: 'Studio Portfolio',       abbr: 'SP', color: 'purple', tag: 'portfolio', desc: 'A stark black-canvas portfolio for a design or film studio.' },
+  { name: 'Meditation App',         abbr: 'MA', color: 'mint', tag: 'apps', desc: 'A calm practice app with sessions, pricing, and onboarding.' },
+  { name: 'Skincare Brand',         abbr: 'SK', color: 'salmon', tag: 'ecommerce', desc: 'Minimal beauty storefront with product ritual and shade detail.', shot: 'images/lumiere-skin.webp', shotW: 800, shotH: 3889 },
+  { name: 'Recipe Finder',          abbr: 'RF', color: 'salmon', tag: 'apps', desc: 'Search recipes by what\'s already in your fridge, with filters.', shot: 'images/forkful-recipe.webp', shotW: 800, shotH: 1812 },
+  { name: 'Design Magazine',        abbr: 'DM', color: 'amber', tag: 'editorial', desc: 'Long-form design and architecture criticism with photo essays.', shot: 'images/meridian-journal.webp', shotW: 800, shotH: 1894 },
+  { name: 'Urban Journal',          abbr: 'UJ', color: 'salmon', tag: 'editorial', desc: 'City-focused reporting, features, and photo-essay collections.', shot: 'images/gridline-journal.webp', shotW: 800, shotH: 3889 },
+  { name: 'Travel Journal',         abbr: 'TJ', color: 'purple', tag: 'editorial', desc: 'Slow-travel destinations, itineraries, and atelier stories.', shot: 'images/maison-voyage.webp', shotW: 800, shotH: 3889 },
 ];
 
 /* Thin right-arrow — slides + brightens on card hover */
@@ -2304,7 +2289,11 @@ function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace
      pans on hover; everything else falls back to the placeholder SVG mock. */
   function mediaFor(i, idx) {
     if (!i.shot) return previewFor(idx);
-    return '<div class="catalog-card-shot-wrap">'
+    var sw = i.shotW || 800, sh = i.shotH || 2245;
+    /* Card is 4/5, so cardH = 1.25 x cardW. Capped at 100% for shots shorter
+       than the card, which have nothing to pan through. */
+    var pan = Math.min(100, 1.25 * sw / sh * 100).toFixed(2);
+    return '<div class="catalog-card-shot-wrap" style="--shot-card-h:' + pan + '%">'
       /* width/height are required, not cosmetic: the image is absolutely
          positioned with height:auto, so without intrinsic dimensions its box
          measures 0x0 and the lazy-load intersection check never fires. */
