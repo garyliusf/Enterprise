@@ -402,7 +402,11 @@
     position: fixed;
     left: 0; right: 0; bottom: 0;
     z-index: 50;
-    padding: 14px clamp(20px, 4vw, 64px);
+    /* Horizontal padding lives on -inner, not here, so the inner box can match
+       .detail-shell exactly (same max-width AND same side padding). Putting it
+       here instead made the banner content sit a full gutter wider than the
+       page content. */
+    padding: 14px 0;
     background: rgba(8,8,12,0.85);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
@@ -411,10 +415,12 @@
     transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
   }
   .sticky-banner.is-visible { transform: translateY(0); }
+  /* Mirrors .detail-shell's box so the banner content lines up with the page. */
   .sticky-banner-inner {
     width: 100%;
     max-width: 1280px;
     margin: 0 auto;
+    padding: 0 clamp(20px, 4vw, 64px);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -462,7 +468,8 @@
   /* Smaller CTA height inside the banner (52px on the hero feels too tall here) */
   .sticky-banner .hero-btn-primary { height: 42px; min-width: 120px; padding: 0 22px; font-size: 14px; }
   @media (max-width: 640px) {
-    .sticky-banner { padding: 10px 16px; }
+    .sticky-banner { padding: 10px 0; }
+    .sticky-banner-inner { padding: 0 16px; }
     .sticky-banner-meta { gap: 10px; }
     .sticky-banner-thumb { width: 40px; height: 40px; }
     .sticky-banner-sub { display: none; }
