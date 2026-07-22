@@ -103,6 +103,15 @@
   }
   .detail-gallery-slide svg,
   .detail-gallery-slide svg * { pointer-events: none; }
+  /* Real screenshot slides — object-position (set inline per slide) windows onto
+     a different vertical band of the same full-page capture. */
+  .detail-gallery-shot {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    pointer-events: none;
+  }
   /* Pill indicators below the gallery — inactive read as small dots, the active one expands into a wider pill on selection. */
   .detail-gallery-dots { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px; }
   .detail-gallery-dot {
@@ -442,6 +451,8 @@
     border: 1px solid rgba(255,255,255,0.10);
   }
   .sticky-banner-thumb svg { width: 100%; height: 100%; display: block; }
+  /* Real screenshot — anchored to the top so the thumb shows the page's hero. */
+  .sticky-banner-thumb img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 0%; display: block; }
   .sticky-banner-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
   .sticky-banner-name {
     font-size: 14px;
@@ -612,7 +623,10 @@ var CATALOG = [
   { name: 'SaaS Landing',          tag: 'saas',      desc: 'Hero + features + pricing + signup — the classic SaaS stack.' },
   { name: 'AI Chat App',           tag: 'apps',      desc: 'A chatbot or assistant powered by your favorite LLM API.' },
   { name: 'Analytics Dashboard',   tag: 'internal',  desc: 'Funnel, retention, and revenue charts pulled from your warehouse.' },
-  { name: 'Architect Portfolio',   tag: 'portfolio', desc: 'A quiet, typographic studio site for architecture and interior practices.' },
+  /* `shot` is a full-page capture of the live build. Path is relative to this
+     detail page, so it climbs out of /detail/ (the catalog copy of this array
+     stores the same file as 'images/...'). */
+  { name: 'Architect Portfolio',   tag: 'portfolio', desc: 'A quiet, typographic studio site for architecture and interior practices.', shot: '../images/architect-portfolio.webp' },
   { name: 'AI Agent',              tag: 'apps',      desc: 'Tool-using agent with memory, function calls, and a chat UI.' },
   { name: 'AI Image Generator',    tag: 'apps',      desc: 'Prompt-to-image app on top of your model of choice.' },
   { name: 'Blog Site',             tag: 'blog',      desc: 'MDX-driven blog with categories, RSS, and SEO baked in.' },
@@ -717,14 +731,25 @@ function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace
       + '</div>';
   }).join('');
 
-  /* Gallery — 3 placeholder slides cycled from PREVIEW_MOCKS for visual variety */
+  /* Gallery — for templates with a real full-page `shot`, the three slides are
+     three windows onto that one capture (top / middle / bottom via
+     object-position), so the carousel walks down the actual page. Templates
+     without a shot fall back to placeholder mocks cycled for visual variety. */
   var track = document.getElementById('detail-gallery-track');
   var dotsWrap = document.getElementById('detail-gallery-dots');
   var slideCount = 3;
   var slidesHtml = '';
   var dotsHtml = '';
   for (var s = 0; s < slideCount; s++) {
-    slidesHtml += '<div class="detail-gallery-slide">' + PREVIEW_MOCKS[(idx + s) % PREVIEW_MOCKS.length] + '</div>';
+    if (item.shot) {
+      slidesHtml += '<div class="detail-gallery-slide">'
+        + '<img class="detail-gallery-shot" src="' + item.shot + '" alt=""'
+        +   ' style="object-position: 50% ' + (s * 50) + '%;"'
+        +   ' loading="eager" decoding="async">'
+        + '</div>';
+    } else {
+      slidesHtml += '<div class="detail-gallery-slide">' + PREVIEW_MOCKS[(idx + s) % PREVIEW_MOCKS.length] + '</div>';
+    }
     dotsHtml   += '<button type="button" class="detail-gallery-dot' + (s === 0 ? ' is-active' : '') + '" data-slide="' + s + '" aria-label="Go to slide ' + (s + 1) + '"></button>';
   }
   track.innerHTML = slidesHtml;
@@ -799,7 +824,9 @@ function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace
 
   /* Sticky banner — populate from the current template */
   var banner = document.getElementById('sticky-banner');
-  document.getElementById('sb-thumb').innerHTML = PREVIEW_MOCKS[idx % PREVIEW_MOCKS.length];
+  document.getElementById('sb-thumb').innerHTML = item.shot
+    ? '<img src="' + item.shot + '" alt="" loading="eager" decoding="async">'
+    : PREVIEW_MOCKS[idx % PREVIEW_MOCKS.length];
   document.getElementById('sb-name').textContent = item.name;
   document.getElementById('sb-sub').textContent = TAG_LABELS[item.tag] + ' · Free to clone';
 
