@@ -25,14 +25,21 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
-  /* Kill any incidental horizontal page scroll — the collections strip + hero wallpaper bleed intentionally to the right edge, and any pixel-rounding elsewhere can push a child past 100vw. */
-  html { overflow-x: hidden; }
-  body { overflow-x: hidden; }
+  /* Kill any incidental horizontal page scroll — the hero wallpaper bleeds
+     intentionally to the right edge, and pixel-rounding elsewhere can push a
+     child past 100vw.
+     `clip` NOT `hidden`: overflow-x:hidden makes the element a scroll container,
+     which breaks `position: sticky` on descendants — it was stopping the navbar
+     from sticking. `clip` clips without creating a scrollport, so sticky works.
+     The hidden line stays first as a fallback for browsers without clip. */
+  html, body {
+    overflow-x: hidden;
+    overflow-x: clip;
+  }
   body {
     background: #000;
     color: #fff;
     font-family: 'Inter', sans-serif;
-    overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
   }
   .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
