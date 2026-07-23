@@ -50,7 +50,10 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: clamp(128px, 12vh, 156px) 0 clamp(28px, 3vh, 56px);
+    /* ~20px tighter above and below the text block than the original
+       128/29. Short viewports get their own tighter values in the
+       max-height: 900px block below. */
+    padding: clamp(108px, 10.5vh, 136px) 0 clamp(8px, 1vh, 30px);
     /* Two radial glows layered: brand blue at top-center (primary), warm amber at bottom-right (very subtle). Amber adds a bit of temperature so the wallpaper below feels less monochrome. */
     background:
       radial-gradient(ellipse 55% 40% at 82% 78%, rgba(255,176,120,0.10) 0%, transparent 70%),
@@ -145,6 +148,20 @@
     color: #ABABAB;
     max-width: 640px;
     margin: 0;
+  }
+  /* 14"/13" laptops. What constrains this hero is viewport HEIGHT, not width, so
+     a width breakpoint can't tell a 14" laptop from a 16". On short viewports the
+     clamp() floors above (128px top padding, 300px min-height) stop the hero
+     shrinking at all, pushing the category browser below the fold — so trim the
+     padding, the min-height cap, and the type together. */
+  @media (min-width: 769px) and (max-height: 900px) {
+    .hero-section {
+      min-height: min(30vh, 232px);
+      min-height: min(30dvh, 232px);
+      padding: clamp(94px, 11vh, 116px) 0 clamp(18px, 2.2vh, 32px);
+    }
+    .hero-h1 { font-size: clamp(38px, 4.6vw, 54px); }
+    .hero-subtitle { font-size: clamp(15px, 1.25vw, 17px); }
   }
   .hero-btn-group {
     display: flex;
@@ -836,9 +853,12 @@
     border-bottom: 1px solid rgba(255,255,255,0.14);
   }
   .mkt-nav-inner {
-    display: flex;
+    /* 3-column grid with equal 1fr outer columns: the middle nav group is then
+       centred on the page regardless of the logo and right-side CTA having
+       different widths (flex:1 + justify-content:center left it leaning). */
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    justify-content: space-between;
     gap: 24px;
     height: 68px;
     /* Match .section-inner exactly so the logo + right-side CTA align with the page content below. */
@@ -922,7 +942,6 @@
     list-style: none;
     margin: 0;
     padding: 0;
-    flex: 1;
     justify-content: center;
   }
   /* Each li fills the full 68px nav height so the whole vertical strip is hover-active — small cursor movements above/below the button label no longer break hover and cause the dropdown to flicker closed. */
@@ -982,6 +1001,7 @@
     align-items: center;
     gap: 12px;
     flex-shrink: 0;
+    justify-self: end;
   }
   /* Hamburger (mobile) — 3 SVG-less lines drawn with spans so we can animate stroke on hover. Fully transparent: no border, no hover background, no tap-highlight, no focus box — just the lines. */
   .mkt-nav-burger {
