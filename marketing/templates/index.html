@@ -502,9 +502,9 @@
     /* Silkscreen pixel face — this is now the section's lead-in (the eyebrow
        above it was removed), so it carries more weight than a plain field. */
     font-family: 'Silkscreen', monospace;
-    font-size: 17px;
+    font-size: 14px;
     font-weight: 400;
-    letter-spacing: 1px;
+    letter-spacing: 0.8px;
     color: #fff;
     background: none;
     border: none;
@@ -515,9 +515,9 @@
     caret-color: #1488FC;
   }
   .catalog-search::placeholder { color: rgba(255,255,255,0.55); text-transform: uppercase; letter-spacing: 1px; font-size: inherit; font-family: 'Silkscreen', monospace; }
-  @media (max-width: 1024px) { .catalog-search { font-size: 15px; } }
+  @media (max-width: 1024px) { .catalog-search { font-size: 13px; } }
   @media (max-width: 768px) {
-    .catalog-search { font-size: 13px; letter-spacing: 0.5px; }
+    .catalog-search { font-size: 11px; letter-spacing: 0.5px; }
     .catalog-search-wrap { height: 54px; }
   }
   .catalog-search::-webkit-search-cancel-button { -webkit-appearance: none; }
@@ -2152,6 +2152,47 @@ function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace
       if (moved > 5) { e.preventDefault(); e.stopPropagation(); }
     }, true);
   })();
+})();
+
+/* ── Animated search placeholder ───────────────────────────────────────────
+   The "Browse by category" eyebrow above this field was removed, so the
+   placeholder carries the section. Types through a few prompts on a loop in
+   Silkscreen. Pauses whenever the field is focused or holds a query so it never
+   fights the user mid-search, and falls back to static text under
+   prefers-reduced-motion. */
+(function () {
+  var input = document.getElementById('catalog-search');
+  if (!input) return;
+  var PHRASES = [
+    'BROWSE BY CATEGORY',
+    'SEARCH BY NAME',
+    'TRY "DASHBOARD"',
+    'TRY "PORTFOLIO"'
+  ];
+  var BASE = 'SEARCH TEMPLATES BY NAME OR CATEGORY';
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    input.placeholder = BASE;
+    return;
+  }
+  var p = 0, i = 0, deleting = false;
+  function paused() { return input === document.activeElement || input.value.length > 0; }
+  function tick() {
+    if (paused()) {
+      /* Hold the full prompt while the user is in the field — a half-typed
+         placeholder under a live cursor reads like a glitch. */
+      input.placeholder = BASE;
+      i = 0; deleting = false;
+      return setTimeout(tick, 500);
+    }
+    var phrase = PHRASES[p];
+    i += deleting ? -1 : 1;
+    input.placeholder = phrase.slice(0, i) + (i < phrase.length ? '_' : '');
+    var delay = deleting ? 26 : 58;
+    if (!deleting && i >= phrase.length) { deleting = true; delay = 1600; }
+    else if (deleting && i <= 0) { deleting = false; p = (p + 1) % PHRASES.length; delay = 320; }
+    setTimeout(tick, delay);
+  }
+  tick();
 })();
 
 /* ── makePixelCanvas helper (verbatim from enterprise-v2) ──────────────── */
