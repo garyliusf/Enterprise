@@ -102,6 +102,14 @@
     border: 1px solid rgba(255,255,255,0.06);
   }
   .hero-template-grid-tile svg { width: 100%; height: 100%; display: block; }
+  /* Real screenshots are tall full-page captures — anchor to the top and crop,
+     so each tile shows the template's hero rather than a squashed whole page. */
+  .hero-template-grid-tile img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: 50% 0%;
+    display: block;
+  }
   @media (max-width: 768px) {
     /* Hide the template-tile wallpaper on mobile — reads as noise behind the hero content at phone widths. */
     .hero-template-grid { display: none; }
@@ -2021,12 +2029,26 @@ function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace
 (function () {
   var host = document.getElementById('hero-template-grid');
   if (!host) return;
+  /* Real template screenshots rather than the placeholder mocks — the wallpaper
+     is a glimpse of the actual catalog. Cycles the templates that have a `shot`;
+     any without one fall back to a mock so the grid never gaps. */
+  var shots = CATALOG.filter(function (t) { return t.shot; });
+  var mocks = PREVIEW_MOCKS;
   /* Render ONE half of the tiles (~30 tiles fills a wide viewport at 170px minmax);
      duplicate the block so translating up -50% wraps seamlessly. */
   var HALF = 30;
   var halfHtml = '';
   for (var i = 0; i < HALF; i++) {
-    halfHtml += '<div class="hero-template-grid-tile">' + PREVIEW_MOCKS[i % PREVIEW_MOCKS.length] + '</div>';
+    var inner;
+    if (shots.length) {
+      /* loading="lazy" here, unlike the cards: this is decorative wallpaper at
+         13% opacity behind the headline, so it must never compete with the
+         catalog images for bandwidth on first paint. */
+      inner = '<img src="' + shots[i % shots.length].shot + '" alt="" loading="lazy" decoding="async">';
+    } else {
+      inner = mocks[i % mocks.length];
+    }
+    halfHtml += '<div class="hero-template-grid-tile">' + inner + '</div>';
   }
   host.innerHTML = halfHtml + halfHtml;
 })();
