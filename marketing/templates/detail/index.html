@@ -518,7 +518,16 @@
     transition: border-color 0.25s ease;
   }
   .catalog-card:hover .catalog-card-preview { border-color: rgba(255,255,255,0.22); }
+  .catalog-card-preview { position: relative; }
   .catalog-card-preview svg { width: 100%; height: 100%; display: block; }
+  /* Real-shot rendering — mirrors the catalog grid so related cards show the
+     actual template screenshot instead of a placeholder mock. */
+  .catalog-card-fill { width: 100%; height: 100%; object-fit: cover; object-position: 50% 0%; display: block; }
+  .catalog-card-contain-wrap { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+  .catalog-card-contain { width: 100%; height: auto; display: block; }
+  .catalog-card-shot-wrap { position: relative; width: 100%; height: 100%; overflow: hidden; }
+  .catalog-card-shot { width: 100%; height: auto; display: block; }
+  .catalog-card-shot-wrap .catalog-card-shot { position: absolute; top: 0; left: 0; }
   .catalog-card-foot {
     display: flex;
     align-items: center;
@@ -2205,9 +2214,22 @@ function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace
   var others = CATALOG.filter(function (i) { return i !== item; });
   for (var i = others.length - 1; i > 0; i--) { var j = Math.floor((i * 9301 + 49297) % 233280 / 233280 * (i + 1)); var t = others[i]; others[i] = others[j]; others[j] = t; }
   var related = others.slice(0, 4);
+  /* Real full-page screenshot (`shot`) rendered exactly as the catalog grid does
+     — fill / contain / top-anchored slice — falling back to the placeholder mock
+     only if a template has no shot. */
+  function relatedMedia(r) {
+    if (!r.shot) return PREVIEW_MOCKS[(CATALOG.indexOf(r)) % PREVIEW_MOCKS.length];
+    if (r.fill) return '<img class="catalog-card-fill" src="' + r.shot + '" alt="" loading="lazy" decoding="async">';
+    if (r.contain) {
+      var bg = r.bg ? ' style="background:' + r.bg + '"' : '';
+      return '<div class="catalog-card-contain-wrap"' + bg + '><img class="catalog-card-contain" src="' + r.shot + '" alt="" loading="lazy" decoding="async"></div>';
+    }
+    var focusStyle = r.focus ? ' style="transform:translateY(' + (-r.focus * 100).toFixed(1) + '%)"' : '';
+    return '<div class="catalog-card-shot-wrap"><img class="catalog-card-shot" src="' + r.shot + '" alt=""' + focusStyle + ' width="800" height="2245" loading="lazy" decoding="async"></div>';
+  }
   document.getElementById('related-grid').innerHTML = related.map(function (r, ridx) {
     return '<a href="./?slug=' + slugify(r.name) + '" class="catalog-card">'
-      + '<div class="catalog-card-preview" aria-hidden="true">' + PREVIEW_MOCKS[(CATALOG.indexOf(r)) % PREVIEW_MOCKS.length] + '</div>'
+      + '<div class="catalog-card-preview" aria-hidden="true">' + relatedMedia(r) + '</div>'
       + '<div class="catalog-card-foot">'
       +   '<span class="catalog-card-name">' + r.name + '</span>'
       +   '<span class="catalog-card-tag">' + TAG_LABELS[r.tag] + '</span>'
