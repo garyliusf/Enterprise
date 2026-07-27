@@ -49,8 +49,8 @@
   /* Mini-hero — this catalog page's hero has only H1 + subtitle (no CTA, no prompt box). The canonical variants in CLAUDE.md are 80vh/900px (prompt-box pages) and 65vh/720px (H1+CTA pages). Going shorter still here so the catalog itself is visible above the fold — the templates ARE the pitch. On mobile the hero shrinks further (see media query below) since the catalog needs to peek above the fold on tighter phone viewports. */
   .hero-section {
     width: 100%;
-    min-height: min(30vh, 300px);       /* fallback */
-    min-height: min(30dvh, 300px);      /* mobile-viewport correct */
+    min-height: min(42vh, 430px);       /* fallback */
+    min-height: min(42dvh, 430px);      /* mobile-viewport correct */
     position: relative;
     overflow: hidden;
     display: flex;
@@ -62,7 +62,10 @@
        calc(base + Nvh) rather than a bare Nvh so it stays ABOVE the clamp floor
        through the real laptop range; a bare vh would pin to the floor on short
        screens and stop changing. Floor still clears the 69px fixed nav. */
-    padding: clamp(90px, calc(24px + 8.5vh), 148px) 0 clamp(8px, 1.1vh, 26px);
+    /* Roomier hero (matches production / Donald's MKT-461 padding pass) — taller
+       top clearance under the nav and real breathing room before the catalog, so
+       no separate bridge element is needed. */
+    padding: clamp(150px, calc(80px + 10vh), 220px) 0 clamp(64px, 8vh, 120px);
     /* Glows layered bottom-up. The blue was centred at 50% 30% — right on the
        headline — so it read as a halo behind the text. Anchoring it above the
        top edge (50% -18%) turns it into ambient light spilling down from the
@@ -232,21 +235,7 @@
     margin: 0;
   }
 
-  /* ─── PIXEL CANVAS BRIDGE ABOVE FEATURED SECTION ─────────────────────── */
-  .featured-bridge {
-    position: relative;
-    width: min(1120px, calc(100vw - 160px));
-    margin: 0 auto -120px;
-    height: 180px;
-    pointer-events: none;
-    overflow: hidden;
-    z-index: 1;
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 40%, #000 60%, transparent 100%);
-            mask-image: linear-gradient(to bottom, transparent 0%, #000 40%, #000 60%, transparent 100%);
-  }
   .featured-section { padding-top: clamp(32px, 6vh, 64px); }
-
-  #featured-bridge-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
 
   /* ─── UNLOCKS-STYLE FEATURED SECTION (paper grid container w/ subtle 48px grid) ── */
   .unlocks-visual {
@@ -845,7 +834,6 @@
   /* ─── MOBILE ─────────────────────────────────────────────────────────── */
   @media (max-width: 1024px) {
     .section-inner { width: min(900px, calc(100vw - 80px)); }
-    .featured-bridge { width: min(900px, calc(100vw - 80px)); }
     .catalog-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 44px 16px; }
   }
   @media (max-width: 768px) {
@@ -857,9 +845,6 @@
     .catalog-section { padding-top: 24px; }
     .section-inner { width: calc(100vw - 32px); }
     .section-header { margin-bottom: 40px; gap: 12px; }
-    /* Decorative pixel bridge: keep a short fade band but shrink its net footprint
-       (height minus the negative pull-up) so it adds ~16px, not ~60px. */
-    .featured-bridge { width: calc(100vw - 32px); height: 120px; margin-bottom: -104px; }
     .catalog-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 36px 12px; }
     .unlocks-visual { padding: 28px 20px; }
     .catalog-filters { gap: 6px; }
@@ -1791,9 +1776,6 @@
 </section>
 
 <!-- pixel canvas bridging the hero into the catalog -->
-<div class="featured-bridge" aria-hidden="true">
-  <canvas id="featured-bridge-canvas"></canvas>
-</div>
 
 <!-- ─── CATALOG ───────────────────────────────────────────────────────────── -->
 <section class="section catalog-section" id="catalog">
@@ -2328,20 +2310,6 @@ window.addEventListener('load', function () {
     0.80, '255,255,255'
   );
 });
-
-/* ── Featured-bridge pixel canvas (horizontal band above the section) ── */
-(function () {
-  if (typeof makePixelCanvas === 'function') {
-    makePixelCanvas('featured-bridge-canvas', 9, 2,
-      function (cf, rf, t) {
-        /* horizontal mid-band wave that drifts L→R */
-        var v = Math.sin((cf * 6) - (t * 0.0009) + Math.sin(rf * 4 + t * 0.0005));
-        var bandMask = 1 - Math.abs(rf - 0.5) * 2;
-        return Math.max(0, v) * Math.max(0, bandMask) * 0.85;
-      },
-      0.75, [180, 200, 235]);
-  }
-})();
 
 /* ── Footer prompt box → carry typed text to bolt.new/#prompt=<encoded>&autosubmit=true ─── */
 (function () {
