@@ -1,0 +1,285 @@
+<meta charset="utf-8">
+<title>Template Launch — Motion Promo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  @font-face { font-family:'Inter'; font-weight:700; font-style:normal; font-display:swap; src:url('inter-700.woff2') format('woff2'); }
+  @font-face { font-family:'Inter'; font-weight:800; font-style:normal; font-display:swap; src:url('inter-800.woff2') format('woff2'); }
+  :root { --grey:#6d7079; --lav:#96829f; --char:#332f38; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { height:100%; background:#0b0b0d; overflow:hidden; }
+  body { display:flex; align-items:center; justify-content:center;
+         font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; }
+
+  /* 1280x720 stage, scaled to fit the window */
+  #stage {
+    position:relative; width:1280px; height:720px;
+    background:#08183a; overflow:hidden;
+    transform-origin:center center;
+  }
+
+  /* ---- bolt.new background (real asset) with a slow Ken Burns drift ---- */
+  #bg { position:absolute; inset:0; z-index:0; overflow:hidden; background:#0a1a3a; }
+  #bg img { position:absolute; inset:0; width:100%; height:100%;
+            object-fit:cover; object-position:70% 28%; will-change:transform; }
+
+  /* ---- collage tiles ---- */
+  .tile {
+    position:absolute; left:0; top:0; width:46px; height:60px;
+    overflow:hidden; will-change:transform,width,height;
+    background:#222; box-shadow:0 6px 22px rgba(0,0,0,.28);
+  }
+  .tile img { width:100%; height:100%; object-fit:cover; object-position:top center; display:block; }
+
+  /* ---- centre title ---- */
+  .title {
+    position:absolute; left:50%; top:0; z-index:6;
+    text-align:center; color:#f2f1f4; text-transform:uppercase;
+    font-family:'Inter', 'Helvetica Neue', Arial, sans-serif;
+    font-weight:800; font-size:44px; line-height:.92; letter-spacing:-.03em;
+    text-shadow:0 2px 26px rgba(0,0,0,.30);
+    white-space:nowrap;
+  }
+  /* all three title lines share the same size (44px, from .title) */
+
+  /* ---- fixed labels ---- */
+  .lbl {
+    position:absolute; z-index:8; font-family:"SFMono-Regular",Menlo,Consolas,monospace;
+    font-size:10px; letter-spacing:3px; text-transform:uppercase;
+    color:rgba(255,255,255,.6); white-space:nowrap;
+  }
+  #lblTop { top:26px; left:50%; transform:translateX(-50%); }
+  #lblBot { bottom:26px; left:50%; transform:translateX(-50%); }
+
+  /* ---- black intro reveal overlay ---- */
+  #intro-cover { position:absolute; inset:0; z-index:22; background:#0a0a0b; }
+
+  /* ---- dashed container frame (SVG-traced) ---- */
+  #endcard { position:absolute; inset:0; z-index:25; opacity:0; pointer-events:none; }
+  #frame-svg { position:absolute; inset:0; width:100%; height:100%; }
+  #frame-svg .frame-dash { stroke:rgba(255,255,255,.5); stroke-width:1; fill:none; stroke-dasharray:4 5; }
+  #endcard .nub { position:absolute; width:6px; height:6px; border-radius:50%;
+                  background:rgba(255,255,255,.55); transform:translate(-50%,-50%); }
+  #endcard .lbl { color:rgba(255,255,255,.62); }
+  #ecTL { top:26px; left:40px; }
+  #ecTR { top:26px; right:40px; }
+  #ecBL { bottom:26px; left:40px; }
+  #ecBR { bottom:26px; right:40px; }
+</style>
+
+<div id="stage">
+  <div id="bg"><img src="bolt-bg.webp" alt=""></div>
+
+  <!-- tiles injected by JS, before title so title stacks above -->
+  <div class="title title-top" id="tTop"><span class="l1">Bolt</span><br><span class="l2">Templates</span></div>
+  <div class="title title-bot" id="tBot"></div>
+
+  <div id="intro-cover"></div>
+
+  <div id="endcard">
+    <svg id="frame-svg" viewBox="0 0 1280 720" preserveAspectRatio="none" fill="none">
+      <rect class="frame-dash" x="26.5" y="26.5" width="1227" height="667" mask="url(#frameMask)"></rect>
+      <defs>
+        <mask id="frameMask">
+          <rect x="26.5" y="26.5" width="1227" height="667" fill="none" stroke="#fff" stroke-width="8"
+                pathLength="1000" stroke-dasharray="1000" stroke-dashoffset="1000" id="frameMaskStroke"></rect>
+        </mask>
+      </defs>
+    </svg>
+    <div class="nub" style="left:26px;top:26px"></div>
+    <div class="nub" style="left:50%;top:26px"></div>
+    <div class="nub" style="right:26px;top:26px;left:auto"></div>
+    <div class="nub" style="left:26px;top:50%"></div>
+    <div class="nub" style="right:26px;top:50%;left:auto"></div>
+    <div class="nub" style="left:26px;bottom:26px;top:auto"></div>
+    <div class="nub" style="left:50%;bottom:26px;top:auto"></div>
+    <div class="nub" style="right:26px;bottom:26px;top:auto;left:auto"></div>
+  </div>
+</div>
+
+<script src="gsap.min.js"></script>
+<script>
+const IMG = "../marketing/templates/images/";
+// tile array — index 6 is the gradient. strip order = array order.
+// The 10 launch templates (uniform 4:5 cards). Order = ring/strip order.
+// The `hero` tile opens full-bleed and scales down into its card (middle of strip).
+const TILES = [
+  { img:"vestige-fashion.webp" },            // Vestige
+  { img:"premium-saas-dashboard-lp.webp" },  // Nexal analytics
+  { img:"maison-voyage.webp" },              // Maison Voyage
+  { img:"gridline-journal.webp" },           // Gridline
+  { img:"meridian-journal.webp" },           // Meridian
+  { img:"architect-hero.webp", hero:true },  // Hald Atelier — opening full-screen hero (hi-res, scrolls)
+  { img:"ledger-finance.webp" },             // Ledger finance
+  { img:"townhall-events.webp" },            // Townhall
+  { img:"forkful-recipe.webp" },             // Forkful
+  { img:"noir-agency.webp" },                // Noir
+];
+
+const stage = document.getElementById('stage');
+const tTop = document.getElementById('tTop');
+const tBot = document.getElementById('tBot');
+
+const N = TILES.length;                 // 10 tiles
+// uniform tile size — 4:5 (matches /marketing/templates catalog cards)
+const TW = 134, TH = 168;
+// strip thumbnails (also 4:5)
+const SW = 62, SH = 78, GAP = 8, STEP = SW + GAP;
+const stripW = N * STEP - GAP;
+const stripX0 = 640 - stripW / 2;
+const stripY = 360 - SH / 2;
+
+// ring geometry (even wreath around the centre text)
+const CX = 640, CY = 360, RX = 274, RY = 234;
+function ringAngle(i) { return -90 + i * (360 / N); }              // degrees, start at top
+function ringCenter(i, rot) {
+  const a = (ringAngle(i) + (rot || 0)) * Math.PI / 180;
+  return { x: CX + RX * Math.cos(a), y: CY + RY * Math.sin(a) };
+}
+
+const els = TILES.map((t, i) => {
+  const el = document.createElement('div');
+  el.className = 'tile';
+  const im = document.createElement('img');
+  im.src = IMG + t.img; im.alt = ''; el.appendChild(im);
+  stage.insertBefore(el, tTop);
+  t.stripCX = stripX0 + i * STEP + SW / 2;   // strip centre x
+  return el;
+});
+
+function stripProps(t) { return { x:t.stripCX - SW/2, y:stripY, width:SW, height:SH }; }
+
+// the hero tile opens full-bleed and scales down into its card
+const HERO_I = TILES.findIndex(t => t.hero);
+const hero = els[HERO_I];
+hero.style.zIndex = 20;
+
+// (hero liveliness now comes from the page scroll, not a zoom)
+
+// ---------- slow Ken Burns drift on the bolt.new background (independent) ----------
+gsap.fromTo('#bg img', { scale:1.0 },
+  { scale:1.07, duration:24, ease:"sine.inOut", yoyo:true, repeat:-1, transformOrigin:"75% 25%" });
+
+// ---------- master timeline ----------
+const all = els.map((el, i) => ({ el, t: TILES[i] }));
+const qNoHero = els.filter((_, i) => i !== HERO_I);   // the 9 non-hero cards
+
+// per-tile bezier path: strip centre <-> ring slot (at ring rotation `rotDeg`),
+// bowed outward from centre. Returns fn(t): t=0 strip, t=1 ring.
+function makePath(i, rotDeg) {
+  const s = { x: all[i].t.stripCX, y: 360 };
+  const e = ringCenter(i, rotDeg);
+  const mx = (s.x + e.x) / 2, my = (s.y + e.y) / 2;
+  let dx = mx - CX, dy = my - CY; const dl = Math.hypot(dx, dy) || 1; dx /= dl; dy /= dl;
+  const BOW = 120;                       // how far the arc bows outward
+  const c = { x: mx + dx * BOW, y: my + dy * BOW };
+  return function (t) {
+    const mt = 1 - t;
+    const x = mt*mt*s.x + 2*mt*t*c.x + t*t*e.x;
+    const y = mt*mt*s.y + 2*mt*t*c.y + t*t*e.y;
+    const w = SW + (TW - SW) * t, h = SH + (TH - SH) * t;
+    gsap.set(all[i].el, { x: x - w/2, y: y - h/2, width: w, height: h });
+  };
+}
+const paths = all.map((p, i) => makePath(i, 0));
+// place every tile exactly on the ring at rotation `rot` (deg) — used for the orbit
+function placeRing(rot) {
+  all.forEach((p, i) => {
+    const c = ringCenter(i, rot);
+    gsap.set(p.el, { x: c.x - TW/2, y: c.y - TH/2, width: TW, height: TH });
+  });
+}
+
+function resetState() {
+  // hero fills the frame (hidden under the black cover for now); 9 others wait in the strip
+  gsap.set(hero, { x:0, y:0, width:1280, height:720, zIndex:20, opacity:1, clipPath:"none" });
+  gsap.set(hero.querySelector('img'), { objectPosition:"50% 0%" });   // scroll reset to top
+  qNoHero.forEach((el) => gsap.set(el, { opacity:0 }));
+  els.forEach((el, i) => { if (i !== HERO_I) gsap.set(el, stripProps(TILES[i])); });
+  gsap.set([tTop], { xPercent:-50, yPercent:-50, y:262, opacity:0 });
+  gsap.set([tBot], { xPercent:-50, yPercent:-50, y:505, opacity:0 });
+  // intro: black cover fills the frame; dashed border undrawn; nubs + labels hidden
+  gsap.set('#intro-cover', { opacity:1, clipPath:"inset(0 0 0 0)" });
+  gsap.set('#frameMaskStroke', { strokeDashoffset:1000 });
+  gsap.set('#endcard', { opacity:1 });
+  gsap.set('.nub, #endcard .lbl', { opacity:0 });
+}
+
+const tl = gsap.timeline({ repeat:-1, defaults:{ ease:"power3.inOut" } });
+tl.call(resetState);
+
+// INTRO (t=0): dashed border TRACES around the container; then the black cover
+// wipes off left→right to reveal the hero inside
+tl.to('#frameMaskStroke', { strokeDashoffset:0, duration:1.5, ease:"power1.inOut" }, 0);   // trace around
+tl.to('.nub, #endcard .lbl', { opacity:1, duration:0.5, stagger:0.02 }, 1.1);              // ticks + labels settle
+tl.to('#intro-cover', { clipPath:"inset(0 0 0 100%)", duration:1.1, ease:"power2.inOut" }, 1.55); // black recedes L→R
+
+// HOLD on the framed hero (Ken Burns) t≈2.7 → 2.9
+
+// SCALE DOWN (t=2.9): the container lifts and the hero MORPHS down into its card —
+// slow, weighted momentum (long ease-out settle)
+tl.to('#endcard', { opacity:0, duration:0.8, ease:"power2.inOut" }, 2.6);
+tl.to(hero, { ...stripProps(TILES[HERO_I]), zIndex:1, duration:1.8, ease:"power3.inOut" }, 2.6);
+// the hero page slowly SCROLLS DOWN as it scales down (liveliness)
+{ const hi = hero.querySelector('img'), sc = { p:0 };
+  tl.to(sc, { p:52, duration:2.0, ease:"power1.inOut",
+              onUpdate:() => hi.style.objectPosition = "50% " + sc.p + "%" }, 2.6); }
+tl.to([tTop,tBot], { opacity:1, duration:.6 }, 3.85);
+qNoHero.forEach((el)=> tl.to(el, { opacity:1, duration:.5 }, 4.05));
+
+// EXPLODE (t=4.8): the strip curls into the ring along bezier arcs; title converges
+all.forEach((p, i) => {
+  const d = Math.abs(i - (N - 1) / 2) * 0.05;          // stagger from strip centre outward
+  const o = { t: 0 };
+  tl.to(o, { t: 1, duration: 1.35, ease: "power3.inOut",
+             onUpdate: () => paths[i](o.t) }, 4.5 + d);
+});
+tl.to(tTop, { y:360, duration:1.2, ease:"power3.out" }, 4.7);   // BOLT / TEMPLATES — centred
+tl.to(tBot, { y:400, duration:1.2, ease:"power3.out" }, 4.7);   // (empty)
+
+// HOLD (t≈6.6 → 9.8): ring drifts slowly CLOCKWISE (background is the animated blue gradient)
+const SPIN_END = 44;                 // degrees of clockwise drift during the hold
+const spin = { rot: 0 };
+tl.to(spin, { rot: SPIN_END, duration: 3.2, ease: "none",
+              onUpdate: () => placeRing(spin.rot) }, 6.6);
+
+// COLLAPSE (t=9.9): ring curls back into the strip from its drifted rotation
+const endPaths = all.map((p, i) => makePath(i, SPIN_END));
+all.forEach((p, i) => {
+  const o = { t: 1 };
+  tl.to(o, { t: 0, duration: 1.0, ease: "power3.inOut",
+             onUpdate: () => endPaths[i](o.t) }, 9.9);
+});
+tl.to(tTop, { y:262, duration:1.0 }, 9.9);
+tl.to(tBot, { y:505, duration:1.0 }, 9.9);
+
+// OUTRO (t=11.0): the hero card scales back up to full-bleed, covering the wall
+tl.to(hero, { x:0, y:0, width:1280, height:720, zIndex:20, duration:1.2, ease:"power3.inOut" }, 11.0);
+// slowly scroll the hero page ALL the way back up through the conclusion
+{ const hi = hero.querySelector('img'), sc = { p:52 };
+  tl.to(sc, { p:0, duration:3.2, ease:"power1.inOut",
+              onUpdate:() => hi.style.objectPosition = "50% " + sc.p + "%" }, 11.0); }
+tl.to(qNoHero, { opacity:0, duration:.5 }, 11.2);
+tl.to([tTop,tBot], { opacity:0, duration:.5 }, 11.1);
+
+// CONCLUDE (t=12.3): the dashed frame settles over the full-screen Vestige hero; hold on it
+tl.to('#endcard', { opacity:1, duration:.7 }, 12.3);
+tl.to(hero, { duration:1.3 }, 13.0);   // hold on the framed hero
+
+// FADE TO BLACK (t=14.3): rejoin the black opening so the loop is seamless
+tl.set('#intro-cover', { clipPath:"inset(0 0 0 0)", opacity:0 }, 14.3);
+tl.to('#intro-cover', { opacity:1, duration:1.0, ease:"power2.inOut" }, 14.3);
+tl.to('#endcard', { opacity:0, duration:.9, ease:"power2.inOut" }, 14.4);
+
+// hold the framed endcard — it stays up through the loop into the next intro
+// (the hero simply fades back in inside the same frame on repeat)
+
+// ---------- fit to window ----------
+function fit() {
+  const s = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+  stage.style.transform = "scale(" + s + ")";
+}
+window.addEventListener('resize', fit); fit();
+
+// expose for verification seeking
+window.__tl = tl;
+</script>
