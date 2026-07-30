@@ -189,6 +189,9 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   .compliance-head { display: flex; flex-direction: column; gap: 18px; margin-bottom: 48px; }
   .compliance-h2 { font-size: clamp(32px, 4vw, 52px); font-weight: 500; color: #fff; line-height: 1.15; letter-spacing: -1px; margin: 0; }
   .compliance-sub { font-size: clamp(15px, 1.1vw, 17px); color: rgba(255,255,255,0.5); line-height: 1.6; max-width: 640px; margin: 0; }
+  /* Animated pixel divider between sections */
+  .section-divider { position: relative; width: 100%; height: 60px; background: #000; overflow: hidden; }
+  #section-divider-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
   .comp-cards { margin-top: 48px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
   .comp-card {
     border: 1px solid rgba(255,255,255,0.10); border-radius: 2px;
@@ -443,6 +446,10 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   </div>
 </section>
 
+<!-- ─── ANIMATED PIXEL DIVIDER ────────────────────────────────────────────── -->
+<div class="section-divider" aria-hidden="true">
+  <canvas id="section-divider-canvas"></canvas>
+</div>
 
 <!-- ─── SECTION 4: COMPLIANCE ─────────────────────────────────────────────── -->
 <section class="compliance-section">
@@ -762,6 +769,26 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
 <script>
 window.addEventListener('load', function() {
   // Feat noise canvas
+  // Section divider gap canvas (animated pixel wave, ported from success-gap-canvas)
+  makePixelCanvas('section-divider-canvas', 6, 2,
+    function(c, r, t, p) {
+      const px = c * 6, py = r * 6;
+      const vFade = Math.max(0, 1 - py / 80);
+      const speedMod = 0.05 + (Math.sin(t * 0.00070 + 0.9) * 0.5 + 0.5) * 0.22;
+      function rwave(scale, rotRate, phase, tMult) {
+        const angle = t * rotRate + phase;
+        const u = (px * Math.cos(angle) + py * Math.sin(angle)) / scale;
+        const v = (-px * Math.sin(angle) + py * Math.cos(angle)) / scale;
+        return Math.sin(u * Math.PI * 2 + t * tMult * speedMod) * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7 * speedMod);
+      }
+      const s1 = rwave(500, 0.00012, 0.0, 0.00030), s2 = rwave(260, 0.00025, 1.1, 0.00065);
+      const s3 = rwave(130, 0.00042, 2.5, 0.00130), s4 = rwave(380, 0.00018, 3.9, 0.00048);
+      const wf = s1 * 0.5 + 0.5, det = s2 * 0.45 + s3 * 0.30 + s4 * 0.25;
+      const raw = wf * (det * 0.5 + 0.5), density = Math.pow(Math.max(0, raw), 0.7);
+      const rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
+      const d = density * vFade; return d > rand ? d * 0.85 : 0;
+    }, 1.0, '90,100,115');
+
   makePixelCanvas('feat-noise-canvas', 6, 2,
     function(c, r, t, p) {
       const px = c * 6, py = r * 6;
