@@ -325,6 +325,14 @@
    - .dsa-reveal       → per-word blur+slide reveal on the h1/h2 inside
    ============================================================================ */
 (function () {
+  /* Pages that ship their OWN word-reveal + scramble (microsoft, bolt-cli,
+     platform, pricing — all complete before shared-components.js existed; they
+     link this file for the FAQ/button components only) set
+     `window.__pageOwnsScrollAnims = true` before this script loads. Running
+     both implementations on the same elements is a race that corrupts text —
+     each captures "final" text at run time, so whichever starts second locks
+     in the other's mid-animation garbage. One owner per page, never two. */
+  if (window.__pageOwnsScrollAnims) return;
   if (typeof IntersectionObserver === 'undefined') return;
   var scrambleChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&';
 
