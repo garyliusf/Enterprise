@@ -29,17 +29,20 @@
 .hero-inner .hero-btn-group { margin-top: max(0px, calc(var(--sub-to-cta) - 24px)); }
 /* microsoft.html hero-inner uses gap: 28 instead of 24 — offset the extra 4px */
 .hero-section--microsoft .hero-inner .hero-btn-group { margin-top: max(0px, calc(var(--sub-to-cta) - 28px)); }
+/* At ≤768 .hero-inner's gap drops 24 → 20 on every page (microsoft included),
+   so the offset has to be recomputed against 20 or the hero lands 4px short. */
+@media (max-width: 768px) {
+  .hero-inner .hero-btn-group,
+  .hero-section--microsoft .hero-inner .hero-btn-group { margin-top: max(0px, calc(var(--sub-to-cta) - 20px)); }
+}
 .builtin-cta                { margin-top: max(0px, calc(var(--sub-to-cta) - 22px)); }
 .run-callout-btns           { margin-top: max(0px, calc(var(--sub-to-cta) - 12px)); }
 /* Footer button sits inside a wrapper with margin-top:-152 + a 192px canvas.
    Desktop baseline = 64px, so button margin-top = --sub-to-cta - 64px. */
+/* Baseline is the same at every breakpoint (the canvas keeps its inline 192px
+   height on mobile), so this one rule covers desktop and mobile — the token
+   itself is what changes. */
 .footer-cta-btn { margin-top: calc(var(--sub-to-cta) - 64px); }
-/* Mobile: the wrapper's -152px is calibrated for the 192px desktop canvas.
-   At ≤768 the canvas shrinks to 60px, so the wrapper overshoots downward.
-   Pull the button up harder to compensate and match the mobile token. */
-@media (max-width: 768px) {
-  .footer-cta-btn { margin-top: calc(var(--sub-to-cta) - 160px); }
-}
 
 /* ─── PRIMARY / GHOST / CTA BUTTONS ──────────────────────────────────────── */
 .hero-btn-primary {
@@ -201,8 +204,10 @@
   .footer-section > *:not(.bolt-image-wrap) { padding-left: 12px; padding-right: 12px; box-sizing: border-box; width: 100%; }
   .footer-headline { font-size: clamp(26px, 8vw, 36px); line-height: 1.1; }
   .footer-subtitle { font-size: 16px; max-width: 310px; }
-  /* Slightly tighter subtitle-to-form gap on mobile (overrides the -16px inline) */
-  .footer-section .card-form-strip, .footer-section .hero-btn-primary { margin-top: -28px !important; }
+  /* Slightly tighter subtitle-to-form gap on mobile (overrides the -16px inline).
+     Scoped to .card-form-strip only — footer CTA buttons use .footer-cta-btn,
+     which is driven by the --sub-to-cta token above. */
+  .footer-section .card-form-strip { margin-top: -28px !important; }
 }
 
 /* ─── FOOTER BOLT WORDMARK — bigger/full-bleed on MOBILE ONLY ─────────────── */
