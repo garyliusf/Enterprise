@@ -367,6 +367,10 @@ Why these values:
 - **Don't invent in-between values** — stick to the two variants so all pages feel like they belong to the same system.
 - **Deliberate exception — `marketing/templates/index.html`**: the templates catalog hero is intentionally compact (`min(30vh, 300px)`, tuned `calc(base + Nvh)` padding) so the browsing grid is visible quickly. It is **short by design (Gary, 2026-08-04)** — do NOT "fix" it to the 65vh short variant (that was tried and reverted, commits 9418edb/c879d78). `marketing/use-cases/` deliberately does NOT share this exception — it was moved to the standard short variant at Gary's request the same day.
 
+## CMS-connected pages — how updates flow (Donald, 2026-08-04)
+- **The sandbox never auto-updates production.** Updating a sandbox template page does nothing to the Astro/CMS copy — design/CSS/JS changes must be PR'd to `bolt-public-pages`; **copy changes are edited in the CMS directly** (Claude can edit CMS copy on request).
+- **Marketing CSS and blog CSS must NEVER mix.** They are different themes (dark vs light) and cross-importing breaks pages site-wide ("it fucks up all the pages when they mix" — Donald). Treat anything Blog as a separate entity; never share/import rules between `blog.css` and the marketing/use-case stylesheets.
+
 ## Blog (company repo `stackblitz/bolt-public-pages` — LIVE at bolt.new/blog)
 Contentful-backed SSR blog (`/blog` renders on-demand, reading PUBLISHED content from the Contentful Delivery API at request time — not static/prerendered). Key files: `src/layouts/BlogLayout.astro`, `src/styles/blog.css`, `src/pages/blog/`. **Light theme** (distinct from the dark marketing pages).
 
