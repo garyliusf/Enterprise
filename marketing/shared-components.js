@@ -407,7 +407,7 @@
      this code writes .sc-sub-* classes, and nothing else animates these
      elements. Subtitles containing child elements are still fine — this is a
      class toggle, not an innerHTML rewrite. */
-  var SUB_SEL = '.section-sub, .builtin-sub, .detail-sub, .controls-sub, .compliance-sub, .hiw-sub, .agent-desc, .run-callout-sub, .success-sub, .feat-subheadline';   /* only classes that actually sit in/after a reveal container */
+  var SUB_SEL = '.section-sub, .builtin-sub, .detail-sub, .controls-sub, .compliance-sub, .hiw-sub, .agent-desc, .run-callout-sub, .success-sub, .feat-subheadline, .footer-subtitle';   /* only classes that actually sit in/after a reveal container */
   /* DOM-based word wrapper (microsoft.html's proven approach): splits text
      nodes into .word spans and wraps element children whole. Never touches
      innerHTML with a regex, so nested markup cannot be corrupted. The --i
