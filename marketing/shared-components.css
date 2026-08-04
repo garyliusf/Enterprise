@@ -133,19 +133,23 @@
   animation: dsa-word-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   animation-delay: calc(var(--i, 0) * 28ms);
 }
-/* Subtitle block-reveal: whole-element fade/blur-up that follows the H2's
-   word reveal (0.22s delay ≈ the heading's word cascade). Classes are JS-set
-   (shared-components.js bindSubtitleReveals) so no-JS pages stay visible. */
-.sc-sub-pre { opacity: 0; transform: translateY(12px); filter: blur(6px); }
-.sc-sub-pre.sc-sub-in {
-  opacity: 1; transform: translateY(0); filter: blur(0);
-  transition:
-    opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.22s,
-    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.22s,
-    filter 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.22s;
+/* Subtitle word-reveal: the SAME per-word blur cascade as the H2 (microsoft
+   behavior). shared-components.js wraps the subtitle's words with --i indexes
+   continuing from the heading's word count, so heading → subtitle read as one
+   continuous cascade. Classes are JS-set, so no-JS pages stay visible. */
+.sc-sub-words .word {
+  display: inline-block;
+  opacity: 0;
+  transform: translate(-10px, -7px);
+  filter: blur(5px);
+  will-change: opacity, transform, filter;
+}
+.sc-sub-words.sc-sub-go .word {
+  animation: dsa-word-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--i, 0) * 28ms);
 }
 @media (prefers-reduced-motion: reduce) {
-  .sc-sub-pre { opacity: 1; transform: none; filter: none; transition: none; }
+  .sc-sub-words .word { opacity: 1; transform: none; filter: none; animation: none; }
 }
 
 @keyframes dsa-word-reveal {

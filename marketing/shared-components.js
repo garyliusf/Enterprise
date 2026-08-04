@@ -408,6 +408,27 @@
      elements. Subtitles containing child elements are still fine — this is a
      class toggle, not an innerHTML rewrite. */
   var SUB_SEL = '.section-sub, .builtin-sub, .detail-sub, .controls-sub, .compliance-sub, .hiw-sub, .agent-desc, .run-callout-sub, .success-sub, .feat-subheadline';
+  /* DOM-based word wrapper (microsoft.html's proven approach): splits text
+     nodes into .word spans and wraps element children whole. Never touches
+     innerHTML with a regex, so nested markup cannot be corrupted. The --i
+     index continues from startIdx so the subtitle's cascade picks up where
+     the heading's words left off — the same rhythm as microsoft. */
+  function wrapSubWords(el, startIdx) {
+    if (el.querySelector('.word')) return startIdx;
+    var idx = startIdx;
+    var children = [].slice.call(el.childNodes);
+    el.textContent = '';
+    children.forEach(function (node) {
+      if (node.nodeType === 3) {
+        node.textContent.split(/(\s+)/).forEach(function (p) {
+          if (!p.trim().length) { if (p.length) el.appendChild(document.createTextNode(p)); return; }
+          var s = document.createElement('span'); s.className = 'word'; s.style.setProperty('--i', idx++); s.textContent = p; el.appendChild(s);
+        });
+      } else if (node.nodeName === 'BR') { el.appendChild(node); }
+      else { var w = document.createElement('span'); w.className = 'word'; w.style.setProperty('--i', idx++); w.appendChild(node); el.appendChild(w); }
+    });
+    return idx;
+  }
   function bindSubtitleReveals() {
     document.querySelectorAll('.dsa-reveal, .reveal-h').forEach(function (c) {
       if (c.dataset.scSubBound) return;
@@ -417,10 +438,13 @@
       while (n && n.matches && n.matches(SUB_SEL)) { subs.push(n); n = n.nextElementSibling; }
       if (!subs.length) return;
       if (c.classList.contains('is-revealed')) return;   // already fired — leave visible
-      subs.forEach(function (s) { s.classList.add('sc-sub-pre'); });
+      /* Start the subtitle's --i after the heading's word count so the
+         cascade flows heading → subtitle in one continuous sequence. */
+      var idx = (c.textContent.trim().split(/\s+/) || []).length;
+      subs.forEach(function (s) { s.classList.add('sc-sub-words'); idx = wrapSubWords(s, idx); });
       var mo = new MutationObserver(function () {
         if (!c.classList.contains('is-revealed')) return;
-        subs.forEach(function (s) { s.classList.add('sc-sub-in'); });
+        subs.forEach(function (s) { s.classList.add('sc-sub-go'); });
         mo.disconnect();
       });
       mo.observe(c, { attributes: true, attributeFilter: ['class'] });
