@@ -269,12 +269,27 @@ For a seamless grid with shared borders (no `gap`):
 ---
 
 ## Pages
-- `marketing/microsoft.html` — Microsoft Teams & Copilot landing page (ported to company repo `stackblitz/bolt-public-pages`, PR #54)
+- `marketing/microsoft.html` — Microsoft Teams & Copilot landing page (ported to company repo `stackblitz/bolt-public-pages`, PR #54). **DRIFTED from production — do not treat as reference** (see "Sandbox drift" below).
 - `marketing/bolt-cli.html` — Bolt CLI landing page (ported to company repo `stackblitz/bolt-public-pages`, PR #54)
 - `marketing/pricing.html` — Pricing page. **Canonical/correct version, NOT live yet (pending approval).** Its own track; will get its own port + PR when approved.
 - `marketing/platform.html` — Platform overview (prototype)
+- `marketing/security-agent.html` — Security Agent landing page (built 2026-08, sandbox only — not yet ported/PR'd to the company repo). Hero → agent video → How-It-Works timeline → "What it scans" 5-card → "Free every time" 3-card + `run-callout` (photo bg `run-callout-bg.jpg`, scroll-in reveal at 50% visible) → FAQ → footer.
 - `marketing/shared-components.css` — **Canonical component CSS** (buttons, eyebrows, FAQ). Wins the cascade — linked at end of `<body>`. Edit here, not per-page.
-- `marketing/shared-components.js` — **Canonical component JS** (FAQ per-item pixel canvas animation). Linked at end of `<body>`.
+- `marketing/shared-components.js` — **Canonical component JS** (FAQ per-item pixel canvas animation + scroll animations). Linked at end of `<body>`.
+
+### Spacing / CTA design tokens (in `shared-components.css`)
+- `--sub-to-cta`: subtitle→CTA vertical gap — **32px desktop / 24px mobile (≤768)**. Applied via `margin-top: calc(var(--sub-to-cta) - <container gap>)` on `.hero-inner > .hero-btn-group` (child combinator — deliberate, `gap` only spaces direct children), `.builtin-cta`, `.run-callout-btns`, `.footer-cta-btn`.
+- `--cta-min-w`: standalone-CTA min-width **floor** — **180px desktop / 220px mobile**. Longer labels still expand past it. Form/input-attached submits are explicitly excluded (a `:is(form, .hero-form-row, .card-form-strip, .re-prompt-shell)` reset).
+- These are **sandbox standards, NOT yet in production** (`bolt-public-pages`). Production microsoft hero runs 42px — its `.hero-btn-group` sits in `.hero-headline-group` (gap 10) with `margin-top: 32px`, not in `.hero-inner`. Measure production before porting.
+- Footer form strips (`.card-form-strip` inline `margin-top:-16px` on 6 pages) are **not yet tokenized** — planned as its own pass ("PR 2").
+
+### Shared-file hazards (learned the hard way, 2026-08)
+- **Class-name collisions:** shared wins the cascade by loading last, so any generic class it declares silently overrides page-local classes of the same name. Two found and fixed: `.footer-cta-btn` (solutions pages had it as a form-submit style) and `.hero-video-overlay` (shared's video-card vignette replaced microsoft's full-page hero darkener → bright hero). Shared's video vignette is now scoped `.hero-video-area > .hero-video-overlay`. **Before adding any class to shared, grep all pages for prior use of that name.** A namespacing pass (`.sc-*`) is the real fix, not yet done.
+- **Duplicate scroll animations:** microsoft, bolt-cli, platform, pricing ship their own word-reveal + eyebrow scramble. Running shared's copies on the same elements is a race that corrupts text (both capture "final" text at run time). Pages that own their animations set `window.__pageOwnsScrollAnims = true` **before** the shared script tag; shared's scroll-anim module stands down. Set this flag on any page that has local reveal/scramble code.
+- **GitHub Pages caches CSS for 10 min** (`max-age=600`). When verifying a deploy, hard-refresh (⌘⇧R) — a normal refresh can serve stale CSS long after the deploy landed.
+
+### Sandbox drift (microsoft.html)
+Production (`bolt.new/platform/integrations/microsoft`, from `bolt-public-pages`) loads **no shared-components.js/css** — the sandbox copy both links them and has drifted: two pre-existing JS TypeErrors from removed elements (`#hero-form-card` referenced by the video-modal block, `#slider-inner-tagline` by the slider block), and layout values that differ from live. Treat production as the source of truth for this page (same policy as `/blog`); don't derive standards by measuring the sandbox copy.
 - `solutions/ai-for-real-estate/index.html` — AI for Real Estate solutions landing page. First solutions vertical page — template for future `/solutions/*` pages.
 - `bolt.conf/index.html` — Bolt Conf event landing page — **Conference style** (keep in its own folder, separate from marketing)
 
