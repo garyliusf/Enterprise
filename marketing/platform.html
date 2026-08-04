@@ -269,28 +269,45 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   .unlock-card--cta { align-items: center; justify-content: center; text-align: center; gap: 18px; background: rgba(20,136,252,0.06); }
   .unlock-card--cta .unlock-desc { max-width: 220px; }
 
-  /* ─── SECTION 5: TEMPLATES (row list, templates-page catalog feel) ────── */
+  /* ─── SECTION 5: TEMPLATES (interactive index list + cursor preview) ──── */
   .tmpl-section { width: 100%; background: #050508; position: relative; }
-  .tmpl-list { border-top: 1px solid rgba(255,255,255,0.08); }
-  .tmpl-row {
-    display: grid; grid-template-columns: 56px 1fr 28px; align-items: center; gap: 24px;
-    padding: 30px 8px; border-bottom: 1px solid rgba(255,255,255,0.08);
-    text-decoration: none; position: relative; overflow: hidden;
-    transition: background 0.25s ease;
+  .works { position: relative; }
+  .works-list { border-top: 1px solid rgba(255,255,255,0.10); position: relative; z-index: 2; }
+  .works-row {
+    display: grid; grid-template-columns: 52px 1fr auto; align-items: center; gap: 28px;
+    padding: 26px 8px; border-bottom: 1px solid rgba(255,255,255,0.10);
+    text-decoration: none; position: relative;
+    transition: padding-left 0.45s cubic-bezier(0.22,1,0.36,1);
   }
-  .tmpl-row:hover { background: rgba(255,255,255,0.03); }
-  .tmpl-num { font-family: 'Silkscreen', monospace; font-size: 12px; color: rgba(255,255,255,0.25); letter-spacing: 1px; transition: color 0.3s ease; }
-  .tmpl-row:hover .tmpl-num { color: #1488FC; }
-  .tmpl-main { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 8px 32px; align-items: baseline; }
-  .tmpl-title { font-size: 22px; font-weight: 500; color: #fff; letter-spacing: -0.3px; margin: 0; line-height: 1.25; }
-  .tmpl-desc { font-size: 15px; color: rgba(255,255,255,0.5); line-height: 1.55; margin: 0; }
-  .int-arrow {
-    width: 22px; height: 22px; color: #1488FC; flex-shrink: 0;
-    opacity: 0; transform: translateX(-6px);
-    transition: opacity 0.25s ease, transform 0.25s ease;
+  .works-num { font-family: 'Silkscreen', monospace; font-size: 12px; color: rgba(255,255,255,0.30); letter-spacing: 1px; transition: color 0.3s ease; }
+  .works-title { font-size: clamp(30px, 4.6vw, 56px); font-weight: 500; color: #fff; letter-spacing: -1.5px; line-height: 1.02; margin: 0; transition: color 0.3s ease; }
+  .works-tag { font-family: 'Silkscreen', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.35); white-space: nowrap; transition: color 0.3s ease; }
+  /* hover: spotlight the active row, dim the rest, nudge it right */
+  @media (hover: hover) {
+    .works-list:hover .works-title { color: rgba(255,255,255,0.28); }
+    .works-row:hover { padding-left: 22px; }
+    .works-row:hover .works-title { color: #1488FC; }
+    .works-row:hover .works-num, .works-row:hover .works-tag { color: rgba(255,255,255,0.78); }
   }
-  .int-arrow svg { width: 100%; height: 100%; display: block; }
-  .tmpl-row:hover .int-arrow { opacity: 1; transform: translateX(0); }
+  /* floating cursor-following preview (desktop) */
+  .works-preview {
+    position: absolute; top: 0; left: 0; z-index: 6;
+    width: 360px; height: 232px; pointer-events: none;
+    opacity: 0; transition: opacity 0.4s ease; will-change: transform;
+  }
+  .works.is-active .works-preview { opacity: 1; }
+  .works-preview-inner { position: absolute; inset: 0; border-radius: 8px; overflow: hidden; background: #0a0a10; box-shadow: 0 40px 90px rgba(0,0,0,0.55); }
+  .works-preview-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0%; opacity: 0; transition: opacity 0.35s ease; }
+  .works-preview-img.is-shown { opacity: 1; }
+  .works-preview-scan { position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(0,0,0,0) 0 2px, rgba(0,0,0,0.14) 2px 3px); mix-blend-mode: multiply; }
+  .works-preview-view {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    width: 84px; height: 84px; border-radius: 50%;
+    background: #E9DDC5; color: #111;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Silkscreen', monospace; font-size: 10px; letter-spacing: 1.5px;
+  }
+  @media (prefers-reduced-motion: reduce) { .works-preview { display: none; } }
 
   /* ─── SECTION 6: TRUST BAND ───────────────────────────────────────────── */
   .trust-section { width: 100%; background: #060606; position: relative; overflow: hidden; }
@@ -399,10 +416,10 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     .plat-vcard { padding: 22px; min-height: 0; }
     .unlocks-visual { padding: 32px 18px; }
     .unlocks-grid { grid-template-columns: 1fr; }
-    .tmpl-row { grid-template-columns: 36px 1fr 22px; gap: 14px; padding: 22px 4px; }
-    .tmpl-main { grid-template-columns: 1fr; gap: 4px; }
-    .tmpl-title { font-size: 18px; }
-    .tmpl-desc { font-size: 14px; }
+    .works-row { grid-template-columns: 32px 1fr auto; gap: 14px; padding: 20px 4px; }
+    .works-title { font-size: clamp(24px, 8vw, 34px); letter-spacing: -0.8px; }
+    .works-tag { font-size: 10px; }
+    .works-preview { display: none; }
     .int-grid { grid-template-columns: repeat(2, 1fr); }
     .trust-grid { gap: 32px; }
     .footer-section { padding: 48px 0 0; justify-content: flex-start; }
@@ -644,39 +661,37 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
       </div>
       <p class="section-sub">Bolt-built templates give you a working foundation, styled and wired up, so you&rsquo;re customizing instead of starting from nothing.</p>
     </div>
-    <div class="tmpl-list">
-      <a class="tmpl-row" href="https://bolt.new/resources/templates" target="_blank" rel="noopener">
-        <span class="tmpl-num">01</span>
-        <div class="tmpl-main">
-          <p class="tmpl-title">SaaS dashboard</p>
-          <p class="tmpl-desc">Auth, billing, and analytics wired up</p>
+    <div class="works" id="works">
+      <div class="works-list">
+        <a class="works-row" href="https://bolt.new/resources/templates/commerce-admin" target="_blank" rel="noopener" data-thumb="../images/templates/saas-dashboard.webp">
+          <span class="works-num">01</span>
+          <h3 class="works-title">SaaS dashboard</h3>
+          <span class="works-tag">Dashboard</span>
+        </a>
+        <a class="works-row" href="https://bolt.new/resources/templates/skincare-brand" target="_blank" rel="noopener" data-thumb="../images/templates/ecommerce-storefront.webp">
+          <span class="works-num">02</span>
+          <h3 class="works-title">Ecommerce storefront</h3>
+          <span class="works-tag">Ecommerce</span>
+        </a>
+        <a class="works-row" href="https://bolt.new/resources/templates/nonprofit-site" target="_blank" rel="noopener" data-thumb="../images/templates/nonprofit-website.webp">
+          <span class="works-num">03</span>
+          <h3 class="works-title">Nonprofit Website</h3>
+          <span class="works-tag">Website</span>
+        </a>
+        <a class="works-row" href="https://bolt.new/resources/templates/revenue-dashboard" target="_blank" rel="noopener" data-thumb="../images/templates/revenue-dashboard.webp">
+          <span class="works-num">04</span>
+          <h3 class="works-title">Revenue dashboard</h3>
+          <span class="works-tag">Analytics</span>
+        </a>
+      </div>
+      <!-- Floating cursor-following preview (desktop only; JS positions it) -->
+      <div class="works-preview" aria-hidden="true">
+        <div class="works-preview-inner">
+          <img class="works-preview-img" alt="" decoding="async">
+          <div class="works-preview-scan"></div>
+          <span class="works-preview-view">VIEW</span>
         </div>
-        <span class="int-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
-      </a>
-      <a class="tmpl-row" href="https://bolt.new/resources/templates" target="_blank" rel="noopener">
-        <span class="tmpl-num">02</span>
-        <div class="tmpl-main">
-          <p class="tmpl-title">Ecommerce storefront</p>
-          <p class="tmpl-desc">Product catalog and checkout included</p>
-        </div>
-        <span class="int-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
-      </a>
-      <a class="tmpl-row" href="https://bolt.new/resources/templates" target="_blank" rel="noopener">
-        <span class="tmpl-num">03</span>
-        <div class="tmpl-main">
-          <p class="tmpl-title">Nonprofit Website</p>
-          <p class="tmpl-desc">Donation page, donate page, campaign cards</p>
-        </div>
-        <span class="int-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
-      </a>
-      <a class="tmpl-row" href="https://bolt.new/resources/templates" target="_blank" rel="noopener">
-        <span class="tmpl-num">04</span>
-        <div class="tmpl-main">
-          <p class="tmpl-title">Revenue dashboard</p>
-          <p class="tmpl-desc">Charts, KPI tiles, Live signup feed</p>
-        </div>
-        <span class="int-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
-      </a>
+      </div>
     </div>
     <div class="section-cta">
       <a class="arrow-link" href="https://bolt.new/resources/templates" target="_blank" rel="noopener">Browse all templates <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
@@ -1047,6 +1062,61 @@ window.addEventListener('load', function() {
       el.style.setProperty('--my', (e.clientY - r.top) + 'px');
     });
   });
+})();
+
+// ── Templates — cursor-following screenshot preview (desktop) ────────────────
+(function () {
+  var works = document.getElementById('works');
+  if (!works) return;
+  if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;  // desktop pointers only
+  var list = works.querySelector('.works-list');
+  var preview = works.querySelector('.works-preview');
+  var img = preview.querySelector('.works-preview-img');
+  var rows = Array.prototype.slice.call(works.querySelectorAll('.works-row'));
+  var W = 360, H = 232, PAD = 16, OFFSET = 300;   // sit to the right of the pointer
+  var tx = 0, ty = 0, cx = 0, cy = 0, active = false, raf = null, primed = false;
+
+  rows.forEach(function (row) {
+    row.addEventListener('mouseenter', function () {
+      var src = row.getAttribute('data-thumb');
+      if (img.getAttribute('src') !== src) {
+        img.classList.remove('is-shown');
+        img.onload = function () { img.classList.add('is-shown'); };
+        img.src = src;
+      } else {
+        img.classList.add('is-shown');
+      }
+      works.classList.add('is-active');
+      active = true;
+    });
+  });
+
+  list.addEventListener('mousemove', function (e) {
+    var r = works.getBoundingClientRect();
+    var maxX = r.width - W / 2 - PAD, minX = W / 2 + PAD;
+    var maxY = r.height - H / 2 - PAD, minY = H / 2 + PAD;
+    tx = Math.max(minX, Math.min(maxX, (e.clientX - r.left) + OFFSET));
+    ty = Math.max(minY, Math.min(maxY, (e.clientY - r.top)));
+    if (!primed) { cx = tx; cy = ty; primed = true; }   // no fly-in from origin on first enter
+    if (!raf) raf = requestAnimationFrame(loop);
+  });
+
+  list.addEventListener('mouseleave', function () {
+    works.classList.remove('is-active');
+    active = false;
+  });
+
+  function loop() {
+    cx += (tx - cx) * 0.14;
+    cy += (ty - cy) * 0.14;
+    var rot = Math.max(-9, Math.min(9, (tx - cx) * 0.06));
+    preview.style.transform = 'translate3d(' + (cx - W / 2) + 'px,' + (cy - H / 2) + 'px,0) rotate(' + rot.toFixed(2) + 'deg)';
+    if (active || Math.abs(tx - cx) > 0.4 || Math.abs(ty - cy) > 0.4) {
+      raf = requestAnimationFrame(loop);
+    } else {
+      raf = null;
+    }
+  }
 })();
 
 </script>
