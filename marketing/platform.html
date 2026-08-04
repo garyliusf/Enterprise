@@ -65,21 +65,26 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   }
   #hero-pixel-dots { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
   .hero-content-area { display: flex; align-items: center; justify-content: center; position: relative; z-index: 3; width: 100%; }
+  /* Two-column hero — text left, image right (referral-page layout) */
   .hero-inner {
-    display: flex; flex-direction: column; align-items: center; gap: 24px;
-    width: min(1120px, calc(100vw - 160px)); margin: 0 auto; text-align: center;
+    width: min(1120px, calc(100vw - 160px)); margin: 0 auto;
+    display: grid; grid-template-columns: 60% 40%; align-items: center;
   }
+  .hero-text { display: flex; flex-direction: column; align-items: flex-start; gap: 20px; text-align: left; }
   .hero-h1 {
-    font-size: 66px; font-weight: 500; color: #fff;
-    text-align: center; line-height: 1.1; letter-spacing: normal; max-width: 900px;
+    /* Two-column hero uses a narrower text column — cap H1 at 60px (referral pattern) */
+    font-size: clamp(38px, 4.2vw, 60px); font-weight: 500; color: #fff;
+    line-height: 1.12; letter-spacing: normal; margin: 0; max-width: 560px;
   }
   .hero-subtitle {
-    font-size: clamp(16px, 1.4vw, 20px); font-weight: 400; color: #ABABAB;
-    text-align: center; max-width: 680px; line-height: 1.5;
+    font-size: clamp(16px, 1.4vw, 18px); font-weight: 400; color: #ABABAB;
+    max-width: 480px; line-height: 1.55; margin: 0;
   }
-  /* .hero-inner .hero-btn-group margin-top comes from --sub-to-cta in shared-components.css */
-  .hero-microcopy { font-size: 13px; color: rgba(255,255,255,0.4); margin-top: -8px; }
-  .hero-prompt-wrap { width: min(600px, 100%); margin-top: 12px; text-align: left; }
+  /* hero-text gap is 20px — top up to the --sub-to-cta token (32/24) */
+  .hero-text > .hero-btn-group { margin-top: calc(var(--sub-to-cta, 32px) - 20px); }
+  .hero-microcopy { font-size: 13px; color: rgba(255,255,255,0.4); margin: -8px 0 0; }
+  .hero-visual { display: flex; align-items: center; justify-content: flex-end; }
+  .hero-visual img { width: 100%; max-width: 480px; height: auto; display: block; }
 
   /* ─── BOLT PROMPT BOX (verbatim templates-page component) ─────────────── */
   .re-prompt-shell {
@@ -108,27 +113,6 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   }
   .re-prompt-submit svg { width: 16px; height: 16px; flex: 0 0 auto; }
   .re-prompt-submit:hover { filter: brightness(0.94); transform: translateY(-1px); }
-
-  /* Comet outline (verbatim templates-page hero-prompt shell) */
-  .re-prompt-shell.hero-prompt-shell {
-    position: relative; border: 0; padding: 1px; border-radius: 16px;
-    background: rgba(255,255,255,0.09); overflow: visible;
-    clip-path: inset(0 round 16px);
-    -webkit-clip-path: inset(0 round 16px);
-    isolation: isolate;
-  }
-  .hero-prompt-glow {
-    position: absolute; top: 0; left: 0; pointer-events: none; z-index: 0;
-    offset-anchor: 50% 50%; offset-distance: 0%;
-    offset-path: inset(0.5px round 16px); offset-rotate: 0deg;
-    animation: heroPromptOrbit 3.6s linear infinite; will-change: offset-distance;
-  }
-  .hero-prompt-glow--brand  { width: 360px; height: 360px; background: radial-gradient(circle, #1488fc 0%, transparent 42%); }
-  .hero-prompt-glow--accent { width: 120px; height: 120px; background: radial-gradient(circle, #8fc1ff 0%, transparent 48%); mix-blend-mode: overlay; }
-  .hero-prompt-inner { position: relative; z-index: 1; border-radius: 15px; background: #1c1c20; overflow: hidden; }
-  .hero-prompt-shell .re-prompt-input { background: transparent; }
-  @keyframes heroPromptOrbit { from { offset-distance: 0%; } to { offset-distance: 100%; } }
-  @media (prefers-reduced-motion: reduce) { .hero-prompt-glow { animation: none; } }
 
   /* ─── SECTION 2: LOGO STRIP ───────────────────────────────────────────── */
   .logos-section { width: 100%; background: #000; padding: clamp(48px, 7vh, 80px) 0; }
@@ -331,7 +315,6 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
 
   /* ─── RESPONSIVE ──────────────────────────────────────────────────────── */
   @media (max-width: 1024px) {
-    .hero-h1 { font-size: 51px; }
     .hero-inner, .section-inner, .feat-header, .feat-inner { width: min(900px, calc(100vw - 80px)); }
     .eyebrow-pill, .feat-eyebrow { font-size: 13px; }
     .feat-inner { grid-template-columns: 300px 1fr; }
@@ -347,9 +330,11 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   }
   @media (max-width: 768px) {
     .hero-section { min-height: 0; padding: 100px 0 56px; }
-    .hero-inner { width: 100%; padding: 0 16px; gap: 20px; }
-    .hero-h1 { font-size: clamp(37px, 10.45vw, 51px); }
+    .hero-inner { width: 100%; padding: 0 16px; grid-template-columns: 1fr; gap: 32px; }
+    .hero-h1 { font-size: clamp(37px, 10.45vw, 51px); line-height: 1.1; }
     .hero-subtitle { font-size: 16px; max-width: 100%; }
+    .hero-visual { justify-content: center; }
+    .hero-visual img { max-width: 100%; }
     .section { padding: 48px 0; }
     .section-inner { width: calc(100vw - 32px); }
     .section-header { margin-bottom: 32px; }
@@ -396,30 +381,19 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   <canvas id="hero-pixel-dots"></canvas>
   <div class="hero-content-area">
     <div class="hero-inner">
-      <h1 class="hero-h1">One platform. Every step from prompt to production.</h1>
-      <p class="hero-subtitle">Bolt turns natural language into working products, secures it, and deploys it. No separate tools. No handoffs.</p>
-      <div class="hero-btn-group">
-        <a href="https://bolt.new" target="_blank" rel="noopener" class="hero-btn-primary">
-          <div class="btn-bg-hover"></div>
-          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Start building for free</span><span>Start building for free</span></div></div>
-        </a>
-      </div>
-      <p class="hero-microcopy">No credit card required. Deploy your first app in minutes.</p>
-      <div class="hero-prompt-wrap">
-        <div class="re-prompt-shell hero-prompt-shell">
-          <div class="hero-prompt-glow hero-prompt-glow--brand" aria-hidden="true"></div>
-          <div class="hero-prompt-glow hero-prompt-glow--accent" aria-hidden="true"></div>
-          <div class="hero-prompt-inner">
-            <label class="sr-only" for="hero-prompt-input">Describe what you want to build</label>
-            <textarea id="hero-prompt-input" class="re-prompt-input" rows="2" placeholder="Build a&hellip;"></textarea>
-            <div class="re-prompt-actions">
-              <a href="https://bolt.new/" class="re-prompt-submit" id="hero-prompt-submit">
-                <span>Build now</span>
-                <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="m4.497 20.835 16.51-7.363c1.324-.59 1.324-2.354 0-2.944L4.497 3.164c-1.495-.667-3.047.814-2.306 2.202l3.152 5.904c.245.459.245 1 0 1.458l-3.152 5.904c-.74 1.388.81 2.87 2.306 2.202Z"></path></svg>
-              </a>
-            </div>
-          </div>
+      <div class="hero-text">
+        <h1 class="hero-h1">One platform. Every step from prompt to production.</h1>
+        <p class="hero-subtitle">Bolt turns natural language into working products, secures it, and deploys it. No separate tools. No handoffs.</p>
+        <div class="hero-btn-group">
+          <a href="https://bolt.new" target="_blank" rel="noopener" class="hero-btn-primary">
+            <div class="btn-bg-hover"></div>
+            <div class="btn-text-wrap"><div class="btn-text-inner"><span>Start building for free</span><span>Start building for free</span></div></div>
+          </a>
         </div>
+        <p class="hero-microcopy">No credit card required. Deploy your first app in minutes.</p>
+      </div>
+      <div class="hero-visual">
+        <!-- Hero image slot — drop in: <img src="…" alt="…"> -->
       </div>
     </div>
   </div>
@@ -1232,23 +1206,6 @@ window.addEventListener('load', function() {
   });
 })();
 
-// ── Hero prompt box → carry typed text to bolt.new (templates-page pattern) ──
-(function () {
-  var ta = document.getElementById('hero-prompt-input');
-  var btn = document.getElementById('hero-prompt-submit');
-  if (!ta || !btn) return;
-  function goToBolt(e) {
-    var text = (ta.value || '').trim();
-    var url = 'https://bolt.new/';
-    if (text) url += '?autosubmit=true#prompt=' + encodeURIComponent(text);
-    if (e) e.preventDefault();
-    window.open(url, '_blank', 'noopener');
-  }
-  btn.addEventListener('click', goToBolt);
-  ta.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter' && !e.shiftKey) { goToBolt(e); }
-  });
-})();
 </script>
 
 <!-- Shared standardized components (single source of truth) -->
