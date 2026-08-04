@@ -398,6 +398,35 @@
     });
   }, { threshold: 0.5 });
 
+  /* ── Subtitle block-reveal ───────────────────────────────────────────────
+     Section subtitles get a whole-element fade/blur-up when their heading's
+     reveal container gains .is-revealed. Crucially this does NOT observe
+     scroll itself — it reacts (via MutationObserver) to the class added by
+     whichever implementation owns the container (shared's .dsa-reveal IO, or
+     a page-local .reveal-h implementation). Single-owner rule holds: only
+     this code writes .sc-sub-* classes, and nothing else animates these
+     elements. Subtitles containing child elements are still fine — this is a
+     class toggle, not an innerHTML rewrite. */
+  var SUB_SEL = '.section-sub, .builtin-sub, .detail-sub, .controls-sub, .compliance-sub, .hiw-sub, .agent-desc, .run-callout-sub, .success-sub, .feat-subheadline';
+  function bindSubtitleReveals() {
+    document.querySelectorAll('.dsa-reveal, .reveal-h').forEach(function (c) {
+      if (c.dataset.scSubBound) return;
+      c.dataset.scSubBound = '1';
+      var subs = [].slice.call(c.querySelectorAll(SUB_SEL));
+      var n = c.nextElementSibling;
+      while (n && n.matches && n.matches(SUB_SEL)) { subs.push(n); n = n.nextElementSibling; }
+      if (!subs.length) return;
+      if (c.classList.contains('is-revealed')) return;   // already fired — leave visible
+      subs.forEach(function (s) { s.classList.add('sc-sub-pre'); });
+      var mo = new MutationObserver(function () {
+        if (!c.classList.contains('is-revealed')) return;
+        subs.forEach(function (s) { s.classList.add('sc-sub-in'); });
+        mo.disconnect();
+      });
+      mo.observe(c, { attributes: true, attributeFilter: ['class'] });
+    });
+  }
+
   function bind() {
     /* Snapshot each eyebrow's true text BEFORE any animation can run, so a
        page-local scramble can never cause us to capture garbled text as final. */
@@ -405,6 +434,7 @@
       if (!el.dataset.sf && !el.children.length) el.dataset.sf = el.textContent.trim();
     });
     document.querySelectorAll('.dsa-reveal, .eyebrow-scramble').forEach(function (el) { io.observe(el); });
+    bindSubtitleReveals();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
   else bind();

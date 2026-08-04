@@ -133,6 +133,21 @@
   animation: dsa-word-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   animation-delay: calc(var(--i, 0) * 28ms);
 }
+/* Subtitle block-reveal: whole-element fade/blur-up that follows the H2's
+   word reveal (0.22s delay ≈ the heading's word cascade). Classes are JS-set
+   (shared-components.js bindSubtitleReveals) so no-JS pages stay visible. */
+.sc-sub-pre { opacity: 0; transform: translateY(12px); filter: blur(6px); }
+.sc-sub-pre.sc-sub-in {
+  opacity: 1; transform: translateY(0); filter: blur(0);
+  transition:
+    opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.22s,
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.22s,
+    filter 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.22s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sc-sub-pre { opacity: 1; transform: none; filter: none; transition: none; }
+}
+
 @keyframes dsa-word-reveal {
   from { opacity: 0; transform: translate(-10px, -7px); filter: blur(5px); }
   to   { opacity: 1; transform: translate(0, 0);        filter: blur(0);   }
