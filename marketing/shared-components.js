@@ -329,6 +329,13 @@
   var scrambleChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&';
 
   function scrambleEl(el) {
+    /* Guard 1: never scramble an element that contains child elements. This
+       animation assigns to textContent, which would delete them — e.g. the
+       Microsoft logo <svg> inside the "Now available in..." badge. */
+    if (el.children.length) return;
+    /* Guard 2: prefer the snapshot taken at bind() time. Reading textContent
+       here is unsafe on pages that ALSO run their own scramble: if theirs is
+       mid-animation we'd capture garbled text and lock it in as "final". */
     var final = el.dataset.sf || el.textContent.trim();
     el.dataset.sf = final;
     var chars = final.split('');
@@ -350,6 +357,13 @@
   }
 
   function wrapWords(el) {
+    /* Guard 3: bail if the words are already wrapped. Several pages
+       (microsoft, bolt-cli, platform, pricing) ship their own word-reveal that
+       wraps via DOM nodes without setting data-wrapped. Running this after
+       theirs would regex over the markup THEY produced — `<span`, `class="word"`
+       and `style="--i:0;">What` each get wrapped again — and the attribute text
+       renders as visible copy in the heading. */
+    if (el.querySelector('.word')) return;
     var i = 0;
     el.innerHTML = el.innerHTML.replace(/\S+/g, function (w) {
       return '<span class="word" style="--i:' + (i++) + '">' + w + '</span>';
@@ -377,6 +391,11 @@
   }, { threshold: 0.5 });
 
   function bind() {
+    /* Snapshot each eyebrow's true text BEFORE any animation can run, so a
+       page-local scramble can never cause us to capture garbled text as final. */
+    document.querySelectorAll('.eyebrow-scramble').forEach(function (el) {
+      if (!el.dataset.sf && !el.children.length) el.dataset.sf = el.textContent.trim();
+    });
     document.querySelectorAll('.dsa-reveal, .eyebrow-scramble').forEach(function (el) { io.observe(el); });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
