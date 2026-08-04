@@ -249,11 +249,15 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     display: flex; flex-direction: column; gap: 10px; min-height: 180px;
     position: relative; overflow: hidden;
   }
-  .unlock-hover-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity 0.45s ease; z-index: 0; }
-  .unlock-card:hover .unlock-hover-canvas { opacity: 1; }
-  .unlock-card { transition: border-color 0.35s ease; }
+  /* Flashlight — soft radial glow that follows the cursor (JS sets --mx/--my) */
+  .unlock-card::before {
+    content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), rgba(150,185,255,0.14), rgba(150,185,255,0) 60%);
+    opacity: 0; transition: opacity 0.35s ease;
+  }
+  .unlock-card:hover::before { opacity: 1; }
   .unlock-card:not(.unlock-card--cta):hover { box-shadow: inset 0 0 0 1px rgba(20,136,252,0.35); }
-  .unlock-card > *:not(.unlock-hover-canvas) { position: relative; z-index: 1; }
+  .unlock-card > * { position: relative; z-index: 1; }
   .unlock-icon {
     width: 44px; height: 44px; border-radius: 4px; margin-bottom: 6px;
     background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
@@ -584,39 +588,36 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
 <section class="section usecase-section">
   <div class="section-inner">
     <div class="unlocks-visual">
-      <div class="reveal-h unlocks-header">
+      <div class="unlocks-header">
         <p class="section-eyebrow eyebrow-scramble">Use cases</p>
-        <h2 class="section-headline">Everything your business needs</h2>
+        <div class="reveal-h">
+          <h2 class="section-headline">Everything your business needs</h2>
+        </div>
         <p class="section-sub">From a quick internal tool to a full software product, Bolt fits the job.</p>
       </div>
       <div class="unlocks-grid">
 
-        <div class="unlock-card"><canvas class="unlock-hover-canvas" aria-hidden="true"></canvas>
-          <div class="unlock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
+        <div class="unlock-card"><div class="unlock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
           <h3 class="unlock-title">Tools</h3>
           <p class="unlock-desc">Internal tools and dashboards, built without a dev sprint</p>
         </div>
 
-        <div class="unlock-card"><canvas class="unlock-hover-canvas" aria-hidden="true"></canvas>
-          <div class="unlock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M10 4v4"/><path d="M2 8h20"/><path d="M6 4v4"/></svg></div>
+        <div class="unlock-card"><div class="unlock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M10 4v4"/><path d="M2 8h20"/><path d="M6 4v4"/></svg></div>
           <h3 class="unlock-title">Apps</h3>
           <p class="unlock-desc">Full applications with a database, auth, and logic</p>
         </div>
 
-        <div class="unlock-card"><canvas class="unlock-hover-canvas" aria-hidden="true"></canvas>
-          <div class="unlock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg></div>
+        <div class="unlock-card"><div class="unlock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg></div>
           <h3 class="unlock-title">Websites</h3>
           <p class="unlock-desc">Marketing sites and landing pages that launch fast</p>
         </div>
 
-        <div class="unlock-card"><canvas class="unlock-hover-canvas" aria-hidden="true"></canvas>
-          <div class="unlock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg></div>
+        <div class="unlock-card"><div class="unlock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg></div>
           <h3 class="unlock-title">Prototyping</h3>
           <p class="unlock-desc">Working prototypes to test an idea before you commit</p>
         </div>
 
-        <div class="unlock-card"><canvas class="unlock-hover-canvas" aria-hidden="true"></canvas>
-          <div class="unlock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m7 11 2-2-2-2"/><path d="M11 13h4"/></svg></div>
+        <div class="unlock-card"><div class="unlock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m7 11 2-2-2-2"/><path d="M11 13h4"/></svg></div>
           <h3 class="unlock-title">Software</h3>
           <p class="unlock-desc">Production-ready software, from prompt to deploy</p>
         </div>
@@ -1038,48 +1039,14 @@ window.addEventListener('load', function() {
   containers.forEach(function (c) { io.observe(c); });
 })();
 
-// ── Card hover pixel field (verbatim security-agent, on builtin-cards) ───────
+// ── Card hover "flashlight" — radial glow follows the cursor ─────────────────
 (function () {
-  function attachHoverField(tile, canvas, idx) {
-    var ctx = canvas.getContext('2d');
-    var SPACING = 9, DOT = 2, cols = 0, rows = 0, phases = [], hovered = false, t = 0;
-    var phase = idx * 1.7;
-    function resize() {
-      var w = tile.offsetWidth, h = tile.offsetHeight; if (!w || !h) return;
-      canvas.width = w; canvas.height = h;
-      cols = Math.ceil(w / SPACING) + 1; rows = Math.ceil(h / SPACING) + 1;
-      phases = Array.from({ length: rows }, function() { return Array.from({ length: cols }, function() { return Math.random() * Math.PI * 2; }); });
-    }
-    try { new ResizeObserver(resize).observe(tile); } catch(e) {}
-    requestAnimationFrame(resize);
-    tile.addEventListener('mouseenter', function() { hovered = true; });
-    tile.addEventListener('mouseleave', function() { hovered = false; });
-    function draw() {
-      if (!hovered || !cols) { requestAnimationFrame(draw); return; }
-      t += 0.03;
-      var W = canvas.width, H = canvas.height;
-      ctx.clearRect(0, 0, W, H);
-      var angle = t * 0.16 + phase;
-      var ca = Math.cos(angle), sa = Math.sin(angle);
-      for (var r = 0; r < rows; r++) {
-        for (var c = 0; c < cols; c++) {
-          var px = c * SPACING, py = r * SPACING;
-          var ph = (phases[r] && phases[r][c]) || 0;
-          var u = (px * ca + py * sa) / 58;
-          var wave = Math.sin(u + t + ph) * Math.cos((px * -sa + py * ca) / 90 + t * 0.6);
-          var hFade = px / W;
-          var op = Math.max(0, wave) * 0.55 * hFade;
-          if (op < 0.04) continue;
-          ctx.fillStyle = 'rgba(60,140,235,' + op.toFixed(3) + ')';
-          ctx.fillRect(px, py, DOT, DOT);
-        }
-      }
-      requestAnimationFrame(draw);
-    }
-    requestAnimationFrame(draw);
-  }
-  document.querySelectorAll('.unlock-card').forEach(function(el, i) {
-    var cv = el.querySelector('.unlock-hover-canvas'); if (cv) attachHoverField(el, cv, i);
+  document.querySelectorAll('.unlock-card').forEach(function (el) {
+    el.addEventListener('mousemove', function (e) {
+      var r = el.getBoundingClientRect();
+      el.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+      el.style.setProperty('--my', (e.clientY - r.top) + 'px');
+    });
   });
 })();
 
