@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Security agent — Bolt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Silkscreen:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+</style>
+</head>
+<body>
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* Shared eyebrow pill (brand blue, replaces the reference's purple pills) */
+  .eyebrow-pill {
+    display: inline-block; align-self: flex-start;
+    font-family: 'Silkscreen', monospace;
+    font-size: 16px; font-weight: 400; letter-spacing: 2px;
+    color: #1488FC; text-transform: uppercase;
+  }
+
+  /* ─── SECTION 1: HERO ─────────────────────────────────────────────────── */
+  .hero-section {
+    width: 100%;
+    min-height: min(65vh, 684px);
+    min-height: min(65dvh, 684px);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-family: 'Inter', sans-serif;
+    background:
+      radial-gradient(1100px 640px at 50% 0%, rgba(24,96,190,0.40), transparent 62%),
+      radial-gradient(620px 460px at 96% -12%, rgba(198,118,58,0.14), transparent 58%),
+      radial-gradient(760px 640px at 6% 22%, rgba(18,52,124,0.34), transparent 62%),
+      #04060c;
+    padding: clamp(120px, 15vh, 180px) 0 clamp(72px, 9vh, 120px);
+  }
+  .hero-glow { display: none; }
+  /* animated pixel field over the glow */
+  #hero-pixel-dots {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    z-index: 1; pointer-events: none;
+  }
+  .hero-content-area {
+    display: flex; align-items: center; justify-content: center;
+    position: relative; z-index: 3; width: 100%;
+  }
+  .hero-inner {
+    display: flex; flex-direction: column; align-items: center; gap: 24px;
+    width: min(1120px, calc(100vw - 160px)); margin: 0 auto; text-align: center;
+  }
+  .hero-badge {
+    display: inline-block; align-self: center;
+    font-family: 'Silkscreen', monospace; font-size: 16px; letter-spacing: 2px;
+    color: #1488FC; text-transform: uppercase;
+  }
+  .hero-h1 {
+    font-size: 66px; font-weight: 500; color: #fff;
+    text-align: center; line-height: 1.1; letter-spacing: normal; max-width: 820px;
+  }
+  .hero-subtitle {
+    font-size: clamp(16px, 1.4vw, 20px); font-weight: 400; color: #ABABAB;
+    text-align: center; max-width: 680px; line-height: 1.5;
+  }
+
+  /* ─── SECTION 2: BUILT IN (security review, split) ────────────────────── */
+  .builtin-section { width: 100%; background: #000; padding: clamp(80px, 12vh, 140px) 0; position: relative; overflow: hidden; }
+  .builtin-inner {
+    width: min(1120px, calc(100vw - 160px)); margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: start;
+  }
+  .builtin-left { display: flex; flex-direction: column; gap: 22px; position: sticky; top: 120px; }
+  .builtin-h2 { font-size: clamp(32px, 4vw, 52px); font-weight: 500; color: #fff; line-height: 1.15; letter-spacing: -1px; margin: 0; }
+  .builtin-sub { font-size: clamp(15px, 1.1vw, 17px); font-weight: 400; color: rgba(255,255,255,0.5); line-height: 1.65; max-width: 420px; margin: 0; }
+  .builtin-cta { margin-top: 6px; }
+  .builtin-cta .hero-btn-ghost { min-width: 180px; }
+  .builtin-video {
+    position: relative; width: 100%; max-width: 460px;
+    aspect-ratio: 1 / 1; margin-top: 28px;
+    background: #04070d; overflow: hidden;
+  }
+  .builtin-video canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .builtin-video .edge-fade {
+    position: absolute; inset: 0; pointer-events: none; z-index: 2;
+    background: radial-gradient(closest-side at 50% 50%, transparent 46%, #000 96%);
+  }
+  .builtin-video .scanlines {
+    position: absolute; inset: 0; pointer-events: none; z-index: 3; opacity: 0.28;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,0) 0 2px, rgba(0,0,0,0.28) 2px 3px);
+    mix-blend-mode: multiply;
+  }
+  .builtin-cards { display: flex; flex-direction: column; gap: 14px; }
+  .builtin-card {
+    position: relative; overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.10); border-radius: 2px;
+    padding: 22px 24px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%);
+    transition: border-color 0.35s ease;
+  }
+  .builtin-card:hover { border-color: rgba(20,136,252,0.45); }
+  .builtin-hover-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; opacity: 0; transition: opacity 0.45s ease; pointer-events: none; }
+  .builtin-card:hover .builtin-hover-canvas { opacity: 1; }
+  .builtin-card-inner { position: relative; z-index: 1; }
+  .builtin-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+  .builtin-card-icon {
+    width: 44px; height: 44px; border-radius: 4px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.6);
+  }
+  .builtin-card-icon svg { width: 20px; height: 20px; }
+  .builtin-card-num { font-family: 'Silkscreen', monospace; font-size: 13px; color: rgba(255,255,255,0.22); letter-spacing: 1px; transition: color 0.35s ease; }
+  .builtin-card:hover .builtin-card-num { color: #1488FC; }
+  .builtin-card-head { display: flex; align-items: center; gap: 9px; margin-bottom: 9px; }
+  .builtin-card-title { font-size: 18px; font-weight: 600; color: #fff; letter-spacing: -0.2px; margin: 0; }
+  .builtin-card-desc { font-size: 15px; font-weight: 400; color: rgba(255,255,255,0.55); line-height: 1.6; margin: 0; }
+
+  /* ─── SECTION 3: DIG DEEPER (controls, documented) ────────────────────── */
+  .controls-section { width: 100%; background: #060606; padding: clamp(64px, 10vh, 120px) 0; }
+  /* "What's included"-style panel: graph paper + staggered cards + illustration */
+  .incl-panel {
+    position: relative; overflow: hidden;
+    width: min(1120px, calc(100vw - 160px)); margin: 0 auto;
+    border: 1px solid rgba(255,255,255,0.12); border-radius: 6px;
+    padding: clamp(36px, 4.5vw, 56px);
+    background: radial-gradient(600px 320px at 22% 82%, rgba(14,28,40,0.55), transparent 60%), linear-gradient(#050608, #000);
+  }
+  .incl-panel::after {
+    content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 48px 48px, 48px 48px;
+  }
+  .incl-discovery {
+    position: absolute; left: -46px; bottom: -48px; width: min(480px, 46%);
+    z-index: 0; opacity: 0.7; pointer-events: none;
+    -webkit-mask-image: radial-gradient(ellipse at 34% 78%, #000 30%, transparent 70%);
+            mask-image: radial-gradient(ellipse at 34% 78%, #000 30%, transparent 70%);
+  }
+  .incl-discovery img { width: 100%; height: auto; display: block; }
+  .incl-discovery-noise { position: absolute; inset: 0; width: 100%; height: 100%; mix-blend-mode: overlay; opacity: 0.3; pointer-events: none; }
+  .controls-head { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 16px; margin-bottom: 44px; }
+  .controls-h2 { font-size: clamp(30px, 3.6vw, 46px); font-weight: 500; color: #fff; line-height: 1.15; letter-spacing: -1px; margin: 0; }
+  .controls-sub { font-size: clamp(15px, 1.1vw, 17px); color: rgba(255,255,255,0.5); line-height: 1.6; max-width: 560px; margin: 0; }
+  .incl-grid {
+    position: relative; z-index: 1; list-style: none; margin: 0; padding: 0;
+    display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: minmax(104px, auto); gap: 16px;
+  }
+  .incl-item {
+    position: relative; overflow: hidden;
+    display: flex; flex-direction: row; align-items: center; gap: 14px; padding: 20px;
+    border: 1px solid rgba(255,255,255,0.10); border-radius: 4px;
+    background: linear-gradient(rgba(255,255,255,0.03), rgba(255,255,255,0.004));
+    text-decoration: none; transition: border-color 0.3s ease, background 0.3s ease;
+  }
+  .incl-item:hover { border-color: rgba(255,255,255,0.22); }
+  /* staggered placement: row1 all 4, row2 cols 2-4, row3 col4 */
+  .incl-item:nth-child(1) { grid-area: 1 / 1; }
+  .incl-item:nth-child(2) { grid-area: 1 / 2; }
+  .incl-item:nth-child(3) { grid-area: 1 / 3; }
+  .incl-item:nth-child(4) { grid-area: 1 / 4; }
+  .incl-item:nth-child(5) { grid-area: 2 / 2; }
+  .incl-item:nth-child(6) { grid-area: 2 / 3; }
+  .incl-item:nth-child(7) { grid-area: 2 / 4; }
+  .incl-item:nth-child(8) { grid-area: 3 / 4; }
+  /* cursor-following "shine a light" glow on hover */
+  .incl-item::before {
+    content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background: radial-gradient(220px circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,0.13), rgba(255,255,255,0) 62%);
+    opacity: 0; transition: opacity 0.35s ease;
+  }
+  .incl-item:hover::before { opacity: 1; }
+  .incl-icon {
+    position: relative; z-index: 1; flex-shrink: 0;
+    width: 40px; height: 40px; border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.85);
+  }
+  .incl-icon svg { width: 18px; height: 18px; }
+  .incl-label { position: relative; z-index: 1; font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.82); line-height: 1.4; }
+  /* CTA card (lone bottom-right tile) */
+  .incl-item--cta { background: rgba(20,136,252,0.06); border-color: rgba(20,136,252,0.22); transition: border-color 0.3s ease, background 0.3s ease, transform 0.35s cubic-bezier(0.22,1,0.36,1), box-shadow 0.35s ease; }
+  .incl-item--cta:hover { background: rgba(20,136,252,0.12); border-color: rgba(20,136,252,0.4); transform: translateY(-4px); box-shadow: 0 12px 28px rgba(0,0,0,0.35); }
+  .incl-item--cta .incl-icon { color: #1488FC; }
+  .incl-item--cta .incl-label { color: #fff; }
+  .incl-item--cta .incl-cta-arrow { display: block; font-family: 'Silkscreen', monospace; font-size: 10px; letter-spacing: 1px; color: #1488FC; margin-top: 3px; }
+
+  /* ─── SECTION: SECURITY IN DETAIL (2x2 grid of builtin-style cards) ───── */
+  .detail-section { width: 100%; background: #000; padding: clamp(80px, 12vh, 140px) 0; position: relative; }
+  .detail-inner { width: min(1120px, calc(100vw - 160px)); margin: 0 auto; display: flex; flex-direction: column; gap: 48px; }
+  .detail-head { display: flex; flex-direction: column; gap: 18px; max-width: 720px; }
+  .detail-h2 { font-size: clamp(32px, 4vw, 52px); font-weight: 500; color: #fff; line-height: 1.15; letter-spacing: -1px; margin: 0; }
+  .detail-sub { font-size: clamp(15px, 1.1vw, 17px); color: rgba(255,255,255,0.5); line-height: 1.65; margin: 0; }
+  .detail-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .detail-cards--3 { grid-template-columns: repeat(3, 1fr); }
+
+  /* Run it right now callout */
+  .run-callout {
+    position: relative; overflow: hidden;
+    margin-top: clamp(24px, 3vw, 40px);
+    border: none; border-radius: 6px;
+    background: #000;
+    padding: clamp(56px, 7vw, 88px) clamp(32px, 4vw, 56px);
+    display: flex; flex-direction: column; align-items: center; text-align: center; gap: 18px;
+  }
+  /* background image on its own layer so it can transform + fade in on scroll */
+  .run-callout::before {
+    content: ""; position: absolute; inset: 0;
+    background: url('run-callout-bg.jpg') center / cover no-repeat;
+    transform: scale(1.08);
+    filter: blur(14px) saturate(0.85);
+    opacity: 0;
+    transition:
+      opacity 2.2s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 3.0s cubic-bezier(0.22, 1, 0.36, 1),
+      filter 2.4s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform, filter;
+    pointer-events: none; z-index: 0;
+  }
+  .run-callout.is-in::before {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0) saturate(1);
+    animation: runBgDrift 32s ease-in-out 3.2s infinite alternate;
+  }
+  @keyframes runBgDrift {
+    from { transform: scale(1) translate3d(0, 0, 0); }
+    to   { transform: scale(1.04) translate3d(-1.2%, -0.6%, 0); }
+  }
+  /* subtle wash — light top, damp the bright horizon band, no bottom-to-black fade */
+  .run-callout::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(0,0,0,0.18) 0%,
+      rgba(0,0,0,0.28) 38%,
+      rgba(0,0,0,0.32) 55%,
+      rgba(0,0,0,0.20) 100%
+    );
+    opacity: 0.55;
+    transition: opacity 2.2s cubic-bezier(0.22, 1, 0.36, 1) 0.4s;
+    pointer-events: none; z-index: 0;
+  }
+  .run-callout.is-in::after { opacity: 1; }
+  @media (prefers-reduced-motion: reduce) {
+    .run-callout::before { transform: none; filter: none; opacity: 1; transition: none; animation: none; }
+    .run-callout::after { opacity: 1; transition: none; }
+  }
+  .run-callout > * { position: relative; z-index: 1; }
+  .run-callout-h2 { font-size: clamp(32px, 4vw, 52px); font-weight: 500; color: #fff; letter-spacing: -1px; line-height: 1.15; margin: 0; }
+  .run-callout-sub { font-size: clamp(15px, 1.1vw, 17px); color: rgba(255,255,255,0.6); line-height: 1.6; max-width: 520px; margin: 0; }
+  .run-callout-btns { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 22px; }
+  .run-callout-btns .hero-btn-primary, .run-callout-btns .hero-btn-ghost { min-width: 200px; }
+
+  /* ─── SECTION: ON-DEMAND SECURITY ENGINEER (headline + centered video) ── */
+  .agent-section { width: 100%; background: #000; padding: clamp(72px, 10vh, 120px) 0 0; }
+  .agent-inner { width: min(1120px, calc(100vw - 160px)); margin: 0 auto; display: flex; flex-direction: column; gap: clamp(40px, 5vw, 64px); }
+  .agent-copy { display: flex; flex-direction: column; gap: 18px; align-items: center; text-align: center; margin: 0 auto; }
+  .agent-h2 { font-size: clamp(32px, 4vw, 52px); font-weight: 500; color: #fff; letter-spacing: -1px; line-height: 1.15; margin: 0; max-width: none; }
+  .agent-desc { font-size: clamp(16px, 1.15vw, 18px); color: rgba(255,255,255,0.6); line-height: 1.6; margin: 0; max-width: 540px; }
+  .agent-highlight { color: #fff; font-weight: 500; }
+  .agent-visual {
+    position: relative; width: 100%; aspect-ratio: 16 / 9;
+    background: #000;
+  }
+  .agent-visual video { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  /* ─── SECTION: HOW IT WORKS (timeline with nodes) ───────────────────────── */
+  .hiw-section { width: 100%; background: #000; padding: clamp(72px, 10vh, 120px) 0 clamp(48px, 6vh, 80px); }
+  .hiw-inner { width: min(1120px, calc(100vw - 160px)); margin: 0 auto; display: flex; flex-direction: column; gap: clamp(40px, 6vh, 72px); }
+  .hiw-head { display: flex; flex-direction: column; gap: 16px; align-items: flex-start; text-align: left; }
+  .hiw-h2 { font-size: clamp(32px, 4vw, 52px); font-weight: 500; color: #fff; letter-spacing: -1px; line-height: 1.15; margin: 0; }
+  .hiw-sub { font-size: clamp(15px, 1.1vw, 17px); color: rgba(255,255,255,0.5); line-height: 1.65; margin: 0; max-width: 640px; }
+
+  .how-steps-wrap { position: relative; }
+  .how-line-track { position: absolute; top: 19px; left: 0; right: 0; height: 1px; background: rgba(255,255,255,0.07); pointer-events: none; z-index: 0; }
+  .how-line-fill { position: absolute; top: 19px; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, rgba(20,136,252,0.25), rgba(20,136,252,0.8) 20%, rgba(20,136,252,0.8) 80%, rgba(20,136,252,0.25)); pointer-events: none; z-index: 1; transform: scaleX(0); transform-origin: left center; }
+  .how-line-glow { position: absolute; top: 16px; left: 0; height: 7px; width: 80px; background: radial-gradient(ellipse at center, rgba(120,200,255,0.9) 0%, transparent 70%); border-radius: 4px; pointer-events: none; z-index: 2; opacity: 0; }
+  .how-steps-wrap.line-active .how-line-fill { animation: howLineDraw 1.4s cubic-bezier(0.4,0,0.2,1) 0.1s both; }
+  .how-steps-wrap.line-active .how-line-glow { animation: howGlowTravel 1.4s cubic-bezier(0.4,0,0.2,1) 0.1s both; }
+  @keyframes howLineDraw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  @keyframes howGlowTravel { 0% { opacity:0; transform:translateX(0); } 8% { opacity:1; } 88% { opacity:1; } 100% { opacity:0; transform:translateX(var(--glow-dist,700px)); } }
+  .how-steps { display: grid; grid-template-columns: repeat(3,1fr); gap: 0; position: relative; }
+  .how-step { display: flex; flex-direction: column; padding: 0 28px 0 0; }
+  .how-step:last-child { padding-right: 0; }
+  .how-step-node { width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(20,136,252,0.5); background: #000; display: flex; align-items: center; justify-content: center; margin-bottom: 28px; position: relative; z-index: 1; flex-shrink: 0; transform: scale(0); }
+  .how-steps-wrap.line-active .how-step:nth-child(1) .how-step-node { animation: nodePop 0.45s cubic-bezier(0.34,1.56,0.64,1) 0.15s both; }
+  .how-steps-wrap.line-active .how-step:nth-child(2) .how-step-node { animation: nodePop 0.45s cubic-bezier(0.34,1.56,0.64,1) 0.65s both; }
+  .how-steps-wrap.line-active .how-step:nth-child(3) .how-step-node { animation: nodePop 0.45s cubic-bezier(0.34,1.56,0.64,1) 1.15s both; }
+  @keyframes nodePop { from { transform: scale(0); } to { transform: scale(1); } }
+  .how-step-number { font-family: 'Silkscreen', monospace; font-size: 10px; color: #1488FC; }
+  .how-step-title { font-size: 18px; font-weight: 600; color: #fff; margin: 0 0 10px; letter-spacing: -0.2px; line-height: 1.35; opacity: 0; transform: translateY(14px); filter: blur(10px); }
+  .how-step-desc { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.55; margin: 0; opacity: 0; transform: translateY(14px); filter: blur(10px); }
+  @keyframes howStepIn { from { opacity:0; transform:translateY(14px); filter:blur(10px); } to { opacity:1; transform:translateY(0); filter:blur(0); } }
+  .how-steps-wrap.line-active .how-step:nth-child(1) .how-step-title { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 0.28s both; }
+  .how-steps-wrap.line-active .how-step:nth-child(1) .how-step-desc  { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 0.40s both; }
+  .how-steps-wrap.line-active .how-step:nth-child(2) .how-step-title { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 0.78s both; }
+  .how-steps-wrap.line-active .how-step:nth-child(2) .how-step-desc  { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 0.90s both; }
+  .how-steps-wrap.line-active .how-step:nth-child(3) .how-step-title { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 1.28s both; }
+  .how-steps-wrap.line-active .how-step:nth-child(3) .how-step-desc  { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 1.40s both; }
+
+  /* ─── SECTION 4: COMPLIANCE ───────────────────────────────────────────── */
+  .compliance-section { width: 100%; background: #000; padding: clamp(80px, 12vh, 140px) 0; position: relative; overflow: hidden; }
+  .compliance-glow {
+    position: absolute; top: 8%; right: -10%; width: 620px; height: 620px;
+    background: radial-gradient(circle, rgba(20,136,252,0.07) 0%, transparent 70%); pointer-events: none;
+  }
+  .compliance-inner { width: min(1120px, calc(100vw - 160px)); margin: 0 auto; position: relative; z-index: 1; }
+  .compliance-head { display: flex; flex-direction: column; gap: 18px; margin-bottom: 48px; }
+  .compliance-h2 { font-size: clamp(32px, 4vw, 52px); font-weight: 500; color: #fff; line-height: 1.15; letter-spacing: -1px; margin: 0; }
+  .compliance-sub { font-size: clamp(15px, 1.1vw, 17px); color: rgba(255,255,255,0.5); line-height: 1.6; max-width: 640px; margin: 0; }
+  /* Animated pixel divider — verbatim templates/detail traveling shimmer.
+     Height + top/bottom mask + negative margins pull the strip into both
+     neighbouring sections so it reads as a bleed, not a bar. */
+  .section-divider {
+    position: relative; height: 210px;
+    width: min(1120px, calc(100vw - 160px));
+    /* Bigger negative margins so the strip bleeds tightly into both
+       neighbouring sections instead of sitting in the padding gap. */
+    /* Only overlap into the *next* section — leaving the top margin 0 so
+       the divider never paints over the last BUILT IN card's bottom border. */
+    /* Pull up into BUILT IN — the mask hides the top 30% so visible dots
+       don't touch the 4th card's border; still bleeds -160px into detail. */
+    margin: -100px auto -160px;
+    overflow: hidden; pointer-events: none; z-index: 1;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 30%, #000 76%, transparent 100%);
+            mask-image: linear-gradient(to bottom, transparent 0%, #000 30%, #000 76%, transparent 100%);
+  }
+  .section-divider canvas { display: block; width: 100%; height: 100%; }
+  @media (max-width: 1024px) { .section-divider { height: 160px; width: min(900px, calc(100vw - 80px)); margin: -80px auto -110px; } }
+  @media (max-width: 768px)  { .section-divider { height: 110px; width: calc(100vw - 32px); margin: -50px auto -60px; } }
+  @media (prefers-reduced-motion: reduce) { .section-divider { display: none; } }
+  .comp-cards { margin-top: 48px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .comp-card {
+    border: 1px solid rgba(255,255,255,0.10); border-radius: 2px;
+    padding: 26px 26px 30px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%);
+    display: flex; flex-direction: column; align-items: flex-start; gap: 16px;
+    transition: border-color 0.3s ease;
+  }
+  .comp-card:hover { border-color: rgba(255,255,255,0.22); }
+  .comp-card-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(20,136,252,0.12); border-radius: 100px; padding: 5px 12px 5px 10px;
+    font-size: 12px; font-weight: 600; color: #1488FC; letter-spacing: 0.2px;
+  }
+  .comp-card-badge svg { width: 13px; height: 13px; }
+  .comp-card-title { font-size: 22px; font-weight: 500; color: #fff; letter-spacing: -0.3px; margin: 0; line-height: 1.25; }
+  .comp-card-desc { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.6; margin: 0; }
+  .cert-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .cert-card {
+    border: 1px solid rgba(255,255,255,0.10); border-radius: 8px;
+    padding: 28px 28px 32px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%);
+    display: flex; flex-direction: column; gap: 18px;
+    transition: border-color 0.3s ease;
+  }
+  .cert-card:hover { border-color: rgba(255,255,255,0.22); }
+  .cert-badge {
+    display: inline-flex; align-items: center; gap: 6px; align-self: flex-start;
+    background: rgba(20,136,252,0.12); border-radius: 100px; padding: 5px 12px 5px 10px;
+    font-size: 12px; font-weight: 600; color: #1488FC;
+  }
+  .cert-badge svg { width: 13px; height: 13px; }
+  .cert-title { font-size: 24px; font-weight: 500; color: #fff; letter-spacing: -0.5px; margin: 0; }
+  .cert-desc { font-size: 15px; color: rgba(255,255,255,0.55); line-height: 1.55; margin: 0; }
+
+  .cta-section { width: 100%; background: #000; padding: clamp(64px, 10vh, 120px) 0; }
+  .trust-callout {
+    width: min(1120px, calc(100vw - 160px)); margin: 0 auto;
+    border: 1px solid rgba(255,255,255,0.10); border-radius: 12px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0.005) 100%);
+    padding: clamp(40px, 5vw, 64px);
+    display: flex; flex-direction: column; gap: 20px; align-items: flex-start;
+  }
+  .trust-callout-h2 { font-size: clamp(26px, 3vw, 38px); font-weight: 500; color: #fff; letter-spacing: -0.5px; line-height: 1.2; margin: 0; }
+  .trust-callout-sub { font-size: clamp(15px, 1.1vw, 17px); color: rgba(255,255,255,0.5); line-height: 1.6; max-width: 620px; margin: 0; }
+  .trust-btn-white {
+    display: inline-flex; align-items: center; gap: 10px; margin-top: 8px;
+    background: #fff; color: #111; font-size: 15px; font-weight: 600;
+    border-radius: 100px; padding: 15px 30px; text-decoration: none;
+    transition: background 0.15s ease, gap 0.2s ease; border: none; cursor: pointer;
+  }
+  .trust-btn-white:hover { background: #eee; gap: 14px; }
+  .trust-btn-white svg { width: 16px; height: 16px; }
+
+  /* ─── SECTION 5: EVERYTHING YOUR TEAM NEEDS (feat tabs) ───────────────── */
+  .feat-section { width: 100%; background: #000; padding: clamp(80px, 12vh, 140px) 0; font-family: 'Inter', sans-serif; }
+  .feat-header { width: min(1120px, calc(100vw - 160px)); margin: 0 auto 80px; padding: 0; text-align: left; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+  .feat-eyebrow { font-family: 'Silkscreen', monospace; font-size: 16px; font-weight: 400; color: #1488FC; margin: 0; letter-spacing: 2px; }
+  .feat-headline { font-size: 52px; font-weight: 500; color: #fff; line-height: 1.2; letter-spacing: -1px; margin: 0; }
+  .feat-subheadline { font-size: 20px; color: #ABABAB; margin: 0; max-width: 800px; line-height: 1.6; }
+  .feat-inner { width: min(1120px, calc(100vw - 160px)); margin: 0 auto; padding: 0; display: grid; grid-template-columns: 400px 1fr; gap: 0; align-items: stretch; }
+  .feat-nav { display: flex; flex-direction: column; }
+  .feat-tab { background: none; border: none; border-left: 1px solid rgba(255,255,255,0.07); border-bottom: 1px solid rgba(255,255,255,0.07); border-right: none; border-top: none; padding: 28px; text-align: left; cursor: pointer; font-family: 'Inter', sans-serif; position: relative; display: flex; flex-direction: column; justify-content: space-between; min-height: 240px; }
+  .feat-tab:first-child { border-top: none; }
+  .feat-tab-bar { width: 100%; height: 5px; background: rgba(255,255,255,0.08); position: absolute; top: 0; left: 0; overflow: hidden; }
+  .feat-hover-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity 0.3s ease; image-rendering: pixelated; z-index: 0; }
+  .feat-tab:hover .feat-hover-canvas { opacity: 0.12; }
+  .feat-bar-canvas { display: block; position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; }
+  .feat-tab-title { font-size: 26px; font-weight: 500; color: rgba(255,255,255,0.25); margin: 0; line-height: 1.3; transition: color 0.3s ease; }
+  .feat-tab.active .feat-tab-title { color: #fff; }
+  .feat-tab-desc { font-size: 14px; color: rgba(255,255,255,0.4); margin: 0; line-height: 1.65; transition: color 0.4s ease; }
+  .feat-tab.active .feat-tab-desc { color: rgba(255,255,255,0.6); }
+  .feat-content-area { background: #111; border: none; border-radius: 0; position: relative; overflow: hidden; min-height: 480px; }
+  .feat-slide-inner { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 20px; padding: 0; box-sizing: border-box; }
+  .feat-slide-inner img { flex: 1; min-height: 0; width: auto; max-width: 75%; max-height: 80%; aspect-ratio: 1 / 1; object-fit: contain; border-radius: 2px; }
+  .feat-tab-mobile-content { display: none; }
+  .feat-info-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; width: 100%; flex-shrink: 0; border-top: 1px solid rgba(255,255,255,0.08); }
+  .feat-info-card { background: rgba(255,255,255,0.05); border: none; border-right: 1px solid rgba(255,255,255,0.08); padding: 12px 14px; }
+  .feat-info-card:last-child { border-right: none; }
+  .feat-info-card p { font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.55; margin: 0; }
+  #feat-noise-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.38; z-index: 0; }
+  #feat-blue-halftone { display: none; }
+  .feat-slide { position: absolute; inset: 0; opacity: 0; transition: opacity 0.5s ease; display: flex; align-items: center; justify-content: center; z-index: 11; }
+  .feat-slide.active { opacity: 1; }
+
+  /* ─── FOOTER ──────────────────────────────────────────────────────────── */
+  .footer-section { background: #000; padding: 90px 40px 0; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; text-align: center; box-sizing: border-box; width: 100%; }
+  .footer-headline { font-size: 52px; font-weight: 500; color: #fff; margin: 0; line-height: 1.2; }
+  .footer-subtitle { font-size: 18px; color: #ABABAB; max-width: 640px; line-height: 1.6; margin: -16px 0 0; }
+  .bolt-image-wrap { margin-top: 0; width: 100%; overflow: hidden; position: relative; height: 32vw; max-height: 32vw; }
+
+  /* ── FAQ ─────────────────────────────────────────────────────────────────── */
+  .ms-faq-section { width: 100%; background: #000; padding: clamp(48px, 8vh, 140px) 0 clamp(40px, 6vh, 90px); border-bottom: 1px solid rgba(255,255,255,0.06); position: relative; overflow: hidden; }
+  #faq-pixel-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; min-height: 600px; pointer-events: none; z-index: 0; }
+  .ms-faq-inner { width: min(1120px, calc(100vw - 160px)); margin: 0 auto; position: relative; z-index: 1; }
+  .ms-faq-eyebrow { font-family: 'Silkscreen', monospace; font-size: 16px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; color: #1488FC; margin: 0 0 16px; }
+  .ms-faq-headline { font-size: clamp(32px, 4vw, 52px); font-weight: 500; color: #fff; letter-spacing: -1px; line-height: 1.2; margin: 0 0 48px; }
+  /* Local H2 word-reveal — fires at ~50% viewport (later than the shared 0.5-threshold reveal) */
+  .reveal-h .word { display: inline-block; opacity: 0; transform: translate(-10px, -7px); filter: blur(5px); will-change: opacity, transform, filter; }
+  .reveal-h.is-revealed .word { animation: dsa-word-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards; animation-delay: calc(var(--i, 0) * 28ms); }
+  .ms-faq-list { display: flex; flex-direction: column; }
+  .ms-faq-item { border-top: 1px solid rgba(255,255,255,0.08); transition: background 0.2s ease; }
+  .ms-faq-item:last-child { border-bottom: 1px solid rgba(255,255,255,0.08); }
+  @media (hover: hover) { .ms-faq-item:hover { background: rgba(255,255,255,0.07); } }
+
+  /* ─── RESPONSIVE ──────────────────────────────────────────────────────── */
+  @media (max-width: 1024px) {
+    .hero-h1 { font-size: 51px; }
+    .hero-inner { width: min(900px, calc(100vw - 80px)); }
+    .builtin-inner, .compliance-inner, .incl-panel, .trust-callout, .feat-header, .feat-inner, .ms-faq-inner, .detail-inner, .hiw-inner, .agent-inner { width: min(900px, calc(100vw - 80px)); }
+    .feat-eyebrow, .ms-faq-eyebrow, .eyebrow-pill, .hero-badge { font-size: 13px; }
+    .feat-headline { font-size: 40px; }
+    .feat-inner { grid-template-columns: 300px 1fr; }
+    .feat-tab { min-height: 180px; padding: 22px; }
+    .feat-tab-title { font-size: 22px; }
+    .feat-section { padding: 64px 0; }
+    .footer-headline { font-size: 42px; }
+    .footer-section { padding: 64px 40px 0; }
+    .builtin-left { position: static; }
+    /* included grid: staggered → normal 2 columns, illustration hidden */
+    .incl-grid { grid-template-columns: repeat(2, 1fr); grid-auto-rows: auto; }
+    .incl-item { grid-area: auto !important; min-height: 84px; }
+    .incl-discovery { display: none; }
+  }
+  @media (max-width: 768px) {
+    .hero-section { min-height: 0; padding: 100px 0 56px; }
+    .hero-inner { width: 100%; padding: 0 16px; gap: 20px; }
+    .hero-h1 { font-size: clamp(37px, 10.45vw, 51px); }
+    .hero-subtitle { font-size: 16px; max-width: 100%; }
+    .builtin-section, .compliance-section { padding: 48px 0; }
+    .builtin-inner { width: calc(100vw - 32px); grid-template-columns: 1fr; gap: 32px; }
+    .builtin-h2 { font-size: clamp(28px, 8vw, 40px); }
+    .controls-section { padding: 40px 0; }
+    .incl-panel { width: calc(100vw - 32px); padding: 28px 18px; }
+    .incl-grid { grid-template-columns: 1fr; }
+    .controls-head { margin-bottom: 28px; }
+    .compliance-inner, .trust-callout, .detail-inner, .hiw-inner, .agent-inner { width: calc(100vw - 32px); }
+    .agent-section { padding: 48px 0 0; }
+    .agent-inner { gap: 28px; }
+    .detail-section { padding: 48px 0; }
+    .detail-cards, .detail-cards--3 { grid-template-columns: 1fr; }
+    .run-callout { padding: 48px 20px; }
+    .run-callout-btns { flex-direction: column; width: 100%; margin-top: 18px; }
+    .run-callout-btns .hero-btn-primary, .run-callout-btns .hero-btn-ghost { min-width: 0; width: 100%; }
+    .hiw-section { padding: 48px 0 32px; }
+    .hiw-inner { gap: 32px; }
+    .how-steps { grid-template-columns: 1fr; gap: 40px; }
+    .how-step { padding-right: 0; }
+    .how-line-track, .how-line-fill, .how-line-glow { display: none; }
+    .compliance-head { margin-bottom: 32px; }
+    .cert-grid { grid-template-columns: 1fr; gap: 14px; }
+    .comp-cards { grid-template-columns: 1fr; margin-top: 32px; gap: 14px; }
+    .comp-card { padding: 22px 22px 26px; }
+    .trust-callout { margin-top: 40px; padding: 32px 24px; }
+    .feat-section { padding: 40px 0; }
+    .feat-header { width: 100%; margin: 0 0 40px 0; padding: 0 16px; gap: 10px; }
+    .feat-headline { font-size: clamp(26px, 8vw, 36px); letter-spacing: -0.5px; line-height: 1.3; }
+    .feat-subheadline { font-size: 16px; }
+    .feat-inner { width: 100%; padding: 0; margin: 0; grid-template-columns: 1fr; }
+    .feat-content-area { display: none; }
+    .feat-nav { gap: 28px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 28px; }
+    .feat-tab { padding: 20px; border: none; border-radius: 0; cursor: default; pointer-events: none; }
+    .feat-tab-title { font-size: 21px; color: #fff !important; margin-bottom: 10px; }
+    .feat-tab-desc { font-size: 15px; opacity: 1 !important; color: rgba(255,255,255,0.55); }
+    .feat-tab-bar, .feat-hover-canvas { display: none !important; }
+    .feat-tab-mobile-content { display: flex; flex-direction: column; gap: 0; margin-top: 16px; width: 100%; }
+    .feat-tab-mobile-content img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 2px; margin-bottom: 0; }
+    .feat-tab-mobile-content .feat-info-cards { grid-template-columns: 1fr; }
+    .feat-tab-mobile-content .feat-info-card { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .feat-tab-mobile-content .feat-info-card:last-child { border-bottom: none; }
+    .footer-section { padding: 48px 0 0; justify-content: flex-start; }
+    .footer-section > *:not(.bolt-image-wrap) { padding-left: 12px; padding-right: 12px; box-sizing: border-box; width: 100%; }
+    .bolt-image-wrap { width: 100vw !important; margin-left: 0 !important; height: 42vw !important; max-height: 42vw !important; }
+    .footer-headline { font-size: clamp(26px, 8vw, 36px); line-height: 1.1; }
+    .footer-subtitle { font-size: 16px; max-width: 310px; }
+    #footer-pixel-canvas { height: 60px; }
+    .ms-faq-inner { width: calc(100vw - 32px); }
+    .ms-faq-list { min-height: 380px; }
+    #faq-pixel-canvas { height: 100%; }
+  }
+</style>
+
+<!-- ─── SECTION 1: HERO ──────────────────────────────────────────────────── -->
+<section class="hero-section">
+  <div class="hero-glow"></div>
+  <canvas id="hero-pixel-dots"></canvas>
+  <div class="hero-content-area">
+    <div class="hero-inner">
+      <h1 class="hero-h1">Secure your app before it ships. For free.</h1>
+      <p class="hero-subtitle">One click. Bolt&rsquo;s security agent audits and fixes your project, securing your work before it goes live.</p>
+      <div class="hero-btn-group">
+        <a href="https://bolt.new" target="_blank" rel="noopener" class="hero-btn-primary">
+          <div class="btn-bg-hover"></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Try Security Agent</span><span>Try Security Agent</span></div></div>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── SECTION: ON-DEMAND SECURITY ENGINEER (centered headline + video) ──── -->
+<section class="agent-section">
+  <div class="agent-inner">
+    <div class="agent-copy">
+      <h2 class="agent-h2">An on-demand security engineer</h2>
+      <p class="agent-desc">The Bolt.new security agent reads your project, writes the fixes, and applies them.</p>
+    </div>
+    <div class="agent-visual">
+      <video src="security-agent.mp4" autoplay muted loop playsinline preload="metadata" aria-label="Bolt security agent demo"></video>
+    </div>
+  </div>
+</section>
+
+<!-- ─── SECTION: HOW IT WORKS (timeline) ──────────────────────────────────── -->
+<section class="hiw-section">
+  <div class="hiw-inner">
+    <div class="hiw-head">
+      <span class="eyebrow-pill eyebrow-scramble">How it works</span>
+      <div class="reveal-h">
+        <h2 class="hiw-h2">Three steps, one publish.</h2>
+      </div>
+    </div>
+    <div class="how-steps-wrap">
+      <div class="how-line-track"></div>
+      <div class="how-line-fill"></div>
+      <div class="how-line-glow"></div>
+      <div class="how-steps">
+        <div class="how-step">
+          <div class="how-step-node"><span class="how-step-number">01</span></div>
+          <h3 class="how-step-title">Build</h3>
+          <p class="how-step-desc">You build your app in Bolt. Nothing changes here.</p>
+        </div>
+        <div class="how-step">
+          <div class="how-step-node"><span class="how-step-number">02</span></div>
+          <h3 class="how-step-title">Review</h3>
+          <p class="how-step-desc">Hit &ldquo;Run security audit&rdquo; in the publish menu. The security agent runs a deep scan: access control, business logic, secrets, injection risks.</p>
+        </div>
+        <div class="how-step">
+          <div class="how-step-node"><span class="how-step-number">03</span></div>
+          <h3 class="how-step-title">Ship, secured</h3>
+          <p class="how-step-desc">The agent writes and applies the fixes in the same pass for free. Your app publishes, safer than it went in.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<!-- ─── SECTION 2: SCANS KEY ELEMENTS ────────────────────────────────────── -->
+<section class="builtin-section">
+  <div class="builtin-inner">
+    <div class="builtin-left">
+      <span class="eyebrow-pill eyebrow-scramble">What it scans</span>
+      <div class="reveal-h">
+        <h2 class="builtin-h2">Bolt&rsquo;s security agent scans key elements</h2>
+      </div>
+      <p class="builtin-sub">This review process closes the gap where nearly every vibe-coded vulnerability lives: between what you asked for and the security it needed.</p>
+      <div class="builtin-cta">
+        <a href="https://trust.bolt.new/" target="_blank" rel="noopener" class="hero-btn-ghost">
+          <div class="btn-bg-hover"></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Learn More</span><span>Learn More</span></div></div>
+        </a>
+      </div>
+      <div class="builtin-video" aria-hidden="true">
+        <canvas id="builtin-scanner"></canvas>
+        <div class="edge-fade"></div>
+        <div class="scanlines"></div>
+      </div>
+    </div>
+    <div class="builtin-cards">
+      <div class="builtin-card">
+        <canvas class="builtin-hover-canvas" aria-hidden="true"></canvas>
+        <div class="builtin-card-inner">
+          <div class="builtin-card-top">
+            <span class="builtin-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+            <span class="builtin-card-num">01</span>
+          </div>
+          <div class="builtin-card-head">
+            <p class="builtin-card-title">Access control</p>
+          </div>
+          <p class="builtin-card-desc">Who sees what, on every route and record. The most common flaw in AI-built apps, and the most damaging.</p>
+        </div>
+      </div>
+      <div class="builtin-card">
+        <canvas class="builtin-hover-canvas" aria-hidden="true"></canvas>
+        <div class="builtin-card-inner">
+          <div class="builtin-card-top">
+            <span class="builtin-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="M12 18v4"/><path d="M4.93 4.93l2.83 2.83"/><path d="M16.24 16.24l2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="M4.93 19.07l2.83-2.83"/><path d="M16.24 7.76l2.83-2.83"/></svg></span>
+            <span class="builtin-card-num">02</span>
+          </div>
+          <div class="builtin-card-head">
+            <p class="builtin-card-title">Business logic</p>
+          </div>
+          <p class="builtin-card-desc">The flaws no scanner catches. Coupons that never run out. Transfers that go negative.</p>
+        </div>
+      </div>
+      <div class="builtin-card">
+        <canvas class="builtin-hover-canvas" aria-hidden="true"></canvas>
+        <div class="builtin-card-inner">
+          <div class="builtin-card-top">
+            <span class="builtin-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg></span>
+            <span class="builtin-card-num">03</span>
+          </div>
+          <div class="builtin-card-head">
+            <p class="builtin-card-title">Secrets</p>
+          </div>
+          <p class="builtin-card-desc">API keys, database credentials, tokens &mdash; anything that should stay private.</p>
+        </div>
+      </div>
+      <div class="builtin-card">
+        <canvas class="builtin-hover-canvas" aria-hidden="true"></canvas>
+        <div class="builtin-card-inner">
+          <div class="builtin-card-top">
+            <span class="builtin-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg></span>
+            <span class="builtin-card-num">04</span>
+          </div>
+          <div class="builtin-card-head">
+            <p class="builtin-card-title">Information disclosure</p>
+          </div>
+          <p class="builtin-card-desc">Bolt strips secrets from client code and keeps error messages generic, so data doesn&rsquo;t leak.</p>
+        </div>
+      </div>
+      <div class="builtin-card">
+        <canvas class="builtin-hover-canvas" aria-hidden="true"></canvas>
+        <div class="builtin-card-inner">
+          <div class="builtin-card-top">
+            <span class="builtin-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m13 2-2 2.5h3L12 7"/><path d="M10 14v-3"/><path d="M14 14v-3"/><path d="M11 19c-1.657 0-3-1.79-3-4v-2a5 5 0 0 1 10 0v2c0 2.21-1.343 4-3 4z"/><path d="M18 15h2"/><path d="M4 15h2"/></svg></span>
+            <span class="builtin-card-num">05</span>
+          </div>
+          <div class="builtin-card-head">
+            <p class="builtin-card-title">Injections</p>
+          </div>
+          <p class="builtin-card-desc">SQL injection, command injection &mdash; the classic ways an attacker sneaks commands into places that should only hold data. Modern frameworks catch most of this by default. Bolt verifies it&rsquo;s working.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── ANIMATED PIXEL DIVIDER (BUILT IN → SECURITY IN DETAIL) ────────────── -->
+<div class="section-divider" aria-hidden="true">
+  <canvas id="section-divider-canvas"></canvas>
+</div>
+
+<!-- ─── SECTION: FREE, EVERY TIME ─────────────────────────────────────────── -->
+<section class="detail-section">
+  <div class="detail-inner">
+    <div class="detail-head">
+      <span class="eyebrow-pill eyebrow-scramble">Free, every time</span>
+      <div class="reveal-h">
+        <h2 class="detail-h2">Run Bolt&rsquo;s security agent for free, every time</h2>
+      </div>
+      <p class="detail-sub">Don&rsquo;t spend tokens fixing vulnerabilities. Build what your business needs, and let the security agent handle security, free.</p>
+    </div>
+    <div class="detail-cards detail-cards--3">
+      <div class="builtin-card">
+        <canvas class="builtin-hover-canvas" aria-hidden="true"></canvas>
+        <div class="builtin-card-inner">
+          <div class="builtin-card-top">
+            <span class="builtin-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></span>
+            <span class="builtin-card-num">01</span>
+          </div>
+          <div class="builtin-card-head"><p class="builtin-card-title">No tokens spent</p></div>
+          <p class="builtin-card-desc">Your balance reads the same before and after. Security review doesn&rsquo;t get billed &mdash; that&rsquo;s a cost Bolt eats.</p>
+        </div>
+      </div>
+      <div class="builtin-card">
+        <canvas class="builtin-hover-canvas" aria-hidden="true"></canvas>
+        <div class="builtin-card-inner">
+          <div class="builtin-card-top">
+            <span class="builtin-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18.178 8c5.096 0 5.096 8 0 8-5.095 0-7.133-8-12.739-8-4.585 0-4.585 8 0 8 5.606 0 7.644-8 12.74-8z"/></svg></span>
+            <span class="builtin-card-num">02</span>
+          </div>
+          <div class="builtin-card-head"><p class="builtin-card-title">Every publish, not just your first</p></div>
+          <p class="builtin-card-desc">Version five gets the same review as version one &mdash; which matters, because the risky change is usually the one you made at 2am.</p>
+        </div>
+      </div>
+      <div class="builtin-card">
+        <canvas class="builtin-hover-canvas" aria-hidden="true"></canvas>
+        <div class="builtin-card-inner">
+          <div class="builtin-card-top">
+            <span class="builtin-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
+            <span class="builtin-card-num">03</span>
+          </div>
+          <div class="builtin-card-head"><p class="builtin-card-title">No report, no backlog</p></div>
+          <p class="builtin-card-desc">The agent fixes findings in the same pass instead of queuing them for later. You get a short rundown of what changed.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Run it right now — CTA callout -->
+    <div class="run-callout">
+      <div class="reveal-h">
+        <h2 class="run-callout-h2">Run it right now</h2>
+      </div>
+      <p class="run-callout-sub">Open your project, hit publish, and choose the security review.</p>
+      <div class="run-callout-btns">
+        <a href="https://bolt.new" target="_blank" rel="noopener" class="hero-btn-primary">
+          <div class="btn-bg-hover"></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Try Security Agent</span><span>Try Security Agent</span></div></div>
+        </a>
+        <a href="https://bolt.new/trust" target="_blank" rel="noopener" class="hero-btn-ghost">
+          <div class="btn-bg-hover"></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Learn More</span><span>Learn More</span></div></div>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FAQ ───────────────────────────────────────────────────────────────── -->
+<section class="ms-faq-section" id="faq">
+  <canvas id="faq-pixel-canvas"></canvas>
+  <div class="ms-faq-inner">
+    <div class="reveal-h">
+      <p class="ms-faq-eyebrow eyebrow-scramble">FAQ</p>
+      <h2 class="ms-faq-headline">Security agent, answered</h2>
+    </div>
+    <div class="ms-faq-list">
+      <div class="ms-faq-item">
+        <button class="ms-faq-q">
+          Does it use my tokens?
+          <span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+        </button>
+        <div class="ms-faq-a"><div class="ms-faq-a-inner">No. The review and the fixes are both free, and your balance reads the same before and after.</div></div>
+      </div>
+      <div class="ms-faq-item">
+        <button class="ms-faq-q">
+          How long does it take?
+          <span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+        </button>
+        <div class="ms-faq-a"><div class="ms-faq-a-inner">Two to three minutes for a typical project.</div></div>
+      </div>
+      <div class="ms-faq-item">
+        <button class="ms-faq-q">
+          Can I run it on an app I&rsquo;ve already published?
+          <span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+        </button>
+        <div class="ms-faq-a"><div class="ms-faq-a-inner">Yes. Run it on any project, at any point, as often as you like.</div></div>
+      </div>
+      <div class="ms-faq-item">
+        <button class="ms-faq-q">
+          Will it break my app?
+          <span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+        </button>
+        <div class="ms-faq-a"><div class="ms-faq-a-inner">Our evaluations specifically test that fixes don&rsquo;t break builds or change behavior beyond the security issue. If a repair can&rsquo;t be made safely, the agent flags it instead.</div></div>
+      </div>
+      <div class="ms-faq-item">
+        <button class="ms-faq-q">
+          Does the agent see my code?
+          <span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+        </button>
+        <div class="ms-faq-a"><div class="ms-faq-a-inner">It reads your project in order to review it. How we handle your code and data is covered on our trust page.</div></div>
+      </div>
+      <div class="ms-faq-item">
+        <button class="ms-faq-q">
+          Which parts of my app does it look at?
+          <span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+        </button>
+        <div class="ms-faq-a"><div class="ms-faq-a-inner">Your application code, your database policies and permissions, and how your app handles input, output, and secrets.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FOOTER ────────────────────────────────────────────────────────────── -->
+<section class="footer-section">
+  <p class="footer-eyebrow eyebrow-scramble" style="font-weight:400;letter-spacing:2px;text-transform:uppercase;color:#1488FC;margin:0;font-family:'Silkscreen',monospace;">Trust profile</p>
+  <h2 class="footer-headline">More on security and compliance</h2>
+  <p class="footer-subtitle">Access our complete security and trust profile and documentation.</p>
+  <div style="position:relative;width:100%;max-width:700px;margin-top:-152px;display:flex;flex-direction:column;align-items:center;">
+    <canvas id="footer-pixel-canvas" style="display:block;width:100%;height:192px;pointer-events:none;opacity:1;"></canvas>
+    <a href="https://bolt.new/trust" target="_blank" rel="noopener" class="hero-btn-primary" style="position:relative;z-index:1;margin-top:-16px;height:52px;padding:0 28px;font-size:15px;">
+      <div class="btn-bg-hover"></div>
+      <div class="btn-text-wrap"><div class="btn-text-inner"><span>Read More</span><span>Read More</span></div></div>
+    </a>
+  </div>
+  <div class="bolt-image-wrap">
+    <img src="../images/bolt-bottom.png" alt="bolt" loading="lazy" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;opacity:0.20;">
+    <canvas id="bolt-shimmer-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;mix-blend-mode:screen;"></canvas>
+    <div style="position:absolute;inset:0;background:linear-gradient(to bottom, #000 0%, transparent 22%, transparent 88%, #000 100%);z-index:3;"></div>
+  </div>
+</section>
+
+<script>
+// ── Generic pixel canvas helper ───────────────────────────────────────────────
+function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
+  color = color || '20,136,252';
+  const canvas = document.getElementById(id);
+  if (!canvas) return;
+  let phases = [];
+  function buildPhases(cols, rows) {
+    phases = Array.from({ length: rows }, () => Array.from({ length: cols }, () => Math.random() * Math.PI * 2));
+  }
+  function resize() {
+    const parent = canvas.parentElement;
+    const w = parent.offsetWidth || parent.getBoundingClientRect().width;
+    const h = parent.offsetHeight || parent.getBoundingClientRect().height;
+    if (!w || !h) return;
+    canvas.width = Math.round(w); canvas.height = Math.round(h);
+    buildPhases(Math.ceil(w / spacing), Math.ceil(h / spacing));
+  }
+  window.addEventListener('load', resize); window.addEventListener('resize', resize);
+  new ResizeObserver(function() { resize(); }).observe(canvas.parentElement);
+  requestAnimationFrame(function() { resize(); });
+  function draw(t) {
+    const w = canvas.width, h = canvas.height;
+    if (!w || !h) { requestAnimationFrame(draw); return; }
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, w, h);
+    const cols = Math.ceil(w / spacing); const rows = Math.ceil(h / spacing);
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const phase = (phases[r] && phases[r][c]) || 0;
+        const op = waveFn(c, r, t, phase) * opacity;
+        if (op < 0.04) continue;
+        ctx.fillStyle = `rgba(${color},${op.toFixed(3)})`;
+        ctx.fillRect(c * spacing, r * spacing, dot, dot);
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+}
+
+// ── Bolt strip shimmer ────────────────────────────────────────────────────────
+(function() {
+  var canvas = document.getElementById('bolt-shimmer-canvas');
+  if (!canvas) return;
+  var wrap = canvas.parentElement;
+  var ctx = canvas.getContext('2d');
+  var img = wrap.querySelector('img');
+  var W, H, strips = [], t = 0;
+  var hoverT = 0, isHovered = false, splashT = 0, splashStart = null, splashDuration = 300;
+  var observer = new IntersectionObserver(function(entries) {
+    if (entries[0].isIntersecting && !splashStart) { splashStart = Date.now(); observer.disconnect(); }
+  }, { threshold: 0.1 });
+  observer.observe(wrap);
+  function sampleStrips() {
+    var SW = 400, SH = 200;
+    var s = document.createElement('canvas'); s.width = SW; s.height = SH;
+    var sc = s.getContext('2d'); sc.drawImage(img, 0, 0, SW, SH);
+    var data = sc.getImageData(0, 0, SW, SH).data;
+    strips = [];
+    var inStrip = false, stripStart = 0;
+    for (var x = 0; x < SW; x++) {
+      var b = 0;
+      for (var y = 20; y < SH - 20; y++) { var idx = (y * SW + x) * 4; b += (data[idx] + data[idx+1] + data[idx+2]) / 3; }
+      b /= (SH - 40);
+      if (b > 28 && !inStrip) { inStrip = true; stripStart = x; }
+      else if (b <= 28 && inStrip) {
+        inStrip = false;
+        strips.push({ cx: (stripStart + x) / 2 / SW, w: (x - stripStart) / SW, phase: Math.random() * Math.PI * 2, freq: 0.5 + Math.random() * 1.2, yPhase: Math.random() * Math.PI * 2, yFreq: 0.35 + Math.random() * 0.7, speedMult: 0.6 + Math.random() * 0.8 });
+      }
+    }
+  }
+  function init() {
+    var r = wrap.getBoundingClientRect(); W = canvas.width = r.width; H = canvas.height = r.height;
+    t = Math.random() * 80; sampleStrips();
+    var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+    if (isTouch) { splashDuration = 1500; } else {
+      wrap.addEventListener('mouseenter', function() { isHovered = true; });
+      wrap.addEventListener('mouseleave', function() { isHovered = false; });
+    }
+    requestAnimationFrame(tick);
+  }
+  function tick() {
+    var splashRaw = splashStart ? Math.max(0, 1 - (Date.now() - splashStart) / splashDuration) : 0;
+    splashT = splashRaw * splashRaw * splashRaw;
+    t += 0.028 + hoverT * 0.016;
+    hoverT += ((isHovered ? 1 : 0) - hoverT) * (isHovered ? 0.07 : 0.025);
+    ctx.clearRect(0, 0, W, H);
+    for (var i = 0; i < strips.length; i++) {
+      var st = strips[i];
+      var brightness = (Math.sin(t * st.freq * st.speedMult + st.phase) * 0.5 + 0.5);
+      if (brightness < 0.01) continue;
+      var x = st.cx * W; var w = Math.max(st.w * W, 3);
+      var centerY = (Math.sin(t * st.yFreq * st.speedMult + st.yPhase) * 0.5 + 0.5) * H;
+      var spread = H * (0.55 + hoverT * 0.25);
+      var baseA = brightness * 0.11; var peakA = brightness * 0.28;
+      var boost = Math.max(hoverT, splashT);
+      var a = (baseA + (peakA - baseA) * boost).toFixed(3);
+      var a2 = (parseFloat(a) * 1.4).toFixed(3);
+      var grad = ctx.createLinearGradient(0, centerY - spread, 0, centerY + spread);
+      grad.addColorStop(0, 'rgba(220,225,240,0)'); grad.addColorStop(0.3, 'rgba(220,225,240,' + a + ')');
+      grad.addColorStop(0.5, 'rgba(255,255,255,' + a2 + ')'); grad.addColorStop(0.7, 'rgba(220,225,240,' + a + ')');
+      grad.addColorStop(1, 'rgba(220,225,240,0)');
+      ctx.fillStyle = grad; ctx.fillRect(x - w / 2, 0, w, H);
+    }
+    requestAnimationFrame(tick);
+  }
+  if (img.complete) init(); else img.addEventListener('load', init);
+})();
+
+// ── Hero pixel dots — uniform field, no skyline seam
+//    Center-focused Gaussian fade + top/bottom soft fade + two decoherent waves.
+(function () {
+  var canvas = document.getElementById('hero-pixel-dots');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var SPACING = 11, DOT = 2, cols, rows, phases;
+  function init() {
+    canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
+    cols = Math.ceil(canvas.width / SPACING) + 1;
+    rows = Math.ceil(canvas.height / SPACING) + 1;
+    phases = Array.from({ length: rows }, function () { return Float32Array.from({ length: cols }, function () { return Math.random() * Math.PI * 2; }); });
+  }
+  window.addEventListener('resize', init); init();
+  var start = null;
+  function draw(ts) {
+    if (!start) start = ts; var t = ts - start;
+    var W = canvas.width, H = canvas.height;
+    if (!W || !H) { requestAnimationFrame(draw); return; }
+    ctx.clearRect(0, 0, W, H);
+    for (var c = 0; c < cols; c++) {
+      var cf = c / cols;
+      // tighter horizontal Gaussian — dots only faintly present, and mostly around center
+      var hm = Math.exp(-Math.pow(cf - 0.5, 2) / (2 * 0.18 * 0.18));
+      if (hm < 0.04) continue;
+      for (var r = 0; r < rows; r++) {
+        var rf = r / rows;
+        // longer top/bottom fades so the visible band is thin
+        var vTop = Math.min(1, rf / 0.30);
+        var vBot = Math.min(1, (1 - rf) / 0.30);
+        var vm = vTop * vBot;
+        if (vm < 0.08) continue;
+        var x = c * SPACING, y = r * SPACING;
+        var ph = phases[r][c];
+        // decoherent waves — different scales/directions so no visible horizontal bands
+        var w1 = Math.sin(c * 0.13 + r * 0.29 - t * 0.0012 + ph);
+        var w2 = Math.sin(c * 0.07 - r * 0.11 + t * 0.0008 + ph * 0.6);
+        var w3 = Math.sin((c - r) * 0.05 + t * 0.0006 + ph * 1.3);
+        var wave = (w1 + w2 + w3) / 3;
+        // opacity cut sharply — barely-there ambient texture
+        var op = hm * vm * Math.max(0, wave) * 0.28;
+        if (op < 0.015) continue;
+        ctx.fillStyle = 'rgba(160,185,230,' + op.toFixed(3) + ')';
+        ctx.fillRect(x - DOT, y - DOT, DOT * 2, DOT * 2);
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+</script>
+
+<script>
+window.addEventListener('load', function() {
+  // Feat noise canvas
+  // Section divider — verbatim templates/detail traveling shimmer
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    makePixelCanvas('section-divider-canvas', 11, 2,
+      function (c, r, t, p) {
+        var px = c * 11, py = r * 11;
+        var phase = (px * 0.012 + py * 0.018) - t * 0.0018 + 1.0;
+        var band = Math.sin(phase) * 0.5 + 0.5;
+        var highlight = Math.pow(band, 3) * 0.32;
+        var twinkle = (Math.sin(p * 53.7 + t * 0.004) * 0.5 + 0.5) * 0.07;
+        return 0.06 + highlight + twinkle;
+      }, 1.0, '170,185,210');
+  }
+
+  makePixelCanvas('feat-noise-canvas', 6, 2,
+    function(c, r, t, p) {
+      const px = c * 6, py = r * 6;
+      const speedMod = 0.05 + (Math.sin(t * 0.00070 + 1.4) * 0.5 + 0.5) * 0.22;
+      function rwave(scale, rotRate, phase, tMult) {
+        const angle = t * rotRate + phase;
+        const u = (px * Math.cos(angle) + py * Math.sin(angle)) / scale;
+        const v = (-px * Math.sin(angle) + py * Math.cos(angle)) / scale;
+        return Math.sin(u * Math.PI * 2 + t * tMult * speedMod) * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7 * speedMod);
+      }
+      const s1 = rwave(500,0.00012,0.5,0.00030), s2 = rwave(260,0.00025,1.8,0.00065);
+      const s3 = rwave(130,0.00042,3.1,0.00130), s4 = rwave(380,0.00018,4.5,0.00048);
+      const wf = s1 * 0.5 + 0.5, det = s2 * 0.45 + s3 * 0.30 + s4 * 0.25;
+      const raw = wf * (det * 0.5 + 0.5), density = Math.pow(Math.max(0, raw), 0.7);
+      const rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
+      return density > rand ? density * 0.9 : 0;
+    }, 0.80, '255,255,255');
+
+  // Footer pixel canvas
+  makePixelCanvas('footer-pixel-canvas', 6, 2,
+    function(c, r, t, p) {
+      const px = c * 6, py = r * 6;
+      const el = document.getElementById('footer-pixel-canvas');
+      const H = el ? el.height : 260, W = el ? el.width : 700;
+      const vFade = Math.max(0, 1 - py / (H * 0.85));
+      const cx = W / 2, hFade = Math.max(0, 1 - Math.abs(px - cx) / (W * 0.55));
+      const fade = vFade * hFade; if (fade <= 0) return 0;
+      const speedMod = 0.05 + (Math.sin(t * 0.00070 + 2.2) * 0.5 + 0.5) * 0.22;
+      function rwave(scale, rotRate, phase, tMult) {
+        const angle = t * rotRate + phase;
+        const u = (px * Math.cos(angle) + py * Math.sin(angle)) / scale;
+        const v = (-px * Math.sin(angle) + py * Math.cos(angle)) / scale;
+        return Math.sin(u * Math.PI * 2 + t * tMult * speedMod) * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7 * speedMod);
+      }
+      const s1 = rwave(300,0.00012,0.3,0.00030), s2 = rwave(160,0.00025,1.6,0.00065);
+      const s3 = rwave(80,0.00042,2.9,0.00130), s4 = rwave(220,0.00018,4.2,0.00048);
+      const wf = s1 * 0.5 + 0.5, det = s2 * 0.45 + s3 * 0.30 + s4 * 0.25;
+      const raw = wf * (det * 0.5 + 0.5), density = Math.pow(Math.max(0, raw), 0.7) * fade;
+      const rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
+      return density > rand ? density * 0.85 : 0;
+    }, 1.0, '220,230,245');
+});
+</script>
+
+<script>
+// ── Feat animation ────────────────────────────────────────────────────────────
+(function () {
+  var DURATION = 10000;
+  var tabs = Array.from(document.querySelectorAll('.feat-tab'));
+  var slides = [1, 2, 3], current = 1, animId = null, startTime = null;
+  function getSlide(i) { return document.getElementById('feat-slide-' + i); }
+  function getCanvas(tab) { return tab.querySelector('.feat-bar-canvas'); }
+  var dpr = window.devicePixelRatio || 1;
+  function drawNoise(canvas, progress) {
+    var cssW = canvas.parentElement.offsetWidth; var w = Math.round(cssW * dpr); var h = Math.round(5 * dpr);
+    if (!w || !h) return;
+    if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; canvas.style.width = cssW + 'px'; canvas.style.height = '5px'; }
+    var ctx = canvas.getContext('2d'); var fillPx = Math.round(w * progress);
+    var imgData = ctx.createImageData(w, h);
+    for (var xi = 0; xi < w; xi++) {
+      var inFill = xi < fillPx;
+      for (var yi = 0; yi < h; yi++) {
+        var idx = (yi * w + xi) * 4;
+        if (inFill) { var n = (Math.random()-0.5)*90; imgData.data[idx]=Math.max(0,Math.min(255,20+n)); imgData.data[idx+1]=Math.max(0,Math.min(255,136+n)); imgData.data[idx+2]=Math.max(0,Math.min(255,252+n)); imgData.data[idx+3]=255; }
+        else { imgData.data[idx+3] = 0; }
+      }
+    }
+    ctx.putImageData(imgData, 0, 0);
+  }
+  function clearCanvas(canvas) { if (canvas.width) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height); }
+  function setActive(index, animate) {
+    slides.forEach(function(i) { var s = getSlide(i); if (s) s.classList.toggle('active', i === index); });
+    tabs.forEach(function(tab) { var isActive = parseInt(tab.dataset.feat) === index; tab.classList.toggle('active', isActive); if (!isActive) clearCanvas(getCanvas(tab)); });
+    current = index; if (animate !== false) startProgress();
+  }
+  function startProgress() {
+    if (animId) cancelAnimationFrame(animId); startTime = null;
+    function tick(ts) {
+      if (!startTime) startTime = ts;
+      var p = Math.min((ts - startTime) / DURATION, 1);
+      drawNoise(getCanvas(tabs[current - 1]), p);
+      if (p < 1) { animId = requestAnimationFrame(tick); }
+      else { var next = (current % slides.length) + 1; setActive(next, true); }
+    }
+    animId = requestAnimationFrame(tick);
+  }
+  tabs.forEach(function(tab) {
+    tab.addEventListener('click', function() { var i = parseInt(tab.dataset.feat); if (i === current) return; setActive(i, true); });
+  });
+  if (tabs.length) setActive(1, true);
+})();
+
+// ── Feat hover noise ──────────────────────────────────────────────────────────
+(function () {
+  var dpr = window.devicePixelRatio || 1;
+  function drawHoverNoise(canvas) {
+    var w = Math.round(canvas.offsetWidth * dpr); var h = Math.round(canvas.offsetHeight * dpr);
+    if (!w || !h) return; canvas.width = w; canvas.height = h;
+    canvas.style.width = canvas.offsetWidth + 'px'; canvas.style.height = canvas.offsetHeight + 'px';
+    var ctx = canvas.getContext('2d'); var imgData = ctx.createImageData(w, h);
+    for (var i = 0; i < imgData.data.length; i += 4) { var v = Math.floor(Math.random() * 80 + 30); imgData.data[i] = v; imgData.data[i+1] = v; imgData.data[i+2] = v; imgData.data[i+3] = 255; }
+    ctx.putImageData(imgData, 0, 0);
+  }
+  requestAnimationFrame(function() { requestAnimationFrame(function() { document.querySelectorAll('.feat-hover-canvas').forEach(drawHoverNoise); }); });
+})();
+</script>
+
+<script>
+/* Eyebrow scramble (.eyebrow-scramble) is handled by shared-components.js.
+   H2 word-reveal is handled locally so it fires at ~50% of the viewport
+   (the shared 0.5-threshold reveal fires too early on these headings). */
+(function () {
+  function wrapWords(el) {
+    var i = 0;
+    el.innerHTML = el.innerHTML.replace(/\S+/g, function (w) {
+      return '<span class="word" style="--i:' + (i++) + '">' + w + '</span>';
+    });
+  }
+  var containers = document.querySelectorAll('.reveal-h');
+  containers.forEach(function (c) {
+    c.querySelectorAll('h1, h2').forEach(function (h) {
+      if (!h.dataset.wrapped) { wrapWords(h); h.dataset.wrapped = '1'; }
+    });
+  });
+  if (!('IntersectionObserver' in window)) {
+    containers.forEach(function (c) { c.classList.add('is-revealed'); });
+    return;
+  }
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) { e.target.classList.add('is-revealed'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0, rootMargin: '0px 0px -45% 0px' });   // fire when heading reaches ~55% down the viewport
+  containers.forEach(function (c) { io.observe(c); });
+})();
+
+/* ── FAQ pixel canvas — brand blue half-sun ── */
+(function() {
+  var canvas = document.getElementById('faq-pixel-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var SPACING = 9;
+  var W, H, cx, cy, maxR, intensity;
+  var t = 0;
+  var resizeTimer;
+  function resize() {
+    var r = canvas.parentElement.getBoundingClientRect();
+    W = canvas.width  = Math.round(r.width);
+    H = canvas.height = Math.round(r.height);
+    cx = W * 0.5;
+    var isMobile = W <= 768;
+    cy        = isMobile ? (H + W * 0.30) : (H * 1.22);
+    maxR      = isMobile ? (W * 0.50)     : (H * 0.42);
+    intensity = 0.78;
+  }
+  window.addEventListener('resize', function() { clearTimeout(resizeTimer); resizeTimer = setTimeout(resize, 200); });
+  resize();
+  function draw() {
+    t += 0.028;
+    var breathe = 0.80 + Math.sin(t) * 0.07 + Math.sin(t * 2.7) * 0.04 + Math.sin(t * 0.53) * 0.04;
+    if (!W || !H) { requestAnimationFrame(draw); return; }
+    ctx.clearRect(0, 0, W, H);
+    var cols = Math.ceil(W / SPACING) + 1;
+    var rows = Math.ceil(H / SPACING) + 1;
+    for (var r = 0; r < rows; r++) {
+      for (var c = 0; c < cols; c++) {
+        var px = c * SPACING, py = r * SPACING;
+        var dx = px - cx, dy = py - cy;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist > maxR) continue;
+        var norm = dist / maxR;
+        var seed = Math.sin(c * 127.1 + r * 311.7) * 43758.5453;
+        var noise = (seed - Math.floor(seed)) - 0.5;
+        var ripple = Math.sin(t * 1.8 - norm * 6.0 + noise * 2.0) * 0.06;
+        var localBreath = breathe + ripple + noise * 0.05;
+        var dotSize = SPACING * Math.pow(Math.max(0, 1 - norm), 0.9) * localBreath;
+        if (dotSize < 0.5) continue;
+        dotSize = Math.min(dotSize, SPACING);
+        var op = Math.pow(Math.max(0, 1 - norm), 0.6) * localBreath * intensity;
+        if (op < 0.02) continue;
+        var half = dotSize * 0.5;
+        ctx.fillStyle = 'rgba(20,136,252,' + op.toFixed(3) + ')';
+        ctx.fillRect(px - half, py - half, dotSize, dotSize);
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+
+/* ── Run-it-right-now callout: scroll-in reveal ── */
+(function () {
+  var el = document.querySelector('.run-callout');
+  if (!el) return;
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) { el.classList.add('is-in'); io.unobserve(el); }
+    });
+  }, { threshold: 0.5 });
+  io.observe(el);
+})();
+
+/* ── How It Works line animation ── */
+(function () {
+  var wrap = document.querySelector('.how-steps-wrap');
+  if (!wrap) return;
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) { wrap.classList.add('line-active'); io.unobserve(wrap); }
+    });
+  }, { threshold: 0.3 });
+  io.observe(wrap);
+  wrap.style.setProperty('--glow-dist', wrap.offsetWidth + 'px');
+  window.addEventListener('resize', function () {
+    wrap.style.setProperty('--glow-dist', wrap.offsetWidth + 'px');
+  });
+})();
+
+/* ── FAQ accordion ── */
+(function() {
+  document.querySelectorAll('.ms-faq-item').forEach(function(item) {
+    var btn = item.querySelector('.ms-faq-q');
+    btn.addEventListener('click', function() {
+      var isOpen = item.classList.contains('is-open');
+      document.querySelectorAll('.ms-faq-item.is-open').forEach(function(o) { o.classList.remove('is-open'); });
+      if (!isOpen) item.classList.add('is-open');
+    });
+  });
+})();
+/* Button pixel-fill hover is handled by the canonical shared-components.js. */
+
+// ── Hover pixel field (brand-blue rotating wave, right-side fade) ──────────────
+(function () {
+  function attachHoverField(tile, canvas, idx) {
+    var ctx = canvas.getContext('2d');
+    var SPACING = 9, DOT = 2, cols = 0, rows = 0, phases = [], hovered = false, t = 0;
+    var phase = idx * 1.7;
+    function resize() {
+      var w = tile.offsetWidth, h = tile.offsetHeight; if (!w || !h) return;
+      canvas.width = w; canvas.height = h;
+      cols = Math.ceil(w / SPACING) + 1; rows = Math.ceil(h / SPACING) + 1;
+      phases = Array.from({ length: rows }, function() { return Array.from({ length: cols }, function() { return Math.random() * Math.PI * 2; }); });
+    }
+    try { new ResizeObserver(resize).observe(tile); } catch(e) {}
+    requestAnimationFrame(resize);
+    tile.addEventListener('mouseenter', function() { hovered = true; });
+    tile.addEventListener('mouseleave', function() { hovered = false; });
+    function draw() {
+      if (!hovered || !cols) { requestAnimationFrame(draw); return; }
+      t += 0.03;
+      var W = canvas.width, H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+      var angle = t * 0.16 + phase;
+      var ca = Math.cos(angle), sa = Math.sin(angle);
+      for (var r = 0; r < rows; r++) {
+        for (var c = 0; c < cols; c++) {
+          var px = c * SPACING, py = r * SPACING;
+          var ph = (phases[r] && phases[r][c]) || 0;
+          var u = (px * ca + py * sa) / 58;
+          var wave = Math.sin(u + t + ph) * Math.cos((px * -sa + py * ca) / 90 + t * 0.6);
+          var hFade = px / W;                 // brighter toward the right, keeps text readable
+          var op = Math.max(0, wave) * 0.55 * hFade;
+          if (op < 0.04) continue;
+          ctx.fillStyle = 'rgba(60,140,235,' + op.toFixed(3) + ')';
+          ctx.fillRect(px, py, DOT, DOT);
+        }
+      }
+      requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
+  }
+  document.querySelectorAll('.builtin-card').forEach(function(el, i) {
+    var cv = el.querySelector('.builtin-hover-canvas'); if (cv) attachHoverField(el, cv, i);
+  });
+  // "shine a light" — radial glow follows the cursor across each card
+  document.querySelectorAll('.incl-item').forEach(function(el) {
+    el.addEventListener('mousemove', function(e) {
+      var r = el.getBoundingClientRect();
+      el.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+      el.style.setProperty('--my', (e.clientY - r.top) + 'px');
+    });
+  });
+})();
+
+// ── Discovery illustration animated film-grain (low-res, CSS-scaled) ──────────
+(function () {
+  var canvas = document.getElementById('incl-discovery-noise');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W = 0, H = 0;
+  function resize() { var p = canvas.parentElement; W = Math.min(300, p.offsetWidth || 300); H = Math.min(300, p.offsetHeight || 300); if (W && H) { canvas.width = W; canvas.height = H; } }
+  try { new ResizeObserver(resize).observe(canvas.parentElement); } catch(e) {}
+  requestAnimationFrame(resize);
+  var frame = 0;
+  function draw() {
+    frame++;
+    if (frame % 2 === 0 && W && H) {
+      var img = ctx.createImageData(W, H); var d = img.data;
+      for (var i = 0; i < d.length; i += 4) { var v = Math.random() * 255 | 0; d[i] = d[i+1] = d[i+2] = v; d[i+3] = 255; }
+      ctx.putImageData(img, 0, 0);
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+</script>
+
+<!-- Scanner loop for "What it scans" section -->
+<script>
+(function(){
+  const cv = document.getElementById('builtin-scanner');
+  if(!cv) return;
+  const ctx = cv.getContext('2d');
+  const DURATION = 5.4;
+  let W, H, DPR;
+  function resize(){
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = cv.clientWidth; H = cv.clientHeight;
+    cv.width = W * DPR; cv.height = H * DPR;
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+  }
+  window.addEventListener('resize', resize); resize();
+  const lerp = (a,b,t)=>a+(b-a)*t;
+  function draw(t){
+    ctx.clearRect(0,0,W,H);
+    const cx=W/2, cy=H/2;
+    const ag = ctx.createRadialGradient(cx,cy,0,cx,cy,W*0.55);
+    ag.addColorStop(0,'rgba(28,118,222,0.14)');
+    ag.addColorStop(0.55,'rgba(24,100,210,0.05)');
+    ag.addColorStop(1,'rgba(20,136,252,0)');
+    ctx.fillStyle=ag; ctx.fillRect(0,0,W,H);
+    const horizonY = cy;
+    const scroll = (t / DURATION) % 1;
+    const lines = 14;
+    for(let m=-1;m<=1;m+=2){
+      for(let i=0;i<lines;i++){
+        let p = (i/lines + scroll) % 1;
+        let ez = Math.pow(p, 2.2);
+        let y = horizonY + m*(ez*(H*0.62));
+        let a = (0.02 + p*0.16);
+        ctx.strokeStyle = `rgba(120,175,235,${a})`;
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke();
+      }
+    }
+    const VP = 44;
+    for(let m=-1;m<=1;m+=2){
+      for(let i=0;i<=VP;i++){
+        const f = i/VP;
+        const ang = (f - 0.5) * Math.PI * 0.98;
+        const rx = cx + Math.tan(ang) * (H*0.62);
+        const y2 = horizonY + m*H*0.62;
+        const g = ctx.createLinearGradient(cx, horizonY, rx, y2);
+        const a = 0.08 + 0.20 * Math.pow(1 - Math.abs(f-0.5)*2, 0.6);
+        g.addColorStop(0, 'rgba(120,175,235,0.02)');
+        g.addColorStop(1, `rgba(120,175,235,${a})`);
+        ctx.strokeStyle = g; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(cx, horizonY); ctx.lineTo(rx, y2); ctx.stroke();
+      }
+    }
+    const ox = cx, oy = -H*0.04;
+    const NB = 22, spread = 1.55, reach = H*1.8;
+    for (let i=0;i<NB;i++){
+      const f = i/(NB-1);
+      const ang = Math.PI/2 + (f-0.5)*spread;
+      const ex = ox + Math.cos(ang)*reach, ey = oy + Math.sin(ang)*reach;
+      const g = ctx.createLinearGradient(ox,oy,ex,ey);
+      const a = 0.06 + 0.16*Math.sin(f*Math.PI);
+      g.addColorStop(0,    `rgba(150,205,255,${a*1.35})`);
+      g.addColorStop(0.55, `rgba(45,150,255,${a})`);
+      g.addColorStop(1,    'rgba(18,118,230,0)');
+      ctx.strokeStyle = g; ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(ex,ey); ctx.stroke();
+    }
+    const og = ctx.createRadialGradient(ox, oy+16, 0, ox, oy+16, H*0.24);
+    og.addColorStop(0, 'rgba(150,210,255,0.28)');
+    og.addColorStop(1, 'rgba(40,140,250,0)');
+    ctx.fillStyle = og;
+    ctx.beginPath(); ctx.arc(ox, oy+16, H*0.24, 0, 7); ctx.fill();
+    const p = (t / DURATION);
+    const fy = lerp(-H*0.08, H*1.08, p);
+    const bandH = H * 0.22;
+    const sg = ctx.createLinearGradient(0, fy-bandH/2, 0, fy+bandH/2);
+    sg.addColorStop(0,   'rgba(120,200,255,0)');
+    sg.addColorStop(0.5, 'rgba(150,210,255,0.22)');
+    sg.addColorStop(1,   'rgba(120,200,255,0)');
+    ctx.fillStyle = sg; ctx.fillRect(0, fy-bandH/2, W, bandH);
+    ctx.fillStyle = 'rgba(190,228,255,0.35)';
+    ctx.fillRect(0, fy-1.5, W, 3);
+  }
+  let start = null;
+  function frame(ts){
+    if(start==null) start=ts;
+    const t = ((ts-start)/1000) % DURATION;
+    draw(t);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+
+<!-- Shared standardized components (single source of truth) -->
+<link rel="stylesheet" href="shared-components.css">
+<script src="shared-components.js"></script>
+</body>
+</html>
