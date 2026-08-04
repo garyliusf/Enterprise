@@ -222,37 +222,49 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   .plat-status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #22c55e; flex-shrink: 0; }
   .plat-status--amber::before { background: #FAB662; }
 
-  /* ─── SECTION 4: USE CASES (builtin-card grid, security-agent pattern) ── */
+  /* ─── SECTION 4: USE CASES (unlocks-panel: graph-paper + icon cells) ──── */
   .usecase-section { width: 100%; background: #000; position: relative; }
-  .usecase-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; }
-  .usecase-grid .builtin-card:nth-child(-n+3) { grid-column: span 2; }
-  .usecase-grid .builtin-card:nth-child(4) { grid-column: 2 / 4; }
-  .usecase-grid .builtin-card:nth-child(5) { grid-column: 4 / 6; }
-  .section-cta { margin-top: 40px; }
-
-  .builtin-card {
-    position: relative; overflow: hidden;
-    border: 1px solid rgba(255,255,255,0.10); border-radius: 2px;
-    padding: 22px 24px;
+  .unlocks-visual {
+    position: relative; width: 100%;
+    border: 1px solid rgba(255,255,255,0.12); border-radius: 4px;
+    background: radial-gradient(600px 320px at 22% 80%, rgba(14,28,40,0.55), transparent 60%),
+                linear-gradient(180deg, #050608 0%, #000000 100%);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.04);
+    overflow: hidden; padding: clamp(32px, 3.5vw, 56px);
+  }
+  .unlocks-visual::after {
+    content: ''; position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(circle at 50% 50%, #000 25%, transparent 78%);
+    -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 25%, transparent 78%);
+    pointer-events: none;
+  }
+  .unlocks-header { position: relative; z-index: 1; margin-bottom: clamp(32px, 5vh, 52px); display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
+  .unlocks-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; position: relative; z-index: 1; }
+  .unlock-card {
+    border: none; border-radius: 4px; padding: 24px 24px 28px;
     background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%);
-    transition: border-color 0.35s ease;
+    display: flex; flex-direction: column; gap: 10px; min-height: 180px;
+    position: relative; overflow: hidden;
   }
-  .builtin-card:hover { border-color: rgba(20,136,252,0.45); }
-  .builtin-hover-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; opacity: 0; transition: opacity 0.45s ease; pointer-events: none; }
-  .builtin-card:hover .builtin-hover-canvas { opacity: 1; }
-  .builtin-card-inner { position: relative; z-index: 1; }
-  .builtin-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
-  .builtin-card-icon {
-    width: 44px; height: 44px; border-radius: 4px; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
+  .unlock-hover-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity 0.45s ease; z-index: 0; }
+  .unlock-card:hover .unlock-hover-canvas { opacity: 1; }
+  .unlock-card { transition: border-color 0.35s ease; }
+  .unlock-card:not(.unlock-card--cta):hover { box-shadow: inset 0 0 0 1px rgba(20,136,252,0.35); }
+  .unlock-card > *:not(.unlock-hover-canvas) { position: relative; z-index: 1; }
+  .unlock-icon {
+    width: 44px; height: 44px; border-radius: 4px; margin-bottom: 6px;
     background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
-    color: rgba(255,255,255,0.6);
+    display: inline-flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.85);
   }
-  .builtin-card-icon svg { width: 20px; height: 20px; }
-  .builtin-card-num { font-family: 'Silkscreen', monospace; font-size: 13px; color: rgba(255,255,255,0.22); letter-spacing: 1px; transition: color 0.35s ease; }
-  .builtin-card:hover .builtin-card-num { color: #1488FC; }
-  .builtin-card-title { font-size: 18px; font-weight: 600; color: #fff; letter-spacing: -0.2px; margin: 0 0 9px; }
-  .builtin-card-desc { font-size: 15px; font-weight: 400; color: rgba(255,255,255,0.55); line-height: 1.6; margin: 0; }
+  .unlock-icon svg { width: 20px; height: 20px; }
+  .unlock-title { font-size: 18px; font-weight: 600; color: #fff; margin: 0; letter-spacing: -0.2px; line-height: 1.35; }
+  .unlock-desc { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.55; margin: 0; }
+  /* CTA cell (6th) — subtle blue tint, centers the standard blue button */
+  .unlock-card--cta { align-items: center; justify-content: center; text-align: center; gap: 18px; background: rgba(20,136,252,0.06); }
+  .unlock-card--cta .unlock-desc { max-width: 220px; }
 
   /* ─── SECTION 5: TEMPLATES (row list, templates-page catalog feel) ────── */
   .tmpl-section { width: 100%; background: #050508; position: relative; }
@@ -346,8 +358,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     .plat-panel-grid { gap: 44px; }
     .plat-h3 { font-size: clamp(26px, 3.4vw, 34px); }
     .feat-section { padding: 64px 0; }
-    .usecase-grid { grid-template-columns: repeat(2, 1fr); }
-    .usecase-grid .builtin-card { grid-column: auto !important; }
+    .unlocks-grid { grid-template-columns: repeat(2, 1fr); }
     .int-grid { grid-template-columns: repeat(3, 1fr); }
     .trust-grid { grid-template-columns: 1fr; gap: 44px; }
     .footer-headline { font-size: 42px; }
@@ -383,7 +394,8 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     .plat-h3 { font-size: clamp(24px, 7vw, 30px); }
     .plat-body, .plat-list li { font-size: 15px; }
     .plat-vcard { padding: 22px; min-height: 0; }
-    .usecase-grid { grid-template-columns: 1fr; }
+    .unlocks-visual { padding: 32px 18px; }
+    .unlocks-grid { grid-template-columns: 1fr; }
     .tmpl-row { grid-template-columns: 36px 1fr 22px; gap: 14px; padding: 22px 4px; }
     .tmpl-main { grid-template-columns: 1fr; gap: 4px; }
     .tmpl-title { font-size: 18px; }
@@ -571,72 +583,53 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
 <!-- ─── SECTION 4: USE CASES ─────────────────────────────────────────────── -->
 <section class="section usecase-section">
   <div class="section-inner">
-    <div class="section-header">
-      <p class="section-eyebrow eyebrow-scramble">Use cases</p>
-      <div class="reveal-h">
+    <div class="unlocks-visual">
+      <div class="reveal-h unlocks-header">
+        <p class="section-eyebrow eyebrow-scramble">Use cases</p>
         <h2 class="section-headline">Everything your business needs</h2>
+        <p class="section-sub">From a quick internal tool to a full software product, Bolt fits the job.</p>
       </div>
-      <p class="section-sub">From a quick internal tool to a full software product, Bolt fits the job.</p>
-    </div>
-    <div class="usecase-grid">
-      <div class="builtin-card">
-        <canvas class="builtin-hover-canvas" aria-hidden="true"></canvas>
-        <div class="builtin-card-inner">
-          <div class="builtin-card-top">
-            <span class="builtin-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
-            <span class="builtin-card-num">01</span>
-          </div>
-          <p class="builtin-card-title">Tools</p>
-          <p class="builtin-card-desc">Internal tools and dashboards, built without a dev sprint</p>
+      <div class="unlocks-grid">
+
+        <div class="unlock-card"><canvas class="unlock-hover-canvas" aria-hidden="true"></canvas>
+          <div class="unlock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
+          <h3 class="unlock-title">Tools</h3>
+          <p class="unlock-desc">Internal tools and dashboards, built without a dev sprint</p>
         </div>
-      </div>
-      <div class="builtin-card">
-        <canvas class="builtin-hover-canvas" aria-hidden="true"></canvas>
-        <div class="builtin-card-inner">
-          <div class="builtin-card-top">
-            <span class="builtin-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M10 4v4"/><path d="M2 8h20"/><path d="M6 4v4"/></svg></span>
-            <span class="builtin-card-num">02</span>
-          </div>
-          <p class="builtin-card-title">Apps</p>
-          <p class="builtin-card-desc">Full applications with a database, auth, and logic</p>
+
+        <div class="unlock-card"><canvas class="unlock-hover-canvas" aria-hidden="true"></canvas>
+          <div class="unlock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M10 4v4"/><path d="M2 8h20"/><path d="M6 4v4"/></svg></div>
+          <h3 class="unlock-title">Apps</h3>
+          <p class="unlock-desc">Full applications with a database, auth, and logic</p>
         </div>
-      </div>
-      <div class="builtin-card">
-        <canvas class="builtin-hover-canvas" aria-hidden="true"></canvas>
-        <div class="builtin-card-inner">
-          <div class="builtin-card-top">
-            <span class="builtin-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg></span>
-            <span class="builtin-card-num">03</span>
-          </div>
-          <p class="builtin-card-title">Websites</p>
-          <p class="builtin-card-desc">Marketing sites and landing pages that launch fast</p>
+
+        <div class="unlock-card"><canvas class="unlock-hover-canvas" aria-hidden="true"></canvas>
+          <div class="unlock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg></div>
+          <h3 class="unlock-title">Websites</h3>
+          <p class="unlock-desc">Marketing sites and landing pages that launch fast</p>
         </div>
-      </div>
-      <div class="builtin-card">
-        <canvas class="builtin-hover-canvas" aria-hidden="true"></canvas>
-        <div class="builtin-card-inner">
-          <div class="builtin-card-top">
-            <span class="builtin-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg></span>
-            <span class="builtin-card-num">04</span>
-          </div>
-          <p class="builtin-card-title">Prototyping</p>
-          <p class="builtin-card-desc">Working prototypes to test an idea before you commit</p>
+
+        <div class="unlock-card"><canvas class="unlock-hover-canvas" aria-hidden="true"></canvas>
+          <div class="unlock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg></div>
+          <h3 class="unlock-title">Prototyping</h3>
+          <p class="unlock-desc">Working prototypes to test an idea before you commit</p>
         </div>
-      </div>
-      <div class="builtin-card">
-        <canvas class="builtin-hover-canvas" aria-hidden="true"></canvas>
-        <div class="builtin-card-inner">
-          <div class="builtin-card-top">
-            <span class="builtin-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m7 11 2-2-2-2"/><path d="M11 13h4"/></svg></span>
-            <span class="builtin-card-num">05</span>
-          </div>
-          <p class="builtin-card-title">Software</p>
-          <p class="builtin-card-desc">Production-ready software, from prompt to deploy</p>
+
+        <div class="unlock-card"><canvas class="unlock-hover-canvas" aria-hidden="true"></canvas>
+          <div class="unlock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m7 11 2-2-2-2"/><path d="M11 13h4"/></svg></div>
+          <h3 class="unlock-title">Software</h3>
+          <p class="unlock-desc">Production-ready software, from prompt to deploy</p>
         </div>
+
+        <div class="unlock-card unlock-card--cta">
+          <p class="unlock-desc">See the full library of what teams build with Bolt.</p>
+          <a href="https://bolt.new/use-cases/" target="_blank" rel="noopener" class="hero-btn-primary">
+            <div class="btn-bg-hover"></div>
+            <div class="btn-text-wrap"><div class="btn-text-inner"><span>See all use cases</span><span>See all use cases</span></div></div>
+          </a>
+        </div>
+
       </div>
-    </div>
-    <div class="section-cta">
-      <a class="arrow-link" href="https://bolt.new/use-cases/" target="_blank" rel="noopener">See all use cases <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
     </div>
   </div>
 </section>
@@ -1085,8 +1078,8 @@ window.addEventListener('load', function() {
     }
     requestAnimationFrame(draw);
   }
-  document.querySelectorAll('.builtin-card').forEach(function(el, i) {
-    var cv = el.querySelector('.builtin-hover-canvas'); if (cv) attachHoverField(el, cv, i);
+  document.querySelectorAll('.unlock-card').forEach(function(el, i) {
+    var cv = el.querySelector('.unlock-hover-canvas'); if (cv) attachHoverField(el, cv, i);
   });
 })();
 
