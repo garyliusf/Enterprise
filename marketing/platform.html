@@ -280,7 +280,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     transition: padding-left 0.45s cubic-bezier(0.22,1,0.36,1);
   }
   .works-num { font-family: 'Silkscreen', monospace; font-size: 12px; color: rgba(255,255,255,0.30); letter-spacing: 1px; transition: color 0.3s ease; }
-  .works-title { font-size: clamp(30px, 4.6vw, 56px); font-weight: 500; color: #fff; letter-spacing: -1.5px; line-height: 1.02; margin: 0; transition: color 0.3s ease; }
+  .works-title { font-size: clamp(26px, 3.4vw, 42px); font-weight: 500; color: #fff; letter-spacing: -1px; line-height: 1.05; margin: 0; transition: color 0.3s ease; }
   .works-tag { font-family: 'Silkscreen', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.35); white-space: nowrap; transition: color 0.3s ease; }
   /* hover: spotlight the active row, dim the rest, nudge it right */
   @media (hover: hover) {
@@ -303,7 +303,8 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   .works-preview-view {
     position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
     width: 84px; height: 84px; border-radius: 50%;
-    background: #E9DDC5; color: #111;
+    background: linear-gradient(155deg, #2A93FF 0%, #1488FC 42%, #0B3B82 100%);
+    color: #fff; box-shadow: 0 8px 24px rgba(8,32,72,0.45), inset 0 1px 0 rgba(255,255,255,0.25);
     display: flex; align-items: center; justify-content: center;
     font-family: 'Silkscreen', monospace; font-size: 10px; letter-spacing: 1.5px;
   }
@@ -368,6 +369,10 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   /* Local H2 word-reveal — fires at ~50% viewport (same as security-agent) */
   .reveal-h .word { display: inline-block; opacity: 0; transform: translate(-10px, -7px); filter: blur(5px); will-change: opacity, transform, filter; }
   .reveal-h.is-revealed .word { animation: dsa-word-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards; animation-delay: calc(var(--i, 0) * 28ms); }
+  /* subtitle fade-in, triggered alongside the H2 reveal */
+  .sub-in { animation: subReveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.18s both; }
+  @keyframes subReveal { from { opacity: 0; transform: translateY(10px); filter: blur(4px); } to { opacity: 1; transform: none; filter: none; } }
+  @media (prefers-reduced-motion: reduce) { .sub-in { animation: none; } }
 
   /* ─── RESPONSIVE ──────────────────────────────────────────────────────── */
   @media (max-width: 1024px) {
@@ -663,7 +668,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     </div>
     <div class="works" id="works">
       <div class="works-list">
-        <a class="works-row" href="https://bolt.new/resources/templates/commerce-admin" target="_blank" rel="noopener" data-thumb="../images/templates/saas-dashboard.webp">
+        <a class="works-row" href="https://bolt.new/resources/templates/saas-landing" target="_blank" rel="noopener" data-thumb="../images/templates/saas-dashboard.webp">
           <span class="works-num">01</span>
           <h3 class="works-title">SaaS Dashboard</h3>
           <span class="works-tag">Dashboard</span>
@@ -682,6 +687,16 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
           <span class="works-num">04</span>
           <h3 class="works-title">Revenue Dashboard</h3>
           <span class="works-tag">Analytics</span>
+        </a>
+        <a class="works-row" href="https://bolt.new/resources/templates/kern-studio" target="_blank" rel="noopener" data-thumb="../images/templates/agency-website.webp">
+          <span class="works-num">05</span>
+          <h3 class="works-title">Creative Agency</h3>
+          <span class="works-tag">Agency</span>
+        </a>
+        <a class="works-row" href="https://bolt.new/resources/templates/architect-portfolio" target="_blank" rel="noopener" data-thumb="../images/templates/portfolio.webp">
+          <span class="works-num">06</span>
+          <h3 class="works-title">Minimalist Portfolio</h3>
+          <span class="works-tag">Portfolio</span>
         </a>
       </div>
       <!-- Floating cursor-following preview (desktop only; JS positions it) -->
@@ -1027,30 +1042,42 @@ window.addEventListener('load', function() {
 
 <script>
 /* Eyebrow scramble (.eyebrow-scramble) is handled by shared-components.js.
-   H2 word-reveal is handled locally so it fires at ~50% of the viewport. */
+   H2 word-reveal + subtitle fade are handled locally, triggered by a scroll/
+   load check (reliable) as each header enters the lower ~85% of the viewport. */
 (function () {
+  var SUBS = '.section-sub, .feat-subheadline, .trust-body';
   function wrapWords(el) {
     var i = 0;
     el.innerHTML = el.innerHTML.replace(/\S+/g, function (w) {
       return '<span class="word" style="--i:' + (i++) + '">' + w + '</span>';
     });
   }
-  var containers = document.querySelectorAll('.reveal-h');
+  var containers = Array.prototype.slice.call(document.querySelectorAll('.reveal-h'));
   containers.forEach(function (c) {
     c.querySelectorAll('h1, h2').forEach(function (h) {
       if (!h.dataset.wrapped) { wrapWords(h); h.dataset.wrapped = '1'; }
     });
   });
-  if (!('IntersectionObserver' in window)) {
-    containers.forEach(function (c) { c.classList.add('is-revealed'); });
-    return;
+  function reveal(c) {
+    if (c.classList.contains('is-revealed')) return;
+    c.classList.add('is-revealed');
+    var header = c.parentElement;                 // header wrapper holds the sibling subtitle
+    var sub = header && header.querySelector(SUBS);
+    if (sub) sub.classList.add('sub-in');
   }
-  var io = new IntersectionObserver(function (entries) {
-    entries.forEach(function (e) {
-      if (e.isIntersecting) { e.target.classList.add('is-revealed'); io.unobserve(e.target); }
-    });
-  }, { threshold: 0, rootMargin: '0px 0px -45% 0px' });
-  containers.forEach(function (c) { io.observe(c); });
+  function check() {
+    var vh = window.innerHeight || document.documentElement.clientHeight;
+    for (var i = 0; i < containers.length; i++) {
+      var c = containers[i];
+      if (c.classList.contains('is-revealed')) continue;
+      var r = c.getBoundingClientRect();
+      if (r.top < vh * 0.85 && r.bottom > 0) reveal(c);
+    }
+  }
+  window.addEventListener('scroll', check, { passive: true });
+  window.addEventListener('resize', check);
+  window.addEventListener('load', check);
+  check();
 })();
 
 // ── Card hover "flashlight" — radial glow follows the cursor ─────────────────
