@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Platform · Bolt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Silkscreen:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+</style>
+</head>
+<body>
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+  }
+
+  /* Shared eyebrow pill (brand blue) */
+  .eyebrow-pill {
+    display: inline-block; align-self: flex-start;
+    font-family: 'Silkscreen', monospace;
+    font-size: 16px; font-weight: 400; letter-spacing: 2px;
+    color: #1488FC; text-transform: uppercase;
+  }
+
+  /* Arrow text link (used for section CTAs + tab links) */
+  .arrow-link {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 15px; font-weight: 500; color: #1488FC;
+    text-decoration: none; transition: gap 0.2s ease;
+  }
+  .arrow-link:hover { gap: 12px; }
+  .arrow-link svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+  /* ─── SECTION SCAFFOLDING (templates-page pattern) ────────────────────── */
+  .section { width: 100%; padding: clamp(80px, 12vh, 140px) 0; position: relative; }
+  .section-inner { width: min(1120px, calc(100vw - 160px)); margin: 0 auto; position: relative; z-index: 2; }
+  .section-header { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; margin-bottom: 56px; }
+  .section-headline { font-size: clamp(32px, 4vw, 52px); font-weight: 500; line-height: 1.15; letter-spacing: -1px; color: #fff; margin: 0; }
+  .section-sub { font-size: clamp(15px, 1.1vw, 17px); line-height: 1.65; color: rgba(255,255,255,0.5); max-width: 640px; margin: 0; }
+
+  /* ─── SECTION 1: HERO (security-agent treatment) ──────────────────────── */
+  .hero-section {
+    width: 100%;
+    min-height: min(80vh, 900px);
+    min-height: min(80dvh, 900px);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-family: 'Inter', sans-serif;
+    background:
+      radial-gradient(1100px 640px at 50% 0%, rgba(24,96,190,0.40), transparent 62%),
+      radial-gradient(620px 460px at 96% -12%, rgba(198,118,58,0.14), transparent 58%),
+      radial-gradient(760px 640px at 6% 22%, rgba(18,52,124,0.34), transparent 62%),
+      #04060c;
+    padding: clamp(120px, 15vh, 180px) 0 clamp(72px, 9vh, 120px);
+  }
+  #hero-pixel-dots { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+  .hero-content-area { display: flex; align-items: center; justify-content: center; position: relative; z-index: 3; width: 100%; }
+  .hero-inner {
+    display: flex; flex-direction: column; align-items: center; gap: 24px;
+    width: min(1120px, calc(100vw - 160px)); margin: 0 auto; text-align: center;
+  }
+  .hero-badge {
+    display: inline-block; align-self: center;
+    font-family: 'Silkscreen', monospace; font-size: 16px; letter-spacing: 2px;
+    color: #1488FC; text-transform: uppercase;
+  }
+  .hero-h1 {
+    font-size: 66px; font-weight: 500; color: #fff;
+    text-align: center; line-height: 1.1; letter-spacing: normal; max-width: 900px;
+  }
+  .hero-subtitle {
+    font-size: clamp(16px, 1.4vw, 20px); font-weight: 400; color: #ABABAB;
+    text-align: center; max-width: 680px; line-height: 1.5;
+  }
+  /* .hero-inner .hero-btn-group margin-top comes from --sub-to-cta in shared-components.css */
+  .hero-microcopy { font-size: 13px; color: rgba(255,255,255,0.4); margin-top: -8px; }
+  .hero-prompt-wrap { width: min(600px, 100%); margin-top: 12px; text-align: left; }
+
+  /* ─── BOLT PROMPT BOX (verbatim templates-page component) ─────────────── */
+  .re-prompt-shell {
+    width: 100%;
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 16px;
+    background: rgba(28,28,32,0.85);
+    overflow: hidden;
+    transition: border-color 180ms ease, box-shadow 180ms ease;
+  }
+  .re-prompt-shell:focus-within { border-color: #1488FC; box-shadow: 0 0 0 1px #1488FC; }
+  .re-prompt-input {
+    width: 100%; min-height: 92px; max-height: 220px; resize: none; border: 0;
+    background: transparent; color: #fff; font-size: 15px; line-height: 1.5;
+    font-family: 'Inter', sans-serif; padding: 22px 22px 8px; outline: none;
+  }
+  .re-prompt-input::placeholder { color: rgba(255,255,255,0.25); }
+  .re-prompt-input:focus::placeholder { color: transparent; }
+  .re-prompt-actions { display: flex; justify-content: flex-end; align-items: center; padding: 10px 14px 14px; background: transparent; }
+  .re-prompt-submit {
+    min-height: 36px; padding: 0 16px; border-radius: 999px; border: 0;
+    background: #1488FC; color: #fff; font-size: 14px; font-weight: 500;
+    font-family: 'Inter', sans-serif; text-decoration: none;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    cursor: pointer; transition: filter 180ms ease, transform 180ms ease;
+  }
+  .re-prompt-submit svg { width: 16px; height: 16px; flex: 0 0 auto; }
+  .re-prompt-submit:hover { filter: brightness(0.94); transform: translateY(-1px); }
+
+  /* Comet outline (verbatim templates-page hero-prompt shell) */
+  .re-prompt-shell.hero-prompt-shell {
+    position: relative; border: 0; padding: 1px; border-radius: 16px;
+    background: rgba(255,255,255,0.09); overflow: visible;
+    clip-path: inset(0 round 16px);
+    -webkit-clip-path: inset(0 round 16px);
+    isolation: isolate;
+  }
+  .hero-prompt-glow {
+    position: absolute; top: 0; left: 0; pointer-events: none; z-index: 0;
+    offset-anchor: 50% 50%; offset-distance: 0%;
+    offset-path: inset(0.5px round 16px); offset-rotate: 0deg;
+    animation: heroPromptOrbit 3.6s linear infinite; will-change: offset-distance;
+  }
+  .hero-prompt-glow--brand  { width: 360px; height: 360px; background: radial-gradient(circle, #1488fc 0%, transparent 42%); }
+  .hero-prompt-glow--accent { width: 120px; height: 120px; background: radial-gradient(circle, #8fc1ff 0%, transparent 48%); mix-blend-mode: overlay; }
+  .hero-prompt-inner { position: relative; z-index: 1; border-radius: 15px; background: #1c1c20; overflow: hidden; }
+  .hero-prompt-shell .re-prompt-input { background: transparent; }
+  @keyframes heroPromptOrbit { from { offset-distance: 0%; } to { offset-distance: 100%; } }
+  @media (prefers-reduced-motion: reduce) { .hero-prompt-glow { animation: none; } }
+
+  /* ─── SECTION 2: LOGO STRIP ───────────────────────────────────────────── */
+  .logos-section { width: 100%; background: #000; padding: clamp(48px, 7vh, 80px) 0; }
+  .logos-label {
+    font-family: 'Silkscreen', monospace; font-size: 12px; letter-spacing: 2px;
+    text-transform: uppercase; color: rgba(255,255,255,0.35);
+    text-align: center; margin: 0 0 36px;
+  }
+  .logo-train {
+    height: 64px; position: relative; overflow: hidden;
+    display: flex; align-items: center;
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+            mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+  }
+  .logo-track {
+    display: flex; align-items: center; gap: 88px; padding-right: 88px;
+    will-change: transform; white-space: nowrap; flex-shrink: 0;
+    animation: scrollLogos 36s linear infinite;
+  }
+  @keyframes scrollLogos { from { transform: translateX(0); } to { transform: translateX(-33.333%); } }
+  @media (prefers-reduced-motion: reduce) { .logo-track { animation: none; } }
+  .logo-item { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  /* Extracted homepage wordmarks are black fills — invert to white, dim to strip level */
+  .logo-item img { height: 24px; width: auto; display: block; filter: invert(1); opacity: 0.45; }
+  .logo-item--sm img { height: 19px; }
+  .logo-item--lg img { height: 28px; }
+
+  /* ─── SECTION 3: PLATFORM TABS (security-agent feat component, 4 tabs) ── */
+  .feat-section { width: 100%; background: #000; padding: clamp(80px, 12vh, 140px) 0; font-family: 'Inter', sans-serif; }
+  .feat-header { width: min(1120px, calc(100vw - 160px)); margin: 0 auto 64px; text-align: left; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+  .feat-eyebrow { font-family: 'Silkscreen', monospace; font-size: 16px; font-weight: 400; color: #1488FC; margin: 0; letter-spacing: 2px; text-transform: uppercase; }
+  .feat-headline { font-size: clamp(32px, 4vw, 52px); font-weight: 500; color: #fff; line-height: 1.2; letter-spacing: -1px; margin: 0; }
+  .feat-subheadline { font-size: clamp(15px, 1.1vw, 17px); color: rgba(255,255,255,0.5); margin: 0; max-width: 640px; line-height: 1.65; }
+  .feat-inner { width: min(1120px, calc(100vw - 160px)); margin: 0 auto; display: grid; grid-template-columns: 380px 1fr; gap: 0; align-items: stretch; }
+  .feat-nav { display: flex; flex-direction: column; }
+  .feat-tab {
+    background: none; border: none;
+    border-left: 1px solid rgba(255,255,255,0.07); border-bottom: 1px solid rgba(255,255,255,0.07);
+    padding: 24px 26px; text-align: left; cursor: pointer; font-family: 'Inter', sans-serif;
+    position: relative; display: flex; flex-direction: column; gap: 10px; justify-content: center;
+    flex: 1; min-height: 150px;
+  }
+  .feat-tab-bar { width: 100%; height: 5px; background: rgba(255,255,255,0.08); position: absolute; top: 0; left: 0; overflow: hidden; }
+  .feat-hover-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity 0.3s ease; image-rendering: pixelated; z-index: 0; }
+  .feat-tab:hover .feat-hover-canvas { opacity: 0.12; }
+  .feat-bar-canvas { display: block; position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; }
+  .feat-tab-title { font-size: 24px; font-weight: 500; color: rgba(255,255,255,0.25); margin: 0; line-height: 1.3; transition: color 0.3s ease; position: relative; z-index: 1; }
+  .feat-tab.active .feat-tab-title { color: #fff; }
+  .feat-tab-desc { font-size: 14px; color: rgba(255,255,255,0.4); margin: 0; line-height: 1.6; transition: color 0.4s ease; position: relative; z-index: 1; }
+  .feat-tab.active .feat-tab-desc { color: rgba(255,255,255,0.6); }
+  .feat-content-area { background: #111; position: relative; overflow: hidden; min-height: 620px; }
+  #feat-noise-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.38; z-index: 0; }
+  .feat-slide { position: absolute; inset: 0; opacity: 0; transition: opacity 0.5s ease; z-index: 11; }
+  .feat-slide.active { opacity: 1; }
+  .feat-tab-mobile-content { display: none; }
+
+  /* Platform slide layout: kicker + body + link on top, visual center, list bottom */
+  .plat-slide { display: flex; flex-direction: column; width: 100%; height: 100%; }
+  .plat-slide-copy { padding: 30px 34px 0; display: flex; flex-direction: column; gap: 12px; align-items: flex-start; text-align: left; }
+  .plat-kicker { font-family: 'Silkscreen', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #1488FC; margin: 0; }
+  .plat-body { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.65; margin: 0; max-width: 580px; }
+  .plat-slide-visual { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; padding: 28px 34px; }
+  .feat-info-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; width: 100%; flex-shrink: 0; border-top: 1px solid rgba(255,255,255,0.08); }
+  .feat-info-cards--4 { grid-template-columns: repeat(4, 1fr); }
+  .feat-info-card { background: rgba(255,255,255,0.05); border-right: 1px solid rgba(255,255,255,0.08); padding: 14px 16px; }
+  .feat-info-card:last-child { border-right: none; }
+  .feat-info-card p { font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.55; margin: 0; }
+
+  /* Status-row mock (tabs 2–4 visuals) */
+  .plat-rows { width: min(440px, 100%); display: flex; flex-direction: column; gap: 10px; }
+  .plat-row {
+    display: flex; justify-content: space-between; align-items: center; gap: 16px;
+    padding: 16px 18px;
+    border: 1px solid rgba(255,255,255,0.10); border-radius: 4px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%);
+  }
+  .plat-row-name { font-size: 14px; font-weight: 500; color: #fff; margin: 0; }
+  .plat-status { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: rgba(255,255,255,0.55); white-space: nowrap; }
+  .plat-status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #22c55e; flex-shrink: 0; }
+  .plat-status--amber::before { background: #FAB662; }
+
+  /* Prompt mock (tab 1 visual) — non-interactive miniature of the bolt prompt box */
+  .plat-prompt-mock { width: min(440px, 100%); pointer-events: none; }
+  .plat-prompt-mock .re-prompt-input { min-height: 76px; }
+
+  /* ─── SECTION 4: USE CASES (builtin-card grid, security-agent pattern) ── */
+  .usecase-section { width: 100%; background: #000; position: relative; }
+  .usecase-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; }
+  .usecase-grid .builtin-card:nth-child(-n+3) { grid-column: span 2; }
+  .usecase-grid .builtin-card:nth-child(4) { grid-column: 2 / 4; }
+  .usecase-grid .builtin-card:nth-child(5) { grid-column: 4 / 6; }
+  .section-cta { margin-top: 40px; }
+
+  .builtin-card {
+    position: relative; overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.10); border-radius: 2px;
+    padding: 22px 24px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%);
+    transition: border-color 0.35s ease;
+  }
+  .builtin-card:hover { border-color: rgba(20,136,252,0.45); }
+  .builtin-hover-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; opacity: 0; transition: opacity 0.45s ease; pointer-events: none; }
+  .builtin-card:hover .builtin-hover-canvas { opacity: 1; }
+  .builtin-card-inner { position: relative; z-index: 1; }
+  .builtin-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+  .builtin-card-icon {
+    width: 44px; height: 44px; border-radius: 4px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.6);
+  }
+  .builtin-card-icon svg { width: 20px; height: 20px; }
+  .builtin-card-num { font-family: 'Silkscreen', monospace; font-size: 13px; color: rgba(255,255,255,0.22); letter-spacing: 1px; transition: color 0.35s ease; }
+  .builtin-card:hover .builtin-card-num { color: #1488FC; }
+  .builtin-card-title { font-size: 18px; font-weight: 600; color: #fff; letter-spacing: -0.2px; margin: 0 0 9px; }
+  .builtin-card-desc { font-size: 15px; font-weight: 400; color: rgba(255,255,255,0.55); line-height: 1.6; margin: 0; }
+
+  /* ─── SECTION 5: TEMPLATES (row list, templates-page catalog feel) ────── */
+  .tmpl-section { width: 100%; background: #050508; position: relative; }
+  .tmpl-list { border-top: 1px solid rgba(255,255,255,0.08); }
+  .tmpl-row {
+    display: grid; grid-template-columns: 56px 1fr 28px; align-items: center; gap: 24px;
+    padding: 30px 8px; border-bottom: 1px solid rgba(255,255,255,0.08);
+    text-decoration: none; position: relative; overflow: hidden;
+    transition: background 0.25s ease;
+  }
+  .tmpl-row:hover { background: rgba(255,255,255,0.03); }
+  .tmpl-num { font-family: 'Silkscreen', monospace; font-size: 12px; color: rgba(255,255,255,0.25); letter-spacing: 1px; transition: color 0.3s ease; }
+  .tmpl-row:hover .tmpl-num { color: #1488FC; }
+  .tmpl-main { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 8px 32px; align-items: baseline; }
+  .tmpl-title { font-size: 22px; font-weight: 500; color: #fff; letter-spacing: -0.3px; margin: 0; line-height: 1.25; }
+  .tmpl-desc { font-size: 15px; color: rgba(255,255,255,0.5); line-height: 1.55; margin: 0; }
+  .int-arrow {
+    width: 22px; height: 22px; color: #1488FC; flex-shrink: 0;
+    opacity: 0; transform: translateX(-6px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  .int-arrow svg { width: 100%; height: 100%; display: block; }
+  .tmpl-row:hover .int-arrow { opacity: 1; transform: translateX(0); }
+
+  /* ─── SECTION 6: TRUST BAND ───────────────────────────────────────────── */
+  .trust-section { width: 100%; background: #060606; position: relative; overflow: hidden; }
+  .trust-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+  .trust-left { display: flex; flex-direction: column; gap: 20px; align-items: flex-start; }
+  .trust-h2 { font-size: clamp(32px, 4vw, 52px); font-weight: 500; color: #fff; line-height: 1.15; letter-spacing: -1px; margin: 0; }
+  .trust-body { font-size: clamp(15px, 1.1vw, 17px); color: rgba(255,255,255,0.5); line-height: 1.65; max-width: 460px; margin: 0; }
+  .trust-checks { display: flex; flex-direction: column; gap: 12px; }
+  .trust-check {
+    display: flex; gap: 14px; align-items: flex-start; padding: 18px 20px;
+    border: 1px solid rgba(255,255,255,0.10); border-radius: 4px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%);
+    transition: border-color 0.3s ease;
+  }
+  .trust-check:hover { border-color: rgba(255,255,255,0.22); }
+  .trust-check-icon {
+    width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; margin-top: 1px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(20,136,252,0.12); color: #1488FC;
+  }
+  .trust-check-icon svg { width: 13px; height: 13px; }
+  .trust-check-title { font-size: 15px; font-weight: 600; color: #fff; margin: 0 0 4px; letter-spacing: -0.1px; }
+  .trust-check-desc { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.55; margin: 0; }
+
+  /* ─── SECTION 7: INTEGRATIONS (templates-page int-logo tiles) ─────────── */
+  .integrations-section { width: 100%; background: #000; position: relative; }
+  .int-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+  .int-tile {
+    display: flex; flex-direction: column; gap: 16px; padding: 22px;
+    border: 1px solid rgba(255,255,255,0.10); border-radius: 4px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%);
+    transition: border-color 0.3s ease;
+  }
+  .int-tile:hover { border-color: rgba(255,255,255,0.22); }
+  .int-logo {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Silkscreen', monospace; font-size: 14px; font-weight: 700; color: #fff; flex-shrink: 0;
+  }
+  .int-logo[data-color="blue"]   { background: rgba(20,136,252,0.14);  color: #8AC7FF; border-color: rgba(20,136,252,0.40); }
+  .int-logo[data-color="mint"]   { background: rgba(127,221,193,0.12); color: #7FDDC1; border-color: rgba(127,221,193,0.35); }
+  .int-logo[data-color="salmon"] { background: rgba(255,176,147,0.12); color: #FFB093; border-color: rgba(255,176,147,0.35); }
+  .int-logo[data-color="purple"] { background: rgba(168,140,255,0.12); color: #C7B6FF; border-color: rgba(168,140,255,0.35); }
+  .int-logo[data-color="amber"]  { background: rgba(250,182,98,0.12);  color: #FAB662; border-color: rgba(250,182,98,0.35); }
+  .int-tile-tag {
+    font-family: 'Silkscreen', monospace; font-size: 10px; letter-spacing: 1.5px;
+    text-transform: uppercase; color: rgba(255,255,255,0.45); margin: 0 0 6px;
+  }
+  .int-tile-name { font-size: 16px; font-weight: 600; color: #fff; letter-spacing: -0.2px; margin: 0; line-height: 1.35; }
+
+  /* ─── SECTION 8: FINAL CTA + FOOTER ───────────────────────────────────── */
+  .footer-section { background: #000; padding: 90px 40px 0; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; text-align: center; box-sizing: border-box; width: 100%; }
+  .footer-headline { font-size: 52px; font-weight: 500; color: #fff; margin: 0; line-height: 1.2; max-width: 880px; }
+  .footer-subtitle { font-size: 18px; color: #ABABAB; max-width: 640px; line-height: 1.6; margin: -16px 0 0; }
+  .bolt-image-wrap { margin-top: 0; width: 100%; overflow: hidden; position: relative; height: 32vw; max-height: 32vw; }
+
+  /* Local H2 word-reveal — fires at ~50% viewport (same as security-agent) */
+  .reveal-h .word { display: inline-block; opacity: 0; transform: translate(-10px, -7px); filter: blur(5px); will-change: opacity, transform, filter; }
+  .reveal-h.is-revealed .word { animation: dsa-word-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards; animation-delay: calc(var(--i, 0) * 28ms); }
+
+  /* ─── RESPONSIVE ──────────────────────────────────────────────────────── */
+  @media (max-width: 1024px) {
+    .hero-h1 { font-size: 51px; }
+    .hero-inner, .section-inner, .feat-header, .feat-inner { width: min(900px, calc(100vw - 80px)); }
+    .eyebrow-pill, .hero-badge, .feat-eyebrow { font-size: 13px; }
+    .feat-inner { grid-template-columns: 300px 1fr; }
+    .feat-tab { min-height: 130px; padding: 20px; }
+    .feat-tab-title { font-size: 20px; }
+    .feat-section { padding: 64px 0; }
+    .usecase-grid { grid-template-columns: repeat(2, 1fr); }
+    .usecase-grid .builtin-card { grid-column: auto !important; }
+    .int-grid { grid-template-columns: repeat(3, 1fr); }
+    .trust-grid { grid-template-columns: 1fr; gap: 44px; }
+    .footer-headline { font-size: 42px; }
+    .footer-section { padding: 64px 40px 0; }
+  }
+  @media (max-width: 768px) {
+    .hero-section { min-height: 0; padding: 100px 0 56px; }
+    .hero-inner { width: 100%; padding: 0 16px; gap: 20px; }
+    .hero-h1 { font-size: clamp(37px, 10.45vw, 51px); }
+    .hero-subtitle { font-size: 16px; max-width: 100%; }
+    .section { padding: 48px 0; }
+    .section-inner { width: calc(100vw - 32px); }
+    .section-header { margin-bottom: 32px; }
+    .logos-section { padding: 40px 0; }
+    .logos-label { margin-bottom: 24px; }
+    .logo-track { gap: 56px; padding-right: 56px; }
+    .logo-item img { height: 20px; }
+    .logo-item--sm img { height: 16px; }
+    .logo-item--lg img { height: 23px; }
+    .feat-section { padding: 40px 0; }
+    .feat-header { width: calc(100vw - 32px); margin: 0 auto 40px; gap: 10px; }
+    .feat-headline { font-size: clamp(26px, 8vw, 36px); letter-spacing: -0.5px; line-height: 1.3; }
+    .feat-subheadline { font-size: 15px; }
+    .feat-inner { width: calc(100vw - 32px); grid-template-columns: 1fr; }
+    .feat-content-area { display: none; }
+    .feat-nav { gap: 28px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 28px; }
+    .feat-tab { padding: 0; border: none; cursor: default; pointer-events: none; min-height: 0; }
+    .feat-tab-title { font-size: 21px; color: #fff !important; }
+    .feat-tab-desc { font-size: 15px; color: rgba(255,255,255,0.55) !important; }
+    .feat-tab-bar, .feat-hover-canvas { display: none !important; }
+    .feat-tab-mobile-content { display: flex; flex-direction: column; gap: 16px; margin-top: 6px; width: 100%; }
+    .feat-tab-mobile-content .plat-body { font-size: 14px; }
+    .feat-tab-mobile-content .feat-info-cards { grid-template-columns: 1fr; border: 1px solid rgba(255,255,255,0.08); }
+    .feat-tab-mobile-content .feat-info-card { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .feat-tab-mobile-content .feat-info-card:last-child { border-bottom: none; }
+    .usecase-grid { grid-template-columns: 1fr; }
+    .tmpl-row { grid-template-columns: 36px 1fr 22px; gap: 14px; padding: 22px 4px; }
+    .tmpl-main { grid-template-columns: 1fr; gap: 4px; }
+    .tmpl-title { font-size: 18px; }
+    .tmpl-desc { font-size: 14px; }
+    .int-grid { grid-template-columns: repeat(2, 1fr); }
+    .trust-grid { gap: 32px; }
+    .footer-section { padding: 48px 0 0; justify-content: flex-start; }
+    .footer-section > *:not(.bolt-image-wrap) { padding-left: 12px; padding-right: 12px; box-sizing: border-box; width: 100%; }
+    .bolt-image-wrap { width: 100vw !important; margin-left: 0 !important; height: 42vw !important; max-height: 42vw !important; }
+    .footer-headline { font-size: clamp(26px, 8vw, 36px); line-height: 1.2; }
+    .footer-subtitle { font-size: 16px; max-width: 340px; }
+    #footer-pixel-canvas { height: 60px; }
+  }
+</style>
+
+<!-- ─── SECTION 1: HERO ──────────────────────────────────────────────────── -->
+<section class="hero-section">
+  <canvas id="hero-pixel-dots"></canvas>
+  <div class="hero-content-area">
+    <div class="hero-inner">
+      <span class="hero-badge eyebrow-scramble">Platform Overview</span>
+      <h1 class="hero-h1">One platform. Every step from prompt to production.</h1>
+      <p class="hero-subtitle">Bolt turns natural language into working products, secures it, and deploys it. No separate tools. No handoffs.</p>
+      <div class="hero-btn-group">
+        <a href="https://bolt.new" target="_blank" rel="noopener" class="hero-btn-primary">
+          <div class="btn-bg-hover"></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Start building for free</span><span>Start building for free</span></div></div>
+        </a>
+      </div>
+      <p class="hero-microcopy">No credit card required. Deploy your first app in minutes.</p>
+      <div class="hero-prompt-wrap">
+        <div class="re-prompt-shell hero-prompt-shell">
+          <div class="hero-prompt-glow hero-prompt-glow--brand" aria-hidden="true"></div>
+          <div class="hero-prompt-glow hero-prompt-glow--accent" aria-hidden="true"></div>
+          <div class="hero-prompt-inner">
+            <label class="sr-only" for="hero-prompt-input">Describe what you want to build</label>
+            <textarea id="hero-prompt-input" class="re-prompt-input" rows="2" placeholder="Build a&hellip;"></textarea>
+            <div class="re-prompt-actions">
+              <a href="https://bolt.new/" class="re-prompt-submit" id="hero-prompt-submit">
+                <span>Build now</span>
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="m4.497 20.835 16.51-7.363c1.324-.59 1.324-2.354 0-2.944L4.497 3.164c-1.495-.667-3.047.814-2.306 2.202l3.152 5.904c.245.459.245 1 0 1.458l-3.152 5.904c-.74 1.388.81 2.87 2.306 2.202Z"></path></svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── SECTION 2: LOGO STRIP ────────────────────────────────────────────── -->
+<section class="logos-section">
+  <p class="logos-label">Trusted by teams shipping with AI</p>
+  <span class="sr-only">Trusted by Accenture, Shopify, Google, Cloudflare, AWS, Microsoft, Salesforce, and Meta</span>
+  <div class="logo-train" aria-hidden="true">
+    <div class="logo-track">
+      <span class="logo-item"><img src="../images/logos-home/accenture.svg" alt=""></span>
+      <span class="logo-item"><img src="../images/logos-home/shopify.svg" alt=""></span>
+      <span class="logo-item"><img src="../images/logos-home/google.svg" alt=""></span>
+      <span class="logo-item"><img src="../images/logos-home/cloudflare.svg" alt=""></span>
+      <span class="logo-item logo-item--lg"><img src="../images/logos-home/aws.svg" alt=""></span>
+      <span class="logo-item"><img src="../images/logos-home/microsoft.svg" alt=""></span>
+      <span class="logo-item"><img src="../images/logos-home/salesforce.svg" alt=""></span>
+      <span class="logo-item"><img src="../images/logos-home/meta.svg" alt=""></span>
+      <span class="logo-item"><img src="../images/logos-home/accenture.svg" alt=""></span>
+      <span class="logo-item"><img src="../images/logos-home/shopify.svg" alt=""></span>
+      <span class="logo-item"><img src="../images/logos-home/google.svg" alt=""></span>
+      <span class="logo-item"><img src="../images/logos-home/cloudflare.svg" alt=""></span>
+      <span class="logo-item logo-item--lg"><img src="../images/logos-home/aws.svg" alt=""></span>
+      <span class="logo-item"><img src="../images/logos-home/microsoft.svg" alt=""></span>
+      <span class="logo-item"><img src="../images/logos-home/salesforce.svg" alt=""></span>
+      <span class="logo-item"><img src="../images/logos-home/meta.svg" alt=""></span>
+      <span class="logo-item"><img src="../images/logos-home/accenture.svg" alt=""></span>
+      <span class="logo-item"><img src="../images/logos-home/shopify.svg" alt=""></span>
+      <span class="logo-item"><img src="../images/logos-home/google.svg" alt=""></span>
+      <span class="logo-item"><img src="../images/logos-home/cloudflare.svg" alt=""></span>
+      <span class="logo-item logo-item--lg"><img src="../images/logos-home/aws.svg" alt=""></span>
+      <span class="logo-item"><img src="../images/logos-home/microsoft.svg" alt=""></span>
+      <span class="logo-item"><img src="../images/logos-home/salesforce.svg" alt=""></span>
+      <span class="logo-item"><img src="../images/logos-home/meta.svg" alt=""></span>
+    </div>
+  </div>
+</section>
+
+<!-- ─── SECTION 3: PLATFORM (business-size tabs) ─────────────────────────── -->
+<section class="feat-section">
+  <div class="feat-header">
+    <p class="feat-eyebrow eyebrow-scramble">Platform</p>
+    <div class="reveal-h">
+      <h2 class="feat-headline">Build exactly what you need, skip what you don&rsquo;t</h2>
+    </div>
+    <p class="feat-subheadline">Whether you&rsquo;re building solo or shipping for a whole organization, Bolt fits the way you work.</p>
+  </div>
+  <div class="feat-inner">
+    <div class="feat-nav">
+
+      <button class="feat-tab" data-feat="1">
+        <div class="feat-tab-bar"><canvas class="feat-bar-canvas"></canvas></div>
+        <canvas class="feat-hover-canvas" aria-hidden="true"></canvas>
+        <p class="feat-tab-title">Entrepreneur</p>
+        <p class="feat-tab-desc">Turn your idea into a live product yourself</p>
+        <div class="feat-tab-mobile-content">
+          <p class="plat-body">You know exactly what you want to build. Bolt gets you there without hiring a developer, without a $12,000 agency quote, and without losing your vision in translation.</p>
+          <div class="plat-prompt-mock re-prompt-shell" aria-hidden="true">
+            <div class="re-prompt-input" style="color:rgba(255,255,255,0.7);">Build a coming soon waitlist page for my app</div>
+            <div class="re-prompt-actions"><span class="re-prompt-submit"><span>Build now</span></span></div>
+          </div>
+          <div class="feat-info-cards">
+            <div class="feat-info-card"><p>Launch a working app without a technical co-founder</p></div>
+            <div class="feat-info-card"><p>Build and revise it yourself instead of waiting on a developer</p></div>
+            <div class="feat-info-card"><p>Deploy your MVP and test your assumptions</p></div>
+          </div>
+          <a class="arrow-link" href="https://bolt.new/solutions/ai-for-entrepreneurs" target="_blank" rel="noopener">See what founders are building <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+        </div>
+      </button>
+
+      <button class="feat-tab" data-feat="2">
+        <div class="feat-tab-bar"><canvas class="feat-bar-canvas"></canvas></div>
+        <canvas class="feat-hover-canvas" aria-hidden="true"></canvas>
+        <p class="feat-tab-title">Small business</p>
+        <p class="feat-tab-desc">Replace the tools you&rsquo;re overpaying for</p>
+        <div class="feat-tab-mobile-content">
+          <p class="plat-body">Build the internal tools, customer-facing apps, and sales dashboards your business needs, without adding headcount or juggling five different subscriptions.</p>
+          <div class="plat-rows" aria-hidden="true">
+            <div class="plat-row"><p class="plat-row-name">Inventory tracker</p><span class="plat-status">live</span></div>
+            <div class="plat-row"><p class="plat-row-name">Company website</p><span class="plat-status">live</span></div>
+            <div class="plat-row"><p class="plat-row-name">Sales dashboard</p><span class="plat-status">live</span></div>
+          </div>
+          <div class="feat-info-cards">
+            <div class="feat-info-card"><p>Internal tools and dashboards built in an afternoon, not a quarter</p></div>
+            <div class="feat-info-card"><p>One platform instead of a stack of point solutions</p></div>
+            <div class="feat-info-card"><p>No developer or expensive agency quotes needed</p></div>
+          </div>
+          <a class="arrow-link" href="https://bolt.new/solutions/ai-for-small-business" target="_blank" rel="noopener">See small business solutions <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+        </div>
+      </button>
+
+      <button class="feat-tab" data-feat="3">
+        <div class="feat-tab-bar"><canvas class="feat-bar-canvas"></canvas></div>
+        <canvas class="feat-hover-canvas" aria-hidden="true"></canvas>
+        <p class="feat-tab-title">Enterprise</p>
+        <p class="feat-tab-desc">Give every team the speed of a startup</p>
+        <div class="feat-tab-mobile-content">
+          <p class="plat-body">Ship production-grade apps with the governance, security, and access controls your organization already requires, without slowing teams down to get there.</p>
+          <div class="plat-rows" aria-hidden="true">
+            <div class="plat-row"><p class="plat-row-name">Single sign-on (SAML)</p><span class="plat-status">enabled</span></div>
+            <div class="plat-row"><p class="plat-row-name">Audit logging</p><span class="plat-status">enabled</span></div>
+            <div class="plat-row"><p class="plat-row-name">Role-based access</p><span class="plat-status">enabled</span></div>
+            <div class="plat-row"><p class="plat-row-name">Security scan on deploy</p><span class="plat-status">enabled</span></div>
+          </div>
+          <div class="feat-info-cards">
+            <div class="feat-info-card"><p>SSO, audit logs, and role-based access control</p></div>
+            <div class="feat-info-card"><p>Security scanning built into every deploy</p></div>
+            <div class="feat-info-card"><p>Fits inside the workflows your engineering team already runs</p></div>
+          </div>
+          <a class="arrow-link" href="https://bolt.new/enterprise/" target="_blank" rel="noopener">See enterprise solutions <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+        </div>
+      </button>
+
+      <button class="feat-tab" data-feat="4">
+        <div class="feat-tab-bar"><canvas class="feat-bar-canvas"></canvas></div>
+        <canvas class="feat-hover-canvas" aria-hidden="true"></canvas>
+        <p class="feat-tab-title">Agencies</p>
+        <p class="feat-tab-desc">Deliver more client work without more headcount</p>
+        <div class="feat-tab-mobile-content">
+          <p class="plat-body">Build client sites, campaign pages, and custom tools fast enough to protect your margins, with the design control your clients expect from a finished deliverable.</p>
+          <div class="plat-rows" aria-hidden="true">
+            <div class="plat-row"><p class="plat-row-name">Acme Corp</p><span class="plat-status">delivered</span></div>
+            <div class="plat-row"><p class="plat-row-name">Northwind campaign</p><span class="plat-status plat-status--amber">in review</span></div>
+            <div class="plat-row"><p class="plat-row-name">Cascade rebrand</p><span class="plat-status">delivered</span></div>
+          </div>
+          <div class="feat-info-cards">
+            <div class="feat-info-card"><p>Use client design systems</p></div>
+            <div class="feat-info-card"><p>Faster turnaround on revision rounds</p></div>
+            <div class="feat-info-card"><p>Deliver production ready products</p></div>
+          </div>
+          <!-- Agency solutions URL TBD — content doc had no link target yet -->
+          <a class="arrow-link" href="https://bolt.new/solutions/" target="_blank" rel="noopener">See agency solutions <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+        </div>
+      </button>
+
+    </div>
+    <div class="feat-content-area">
+      <canvas id="feat-noise-canvas"></canvas>
+
+      <div class="feat-slide" id="feat-slide-1">
+        <div class="plat-slide">
+          <div class="plat-slide-copy">
+            <p class="plat-kicker">Entrepreneur</p>
+            <p class="plat-body">You know exactly what you want to build. Bolt gets you there without hiring a developer, without a $12,000 agency quote, and without losing your vision in translation.</p>
+            <a class="arrow-link" href="https://bolt.new/solutions/ai-for-entrepreneurs" target="_blank" rel="noopener">See what founders are building <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+          </div>
+          <div class="plat-slide-visual">
+            <div class="plat-prompt-mock re-prompt-shell" aria-hidden="true">
+              <div class="re-prompt-input" style="color:rgba(255,255,255,0.7);">Build a coming soon waitlist page for my app</div>
+              <div class="re-prompt-actions"><span class="re-prompt-submit"><span>Build now</span></span></div>
+            </div>
+          </div>
+          <div class="feat-info-cards">
+            <div class="feat-info-card"><p>Launch a working app without a technical co-founder</p></div>
+            <div class="feat-info-card"><p>Build and revise it yourself instead of waiting on a developer</p></div>
+            <div class="feat-info-card"><p>Deploy your MVP and test your assumptions</p></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="feat-slide" id="feat-slide-2">
+        <div class="plat-slide">
+          <div class="plat-slide-copy">
+            <p class="plat-kicker">Small business</p>
+            <p class="plat-body">Build the internal tools, customer-facing apps, and sales dashboards your business needs, without adding headcount or juggling five different subscriptions.</p>
+            <a class="arrow-link" href="https://bolt.new/solutions/ai-for-small-business" target="_blank" rel="noopener">See small business solutions <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+          </div>
+          <div class="plat-slide-visual">
+            <div class="plat-rows" aria-hidden="true">
+              <div class="plat-row"><p class="plat-row-name">Inventory tracker</p><span class="plat-status">live</span></div>
+              <div class="plat-row"><p class="plat-row-name">Company website</p><span class="plat-status">live</span></div>
+              <div class="plat-row"><p class="plat-row-name">Sales dashboard</p><span class="plat-status">live</span></div>
+            </div>
+          </div>
+          <div class="feat-info-cards">
+            <div class="feat-info-card"><p>Internal tools and dashboards built in an afternoon, not a quarter</p></div>
+            <div class="feat-info-card"><p>One platform instead of a stack of point solutions</p></div>
+            <div class="feat-info-card"><p>No developer or expensive agency quotes needed</p></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="feat-slide" id="feat-slide-3">
+        <div class="plat-slide">
+          <div class="plat-slide-copy">
+            <p class="plat-kicker">Enterprise</p>
+            <p class="plat-body">Ship production-grade apps with the governance, security, and access controls your organization already requires, without slowing teams down to get there.</p>
+            <a class="arrow-link" href="https://bolt.new/enterprise/" target="_blank" rel="noopener">See enterprise solutions <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+          </div>
+          <div class="plat-slide-visual">
+            <div class="plat-rows" aria-hidden="true">
+              <div class="plat-row"><p class="plat-row-name">Single sign-on (SAML)</p><span class="plat-status">enabled</span></div>
+              <div class="plat-row"><p class="plat-row-name">Audit logging</p><span class="plat-status">enabled</span></div>
+              <div class="plat-row"><p class="plat-row-name">Role-based access</p><span class="plat-status">enabled</span></div>
+              <div class="plat-row"><p class="plat-row-name">Security scan on deploy</p><span class="plat-status">enabled</span></div>
+            </div>
+          </div>
+          <div class="feat-info-cards">
+            <div class="feat-info-card"><p>SSO, audit logs, and role-based access control</p></div>
+            <div class="feat-info-card"><p>Security scanning built into every deploy</p></div>
+            <div class="feat-info-card"><p>Fits inside the workflows your engineering team already runs</p></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="feat-slide" id="feat-slide-4">
+        <div class="plat-slide">
+          <div class="plat-slide-copy">
+            <p class="plat-kicker">Agencies</p>
+            <p class="plat-body">Build client sites, campaign pages, and custom tools fast enough to protect your margins, with the design control your clients expect from a finished deliverable.</p>
+            <!-- Agency solutions URL TBD — content doc had no link target yet -->
+            <a class="arrow-link" href="https://bolt.new/solutions/" target="_blank" rel="noopener">See agency solutions <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+          </div>
+          <div class="plat-slide-visual">
+            <div class="plat-rows" aria-hidden="true">
+              <div class="plat-row"><p class="plat-row-name">Acme Corp</p><span class="plat-status">delivered</span></div>
+              <div class="plat-row"><p class="plat-row-name">Northwind campaign</p><span class="plat-status plat-status--amber">in review</span></div>
+              <div class="plat-row"><p class="plat-row-name">Cascade rebrand</p><span class="plat-status">delivered</span></div>
+            </div>
+          </div>
+          <div class="feat-info-cards">
+            <div class="feat-info-card"><p>Use client design systems</p></div>
+            <div class="feat-info-card"><p>Faster turnaround on revision rounds</p></div>
+            <div class="feat-info-card"><p>Deliver production ready products</p></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ─── SECTION 4: USE CASES ─────────────────────────────────────────────── -->
+<section class="section usecase-section">
+  <div class="section-inner">
+    <div class="section-header">
+      <p class="section-eyebrow eyebrow-scramble">Use cases</p>
+      <div class="reveal-h">
+        <h2 class="section-headline">Everything your business needs</h2>
+      </div>
+      <p class="section-sub">From a quick internal tool to a full software product, Bolt fits the job.</p>
+    </div>
+    <div class="usecase-grid">
+      <div class="builtin-card">
+        <canvas class="builtin-hover-canvas" aria-hidden="true"></canvas>
+        <div class="builtin-card-inner">
+          <div class="builtin-card-top">
+            <span class="builtin-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
+            <span class="builtin-card-num">01</span>
+          </div>
+          <p class="builtin-card-title">Tools</p>
+          <p class="builtin-card-desc">Internal tools and dashboards, built without a dev sprint</p>
+        </div>
+      </div>
+      <div class="builtin-card">
+        <canvas class="builtin-hover-canvas" aria-hidden="true"></canvas>
+        <div class="builtin-card-inner">
+          <div class="builtin-card-top">
+            <span class="builtin-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M10 4v4"/><path d="M2 8h20"/><path d="M6 4v4"/></svg></span>
+            <span class="builtin-card-num">02</span>
+          </div>
+          <p class="builtin-card-title">Apps</p>
+          <p class="builtin-card-desc">Full applications with a database, auth, and logic</p>
+        </div>
+      </div>
+      <div class="builtin-card">
+        <canvas class="builtin-hover-canvas" aria-hidden="true"></canvas>
+        <div class="builtin-card-inner">
+          <div class="builtin-card-top">
+            <span class="builtin-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg></span>
+            <span class="builtin-card-num">03</span>
+          </div>
+          <p class="builtin-card-title">Websites</p>
+          <p class="builtin-card-desc">Marketing sites and landing pages that launch fast</p>
+        </div>
+      </div>
+      <div class="builtin-card">
+        <canvas class="builtin-hover-canvas" aria-hidden="true"></canvas>
+        <div class="builtin-card-inner">
+          <div class="builtin-card-top">
+            <span class="builtin-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg></span>
+            <span class="builtin-card-num">04</span>
+          </div>
+          <p class="builtin-card-title">Prototyping</p>
+          <p class="builtin-card-desc">Working prototypes to test an idea before you commit</p>
+        </div>
+      </div>
+      <div class="builtin-card">
+        <canvas class="builtin-hover-canvas" aria-hidden="true"></canvas>
+        <div class="builtin-card-inner">
+          <div class="builtin-card-top">
+            <span class="builtin-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m7 11 2-2-2-2"/><path d="M11 13h4"/></svg></span>
+            <span class="builtin-card-num">05</span>
+          </div>
+          <p class="builtin-card-title">Software</p>
+          <p class="builtin-card-desc">Production-ready software, from prompt to deploy</p>
+        </div>
+      </div>
+    </div>
+    <div class="section-cta">
+      <a class="arrow-link" href="https://bolt.new/use-cases/" target="_blank" rel="noopener">See all use cases <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+    </div>
+  </div>
+</section>
+
+<!-- ─── SECTION 5: TEMPLATES ─────────────────────────────────────────────── -->
+<section class="section tmpl-section">
+  <div class="section-inner">
+    <div class="section-header">
+      <p class="section-eyebrow eyebrow-scramble">Templates</p>
+      <div class="reveal-h">
+        <h2 class="section-headline">Start from a template, not a blank prompt</h2>
+      </div>
+      <p class="section-sub">Bolt-built templates give you a working foundation, styled and wired up, so you&rsquo;re customizing instead of starting from nothing.</p>
+    </div>
+    <div class="tmpl-list">
+      <a class="tmpl-row" href="https://bolt.new/resources/templates" target="_blank" rel="noopener">
+        <span class="tmpl-num">01</span>
+        <div class="tmpl-main">
+          <p class="tmpl-title">SaaS dashboard</p>
+          <p class="tmpl-desc">Auth, billing, and analytics wired up</p>
+        </div>
+        <span class="int-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+      </a>
+      <a class="tmpl-row" href="https://bolt.new/resources/templates" target="_blank" rel="noopener">
+        <span class="tmpl-num">02</span>
+        <div class="tmpl-main">
+          <p class="tmpl-title">Ecommerce storefront</p>
+          <p class="tmpl-desc">Product catalog and checkout included</p>
+        </div>
+        <span class="int-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+      </a>
+      <a class="tmpl-row" href="https://bolt.new/resources/templates" target="_blank" rel="noopener">
+        <span class="tmpl-num">03</span>
+        <div class="tmpl-main">
+          <p class="tmpl-title">Nonprofit Website</p>
+          <p class="tmpl-desc">Donation page, donate page, campaign cards</p>
+        </div>
+        <span class="int-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+      </a>
+      <a class="tmpl-row" href="https://bolt.new/resources/templates" target="_blank" rel="noopener">
+        <span class="tmpl-num">04</span>
+        <div class="tmpl-main">
+          <p class="tmpl-title">Revenue dashboard</p>
+          <p class="tmpl-desc">Charts, KPI tiles, Live signup feed</p>
+        </div>
+        <span class="int-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+      </a>
+    </div>
+    <div class="section-cta">
+      <a class="arrow-link" href="https://bolt.new/resources/templates" target="_blank" rel="noopener">Browse all templates <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+    </div>
+  </div>
+</section>
+
+<!-- ─── SECTION 6: PLATFORM SECURITY (trust band) ────────────────────────── -->
+<section class="section trust-section">
+  <div class="section-inner">
+    <div class="trust-grid">
+      <div class="trust-left">
+        <p class="section-eyebrow eyebrow-scramble">Trust</p>
+        <div class="reveal-h">
+          <h2 class="trust-h2">Security built into the platform, not bolted on after</h2>
+        </div>
+        <p class="trust-body">Every app runs on the same infrastructure your security team already trusts: encrypted data, audited access, and compliance controls that hold up at enterprise scale.</p>
+        <a class="arrow-link" href="https://bolt.new/platform/security" target="_blank" rel="noopener">Explore platform security <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+      </div>
+      <div class="trust-checks">
+        <div class="trust-check">
+          <span class="trust-check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          <div>
+            <p class="trust-check-title">Encryption in transit and at rest</p>
+            <p class="trust-check-desc">Every project and every deploy, by default</p>
+          </div>
+        </div>
+        <div class="trust-check">
+          <span class="trust-check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          <div>
+            <p class="trust-check-title">SOC 2 Type II</p>
+            <p class="trust-check-desc">Independently audited controls</p>
+          </div>
+        </div>
+        <div class="trust-check">
+          <span class="trust-check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          <div>
+            <p class="trust-check-title">GDPR compliant</p>
+            <p class="trust-check-desc">Data handling that meets EU requirements</p>
+          </div>
+        </div>
+        <div class="trust-check">
+          <span class="trust-check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          <div>
+            <p class="trust-check-title">Private deployments</p>
+            <p class="trust-check-desc">Isolated environments for enterprise teams</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── SECTION 7: INTEGRATIONS ──────────────────────────────────────────── -->
+<section class="section integrations-section">
+  <div class="section-inner">
+    <div class="section-header">
+      <p class="section-eyebrow eyebrow-scramble">Integrations</p>
+      <div class="reveal-h">
+        <h2 class="section-headline">Connects to the tools you already run</h2>
+      </div>
+      <p class="section-sub">Bolt.new plugs into your database, payments, hosting, and design tools instead of replacing them.</p>
+    </div>
+    <div class="int-grid">
+      <div class="int-tile">
+        <span class="int-logo" data-color="blue">DB</span>
+        <div>
+          <p class="int-tile-tag">Database</p>
+          <p class="int-tile-name">Postgres and Supabase</p>
+        </div>
+      </div>
+      <div class="int-tile">
+        <span class="int-logo" data-color="purple">ST</span>
+        <div>
+          <p class="int-tile-tag">Payments</p>
+          <p class="int-tile-name">Stripe</p>
+        </div>
+      </div>
+      <div class="int-tile">
+        <span class="int-logo" data-color="mint">NF</span>
+        <div>
+          <p class="int-tile-tag">Hosting</p>
+          <p class="int-tile-name">Netlify</p>
+        </div>
+      </div>
+      <div class="int-tile">
+        <span class="int-logo" data-color="amber">GH</span>
+        <div>
+          <p class="int-tile-tag">Version control</p>
+          <p class="int-tile-name">GitHub</p>
+        </div>
+      </div>
+      <div class="int-tile">
+        <span class="int-logo" data-color="salmon">FG</span>
+        <div>
+          <p class="int-tile-tag">Design</p>
+          <p class="int-tile-name">Figma import</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── SECTION 8: FINAL CTA + FOOTER ────────────────────────────────────── -->
+<section class="footer-section">
+  <div class="dsa-reveal"><!-- footer H2 animates (parity with other marketing footers) -->
+    <h2 class="footer-headline">Build your next app on a platform that doesn&rsquo;t stop at the prototype.</h2>
+  </div>
+  <p class="footer-subtitle">Start for free. Upgrade when you&rsquo;re ready to deploy, secure, and scale.</p>
+  <div style="position:relative;width:100%;max-width:700px;margin-top:-152px;display:flex;flex-direction:column;align-items:center;">
+    <canvas id="footer-pixel-canvas" style="display:block;width:100%;height:192px;pointer-events:none;opacity:1;"></canvas>
+    <a href="https://bolt.new" target="_blank" rel="noopener" class="hero-btn-primary footer-cta-btn" style="position:relative;z-index:1;height:52px;padding:0 28px;font-size:15px;">
+      <div class="btn-bg-hover"></div>
+      <div class="btn-text-wrap"><div class="btn-text-inner"><span>Start building for free</span><span>Start building for free</span></div></div>
+    </a>
+  </div>
+  <div class="bolt-image-wrap">
+    <img src="../images/bolt-bottom.png" alt="bolt" loading="lazy" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;opacity:0.20;">
+    <canvas id="bolt-shimmer-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;mix-blend-mode:screen;"></canvas>
+    <div style="position:absolute;inset:0;background:linear-gradient(to bottom, #000 0%, transparent 22%, transparent 88%, #000 100%);z-index:3;"></div>
+  </div>
+</section>
+
+<script>
+// ── Generic pixel canvas helper (verbatim security-agent) ────────────────────
+function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
+  color = color || '20,136,252';
+  const canvas = document.getElementById(id);
+  if (!canvas) return;
+  let phases = [];
+  function buildPhases(cols, rows) {
+    phases = Array.from({ length: rows }, () => Array.from({ length: cols }, () => Math.random() * Math.PI * 2));
+  }
+  function resize() {
+    const parent = canvas.parentElement;
+    const w = parent.offsetWidth || parent.getBoundingClientRect().width;
+    const h = parent.offsetHeight || parent.getBoundingClientRect().height;
+    if (!w || !h) return;
+    canvas.width = Math.round(w); canvas.height = Math.round(h);
+    buildPhases(Math.ceil(w / spacing), Math.ceil(h / spacing));
+  }
+  window.addEventListener('load', resize); window.addEventListener('resize', resize);
+  new ResizeObserver(function() { resize(); }).observe(canvas.parentElement);
+  requestAnimationFrame(function() { resize(); });
+  function draw(t) {
+    const w = canvas.width, h = canvas.height;
+    if (!w || !h) { requestAnimationFrame(draw); return; }
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, w, h);
+    const cols = Math.ceil(w / spacing); const rows = Math.ceil(h / spacing);
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const phase = (phases[r] && phases[r][c]) || 0;
+        const op = waveFn(c, r, t, phase) * opacity;
+        if (op < 0.04) continue;
+        ctx.fillStyle = `rgba(${color},${op.toFixed(3)})`;
+        ctx.fillRect(c * spacing, r * spacing, dot, dot);
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+}
+
+// ── Bolt strip shimmer (verbatim security-agent) ─────────────────────────────
+(function() {
+  var canvas = document.getElementById('bolt-shimmer-canvas');
+  if (!canvas) return;
+  var wrap = canvas.parentElement;
+  var ctx = canvas.getContext('2d');
+  var img = wrap.querySelector('img');
+  var W, H, strips = [], t = 0;
+  var hoverT = 0, isHovered = false, splashT = 0, splashStart = null, splashDuration = 300;
+  var observer = new IntersectionObserver(function(entries) {
+    if (entries[0].isIntersecting && !splashStart) { splashStart = Date.now(); observer.disconnect(); }
+  }, { threshold: 0.1 });
+  observer.observe(wrap);
+  function sampleStrips() {
+    var SW = 400, SH = 200;
+    var s = document.createElement('canvas'); s.width = SW; s.height = SH;
+    var sc = s.getContext('2d'); sc.drawImage(img, 0, 0, SW, SH);
+    var data = sc.getImageData(0, 0, SW, SH).data;
+    strips = [];
+    var inStrip = false, stripStart = 0;
+    for (var x = 0; x < SW; x++) {
+      var b = 0;
+      for (var y = 20; y < SH - 20; y++) { var idx = (y * SW + x) * 4; b += (data[idx] + data[idx+1] + data[idx+2]) / 3; }
+      b /= (SH - 40);
+      if (b > 28 && !inStrip) { inStrip = true; stripStart = x; }
+      else if (b <= 28 && inStrip) {
+        inStrip = false;
+        strips.push({ cx: (stripStart + x) / 2 / SW, w: (x - stripStart) / SW, phase: Math.random() * Math.PI * 2, freq: 0.5 + Math.random() * 1.2, yPhase: Math.random() * Math.PI * 2, yFreq: 0.35 + Math.random() * 0.7, speedMult: 0.6 + Math.random() * 0.8 });
+      }
+    }
+  }
+  function init() {
+    var r = wrap.getBoundingClientRect(); W = canvas.width = r.width; H = canvas.height = r.height;
+    t = Math.random() * 80; sampleStrips();
+    var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+    if (isTouch) { splashDuration = 1500; } else {
+      wrap.addEventListener('mouseenter', function() { isHovered = true; });
+      wrap.addEventListener('mouseleave', function() { isHovered = false; });
+    }
+    requestAnimationFrame(tick);
+  }
+  function tick() {
+    var splashRaw = splashStart ? Math.max(0, 1 - (Date.now() - splashStart) / splashDuration) : 0;
+    splashT = splashRaw * splashRaw * splashRaw;
+    t += 0.028 + hoverT * 0.016;
+    hoverT += ((isHovered ? 1 : 0) - hoverT) * (isHovered ? 0.07 : 0.025);
+    ctx.clearRect(0, 0, W, H);
+    for (var i = 0; i < strips.length; i++) {
+      var st = strips[i];
+      var brightness = (Math.sin(t * st.freq * st.speedMult + st.phase) * 0.5 + 0.5);
+      if (brightness < 0.01) continue;
+      var x = st.cx * W; var w = Math.max(st.w * W, 3);
+      var centerY = (Math.sin(t * st.yFreq * st.speedMult + st.yPhase) * 0.5 + 0.5) * H;
+      var spread = H * (0.55 + hoverT * 0.25);
+      var baseA = brightness * 0.11; var peakA = brightness * 0.28;
+      var boost = Math.max(hoverT, splashT);
+      var a = (baseA + (peakA - baseA) * boost).toFixed(3);
+      var a2 = (parseFloat(a) * 1.4).toFixed(3);
+      var grad = ctx.createLinearGradient(0, centerY - spread, 0, centerY + spread);
+      grad.addColorStop(0, 'rgba(220,225,240,0)'); grad.addColorStop(0.3, 'rgba(220,225,240,' + a + ')');
+      grad.addColorStop(0.5, 'rgba(255,255,255,' + a2 + ')'); grad.addColorStop(0.7, 'rgba(220,225,240,' + a + ')');
+      grad.addColorStop(1, 'rgba(220,225,240,0)');
+      ctx.fillStyle = grad; ctx.fillRect(x - w / 2, 0, w, H);
+    }
+    requestAnimationFrame(tick);
+  }
+  if (img.complete) init(); else img.addEventListener('load', init);
+})();
+
+// ── Hero pixel dots — uniform ambient field (verbatim security-agent) ─────────
+(function () {
+  var canvas = document.getElementById('hero-pixel-dots');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var SPACING = 11, DOT = 2, cols, rows, phases;
+  function init() {
+    canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
+    cols = Math.ceil(canvas.width / SPACING) + 1;
+    rows = Math.ceil(canvas.height / SPACING) + 1;
+    phases = Array.from({ length: rows }, function () { return Float32Array.from({ length: cols }, function () { return Math.random() * Math.PI * 2; }); });
+  }
+  window.addEventListener('resize', init); init();
+  var start = null;
+  function draw(ts) {
+    if (!start) start = ts; var t = ts - start;
+    var W = canvas.width, H = canvas.height;
+    if (!W || !H) { requestAnimationFrame(draw); return; }
+    ctx.clearRect(0, 0, W, H);
+    for (var c = 0; c < cols; c++) {
+      var cf = c / cols;
+      var hm = Math.exp(-Math.pow(cf - 0.5, 2) / (2 * 0.18 * 0.18));
+      if (hm < 0.04) continue;
+      for (var r = 0; r < rows; r++) {
+        var rf = r / rows;
+        var vTop = Math.min(1, rf / 0.30);
+        var vBot = Math.min(1, (1 - rf) / 0.30);
+        var vm = vTop * vBot;
+        if (vm < 0.08) continue;
+        var x = c * SPACING, y = r * SPACING;
+        var ph = phases[r][c];
+        var w1 = Math.sin(c * 0.13 + r * 0.29 - t * 0.0012 + ph);
+        var w2 = Math.sin(c * 0.07 - r * 0.11 + t * 0.0008 + ph * 0.6);
+        var w3 = Math.sin((c - r) * 0.05 + t * 0.0006 + ph * 1.3);
+        var wave = (w1 + w2 + w3) / 3;
+        var op = hm * vm * Math.max(0, wave) * 0.28;
+        if (op < 0.015) continue;
+        ctx.fillStyle = 'rgba(160,185,230,' + op.toFixed(3) + ')';
+        ctx.fillRect(x - DOT, y - DOT, DOT * 2, DOT * 2);
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+</script>
+
+<script>
+window.addEventListener('load', function() {
+  // Feat noise canvas (verbatim security-agent)
+  makePixelCanvas('feat-noise-canvas', 6, 2,
+    function(c, r, t, p) {
+      const px = c * 6, py = r * 6;
+      const speedMod = 0.05 + (Math.sin(t * 0.00070 + 1.4) * 0.5 + 0.5) * 0.22;
+      function rwave(scale, rotRate, phase, tMult) {
+        const angle = t * rotRate + phase;
+        const u = (px * Math.cos(angle) + py * Math.sin(angle)) / scale;
+        const v = (-px * Math.sin(angle) + py * Math.cos(angle)) / scale;
+        return Math.sin(u * Math.PI * 2 + t * tMult * speedMod) * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7 * speedMod);
+      }
+      const s1 = rwave(500,0.00012,0.5,0.00030), s2 = rwave(260,0.00025,1.8,0.00065);
+      const s3 = rwave(130,0.00042,3.1,0.00130), s4 = rwave(380,0.00018,4.5,0.00048);
+      const wf = s1 * 0.5 + 0.5, det = s2 * 0.45 + s3 * 0.30 + s4 * 0.25;
+      const raw = wf * (det * 0.5 + 0.5), density = Math.pow(Math.max(0, raw), 0.7);
+      const rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
+      return density > rand ? density * 0.9 : 0;
+    }, 0.80, '255,255,255');
+
+  // Footer pixel canvas (verbatim security-agent)
+  makePixelCanvas('footer-pixel-canvas', 6, 2,
+    function(c, r, t, p) {
+      const px = c * 6, py = r * 6;
+      const el = document.getElementById('footer-pixel-canvas');
+      const H = el ? el.height : 260, W = el ? el.width : 700;
+      const vFade = Math.max(0, 1 - py / (H * 0.85));
+      const cx = W / 2, hFade = Math.max(0, 1 - Math.abs(px - cx) / (W * 0.55));
+      const fade = vFade * hFade; if (fade <= 0) return 0;
+      const speedMod = 0.05 + (Math.sin(t * 0.00070 + 2.2) * 0.5 + 0.5) * 0.22;
+      function rwave(scale, rotRate, phase, tMult) {
+        const angle = t * rotRate + phase;
+        const u = (px * Math.cos(angle) + py * Math.sin(angle)) / scale;
+        const v = (-px * Math.sin(angle) + py * Math.cos(angle)) / scale;
+        return Math.sin(u * Math.PI * 2 + t * tMult * speedMod) * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7 * speedMod);
+      }
+      const s1 = rwave(300,0.00012,0.3,0.00030), s2 = rwave(160,0.00025,1.6,0.00065);
+      const s3 = rwave(80,0.00042,2.9,0.00130), s4 = rwave(220,0.00018,4.2,0.00048);
+      const wf = s1 * 0.5 + 0.5, det = s2 * 0.45 + s3 * 0.30 + s4 * 0.25;
+      const raw = wf * (det * 0.5 + 0.5), density = Math.pow(Math.max(0, raw), 0.7) * fade;
+      const rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
+      return density > rand ? density * 0.85 : 0;
+    }, 1.0, '220,230,245');
+});
+</script>
+
+<script>
+// ── Feat tab animation — 4 slides (extended from security-agent's 3) ─────────
+(function () {
+  var DURATION = 10000;
+  var tabs = Array.from(document.querySelectorAll('.feat-tab'));
+  var slides = [1, 2, 3, 4], current = 1, animId = null, startTime = null;
+  function getSlide(i) { return document.getElementById('feat-slide-' + i); }
+  function getCanvas(tab) { return tab.querySelector('.feat-bar-canvas'); }
+  var dpr = window.devicePixelRatio || 1;
+  function drawNoise(canvas, progress) {
+    var cssW = canvas.parentElement.offsetWidth; var w = Math.round(cssW * dpr); var h = Math.round(5 * dpr);
+    if (!w || !h) return;
+    if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; canvas.style.width = cssW + 'px'; canvas.style.height = '5px'; }
+    var ctx = canvas.getContext('2d'); var fillPx = Math.round(w * progress);
+    var imgData = ctx.createImageData(w, h);
+    for (var xi = 0; xi < w; xi++) {
+      var inFill = xi < fillPx;
+      for (var yi = 0; yi < h; yi++) {
+        var idx = (yi * w + xi) * 4;
+        if (inFill) { var n = (Math.random()-0.5)*90; imgData.data[idx]=Math.max(0,Math.min(255,20+n)); imgData.data[idx+1]=Math.max(0,Math.min(255,136+n)); imgData.data[idx+2]=Math.max(0,Math.min(255,252+n)); imgData.data[idx+3]=255; }
+        else { imgData.data[idx+3] = 0; }
+      }
+    }
+    ctx.putImageData(imgData, 0, 0);
+  }
+  function clearCanvas(canvas) { if (canvas.width) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height); }
+  function setActive(index, animate) {
+    slides.forEach(function(i) { var s = getSlide(i); if (s) s.classList.toggle('active', i === index); });
+    tabs.forEach(function(tab) { var isActive = parseInt(tab.dataset.feat) === index; tab.classList.toggle('active', isActive); if (!isActive) clearCanvas(getCanvas(tab)); });
+    current = index; if (animate !== false) startProgress();
+  }
+  function startProgress() {
+    if (animId) cancelAnimationFrame(animId); startTime = null;
+    function tick(ts) {
+      if (!startTime) startTime = ts;
+      var p = Math.min((ts - startTime) / DURATION, 1);
+      drawNoise(getCanvas(tabs[current - 1]), p);
+      if (p < 1) { animId = requestAnimationFrame(tick); }
+      else { var next = (current % slides.length) + 1; setActive(next, true); }
+    }
+    animId = requestAnimationFrame(tick);
+  }
+  tabs.forEach(function(tab) {
+    tab.addEventListener('click', function() { var i = parseInt(tab.dataset.feat); if (i === current) return; setActive(i, true); });
+  });
+  if (tabs.length) setActive(1, true);
+})();
+
+// ── Feat hover noise (verbatim security-agent) ───────────────────────────────
+(function () {
+  var dpr = window.devicePixelRatio || 1;
+  function drawHoverNoise(canvas) {
+    var w = Math.round(canvas.offsetWidth * dpr); var h = Math.round(canvas.offsetHeight * dpr);
+    if (!w || !h) return; canvas.width = w; canvas.height = h;
+    canvas.style.width = canvas.offsetWidth + 'px'; canvas.style.height = canvas.offsetHeight + 'px';
+    var ctx = canvas.getContext('2d'); var imgData = ctx.createImageData(w, h);
+    for (var i = 0; i < imgData.data.length; i += 4) { var v = Math.floor(Math.random() * 80 + 30); imgData.data[i] = v; imgData.data[i+1] = v; imgData.data[i+2] = v; imgData.data[i+3] = 255; }
+    ctx.putImageData(imgData, 0, 0);
+  }
+  requestAnimationFrame(function() { requestAnimationFrame(function() { document.querySelectorAll('.feat-hover-canvas').forEach(drawHoverNoise); }); });
+})();
+</script>
+
+<script>
+/* Eyebrow scramble (.eyebrow-scramble) is handled by shared-components.js.
+   H2 word-reveal is handled locally so it fires at ~50% of the viewport. */
+(function () {
+  function wrapWords(el) {
+    var i = 0;
+    el.innerHTML = el.innerHTML.replace(/\S+/g, function (w) {
+      return '<span class="word" style="--i:' + (i++) + '">' + w + '</span>';
+    });
+  }
+  var containers = document.querySelectorAll('.reveal-h');
+  containers.forEach(function (c) {
+    c.querySelectorAll('h1, h2').forEach(function (h) {
+      if (!h.dataset.wrapped) { wrapWords(h); h.dataset.wrapped = '1'; }
+    });
+  });
+  if (!('IntersectionObserver' in window)) {
+    containers.forEach(function (c) { c.classList.add('is-revealed'); });
+    return;
+  }
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) { e.target.classList.add('is-revealed'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0, rootMargin: '0px 0px -45% 0px' });
+  containers.forEach(function (c) { io.observe(c); });
+})();
+
+// ── Card hover pixel field (verbatim security-agent, on builtin-cards) ───────
+(function () {
+  function attachHoverField(tile, canvas, idx) {
+    var ctx = canvas.getContext('2d');
+    var SPACING = 9, DOT = 2, cols = 0, rows = 0, phases = [], hovered = false, t = 0;
+    var phase = idx * 1.7;
+    function resize() {
+      var w = tile.offsetWidth, h = tile.offsetHeight; if (!w || !h) return;
+      canvas.width = w; canvas.height = h;
+      cols = Math.ceil(w / SPACING) + 1; rows = Math.ceil(h / SPACING) + 1;
+      phases = Array.from({ length: rows }, function() { return Array.from({ length: cols }, function() { return Math.random() * Math.PI * 2; }); });
+    }
+    try { new ResizeObserver(resize).observe(tile); } catch(e) {}
+    requestAnimationFrame(resize);
+    tile.addEventListener('mouseenter', function() { hovered = true; });
+    tile.addEventListener('mouseleave', function() { hovered = false; });
+    function draw() {
+      if (!hovered || !cols) { requestAnimationFrame(draw); return; }
+      t += 0.03;
+      var W = canvas.width, H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+      var angle = t * 0.16 + phase;
+      var ca = Math.cos(angle), sa = Math.sin(angle);
+      for (var r = 0; r < rows; r++) {
+        for (var c = 0; c < cols; c++) {
+          var px = c * SPACING, py = r * SPACING;
+          var ph = (phases[r] && phases[r][c]) || 0;
+          var u = (px * ca + py * sa) / 58;
+          var wave = Math.sin(u + t + ph) * Math.cos((px * -sa + py * ca) / 90 + t * 0.6);
+          var hFade = px / W;
+          var op = Math.max(0, wave) * 0.55 * hFade;
+          if (op < 0.04) continue;
+          ctx.fillStyle = 'rgba(60,140,235,' + op.toFixed(3) + ')';
+          ctx.fillRect(px, py, DOT, DOT);
+        }
+      }
+      requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
+  }
+  document.querySelectorAll('.builtin-card').forEach(function(el, i) {
+    var cv = el.querySelector('.builtin-hover-canvas'); if (cv) attachHoverField(el, cv, i);
+  });
+})();
+
+// ── Hero prompt box → carry typed text to bolt.new (templates-page pattern) ──
+(function () {
+  var ta = document.getElementById('hero-prompt-input');
+  var btn = document.getElementById('hero-prompt-submit');
+  if (!ta || !btn) return;
+  function goToBolt(e) {
+    var text = (ta.value || '').trim();
+    var url = 'https://bolt.new/';
+    if (text) url += '?autosubmit=true#prompt=' + encodeURIComponent(text);
+    if (e) e.preventDefault();
+    window.open(url, '_blank', 'noopener');
+  }
+  btn.addEventListener('click', goToBolt);
+  ta.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) { goToBolt(e); }
+  });
+})();
+</script>
+
+<!-- Shared standardized components (single source of truth) -->
+<link rel="stylesheet" href="shared-components.css">
+<script src="shared-components.js"></script>
+</body>
+</html>
