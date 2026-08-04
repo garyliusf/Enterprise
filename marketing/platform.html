@@ -143,63 +143,84 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   .logo-item--nudge-accenture img { transform: translateY(2.5px); }
   .logo-item--nudge-aws img { transform: translateY(3px); }
 
-  /* ─── SECTION 3: PLATFORM TABS (security-agent feat component, 4 tabs) ── */
+  /* ─── SECTION 3: PLATFORM TABS (horizontal tab bar + 2-col panel) ─────── */
   .feat-section { width: 100%; background: #000; padding: clamp(80px, 12vh, 140px) 0; font-family: 'Inter', sans-serif; }
-  .feat-header { width: min(1120px, calc(100vw - 160px)); margin: 0 auto 64px; text-align: left; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+  .feat-header { width: min(1120px, calc(100vw - 160px)); margin: 0 auto 48px; text-align: left; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
   .feat-eyebrow { font-family: 'Silkscreen', monospace; font-size: 16px; font-weight: 400; color: #1488FC; margin: 0; letter-spacing: 2px; text-transform: uppercase; }
   .feat-headline { font-size: clamp(32px, 4vw, 52px); font-weight: 500; color: #fff; line-height: 1.2; letter-spacing: -1px; margin: 0; }
   .feat-subheadline { font-size: clamp(15px, 1.1vw, 17px); color: rgba(255,255,255,0.5); margin: 0; max-width: 640px; line-height: 1.65; }
-  .feat-inner { width: min(1120px, calc(100vw - 160px)); margin: 0 auto; display: grid; grid-template-columns: 380px 1fr; gap: 0; align-items: stretch; }
-  .feat-nav { display: flex; flex-direction: column; }
-  .feat-tab {
-    background: none; border: none;
-    border-left: 1px solid rgba(255,255,255,0.07); border-bottom: 1px solid rgba(255,255,255,0.07);
-    padding: 24px 26px; text-align: left; cursor: pointer; font-family: 'Inter', sans-serif;
-    position: relative; display: flex; flex-direction: column; gap: 10px; justify-content: center;
-    flex: 1; min-height: 150px;
+  .feat-inner { width: min(1120px, calc(100vw - 160px)); margin: 0 auto; }
+
+  /* Horizontal tab bar */
+  .plat-tabbar {
+    display: flex; gap: 44px;
+    border-bottom: 1px solid rgba(255,255,255,0.10);
+    margin-bottom: 52px; position: relative;
   }
-  .feat-tab-bar { width: 100%; height: 5px; background: rgba(255,255,255,0.08); position: absolute; top: 0; left: 0; overflow: hidden; }
-  .feat-hover-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity 0.3s ease; image-rendering: pixelated; z-index: 0; }
-  .feat-tab:hover .feat-hover-canvas { opacity: 0.12; }
-  .feat-bar-canvas { display: block; position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; }
-  .feat-tab-title { font-size: 24px; font-weight: 500; color: rgba(255,255,255,0.25); margin: 0; line-height: 1.3; transition: color 0.3s ease; position: relative; z-index: 1; }
-  .feat-tab.active .feat-tab-title { color: #fff; }
-  .feat-tab-desc { font-size: 14px; color: rgba(255,255,255,0.4); margin: 0; line-height: 1.6; transition: color 0.4s ease; position: relative; z-index: 1; }
-  .feat-tab.active .feat-tab-desc { color: rgba(255,255,255,0.6); }
-  .feat-content-area { background: #111; position: relative; overflow: hidden; min-height: 620px; }
-  #feat-noise-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.38; z-index: 0; }
-  .feat-slide { position: absolute; inset: 0; opacity: 0; transition: opacity 0.5s ease; z-index: 11; }
-  .feat-slide.active { opacity: 1; }
-  .feat-tab-mobile-content { display: none; }
+  .plat-tab {
+    background: none; border: none; padding: 0 0 20px; cursor: pointer;
+    font-family: 'Inter', sans-serif; font-size: 19px; font-weight: 500;
+    color: rgba(255,255,255,0.4); position: relative; white-space: nowrap;
+    transition: color 0.25s ease;
+  }
+  .plat-tab:hover { color: rgba(255,255,255,0.72); }
+  .plat-tab.active { color: #fff; }
+  .plat-tab::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px;
+    background: #1488FC; border-radius: 2px 2px 0 0;
+    transform: scaleX(0); transform-origin: left center;
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  }
+  .plat-tab.active::after { transform: scaleX(1); }
 
-  /* Platform slide layout: kicker + body + link on top, visual center, list bottom */
-  .plat-slide { display: flex; flex-direction: column; width: 100%; height: 100%; }
-  .plat-slide-copy { padding: 30px 34px 0; display: flex; flex-direction: column; gap: 12px; align-items: flex-start; text-align: left; }
-  .plat-kicker { font-family: 'Silkscreen', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #1488FC; margin: 0; }
-  .plat-body { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.65; margin: 0; max-width: 580px; }
-  .plat-slide-visual { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; padding: 28px 34px; }
-  .feat-info-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; width: 100%; flex-shrink: 0; border-top: 1px solid rgba(255,255,255,0.08); }
-  .feat-info-cards--4 { grid-template-columns: repeat(4, 1fr); }
-  .feat-info-card { background: rgba(255,255,255,0.05); border-right: 1px solid rgba(255,255,255,0.08); padding: 14px 16px; }
-  .feat-info-card:last-child { border-right: none; }
-  .feat-info-card p { font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.55; margin: 0; }
+  /* Panels */
+  .plat-panels { position: relative; }
+  .plat-panel { display: none; }
+  .plat-panel.active { display: block; animation: platPanelIn 0.45s ease; }
+  @keyframes platPanelIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .plat-panel.active { animation: none; } }
+  .plat-panel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+  .plat-panel-left { display: flex; flex-direction: column; align-items: flex-start; gap: 22px; }
+  .plat-kicker { font-family: 'Silkscreen', monospace; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #1488FC; margin: 0; }
+  .plat-h3 { font-size: clamp(28px, 3vw, 40px); font-weight: 500; color: #fff; line-height: 1.15; letter-spacing: -0.5px; margin: 0; max-width: 480px; }
+  .plat-body { font-size: 16px; color: rgba(255,255,255,0.55); line-height: 1.65; margin: 0; max-width: 520px; }
+  .plat-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 16px; }
+  .plat-list li { position: relative; padding-left: 24px; font-size: 16px; color: rgba(255,255,255,0.75); line-height: 1.45; }
+  .plat-list li::before { content: ""; position: absolute; left: 0; top: 9px; width: 7px; height: 7px; border-radius: 50%; background: #1488FC; }
+  .plat-panel-left .arrow-link { margin-top: 2px; }
 
-  /* Status-row mock (tabs 2–4 visuals) */
-  .plat-rows { width: min(440px, 100%); display: flex; flex-direction: column; gap: 10px; }
+  /* Right visual card */
+  .plat-vcard {
+    position: relative; overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.10); border-radius: 12px;
+    background:
+      radial-gradient(120% 100% at 50% 0%, rgba(20,60,120,0.16), transparent 60%),
+      linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.008));
+    padding: 28px;
+    display: flex; flex-direction: column; gap: 20px; justify-content: center;
+    min-height: 300px;
+  }
+
+  /* Monospace prompt mock inside the card */
+  .plat-vprompt {
+    border: 1px solid rgba(255,255,255,0.12); border-radius: 8px;
+    background: rgba(0,0,0,0.28); padding: 22px 24px;
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 15px; color: rgba(255,255,255,0.65); line-height: 1.5;
+  }
+
+  /* Status rows inside the card (tabs 2–4) */
+  .plat-rows { display: flex; flex-direction: column; gap: 10px; }
   .plat-row {
     display: flex; justify-content: space-between; align-items: center; gap: 16px;
     padding: 16px 18px;
-    border: 1px solid rgba(255,255,255,0.10); border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.10); border-radius: 6px;
     background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%);
   }
   .plat-row-name { font-size: 14px; font-weight: 500; color: #fff; margin: 0; }
   .plat-status { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: rgba(255,255,255,0.55); white-space: nowrap; }
   .plat-status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #22c55e; flex-shrink: 0; }
   .plat-status--amber::before { background: #FAB662; }
-
-  /* Prompt mock (tab 1 visual) — non-interactive miniature of the bolt prompt box */
-  .plat-prompt-mock { width: min(440px, 100%); pointer-events: none; }
-  .plat-prompt-mock .re-prompt-input { min-height: 76px; }
 
   /* ─── SECTION 4: USE CASES (builtin-card grid, security-agent pattern) ── */
   .usecase-section { width: 100%; background: #000; position: relative; }
@@ -320,9 +341,10 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   @media (max-width: 1024px) {
     .hero-inner, .section-inner, .feat-header, .feat-inner { width: min(900px, calc(100vw - 80px)); }
     .eyebrow-pill, .feat-eyebrow { font-size: 13px; }
-    .feat-inner { grid-template-columns: 300px 1fr; }
-    .feat-tab { min-height: 130px; padding: 20px; }
-    .feat-tab-title { font-size: 20px; }
+    .plat-tabbar { gap: 32px; }
+    .plat-tab { font-size: 17px; }
+    .plat-panel-grid { gap: 44px; }
+    .plat-h3 { font-size: clamp(26px, 3.4vw, 34px); }
     .feat-section { padding: 64px 0; }
     .usecase-grid { grid-template-columns: repeat(2, 1fr); }
     .usecase-grid .builtin-card { grid-column: auto !important; }
@@ -348,21 +370,19 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     .logo-item--sm img { height: 16px; }
     .logo-item--lg img { height: 27px; }
     .feat-section { padding: 40px 0; }
-    .feat-header { width: calc(100vw - 32px); margin: 0 auto 40px; gap: 10px; }
+    .feat-header { width: calc(100vw - 32px); margin: 0 auto 32px; gap: 10px; }
     .feat-headline { font-size: clamp(26px, 8vw, 36px); letter-spacing: -0.5px; line-height: 1.3; }
     .feat-subheadline { font-size: 15px; }
-    .feat-inner { width: calc(100vw - 32px); grid-template-columns: 1fr; }
-    .feat-content-area { display: none; }
-    .feat-nav { gap: 28px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 28px; }
-    .feat-tab { padding: 0; border: none; cursor: default; pointer-events: none; min-height: 0; }
-    .feat-tab-title { font-size: 21px; color: #fff !important; }
-    .feat-tab-desc { font-size: 15px; color: rgba(255,255,255,0.55) !important; }
-    .feat-tab-bar, .feat-hover-canvas { display: none !important; }
-    .feat-tab-mobile-content { display: flex; flex-direction: column; gap: 16px; margin-top: 6px; width: 100%; }
-    .feat-tab-mobile-content .plat-body { font-size: 14px; }
-    .feat-tab-mobile-content .feat-info-cards { grid-template-columns: 1fr; border: 1px solid rgba(255,255,255,0.08); }
-    .feat-tab-mobile-content .feat-info-card { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); }
-    .feat-tab-mobile-content .feat-info-card:last-child { border-bottom: none; }
+    .feat-inner { width: calc(100vw - 32px); }
+    /* Tab bar scrolls horizontally so all four labels stay on one row */
+    .plat-tabbar { gap: 22px; margin-bottom: 32px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+    .plat-tabbar::-webkit-scrollbar { display: none; }
+    .plat-tab { font-size: 15px; padding-bottom: 14px; }
+    .plat-panel-grid { grid-template-columns: 1fr; gap: 28px; }
+    .plat-panel-left { gap: 18px; }
+    .plat-h3 { font-size: clamp(24px, 7vw, 30px); }
+    .plat-body, .plat-list li { font-size: 15px; }
+    .plat-vcard { padding: 22px; min-height: 0; }
     .usecase-grid { grid-template-columns: 1fr; }
     .tmpl-row { grid-template-columns: 36px 1fr 22px; gap: 14px; padding: 22px 4px; }
     .tmpl-main { grid-template-columns: 1fr; gap: 4px; }
@@ -445,182 +465,101 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     <p class="feat-subheadline">Whether you&rsquo;re building solo or shipping for a whole organization, Bolt fits the way you work.</p>
   </div>
   <div class="feat-inner">
-    <div class="feat-nav">
-
-      <button class="feat-tab" data-feat="1">
-        <div class="feat-tab-bar"><canvas class="feat-bar-canvas"></canvas></div>
-        <canvas class="feat-hover-canvas" aria-hidden="true"></canvas>
-        <p class="feat-tab-title">Entrepreneur</p>
-        <p class="feat-tab-desc">Turn your idea into a live product yourself</p>
-        <div class="feat-tab-mobile-content">
-          <p class="plat-body">You know exactly what you want to build. Bolt gets you there without hiring a developer, without a $12,000 agency quote, and without losing your vision in translation.</p>
-          <div class="plat-prompt-mock re-prompt-shell" aria-hidden="true">
-            <div class="re-prompt-input" style="color:rgba(255,255,255,0.7);">Build a coming soon waitlist page for my app</div>
-            <div class="re-prompt-actions"><span class="re-prompt-submit"><span>Build now</span></span></div>
-          </div>
-          <div class="feat-info-cards">
-            <div class="feat-info-card"><p>Launch a working app without a technical co-founder</p></div>
-            <div class="feat-info-card"><p>Build and revise it yourself instead of waiting on a developer</p></div>
-            <div class="feat-info-card"><p>Deploy your MVP and test your assumptions</p></div>
-          </div>
-          <a class="arrow-link" href="https://bolt.new/solutions/ai-for-entrepreneurs" target="_blank" rel="noopener">See what founders are building <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
-        </div>
-      </button>
-
-      <button class="feat-tab" data-feat="2">
-        <div class="feat-tab-bar"><canvas class="feat-bar-canvas"></canvas></div>
-        <canvas class="feat-hover-canvas" aria-hidden="true"></canvas>
-        <p class="feat-tab-title">Small business</p>
-        <p class="feat-tab-desc">Replace the tools you&rsquo;re overpaying for</p>
-        <div class="feat-tab-mobile-content">
-          <p class="plat-body">Build the internal tools, customer-facing apps, and sales dashboards your business needs, without adding headcount or juggling five different subscriptions.</p>
-          <div class="plat-rows" aria-hidden="true">
-            <div class="plat-row"><p class="plat-row-name">Inventory tracker</p><span class="plat-status">live</span></div>
-            <div class="plat-row"><p class="plat-row-name">Company website</p><span class="plat-status">live</span></div>
-            <div class="plat-row"><p class="plat-row-name">Sales dashboard</p><span class="plat-status">live</span></div>
-          </div>
-          <div class="feat-info-cards">
-            <div class="feat-info-card"><p>Internal tools and dashboards built in an afternoon, not a quarter</p></div>
-            <div class="feat-info-card"><p>One platform instead of a stack of point solutions</p></div>
-            <div class="feat-info-card"><p>No developer or expensive agency quotes needed</p></div>
-          </div>
-          <a class="arrow-link" href="https://bolt.new/solutions/ai-for-small-business" target="_blank" rel="noopener">See small business solutions <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
-        </div>
-      </button>
-
-      <button class="feat-tab" data-feat="3">
-        <div class="feat-tab-bar"><canvas class="feat-bar-canvas"></canvas></div>
-        <canvas class="feat-hover-canvas" aria-hidden="true"></canvas>
-        <p class="feat-tab-title">Enterprise</p>
-        <p class="feat-tab-desc">Give every team the speed of a startup</p>
-        <div class="feat-tab-mobile-content">
-          <p class="plat-body">Ship production-grade apps with the governance, security, and access controls your organization already requires, without slowing teams down to get there.</p>
-          <div class="plat-rows" aria-hidden="true">
-            <div class="plat-row"><p class="plat-row-name">Single sign-on (SAML)</p><span class="plat-status">enabled</span></div>
-            <div class="plat-row"><p class="plat-row-name">Audit logging</p><span class="plat-status">enabled</span></div>
-            <div class="plat-row"><p class="plat-row-name">Role-based access</p><span class="plat-status">enabled</span></div>
-            <div class="plat-row"><p class="plat-row-name">Security scan on deploy</p><span class="plat-status">enabled</span></div>
-          </div>
-          <div class="feat-info-cards">
-            <div class="feat-info-card"><p>SSO, audit logs, and role-based access control</p></div>
-            <div class="feat-info-card"><p>Security scanning built into every deploy</p></div>
-            <div class="feat-info-card"><p>Fits inside the workflows your engineering team already runs</p></div>
-          </div>
-          <a class="arrow-link" href="https://bolt.new/enterprise/" target="_blank" rel="noopener">See enterprise solutions <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
-        </div>
-      </button>
-
-      <button class="feat-tab" data-feat="4">
-        <div class="feat-tab-bar"><canvas class="feat-bar-canvas"></canvas></div>
-        <canvas class="feat-hover-canvas" aria-hidden="true"></canvas>
-        <p class="feat-tab-title">Agencies</p>
-        <p class="feat-tab-desc">Deliver more client work without more headcount</p>
-        <div class="feat-tab-mobile-content">
-          <p class="plat-body">Build client sites, campaign pages, and custom tools fast enough to protect your margins, with the design control your clients expect from a finished deliverable.</p>
-          <div class="plat-rows" aria-hidden="true">
-            <div class="plat-row"><p class="plat-row-name">Acme Corp</p><span class="plat-status">delivered</span></div>
-            <div class="plat-row"><p class="plat-row-name">Northwind campaign</p><span class="plat-status plat-status--amber">in review</span></div>
-            <div class="plat-row"><p class="plat-row-name">Cascade rebrand</p><span class="plat-status">delivered</span></div>
-          </div>
-          <div class="feat-info-cards">
-            <div class="feat-info-card"><p>Use client design systems</p></div>
-            <div class="feat-info-card"><p>Faster turnaround on revision rounds</p></div>
-            <div class="feat-info-card"><p>Deliver production ready products</p></div>
-          </div>
-          <!-- Agency solutions URL TBD — content doc had no link target yet -->
-          <a class="arrow-link" href="https://bolt.new/solutions/" target="_blank" rel="noopener">See agency solutions <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
-        </div>
-      </button>
-
+    <div class="plat-tabbar" role="tablist">
+      <button class="plat-tab active" data-feat="1" role="tab">Entrepreneur</button>
+      <button class="plat-tab" data-feat="2" role="tab">Small business</button>
+      <button class="plat-tab" data-feat="3" role="tab">Enterprise</button>
+      <button class="plat-tab" data-feat="4" role="tab">Agencies</button>
     </div>
-    <div class="feat-content-area">
-      <canvas id="feat-noise-canvas"></canvas>
 
-      <div class="feat-slide" id="feat-slide-1">
-        <div class="plat-slide">
-          <div class="plat-slide-copy">
+    <div class="plat-panels">
+
+      <div class="plat-panel active" data-panel="1" role="tabpanel">
+        <div class="plat-panel-grid">
+          <div class="plat-panel-left">
             <p class="plat-kicker">Entrepreneur</p>
+            <h3 class="plat-h3">Turn your idea into a live product yourself</h3>
             <p class="plat-body">You know exactly what you want to build. Bolt gets you there without hiring a developer, without a $12,000 agency quote, and without losing your vision in translation.</p>
+            <ul class="plat-list">
+              <li>Launch a working app without a technical co-founder</li>
+              <li>Build and revise it yourself instead of waiting on a developer</li>
+              <li>Deploy your MVP and test your assumptions</li>
+            </ul>
             <a class="arrow-link" href="https://bolt.new/solutions/ai-for-entrepreneurs" target="_blank" rel="noopener">See what founders are building <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
           </div>
-          <div class="plat-slide-visual">
-            <div class="plat-prompt-mock re-prompt-shell" aria-hidden="true">
-              <div class="re-prompt-input" style="color:rgba(255,255,255,0.7);">Build a coming soon waitlist page for my app</div>
-              <div class="re-prompt-actions"><span class="re-prompt-submit"><span>Build now</span></span></div>
-            </div>
-          </div>
-          <div class="feat-info-cards">
-            <div class="feat-info-card"><p>Launch a working app without a technical co-founder</p></div>
-            <div class="feat-info-card"><p>Build and revise it yourself instead of waiting on a developer</p></div>
-            <div class="feat-info-card"><p>Deploy your MVP and test your assumptions</p></div>
+          <div class="plat-vcard" aria-hidden="true">
+            <div class="plat-vprompt">Build a coming soon waitlist page for my app</div>
           </div>
         </div>
       </div>
 
-      <div class="feat-slide" id="feat-slide-2">
-        <div class="plat-slide">
-          <div class="plat-slide-copy">
+      <div class="plat-panel" data-panel="2" role="tabpanel">
+        <div class="plat-panel-grid">
+          <div class="plat-panel-left">
             <p class="plat-kicker">Small business</p>
+            <h3 class="plat-h3">Replace the tools you&rsquo;re overpaying for</h3>
             <p class="plat-body">Build the internal tools, customer-facing apps, and sales dashboards your business needs, without adding headcount or juggling five different subscriptions.</p>
+            <ul class="plat-list">
+              <li>Internal tools and dashboards built in an afternoon, not a quarter</li>
+              <li>One platform instead of a stack of point solutions</li>
+              <li>No developer or expensive agency quotes needed</li>
+            </ul>
             <a class="arrow-link" href="https://bolt.new/solutions/ai-for-small-business" target="_blank" rel="noopener">See small business solutions <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
           </div>
-          <div class="plat-slide-visual">
-            <div class="plat-rows" aria-hidden="true">
+          <div class="plat-vcard" aria-hidden="true">
+            <div class="plat-rows">
               <div class="plat-row"><p class="plat-row-name">Inventory tracker</p><span class="plat-status">live</span></div>
               <div class="plat-row"><p class="plat-row-name">Company website</p><span class="plat-status">live</span></div>
               <div class="plat-row"><p class="plat-row-name">Sales dashboard</p><span class="plat-status">live</span></div>
             </div>
           </div>
-          <div class="feat-info-cards">
-            <div class="feat-info-card"><p>Internal tools and dashboards built in an afternoon, not a quarter</p></div>
-            <div class="feat-info-card"><p>One platform instead of a stack of point solutions</p></div>
-            <div class="feat-info-card"><p>No developer or expensive agency quotes needed</p></div>
-          </div>
         </div>
       </div>
 
-      <div class="feat-slide" id="feat-slide-3">
-        <div class="plat-slide">
-          <div class="plat-slide-copy">
+      <div class="plat-panel" data-panel="3" role="tabpanel">
+        <div class="plat-panel-grid">
+          <div class="plat-panel-left">
             <p class="plat-kicker">Enterprise</p>
+            <h3 class="plat-h3">Give every team the speed of a startup</h3>
             <p class="plat-body">Ship production-grade apps with the governance, security, and access controls your organization already requires, without slowing teams down to get there.</p>
+            <ul class="plat-list">
+              <li>SSO, audit logs, and role-based access control</li>
+              <li>Security scanning built into every deploy</li>
+              <li>Fits inside the workflows your engineering team already runs</li>
+            </ul>
             <a class="arrow-link" href="https://bolt.new/enterprise/" target="_blank" rel="noopener">See enterprise solutions <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
           </div>
-          <div class="plat-slide-visual">
-            <div class="plat-rows" aria-hidden="true">
+          <div class="plat-vcard" aria-hidden="true">
+            <div class="plat-rows">
               <div class="plat-row"><p class="plat-row-name">Single sign-on (SAML)</p><span class="plat-status">enabled</span></div>
               <div class="plat-row"><p class="plat-row-name">Audit logging</p><span class="plat-status">enabled</span></div>
               <div class="plat-row"><p class="plat-row-name">Role-based access</p><span class="plat-status">enabled</span></div>
               <div class="plat-row"><p class="plat-row-name">Security scan on deploy</p><span class="plat-status">enabled</span></div>
             </div>
           </div>
-          <div class="feat-info-cards">
-            <div class="feat-info-card"><p>SSO, audit logs, and role-based access control</p></div>
-            <div class="feat-info-card"><p>Security scanning built into every deploy</p></div>
-            <div class="feat-info-card"><p>Fits inside the workflows your engineering team already runs</p></div>
-          </div>
         </div>
       </div>
 
-      <div class="feat-slide" id="feat-slide-4">
-        <div class="plat-slide">
-          <div class="plat-slide-copy">
+      <div class="plat-panel" data-panel="4" role="tabpanel">
+        <div class="plat-panel-grid">
+          <div class="plat-panel-left">
             <p class="plat-kicker">Agencies</p>
+            <h3 class="plat-h3">Deliver more client work without more headcount</h3>
             <p class="plat-body">Build client sites, campaign pages, and custom tools fast enough to protect your margins, with the design control your clients expect from a finished deliverable.</p>
+            <ul class="plat-list">
+              <li>Use client design systems</li>
+              <li>Faster turnaround on revision rounds</li>
+              <li>Deliver production ready products</li>
+            </ul>
             <!-- Agency solutions URL TBD — content doc had no link target yet -->
             <a class="arrow-link" href="https://bolt.new/solutions/" target="_blank" rel="noopener">See agency solutions <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
           </div>
-          <div class="plat-slide-visual">
-            <div class="plat-rows" aria-hidden="true">
+          <div class="plat-vcard" aria-hidden="true">
+            <div class="plat-rows">
               <div class="plat-row"><p class="plat-row-name">Acme Corp</p><span class="plat-status">delivered</span></div>
               <div class="plat-row"><p class="plat-row-name">Northwind campaign</p><span class="plat-status plat-status--amber">in review</span></div>
               <div class="plat-row"><p class="plat-row-name">Cascade rebrand</p><span class="plat-status">delivered</span></div>
             </div>
-          </div>
-          <div class="feat-info-cards">
-            <div class="feat-info-card"><p>Use client design systems</p></div>
-            <div class="feat-info-card"><p>Faster turnaround on revision rounds</p></div>
-            <div class="feat-info-card"><p>Deliver production ready products</p></div>
           </div>
         </div>
       </div>
@@ -1027,25 +966,6 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
 
 <script>
 window.addEventListener('load', function() {
-  // Feat noise canvas (verbatim security-agent)
-  makePixelCanvas('feat-noise-canvas', 6, 2,
-    function(c, r, t, p) {
-      const px = c * 6, py = r * 6;
-      const speedMod = 0.05 + (Math.sin(t * 0.00070 + 1.4) * 0.5 + 0.5) * 0.22;
-      function rwave(scale, rotRate, phase, tMult) {
-        const angle = t * rotRate + phase;
-        const u = (px * Math.cos(angle) + py * Math.sin(angle)) / scale;
-        const v = (-px * Math.sin(angle) + py * Math.cos(angle)) / scale;
-        return Math.sin(u * Math.PI * 2 + t * tMult * speedMod) * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7 * speedMod);
-      }
-      const s1 = rwave(500,0.00012,0.5,0.00030), s2 = rwave(260,0.00025,1.8,0.00065);
-      const s3 = rwave(130,0.00042,3.1,0.00130), s4 = rwave(380,0.00018,4.5,0.00048);
-      const wf = s1 * 0.5 + 0.5, det = s2 * 0.45 + s3 * 0.30 + s4 * 0.25;
-      const raw = wf * (det * 0.5 + 0.5), density = Math.pow(Math.max(0, raw), 0.7);
-      const rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
-      return density > rand ? density * 0.9 : 0;
-    }, 0.80, '255,255,255');
-
   // Footer pixel canvas (verbatim security-agent)
   makePixelCanvas('footer-pixel-canvas', 6, 2,
     function(c, r, t, p) {
@@ -1073,65 +993,27 @@ window.addEventListener('load', function() {
 </script>
 
 <script>
-// ── Feat tab animation — 4 slides (extended from security-agent's 3) ─────────
+// ── Platform tab bar — click + auto-advance, sliding underline via .active ───
 (function () {
-  var DURATION = 10000;
-  var tabs = Array.from(document.querySelectorAll('.feat-tab'));
-  var slides = [1, 2, 3, 4], current = 1, animId = null, startTime = null;
-  function getSlide(i) { return document.getElementById('feat-slide-' + i); }
-  function getCanvas(tab) { return tab.querySelector('.feat-bar-canvas'); }
-  var dpr = window.devicePixelRatio || 1;
-  function drawNoise(canvas, progress) {
-    var cssW = canvas.parentElement.offsetWidth; var w = Math.round(cssW * dpr); var h = Math.round(5 * dpr);
-    if (!w || !h) return;
-    if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; canvas.style.width = cssW + 'px'; canvas.style.height = '5px'; }
-    var ctx = canvas.getContext('2d'); var fillPx = Math.round(w * progress);
-    var imgData = ctx.createImageData(w, h);
-    for (var xi = 0; xi < w; xi++) {
-      var inFill = xi < fillPx;
-      for (var yi = 0; yi < h; yi++) {
-        var idx = (yi * w + xi) * 4;
-        if (inFill) { var n = (Math.random()-0.5)*90; imgData.data[idx]=Math.max(0,Math.min(255,20+n)); imgData.data[idx+1]=Math.max(0,Math.min(255,136+n)); imgData.data[idx+2]=Math.max(0,Math.min(255,252+n)); imgData.data[idx+3]=255; }
-        else { imgData.data[idx+3] = 0; }
-      }
-    }
-    ctx.putImageData(imgData, 0, 0);
+  var DURATION = 7000;
+  var tabs = Array.from(document.querySelectorAll('.plat-tab'));
+  var panels = Array.from(document.querySelectorAll('.plat-panel'));
+  if (!tabs.length) return;
+  var current = 1, timer = null;
+  function setActive(i) {
+    tabs.forEach(function (t) { t.classList.toggle('active', parseInt(t.dataset.feat) === i); });
+    panels.forEach(function (p) { p.classList.toggle('active', parseInt(p.dataset.panel) === i); });
+    current = i;
   }
-  function clearCanvas(canvas) { if (canvas.width) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height); }
-  function setActive(index, animate) {
-    slides.forEach(function(i) { var s = getSlide(i); if (s) s.classList.toggle('active', i === index); });
-    tabs.forEach(function(tab) { var isActive = parseInt(tab.dataset.feat) === index; tab.classList.toggle('active', isActive); if (!isActive) clearCanvas(getCanvas(tab)); });
-    current = index; if (animate !== false) startProgress();
+  function schedule() {
+    clearTimeout(timer);
+    timer = setTimeout(function () { setActive(current % tabs.length + 1); schedule(); }, DURATION);
   }
-  function startProgress() {
-    if (animId) cancelAnimationFrame(animId); startTime = null;
-    function tick(ts) {
-      if (!startTime) startTime = ts;
-      var p = Math.min((ts - startTime) / DURATION, 1);
-      drawNoise(getCanvas(tabs[current - 1]), p);
-      if (p < 1) { animId = requestAnimationFrame(tick); }
-      else { var next = (current % slides.length) + 1; setActive(next, true); }
-    }
-    animId = requestAnimationFrame(tick);
-  }
-  tabs.forEach(function(tab) {
-    tab.addEventListener('click', function() { var i = parseInt(tab.dataset.feat); if (i === current) return; setActive(i, true); });
+  tabs.forEach(function (t) {
+    t.addEventListener('click', function () { setActive(parseInt(t.dataset.feat)); schedule(); });
   });
-  if (tabs.length) setActive(1, true);
-})();
-
-// ── Feat hover noise (verbatim security-agent) ───────────────────────────────
-(function () {
-  var dpr = window.devicePixelRatio || 1;
-  function drawHoverNoise(canvas) {
-    var w = Math.round(canvas.offsetWidth * dpr); var h = Math.round(canvas.offsetHeight * dpr);
-    if (!w || !h) return; canvas.width = w; canvas.height = h;
-    canvas.style.width = canvas.offsetWidth + 'px'; canvas.style.height = canvas.offsetHeight + 'px';
-    var ctx = canvas.getContext('2d'); var imgData = ctx.createImageData(w, h);
-    for (var i = 0; i < imgData.data.length; i += 4) { var v = Math.floor(Math.random() * 80 + 30); imgData.data[i] = v; imgData.data[i+1] = v; imgData.data[i+2] = v; imgData.data[i+3] = 255; }
-    ctx.putImageData(imgData, 0, 0);
-  }
-  requestAnimationFrame(function() { requestAnimationFrame(function() { document.querySelectorAll('.feat-hover-canvas').forEach(drawHoverNoise); }); });
+  setActive(1);
+  schedule();
 })();
 </script>
 
