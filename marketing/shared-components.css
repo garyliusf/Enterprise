@@ -32,14 +32,16 @@
      .builtin-left      → 22px
      .run-callout       → 12px
      .footer-section    → 24px  (canvas hack: 24 - 152 + 192 = 64 baseline) */
-.hero-inner .hero-btn-group { margin-top: max(0px, calc(var(--sub-to-cta) - 24px)); }
-/* microsoft.html hero-inner uses gap: 28 instead of 24 — offset the extra 4px */
-.hero-section--microsoft .hero-inner .hero-btn-group { margin-top: max(0px, calc(var(--sub-to-cta) - 28px)); }
-/* At ≤768 .hero-inner's gap drops 24 → 20 on every page (microsoft included),
-   so the offset has to be recomputed against 20 or the hero lands 4px short. */
+/* NOTE: child combinator (>) is deliberate. .hero-inner's `gap` only creates
+   space between its DIRECT children, so the offset is only valid there. With a
+   descendant selector this also hit pages that nest the button group deeper
+   (microsoft puts it inside .hero-headline-group), silently replacing a correct
+   margin with an offset computed against a gap that never applied. */
+.hero-inner > .hero-btn-group { margin-top: max(0px, calc(var(--sub-to-cta) - 24px)); }
+/* At ≤768 .hero-inner's gap drops 24 → 20 on most pages, so the offset has to
+   be recomputed against 20 or the hero lands 4px short. */
 @media (max-width: 768px) {
-  .hero-inner .hero-btn-group,
-  .hero-section--microsoft .hero-inner .hero-btn-group { margin-top: max(0px, calc(var(--sub-to-cta) - 20px)); }
+  .hero-inner > .hero-btn-group { margin-top: max(0px, calc(var(--sub-to-cta) - 20px)); }
 }
 .builtin-cta                { margin-top: max(0px, calc(var(--sub-to-cta) - 22px)); }
 .run-callout-btns           { margin-top: max(0px, calc(var(--sub-to-cta) - 12px)); }
