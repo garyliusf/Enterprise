@@ -407,7 +407,7 @@
      this code writes .sc-sub-* classes, and nothing else animates these
      elements. Subtitles containing child elements are still fine — this is a
      class toggle, not an innerHTML rewrite. */
-  var SUB_SEL = '.section-sub, .builtin-sub, .detail-sub, .controls-sub, .compliance-sub, .hiw-sub, .agent-desc, .run-callout-sub, .success-sub, .feat-subheadline';
+  var SUB_SEL = '.section-sub, .builtin-sub, .detail-sub, .controls-sub, .compliance-sub, .hiw-sub, .agent-desc, .run-callout-sub, .success-sub, .feat-subheadline';   /* only classes that actually sit in/after a reveal container */
   /* DOM-based word wrapper (microsoft.html's proven approach): splits text
      nodes into .word spans and wraps element children whole. Never touches
      innerHTML with a regex, so nested markup cannot be corrupted. The --i
@@ -438,9 +438,14 @@
       while (n && n.matches && n.matches(SUB_SEL)) { subs.push(n); n = n.nextElementSibling; }
       if (!subs.length) return;
       if (c.classList.contains('is-revealed')) return;   // already fired — leave visible
-      /* Start the subtitle's --i after the heading's word count so the
-         cascade flows heading → subtitle in one continuous sequence. */
-      var idx = (c.textContent.trim().split(/\s+/) || []).length;
+      /* Start the subtitle's --i after the HEADING's word count so the
+         cascade flows heading → subtitle in one continuous sequence. Count
+         only the heading — the whole container's text would include the
+         eyebrow and the subtitle itself, delaying the subtitle's first word
+         by the full total and leaving a dead pause (caught by review on
+         bolt-public-pages#250; same code, same bug). */
+      var heading = c.querySelector('h1, h2');
+      var idx = heading && heading.textContent.trim() ? heading.textContent.trim().split(/\s+/).length : 0;
       subs.forEach(function (s) { s.classList.add('sc-sub-words'); idx = wrapSubWords(s, idx); });
       var mo = new MutationObserver(function () {
         if (!c.classList.contains('is-revealed')) return;
