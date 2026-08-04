@@ -69,6 +69,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     font-size: clamp(16px, 1.4vw, 20px); font-weight: 400; color: #ABABAB;
     text-align: center; max-width: 680px; line-height: 1.5;
   }
+  /* .hero-inner .hero-btn-group margin-top is set by shared-components.css --sub-to-cta token */
 
   /* ─── SECTION 2: BUILT IN (security review, split) ────────────────────── */
   .builtin-section { width: 100%; background: #000; padding: clamp(80px, 12vh, 140px) 0; position: relative; overflow: hidden; }
@@ -79,7 +80,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   .builtin-left { display: flex; flex-direction: column; gap: 22px; position: sticky; top: 120px; }
   .builtin-h2 { font-size: clamp(32px, 4vw, 52px); font-weight: 500; color: #fff; line-height: 1.15; letter-spacing: -1px; margin: 0; }
   .builtin-sub { font-size: clamp(15px, 1.1vw, 17px); font-weight: 400; color: rgba(255,255,255,0.5); line-height: 1.65; max-width: 420px; margin: 0; }
-  .builtin-cta { margin-top: 6px; }
+  .builtin-cta { margin-top: 10px; }
   .builtin-cta .hero-btn-ghost { min-width: 180px; }
   .builtin-video {
     position: relative; width: 100%; max-width: 460px;
@@ -210,7 +211,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     border: none; border-radius: 6px;
     background: #000;
     padding: clamp(56px, 7vw, 88px) clamp(32px, 4vw, 56px);
-    display: flex; flex-direction: column; align-items: center; text-align: center; gap: 18px;
+    display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px;
   }
   /* background image on its own layer so it can transform + fade in on scroll */
   .run-callout::before {
@@ -258,7 +259,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   .run-callout > * { position: relative; z-index: 1; }
   .run-callout-h2 { font-size: clamp(32px, 4vw, 52px); font-weight: 500; color: #fff; letter-spacing: -1px; line-height: 1.15; margin: 0; }
   .run-callout-sub { font-size: clamp(15px, 1.1vw, 17px); color: rgba(255,255,255,0.6); line-height: 1.6; max-width: 520px; margin: 0; }
-  .run-callout-btns { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 22px; }
+  .run-callout-btns { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 20px; }
   .run-callout-btns .hero-btn-primary, .run-callout-btns .hero-btn-ghost { min-width: 200px; }
 
   /* ─── SECTION: ON-DEMAND SECURITY ENGINEER (headline + centered video) ── */
@@ -812,7 +813,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   <p class="footer-subtitle">Access our complete security and trust profile and documentation.</p>
   <div style="position:relative;width:100%;max-width:700px;margin-top:-152px;display:flex;flex-direction:column;align-items:center;">
     <canvas id="footer-pixel-canvas" style="display:block;width:100%;height:192px;pointer-events:none;opacity:1;"></canvas>
-    <a href="https://bolt.new/trust" target="_blank" rel="noopener" class="hero-btn-primary" style="position:relative;z-index:1;margin-top:-16px;height:52px;padding:0 28px;font-size:15px;">
+    <a href="https://bolt.new/trust" target="_blank" rel="noopener" class="hero-btn-primary footer-cta-btn" style="position:relative;z-index:1;height:52px;padding:0 28px;font-size:15px;">
       <div class="btn-bg-hover"></div>
       <div class="btn-text-wrap"><div class="btn-text-inner"><span>Read More</span><span>Read More</span></div></div>
     </a>
@@ -1135,7 +1136,11 @@ window.addEventListener('load', function() {
       if (e.isIntersecting) { e.target.classList.add('is-revealed'); io.unobserve(e.target); }
     });
   }, { threshold: 0, rootMargin: '0px 0px -45% 0px' });   // fire when heading reaches ~55% down the viewport
-  containers.forEach(function (c) { io.observe(c); });
+  containers.forEach(function (c) {
+    // the run-callout heading is triggered by its own 50%-visible observer below
+    if (c.closest('.run-callout')) return;
+    io.observe(c);
+  });
 })();
 
 /* ── FAQ pixel canvas — brand blue half-sun ── */
@@ -1192,16 +1197,31 @@ window.addEventListener('load', function() {
   requestAnimationFrame(draw);
 })();
 
-/* ── Run-it-right-now callout: scroll-in reveal ── */
+/* ── Run-it-right-now callout: fire once 50% of the callout is actually on-screen ── */
 (function () {
   var el = document.querySelector('.run-callout');
   if (!el) return;
-  var io = new IntersectionObserver(function (entries) {
-    entries.forEach(function (e) {
-      if (e.isIntersecting) { el.classList.add('is-in'); io.unobserve(el); }
-    });
-  }, { threshold: 0.5 });
-  io.observe(el);
+  var done = false;
+  function check() {
+    if (done) return;
+    var r = el.getBoundingClientRect();
+    var vh = window.innerHeight || document.documentElement.clientHeight;
+    var visible = Math.max(0, Math.min(vh, r.bottom) - Math.max(0, r.top));
+    // require 50% of the element's own height to be inside the viewport
+    if (visible >= el.offsetHeight * 0.5) {
+      el.classList.add('is-in');
+      // reveal the H2 word-blur AFTER the background has begun settling in
+      setTimeout(function () {
+        el.querySelectorAll('.reveal-h').forEach(function (r) { r.classList.add('is-revealed'); });
+      }, 900);
+      done = true;
+      window.removeEventListener('scroll', check);
+      window.removeEventListener('resize', check);
+    }
+  }
+  window.addEventListener('scroll', check, { passive: true });
+  window.addEventListener('resize', check);
+  check();
 })();
 
 /* ── How It Works line animation ── */

@@ -8,6 +8,39 @@
    Used by: microsoft.html, bolt-cli.html  (Phase 1)
    ============================================================================ */
 
+/* ─── DESIGN TOKENS ──────────────────────────────────────────────────────── */
+/* Canonical subtitle → CTA vertical spacing. Change here to move every
+   hero, section side-card, callout, and footer across every page in one edit.
+   Mobile uses a shorter value — tight spacing reads better on small screens. */
+:root { --sub-to-cta: 32px; }
+@media (max-width: 768px) { :root { --sub-to-cta: 24px; } }
+
+/* Apply the token to every subtitle→CTA pattern. Each rule offsets the
+   parent container's own flex `gap` so the total distance = --sub-to-cta.
+   max(0px, …) prevents negative margins when the mobile token is smaller
+   than the container's own gap (in which case the container gap alone is
+   already close enough — the CTA row just doesn't add anything extra).
+
+   Container base `gap` values (per current page CSS):
+     .hero-inner        → 24px  (20 at ≤768)
+     .builtin-left      → 22px
+     .run-callout       → 12px
+     .footer-section    → 24px  (canvas hack: 24 - 152 + 192 = 64 baseline) */
+.hero-inner .hero-btn-group { margin-top: max(0px, calc(var(--sub-to-cta) - 24px)); }
+/* microsoft.html hero-inner uses gap: 28 instead of 24 — offset the extra 4px */
+.hero-section--microsoft .hero-inner .hero-btn-group { margin-top: max(0px, calc(var(--sub-to-cta) - 28px)); }
+.builtin-cta                { margin-top: max(0px, calc(var(--sub-to-cta) - 22px)); }
+.run-callout-btns           { margin-top: max(0px, calc(var(--sub-to-cta) - 12px)); }
+/* Footer button sits inside a wrapper with margin-top:-152 + a 192px canvas.
+   Desktop baseline = 64px, so button margin-top = --sub-to-cta - 64px. */
+.footer-cta-btn { margin-top: calc(var(--sub-to-cta) - 64px); }
+/* Mobile: the wrapper's -152px is calibrated for the 192px desktop canvas.
+   At ≤768 the canvas shrinks to 60px, so the wrapper overshoots downward.
+   Pull the button up harder to compensate and match the mobile token. */
+@media (max-width: 768px) {
+  .footer-cta-btn { margin-top: calc(var(--sub-to-cta) - 160px); }
+}
+
 /* ─── PRIMARY / GHOST / CTA BUTTONS ──────────────────────────────────────── */
 .hero-btn-primary {
   display: inline-flex; align-items: center; justify-content: center;
