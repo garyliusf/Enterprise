@@ -108,7 +108,7 @@ All buttons must use these exact specs. No inline overrides unless absolutely ne
 |---------|------|--------|-------|-------------|
 | Hero H1 | `66px` desktop / `51px` tablet (≤1024px) / `clamp(36px, 6.5vw, 51px)` mobile (≤768px) | `500` | `#fff` | `1.1` | `normal` (not `-1px` — that is H2 only) |
 | Hero subtitle | `clamp(16px, 1.4vw, 20px)` desktop / `18px` tablet (≤1024px) / `16px` mobile (≤768px) | `400` | `#ABABAB` | `1.4` | — |
-| Section headline (H2) | `clamp(32px, 4vw, 52px)` | `500` | `#fff` | `1.2` | `-1px` |
+| Section headline (H2) | `clamp(32px, 4vw, 52px)` desktop / `clamp(28px, 8vw, 40px)` mobile (≤768px) | `500` | `#fff` | `1.15` | `-1px` |
 | Section subtitle | `clamp(15px, 1.1vw, 17px)` desktop / `16px` tablet / `15px` mobile | `400` | `rgba(255,255,255,0.5)` | `1.65` | — |
 | Eyebrow | `16px` desktop / `13px` tablet+mobile | `400` | `#1488FC` | — | `2px` letter-spacing, `uppercase` |
 | Card title | `18px` | `600` | `#fff` | `1.35` | `-0.2px` |
@@ -117,6 +117,17 @@ All buttons must use these exact specs. No inline overrides unless absolutely ne
 | FAQ answer | `15px` desktop / `13px` ≤768px | `400` | `rgba(255,255,255,0.65)` | `1.7` | — |
 | Success pull-quote | `26px` | `300` | `#EDDCC6` (warm beige) | `1.55` | not italic |
 | Stat number | `72px` | `300` | `#fff` | `0.85` | `-3px` |
+
+### Section H2 — ONE canonical class: `.sc-section-h2` (RULE)
+
+**When building or replicating a page, section-level H2s use `class="sc-section-h2"` from `shared-components.css` — do NOT mint a new per-page/per-section class.** We learned this the hard way (2026-08): the same H2 style existed under 12 aliases (`.builtin-h2`, `.detail-h2`, `.agent-h2`, `.compliance-h2`, `.trust-h2`, `.hiw-h2`, `.run-callout-h2`, `.section-headline`, …), so the ≤768px size rule got written for `.builtin-h2` only and sibling H2s rendered visibly smaller on phones. Twelve names for one component = breakpoint changes silently miss instances.
+
+- **Canonical values** (live in `shared-components.css`): `clamp(32px, 4vw, 52px)` / `500` / `#fff` / `1.15` / `-1px` / `margin: 0`, plus `≤768px: clamp(28px, 8vw, 40px)`. Margins are page layout — put them on wrappers or page-scoped rules (`.section-header .sc-section-h2 { … }`), never fork the base class for spacing.
+- **Self-contained pages** (e.g. `solutions/_template`): inline the canonical block verbatim with a comment noting it's synced with shared — see `_template` for the pattern.
+- **Duplicating an existing page** (cp security.html → new page): the copy inherits `.sc-section-h2` automatically — keep it. If the source page still has legacy aliases, migrate them in the copy rather than propagating them.
+- **Production mapping**: `bolt-public-pages` names the same canon `.section-headline` (the built-page primitive in `use-case-page.css`, consumed by `/use-cases/*`, CMS-built pages via `built-page.css`, and the section library). When porting, translate `sc-section-h2` → `section-headline`. **Never rename production's `.section-headline`** — the CMS builder's blocks depend on it (Donald). Values PR: bolt-public-pages#267.
+- **Legitimate variants — do NOT convert to `.sc-section-h2`:** `.ms-faq-headline` (lh 1.2 + 48px margin, canonical in shared as the FAQ component), `.footer-headline` (footer component), `marketing/templates/detail`'s compact `clamp(28px, 3.4vw, 40px)` H2 (deliberate), microsoft.html (production-owned, don't touch), bolt.conf (own branding). A smaller "panel H2" variant (`clamp(30px, 3.6vw, 46px)` — `.controls-h2`/`.aiblock-h2` on 4 pages) is a candidate for a future `.sc-panel-h2`.
+- Before adding any new class to shared, grep all pages for the name first (see "Shared-file hazards").
 
 ---
 
