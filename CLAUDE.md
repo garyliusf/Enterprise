@@ -100,6 +100,8 @@ All buttons must use these exact specs. No inline overrides unless absolutely ne
 
 **Eyebrow color is always `#1488FC` — never use `rgba(20,136,252,0.7)` or any opacity variant.**
 
+**Border radius is always `2px` on surfaces (decision: Gary, 2026-08-05)** — cards, panels, tiles, icon tiles, video frames, stages. Exceptions: true circles (`50%` dots), pill buttons (`999px`), and partial-corner cases like the form-submit `0 2px 2px 0`. platform.html is fully normalized; older pages may still carry 4–16px values — normalize when touching them.
+
 ---
 
 ## Typography
