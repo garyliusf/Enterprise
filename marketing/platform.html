@@ -198,22 +198,23 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   /* extra breathing room between the bullet list and the CTA (on top of the 22px column gap) */
   .plat-panel-left > .hero-btn-primary { margin-top: 16px; }
 
-  /* Right visual card */
+  /* Right visual card — slider-component stage: #111 fill + animated pixel noise
+     (same treatment as the enterprise/get-started feat slider content area) */
   .plat-vcard {
     position: relative; overflow: hidden;
-    border: 1px solid rgba(255,255,255,0.10); border-radius: 12px;
-    background:
-      radial-gradient(120% 100% at 50% 0%, rgba(20,60,120,0.16), transparent 60%),
-      linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.008));
-    padding: 28px;
+    border-radius: 12px;
+    background: #111;
+    padding: 40px 36px;
     display: flex; flex-direction: column; gap: 20px; justify-content: center;
-    min-height: 300px;
+    min-height: 340px;
   }
+  .plat-noise-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.38; z-index: 0; }
+  .plat-vcard > *:not(.plat-noise-canvas) { position: relative; z-index: 1; }
 
   /* Monospace prompt mock inside the card */
   .plat-vprompt {
-    border: 1px solid rgba(255,255,255,0.12); border-radius: 8px;
-    background: rgba(0,0,0,0.28); padding: 22px 24px;
+    border: 1px solid rgba(255,255,255,0.14); border-radius: 8px;
+    background: rgba(0,0,0,0.45); padding: 22px 24px;
     font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
     font-size: 15px; color: rgba(255,255,255,0.65); line-height: 1.5;
   }
@@ -224,7 +225,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     display: flex; justify-content: space-between; align-items: center; gap: 16px;
     padding: 16px 18px;
     border: 1px solid rgba(255,255,255,0.10); border-radius: 6px;
-    background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%);
+    background: rgba(0,0,0,0.45);
   }
   .plat-row-name { font-size: 14px; font-weight: 500; color: #fff; margin: 0; }
   .plat-status { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: rgba(255,255,255,0.55); white-space: nowrap; }
@@ -541,6 +542,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
             </a>
           </div>
           <div class="plat-vcard" aria-hidden="true">
+            <canvas class="plat-noise-canvas" id="plat-noise-1" aria-hidden="true"></canvas>
             <div class="plat-vprompt">Build a coming soon waitlist page for my app</div>
           </div>
         </div>
@@ -562,6 +564,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
             </a>
           </div>
           <div class="plat-vcard" aria-hidden="true">
+            <canvas class="plat-noise-canvas" id="plat-noise-2" aria-hidden="true"></canvas>
             <div class="plat-rows">
               <div class="plat-row"><p class="plat-row-name">Inventory tracker</p><span class="plat-status">live</span></div>
               <div class="plat-row"><p class="plat-row-name">Company website</p><span class="plat-status">live</span></div>
@@ -587,6 +590,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
             </a>
           </div>
           <div class="plat-vcard" aria-hidden="true">
+            <canvas class="plat-noise-canvas" id="plat-noise-3" aria-hidden="true"></canvas>
             <div class="plat-rows">
               <div class="plat-row"><p class="plat-row-name">Single sign-on (SAML)</p><span class="plat-status">enabled</span></div>
               <div class="plat-row"><p class="plat-row-name">Audit logging</p><span class="plat-status">enabled</span></div>
@@ -614,6 +618,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
             </a>
           </div>
           <div class="plat-vcard" aria-hidden="true">
+            <canvas class="plat-noise-canvas" id="plat-noise-4" aria-hidden="true"></canvas>
             <div class="plat-rows">
               <div class="plat-row"><p class="plat-row-name">Acme Corp</p><span class="plat-status">delivered</span></div>
               <div class="plat-row"><p class="plat-row-name">Northwind campaign</p><span class="plat-status plat-status--amber">in review</span></div>
@@ -1014,6 +1019,29 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
 
 <script>
 window.addEventListener('load', function() {
+  // Tab-panel visual stage noise (verbatim enterprise/security feat-noise wave)
+  function featNoiseWave(seedPhase) {
+    return function(c, r, t, p) {
+      const px = c * 6, py = r * 6;
+      const speedMod = 0.05 + (Math.sin(t * 0.00070 + seedPhase) * 0.5 + 0.5) * 0.22;
+      function rwave(scale, rotRate, phase, tMult) {
+        const angle = t * rotRate + phase;
+        const u = (px * Math.cos(angle) + py * Math.sin(angle)) / scale;
+        const v = (-px * Math.sin(angle) + py * Math.cos(angle)) / scale;
+        return Math.sin(u * Math.PI * 2 + t * tMult * speedMod) * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7 * speedMod);
+      }
+      const s1 = rwave(500,0.00012,0.5,0.00030), s2 = rwave(260,0.00025,1.8,0.00065);
+      const s3 = rwave(130,0.00042,3.1,0.00130), s4 = rwave(380,0.00018,4.5,0.00048);
+      const wf = s1 * 0.5 + 0.5, det = s2 * 0.45 + s3 * 0.30 + s4 * 0.25;
+      const raw = wf * (det * 0.5 + 0.5), density = Math.pow(Math.max(0, raw), 0.7);
+      const rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
+      return density > rand ? density * 0.9 : 0;
+    };
+  }
+  for (var pi = 1; pi <= 4; pi++) {
+    makePixelCanvas('plat-noise-' + pi, 6, 2, featNoiseWave(1.4 + pi * 0.9), 0.80, '255,255,255');
+  }
+
   // Footer pixel canvas (verbatim security-agent)
   makePixelCanvas('footer-pixel-canvas', 6, 2,
     function(c, r, t, p) {
