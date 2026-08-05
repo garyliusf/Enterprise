@@ -56,14 +56,24 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     flex-direction: column;
     justify-content: center;
     font-family: 'Inter', sans-serif;
-    /* aurora hero image (images/platform-hero.webp) + a bottom fade so the
-       section always blends seamlessly into the black page regardless of how
-       the cover-crop lands. Animated .hero-blob shafts ride on top. */
-    background:
-      linear-gradient(180deg, transparent 76%, rgba(0,0,2,0.85) 94%, #000 100%),
-      url('../images/platform-hero.webp') center / cover no-repeat,
-      #000;
+    background: #000;
     padding: clamp(120px, 14vh, 180px) 0 clamp(72px, 8vh, 112px);
+  }
+  /* aurora hero image (images/platform-hero.webp) on an oversized layer that
+     runs 20% past the section bottom — the photo's soft bottom edge (a streak
+     of linear blur) is cropped out of view instead of landing in the visible
+     band. Animated .hero-blob shafts ride on top. */
+  .hero-section::before {
+    content: ''; position: absolute; left: 0; right: 0; top: 0; bottom: -20%;
+    z-index: 0; pointer-events: none;
+    background: url('../images/platform-hero.webp') center / cover no-repeat;
+  }
+  /* bottom fade, sized to the section itself, so the hero always blends
+     seamlessly into the black page regardless of how the cover-crop lands */
+  .hero-section::after {
+    content: ''; position: absolute; inset: 0;
+    z-index: 0; pointer-events: none;
+    background: linear-gradient(180deg, transparent 76%, rgba(0,0,2,0.85) 94%, #000 100%);
   }
   /* Animated aurora blobs — four soft light pools, each on its own co-prime
      period and drift vector, so their overlaps continuously merge/separate
