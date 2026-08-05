@@ -311,13 +311,28 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   .works-preview-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0%; opacity: 0; transition: opacity 0.35s ease; }
   .works-preview-img.is-shown { opacity: 1; }
   .works-preview-scan { position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(0,0,0,0) 0 2px, rgba(0,0,0,0.14) 2px 3px); mix-blend-mode: multiply; }
-  .works-preview-view {
-    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-    width: 84px; height: 84px; border-radius: 50%;
-    background: linear-gradient(155deg, #2A93FF 0%, #1488FC 42%, #0B3B82 100%);
-    color: #fff; box-shadow: 0 8px 24px rgba(8,32,72,0.45), inset 0 1px 0 rgba(255,255,255,0.25);
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Silkscreen', monospace; font-size: 10px; letter-spacing: 1.5px;
+  /* Hover affordance — verbatim templates-page catalog-card overlay: dark scrim
+     rising from the bottom + Silkscreen "View Details" label sliding up. */
+  .works-preview-overlay {
+    position: absolute; inset: 0; z-index: 2;
+    display: flex; align-items: flex-end; justify-content: center;
+    padding-bottom: 18px;
+    background: linear-gradient(180deg, rgba(5,5,8,0) 45%, rgba(5,5,8,0.55) 80%, rgba(5,5,8,0.82) 100%);
+    opacity: 0;
+    transition: opacity 0.32s ease 0.1s;
+    pointer-events: none;
+  }
+  .works.is-active .works-preview-overlay { opacity: 1; }
+  .works-preview-overlay span {
+    font-family: 'Silkscreen', monospace;
+    font-size: 10px; letter-spacing: 1.6px; text-transform: uppercase; color: #fff;
+    transform: translateY(6px);
+    transition: transform 0.32s cubic-bezier(0.22, 0.61, 0.36, 1) 0.1s;
+  }
+  .works.is-active .works-preview-overlay span { transform: translateY(0); }
+  @media (prefers-reduced-motion: reduce) {
+    .works-preview-overlay span,
+    .works.is-active .works-preview-overlay span { transform: none; transition: none; }
   }
   @media (prefers-reduced-motion: reduce) { .works-preview { display: none; } }
 
@@ -733,7 +748,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
         <div class="works-preview-inner">
           <img class="works-preview-img" alt="" decoding="async">
           <div class="works-preview-scan"></div>
-          <span class="works-preview-view">VIEW</span>
+          <div class="works-preview-overlay"><span>View Details</span></div>
         </div>
       </div>
     </div>
