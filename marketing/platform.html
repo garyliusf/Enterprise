@@ -56,13 +56,43 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     flex-direction: column;
     justify-content: center;
     font-family: 'Inter', sans-serif;
+    /* aurora treatment — static base: dark top-left corner + rich blue field
+       blending to black at the bottom edge. The bloom + streaks live on the
+       animated .hero-aurora layers below. */
     background:
-      radial-gradient(1100px 640px at 50% 0%, rgba(24,96,190,0.40), transparent 62%),
-      radial-gradient(620px 460px at 96% -12%, rgba(198,118,58,0.14), transparent 58%),
-      radial-gradient(760px 640px at 6% 22%, rgba(18,52,124,0.34), transparent 62%),
-      #04060c;
+      radial-gradient(700px 500px at 6% -4%, rgba(0,0,8,0.8), transparent 62%),
+      radial-gradient(150% 115% at 50% 26%, #1a5fd6 0%, #0f45ad 40%, #082462 66%, #02091c 88%, #000 100%),
+      #000;
     padding: clamp(120px, 14vh, 180px) 0 clamp(72px, 8vh, 112px);
   }
+  /* Animated aurora layers — oversized so the slow drift never reveals edges.
+     Layer A: white bloom upper-right + primary cyan curtain. Layer B: secondary
+     streaks on a different period so the motion reads organic. */
+  .hero-aurora {
+    position: absolute; inset: -12%; z-index: 0; pointer-events: none;
+    will-change: transform, opacity;
+  }
+  .hero-aurora--a {
+    background:
+      radial-gradient(720px 420px at 78% 18%, rgba(240,248,255,0.42) 0%, rgba(160,205,255,0.16) 45%, transparent 70%),
+      linear-gradient(112deg, transparent 40%, rgba(60,170,255,0.20) 46%, transparent 52%);
+    animation: auroraDriftA 16s ease-in-out infinite alternate;
+  }
+  .hero-aurora--b {
+    background:
+      linear-gradient(104deg, transparent 46%, rgba(90,195,255,0.16) 51%, transparent 56%),
+      linear-gradient(118deg, transparent 55%, rgba(70,180,255,0.10) 60%, transparent 65%);
+    animation: auroraDriftB 23s ease-in-out infinite alternate;
+  }
+  @keyframes auroraDriftA {
+    from { transform: translate3d(0,0,0) scale(1); opacity: 0.9; }
+    to   { transform: translate3d(-2.5%, 1.5%, 0) scale(1.06); opacity: 1; }
+  }
+  @keyframes auroraDriftB {
+    from { transform: translate3d(1.5%, -1%, 0) scale(1.04); opacity: 0.65; }
+    to   { transform: translate3d(-2%, 1%, 0) scale(1); opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) { .hero-aurora { animation: none; } }
   #hero-pixel-dots { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
   .hero-content-area { display: flex; align-items: center; justify-content: center; position: relative; z-index: 3; width: 100%; }
   .hero-inner {
@@ -533,6 +563,8 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
 
 <!-- ─── SECTION 1: HERO ──────────────────────────────────────────────────── -->
 <section class="hero-section">
+  <div class="hero-aurora hero-aurora--a" aria-hidden="true"></div>
+  <div class="hero-aurora hero-aurora--b" aria-hidden="true"></div>
   <canvas id="hero-pixel-dots"></canvas>
   <div class="hero-content-area">
     <div class="hero-inner">
