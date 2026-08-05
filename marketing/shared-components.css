@@ -126,13 +126,16 @@
    .builtin-h2 only, leaving .agent-h2 and .detail-h2 pinned at their 32px
    floor and visibly smaller.
 
-   NOT covered here (a genuinely different variant — line-height 1.2):
-   .ms-faq-headline, .feat-headline, .how-headline. Leave those alone.
+   .ms-faq-headline and .footer-headline share this type (grouped below);
+   their component rules carry layout only (FAQ margin, footer centering).
+   NOT covered: .feat-headline / .how-headline on non-migrated pages.
 
    Adopted by: security.html, trust.html, trust-v2.html.
    Other pages still use their local aliases and are unaffected; migrate them
    by swapping the class in markup and deleting the local rule. */
-.sc-section-h2 {
+.sc-section-h2,
+.ms-faq-headline,
+.footer-headline {
   /* 40px floor (not 32) so the size is continuous across the 768px breakpoint:
      the ≤768 rule caps at 40px, and a 32px floor made the headline SHRINK by
      8px when the viewport grew past 768 (4vw doesn't reach 40px until 1000px).
@@ -145,7 +148,7 @@
   margin: 0;
 }
 @media (max-width: 768px) {
-  .sc-section-h2 { font-size: clamp(28px, 8vw, 40px); }
+  .sc-section-h2, .ms-faq-headline, .footer-headline { font-size: clamp(28px, 8vw, 40px); }
 }
 
 /* ─── SCROLL-IN ANIMATIONS (canonical across all marketing pages) ──────────
@@ -240,7 +243,8 @@
 }
 
 /* ─── FAQ — accordion: +/- icon, smooth grid-row expand, blue tint when open ── */
-.ms-faq-headline { font-size: clamp(32px, 4vw, 52px); font-weight: 500; color: #fff; letter-spacing: -1px; line-height: 1.2; margin: 0 0 48px; }
+/* type comes from the canonical section-H2 group above; this is layout only */
+.ms-faq-headline { margin: 0 0 48px; }
 .ms-faq-list { display: flex; flex-direction: column; }
 .ms-faq-item { border-top: 1px solid rgba(255,255,255,0.07); border-bottom: none; position: relative; transition: background 0.2s ease; overflow: hidden; }
 .ms-faq-item:last-child { border-bottom: 1px solid rgba(255,255,255,0.07); }
@@ -277,10 +281,9 @@
 /* ─── FOOTER (canonical — identical across all pages at every breakpoint) ─── */
 .footer-section { padding: 90px 40px 0; gap: 24px; }
 .footer-eyebrow { font-family: 'Silkscreen', monospace; }
-.footer-headline { font-size: 52px; font-weight: 500; color: #fff; line-height: 1.2; margin: 0; }
+/* type comes from the canonical section-H2 group above */
 .footer-subtitle { font-size: 18px; color: #ABABAB; max-width: 640px; line-height: 1.6; margin: -16px auto 0; }
 @media (max-width: 1024px) {
-  .footer-headline { font-size: 42px; }
 }
 @media (max-width: 768px) {
   .footer-section { padding: 48px 0 0; }
@@ -292,7 +295,6 @@
      blanket width:100% stretched it edge-to-edge, and the 12px padding
      overrode the component's own 16px (0-2-0 beats .hero-pills' 0-1-0). */
   .footer-section > *:not(.bolt-image-wrap, .hero-pills) { padding-left: 12px; padding-right: 12px; box-sizing: border-box; width: 100%; }
-  .footer-headline { font-size: clamp(26px, 8vw, 36px); line-height: 1.1; }
   .footer-subtitle { font-size: 16px; max-width: 310px; }
   /* (The old `.footer-section .card-form-strip { margin-top: -28px !important }`
      mobile nudge is gone — strips now carry .footer-cta-strip, driven by the
