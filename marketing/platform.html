@@ -154,7 +154,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   /* ─── SECTION 3: PLATFORM TABS (horizontal tab bar + 2-col panel) ─────── */
   /* top padding reduced — the video section directly above supplies part of the gap */
   .feat-section { width: 100%; background: #000; padding: clamp(48px, 6vh, 80px) 0 clamp(80px, 12vh, 140px); font-family: 'Inter', sans-serif; }
-  .feat-header { width: 100%; margin: 0 0 48px; text-align: left; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+  .feat-header { width: min(1120px, calc(100vw - 160px)); margin: 0 auto 48px; text-align: left; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
   .feat-eyebrow { font-family: 'Silkscreen', monospace; font-size: 16px; font-weight: 400; color: #1488FC; margin: 0; letter-spacing: 2px; text-transform: uppercase; }
   .feat-headline { font-size: clamp(32px, 4vw, 52px); font-weight: 500; color: #fff; line-height: 1.2; letter-spacing: -1px; margin: 0; }
   .feat-subheadline { font-size: clamp(15px, 1.1vw, 17px); color: rgba(255,255,255,0.5); margin: 0; max-width: 640px; line-height: 1.65; }
@@ -197,17 +197,23 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   /* extra breathing room between the bullet list and the CTA (on top of the 22px column gap) */
   .plat-panel-left > .hero-btn-primary { margin-top: 16px; }
 
-  /* Near-full-bleed stage behind the whole section (header + tab bar + panels) —
-     20px viewport margin, #111 fill, animated pixel noise (get-started slider bg). */
+  /* Slider stage — the textured (#111 + pixel noise) layer shows only as a
+     ~20px margin ring; inside it a solid-black container holds the slider
+     content so the text reads clearly (get-started slider pattern). */
   .plat-stage {
     position: relative; overflow: hidden;
     width: calc(100% - 40px); margin: 0 auto;
     border-radius: 14px;
     background: #111;
-    padding: clamp(48px, 7vh, 88px) 0 clamp(48px, 7vh, 80px);
+    padding: 20px;
   }
   #plat-stage-noise { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.38; z-index: 0; }
-  .plat-stage-inner { width: min(1120px, calc(100% - 160px)); margin: 0 auto; position: relative; z-index: 1; }
+  .plat-stage-black {
+    position: relative; z-index: 1;
+    background: #000; border-radius: 8px;
+    padding: clamp(36px, 5vh, 60px) 0 clamp(40px, 6vh, 68px);
+  }
+  .plat-stage-inner { width: min(1120px, calc(100% - 160px)); margin: 0 auto; }
 
   /* Right visual card — simple dark card sitting on the stage */
   .plat-vcard {
@@ -393,7 +399,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
 
   /* ─── RESPONSIVE ──────────────────────────────────────────────────────── */
   @media (max-width: 1024px) {
-    .hero-inner, .section-inner, .pvideo-inner { width: min(900px, calc(100vw - 80px)); }
+    .hero-inner, .section-inner, .pvideo-inner, .feat-header { width: min(900px, calc(100vw - 80px)); }
     .plat-stage-inner { width: min(900px, calc(100% - 80px)); }
     .eyebrow-pill, .feat-eyebrow { font-size: 13px; }
     .plat-tabbar { gap: 32px; }
@@ -424,10 +430,11 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     .logo-item--sm img { height: 16px; }
     .logo-item--lg img { height: 27px; }
     .feat-section { padding: 28px 0 40px; }
-    .feat-header { margin: 0 0 32px; gap: 10px; }
+    .feat-header { width: calc(100vw - 32px); margin: 0 auto 32px; gap: 10px; }
     .feat-headline { font-size: clamp(26px, 8vw, 36px); letter-spacing: -0.5px; line-height: 1.3; }
     .feat-subheadline { font-size: 15px; }
-    .plat-stage { width: calc(100% - 24px); padding: 36px 0 40px; border-radius: 10px; }
+    .plat-stage { width: calc(100% - 24px); padding: 12px; border-radius: 10px; }
+    .plat-stage-black { padding: 28px 0 32px; border-radius: 6px; }
     .plat-stage-inner { width: calc(100% - 32px); }
     /* Tab bar scrolls horizontally so all four labels stay on one row */
     .plat-tabbar { gap: 22px; margin-bottom: 32px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
@@ -519,16 +526,17 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
 
 <!-- ─── SECTION 3: PLATFORM (business-size tabs) ─────────────────────────── -->
 <section class="feat-section">
+  <div class="feat-header">
+    <p class="feat-eyebrow eyebrow-scramble">Platform</p>
+    <div class="reveal-h">
+      <h2 class="feat-headline">Build exactly what you need, skip what you don&rsquo;t</h2>
+    </div>
+    <p class="feat-subheadline">Whether you&rsquo;re building solo or shipping for a whole organization, Bolt fits the way you work.</p>
+  </div>
   <div class="plat-stage">
     <canvas id="plat-stage-noise" aria-hidden="true"></canvas>
+    <div class="plat-stage-black">
     <div class="plat-stage-inner">
-    <div class="feat-header">
-      <p class="feat-eyebrow eyebrow-scramble">Platform</p>
-      <div class="reveal-h">
-        <h2 class="feat-headline">Build exactly what you need, skip what you don&rsquo;t</h2>
-      </div>
-      <p class="feat-subheadline">Whether you&rsquo;re building solo or shipping for a whole organization, Bolt fits the way you work.</p>
-    </div>
     <div class="plat-tabbar" role="tablist">
       <button class="plat-tab active" data-feat="1" role="tab">Entrepreneur</button>
       <button class="plat-tab" data-feat="2" role="tab">Small business</button>
@@ -636,6 +644,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
         </div>
       </div>
 
+    </div>
     </div>
     </div>
   </div>
