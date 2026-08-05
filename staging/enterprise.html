@@ -2942,10 +2942,10 @@
 
 <!-- ─── FOOTER ────────────────────────────────────────────────────────────── -->
 <section class="footer-section">
-  <div class="reveal-stagger" style="display:flex;flex-direction:column;align-items:center;gap:24px;text-align:center;width:100%;" data-reveal-children=".footer-headline">
+  <div class="reveal-stagger" style="display:flex;flex-direction:column;align-items:center;gap:24px;text-align:center;width:100%;" data-reveal-children=".footer-headline, .footer-subtitle">
     <p class="footer-eyebrow" style="margin:0;">Are you ready?</p>
     <h2 class="footer-headline">Start building today</h2>
-    <p class="footer-subtitle sub-reveal">
+    <p class="footer-subtitle">
       Join thousands of teams shipping faster with our enterprise platform.
     </p>
   </div>
@@ -4122,15 +4122,19 @@
     from { opacity: 0; transform: translate(-10px, -7px); filter: blur(5px); }
     to   { opacity: 1; transform: translate(0, 0);        filter: blur(0);   }
   }
-  .sub-reveal {
+  /* subtitle words get the same staggered blur reveal as the H2, continuing
+     shortly after the headline words land */
+  .sub-reveal .word {
+    display: inline-block;
     opacity: 0;
-    transform: translateY(14px);
-    filter: blur(10px);
-    transition: opacity 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 0.35s,
-                transform 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 0.35s,
-                filter 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 0.35s;
+    transform: translate(-10px, -7px);
+    filter: blur(5px);
+    will-change: opacity, transform, filter;
   }
-  .sub-reveal.is-in { opacity: 1; transform: translateY(0); filter: blur(0); }
+  .sub-reveal.is-in .word {
+    animation: dsa-word-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation-delay: calc(0.25s + var(--i, 0) * 28ms);
+  }
 </style>
 <script>
   (function () {
@@ -4152,6 +4156,9 @@
       c.querySelectorAll('h1, h2').forEach(function (h) {
         if (!h.dataset.wrapped) { wrapWords(h); h.dataset.wrapped = '1'; }
       });
+    });
+    subs.forEach(function (el) {
+      if (!el.dataset.wrapped) { wrapWords(el); el.dataset.wrapped = '1'; }
     });
     function revealSectionSubs(container) {
       var sec = container.closest('section') || container.parentElement;
