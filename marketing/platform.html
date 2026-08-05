@@ -56,13 +56,16 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     flex-direction: column;
     justify-content: center;
     font-family: 'Inter', sans-serif;
-    /* aurora treatment — static base: field + dark voids. The light pools are
-       the four animated .hero-blob layers (independent periods = the shapes
-       continuously merge/separate instead of sliding as one). */
+    /* aurora treatment (reference-matched): bright saturated field anchored by
+       strong darks — top-left mass, black top edge, dark bottom silhouettes.
+       Curtain streaks + white beam are the animated .hero-blob layers. */
     background:
-      radial-gradient(64% 44% at 20% 0%, rgba(0,0,6,0.85) 0%, transparent 64%),
-      radial-gradient(50% 36% at 88% 96%, rgba(0,2,10,0.8) 0%, transparent 66%),
-      radial-gradient(130% 96% at 48% 36%, #0d3d9a 0%, #0a2f74 48%, #05173c 74%, #000 94%),
+      linear-gradient(180deg, rgba(0,0,4,0.8) 0%, transparent 16%),
+      radial-gradient(46% 54% at 10% 14%, rgba(0,2,12,0.9) 0%, transparent 66%),
+      radial-gradient(34% 22% at 30% 103%, rgba(0,2,8,0.85) 0%, transparent 70%),
+      radial-gradient(40% 20% at 68% 105%, rgba(0,2,8,0.8) 0%, transparent 72%),
+      linear-gradient(0deg, rgba(0,1,6,0.75) 0%, transparent 20%),
+      radial-gradient(140% 110% at 46% 62%, #1656d8 0%, #1148c0 45%, #0b2f8e 70%, #04123a 92%, #000 100%),
       #000;
     padding: clamp(120px, 14vh, 180px) 0 clamp(72px, 8vh, 112px);
   }
@@ -70,37 +73,41 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
      period and drift vector, so their overlaps continuously merge/separate
      (the composition evolves instead of sliding as one). GPU transforms only. */
   .hero-blob { position: absolute; z-index: 0; pointer-events: none; will-change: transform, opacity; }
-  .hero-blob--1 { left: 0%; top: 14%; width: 66%; height: 82%;
-    background: radial-gradient(50% 50% at 50% 50%, rgba(32,108,228,0.50) 0%, transparent 70%);
+  /* soft azure pool, center-left */
+  .hero-blob--1 { left: 6%; top: 20%; width: 56%; height: 70%;
+    background: radial-gradient(50% 50% at 50% 50%, rgba(45,125,245,0.40) 0%, transparent 70%);
     animation: blob1 27s ease-in-out infinite alternate; }
-  .hero-blob--2 { left: 42%; top: -16%; width: 58%; height: 76%;
-    background: radial-gradient(50% 50% at 50% 50%, rgba(24,92,210,0.44) 0%, transparent 72%);
-    animation: blob2 33s ease-in-out infinite alternate; }
-  .hero-blob--3 { left: 32%; top: -8%; width: 28%; height: 56%;
-    background: radial-gradient(50% 50% at 50% 50%, rgba(95,195,255,0.15) 0%, transparent 70%);
-    animation: blob3 19s ease-in-out infinite alternate; }
-  .hero-blob--4 { right: -8%; top: -16%; width: 40%; height: 56%;
-    background: radial-gradient(50% 50% at 50% 50%, rgba(232,243,255,0.32) 0%, rgba(150,200,255,0.11) 45%, transparent 72%);
-    animation: blob4 45s ease-in-out infinite alternate; }
+  /* cyan curtain streak A — narrow + tall, top-center */
+  .hero-blob--2 { left: 44%; top: -14%; width: 12%; height: 66%;
+    background: radial-gradient(50% 50% at 50% 50%, rgba(70,195,255,0.34) 0%, rgba(60,175,255,0.12) 55%, transparent 75%);
+    animation: blob2 21s ease-in-out infinite alternate; }
+  /* cyan curtain streak B — offset, slightly shorter */
+  .hero-blob--3 { left: 55%; top: -10%; width: 10%; height: 56%;
+    background: radial-gradient(50% 50% at 50% 50%, rgba(90,205,255,0.28) 0%, transparent 72%);
+    animation: blob3 17s ease-in-out infinite alternate; }
+  /* white diagonal beam, upper-right */
+  .hero-blob--4 { right: -14%; top: -18%; width: 52%; height: 62%;
+    background: radial-gradient(50% 42% at 55% 45%, rgba(242,248,255,0.55) 0%, rgba(170,210,255,0.18) 50%, transparent 74%);
+    animation: blob4 39s ease-in-out infinite alternate; }
   @keyframes blob1 {
     0%   { transform: translate3d(0,0,0) scale(1); opacity: 0.95; }
-    50%  { transform: translate3d(7%,-5%,0) scale(1.14); opacity: 1; }
-    100% { transform: translate3d(-6%,6%,0) scale(0.92); opacity: 0.85; }
+    50%  { transform: translate3d(6%,-4%,0) scale(1.12); opacity: 1; }
+    100% { transform: translate3d(-5%,5%,0) scale(0.93); opacity: 0.85; }
   }
   @keyframes blob2 {
-    0%   { transform: translate3d(0,0,0) scale(1.05); opacity: 0.85; }
-    50%  { transform: translate3d(-8%,7%,0) scale(0.94); opacity: 1; }
-    100% { transform: translate3d(5%,-4%,0) scale(1.12); opacity: 0.9; }
+    0%   { transform: translate3d(0,0,0) scaleY(1) scaleX(1); opacity: 0.85; }
+    50%  { transform: translate3d(-14%,4%,0) scaleY(1.18) scaleX(0.9); opacity: 1; }
+    100% { transform: translate3d(10%,-3%,0) scaleY(0.9) scaleX(1.15); opacity: 0.7; }
   }
   @keyframes blob3 {
-    0%   { transform: translate3d(0,0,0) scale(1); opacity: 0.7; }
-    50%  { transform: translate3d(10%,9%,0) scale(1.25); opacity: 1; }
-    100% { transform: translate3d(-9%,-5%,0) scale(0.9); opacity: 0.75; }
+    0%   { transform: translate3d(0,0,0) scaleY(1.1); opacity: 0.65; }
+    50%  { transform: translate3d(16%,6%,0) scaleY(0.88) scaleX(1.2); opacity: 1; }
+    100% { transform: translate3d(-12%,-4%,0) scaleY(1.22) scaleX(0.92); opacity: 0.75; }
   }
   @keyframes blob4 {
-    0%   { transform: translate3d(0,0,0) scale(1); opacity: 0.9; }
-    50%  { transform: translate3d(-5%,6%,0) scale(1.1); opacity: 0.7; }
-    100% { transform: translate3d(3%,-3%,0) scale(0.96); opacity: 1; }
+    0%   { transform: translate3d(0,0,0) rotate(-16deg) scale(1); opacity: 0.95; }
+    50%  { transform: translate3d(-4%,5%,0) rotate(-13deg) scale(1.08); opacity: 0.8; }
+    100% { transform: translate3d(2%,-2%,0) rotate(-18deg) scale(0.97); opacity: 1; }
   }
   @media (prefers-reduced-motion: reduce) { .hero-blob { animation: none; } }
   #hero-pixel-dots { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
@@ -235,7 +242,8 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   .plat-body { font-size: 16px; color: rgba(255,255,255,0.55); line-height: 1.65; margin: 0; max-width: 520px; }
   .plat-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 16px; }
   .plat-list li { position: relative; padding-left: 24px; font-size: 16px; color: rgba(255,255,255,0.75); line-height: 1.45; }
-  .plat-list li::before { content: ""; position: absolute; left: 0; top: 9px; width: 7px; height: 7px; border-radius: 0; background: #1488FC; }
+  /* top: 5px — square aligns with the cap height of the first text line (trust-page bullet alignment) */
+  .plat-list li::before { content: ""; position: absolute; left: 0; top: 5px; width: 7px; height: 7px; border-radius: 0; background: #1488FC; }
 
   /* Slider stage — the textured (#111 + pixel noise) layer shows only as a
      ~20px margin ring; inside it a solid-black container holds the slider
