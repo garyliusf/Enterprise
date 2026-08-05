@@ -154,11 +154,10 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   /* ─── SECTION 3: PLATFORM TABS (horizontal tab bar + 2-col panel) ─────── */
   /* top padding reduced — the video section directly above supplies part of the gap */
   .feat-section { width: 100%; background: #000; padding: clamp(48px, 6vh, 80px) 0 clamp(80px, 12vh, 140px); font-family: 'Inter', sans-serif; }
-  .feat-header { width: min(1120px, calc(100vw - 160px)); margin: 0 auto 48px; text-align: left; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+  .feat-header { width: 100%; margin: 0 0 48px; text-align: left; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
   .feat-eyebrow { font-family: 'Silkscreen', monospace; font-size: 16px; font-weight: 400; color: #1488FC; margin: 0; letter-spacing: 2px; text-transform: uppercase; }
   .feat-headline { font-size: clamp(32px, 4vw, 52px); font-weight: 500; color: #fff; line-height: 1.2; letter-spacing: -1px; margin: 0; }
   .feat-subheadline { font-size: clamp(15px, 1.1vw, 17px); color: rgba(255,255,255,0.5); margin: 0; max-width: 640px; line-height: 1.65; }
-  .feat-inner { width: min(1120px, calc(100vw - 160px)); margin: 0 auto; }
 
   /* Horizontal tab bar */
   .plat-tabbar {
@@ -198,18 +197,27 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   /* extra breathing room between the bullet list and the CTA (on top of the 22px column gap) */
   .plat-panel-left > .hero-btn-primary { margin-top: 16px; }
 
-  /* Right visual card — slider-component stage: #111 fill + animated pixel noise
-     (same treatment as the enterprise/get-started feat slider content area) */
+  /* Near-full-bleed stage behind the whole section (header + tab bar + panels) —
+     20px viewport margin, #111 fill, animated pixel noise (get-started slider bg). */
+  .plat-stage {
+    position: relative; overflow: hidden;
+    width: calc(100% - 40px); margin: 0 auto;
+    border-radius: 14px;
+    background: #111;
+    padding: clamp(48px, 7vh, 88px) 0 clamp(48px, 7vh, 80px);
+  }
+  #plat-stage-noise { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.38; z-index: 0; }
+  .plat-stage-inner { width: min(1120px, calc(100% - 160px)); margin: 0 auto; position: relative; z-index: 1; }
+
+  /* Right visual card — simple dark card sitting on the stage */
   .plat-vcard {
     position: relative; overflow: hidden;
-    border-radius: 12px;
-    background: #111;
-    padding: 40px 36px;
+    border: 1px solid rgba(255,255,255,0.10); border-radius: 10px;
+    background: rgba(0,0,0,0.35);
+    padding: 32px;
     display: flex; flex-direction: column; gap: 20px; justify-content: center;
-    min-height: 340px;
+    min-height: 320px;
   }
-  .plat-noise-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.38; z-index: 0; }
-  .plat-vcard > *:not(.plat-noise-canvas) { position: relative; z-index: 1; }
 
   /* Monospace prompt mock inside the card */
   .plat-vprompt {
@@ -385,7 +393,8 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
 
   /* ─── RESPONSIVE ──────────────────────────────────────────────────────── */
   @media (max-width: 1024px) {
-    .hero-inner, .section-inner, .feat-header, .feat-inner, .pvideo-inner { width: min(900px, calc(100vw - 80px)); }
+    .hero-inner, .section-inner, .pvideo-inner { width: min(900px, calc(100vw - 80px)); }
+    .plat-stage-inner { width: min(900px, calc(100% - 80px)); }
     .eyebrow-pill, .feat-eyebrow { font-size: 13px; }
     .plat-tabbar { gap: 32px; }
     .plat-tab { font-size: 17px; }
@@ -415,10 +424,11 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     .logo-item--sm img { height: 16px; }
     .logo-item--lg img { height: 27px; }
     .feat-section { padding: 28px 0 40px; }
-    .feat-header { width: calc(100vw - 32px); margin: 0 auto 32px; gap: 10px; }
+    .feat-header { margin: 0 0 32px; gap: 10px; }
     .feat-headline { font-size: clamp(26px, 8vw, 36px); letter-spacing: -0.5px; line-height: 1.3; }
     .feat-subheadline { font-size: 15px; }
-    .feat-inner { width: calc(100vw - 32px); }
+    .plat-stage { width: calc(100% - 24px); padding: 36px 0 40px; border-radius: 10px; }
+    .plat-stage-inner { width: calc(100% - 32px); }
     /* Tab bar scrolls horizontally so all four labels stay on one row */
     .plat-tabbar { gap: 22px; margin-bottom: 32px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
     .plat-tabbar::-webkit-scrollbar { display: none; }
@@ -509,14 +519,16 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
 
 <!-- ─── SECTION 3: PLATFORM (business-size tabs) ─────────────────────────── -->
 <section class="feat-section">
-  <div class="feat-header">
-    <p class="feat-eyebrow eyebrow-scramble">Platform</p>
-    <div class="reveal-h">
-      <h2 class="feat-headline">Build exactly what you need, skip what you don&rsquo;t</h2>
+  <div class="plat-stage">
+    <canvas id="plat-stage-noise" aria-hidden="true"></canvas>
+    <div class="plat-stage-inner">
+    <div class="feat-header">
+      <p class="feat-eyebrow eyebrow-scramble">Platform</p>
+      <div class="reveal-h">
+        <h2 class="feat-headline">Build exactly what you need, skip what you don&rsquo;t</h2>
+      </div>
+      <p class="feat-subheadline">Whether you&rsquo;re building solo or shipping for a whole organization, Bolt fits the way you work.</p>
     </div>
-    <p class="feat-subheadline">Whether you&rsquo;re building solo or shipping for a whole organization, Bolt fits the way you work.</p>
-  </div>
-  <div class="feat-inner">
     <div class="plat-tabbar" role="tablist">
       <button class="plat-tab active" data-feat="1" role="tab">Entrepreneur</button>
       <button class="plat-tab" data-feat="2" role="tab">Small business</button>
@@ -542,7 +554,6 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
             </a>
           </div>
           <div class="plat-vcard" aria-hidden="true">
-            <canvas class="plat-noise-canvas" id="plat-noise-1" aria-hidden="true"></canvas>
             <div class="plat-vprompt">Build a coming soon waitlist page for my app</div>
           </div>
         </div>
@@ -564,7 +575,6 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
             </a>
           </div>
           <div class="plat-vcard" aria-hidden="true">
-            <canvas class="plat-noise-canvas" id="plat-noise-2" aria-hidden="true"></canvas>
             <div class="plat-rows">
               <div class="plat-row"><p class="plat-row-name">Inventory tracker</p><span class="plat-status">live</span></div>
               <div class="plat-row"><p class="plat-row-name">Company website</p><span class="plat-status">live</span></div>
@@ -590,7 +600,6 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
             </a>
           </div>
           <div class="plat-vcard" aria-hidden="true">
-            <canvas class="plat-noise-canvas" id="plat-noise-3" aria-hidden="true"></canvas>
             <div class="plat-rows">
               <div class="plat-row"><p class="plat-row-name">Single sign-on (SAML)</p><span class="plat-status">enabled</span></div>
               <div class="plat-row"><p class="plat-row-name">Audit logging</p><span class="plat-status">enabled</span></div>
@@ -618,7 +627,6 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
             </a>
           </div>
           <div class="plat-vcard" aria-hidden="true">
-            <canvas class="plat-noise-canvas" id="plat-noise-4" aria-hidden="true"></canvas>
             <div class="plat-rows">
               <div class="plat-row"><p class="plat-row-name">Acme Corp</p><span class="plat-status">delivered</span></div>
               <div class="plat-row"><p class="plat-row-name">Northwind campaign</p><span class="plat-status plat-status--amber">in review</span></div>
@@ -628,6 +636,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
         </div>
       </div>
 
+    </div>
     </div>
   </div>
 </section>
@@ -1038,9 +1047,7 @@ window.addEventListener('load', function() {
       return density > rand ? density * 0.9 : 0;
     };
   }
-  for (var pi = 1; pi <= 4; pi++) {
-    makePixelCanvas('plat-noise-' + pi, 6, 2, featNoiseWave(1.4 + pi * 0.9), 0.80, '255,255,255');
-  }
+  makePixelCanvas('plat-stage-noise', 6, 2, featNoiseWave(1.4), 0.80, '255,255,255');
 
   // Footer pixel canvas (verbatim security-agent)
   makePixelCanvas('footer-pixel-canvas', 6, 2,
