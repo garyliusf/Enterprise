@@ -279,7 +279,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
 
   /* ─── SECTION 5: TEMPLATES (interactive index list + cursor preview) ──── */
   .tmpl-section { width: 100%; background: #050508; position: relative; }
-  .section-cta { margin-top: 40px; }
+  .section-cta { margin-top: 40px; display: flex; justify-content: center; }
   .works { position: relative; }
   .works-list { border-top: 1px solid rgba(255,255,255,0.10); position: relative; z-index: 2; }
   .works-row {
@@ -378,10 +378,8 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
   /* Local H2 word-reveal — fires at ~50% viewport (same as security-agent) */
   .reveal-h .word { display: inline-block; opacity: 0; transform: translate(-10px, -7px); filter: blur(5px); will-change: opacity, transform, filter; }
   .reveal-h.is-revealed .word { animation: dsa-word-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards; animation-delay: calc(var(--i, 0) * 28ms); }
-  /* subtitle fade-in, triggered alongside the H2 reveal */
-  .sub-in { animation: subReveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.18s both; }
-  @keyframes subReveal { from { opacity: 0; transform: translateY(10px); filter: blur(4px); } to { opacity: 1; transform: none; filter: none; } }
-  @media (prefers-reduced-motion: reduce) { .sub-in { animation: none; } }
+  /* Subtitle reveal is owned by shared-components.js (.sc-sub-words / .sc-sub-go),
+     triggered when the sibling .reveal-h gains .is-revealed. No local subtitle CSS. */
 
   /* ─── RESPONSIVE ──────────────────────────────────────────────────────── */
   @media (max-width: 1024px) {
@@ -750,7 +748,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
         <div class="reveal-h">
           <h2 class="trust-h2">Security built into the platform, not bolted on after</h2>
         </div>
-        <p class="trust-body">Every app runs on the same infrastructure your security team already trusts: encrypted data, audited access, and compliance controls that hold up at enterprise scale.</p>
+        <p class="trust-body section-sub">Every app runs on the same infrastructure your security team already trusts: encrypted data, audited access, and compliance controls that hold up at enterprise scale.</p>
         <a class="arrow-link" href="https://bolt.new/platform/security" target="_blank" rel="noopener">Explore platform security <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
       </div>
       <div class="trust-checks">
@@ -1069,10 +1067,12 @@ window.addEventListener('load', function() {
 
 <script>
 /* Eyebrow scramble (.eyebrow-scramble) is handled by shared-components.js.
-   H2 word-reveal + subtitle fade are handled locally, triggered by a scroll/
-   load check (reliable) as each header enters the lower ~85% of the viewport. */
+   H2 word-reveal is local: this scroll check adds .is-revealed as each header
+   reaches ~55% of the viewport (canonical timing, matches security-agent).
+   Subtitle reveal is OWNED BY SHARED (.sc-sub-words/.sc-sub-go) — its
+   MutationObserver fires off the same .is-revealed class. Don't add a second
+   subtitle animation here (single-owner rule, see CLAUDE.md shared hazards). */
 (function () {
-  var SUBS = '.section-sub, .feat-subheadline, .trust-body';
   function wrapWords(el) {
     var i = 0;
     el.innerHTML = el.innerHTML.replace(/\S+/g, function (w) {
@@ -1085,20 +1085,13 @@ window.addEventListener('load', function() {
       if (!h.dataset.wrapped) { wrapWords(h); h.dataset.wrapped = '1'; }
     });
   });
-  function reveal(c) {
-    if (c.classList.contains('is-revealed')) return;
-    c.classList.add('is-revealed');
-    var header = c.parentElement;                 // header wrapper holds the sibling subtitle
-    var sub = header && header.querySelector(SUBS);
-    if (sub) sub.classList.add('sub-in');
-  }
   function check() {
     var vh = window.innerHeight || document.documentElement.clientHeight;
     for (var i = 0; i < containers.length; i++) {
       var c = containers[i];
       if (c.classList.contains('is-revealed')) continue;
       var r = c.getBoundingClientRect();
-      if (r.top < vh * 0.85 && r.bottom > 0) reveal(c);
+      if (r.top < vh * 0.55 && r.bottom > 0) c.classList.add('is-revealed');
     }
   }
   window.addEventListener('scroll', check, { passive: true });
