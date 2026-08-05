@@ -56,48 +56,53 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     flex-direction: column;
     justify-content: center;
     font-family: 'Inter', sans-serif;
-    /* aurora treatment — static base: layered asymmetric ellipses (organic,
-       not a uniform wash) with dark voids top-left + bottom. Bloom + curtain
-       streaks live on the animated .hero-aurora layers. */
+    /* aurora treatment — static base: field + dark voids. The light pools are
+       the four animated .hero-blob layers (independent periods = the shapes
+       continuously merge/separate instead of sliding as one). */
     background:
-      radial-gradient(52% 40% at 36% 44%, rgba(28,96,214,0.50) 0%, transparent 72%),
-      radial-gradient(38% 46% at 62% 30%, rgba(20,80,190,0.42) 0%, transparent 74%),
-      radial-gradient(64% 44% at 20% 0%, rgba(0,0,6,0.88) 0%, transparent 64%),
-      radial-gradient(50% 36% at 88% 96%, rgba(0,2,10,0.85) 0%, transparent 66%),
-      radial-gradient(130% 96% at 48% 36%, #0b3585 0%, #082862 48%, #041231 74%, #000 94%),
+      radial-gradient(64% 44% at 20% 0%, rgba(0,0,6,0.85) 0%, transparent 64%),
+      radial-gradient(50% 36% at 88% 96%, rgba(0,2,10,0.8) 0%, transparent 66%),
+      radial-gradient(130% 96% at 48% 36%, #0d3d9a 0%, #0a2f74 48%, #05173c 74%, #000 94%),
       #000;
     padding: clamp(120px, 14vh, 180px) 0 clamp(72px, 8vh, 112px);
   }
-  /* Animated aurora layers — oversized so the slow drift never reveals edges.
-     Layer A: white bloom upper-right + primary cyan curtain. Layer B: secondary
-     streaks on a different period so the motion reads organic. */
-  .hero-aurora {
-    position: absolute; inset: -12%; z-index: 0; pointer-events: none;
-    will-change: transform, opacity;
+  /* Animated aurora blobs — four soft light pools, each on its own co-prime
+     period and drift vector, so their overlaps continuously merge/separate
+     (the composition evolves instead of sliding as one). GPU transforms only. */
+  .hero-blob { position: absolute; z-index: 0; pointer-events: none; will-change: transform, opacity; }
+  .hero-blob--1 { left: 0%; top: 14%; width: 66%; height: 82%;
+    background: radial-gradient(50% 50% at 50% 50%, rgba(32,108,228,0.50) 0%, transparent 70%);
+    animation: blob1 27s ease-in-out infinite alternate; }
+  .hero-blob--2 { left: 42%; top: -16%; width: 58%; height: 76%;
+    background: radial-gradient(50% 50% at 50% 50%, rgba(24,92,210,0.44) 0%, transparent 72%);
+    animation: blob2 33s ease-in-out infinite alternate; }
+  .hero-blob--3 { left: 32%; top: -8%; width: 28%; height: 56%;
+    background: radial-gradient(50% 50% at 50% 50%, rgba(95,195,255,0.15) 0%, transparent 70%);
+    animation: blob3 19s ease-in-out infinite alternate; }
+  .hero-blob--4 { right: -8%; top: -16%; width: 40%; height: 56%;
+    background: radial-gradient(50% 50% at 50% 50%, rgba(232,243,255,0.32) 0%, rgba(150,200,255,0.11) 45%, transparent 72%);
+    animation: blob4 45s ease-in-out infinite alternate; }
+  @keyframes blob1 {
+    0%   { transform: translate3d(0,0,0) scale(1); opacity: 0.95; }
+    50%  { transform: translate3d(7%,-5%,0) scale(1.14); opacity: 1; }
+    100% { transform: translate3d(-6%,6%,0) scale(0.92); opacity: 0.85; }
   }
-  .hero-aurora--a {
-    background:
-      radial-gradient(24% 20% at 80% 16%, rgba(225,238,255,0.28) 0%, rgba(150,200,255,0.10) 48%, transparent 72%),
-      radial-gradient(30% 52% at 56% 22%, rgba(70,175,255,0.16) 0%, transparent 70%),
-      radial-gradient(16% 42% at 66% 28%, rgba(110,205,255,0.13) 0%, transparent 72%);
-    animation: auroraDriftA 16s ease-in-out infinite alternate;
+  @keyframes blob2 {
+    0%   { transform: translate3d(0,0,0) scale(1.05); opacity: 0.85; }
+    50%  { transform: translate3d(-8%,7%,0) scale(0.94); opacity: 1; }
+    100% { transform: translate3d(5%,-4%,0) scale(1.12); opacity: 0.9; }
   }
-  .hero-aurora--b {
-    background:
-      radial-gradient(12% 38% at 50% 18%, rgba(90,190,255,0.12) 0%, transparent 70%),
-      radial-gradient(20% 46% at 72% 40%, rgba(40,130,240,0.14) 0%, transparent 72%),
-      radial-gradient(28% 30% at 30% 60%, rgba(24,90,200,0.18) 0%, transparent 74%);
-    animation: auroraDriftB 23s ease-in-out infinite alternate;
+  @keyframes blob3 {
+    0%   { transform: translate3d(0,0,0) scale(1); opacity: 0.7; }
+    50%  { transform: translate3d(10%,9%,0) scale(1.25); opacity: 1; }
+    100% { transform: translate3d(-9%,-5%,0) scale(0.9); opacity: 0.75; }
   }
-  @keyframes auroraDriftA {
-    from { transform: translate3d(0,0,0) scale(1); opacity: 0.9; }
-    to   { transform: translate3d(-2.5%, 1.5%, 0) scale(1.06); opacity: 1; }
+  @keyframes blob4 {
+    0%   { transform: translate3d(0,0,0) scale(1); opacity: 0.9; }
+    50%  { transform: translate3d(-5%,6%,0) scale(1.1); opacity: 0.7; }
+    100% { transform: translate3d(3%,-3%,0) scale(0.96); opacity: 1; }
   }
-  @keyframes auroraDriftB {
-    from { transform: translate3d(1.5%, -1%, 0) scale(1.04); opacity: 0.65; }
-    to   { transform: translate3d(-2%, 1%, 0) scale(1); opacity: 1; }
-  }
-  @media (prefers-reduced-motion: reduce) { .hero-aurora { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { .hero-blob { animation: none; } }
   #hero-pixel-dots { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
   .hero-content-area { display: flex; align-items: center; justify-content: center; position: relative; z-index: 3; width: 100%; }
   .hero-inner {
@@ -564,8 +569,10 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
 
 <!-- ─── SECTION 1: HERO ──────────────────────────────────────────────────── -->
 <section class="hero-section">
-  <div class="hero-aurora hero-aurora--a" aria-hidden="true"></div>
-  <div class="hero-aurora hero-aurora--b" aria-hidden="true"></div>
+  <div class="hero-blob hero-blob--1" aria-hidden="true"></div>
+  <div class="hero-blob hero-blob--2" aria-hidden="true"></div>
+  <div class="hero-blob hero-blob--3" aria-hidden="true"></div>
+  <div class="hero-blob hero-blob--4" aria-hidden="true"></div>
   <canvas id="hero-pixel-dots"></canvas>
   <div class="hero-content-area">
     <div class="hero-inner">
