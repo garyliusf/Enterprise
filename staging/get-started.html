@@ -3022,7 +3022,7 @@
 
 <section class="feat-section">
 
-  <div class="feat-header reveal-stagger" data-reveal-children=".feat-eyebrow, .feat-headline">
+  <div class="feat-header reveal-stagger" data-reveal-children=".feat-headline">
     <p class="feat-eyebrow">Built for Enterprise</p>
     <h2 class="feat-headline">Everything your team needs</h2>
     <p class="feat-subheadline sub-reveal">Build with the tools you use. Deploy where your landscape lives.</p>
@@ -3116,7 +3116,7 @@
 <!-- ─── SECTION: SUPPORT ─────────────────────────────────────────────────── -->
 <section class="support-section">
 
-  <div class="feat-header reveal-stagger" style="margin-bottom: 40px;" data-reveal-children=".feat-eyebrow, .feat-headline">
+  <div class="feat-header reveal-stagger" style="margin-bottom: 40px;" data-reveal-children=".feat-headline">
     <p class="feat-eyebrow eyebrow-scramble">White-glove support</p>
     <h2 class="feat-headline">Quality support for priority customers</h2>
   </div>
@@ -3186,7 +3186,7 @@
 
 <!-- ─── FOOTER ────────────────────────────────────────────────────────────── -->
 <section class="footer-section">
-  <div class="reveal-stagger" style="display:flex;flex-direction:column;align-items:center;gap:24px;text-align:center;width:100%;" data-reveal-children=".footer-eyebrow, .footer-headline">
+  <div class="reveal-stagger" style="display:flex;flex-direction:column;align-items:center;gap:24px;text-align:center;width:100%;" data-reveal-children=".footer-headline">
     <p class="footer-eyebrow" style="margin:0;">Are you ready?</p>
     <h2 class="footer-headline">Start building today</h2>
     <p class="footer-subtitle sub-reveal">
@@ -4394,10 +4394,10 @@
   .sub-reveal {
     opacity: 0;
     transform: translateY(14px);
-    filter: blur(6px);
-    transition: opacity 0.85s cubic-bezier(0.25,0.46,0.45,0.94) 0.25s,
-                transform 0.85s cubic-bezier(0.25,0.46,0.45,0.94) 0.25s,
-                filter 0.85s cubic-bezier(0.25,0.46,0.45,0.94) 0.25s;
+    filter: blur(10px);
+    transition: opacity 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 0.35s,
+                transform 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 0.35s,
+                filter 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 0.35s;
   }
   .sub-reveal.is-in { opacity: 1; transform: translateY(0); filter: blur(0); }
 </style>
@@ -4422,15 +4422,36 @@
         if (!h.dataset.wrapped) { wrapWords(h); h.dataset.wrapped = '1'; }
       });
     });
+    function revealSectionSubs(container) {
+      var sec = container.closest('section') || container.parentElement;
+      if (!sec) return;
+      sec.querySelectorAll('.sub-reveal').forEach(function (el) { el.classList.add('is-in'); });
+    }
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
         if (!e.isIntersecting) return;
-        e.target.classList.add(e.target.classList.contains('dsa-reveal') ? 'is-revealed' : 'is-in');
+        if (e.target.classList.contains('dsa-reveal')) {
+          e.target.classList.add('is-revealed');
+          revealSectionSubs(e.target);          /* subtitle rides the same trigger */
+        } else {
+          e.target.classList.add('is-in');
+        }
         io.unobserve(e.target);
       });
     }, { threshold: 0.5 });
     reveals.forEach(function (c) { io.observe(c); });
-    subs.forEach(function (s) { io.observe(s); });
+    /* native reveal-stagger containers: bridge their reveal to the section's subtitle */
+    document.querySelectorAll('.reveal-stagger').forEach(function (w) {
+      new MutationObserver(function () {
+        if (w.classList.contains('is-revealed')) revealSectionSubs(w);
+      }).observe(w, { attributes: true, attributeFilter: ['class'] });
+    });
+    /* only subs with no headline container in their section observe individually */
+    subs.forEach(function (el) {
+      var sec = el.closest('section');
+      if (sec && (sec.querySelector('.dsa-reveal') || sec.querySelector('.reveal-stagger'))) return;
+      io.observe(el);
+    });
   })();
 </script>
 
