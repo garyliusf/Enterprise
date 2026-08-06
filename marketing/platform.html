@@ -320,7 +320,20 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; o
     z-index: 2; pointer-events: none;
     background:
       radial-gradient(ellipse 1000px 560px at 50% 34%, rgba(0,0,0,0.55), transparent 72%),
-      linear-gradient(180deg, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.45) 45%, rgba(0,0,0,0.72) 100%);
+      /* Tail closes to FULL black by 100% so the hero meets the black page with
+         no visible step — it was landing on rgb(1,26,56) against #000, a hard
+         edge. The stop increments shrink toward the end (0.12/0.10/0.055/0.025)
+         so the slope approaches zero as it reaches black; an even ramp puts a
+         mach band where it stops changing. Cheap to verify: sample the last
+         hero row, it should read (0,0,0). */
+      linear-gradient(180deg,
+        rgba(0,0,0,0.62)  0%,
+        rgba(0,0,0,0.45)  45%,
+        rgba(0,0,0,0.70)  78%,
+        rgba(0,0,0,0.82)  88%,
+        rgba(0,0,0,0.92)  94%,
+        rgba(0,0,0,0.975) 97.5%,
+        rgba(0,0,0,1)     100%);
   }
   /* Animated aurora blobs — four soft light pools, each on its own co-prime
      period and drift vector, so their overlaps continuously merge/separate
