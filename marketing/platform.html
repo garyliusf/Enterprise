@@ -6,12 +6,246 @@
 <title>Platform · Bolt</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Silkscreen:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared-nav-footer.css">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+/* `clip` NOT `hidden`: overflow-x:hidden makes body a scroll container, which
+   breaks `position: sticky` on descendants — it stops the navbar sticking.
+   `clip` clips without creating a scrollport. `hidden` stays first as a
+   fallback for browsers without `clip`. */
+body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; overflow-x: clip; }
 </style>
 </head>
 <body>
+
+<!-- ─── NAVBAR ────────────────────────────────────────────────────────────── -->
+<nav class="mkt-nav" aria-label="Primary">
+  <div class="mkt-nav-inner">
+    <!-- Nav-bar Back button — only appears on mobile when a submenu is active (JS toggles .is-on-submenu on .mkt-nav). Replaces the logo in the same slot. -->
+    <button class="mkt-nav-back" data-mobile-back aria-label="Back to main menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+      Back
+    </button>
+    <a href="../" class="mkt-nav-logo" aria-label="bolt.new home">
+      <!-- Canonical bolt.new wordmark (from images/bolt-new.svg) — inlined so the nav renders without an extra network request. -->
+      <svg viewBox="0 0 85 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M26.1121 20.9491C21.0582 20.9491 18.4869 17.9995 18.4869 14.3126C18.4869 9.9472 21.9744 5.99476 27.0283 5.99476C32.0822 5.99476 34.6535 8.94434 34.6535 12.6313C34.6535 16.9967 31.166 20.9491 26.1121 20.9491ZM26.319 16.2593C28.0923 16.2593 29.2154 14.6665 29.2154 12.8968C29.2154 11.481 28.2992 10.6846 26.8214 10.6846C25.0481 10.6846 23.925 12.2774 23.925 14.0471C23.925 15.4629 24.8412 16.2593 26.319 16.2593Z" fill="#fff"/>
+        <path d="M40.0368 20.5952H34.717L39.0615 0.921487H44.3814L40.0368 20.5952Z" fill="#fff"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M10.4272 20.9491C8.80168 20.9491 7.20572 20.3592 6.28951 19.0909L5.96635 20.5867L0 23.75L0.644095 20.5867L4.9891 0.921487H10.309L8.77213 7.853C10.0134 6.49619 11.1661 5.99476 12.6438 5.99476C15.8358 5.99476 17.9637 8.08896 17.9637 11.9234C17.9637 15.8758 15.5107 20.9491 10.4272 20.9491ZM12.4665 13.0443C12.4665 14.873 11.1661 16.2593 9.48145 16.2593C8.53569 16.2593 7.6786 15.9053 7.11705 15.2859L7.94459 11.658C8.56524 11.0385 9.27456 10.6846 10.1021 10.6846C11.373 10.6846 12.4665 11.6285 12.4665 13.0443Z" fill="#fff"/>
+        <path d="M49.9163 20.9491C46.8426 20.9491 44.6555 19.8283 44.6555 17.3506C44.6555 17.1442 44.6851 16.6427 44.7737 16.2298L45.9264 10.9501H43.562L44.5964 6.34871H46.9608L47.8179 2.45527L53.7735 0L53.1378 2.46127L52.2807 6.34871H55.1771L54.1426 10.9501H51.2462L50.4778 14.4306C50.4187 14.696 50.3892 14.991 50.3892 15.109C50.3892 15.7874 50.8029 16.2593 51.7191 16.2593C51.9851 16.2593 52.3693 16.1708 52.458 16.1118V20.3592C51.8965 20.7427 50.8916 20.9491 49.9163 20.9491Z" fill="#fff"/>
+        <path d="M56.461 21.0087C55.7527 21.0087 55.1886 20.4196 55.1886 19.7127C55.1886 18.8879 55.897 18.1941 56.7234 18.1941C57.4317 18.1941 57.9958 18.7832 57.9958 19.4901C57.9958 20.3149 57.2875 21.0087 56.461 21.0087Z" fill="#fff"/>
+        <path d="M65.3576 20.8386H62.9964L63.7309 17.5133C63.7572 17.3955 63.8097 17.186 63.8097 17.0289C63.8097 16.5969 63.4292 16.4398 63.0488 16.4398C62.5372 16.4398 62.183 16.7016 61.9338 16.9242L61.068 20.8386H58.7068L60.1104 14.5153H62.4716L62.3011 15.2354C62.7602 14.8164 63.3374 14.3582 64.295 14.3582C65.6199 14.3582 66.3807 15.0783 66.3807 16.0209C66.3807 16.1256 66.3414 16.4136 66.3151 16.5314L65.3576 20.8386Z" fill="#fff"/>
+        <path d="M70.256 20.9956C68.2096 20.9956 66.7929 19.9745 66.7929 18.1155C66.7929 16.0994 68.3408 14.3582 70.5577 14.3582C72.1319 14.3582 73.5223 15.3139 73.5223 17.2384C73.5223 17.6704 73.4436 18.1679 73.3781 18.4035H69.1279V18.4166C69.1279 18.5083 69.5083 19.2021 70.4265 19.2021C70.925 19.2021 71.5153 19.0843 71.8039 18.8879L72.5254 20.4196C71.8826 20.8255 71.0169 20.9956 70.256 20.9956ZM69.3509 16.9111H71.4366V16.8718C71.4366 16.6885 71.2136 16.1518 70.4659 16.1518C69.8363 16.1518 69.4296 16.6362 69.3509 16.9111Z" fill="#fff"/>
+        <path d="M81.7599 20.8386H79.1888L78.9265 17.3038L77.1293 20.8386H74.5582L74.1254 14.5153H76.4866L76.5521 17.9977L78.4411 14.5153H80.5531L80.881 17.9977L82.4945 14.5153H85L81.7599 20.8386Z" fill="#fff"/>
+      </svg>
+    </a>
+
+    <ul class="mkt-nav-items">
+      <li data-menu="platform">
+        <button class="mkt-nav-link" data-menu="platform" aria-haspopup="true" aria-expanded="false">
+          Platform
+          <svg class="mkt-nav-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </li>
+      <li data-menu="solutions">
+        <button class="mkt-nav-link" data-menu="solutions" aria-haspopup="true" aria-expanded="false">
+          Solutions
+          <svg class="mkt-nav-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </li>
+      <li data-menu="resources">
+        <button class="mkt-nav-link" data-menu="resources" aria-haspopup="true" aria-expanded="false">
+          Resources
+          <svg class="mkt-nav-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </li>
+      <li><a href="templates/" class="mkt-nav-link">Templates</a></li>
+      <li><a href="../enterprise" class="mkt-nav-link">Enterprise</a></li>
+      <li><a href="pricing.html" class="mkt-nav-link">Pricing</a></li>
+    </ul>
+
+    <div class="mkt-nav-right">
+      <div class="mkt-nav-actions">
+        <a href="https://bolt.new/signin" class="mkt-nav-signin">Sign in</a>
+        <a href="https://bolt.new/" target="_blank" rel="noopener" class="mkt-nav-cta hero-btn-primary">
+          <div class="btn-bg-hover"></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Started</span><span>Get Started</span></div></div>
+        </a>
+      </div>
+      <button class="mkt-nav-burger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mega panels — one per top-level menu, JS toggles .is-open on the matching data-panel -->
+  <div class="mkt-nav-panel" data-panel="platform" aria-hidden="true">
+    <div class="mkt-nav-panel-inner">
+      <a href="bolt-cli.html" class="mkt-nav-panel-feature">
+        <div class="mkt-nav-panel-feature-visual" aria-hidden="true"></div>
+        <p class="mkt-nav-panel-feature-eyebrow">Featured</p>
+        <p class="mkt-nav-panel-feature-title">Build with the CLI</p>
+        <p class="mkt-nav-panel-feature-desc">Ship full-stack apps from your terminal — same model, no browser tab required.</p>
+      </a>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Product Overview</p>
+        <a href="#">Platform (Build, Deploy, Govern)</a>
+        <a href="#">Security &amp; Trust</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="mkt-nav-panel" data-panel="solutions" aria-hidden="true">
+    <div class="mkt-nav-panel-inner">
+      <a href="../solutions/ai-for-real-estate/" class="mkt-nav-panel-feature">
+        <div class="mkt-nav-panel-feature-visual" aria-hidden="true"></div>
+        <p class="mkt-nav-panel-feature-eyebrow">Featured solution</p>
+        <p class="mkt-nav-panel-feature-title">AI for Real Estate</p>
+        <p class="mkt-nav-panel-feature-desc">Templates and playbooks for agents, brokers, and prop-tech teams shipping with Bolt.</p>
+      </a>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Top Use Cases</p>
+        <a href="#">AI App Builder</a>
+        <a href="#">AI Website Builder</a>
+        <a href="#">SaaS Dev</a>
+        <a href="#">Prototyping</a>
+      </div>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Business Type</p>
+        <a href="../solutions/smb/">Small Business</a>
+        <a href="../enterprise">Enterprise</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="mkt-nav-panel" data-panel="resources" aria-hidden="true">
+    <div class="mkt-nav-panel-inner">
+      <a href="#" class="mkt-nav-panel-feature">
+        <div class="mkt-nav-panel-feature-visual" aria-hidden="true"></div>
+        <p class="mkt-nav-panel-feature-eyebrow">Featured collection</p>
+        <p class="mkt-nav-panel-feature-title">Build with AI</p>
+        <p class="mkt-nav-panel-feature-desc">Guides for agents, AI-powered workflows, and full-stack apps with AI-assisted coding.</p>
+      </a>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Support</p>
+        <a href="#">Community</a>
+        <a href="#">Help Center</a>
+        <a href="#">Partners</a>
+      </div>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Learn</p>
+        <a href="https://bolt.new/blog">Blog</a>
+      </div>
+    </div>
+  </div>
+</nav>
+<div class="mkt-nav-scrim" aria-hidden="true"></div>
+
+<!-- Mobile drawer — full-screen slide-in sheet with drill-down. Only rendered on ≤1024px via CSS. -->
+<div class="mkt-nav-mobile" id="mkt-nav-mobile" aria-hidden="true" role="dialog" aria-label="Menu">
+  <div class="mkt-nav-mobile-header">
+    <!-- Left slot swaps: logo on home view, Back on submenu views. Both live in the DOM; JS toggles which is visible via a class on the drawer. -->
+    <a href="../" class="mkt-nav-logo" aria-label="bolt.new home" data-mobile-role="logo">
+      <svg viewBox="0 0 85 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M26.1121 20.9491C21.0582 20.9491 18.4869 17.9995 18.4869 14.3126C18.4869 9.9472 21.9744 5.99476 27.0283 5.99476C32.0822 5.99476 34.6535 8.94434 34.6535 12.6313C34.6535 16.9967 31.166 20.9491 26.1121 20.9491ZM26.319 16.2593C28.0923 16.2593 29.2154 14.6665 29.2154 12.8968C29.2154 11.481 28.2992 10.6846 26.8214 10.6846C25.0481 10.6846 23.925 12.2774 23.925 14.0471C23.925 15.4629 24.8412 16.2593 26.319 16.2593Z" fill="#fff"/>
+        <path d="M40.0368 20.5952H34.717L39.0615 0.921487H44.3814L40.0368 20.5952Z" fill="#fff"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M10.4272 20.9491C8.80168 20.9491 7.20572 20.3592 6.28951 19.0909L5.96635 20.5867L0 23.75L0.644095 20.5867L4.9891 0.921487H10.309L8.77213 7.853C10.0134 6.49619 11.1661 5.99476 12.6438 5.99476C15.8358 5.99476 17.9637 8.08896 17.9637 11.9234C17.9637 15.8758 15.5107 20.9491 10.4272 20.9491ZM12.4665 13.0443C12.4665 14.873 11.1661 16.2593 9.48145 16.2593C8.53569 16.2593 7.6786 15.9053 7.11705 15.2859L7.94459 11.658C8.56524 11.0385 9.27456 10.6846 10.1021 10.6846C11.373 10.6846 12.4665 11.6285 12.4665 13.0443Z" fill="#fff"/>
+        <path d="M49.9163 20.9491C46.8426 20.9491 44.6555 19.8283 44.6555 17.3506C44.6555 17.1442 44.6851 16.6427 44.7737 16.2298L45.9264 10.9501H43.562L44.5964 6.34871H46.9608L47.8179 2.45527L53.7735 0L53.1378 2.46127L52.2807 6.34871H55.1771L54.1426 10.9501H51.2462L50.4778 14.4306C50.4187 14.696 50.3892 14.991 50.3892 15.109C50.3892 15.7874 50.8029 16.2593 51.7191 16.2593C51.9851 16.2593 52.3693 16.1708 52.458 16.1118V20.3592C51.8965 20.7427 50.8916 20.9491 49.9163 20.9491Z" fill="#fff"/>
+        <path d="M56.461 21.0087C55.7527 21.0087 55.1886 20.4196 55.1886 19.7127C55.1886 18.8879 55.897 18.1941 56.7234 18.1941C57.4317 18.1941 57.9958 18.7832 57.9958 19.4901C57.9958 20.3149 57.2875 21.0087 56.461 21.0087Z" fill="#fff"/>
+        <path d="M65.3576 20.8386H62.9964L63.7309 17.5133C63.7572 17.3955 63.8097 17.186 63.8097 17.0289C63.8097 16.5969 63.4292 16.4398 63.0488 16.4398C62.5372 16.4398 62.183 16.7016 61.9338 16.9242L61.068 20.8386H58.7068L60.1104 14.5153H62.4716L62.3011 15.2354C62.7602 14.8164 63.3374 14.3582 64.295 14.3582C65.6199 14.3582 66.3807 15.0783 66.3807 16.0209C66.3807 16.1256 66.3414 16.4136 66.3151 16.5314L65.3576 20.8386Z" fill="#fff"/>
+        <path d="M70.256 20.9956C68.2096 20.9956 66.7929 19.9745 66.7929 18.1155C66.7929 16.0994 68.3408 14.3582 70.5577 14.3582C72.1319 14.3582 73.5223 15.3139 73.5223 17.2384C73.5223 17.6704 73.4436 18.1679 73.3781 18.4035H69.1279V18.4166C69.1279 18.5083 69.5083 19.2021 70.4265 19.2021C70.925 19.2021 71.5153 19.0843 71.8039 18.8879L72.5254 20.4196C71.8826 20.8255 71.0169 20.9956 70.256 20.9956ZM69.3509 16.9111H71.4366V16.8718C71.4366 16.6885 71.2136 16.1518 70.4659 16.1518C69.8363 16.1518 69.4296 16.6362 69.3509 16.9111Z" fill="#fff"/>
+        <path d="M81.7599 20.8386H79.1888L78.9265 17.3038L77.1293 20.8386H74.5582L74.1254 14.5153H76.4866L76.5521 17.9977L78.4411 14.5153H80.5531L80.881 17.9977L82.4945 14.5153H85L81.7599 20.8386Z" fill="#fff"/>
+      </svg>
+    </a>
+    <button class="mkt-nav-mobile-back" data-back hidden aria-label="Back to menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+      BACK
+    </button>
+    <button class="mkt-nav-mobile-close" aria-label="Close menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+    </button>
+  </div>
+
+  <div class="mkt-nav-mobile-body">
+    <!-- Home view — top-level items -->
+    <div class="mkt-nav-mobile-view is-active" data-view="home">
+      <button class="mkt-nav-mobile-item" data-drill="platform">
+        Platform
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <button class="mkt-nav-mobile-item" data-drill="solutions">
+        Solutions
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <button class="mkt-nav-mobile-item" data-drill="resources">
+        Resources
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <a class="mkt-nav-mobile-item" href="templates/">Templates</a>
+      <a class="mkt-nav-mobile-item" href="../enterprise">Enterprise</a>
+      <a class="mkt-nav-mobile-item" href="pricing.html">Pricing</a>
+    </div>
+
+    <!-- Platform submenu -->
+    <div class="mkt-nav-mobile-view" data-view="platform">
+      <a href="bolt-cli.html" class="mkt-nav-mobile-feature">
+        <p class="mkt-nav-mobile-feature-title">Build with the CLI →</p>
+        <p class="mkt-nav-mobile-feature-desc">Ship full-stack apps from your terminal — same model, no browser tab required.</p>
+      </a>
+      <p class="mkt-nav-mobile-heading">Product Overview</p>
+      <div class="mkt-nav-mobile-links">
+        <a href="#">Platform (Build, Deploy, Govern)</a>
+        <a href="#">Security &amp; Trust</a>
+      </div>
+    </div>
+
+    <!-- Solutions submenu -->
+    <div class="mkt-nav-mobile-view" data-view="solutions">
+      <a href="../solutions/ai-for-real-estate/" class="mkt-nav-mobile-feature">
+        <p class="mkt-nav-mobile-feature-title">AI for Real Estate →</p>
+        <p class="mkt-nav-mobile-feature-desc">Templates and playbooks for agents, brokers, and prop-tech teams shipping with Bolt.</p>
+      </a>
+      <p class="mkt-nav-mobile-heading">Top Use Cases</p>
+      <div class="mkt-nav-mobile-links">
+        <a href="#">AI App Builder</a>
+        <a href="#">AI Website Builder</a>
+        <a href="#">SaaS Dev</a>
+        <a href="#">Prototyping</a>
+      </div>
+      <p class="mkt-nav-mobile-heading">Business Type</p>
+      <div class="mkt-nav-mobile-links">
+        <a href="../solutions/smb/">Small Business</a>
+        <a href="../enterprise">Enterprise</a>
+      </div>
+    </div>
+
+    <!-- Resources submenu -->
+    <div class="mkt-nav-mobile-view" data-view="resources">
+      <a href="#" class="mkt-nav-mobile-feature">
+        <p class="mkt-nav-mobile-feature-title">Build with AI →</p>
+        <p class="mkt-nav-mobile-feature-desc">Guides for agents, AI-powered workflows, and full-stack apps with AI-assisted coding.</p>
+      </a>
+      <p class="mkt-nav-mobile-heading">Support</p>
+      <div class="mkt-nav-mobile-links">
+        <a href="#">Community</a>
+        <a href="#">Help Center</a>
+        <a href="#">Partners</a>
+      </div>
+      <p class="mkt-nav-mobile-heading">Learn</p>
+      <div class="mkt-nav-mobile-links">
+        <a href="https://bolt.new/blog">Blog</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="mkt-nav-mobile-footer">
+    <a href="https://bolt.new/" target="_blank" rel="noopener" class="hero-btn-primary">
+      <div class="btn-bg-hover"></div>
+      <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Started</span><span>Get Started</span></div></div>
+    </a>
+    <a href="https://bolt.new/signin" class="mkt-nav-mobile-signin">Sign in</a>
+  </div>
+</div>
 
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1065,12 +1299,98 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
       <div class="btn-text-wrap"><div class="btn-text-inner"><span>Start Building for Free</span><span>Start Building for Free</span></div></div>
     </a>
   </div>
+</section>
+
+<!-- Subtle divider between the prompt-box CTA and the footer columns -->
+<div class="site-footer-divider" style="max-width:1200px;margin:88px auto 0;padding:0 min(80px, 5vw);box-sizing:border-box;"></div>
+
+<!-- ─── SITE FOOTER (link columns, ported from the Retool footer pattern) ── -->
+<footer class="site-footer">
+  <div class="site-footer-cols">
+    <div class="site-footer-col">
+      <p class="site-footer-label">Platform</p>
+      <ul class="site-footer-links">
+        <li><a href="#">Product Overview</a></li>
+        <li><a href="#">Security &amp; Trust</a></li>
+      </ul>
+    </div>
+    <div class="site-footer-col">
+      <p class="site-footer-label">Solutions</p>
+      <ul class="site-footer-links">
+        <li><a href="#">AI App Builder</a></li>
+        <li><a href="#">AI Website Builder</a></li>
+        <li><a href="#">SaaS Dev</a></li>
+        <li><a href="#">Prototyping</a></li>
+        <li><a href="../solutions/smb/">Small Business</a></li>
+        <li><a href="../enterprise">Enterprise</a></li>
+      </ul>
+    </div>
+    <div class="site-footer-col">
+      <p class="site-footer-label">Resources</p>
+      <ul class="site-footer-links">
+        <li><a href="#">Community</a></li>
+        <li><a href="#">Help Center</a></li>
+        <li><a href="#">Partners</a></li>
+        <li><a href="https://bolt.new/blog">Blog</a></li>
+      </ul>
+    </div>
+    <div class="site-footer-col">
+      <p class="site-footer-label">More</p>
+      <ul class="site-footer-links">
+        <li><a href="templates/">Templates</a></li>
+        <li><a href="pricing.html">Pricing</a></li>
+      </ul>
+    </div>
+    <div class="site-footer-col site-footer-col--connect">
+      <p class="site-footer-label">Connect</p>
+      <div class="site-footer-social site-footer-social--col">
+        <a href="https://x.com/boltdotnew" target="_blank" rel="noopener" aria-label="X (Twitter)">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a>
+        <a href="https://linkedin.com/company/stackblitz" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.03-1.85-3.03-1.86 0-2.14 1.45-2.14 2.94v5.66H9.34V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.61 0 4.28 2.38 4.28 5.47zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56z"/></svg>
+        </a>
+        <a href="https://discord.gg/stackblitz" target="_blank" rel="noopener" aria-label="Discord">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.32 4.37a19.8 19.8 0 0 0-4.89-1.52.07.07 0 0 0-.08.04c-.21.38-.45.86-.61 1.25a18.27 18.27 0 0 0-5.49 0 12.6 12.6 0 0 0-.62-1.25.08.08 0 0 0-.08-.04c-1.7.29-3.36.8-4.89 1.52a.07.07 0 0 0-.03.03C.53 8.6-.32 12.71.1 16.77a.08.08 0 0 0 .03.06 19.9 19.9 0 0 0 6 3.03.08.08 0 0 0 .08-.03c.46-.63.87-1.3 1.23-2a.08.08 0 0 0-.04-.11 13.1 13.1 0 0 1-1.87-.9.08.08 0 0 1-.01-.13c.13-.09.25-.19.37-.29a.07.07 0 0 1 .08-.01c3.93 1.79 8.18 1.79 12.06 0a.07.07 0 0 1 .08.01c.12.1.25.2.37.3a.08.08 0 0 1-.01.12c-.6.35-1.22.65-1.87.9a.08.08 0 0 0-.04.11c.36.7.78 1.36 1.23 2a.08.08 0 0 0 .08.03 19.83 19.83 0 0 0 6.01-3.03.08.08 0 0 0 .03-.06c.5-4.7-.83-8.78-3.5-12.4a.06.06 0 0 0-.03-.03zM8.02 14.24c-1.18 0-2.16-1.08-2.16-2.42s.96-2.42 2.16-2.42c1.21 0 2.18 1.1 2.16 2.42 0 1.34-.96 2.42-2.16 2.42zm7.97 0c-1.18 0-2.16-1.08-2.16-2.42s.96-2.42 2.16-2.42c1.21 0 2.18 1.1 2.16 2.42 0 1.34-.95 2.42-2.16 2.42z"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- bolt wordmark — moved out of .footer-section so the site-footer link
+     columns sit above it (matches the templates pages' footer order) -->
+<section class="footer-image-section">
   <div class="bolt-image-wrap">
     <img src="../images/bolt-bottom.png" alt="bolt" loading="lazy" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;opacity:0.20;">
     <canvas id="bolt-shimmer-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;mix-blend-mode:screen;"></canvas>
     <div style="position:absolute;inset:0;background:linear-gradient(to bottom, #000 0%, transparent 22%, transparent 88%, #000 100%);z-index:3;"></div>
   </div>
 </section>
+
+<div class="site-footer-tail">
+  <div class="site-footer-divider"></div>
+  <div class="site-footer-bottom">
+    <span class="site-footer-logo" aria-label="bolt.new">
+      <svg viewBox="0 0 550 156" fill="none" xmlns="http://www.w3.org/2000/svg" role="img">
+        <path d="M167.791 137.171C135.315 137.171 118.793 117.858 118.793 93.716C118.793 65.1323 141.203 39.2526 173.678 39.2526C206.153 39.2526 222.676 58.5658 222.676 82.7074C222.676 111.291 200.266 137.171 167.791 137.171ZM169.12 106.463C180.515 106.463 187.731 96.0336 187.731 84.4456C187.731 75.1752 181.844 69.9607 172.348 69.9607C160.954 69.9607 153.737 80.3898 153.737 91.9778C153.737 101.248 159.624 106.463 169.12 106.463Z" fill="white"/>
+        <path d="M257.268 134.853H223.083L251.001 6.03372H285.185L257.268 134.853Z" fill="white"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M67.0029 137.171C56.5577 137.171 46.3023 133.308 40.415 125.003L38.3385 134.798L0 155.51L4.13881 134.798L32.0588 6.03372H66.2432L56.3678 51.4199C64.3441 42.5358 71.7507 39.2526 81.2464 39.2526C101.757 39.2526 115.431 52.965 115.431 78.0722C115.431 103.952 99.668 137.171 67.0029 137.171ZM80.1069 85.4113C80.1069 97.3855 71.7507 106.463 60.9257 106.463C54.8484 106.463 49.341 104.145 45.7326 100.089L51.0502 76.334C55.0384 72.2783 59.5963 69.9607 64.9139 69.9607C73.0801 69.9607 80.1069 76.1409 80.1069 85.4113Z" fill="white"/>
+        <path d="M320.751 137.171C301 137.171 286.946 129.832 286.946 113.609C286.946 112.257 287.136 108.973 287.706 106.27L295.113 71.6989H279.92L286.567 41.5702H301.76L307.267 16.0766L345.536 0L341.452 16.1159L335.944 41.5702H354.555L347.909 71.6989H329.297L324.359 94.4885C323.979 96.2267 323.79 98.158 323.79 98.9306C323.79 103.373 326.448 106.463 332.336 106.463C334.045 106.463 336.514 105.883 337.083 105.497V133.308C333.475 135.819 327.018 137.171 320.751 137.171Z" fill="white"/>
+        <path d="M362.902 139.262C358.265 139.262 354.573 135.333 354.573 130.617C354.573 125.116 359.21 120.488 364.619 120.488C369.256 120.488 372.948 124.417 372.948 129.133C372.948 134.634 368.311 139.262 362.902 139.262Z" fill="white"/>
+        <path d="M421.136 138.127H405.681L410.489 115.947C410.661 115.161 411.004 113.764 411.004 112.716C411.004 109.835 408.514 108.787 406.024 108.787C402.675 108.787 400.357 110.533 398.725 112.018L393.058 138.127H377.602L386.79 95.9505H402.246L401.13 100.753C404.135 97.9589 407.913 94.9027 414.181 94.9027C422.854 94.9027 427.834 99.7054 427.834 105.993C427.834 106.691 427.576 108.612 427.405 109.398L421.136 138.127Z" fill="white"/>
+        <path d="M453.201 139.175C439.806 139.175 430.532 132.364 430.532 119.964C430.532 106.516 440.664 94.9027 455.176 94.9027C465.479 94.9027 474.581 101.277 474.581 114.113C474.581 116.995 474.066 120.313 473.637 121.885H445.816V121.972C445.816 122.584 448.306 127.212 454.317 127.212C457.58 127.212 461.444 126.426 463.333 125.116L468.055 135.333C463.848 138.04 458.181 139.175 453.201 139.175ZM447.276 111.93H460.929V111.668C460.929 110.446 459.469 106.866 454.575 106.866C450.453 106.866 447.791 110.097 447.276 111.93Z" fill="white"/>
+        <path d="M528.502 138.127H511.673L509.955 114.55L498.192 138.127H481.362L478.528 95.9505H493.984L494.414 119.178L506.778 95.9505H520.603L522.749 119.178L533.311 95.9505H549.711L528.502 138.127Z" fill="white"/>
+      </svg>
+    </span>
+    <div class="site-footer-legal">
+      <a href="https://bolt.new">Terms of Use</a>
+      <a href="https://bolt.new">Privacy Policy</a>
+      <a href="https://bolt.new">Security</a>
+    </div>
+    <p class="site-footer-copyright">&copy; Bolt.new 2026</p>
+  </div>
+</div>
 
 <script>
 // ── Generic pixel canvas helper (verbatim security-agent) ────────────────────
@@ -1568,5 +1888,6 @@ window.addEventListener('load', function() {
 <!-- Shared standardized components (single source of truth) -->
 <link rel="stylesheet" href="shared-components.css">
 <script src="shared-components.js"></script>
+<script src="shared-nav-footer.js"></script>
 </body>
 </html>
