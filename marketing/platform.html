@@ -68,21 +68,10 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     z-index: 0; pointer-events: none;
     background: url('../images/platform-hero.webp') center / cover no-repeat;
   }
-  /* bottom fade, sized to the section itself, so the hero always blends
-     seamlessly into the black page. Multi-stop eased curve — a 2-stop linear
-     ramp has a visible onset edge (mach band) against the bright field. */
-  .hero-section::after {
-    content: ''; position: absolute; inset: 0;
-    z-index: 0; pointer-events: none;
-    background: linear-gradient(180deg,
-      transparent 74%,
-      rgba(0,0,2,0.06) 80%,
-      rgba(0,0,2,0.20) 86%,
-      rgba(0,0,2,0.44) 91%,
-      rgba(0,0,2,0.72) 95%,
-      rgba(0,0,2,0.91) 98%,
-      #000 100%);
-  }
+  /* NO bottom fade (decision: Gary, 2026-08-05) — the aurora runs full-bleed
+     to the section's bottom edge and meets the black page on a clean cut. Any
+     gradient ramp here read as a smudge/hard line no matter how it was eased;
+     a crisp edge is the intended look. Don't re-add a fade layer. */
   /* Animated aurora blobs — four soft light pools, each on its own co-prime
      period and drift vector, so their overlaps continuously merge/separate
      (the composition evolves instead of sliding as one). GPU transforms only. */
@@ -329,23 +318,27 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
      is the view, translateY's % the image, so X=100 is bottom-aligned for any
      image height and intermediate stops stay proportional. */
   @keyframes platBrowserSlide {
-    0%, 3%    { top: 0;    transform: translateY(0);      animation-timing-function: cubic-bezier(0.16, 0.7, 0.2, 1); }
-    12%, 17%  { top: 26%;  transform: translateY(-26%);   animation-timing-function: cubic-bezier(0.16, 0.7, 0.2, 1); }
-    26%, 31%  { top: 52%;  transform: translateY(-52%);   animation-timing-function: cubic-bezier(0.16, 0.7, 0.2, 1); }
+    0%        { top: 0;    transform: translateY(0);      animation-timing-function: cubic-bezier(0.16, 0.7, 0.2, 1); }
+    10%, 15%  { top: 26%;  transform: translateY(-26%);   animation-timing-function: cubic-bezier(0.16, 0.7, 0.2, 1); }
+    25%, 30%  { top: 52%;  transform: translateY(-52%);   animation-timing-function: cubic-bezier(0.16, 0.7, 0.2, 1); }
     40%, 45%  { top: 76%;  transform: translateY(-76%);   animation-timing-function: cubic-bezier(0.16, 0.7, 0.2, 1); }
-    54%, 63%  { top: 100%; transform: translateY(-100%);  animation-timing-function: cubic-bezier(0.16, 0.7, 0.2, 1); }
-    73%, 77%  { top: 48%;  transform: translateY(-48%);   animation-timing-function: cubic-bezier(0.16, 0.7, 0.2, 1); }
-    89%, 100% { top: 0;    transform: translateY(0); }
+    55%, 64%  { top: 100%; transform: translateY(-100%);  animation-timing-function: cubic-bezier(0.16, 0.7, 0.2, 1); }
+    74%, 78%  { top: 48%;  transform: translateY(-48%);   animation-timing-function: cubic-bezier(0.16, 0.7, 0.2, 1); }
+    96%, 100% { top: 0;    transform: translateY(0); }
   }
   /* short-page variant (capture under ~2 viewports tall): two flicks down,
      one back up — the 4-flick pattern reads as a crawl on little travel */
   .plat-browser--short .plat-browser-page { animation-name: platBrowserSlideShort; }
   @keyframes platBrowserSlideShort {
-    0%, 5%    { top: 0;    transform: translateY(0);      animation-timing-function: cubic-bezier(0.16, 0.7, 0.2, 1); }
-    18%, 32%  { top: 52%;  transform: translateY(-52%);   animation-timing-function: cubic-bezier(0.16, 0.7, 0.2, 1); }
+    0%        { top: 0;    transform: translateY(0);      animation-timing-function: cubic-bezier(0.16, 0.7, 0.2, 1); }
+    15%, 30%  { top: 52%;  transform: translateY(-52%);   animation-timing-function: cubic-bezier(0.16, 0.7, 0.2, 1); }
     45%, 62%  { top: 100%; transform: translateY(-100%);  animation-timing-function: cubic-bezier(0.16, 0.7, 0.2, 1); }
-    78%, 100% { top: 0;    transform: translateY(0); }
+    76%, 80%  { top: 44%;  transform: translateY(-44%);   animation-timing-function: cubic-bezier(0.16, 0.7, 0.2, 1); }
+    96%, 100% { top: 0;    transform: translateY(0); }
   }
+  /* single-screen pages (an app dashboard with no real scroll of its own):
+     no travel at all — the capture just sits at the top of the viewport */
+  .plat-browser--static .plat-browser-page { animation: none; }
   @media (prefers-reduced-motion: reduce) { .plat-browser-page { animation: none; } }
 
   /* ─── ANIMATED PIXEL DIVIDER (verbatim security-agent / templates-detail) ── */
@@ -775,7 +768,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
             </ul>
           </div>
           <div class="plat-vcard plat-vcard--browser" aria-hidden="true">
-            <div class="plat-browser" style="--slide-dur: 98s">
+            <div class="plat-browser plat-browser--static">
               <img class="plat-browser-bar" src="../images/bolt-browser-bar.svg" alt="">
               <div class="plat-browser-view">
                 <img class="plat-browser-page" decoding="async" src="templates/images/vantage-dashboard.webp" alt="">
