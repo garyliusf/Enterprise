@@ -307,28 +307,20 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; o
     z-index: 0; pointer-events: none;
     background: url('../images/platform-hero.webp') center / cover no-repeat;
   }
-  /* Legibility scrim over the lower half — NOT a fade-to-black (that was tried
-     and rejected: the aurora must still read as blue at the section's bottom
-     edge, meeting the black page on a clean cut). So this caps at 0.5 alpha
-     and never reaches black. The ramp is a SMOOTHSTEP (3t²−2t³) sampled at 10
-     stops so its slope is zero where it starts — a linear ramp puts a visible
-     onset band across the bright field. Sits at z-index 2: above the image and
-     the pixel dots, below the content (z-index 3). */
+  /* Darkening overlay — the SAME two-layer scrim the pricing hero uses, so the
+     two photo heroes read as one family: a local radial behind the H1/subtitle/
+     CTA (where the image's bright streak lands) plus an overall linear pass
+     that is heaviest top and bottom. Replaces the earlier smoothstep-only
+     bottom scrim. Sits at z-index 2: above the image and the pixel dots, below
+     the content (z-index 3). Geometry is tied to ::after (inset:0 = exactly the
+     section), NOT the oversized ::before image layer, so the gradient stays
+     aligned to what is actually visible. */
   .hero-section::after {
     content: ''; position: absolute; inset: 0;
     z-index: 2; pointer-events: none;
-    background: linear-gradient(180deg,
-      rgba(0,0,0,0)     22%,
-      rgba(0,0,0,0.014) 30%,
-      rgba(0,0,0,0.052) 38%,
-      rgba(0,0,0,0.108) 45%,
-      rgba(0,0,0,0.176) 53%,
-      rgba(0,0,0,0.25)  61%,
-      rgba(0,0,0,0.324) 69%,
-      rgba(0,0,0,0.392) 77%,
-      rgba(0,0,0,0.448) 84%,
-      rgba(0,0,0,0.486) 92%,
-      rgba(0,0,0,0.5)   100%);
+    background:
+      radial-gradient(ellipse 1000px 560px at 50% 34%, rgba(0,0,0,0.55), transparent 72%),
+      linear-gradient(180deg, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.45) 45%, rgba(0,0,0,0.72) 100%);
   }
   /* Animated aurora blobs — four soft light pools, each on its own co-prime
      period and drift vector, so their overlaps continuously merge/separate
