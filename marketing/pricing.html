@@ -690,7 +690,9 @@
       border: 1px solid rgba(255,255,255,0.07);
       border-radius: 2px;
       background: #0a0a0a;
-      padding: 40px 48px;
+      padding: 72px 48px;
+      position: relative;
+      overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -699,6 +701,11 @@
     }
     .compliance-left { flex: 1 1 auto; min-width: 0; }
     .compliance-badges { flex: 0 0 auto; }
+    .compliance-banner > * { position: relative; z-index: 1; }
+    #compliance-pixel-canvas {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 0;
+    }
 
     .compliance-left {
       display: flex;
@@ -742,14 +749,6 @@
       height: 100%;
     }
 
-    .cert-ring {
-      transform-origin: 45px 45px;
-      animation: cert-ring-spin 24s linear infinite;
-    }
-
-    @keyframes cert-ring-spin {
-      to { transform: rotate(360deg); }
-    }
 
     /* "Learn more" uses the shared .hero-btn-ghost; standalone-CTA min-width
        comes from the --cta-min-w token (CLAUDE.md standard). width:fit-content
@@ -2030,6 +2029,7 @@
 
     <!-- Security & compliance banner -->
     <div class="compliance-banner">
+      <canvas id="compliance-pixel-canvas"></canvas>
       <div class="compliance-left">
         <h3 class="compliance-title">Security and compliance</h3>
         <p class="compliance-sub">Enterprise-grade security and compliance certifications</p>
@@ -2042,7 +2042,7 @@
         <!-- SOC 2 -->
         <div class="cert-badge">
           <svg viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle class="cert-ring" cx="45" cy="45" r="43" stroke="#1488FC" stroke-width="1" stroke-dasharray="4 3"/>
+            <circle class="cert-ring" cx="45" cy="45" r="43" stroke="rgba(255,255,255,0.3)" stroke-width="1" stroke-dasharray="4 3"/>
             <text x="45" y="43" text-anchor="middle" dominant-baseline="middle" font-family="Inter,sans-serif" font-size="14" font-weight="700" fill="rgba(255,255,255,0.85)">SOC 2</text>
             <text x="45" y="57" text-anchor="middle" dominant-baseline="middle" font-family="Inter,sans-serif" font-size="8" font-weight="500" fill="rgba(255,255,255,0.4)" letter-spacing="1.5">TYPE II</text>
           </svg>
@@ -2050,7 +2050,7 @@
         <!-- GDPR -->
         <div class="cert-badge">
           <svg viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle class="cert-ring" cx="45" cy="45" r="43" stroke="#1488FC" stroke-width="1" stroke-dasharray="4 3"/>
+            <circle class="cert-ring" cx="45" cy="45" r="43" stroke="rgba(255,255,255,0.3)" stroke-width="1" stroke-dasharray="4 3"/>
             <!-- 12 EU stars on ring radius 20, each star rotated to point outward -->
             <g fill="rgba(255,255,255,0.75)">
               <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(0,45,45)"/>
@@ -2072,7 +2072,7 @@
         <!-- ISO 27001 -->
         <div class="cert-badge">
           <svg viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle class="cert-ring" cx="45" cy="45" r="43" stroke="#1488FC" stroke-width="1" stroke-dasharray="4 3"/>
+            <circle class="cert-ring" cx="45" cy="45" r="43" stroke="rgba(255,255,255,0.3)" stroke-width="1" stroke-dasharray="4 3"/>
             <!-- Globe lines -->
             <circle cx="45" cy="34" r="14" stroke="rgba(255,255,255,0.55)" stroke-width="1.2"/>
             <ellipse cx="45" cy="34" rx="7" ry="14" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
@@ -2709,6 +2709,23 @@
       window.addEventListener('resize', update);
     })();
 
+    makePixelCanvas('compliance-pixel-canvas', 11, 2,
+      function (c, r, t, p) {
+        var px = c * 11, py = r * 11;
+        var el = document.getElementById('compliance-pixel-canvas');
+        var W = el ? el.width : 1200;
+        /* fade in from ~35% across so the left copy sits on clean surface */
+        var fade = Math.max(0, Math.min(1, (px / W - 0.35) / 0.45));
+        if (fade < 0.02) return 0;
+        /* subtle linear diagonal drift (same wave as the security-agent
+           section divider) — not the rotating accordion-hover pattern */
+        var phase = (px * 0.012 + py * 0.018) - t * 0.0018 + 1.0;
+        var band = Math.sin(phase) * 0.5 + 0.5;
+        var highlight = Math.pow(band, 3) * 0.32;
+        var twinkle = (Math.sin(p * 53.7 + t * 0.004) * 0.5 + 0.5) * 0.07;
+        return (0.06 + highlight + twinkle) * fade;
+      }, 1.0, '170,185,210');
+
     makePixelCanvas('footer-pixel-canvas', 6, 2,
       function(c, r, t, p) {
         var px = c * 6, py = r * 6;
@@ -2892,7 +2909,7 @@
         var cx2 = W * (0.72 - 0.20 * Math.sin(t * 0.00020 + 1.1));
         var cy2 = H * (0.42 + 0.15 * Math.cos(t * 0.00013 + 2.3));
 
-        ctx.fillStyle = 'rgba(200, 215, 240, 0.20)'; /* dimmed from 0.28 — twinkle read too strong */
+        ctx.fillStyle = 'rgba(200, 215, 240, 0.13)'; /* dimmed again (0.28 -> 0.20 -> 0.13) — the resting twinkle read as chaotic */
 
         // Chaotic roaming activation pockets — Lissajous paths with varying speed
         // Each pocket has its own trajectory, radius, and pulse rhythm.
