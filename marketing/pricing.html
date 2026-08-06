@@ -70,17 +70,28 @@
       .pricing-hero .page-header p { margin-left: auto; margin-right: auto; }
     }
 
+    /* Segmented billing control — 2px surface language, sliding brand-blue
+       thumb (positioned by JS from the active button's box). */
     .billing-toggle {
       position: relative;
       display: inline-flex;
       align-items: center;
-      background: #111;
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 999px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 2px;
       padding: 3px;
     }
 
-    .billing-thumb { display: none; }
+    .billing-thumb {
+      position: absolute;
+      top: 3px;
+      bottom: 3px;
+      left: 0;
+      width: 0;
+      background: #1488FC;
+      border-radius: 2px;
+      transition: left 0.32s cubic-bezier(0.22, 1, 0.36, 1), width 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+    }
 
     .billing-btn {
       position: relative;
@@ -90,32 +101,38 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      padding: 5px 22px;
+      padding: 7px 20px;
       white-space: nowrap;
-      border-radius: 999px;
+      border-radius: 2px;
       font-size: 13px;
       font-weight: 500;
       border: none;
       cursor: pointer;
-      transition: color 0.25s ease, background-color 0.25s ease;
+      transition: color 0.25s ease;
       background: transparent;
-      color: rgba(255,255,255,0.4);
+      color: rgba(255,255,255,0.5);
       font-family: 'Inter', sans-serif;
       letter-spacing: 0.2px;
       outline: none;
     }
-    .billing-btn:hover { color: rgba(255,255,255,0.8); }
-    .billing-btn.active { color: #000; background: #fff; }
+    .billing-btn:hover { color: rgba(255,255,255,0.85); }
+    .billing-btn.active { color: #fff; font-weight: 600; }
 
     .billing-save-badge {
       display: inline-block;
-      margin-left: 0;
-      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 2px;
+      font-size: 10.5px;
       font-weight: 600;
       color: #1488FC;
+      background: rgba(20,136,252,0.12);
       font-family: 'Inter', sans-serif;
       letter-spacing: 0.3px;
-      vertical-align: middle;
+      transition: color 0.25s ease, background-color 0.25s ease;
+    }
+    .billing-btn.active .billing-save-badge {
+      color: #fff;
+      background: rgba(255,255,255,0.2);
     }
 
     /* ── Cards grid ── */
@@ -961,8 +978,8 @@
       <div class="billing-row">
         <div class="billing-toggle" data-billing="yearly">
           <div class="billing-thumb"></div>
-          <button class="billing-btn" id="btn-monthly" onclick="setBilling('monthly')">Monthly</button>
-          <button class="billing-btn active" id="btn-yearly" onclick="setBilling('yearly')">Yearly <span class="billing-save-badge" id="save-badge">Save up to 28%</span></button>
+          <button class="billing-btn" id="btn-monthly" onclick="setBilling('monthly')" aria-pressed="false">Monthly</button>
+          <button class="billing-btn active" id="btn-yearly" onclick="setBilling('yearly')" aria-pressed="true">Yearly <span class="billing-save-badge" id="save-badge">Save 28%</span></button>
         </div>
       </div>
     </div>
@@ -1887,10 +1904,24 @@
       animatePrice(document.getElementById('teams-price'), isYearly ? '$27' : '$30', direction);
       document.getElementById('btn-monthly').classList.toggle('active', !isYearly);
       document.getElementById('btn-yearly').classList.toggle('active', isYearly);
+      document.getElementById('btn-monthly').setAttribute('aria-pressed', String(!isYearly));
+      document.getElementById('btn-yearly').setAttribute('aria-pressed', String(isYearly));
       document.querySelector('.billing-toggle').setAttribute('data-billing', val);
       currentBilling = val;
+      positionBillingThumb();
     }
-    setBilling('yearly');
+    function positionBillingThumb() {
+      var btn = document.querySelector('.billing-btn.active');
+      var thumb = document.querySelector('.billing-thumb');
+      if (!btn || !thumb) return;
+      thumb.style.left = btn.offsetLeft + 'px';
+      thumb.style.width = btn.offsetWidth + 'px';
+    }
+    positionBillingThumb();
+    /* re-measure once webfonts settle + on resize (label widths change) */
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(positionBillingThumb);
+    window.addEventListener('load', positionBillingThumb);
+    window.addEventListener('resize', positionBillingThumb);
   </script>
 
   <script>
