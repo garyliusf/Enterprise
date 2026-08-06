@@ -296,26 +296,42 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     align-self: stretch; margin: -16px 0;
   }
 
-  /* Monospace prompt mock inside the card */
-  .plat-vprompt {
-    border: 1px solid rgba(255,255,255,0.14); border-radius: 2px;
-    background: rgba(0,0,0,0.45); padding: 22px 24px;
-    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-    font-size: 15px; color: rgba(255,255,255,0.65); line-height: 1.5;
-  }
+  /* Browser variant of the card: no chrome of its own — the bolt browser
+     mock inside provides the frame; the card just stretches + centers it. */
+  .plat-vcard--browser { padding: 0; border: none; background: none; justify-content: center; }
 
-  /* Status rows inside the card (tabs 2–4) */
-  .plat-rows { display: flex; flex-direction: column; gap: 10px; }
-  .plat-row {
-    display: flex; justify-content: space-between; align-items: center; gap: 16px;
-    padding: 16px 18px;
-    border: 1px solid rgba(255,255,255,0.10); border-radius: 2px;
-    background: rgba(0,0,0,0.45);
+  /* Bolt browser mock (bolt_browser.svg design): SVG top bar + a viewport in
+     which a full-page template capture slowly scrolls. Radius ≈ the SVG's own
+     23/864 corner, matched via border-radius so the 1px border hugs it. */
+  .plat-browser {
+    width: 100%; background: #000;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px; overflow: hidden;
   }
-  .plat-row-name { font-size: 14px; font-weight: 500; color: #fff; margin: 0; }
-  .plat-status { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: rgba(255,255,255,0.55); white-space: nowrap; }
-  .plat-status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #22c55e; flex-shrink: 0; }
-  .plat-status--amber::before { background: #FAB662; }
+  .plat-browser-bar { display: block; width: 100%; height: auto; }
+  .plat-browser-view {
+    position: relative; overflow: hidden;
+    aspect-ratio: 864 / 553;            /* body of the 864×601 mock */
+  }
+  .plat-browser-page {
+    position: absolute; left: 0; top: 0; width: 100%; height: auto; display: block;
+    animation: platBrowserSlide var(--slide-dur, 44s) cubic-bezier(0.45,0,0.55,1) infinite alternate;
+  }
+  /* the mock's faint blue glow bleeding down from the bar */
+  .plat-browser-view::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(75% 125% at 60% 0%, rgba(20,136,252,0.10) 0%, rgba(0,0,0,0) 55%);
+  }
+  /* slide the full-page capture until its bottom meets the viewport bottom,
+     with short holds at both ends; alternate = scroll down, then back up.
+     top:100% + translateY(-100%) = bottom-aligned for any image height (top's
+     % is the view, translateY's % the image — both interpolate in lockstep,
+     so the path is a straight slide; no container units needed). */
+  @keyframes platBrowserSlide {
+    0%, 4%    { top: 0;    transform: translateY(0); }
+    96%, 100% { top: 100%; transform: translateY(-100%); }
+  }
+  @media (prefers-reduced-motion: reduce) { .plat-browser-page { animation: none; } }
 
   /* ─── ANIMATED PIXEL DIVIDER (verbatim security-agent / templates-detail) ── */
   .section-divider {
@@ -699,8 +715,13 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
               <li>Deploy your MVP and test your assumptions</li>
             </ul>
           </div>
-          <div class="plat-vcard" aria-hidden="true">
-            <div class="plat-vprompt">Build a coming soon waitlist page for my app</div>
+          <div class="plat-vcard plat-vcard--browser" aria-hidden="true">
+            <div class="plat-browser" style="--slide-dur: 40s">
+              <img class="plat-browser-bar" src="../images/bolt-browser-bar.svg" alt="">
+              <div class="plat-browser-view">
+                <img class="plat-browser-page" decoding="async" src="templates/images/premium-saas-dashboard-lp.webp" alt="">
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -716,11 +737,12 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
               <li>No developer or expensive agency quotes needed</li>
             </ul>
           </div>
-          <div class="plat-vcard" aria-hidden="true">
-            <div class="plat-rows">
-              <div class="plat-row"><p class="plat-row-name">Inventory tracker</p><span class="plat-status">live</span></div>
-              <div class="plat-row"><p class="plat-row-name">Company website</p><span class="plat-status">live</span></div>
-              <div class="plat-row"><p class="plat-row-name">Sales dashboard</p><span class="plat-status">live</span></div>
+          <div class="plat-vcard plat-vcard--browser" aria-hidden="true">
+            <div class="plat-browser" style="--slide-dur: 56s">
+              <img class="plat-browser-bar" src="../images/bolt-browser-bar.svg" alt="">
+              <div class="plat-browser-view">
+                <img class="plat-browser-page" decoding="async" src="templates/images/vendora-dashboard.webp" alt="">
+              </div>
             </div>
           </div>
         </div>
@@ -737,12 +759,12 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
               <li>Fits inside the workflows your engineering team already runs</li>
             </ul>
           </div>
-          <div class="plat-vcard" aria-hidden="true">
-            <div class="plat-rows">
-              <div class="plat-row"><p class="plat-row-name">Single sign-on (SAML)</p><span class="plat-status">enabled</span></div>
-              <div class="plat-row"><p class="plat-row-name">Audit logging</p><span class="plat-status">enabled</span></div>
-              <div class="plat-row"><p class="plat-row-name">Role-based access</p><span class="plat-status">enabled</span></div>
-              <div class="plat-row"><p class="plat-row-name">Security scan on deploy</p><span class="plat-status">enabled</span></div>
+          <div class="plat-vcard plat-vcard--browser" aria-hidden="true">
+            <div class="plat-browser" style="--slide-dur: 58s">
+              <img class="plat-browser-bar" src="../images/bolt-browser-bar.svg" alt="">
+              <div class="plat-browser-view">
+                <img class="plat-browser-page" decoding="async" src="templates/images/vantage-dashboard.webp" alt="">
+              </div>
             </div>
           </div>
         </div>
@@ -759,11 +781,12 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
               <li>Deliver production ready products</li>
             </ul>
           </div>
-          <div class="plat-vcard" aria-hidden="true">
-            <div class="plat-rows">
-              <div class="plat-row"><p class="plat-row-name">Acme Corp</p><span class="plat-status">delivered</span></div>
-              <div class="plat-row"><p class="plat-row-name">Northwind campaign</p><span class="plat-status plat-status--amber">in review</span></div>
-              <div class="plat-row"><p class="plat-row-name">Cascade rebrand</p><span class="plat-status">delivered</span></div>
+          <div class="plat-vcard plat-vcard--browser" aria-hidden="true">
+            <div class="plat-browser" style="--slide-dur: 46s">
+              <img class="plat-browser-bar" src="../images/bolt-browser-bar.svg" alt="">
+              <div class="plat-browser-view">
+                <img class="plat-browser-page" decoding="async" src="templates/images/noir-agency.webp" alt="">
+              </div>
             </div>
           </div>
         </div>
