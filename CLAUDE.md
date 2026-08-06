@@ -262,17 +262,20 @@ For a seamless grid with shared borders (no `gap`):
 
 ---
 
-## Reference: pricing.html (extracted from live page)
+## Reference: pricing.html (sandbox canonical — 2026-08-06 standardization pass)
 
 ### Pricing Page Buttons
-| Type | Height | Padding | Font size | Weight | Background | Border radius |
-|------|--------|---------|-----------|--------|------------|---------------|
-| Plan CTA (`.cta-primary`) | `42px` | `0` | `14px` | `500` | `#1488FC` | `2px` |
-| Nav "Get Started" | `~37px` | `8px 12px` | `14px` | `500` | `#1488FC` | `6px` |
-| Form submit | `52px` | `0 24px` | `16px` | `600` | `#0f6fd0` | `0 2px 2px 0` |
-| Toggle (Yearly/Monthly) | `~26px` | `5px 22px` | `13px` | `500` | `#fff` | `999px` |
+| Type | Class | Spec |
+|------|-------|------|
+| Plan CTA (blue) | `.hero-btn-primary.card-cta` | shared 52px standard; `.card .card-cta { width:100%; margin-top:auto }` for equal-height cards |
+| Plan CTA (outline) | `.hero-btn-ghost.card-cta` | shared 52px standard, same layout hook |
+| Compliance "Learn more" / FAQ "Visit Help Center" | `.hero-btn-ghost` | shared standard + `--cta-min-w` floor, `width:fit-content` (flex-column parent) |
+| Footer CTA | `.hero-btn-primary.footer-cta-btn` "Start Building" → bolt.new | platform.html footer pattern (the old email strip + rotating-name form was removed 2026-08-06) |
+| Toggle (Yearly/Monthly) | `.billing-btn` | `~26px`, `5px 22px`, `13px`, `500`, `#fff`, pill `999px` |
 
-**Note:** Pricing plan buttons intentionally use `42px` height — they sit inside plan cards and are a different context from hero CTAs. Do not "fix" these to 52px.
+**The old 42px plan-CTA exception is RETIRED (decision: Gary, 2026-08-06).** The `.cta-primary`/`.cta-secondary` 42px component was deleted; all pricing buttons are the shared 52px standard. Do not reintroduce a shorter variant. The live production pricing page still has 42px buttons — the sandbox page is the approved go-forward design, ported when it launches.
+
+Other pricing standardizations from the same pass: FAQ = shared `.ms-faq-*` component (two-column layout is page-local), section H2s = `.sc-section-h2`, logo train = platform.html wordmark component (`images/logos-home/`, CSS `scrollLogos` keyframe — mobile overrides must sit AFTER the base rules in source order), all pixel-fill hovers come from `shared-components.js` (no page-side pixelize module).
 
 ### Pricing Page Eyebrows
 - Color: `#1488FC` ✓ — consistent with brand standard
