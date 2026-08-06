@@ -1,0 +1,426 @@
+<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Showcase cards &mdash; staging (PR #495)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+
+/* Note core colors
+  "primary": "#1488fc",
+  "light": "#1488fc",
+  "dark": "#2BA6FF"
+  pale blue #D8F1FF
+*/
+
+:root {
+  --button-bg: white;
+}
+
+/* element-level display overrides */
+.bolt-inline-image {
+  display: inline;
+  margin: 0;
+}
+
+.chat-assistant-floating-input {
+  visibility: hidden;
+}
+
+/* soften the links */
+.link {
+  font-weight: 300;
+}
+
+.bolt-help-center-logo-link {
+  border-left: 1px solid rgb(159 162 166);
+  font-size: 1em;
+  font-weight: 400;
+  padding-left: 0.5em;
+  margin-left: -0.75rem;
+}
+
+/* make left nav have same background as rest of page */
+#sidebar-content {
+  background: none;
+}
+
+/* Card groups (Popular docs, What's new, and every other CardGroup).
+
+   Mintlify's stock card sits at almost exactly the page background colour, so
+   the only thing separating it from the page is a 1px border at 10% white.
+   Dark mode gets a lifted surface and a 1px top highlight, because a drop
+   shadow does not register against a near-black page: in dark UI, elevation
+   comes from lightening the surface. Light mode gets a real shadow instead,
+   where one actually reads.
+
+   These selectors are (0,2,0) so they beat Mintlify's Tailwind utilities
+   without needing !important. This applies site-wide, not just the homepage.
+   It does not touch the template showcase, which uses <article> with inline
+   styles and no .card class. */
+
+.theme-dark .card {
+  background: #11151c;
+  border-color: rgba(255, 255, 255, 0.09);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 2px 6px rgba(0, 0, 0, 0.5);
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.theme-dark .card:hover,
+.theme-dark .card:focus-visible {
+  background: #161c25;
+  border-color: rgba(43, 166, 255, 0.55);
+  transform: translateY(-2px);
+}
+
+.theme-light .card {
+  border-color: rgba(16, 24, 40, 0.1);
+  box-shadow:
+    0 1px 2px rgba(16, 24, 40, 0.06),
+    0 1px 3px rgba(16, 24, 40, 0.1);
+  transition:
+    box-shadow 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.theme-light .card:hover,
+.theme-light .card:focus-visible {
+  border-color: rgba(20, 136, 252, 0.5);
+  box-shadow:
+    0 4px 10px rgba(16, 24, 40, 0.09),
+    0 2px 4px rgba(16, 24, 40, 0.06);
+  transform: translateY(-2px);
+}
+
+/* Setting box-shadow above overrides Tailwind's ring utilities, which is what
+   Mintlify uses for focus. Restore a visible keyboard focus indicator. */
+.card:focus-visible {
+  outline: 2px solid #1488fc;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .card:hover,
+  .card:focus-visible,
+  .bolt-template-shot,
+  .bolt-template-shot:hover,
+  .bolt-template-shot:focus-visible {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* Template showcase screenshots.
+
+   The frame border lives here rather than in the component's inline style,
+   because inline styles beat stylesheet rules regardless of specificity and
+   would block the hover and focus colour change.
+
+   The `.link` in every selector below is not decoration. Mintlify adds a
+   `link` class to every anchor it renders, including ones inside a JSX
+   snippet, and `.theme-dark .link { border-bottom-color: ... }` draws link
+   underlines. That is (0,2,0), so a plain `.bolt-template-shot` rule loses and
+   each screenshot picks up a blue line along its bottom edge. Pairing the two
+   classes gets to (0,3,0) and wins outright rather than relying on source
+   order.
+
+   Hover and focus-visible get identical treatment so a keyboard user gets the
+   same affordance as a mouse user. */
+
+.theme-dark .link.bolt-template-shot,
+.theme-light .link.bolt-template-shot {
+  border: 1px solid rgba(127, 127, 127, 0.25);
+  transition:
+    transform 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.theme-dark .link.bolt-template-shot:hover,
+.theme-dark .link.bolt-template-shot:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(43, 166, 255, 0.55);
+}
+
+.theme-light .link.bolt-template-shot:hover,
+.theme-light .link.bolt-template-shot:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(20, 136, 252, 0.5);
+}
+
+.link.bolt-template-shot:focus-visible {
+  outline: 2px solid #1488fc;
+  outline-offset: 3px;
+}
+
+/* Frame fill, visible only if an image fails to load or has transparency. */
+.theme-dark .link.bolt-template-shot {
+  background-color: #0b0e12;
+}
+
+.theme-light .link.bolt-template-shot {
+  background-color: #ffffff;
+}
+
+/* Light mode: soften the frame edge. A hairline plus a low shadow reads gentler
+   than a single hard 1px line against a pale screenshot. */
+.theme-light .link.bolt-template-shot {
+  border-color: rgba(16, 24, 40, 0.08);
+  box-shadow:
+    0 1px 3px rgba(16, 24, 40, 0.08),
+    0 1px 2px rgba(16, 24, 40, 0.06);
+}
+
+/* Template showcase, list layout (use-cases/templates).
+
+   Mobile-first: one column by default, two side by side from 768px up. This
+   cannot be an inline style on the component, because inline styles cannot
+   carry media queries, and the previous inline grid-template-columns held two
+   columns at every width. On a 390px phone that produced a ~135px text column. */
+
+.bolt-template-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+  align-items: center;
+}
+
+@media (min-width: 768px) {
+  .bolt-template-row {
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    gap: 32px;
+  }
+}
+
+/* Template showcase card (grid layout).
+
+   Mirrors the template detail page on bolt.new so a reader moving from the
+   docs to the marketplace sees one design rather than two. The card owns the
+   frame, which is why the screenshot's own border is removed below and
+   replaced with a single hairline separating it from the body.
+
+   The list layout deliberately does NOT get this container: .bolt-template-row
+   keeps the image and text as two columns with a gap between them, which is
+   the right shape for a full-width row. */
+
+.theme-dark .bolt-template-card,
+.theme-light .bolt-template-card {
+  border-radius: 2px;
+  overflow: hidden;
+  transition:
+    transform 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.theme-dark .bolt-template-card {
+  background-color: #0e1116;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.theme-light .bolt-template-card {
+  background-color: #ffffff;
+  border: 1px solid rgba(16, 24, 40, 0.1);
+  box-shadow:
+    0 1px 3px rgba(16, 24, 40, 0.08),
+    0 1px 2px rgba(16, 24, 40, 0.06);
+}
+
+.theme-dark .bolt-template-card:hover,
+.theme-dark .bolt-template-card:focus-within {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.theme-light .bolt-template-card:hover,
+.theme-light .bolt-template-card:focus-within {
+  transform: translateY(-2px);
+  border-color: rgba(20, 136, 252, 0.5);
+}
+
+/* Inside a card the screenshot loses its own frame and lift -- the card does
+   both now, so keeping them would double the border and fight the hover. */
+.theme-dark .bolt-template-card .link.bolt-template-shot,
+.theme-light .bolt-template-card .link.bolt-template-shot {
+  border: none;
+  box-shadow: none;
+  transform: none;
+}
+
+.theme-dark .bolt-template-card .link.bolt-template-shot {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.theme-light .bolt-template-card .link.bolt-template-shot {
+  border-bottom: 1px solid rgba(16, 24, 40, 0.1);
+}
+
+/* Category label. Silkscreen is the marketplace's own label face, loaded by
+   the 
+
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,-apple-system,"Segoe UI",sans-serif;background:#16191f;color:#e8eaed}
+.top{max-width:1240px;margin:0 auto;padding:28px 24px 8px}
+.top h1{font-size:20px;font-weight:600;margin:0 0 6px}
+.top p{margin:0;font-size:14px;color:#9aa2ad;line-height:1.6}
+.top a{color:#2ba6ff}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:0;max-width:1240px;margin:0 auto;padding:20px 24px 64px}
+@media (max-width:900px){.split{grid-template-columns:1fr}}
+.panel{padding:24px}
+.theme-light{background:#fff}
+.theme-dark{background:#0b0e13}
+.panel-label{font-family:Silkscreen,monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;margin:0 0 20px}
+.theme-light .panel-label{color:#5d6673}
+.theme-dark .panel-label{color:#9aa2ad}
+.panel h3{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin:28px 0 14px}
+.panel h3:first-of-type{margin-top:0}
+.theme-light h3{color:#5d6673} .theme-dark h3{color:#79828e}
+.theme-light .t-name{color:#111827} .theme-dark .t-name{color:#fff}
+.theme-light .t-blurb{color:#4b5563} .theme-dark .t-blurb{color:#9ca3af}
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px}
+.sl{display:flex;flex-direction:column;gap:36px}
+</style></head><body>
+<div class="top">
+<h1>Showcase cards &mdash; staging preview</h1>
+<p>Rendered from the exact <code>styles.css</code> and card markup on <a href="https://github.com/stackblitz/bolt-help-center/pull/495">PR #495</a>, rebased on Brittany's latest (<code>LIST_RATIO 1/1</code>, <code>.bolt-template-row</code>).
+Both themes shown side by side; Mintlify's <code>html.dark</code> / <code>html:not(.dark)</code> selectors are rescoped to classes so they can share one page.</p>
+</div>
+<div class="split"><section class="theme-light panel">
+<p class="panel-label">Light mode</p>
+<h3>Grid layout &mdash; index.mdx</h3>
+<div class="sg"><article class="bolt-template-card" style="display:flex;flex-direction:column">
+<a href="#" class="link bolt-template-shot" style="display:block;overflow:hidden;border-radius:0;line-height:0">
+<img src="https://res.cloudinary.com/dlq2nawz5/image/upload/f_auto,q_auto,w_1400/v1785858695/bolt-website-maison-voyage_rdqhgq.png" alt="Luxury travel website" style="display:block;width:100%;aspect-ratio:16 / 10;object-fit:cover;object-position:top center;margin:0"></a>
+<div style="display:flex;flex-direction:column;padding:18px 18px 20px;flex:1">
+<p class="bolt-template-eyebrow">Website</p>
+<span class="t-name" style="font-size:17px;font-weight:600;line-height:1.3;margin-bottom:6px">Luxury travel website</span>
+<p class="t-blurb" style="margin:0 0 16px;font-size:13.5px;line-height:1.55">Includes a destination collection, a price form, and an itinerary builder.</p>
+<div class="bolt-template-actions" style="margin-top:auto">
+<a href="#" class="link bolt-template-btn bolt-template-btn-primary">Live preview</a>
+<a href="#" class="link bolt-template-btn bolt-template-btn-ghost">See in marketplace</a>
+</div></div></article><article class="bolt-template-card" style="display:flex;flex-direction:column">
+<a href="#" class="link bolt-template-shot" style="display:block;overflow:hidden;border-radius:0;line-height:0">
+<img src="https://res.cloudinary.com/dlq2nawz5/image/upload/f_auto,q_auto,w_1400/v1785858694/bolt-app-ledger_ql7bxk.png" alt="Personal finance tracker" style="display:block;width:100%;aspect-ratio:16 / 10;object-fit:cover;object-position:top center;margin:0"></a>
+<div style="display:flex;flex-direction:column;padding:18px 18px 20px;flex:1">
+<p class="bolt-template-eyebrow">App</p>
+<span class="t-name" style="font-size:17px;font-weight:600;line-height:1.3;margin-bottom:6px">Personal finance tracker</span>
+<p class="t-blurb" style="margin:0 0 16px;font-size:13.5px;line-height:1.55">Includes net worth tracking, categorized transactions, and monthly budget limits.</p>
+<div class="bolt-template-actions" style="margin-top:auto">
+<a href="#" class="link bolt-template-btn bolt-template-btn-primary">Live preview</a>
+<a href="#" class="link bolt-template-btn bolt-template-btn-ghost">See in marketplace</a>
+</div></div></article><article class="bolt-template-card" style="display:flex;flex-direction:column">
+<a href="#" class="link bolt-template-shot" style="display:block;overflow:hidden;border-radius:0;line-height:0">
+<img src="https://res.cloudinary.com/dlq2nawz5/image/upload/f_auto,q_auto,w_1400/v1785870601/bolt-ecommerce-la-lumiere_yez1tn.png" alt="Clean beauty website" style="display:block;width:100%;aspect-ratio:16 / 10;object-fit:cover;object-position:top center;margin:0"></a>
+<div style="display:flex;flex-direction:column;padding:18px 18px 20px;flex:1">
+<p class="bolt-template-eyebrow">Ecommerce</p>
+<span class="t-name" style="font-size:17px;font-weight:600;line-height:1.3;margin-bottom:6px">Clean beauty website</span>
+<p class="t-blurb" style="margin:0 0 16px;font-size:13.5px;line-height:1.55">Includes ingredient stories, a product catalog with prices, and an add-to-bag checkout.</p>
+<div class="bolt-template-actions" style="margin-top:auto">
+<a href="#" class="link bolt-template-btn bolt-template-btn-primary">Live preview</a>
+<a href="#" class="link bolt-template-btn bolt-template-btn-ghost">See in marketplace</a>
+</div></div></article><article class="bolt-template-card" style="display:flex;flex-direction:column">
+<a href="#" class="link bolt-template-shot" style="display:block;overflow:hidden;border-radius:0;line-height:0">
+<img src="https://res.cloudinary.com/dlq2nawz5/image/upload/f_auto,q_auto,w_1400/v1785870600/bolt-saas-dashboard_ycimjc.png" alt="SaaS landing page and dashboard" style="display:block;width:100%;aspect-ratio:16 / 10;object-fit:cover;object-position:top center;margin:0"></a>
+<div style="display:flex;flex-direction:column;padding:18px 18px 20px;flex:1">
+<p class="bolt-template-eyebrow">SaaS</p>
+<span class="t-name" style="font-size:17px;font-weight:600;line-height:1.3;margin-bottom:6px">SaaS landing page and dashboard</span>
+<p class="t-blurb" style="margin:0 0 16px;font-size:13.5px;line-height:1.55">Includes a product tour, three-tier pricing, and an MRR and churn dashboard.</p>
+<div class="bolt-template-actions" style="margin-top:auto">
+<a href="#" class="link bolt-template-btn bolt-template-btn-primary">Live preview</a>
+<a href="#" class="link bolt-template-btn bolt-template-btn-ghost">See in marketplace</a>
+</div></div></article></div>
+<h3>List layout &mdash; layout="list"</h3>
+<div class="sl"><article class="bolt-template-row">
+<a href="#" class="link bolt-template-shot" style="display:block;overflow:hidden;border-radius:2px;line-height:0">
+<img src="https://res.cloudinary.com/dlq2nawz5/image/upload/f_auto,q_auto,w_1400/v1785858695/bolt-website-maison-voyage_rdqhgq.png" alt="Luxury travel website" style="display:block;width:100%;aspect-ratio:1 / 1;object-fit:cover;object-position:top center;margin:0"></a>
+<div style="display:flex;flex-direction:column;padding:0;flex:none">
+<p class="bolt-template-eyebrow">Website</p>
+<span class="t-name" style="font-size:20px;font-weight:600;line-height:1.3;margin-bottom:6px">Luxury travel website</span>
+<p class="t-blurb" style="margin:0 0 16px;font-size:15px;line-height:1.55">Includes a destination collection, a price form, and an itinerary builder.</p>
+<div class="bolt-template-actions" style="margin-top:0">
+<a href="#" class="link bolt-template-btn bolt-template-btn-primary">Live preview</a>
+<a href="#" class="link bolt-template-btn bolt-template-btn-ghost">See in marketplace</a>
+</div></div></article><article class="bolt-template-row">
+<a href="#" class="link bolt-template-shot" style="display:block;overflow:hidden;border-radius:2px;line-height:0">
+<img src="https://res.cloudinary.com/dlq2nawz5/image/upload/f_auto,q_auto,w_1400/v1785858694/bolt-app-ledger_ql7bxk.png" alt="Personal finance tracker" style="display:block;width:100%;aspect-ratio:1 / 1;object-fit:cover;object-position:top center;margin:0"></a>
+<div style="display:flex;flex-direction:column;padding:0;flex:none">
+<p class="bolt-template-eyebrow">App</p>
+<span class="t-name" style="font-size:20px;font-weight:600;line-height:1.3;margin-bottom:6px">Personal finance tracker</span>
+<p class="t-blurb" style="margin:0 0 16px;font-size:15px;line-height:1.55">Includes net worth tracking, categorized transactions, and monthly budget limits.</p>
+<div class="bolt-template-actions" style="margin-top:0">
+<a href="#" class="link bolt-template-btn bolt-template-btn-primary">Live preview</a>
+<a href="#" class="link bolt-template-btn bolt-template-btn-ghost">See in marketplace</a>
+</div></div></article></div>
+</section><section class="theme-dark panel">
+<p class="panel-label">Dark mode</p>
+<h3>Grid layout &mdash; index.mdx</h3>
+<div class="sg"><article class="bolt-template-card" style="display:flex;flex-direction:column">
+<a href="#" class="link bolt-template-shot" style="display:block;overflow:hidden;border-radius:0;line-height:0">
+<img src="https://res.cloudinary.com/dlq2nawz5/image/upload/f_auto,q_auto,w_1400/v1785858695/bolt-website-maison-voyage_rdqhgq.png" alt="Luxury travel website" style="display:block;width:100%;aspect-ratio:16 / 10;object-fit:cover;object-position:top center;margin:0"></a>
+<div style="display:flex;flex-direction:column;padding:18px 18px 20px;flex:1">
+<p class="bolt-template-eyebrow">Website</p>
+<span class="t-name" style="font-size:17px;font-weight:600;line-height:1.3;margin-bottom:6px">Luxury travel website</span>
+<p class="t-blurb" style="margin:0 0 16px;font-size:13.5px;line-height:1.55">Includes a destination collection, a price form, and an itinerary builder.</p>
+<div class="bolt-template-actions" style="margin-top:auto">
+<a href="#" class="link bolt-template-btn bolt-template-btn-primary">Live preview</a>
+<a href="#" class="link bolt-template-btn bolt-template-btn-ghost">See in marketplace</a>
+</div></div></article><article class="bolt-template-card" style="display:flex;flex-direction:column">
+<a href="#" class="link bolt-template-shot" style="display:block;overflow:hidden;border-radius:0;line-height:0">
+<img src="https://res.cloudinary.com/dlq2nawz5/image/upload/f_auto,q_auto,w_1400/v1785858694/bolt-app-ledger_ql7bxk.png" alt="Personal finance tracker" style="display:block;width:100%;aspect-ratio:16 / 10;object-fit:cover;object-position:top center;margin:0"></a>
+<div style="display:flex;flex-direction:column;padding:18px 18px 20px;flex:1">
+<p class="bolt-template-eyebrow">App</p>
+<span class="t-name" style="font-size:17px;font-weight:600;line-height:1.3;margin-bottom:6px">Personal finance tracker</span>
+<p class="t-blurb" style="margin:0 0 16px;font-size:13.5px;line-height:1.55">Includes net worth tracking, categorized transactions, and monthly budget limits.</p>
+<div class="bolt-template-actions" style="margin-top:auto">
+<a href="#" class="link bolt-template-btn bolt-template-btn-primary">Live preview</a>
+<a href="#" class="link bolt-template-btn bolt-template-btn-ghost">See in marketplace</a>
+</div></div></article><article class="bolt-template-card" style="display:flex;flex-direction:column">
+<a href="#" class="link bolt-template-shot" style="display:block;overflow:hidden;border-radius:0;line-height:0">
+<img src="https://res.cloudinary.com/dlq2nawz5/image/upload/f_auto,q_auto,w_1400/v1785870601/bolt-ecommerce-la-lumiere_yez1tn.png" alt="Clean beauty website" style="display:block;width:100%;aspect-ratio:16 / 10;object-fit:cover;object-position:top center;margin:0"></a>
+<div style="display:flex;flex-direction:column;padding:18px 18px 20px;flex:1">
+<p class="bolt-template-eyebrow">Ecommerce</p>
+<span class="t-name" style="font-size:17px;font-weight:600;line-height:1.3;margin-bottom:6px">Clean beauty website</span>
+<p class="t-blurb" style="margin:0 0 16px;font-size:13.5px;line-height:1.55">Includes ingredient stories, a product catalog with prices, and an add-to-bag checkout.</p>
+<div class="bolt-template-actions" style="margin-top:auto">
+<a href="#" class="link bolt-template-btn bolt-template-btn-primary">Live preview</a>
+<a href="#" class="link bolt-template-btn bolt-template-btn-ghost">See in marketplace</a>
+</div></div></article><article class="bolt-template-card" style="display:flex;flex-direction:column">
+<a href="#" class="link bolt-template-shot" style="display:block;overflow:hidden;border-radius:0;line-height:0">
+<img src="https://res.cloudinary.com/dlq2nawz5/image/upload/f_auto,q_auto,w_1400/v1785870600/bolt-saas-dashboard_ycimjc.png" alt="SaaS landing page and dashboard" style="display:block;width:100%;aspect-ratio:16 / 10;object-fit:cover;object-position:top center;margin:0"></a>
+<div style="display:flex;flex-direction:column;padding:18px 18px 20px;flex:1">
+<p class="bolt-template-eyebrow">SaaS</p>
+<span class="t-name" style="font-size:17px;font-weight:600;line-height:1.3;margin-bottom:6px">SaaS landing page and dashboard</span>
+<p class="t-blurb" style="margin:0 0 16px;font-size:13.5px;line-height:1.55">Includes a product tour, three-tier pricing, and an MRR and churn dashboard.</p>
+<div class="bolt-template-actions" style="margin-top:auto">
+<a href="#" class="link bolt-template-btn bolt-template-btn-primary">Live preview</a>
+<a href="#" class="link bolt-template-btn bolt-template-btn-ghost">See in marketplace</a>
+</div></div></article></div>
+<h3>List layout &mdash; layout="list"</h3>
+<div class="sl"><article class="bolt-template-row">
+<a href="#" class="link bolt-template-shot" style="display:block;overflow:hidden;border-radius:2px;line-height:0">
+<img src="https://res.cloudinary.com/dlq2nawz5/image/upload/f_auto,q_auto,w_1400/v1785858695/bolt-website-maison-voyage_rdqhgq.png" alt="Luxury travel website" style="display:block;width:100%;aspect-ratio:1 / 1;object-fit:cover;object-position:top center;margin:0"></a>
+<div style="display:flex;flex-direction:column;padding:0;flex:none">
+<p class="bolt-template-eyebrow">Website</p>
+<span class="t-name" style="font-size:20px;font-weight:600;line-height:1.3;margin-bottom:6px">Luxury travel website</span>
+<p class="t-blurb" style="margin:0 0 16px;font-size:15px;line-height:1.55">Includes a destination collection, a price form, and an itinerary builder.</p>
+<div class="bolt-template-actions" style="margin-top:0">
+<a href="#" class="link bolt-template-btn bolt-template-btn-primary">Live preview</a>
+<a href="#" class="link bolt-template-btn bolt-template-btn-ghost">See in marketplace</a>
+</div></div></article><article class="bolt-template-row">
+<a href="#" class="link bolt-template-shot" style="display:block;overflow:hidden;border-radius:2px;line-height:0">
+<img src="https://res.cloudinary.com/dlq2nawz5/image/upload/f_auto,q_auto,w_1400/v1785858694/bolt-app-ledger_ql7bxk.png" alt="Personal finance tracker" style="display:block;width:100%;aspect-ratio:1 / 1;object-fit:cover;object-position:top center;margin:0"></a>
+<div style="display:flex;flex-direction:column;padding:0;flex:none">
+<p class="bolt-template-eyebrow">App</p>
+<span class="t-name" style="font-size:20px;font-weight:600;line-height:1.3;margin-bottom:6px">Personal finance tracker</span>
+<p class="t-blurb" style="margin:0 0 16px;font-size:15px;line-height:1.55">Includes net worth tracking, categorized transactions, and monthly budget limits.</p>
+<div class="bolt-template-actions" style="margin-top:0">
+<a href="#" class="link bolt-template-btn bolt-template-btn-primary">Live preview</a>
+<a href="#" class="link bolt-template-btn bolt-template-btn-ghost">See in marketplace</a>
+</div></div></article></div>
+</section></div>
+</body></html>
