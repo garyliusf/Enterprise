@@ -235,6 +235,7 @@ Canonical source for the sticky **navbar** (`.mkt-nav*` — mega-menu + mobile d
 - **Legal links (Terms of Use / Privacy Policy / Security) live in the footer's "More" column**, below Templates and Pricing — not in a bottom bar.
 - **`marketing/templates/detail/index.html` is STALE on this point** — it still renders the old tail because it never got `2dd0315`. Do not use it as the footer reference; `templates/index.html` and `pricing.html` are correct.
 
+- **RULE (Gary, 2026-08-06): every navbar/footer change applies to ALL instances in the same commit** — `shared-nav-footer.css` + the inline copies (pricing.html, templates/index.html, templates/detail/index.html). No page-local nav/footer tweaks.
 - **Markup is copied per page** (static sandbox, no includes) — only the CSS/JS are shared. Relative `href`s must be re-based for the page's directory depth: from `marketing/templates/*` to `marketing/*`, `../../` → `../`, `../` → bare, `./` → `templates/`. Drop `is-active` from whichever nav item isn't the current page.
 - **`overflow-x: hidden` on `body` breaks the sticky navbar** — it makes body a scroll container, so `position: sticky` on descendants stops working. Use `overflow-x: hidden; overflow-x: clip;` (hidden first as the fallback). Bit both templates and platform.
 - **Not yet migrated:** `marketing/templates/index.html` and `marketing/templates/detail/index.html` still carry inline copies of this CSS/JS (their markup is now in sync). Mirror changes there until they're migrated to these files.
