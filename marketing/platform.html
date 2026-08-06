@@ -612,8 +612,24 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; o
             mask-image: linear-gradient(to bottom, transparent 0%, #000 30%, #000 76%, transparent 100%);
   }
   .section-divider canvas { display: block; width: 100%; height: 100%; }
-  @media (max-width: 1024px) { .section-divider { height: 160px; width: min(900px, calc(100vw - 80px)); margin: -80px auto -110px; } }
-  @media (max-width: 768px)  { .section-divider { height: 110px; width: calc(100vw - 32px); margin: -50px auto -60px; } }
+
+  /* Bridge variant (platform tabs ⇄ video): a taller strip whose solid band
+     lands in the gap between the two, while its long fades ride over the tab
+     stage above and the video frame below — so the pixel field ties them
+     together instead of sitting in a no-man's-land. Only the faded ends touch
+     content, never the full-opacity dots. Geometry: height + margins are
+     balanced so (margin-top + height + margin-bottom) matches the base
+     divider's -50px, leaving the video's position unchanged. */
+  .section-divider--bridge {
+    height: 360px;
+    margin: -255px auto -155px;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 42%, #000 62%, transparent 100%);
+            mask-image: linear-gradient(to bottom, transparent 0%, #000 42%, #000 62%, transparent 100%);
+  }
+  @media (max-width: 1024px) { .section-divider { height: 160px; width: min(900px, calc(100vw - 80px)); margin: -80px auto -110px; }
+    .section-divider--bridge { height: 280px; margin: -190px auto -120px; } }
+  @media (max-width: 768px)  { .section-divider { height: 110px; width: calc(100vw - 32px); margin: -50px auto -60px; }
+    .section-divider--bridge { height: 200px; margin: -120px auto -90px; } }
   @media (prefers-reduced-motion: reduce) { .section-divider { display: none; } }
 
   /* ─── SECTION 4: USE CASES (unlocks-panel: graph-paper + icon cells) ──── */
@@ -1079,6 +1095,11 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; o
   </div>
 </section>
 
+<!-- ─── ANIMATED PIXEL DIVIDER (platform tabs ⇄ video — bridges the two) ── -->
+<div class="section-divider section-divider--bridge" aria-hidden="true">
+  <canvas id="section-divider-canvas"></canvas>
+</div>
+
 <!-- ─── SECTION: PLATFORM VIDEO (placeholder — swap the <video src>) ──────── -->
 <section class="pvideo-section">
   <div class="pvideo-inner">
@@ -1087,11 +1108,6 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; o
     </div>
   </div>
 </section>
-
-<!-- ─── ANIMATED PIXEL DIVIDER (video → use cases) ───────────────────────── -->
-<div class="section-divider" aria-hidden="true">
-  <canvas id="section-divider-canvas"></canvas>
-</div>
 
 <!-- ─── SECTION 4: USE CASES ─────────────────────────────────────────────── -->
 <section class="section usecase-section">
