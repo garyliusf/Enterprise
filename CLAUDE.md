@@ -273,6 +273,10 @@ For a seamless grid with shared borders (no `gap`):
 | Footer CTA | `.hero-btn-primary.footer-cta-btn` "Start Building" → bolt.new | platform.html footer pattern (the old email strip + rotating-name form was removed 2026-08-06) |
 | Toggle (Yearly/Monthly) | `.billing-btn` | `~26px`, `5px 22px`, `13px`, `500`, `#fff`, pill `999px` |
 
+**CTA labels are Title Case (decision: Gary, 2026-08-06):** cap the first letter of each word — "Get Started", "Contact Us", "Learn More", "Start Building" — in BOTH slide-up spans of the button markup.
+
+**Billing toggle (redesigned 2026-08-06):** squared 2px segmented control (rgba(255,255,255,0.04) fill, 0.1 border), sliding `#1488FC` thumb positioned by JS from the active button (re-measured on font-load/resize), active label white/600. The savings chip copy is **"Save up to 28%" — required copy, do not shorten**; 12px/600, inactive `#4DA6FF` on `rgba(20,136,252,0.14)`, active `#fff` on `rgba(0,0,0,0.28)` (dark inset — white-on-lightened-blue failed contrast). Not the old white 999px pill.
+
 **The old 42px plan-CTA exception is RETIRED (decision: Gary, 2026-08-06).** The `.cta-primary`/`.cta-secondary` 42px component was deleted; all pricing buttons are the shared 52px standard. Do not reintroduce a shorter variant. The live production pricing page still has 42px buttons — the sandbox page is the approved go-forward design, ported when it launches.
 
 Other pricing standardizations from the same pass: FAQ = shared `.ms-faq-*` component (two-column layout is page-local), section H2s = `.sc-section-h2`, logo train = platform.html wordmark component (`images/logos-home/`, CSS `scrollLogos` keyframe — mobile overrides must sit AFTER the base rules in source order), all pixel-fill hovers come from `shared-components.js` (no page-side pixelize module).
@@ -281,7 +285,8 @@ Other pricing standardizations from the same pass: FAQ = shared `.ms-faq-*` comp
 - Color: `#1488FC` ✓ — consistent with brand standard
 
 ### Pricing Page Typography
-- Matches bolt.new/enterprise: H1 `66px` weight `500`, H2 `52px` weight `500` letter-spacing `-1px`
+- Matches bolt.new/enterprise: H1 `66px`/`51px` tablet (≤1024)/`clamp(37px,10.45vw,51px)` mobile, weight `500`; hero subtitle `clamp(16px,1.4vw,20px)`; H2 = `.sc-section-h2`; section subtitles (`.faq-sub`) = `clamp(15px,1.1vw,17px)` `rgba(255,255,255,0.5)` (2026-08-06 audit)
+- Deliberate page-local variants kept by the audit: card/banner surfaces `#0a0a0a` (page-consistent, vs the `#111` token), `.plan-label` card eyebrows 13px Silkscreen, `.compliance-title` 28px panel h3 (a `.sc-panel-h2`-class case), `.page` wrapper owns vertical rhythm (140px top) instead of per-section clamp padding
 
 ---
 
