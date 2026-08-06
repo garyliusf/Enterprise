@@ -1917,18 +1917,25 @@ window.addEventListener('load', function() {
 
   // Click-and-drag panning. Touch is left to the browser's own momentum
   // scrolling; this is for mouse/trackpad users, who have no horizontal axis.
-  var down = false, startX = 0, startLeft = 0, moved = 0;
+  var down = false, startX = 0, startLeft = 0, moved = 0, captured = false;
   track.addEventListener('pointerdown', function (e) {
     if (e.pointerType === 'touch' || e.button !== 0) return;
-    down = true; moved = 0; startX = e.clientX; startLeft = track.scrollLeft;
-    track.classList.add('is-dragging');
-    try { track.setPointerCapture(e.pointerId); } catch (_) {}
+    down = true; moved = 0; captured = false; startX = e.clientX; startLeft = track.scrollLeft;
+    /* NOTE: do NOT setPointerCapture here — capturing on pointerdown retargets
+       the pointer stream to the track, so the browser resolves plain clicks to
+       the track instead of the card <a> and navigation silently dies. Capture
+       engages below, only once the gesture is actually a drag. */
   });
   track.addEventListener('pointermove', function (e) {
     if (!down) return;
     var dx = e.clientX - startX;
     if (Math.abs(dx) > moved) moved = Math.abs(dx);
-    track.scrollLeft = startLeft - dx;
+    if (moved > 6 && !captured) {
+      captured = true;
+      track.classList.add('is-dragging');
+      try { track.setPointerCapture(e.pointerId); } catch (_) {}
+    }
+    if (captured) track.scrollLeft = startLeft - dx;
   });
   function endDrag(e) {
     if (!down) return;
