@@ -68,10 +68,29 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     z-index: 0; pointer-events: none;
     background: url('../images/platform-hero.webp') center / cover no-repeat;
   }
-  /* NO bottom fade (decision: Gary, 2026-08-05) — the aurora runs full-bleed
-     to the section's bottom edge and meets the black page on a clean cut. Any
-     gradient ramp here read as a smudge/hard line no matter how it was eased;
-     a crisp edge is the intended look. Don't re-add a fade layer. */
+  /* Legibility scrim over the lower half — NOT a fade-to-black (that was tried
+     and rejected: the aurora must still read as blue at the section's bottom
+     edge, meeting the black page on a clean cut). So this caps at 0.5 alpha
+     and never reaches black. The ramp is a SMOOTHSTEP (3t²−2t³) sampled at 10
+     stops so its slope is zero where it starts — a linear ramp puts a visible
+     onset band across the bright field. Sits at z-index 2: above the image and
+     the pixel dots, below the content (z-index 3). */
+  .hero-section::after {
+    content: ''; position: absolute; inset: 0;
+    z-index: 2; pointer-events: none;
+    background: linear-gradient(180deg,
+      rgba(0,0,0,0)     22%,
+      rgba(0,0,0,0.014) 30%,
+      rgba(0,0,0,0.052) 38%,
+      rgba(0,0,0,0.108) 45%,
+      rgba(0,0,0,0.176) 53%,
+      rgba(0,0,0,0.25)  61%,
+      rgba(0,0,0,0.324) 69%,
+      rgba(0,0,0,0.392) 77%,
+      rgba(0,0,0,0.448) 84%,
+      rgba(0,0,0,0.486) 92%,
+      rgba(0,0,0,0.5)   100%);
+  }
   /* Animated aurora blobs — four soft light pools, each on its own co-prime
      period and drift vector, so their overlaps continuously merge/separate
      (the composition evolves instead of sliding as one). GPU transforms only. */
@@ -292,54 +311,41 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
      which a full-page template capture slowly scrolls. Radius ≈ the SVG's own
      23/864 corner, matched via border-radius so the 1px border hugs it. */
   .plat-browser {
+    position: relative;
     width: 100%; background: #000;
     border: 1px solid rgba(255,255,255,0.12);
     border-radius: 12px; overflow: hidden;
   }
   .plat-browser-bar { display: block; width: 100%; height: auto; }
+  /* A REAL scroll container — the visitor can scroll/swipe the template inside
+     the mock. The ambient momentum drift is driven from JS by writing
+     scrollTop (see the platBrowserScroll module), so hand-scrolling and the
+     idle animation share one mechanism and can't fight each other. */
   .plat-browser-view {
-    position: relative; overflow: hidden;
+    position: relative;
     aspect-ratio: 864 / 553;            /* body of the 864×601 mock */
+    overflow-y: auto; overflow-x: hidden;
+    /* no overscroll-behavior:contain — once the visitor reaches either end the
+       page keeps scrolling normally, so the embed never traps the page */
+    scrollbar-width: none; -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
   }
-  .plat-browser-page {
-    position: absolute; left: 0; top: 0; width: 100%; height: auto; display: block;
-    animation: platBrowserSlide var(--slide-dur, 80s) infinite;
-  }
-  /* the mock's faint blue glow bleeding down from the bar */
-  .plat-browser-view::after {
-    content: ""; position: absolute; inset: 0; pointer-events: none;
+  .plat-browser-view::-webkit-scrollbar { width: 0; height: 0; display: none; }
+  .plat-browser-page { width: 100%; height: auto; display: block; }
+  /* the mock's faint blue glow bleeding down from the bar. Lives on the OUTER
+     frame, not the scroll container: it has to sit above the (opaque) page
+     image and stay pinned while the content scrolls under it. */
+  .plat-browser::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 1;
     background: radial-gradient(75% 125% at 60% 0%, rgba(20,136,252,0.10) 0%, rgba(0,0,0,0) 55%);
   }
-  /* Momentum scroll: a chain of trackpad-style flicks — each burst launches
-     fast and decays into a reading pause (strong ease-out per segment); four
-     flicks down, two quicker ones back up, one full journey per cycle (no
-     `alternate` — a reversed ease-out plays as ease-in, which reads as
-     anti-momentum). At every stop top:X% pairs with translateY(-X%): top's %
-     is the view, translateY's % the image, so X=100 is bottom-aligned for any
-     image height and intermediate stops stay proportional. */
-  @keyframes platBrowserSlide {
-    0%        { top: 0;    transform: translateY(0);      animation-timing-function: cubic-bezier(0.16, 0.7, 0.2, 1); }
-    10%, 15%  { top: 26%;  transform: translateY(-26%);   animation-timing-function: cubic-bezier(0.16, 0.7, 0.2, 1); }
-    25%, 30%  { top: 52%;  transform: translateY(-52%);   animation-timing-function: cubic-bezier(0.16, 0.7, 0.2, 1); }
-    40%, 45%  { top: 76%;  transform: translateY(-76%);   animation-timing-function: cubic-bezier(0.16, 0.7, 0.2, 1); }
-    55%, 64%  { top: 100%; transform: translateY(-100%);  animation-timing-function: cubic-bezier(0.16, 0.7, 0.2, 1); }
-    74%, 78%  { top: 48%;  transform: translateY(-48%);   animation-timing-function: cubic-bezier(0.16, 0.7, 0.2, 1); }
-    96%, 100% { top: 0;    transform: translateY(0); }
-  }
-  /* short-page variant (capture under ~2 viewports tall): two flicks down,
-     one back up — the 4-flick pattern reads as a crawl on little travel */
-  .plat-browser--short .plat-browser-page { animation-name: platBrowserSlideShort; }
-  @keyframes platBrowserSlideShort {
-    0%        { top: 0;    transform: translateY(0);      animation-timing-function: cubic-bezier(0.16, 0.7, 0.2, 1); }
-    15%, 30%  { top: 52%;  transform: translateY(-52%);   animation-timing-function: cubic-bezier(0.16, 0.7, 0.2, 1); }
-    45%, 62%  { top: 100%; transform: translateY(-100%);  animation-timing-function: cubic-bezier(0.16, 0.7, 0.2, 1); }
-    76%, 80%  { top: 44%;  transform: translateY(-44%);   animation-timing-function: cubic-bezier(0.16, 0.7, 0.2, 1); }
-    96%, 100% { top: 0;    transform: translateY(0); }
-  }
-  /* single-screen pages (an app dashboard with no real scroll of its own):
-     no travel at all — the capture just sits at the top of the viewport */
-  .plat-browser--static .plat-browser-page { animation: none; }
-  @media (prefers-reduced-motion: reduce) { .plat-browser-page { animation: none; } }
+  /* single-screen pages (an app dashboard with no real scroll of its own) */
+  .plat-browser--static .plat-browser-view { overflow: hidden; }
+  /* On phones the embed is ambient only: a decorative scroll container would
+     swallow vertical swipes meant for the page. pointer-events:none lets
+     touches pass straight through while the JS drift (which writes scrollTop
+     directly) keeps running. */
+  @media (max-width: 768px) { .plat-browser-view { pointer-events: none; } }
 
   /* ─── ANIMATED PIXEL DIVIDER (verbatim security-agent / templates-detail) ── */
   .section-divider {
@@ -724,7 +730,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
             </ul>
           </div>
           <div class="plat-vcard plat-vcard--browser" aria-hidden="true">
-            <div class="plat-browser" style="--slide-dur: 68s">
+            <div class="plat-browser">
               <img class="plat-browser-bar" src="../images/bolt-browser-bar.svg" alt="">
               <div class="plat-browser-view">
                 <img class="plat-browser-page" decoding="async" src="templates/images/premium-saas-dashboard-lp.webp" alt="">
@@ -746,7 +752,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
             </ul>
           </div>
           <div class="plat-vcard plat-vcard--browser" aria-hidden="true">
-            <div class="plat-browser plat-browser--short" style="--slide-dur: 46s">
+            <div class="plat-browser plat-browser--short">
               <img class="plat-browser-bar" src="../images/bolt-browser-bar.svg" alt="">
               <div class="plat-browser-view">
                 <img class="plat-browser-page" decoding="async" src="templates/images/ledger-finance.webp" alt="">
@@ -790,7 +796,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
             </ul>
           </div>
           <div class="plat-vcard plat-vcard--browser" aria-hidden="true">
-            <div class="plat-browser" style="--slide-dur: 78s">
+            <div class="plat-browser">
               <img class="plat-browser-bar" src="../images/bolt-browser-bar.svg" alt="">
               <div class="plat-browser-view">
                 <img class="plat-browser-page" decoding="async" src="templates/images/noir-agency.webp" alt="">
@@ -1291,6 +1297,85 @@ window.addEventListener('load', function() {
 </script>
 
 <script>
+// ── Browser embeds: ambient momentum drift, driven by writing scrollTop so
+//    the visitor can grab and scroll the template themselves at any time.
+//    Hand-scrolling pauses the drift; after an idle beat it resumes from
+//    wherever they left off (picking the next waypoint ahead of them, so it
+//    never yanks backwards). Off-screen panels don't animate.
+(function () {
+  var REDUCE = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // [target fraction of scrollable range, travel ms, dwell ms]
+  var LEGS_LONG = [
+    [0.26, 2100, 2300], [0.52, 2100, 2300], [0.76, 2100, 2300], [1, 2100, 3500],
+    [0.48, 1900,  800], [0,    2300, 1500]
+  ];
+  var LEGS_SHORT = [[0.52, 2200, 3000], [1, 2200, 3200], [0.44, 1900, 800], [0, 2200, 1500]];
+  // strong ease-out = a flick that launches fast and decays into a stop
+  function ease(t) { return 1 - Math.pow(1 - t, 3); }
+
+  document.querySelectorAll('.plat-browser').forEach(function (browser) {
+    if (browser.classList.contains('plat-browser--static')) return;
+    var view = browser.querySelector('.plat-browser-view');
+    if (!view) return;
+    var legs = browser.classList.contains('plat-browser--short') ? LEGS_SHORT : LEGS_LONG;
+
+    var leg = 0, moving = true, t0 = null, from = 0;
+    var held = false, idleTimer = null, visible = true, lastWritten = -1;
+
+    function range() { return view.scrollHeight - view.clientHeight; }
+
+    // hand off to the visitor; resume after they've been still for a beat
+    function yieldToUser() {
+      held = true;
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(function () {
+        var max = range(), pos = max > 0 ? view.scrollTop / max : 0;
+        // next waypoint that is actually ahead of where they stopped
+        var next = legs.findIndex(function (l) { return l[0] > pos + 0.02; });
+        leg = next === -1 ? legs.length - 1 : next;
+        held = false; moving = true; t0 = null;
+      }, 2400);
+    }
+    ['wheel', 'touchstart', 'pointerdown', 'keydown'].forEach(function (evt) {
+      view.addEventListener(evt, yieldToUser, { passive: true });
+    });
+    // Catches trackpad momentum flings and scrollbar drags, which fire no
+    // wheel/pointer event. Scroll events are dispatched asynchronously, so a
+    // "we're writing right now" flag would always read false by the time this
+    // runs and the drift would pause itself forever — compare against the last
+    // value we wrote instead, and treat anything else as the visitor's input.
+    view.addEventListener('scroll', function () {
+      if (Math.abs(view.scrollTop - lastWritten) > 2) yieldToUser();
+    }, { passive: true });
+
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (entries) {
+        visible = entries[0].isIntersecting;
+      }, { threshold: 0.05 }).observe(browser);
+    }
+
+    function step(ts) {
+      requestAnimationFrame(step);
+      var max = range();
+      // panel hidden (display:none) or nothing to scroll → idle, keep polling
+      if (held || !visible || max <= 0 || !view.clientHeight) { t0 = null; return; }
+      var l = legs[leg], dur = moving ? l[1] : l[2];
+      if (t0 === null) { t0 = ts; from = view.scrollTop; }
+      var p = Math.min(1, (ts - t0) / dur);
+      if (moving) {
+        view.scrollTop = from + (l[0] * max - from) * ease(p);
+        lastWritten = view.scrollTop;
+      }
+      if (p >= 1) {
+        if (moving) { moving = false; }
+        else { moving = true; leg = (leg + 1) % legs.length; }
+        t0 = null;
+      }
+    }
+    if (!REDUCE) requestAnimationFrame(step);
+  });
+})();
+
 // ── Platform tab bar — click + auto-advance, sliding underline via .active ───
 (function () {
   var DURATION = 7000;
