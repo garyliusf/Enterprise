@@ -279,6 +279,8 @@ For a seamless grid with shared borders (no `gap`):
 
 **The old 42px plan-CTA exception is RETIRED (decision: Gary, 2026-08-06).** The `.cta-primary`/`.cta-secondary` 42px component was deleted; all pricing buttons are the shared 52px standard. Do not reintroduce a shorter variant. The live production pricing page still has 42px buttons — the sandbox page is the approved go-forward design, ported when it launches.
 
+pricing.html carries the shared **mkt-nav navbar + site-footer** (2026-08-06): the sticky mega-menu nav and link-columns footer copied from `marketing/templates/index.html` (the component's home) with paths shifted one level up and Pricing marked `is-active`. Because the 68px nav is in-flow sticky, `.page` top padding dropped 140→72px and the compare table's sticky tier-head pins at `top: 68px` (its fade JS thresholds shifted by +68 too). Page order: CTA footer-section → site-footer → bolt wordmark.
+
 Other pricing standardizations from the same pass: FAQ = shared `.ms-faq-*` component (two-column layout is page-local), section H2s = `.sc-section-h2`, logo train = platform.html wordmark component (`images/logos-home/`, CSS `scrollLogos` keyframe — mobile overrides must sit AFTER the base rules in source order), all pixel-fill hovers come from `shared-components.js` (no page-side pixelize module).
 
 ### Pricing Page Eyebrows

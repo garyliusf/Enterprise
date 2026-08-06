@@ -22,7 +22,7 @@
     .page {
       width: min(1200px, calc(100vw - 80px));
       margin: 0 auto;
-      padding: 140px 40px 100px;
+      padding: 72px 40px 100px; /* 140px visual top minus the 68px in-flow nav */
     }
 
     /* ── Header ── */
@@ -169,7 +169,7 @@
     @media (max-width: 768px) {
       .page {
         width: 100%;
-        padding: 80px 16px 48px;
+        padding: 24px 16px 48px;
       }
       .pricing-hero { margin-bottom: 16px; gap: 28px; }
       .page-header { margin-bottom: 0; }
@@ -197,7 +197,7 @@
     /* Tablet/laptop: shrink compliance banner copy/badges but keep horizontal */
     /* Smaller laptops: compact hero + cards to fit above the fold */
     @media (min-width: 901px) and (max-height: 900px) {
-      .page { padding-top: 96px; }
+      .page { padding-top: 28px; }
       .pricing-hero { margin-bottom: 24px; gap: 16px; }
       .page-header h1 { font-size: 48px; margin-bottom: 8px; }
       .page-header p  { font-size: 17px; }
@@ -239,7 +239,7 @@
     }
 
     @media (max-width: 480px) {
-      .page { padding: 48px 14px 40px; }
+      .page { padding: 16px 14px 40px; }
       .card { padding: 22px 18px; }
       .card-price .price-amount { font-size: 44px; }
       .cert-badge { width: 55px; height: 55px; }
@@ -468,7 +468,7 @@
     .compare-tier-head th,
     .compare-table .compare-tier-head th:first-child {
       position: sticky;
-      top: 0;
+      top: 68px; /* below the sticky mkt-nav */
       z-index: 2;
       background: #0a0a0a;
       padding: 20px 20px;
@@ -959,9 +959,917 @@
       font-family: 'Silkscreen', monospace;
     }
 
+
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     NAVBAR — sticky top chrome + mega-menu dropdown pattern (retool-inspired,
+     applied to our design tokens: Silkscreen eyebrows, Inter body, brand blue,
+     rgba(5,5,7,0.72) glass background with backdrop-blur, 2px borders/radii)
+     ═══════════════════════════════════════════════════════════════════════ */
+  .mkt-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    width: 100%;
+    background: rgba(5,5,7,0.72);
+    -webkit-backdrop-filter: saturate(140%) blur(18px);
+            backdrop-filter: saturate(140%) blur(18px);
+    border-bottom: 1px solid rgba(255,255,255,0.14);
+  }
+  .mkt-nav-inner {
+    /* 3-column grid with equal 1fr outer columns: the middle nav group is then
+       centred on the page regardless of the logo and right-side CTA having
+       different widths (flex:1 + justify-content:center left it leaning). */
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 24px;
+    /* Columns are pinned explicitly below. Without that, hiding .mkt-nav-items
+       at narrow widths removes its grid box and auto-placement slides the
+       right-hand group into the middle column. */
+    height: 68px;
+    /* Match .section-inner exactly so the logo + right-side CTA align with the page content below. */
+    width: min(1200px, calc(100vw - 160px));
+    margin: 0 auto;
+    padding: 0;
+    /* Anchor absolutely-positioned Back button (sibling of logo) so left:0 lines up with the nav's inner left edge, not the viewport edge. */
+    position: relative;
+  }
+  @media (max-width: 1024px) {
+    .mkt-nav-inner { width: min(900px, calc(100vw - 80px)); }
+  }
+  @media (max-width: 768px) {
+    .mkt-nav-inner { width: calc(100vw - 32px); }
+  }
+  /* Logo — inline bolt.new wordmark SVG, height 20px sits comfortably in the 68px bar. */
+  .mkt-nav-logo {
+    display: inline-flex;
+    align-items: center;
+    color: #fff;
+    text-decoration: none;
+    flex-shrink: 0;
+    transition: opacity 0.15s ease;
+  }
+  .mkt-nav-logo:hover { opacity: 0.85; }
+  .mkt-nav-logo svg { height: 20px; width: auto; display: block; }
+  /* Slight bump on tablet/phone — logo has more room to breathe here. */
+  @media (max-width: 1024px) {
+    .mkt-nav-logo svg { height: 24px; }
+  }
+  /* Logo ↔ Back slot: both live stacked in the same left-anchored slot. Both animations move on the horizontal axis — the outgoing element slides LEFT as it fades, the incoming element also slides in from the LEFT. Feels like the header is scrolling one label off the left edge while the next label follows behind. */
+  .mkt-nav-logo { grid-column: 1; justify-self: start; }
+  .mkt-nav-items { grid-column: 2; }
+  .mkt-nav-logo,
+  .mkt-nav-back {
+    /* Faster than the drawer view slide (0.32s) so the top row reads as a lighter, more decisive swap independent of the panel motion below. */
+    transition: opacity 0.22s ease-out,
+                transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+    transform-origin: left center;
+  }
+  .mkt-nav-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    padding: 8px 0;
+    color: #fff;
+    font-family: 'Silkscreen', monospace;
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    position: absolute;
+    /* Align the chevron with the drawer's content edge — nav-inner uses the same 16px gutter as the drawer's padding on mobile, so left:0 puts the chevron on the same vertical line as the feature title / section headings / link text (border-left rail was removed for a clean shared left edge). */
+    left: 0;
+    /* Start hidden below the header; rolls up into place when .is-on-submenu is toggled. Vertical axis to distinguish from the drawer's horizontal slide below. */
+    opacity: 0;
+    transform: translateY(12px);
+    pointer-events: none;
+  }
+  .mkt-nav-back svg { width: 16px; height: 16px; }
+  .mkt-nav-logo { position: relative; }
+  .mkt-nav.is-on-submenu .mkt-nav-logo {
+    /* Logo rolls up and out as it fades. */
+    opacity: 0;
+    transform: translateY(-12px);
+    pointer-events: none;
+  }
+  .mkt-nav.is-on-submenu .mkt-nav-back {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  /* Only show the back button target on mobile — desktop nav has real dropdowns and never enters submenu state. */
+  @media (min-width: 1025px) { .mkt-nav-back { display: none; } }
+  /* Nav items (center row) */
+  .mkt-nav-items {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    justify-content: center;
+  }
+  /* Each li fills the full 68px nav height so the whole vertical strip is hover-active — small cursor movements above/below the button label no longer break hover and cause the dropdown to flicker closed. */
+  .mkt-nav-items li { margin: 0; height: 68px; display: flex; align-items: center; }
+  .mkt-nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 14px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.75);
+    background: none;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.15s ease, background 0.15s ease;
+  }
+  .mkt-nav-link:hover { color: #fff; background: rgba(255,255,255,0.05); }
+  .mkt-nav-link.is-active { color: #fff; }
+  .mkt-nav-link { position: relative; }
+  .mkt-nav-link .mkt-nav-chev {
+    width: 12px; height: 12px;
+    transition: transform 0.2s ease;
+  }
+  .mkt-nav-link.is-open .mkt-nav-chev { transform: rotate(180deg); }
+  .mkt-nav-link.is-open { color: #fff; background: rgba(255,255,255,0.05); }
+  /* Right-side actions */
+  .mkt-nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-shrink: 0;
+  }
+  .mkt-nav-signin {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.75);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+  .mkt-nav-signin:hover { color: #fff; }
+  /* Nav CTA extends .hero-btn-primary so shared-components.js attaches the pixel-fill canvas hover — same as every other primary button on the site. These overrides shrink it to the compact nav pill size. */
+  .mkt-nav-cta.hero-btn-primary {
+    height: 38px;
+    padding: 0 18px;
+    font-size: 14px;
+    min-width: 0;
+  }
+  .mkt-nav-cta.hero-btn-primary .btn-text-wrap { height: 1.15em; }
+  /* Right group — actions + burger stay together on the right, no big gap between them on mobile. */
+  .mkt-nav-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+    grid-column: 3;
+    justify-self: end;
+  }
+  /* Hamburger (mobile) — 3 SVG-less lines drawn with spans so we can animate stroke on hover. Fully transparent: no border, no hover background, no tap-highlight, no focus box — just the lines. */
+  .mkt-nav-burger {
+    display: none;
+    width: 40px; height: 40px;
+    background: none;
+    border: none;
+    border-radius: 4px;
+    padding: 0;
+    cursor: pointer;
+    position: relative;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mkt-nav-burger:hover,
+  .mkt-nav-burger:focus,
+  .mkt-nav-burger:active { background: none; outline: none; }
+  .mkt-nav-burger span {
+    position: absolute;
+    left: 9px;
+    width: 22px;
+    height: 1.5px;
+    background: #fff;
+    border-radius: 1px;
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+                width 0.28s ease,
+                left 0.28s ease,
+                opacity 0.18s ease;
+    transform-origin: center;
+  }
+  .mkt-nav-burger span:nth-child(1) { top: 12px; }
+  .mkt-nav-burger span:nth-child(2) { top: 19px; width: 14px; left: 17px; }
+  .mkt-nav-burger span:nth-child(3) { top: 26px; }
+  /* Hover: middle bar extends to full width — subtle animated cue. */
+  .mkt-nav-burger:hover span:nth-child(2) { width: 22px; left: 9px; }
+  /* Open state: three lines morph into an X. Top rotates 45° and drops to the middle row; middle fades; bottom rotates -45° and rises to the middle row. */
+  .mkt-nav-burger.is-open span { left: 9px; width: 22px; }
+  .mkt-nav-burger.is-open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .mkt-nav-burger.is-open span:nth-child(2) { opacity: 0; transform: scaleX(0.5); }
+  .mkt-nav-burger.is-open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* Mega-menu panel — one panel per data-panel, anchors under the sticky nav */
+  .mkt-nav-panel {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(8,8,12,0.98);
+    -webkit-backdrop-filter: saturate(140%) blur(24px);
+            backdrop-filter: saturate(140%) blur(24px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.55);
+    opacity: 0;
+    transform: translateY(-6px);
+    pointer-events: none;
+    transition: opacity 0.18s ease, transform 0.18s ease;
+  }
+  .mkt-nav-panel.is-open {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  .mkt-nav-panel-inner {
+    display: grid;
+    /* Default: 2 link columns. Overridden per panel below. */
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 40px clamp(16px, 4vw, 80px) 48px;
+  }
+  .mkt-nav-panel[data-panel="platform"] .mkt-nav-panel-inner {
+    /* Platform has a single link column (Product Overview) — anchor it to the left, don't stretch. */
+    grid-template-columns: minmax(0, 320px);
+    max-width: 1120px;
+    justify-content: start;
+  }
+  .mkt-nav-panel[data-panel="solutions"] .mkt-nav-panel-inner,
+  .mkt-nav-panel[data-panel="resources"] .mkt-nav-panel-inner {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+  }
+  /* No gap between links — each link's vertical padding fills the space instead so the entire column is one continuous hover zone (no dead pixels between links that would drop focus-mode dim state). */
+  .mkt-nav-panel-col { display: flex; flex-direction: column; gap: 0; }
+
+  /* Featured card on the left of each panel — desktop only. Not a link column, so it doesn't participate in the focus-mode dim of sibling anchors. */
+  .mkt-nav-panel-feature {
+    display: none;
+    padding: 14px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    text-decoration: none;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  .mkt-nav-panel-feature:hover { border-color: rgba(255,255,255,0.22); background: rgba(255,255,255,0.045); }
+  .mkt-nav-panel-feature-visual {
+    aspect-ratio: 3 / 2;
+    border-radius: 4px;
+    margin-bottom: 14px;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, rgba(20,136,252,0.85) 0%, rgba(127,221,193,0.4) 100%);
+  }
+  .mkt-nav-panel[data-panel="solutions"] .mkt-nav-panel-feature-visual { background: linear-gradient(135deg, rgba(250,182,98,0.85) 0%, rgba(255,90,60,0.55) 100%); }
+  .mkt-nav-panel[data-panel="resources"] .mkt-nav-panel-feature-visual { background: linear-gradient(135deg, rgba(127,221,193,0.85) 0%, rgba(20,136,252,0.55) 100%); }
+  .mkt-nav-panel-feature-visual::after {
+    /* Pixel-dot overlay for a subtle bolt texture across every gradient. */
+    content: '';
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.18) 1px, transparent 1px);
+    background-size: 8px 8px;
+    opacity: 0.55;
+  }
+  .mkt-nav-panel-feature-eyebrow {
+    font-family: 'Silkscreen', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    margin: 0 0 8px;
+  }
+  .mkt-nav-panel-feature-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+    color: #fff;
+    letter-spacing: -0.2px;
+    line-height: 1.25;
+    margin: 0 0 10px;
+  }
+  .mkt-nav-panel-feature-title::after {
+    content: '→';
+    font-size: 15px;
+    transition: transform 0.18s ease;
+  }
+  .mkt-nav-panel-feature:hover .mkt-nav-panel-feature-title::after { transform: translateX(4px); }
+  .mkt-nav-panel-feature-desc {
+    font-size: 13px;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.55;
+    margin: 0;
+  }
+  @media (min-width: 1025px) {
+    .mkt-nav-panel-feature { display: block; }
+    .mkt-nav-panel[data-panel="platform"] .mkt-nav-panel-inner {
+      grid-template-columns: 260px minmax(0, 300px);
+      max-width: 1120px;
+      justify-content: start;
+      /* 20px column gap to match the solutions/resources panels — was 40px, so
+         the feature-to-first-column gap looked wider than the others. */
+      gap: 32px 44px;
+    }
+    .mkt-nav-panel[data-panel="solutions"] .mkt-nav-panel-inner,
+    .mkt-nav-panel[data-panel="resources"] .mkt-nav-panel-inner {
+      grid-template-columns: 260px repeat(3, minmax(0, 1fr));
+      gap: 32px 44px;
+    }
+  }
+  .mkt-nav-panel-heading {
+    font-family: 'Silkscreen', monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    margin: 0 0 16px;
+  }
+  .mkt-nav-panel-col a {
+    position: relative;
+    /* display:flex (not inline-flex) + no align-self stretches the link across the whole column so cursor motion within the column stays hovered — even the empty right side of a link now counts as a hover, no cursor-triangle dropout between rows. */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 17px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.85);
+    text-decoration: none;
+    line-height: 1.4;
+    /* Vertical padding replaces the column gap (12px) — total hit zone per link ≈ 20px + text height; no dead pixels between siblings. */
+    padding: 10px 0;
+    transition: color 0.18s ease, opacity 0.18s ease, transform 0.18s ease;
+  }
+  /* Slide-in arrow on the currently-hovered link — hidden until hover. */
+  .mkt-nav-panel-col a::after {
+    content: '→';
+    font-family: 'Inter', sans-serif;
+    color: currentColor;
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+  }
+  .mkt-nav-panel-col a:hover { color: #fff; }
+  .mkt-nav-panel-col a:hover::after { opacity: 1; transform: translateX(0); }
+  /* Focus-mode dim: when a specific link inside the panel is being hovered, dim every other link so the hovered item pops. Column headings (ROLES / SUPPORT / etc.) stay visible so the user always knows which category the highlighted link belongs to. */
+  .mkt-nav-panel:has(.mkt-nav-panel-col a:hover) .mkt-nav-panel-col a { opacity: 0.32; }
+  .mkt-nav-panel:has(.mkt-nav-panel-col a:hover) .mkt-nav-panel-col a:hover { opacity: 1; }
+  /* Overlay backdrop dim while a menu is open — subtle so the nav still shows through */
+  .mkt-nav-scrim {
+    position: fixed;
+    top: 68px; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.18s ease;
+    z-index: 99;
+  }
+  .mkt-nav-scrim.is-open { opacity: 1; pointer-events: auto; }
+
+  @media (max-width: 1024px) {
+    .mkt-nav-items { display: none; }
+    .mkt-nav-signin { display: none; }
+    .mkt-nav-burger { display: inline-flex; }
+    /* On tablet+phone the desktop mega-panels are hidden entirely — the mobile drawer below takes over. */
+    .mkt-nav-panel { display: none !important; }
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     MOBILE DRAWER — full-screen slide-in sheet with drill-down navigation.
+     Only visible on ≤1024px. Home view lists top-level items; tapping a
+     "Platform" / "Solutions" / "Resources" pushes a submenu view; a Back
+     button returns to home. Sticky footer holds primary CTAs.
+     ═══════════════════════════════════════════════════════════════════════ */
+  .mkt-nav-mobile {
+    position: fixed;
+    /* Sits below the 68px sticky nav so the morphing hamburger stays visible + interactive above the drawer. */
+    top: 68px;
+    left: 0; right: 0;
+    height: calc(100vh - 68px);
+    height: calc(100dvh - 68px);
+    z-index: 90;
+    background: rgba(10,10,16,0.98);
+    -webkit-backdrop-filter: blur(24px);
+            backdrop-filter: blur(24px);
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    transition: opacity 0.28s ease, visibility 0s linear 0.28s;
+    visibility: hidden;
+  }
+  .mkt-nav-mobile.is-open {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.28s ease, visibility 0s;
+  }
+  /* Drawer header is fully retired — the sticky nav bar above the drawer owns the logo/back/close controls now. */
+  .mkt-nav-mobile-header { display: none; }
+  .mkt-nav-mobile-close,
+  .mkt-nav-mobile-back {
+    background: none;
+    border: none;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    padding: 8px;
+  }
+  .mkt-nav-mobile-close svg { width: 20px; height: 20px; }
+  .mkt-nav-mobile-back svg { width: 16px; height: 16px; }
+  .mkt-nav-mobile-body {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+  .mkt-nav-mobile-view {
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+    padding: 28px clamp(16px, 4vw, 40px) 28px;
+    opacity: 0;
+    /* Off-screen to the left when not active — slides in from the left as it fades in, matching the logo/back header animation direction. */
+    transform: translateX(-24px);
+    transition: opacity 0.28s ease, transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+  }
+  .mkt-nav-mobile-view.is-active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+  }
+  .mkt-nav-mobile-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 14px 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 20px;
+    font-weight: 500;
+    color: #fff;
+    background: none;
+    border: none;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .mkt-nav-mobile-item svg { width: 16px; height: 16px; color: rgba(255,255,255,0.4); }
+  .mkt-nav-mobile-heading {
+    font-family: 'Silkscreen', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+    margin: 20px 0 4px;
+  }
+  /* Dropped the border-left rail + 12px indent — links now align flush with the drawer's content edge (feature title, section headings, and the sticky-nav BACK button all share one left line). */
+  .mkt-nav-mobile-links {
+    display: flex;
+    flex-direction: column;
+    margin: 4px 0 12px;
+  }
+  .mkt-nav-mobile-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    align-self: flex-start;
+    padding: 10px 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+    color: #fff;
+    text-decoration: none;
+    transition: opacity 0.18s ease, color 0.18s ease;
+  }
+  /* Slide-in arrow on the hovered link — mirrors the desktop mega-menu focus-mode. */
+  .mkt-nav-mobile-links a::after {
+    content: '→';
+    color: currentColor;
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+  }
+  .mkt-nav-mobile-links a:hover::after { opacity: 1; transform: translateX(0); }
+  /* Focus-mode dim: when a link is being hovered inside a mobile drawer view, dim the other links + the feature card so the hovered one pops. Headings (PRODUCT OVERVIEW / ROLES / SUPPORT etc.) stay visible so category context isn't lost. */
+  .mkt-nav-mobile-view:has(.mkt-nav-mobile-links a:hover) .mkt-nav-mobile-links a,
+  .mkt-nav-mobile-view:has(.mkt-nav-mobile-links a:hover) .mkt-nav-mobile-feature {
+    opacity: 0.32;
+    transition: opacity 0.18s ease;
+  }
+  .mkt-nav-mobile-view:has(.mkt-nav-mobile-links a:hover) .mkt-nav-mobile-links a:hover { opacity: 1; }
+  .mkt-nav-mobile-feature { transition: opacity 0.18s ease; }
+  .mkt-nav-mobile-feature {
+    display: block;
+    padding: 4px 0 16px;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    margin-bottom: 8px;
+  }
+  .mkt-nav-mobile-feature-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 22px;
+    font-weight: 500;
+    color: #fff;
+    letter-spacing: -0.2px;
+    margin: 0 0 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .mkt-nav-mobile-feature-desc {
+    font-size: 14px;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.5;
+    margin: 0;
+  }
+  .mkt-nav-mobile-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px clamp(16px, 4vw, 40px);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    flex-shrink: 0;
+  }
+  /* Standard button spec (per CLAUDE.md): 2px radius, 44px height on mobile, natural width — no flex-fill. */
+  .mkt-nav-mobile-footer .hero-btn-primary {
+    height: 44px;
+    padding: 0 22px;
+    font-size: 14px;
+    border-radius: 2px;
+    min-width: 0;
+  }
+  .mkt-nav-mobile-footer .mkt-nav-mobile-signin {
+    color: rgba(255,255,255,0.75);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    text-decoration: none;
+    padding: 0 8px;
+    flex-shrink: 0;
+  }
+  @media (min-width: 1025px) { .mkt-nav-mobile { display: none; } }
+  /* When the mobile drawer is open, lock body scroll. Class added by JS. */
+  body.mkt-nav-mobile-open { overflow: hidden; }
+
+  /* ─── SITE FOOTER (link columns, ported from the Retool footer pattern) ── */
+  .site-footer {
+    background: #000;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 132px min(80px, 5vw) 40px;
+    text-align: left;
+  }
+  /* Footer content centered at 1200px (aligns with the page's sections/nav).
+     The four text columns share the row equally (flex:1); the Connect column
+     is just icons, so it shrinks to its content and tucks at the right edge
+     instead of taking an equal slot (which left a dead gap before it). */
+  .site-footer-cols {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px 24px;
+  }
+  .site-footer-col { display: flex; flex-direction: column; gap: 0; flex: 1; }
+  .site-footer-label {
+    font-family: 'Silkscreen', monospace;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    margin: 0 0 16px;
+  }
+  /* gap:0 + per-link vertical padding so adjacent links touch (no dead pixels
+     between them) — moving down a column stays "on a link" the whole way, so
+     the focus overlay never flickers between rows (nav padding trick). */
+  .site-footer-links { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0; }
+  .site-footer-links a {
+    position: relative;
+    display: inline-flex; align-items: center; gap: 6px;
+    align-self: flex-start;
+    padding: 10px 0;
+    font-size: 16px; color: rgba(255,255,255,0.7); text-decoration: none;
+    transition: color 0.18s ease, opacity 0.18s ease;
+  }
+  /* Slide-in arrow on the hovered link — hidden until hover (matches the nav). */
+  .site-footer-links a::after {
+    content: '→'; color: currentColor;
+    opacity: 0; transform: translateX(-4px);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+  }
+  .site-footer-links a:hover { color: #fff; }
+  .site-footer-links a:hover::after { opacity: 1; transform: translateX(0); }
+  /* Focus-mode dim: driven by hovering an actual link (:has(a:hover)) so the
+     overlay is off in the empty space beside/between columns and only turns on
+     over the links themselves. The padding trick above keeps it stable while
+     moving down a column. The hovered link stays lit; labels stay visible. */
+  .site-footer-cols:has(a:hover) a { opacity: 0.5; }
+  .site-footer-cols:has(a:hover) a:hover { opacity: 1; }
+
+  .site-footer-col--connect { flex: 0 0 auto; min-width: 0; }
+
+  .site-footer-social { display: flex; gap: 10px; margin-top: 6px; }
+  .site-footer-social--col { flex-direction: column; align-items: flex-start; gap: 12px; margin-top: 0; }
+  .site-footer-social a {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.7);
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  .site-footer-social a:hover { background: rgba(255,255,255,0.12); color: #fff; }
+  .site-footer-social svg { width: 14px; height: 14px; }
+
+  /* Tail bar (logo + legal + copyright) — lives below the bolt animation to end the page, so it carries its own gutter. */
+  .site-footer-tail { background: #000; padding: 0 min(80px, 5vw) 40px; }
+  .site-footer-divider { width: 100%; max-width: 1200px; margin: 0 auto; border-top: 1px solid rgba(255,255,255,0.2); }
+  .site-footer-bottom {
+    width: 100%; max-width: 1200px; margin: 0 auto;
+    padding-top: 24px;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+  }
+  .site-footer-logo { height: 22px; width: auto; display: block; }
+  .site-footer-logo svg { height: 100%; width: auto; display: block; }
+  .site-footer-legal { display: flex; align-items: center; flex-wrap: wrap; gap: 18px 20px; }
+  .site-footer-legal a { font-size: 12px; color: rgba(255,255,255,0.4); text-decoration: none; transition: color 0.2s ease; }
+  .site-footer-legal a:hover { color: rgba(255,255,255,0.8); }
+  .site-footer-copyright { font-size: 12px; color: rgba(255,255,255,0.35); }
+
+  @media (max-width: 768px) {
+    .site-footer { padding: 56px 20px 32px; }
+    .site-footer-cols { gap: 32px 20px; }
+    .site-footer-col { min-width: calc(50% - 10px); flex: 0 0 calc(50% - 10px); }
+    /* Larger tap targets on mobile — bump link text + a touch more vertical padding. */
+    .site-footer-links a { font-size: 17px; padding: 8px 0; }
+    .site-footer-tail { padding: 0 20px 32px; }
+    /* Keep the bottom bar as a single row on mobile: logo + 3 legal links.
+       Copyright moves under it (order:2 + basis:100%) to avoid crowding. */
+    /* Baseline alignment on the wordmark → text: shrink the logo a touch and
+       let the flex row center-align. The prior center alignment left the ~22px
+       SVG visually higher than the 10px caps-height legal links. */
+    .site-footer-bottom { flex-direction: row; align-items: center; flex-wrap: wrap; gap: 12px 20px; }
+    .site-footer-logo { height: 18px; }
+    .site-footer-legal { flex: 1; min-width: 0; gap: 12px 16px; }
+    .site-footer-legal a { font-size: 12px; }
+    .site-footer-copyright { flex: 0 0 100%; order: 2; margin-top: 4px; }
+  }
+
   </style>
 </head>
 <body>
+
+<!-- ─── NAVBAR ────────────────────────────────────────────────────────────── -->
+<nav class="mkt-nav" aria-label="Primary">
+  <div class="mkt-nav-inner">
+    <!-- Nav-bar Back button — only appears on mobile when a submenu is active (JS toggles .is-on-submenu on .mkt-nav). Replaces the logo in the same slot. -->
+    <button class="mkt-nav-back" data-mobile-back aria-label="Back to main menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+      Back
+    </button>
+    <a href="../" class="mkt-nav-logo" aria-label="bolt.new home">
+      <!-- Canonical bolt.new wordmark (from images/bolt-new.svg) — inlined so the nav renders without an extra network request. -->
+      <svg viewBox="0 0 85 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M26.1121 20.9491C21.0582 20.9491 18.4869 17.9995 18.4869 14.3126C18.4869 9.9472 21.9744 5.99476 27.0283 5.99476C32.0822 5.99476 34.6535 8.94434 34.6535 12.6313C34.6535 16.9967 31.166 20.9491 26.1121 20.9491ZM26.319 16.2593C28.0923 16.2593 29.2154 14.6665 29.2154 12.8968C29.2154 11.481 28.2992 10.6846 26.8214 10.6846C25.0481 10.6846 23.925 12.2774 23.925 14.0471C23.925 15.4629 24.8412 16.2593 26.319 16.2593Z" fill="#fff"/>
+        <path d="M40.0368 20.5952H34.717L39.0615 0.921487H44.3814L40.0368 20.5952Z" fill="#fff"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M10.4272 20.9491C8.80168 20.9491 7.20572 20.3592 6.28951 19.0909L5.96635 20.5867L0 23.75L0.644095 20.5867L4.9891 0.921487H10.309L8.77213 7.853C10.0134 6.49619 11.1661 5.99476 12.6438 5.99476C15.8358 5.99476 17.9637 8.08896 17.9637 11.9234C17.9637 15.8758 15.5107 20.9491 10.4272 20.9491ZM12.4665 13.0443C12.4665 14.873 11.1661 16.2593 9.48145 16.2593C8.53569 16.2593 7.6786 15.9053 7.11705 15.2859L7.94459 11.658C8.56524 11.0385 9.27456 10.6846 10.1021 10.6846C11.373 10.6846 12.4665 11.6285 12.4665 13.0443Z" fill="#fff"/>
+        <path d="M49.9163 20.9491C46.8426 20.9491 44.6555 19.8283 44.6555 17.3506C44.6555 17.1442 44.6851 16.6427 44.7737 16.2298L45.9264 10.9501H43.562L44.5964 6.34871H46.9608L47.8179 2.45527L53.7735 0L53.1378 2.46127L52.2807 6.34871H55.1771L54.1426 10.9501H51.2462L50.4778 14.4306C50.4187 14.696 50.3892 14.991 50.3892 15.109C50.3892 15.7874 50.8029 16.2593 51.7191 16.2593C51.9851 16.2593 52.3693 16.1708 52.458 16.1118V20.3592C51.8965 20.7427 50.8916 20.9491 49.9163 20.9491Z" fill="#fff"/>
+        <path d="M56.461 21.0087C55.7527 21.0087 55.1886 20.4196 55.1886 19.7127C55.1886 18.8879 55.897 18.1941 56.7234 18.1941C57.4317 18.1941 57.9958 18.7832 57.9958 19.4901C57.9958 20.3149 57.2875 21.0087 56.461 21.0087Z" fill="#fff"/>
+        <path d="M65.3576 20.8386H62.9964L63.7309 17.5133C63.7572 17.3955 63.8097 17.186 63.8097 17.0289C63.8097 16.5969 63.4292 16.4398 63.0488 16.4398C62.5372 16.4398 62.183 16.7016 61.9338 16.9242L61.068 20.8386H58.7068L60.1104 14.5153H62.4716L62.3011 15.2354C62.7602 14.8164 63.3374 14.3582 64.295 14.3582C65.6199 14.3582 66.3807 15.0783 66.3807 16.0209C66.3807 16.1256 66.3414 16.4136 66.3151 16.5314L65.3576 20.8386Z" fill="#fff"/>
+        <path d="M70.256 20.9956C68.2096 20.9956 66.7929 19.9745 66.7929 18.1155C66.7929 16.0994 68.3408 14.3582 70.5577 14.3582C72.1319 14.3582 73.5223 15.3139 73.5223 17.2384C73.5223 17.6704 73.4436 18.1679 73.3781 18.4035H69.1279V18.4166C69.1279 18.5083 69.5083 19.2021 70.4265 19.2021C70.925 19.2021 71.5153 19.0843 71.8039 18.8879L72.5254 20.4196C71.8826 20.8255 71.0169 20.9956 70.256 20.9956ZM69.3509 16.9111H71.4366V16.8718C71.4366 16.6885 71.2136 16.1518 70.4659 16.1518C69.8363 16.1518 69.4296 16.6362 69.3509 16.9111Z" fill="#fff"/>
+        <path d="M81.7599 20.8386H79.1888L78.9265 17.3038L77.1293 20.8386H74.5582L74.1254 14.5153H76.4866L76.5521 17.9977L78.4411 14.5153H80.5531L80.881 17.9977L82.4945 14.5153H85L81.7599 20.8386Z" fill="#fff"/>
+      </svg>
+    </a>
+
+    <ul class="mkt-nav-items">
+      <li data-menu="platform">
+        <button class="mkt-nav-link" data-menu="platform" aria-haspopup="true" aria-expanded="false">
+          Platform
+          <svg class="mkt-nav-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </li>
+      <li data-menu="solutions">
+        <button class="mkt-nav-link" data-menu="solutions" aria-haspopup="true" aria-expanded="false">
+          Solutions
+          <svg class="mkt-nav-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </li>
+      <li data-menu="resources">
+        <button class="mkt-nav-link" data-menu="resources" aria-haspopup="true" aria-expanded="false">
+          Resources
+          <svg class="mkt-nav-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </li>
+      <li><a href="templates/" class="mkt-nav-link">Templates</a></li>
+      <li><a href="../enterprise" class="mkt-nav-link">Enterprise</a></li>
+      <li><a href="pricing.html" class="mkt-nav-link is-active">Pricing</a></li>
+    </ul>
+
+    <div class="mkt-nav-right">
+      <div class="mkt-nav-actions">
+        <a href="https://bolt.new/signin" class="mkt-nav-signin">Sign in</a>
+        <a href="https://bolt.new/" target="_blank" rel="noopener" class="mkt-nav-cta hero-btn-primary">
+          <div class="btn-bg-hover"></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Started</span><span>Get Started</span></div></div>
+        </a>
+      </div>
+      <button class="mkt-nav-burger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mega panels — one per top-level menu, JS toggles .is-open on the matching data-panel -->
+  <div class="mkt-nav-panel" data-panel="platform" aria-hidden="true">
+    <div class="mkt-nav-panel-inner">
+      <a href="bolt-cli.html" class="mkt-nav-panel-feature">
+        <div class="mkt-nav-panel-feature-visual" aria-hidden="true"></div>
+        <p class="mkt-nav-panel-feature-eyebrow">Featured</p>
+        <p class="mkt-nav-panel-feature-title">Build with the CLI</p>
+        <p class="mkt-nav-panel-feature-desc">Ship full-stack apps from your terminal — same model, no browser tab required.</p>
+      </a>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Product Overview</p>
+        <a href="#">Platform (Build, Deploy, Govern)</a>
+        <a href="#">Security &amp; Trust</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="mkt-nav-panel" data-panel="solutions" aria-hidden="true">
+    <div class="mkt-nav-panel-inner">
+      <a href="../solutions/ai-for-real-estate/" class="mkt-nav-panel-feature">
+        <div class="mkt-nav-panel-feature-visual" aria-hidden="true"></div>
+        <p class="mkt-nav-panel-feature-eyebrow">Featured solution</p>
+        <p class="mkt-nav-panel-feature-title">AI for Real Estate</p>
+        <p class="mkt-nav-panel-feature-desc">Templates and playbooks for agents, brokers, and prop-tech teams shipping with Bolt.</p>
+      </a>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Top Use Cases</p>
+        <a href="#">AI App Builder</a>
+        <a href="#">AI Website Builder</a>
+        <a href="#">SaaS Dev</a>
+        <a href="#">Prototyping</a>
+      </div>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Business Type</p>
+        <a href="../solutions/smb/">Small Business</a>
+        <a href="../enterprise">Enterprise</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="mkt-nav-panel" data-panel="resources" aria-hidden="true">
+    <div class="mkt-nav-panel-inner">
+      <a href="#" class="mkt-nav-panel-feature">
+        <div class="mkt-nav-panel-feature-visual" aria-hidden="true"></div>
+        <p class="mkt-nav-panel-feature-eyebrow">Featured collection</p>
+        <p class="mkt-nav-panel-feature-title">Build with AI</p>
+        <p class="mkt-nav-panel-feature-desc">Guides for agents, AI-powered workflows, and full-stack apps with AI-assisted coding.</p>
+      </a>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Support</p>
+        <a href="#">Community</a>
+        <a href="#">Help Center</a>
+        <a href="#">Partners</a>
+      </div>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Learn</p>
+        <a href="https://bolt.new/blog">Blog</a>
+      </div>
+    </div>
+  </div>
+</nav>
+<div class="mkt-nav-scrim" aria-hidden="true"></div>
+
+<!-- Mobile drawer — full-screen slide-in sheet with drill-down. Only rendered on ≤1024px via CSS. -->
+<div class="mkt-nav-mobile" id="mkt-nav-mobile" aria-hidden="true" role="dialog" aria-label="Menu">
+  <div class="mkt-nav-mobile-header">
+    <!-- Left slot swaps: logo on home view, Back on submenu views. Both live in the DOM; JS toggles which is visible via a class on the drawer. -->
+    <a href="../" class="mkt-nav-logo" aria-label="bolt.new home" data-mobile-role="logo">
+      <svg viewBox="0 0 85 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M26.1121 20.9491C21.0582 20.9491 18.4869 17.9995 18.4869 14.3126C18.4869 9.9472 21.9744 5.99476 27.0283 5.99476C32.0822 5.99476 34.6535 8.94434 34.6535 12.6313C34.6535 16.9967 31.166 20.9491 26.1121 20.9491ZM26.319 16.2593C28.0923 16.2593 29.2154 14.6665 29.2154 12.8968C29.2154 11.481 28.2992 10.6846 26.8214 10.6846C25.0481 10.6846 23.925 12.2774 23.925 14.0471C23.925 15.4629 24.8412 16.2593 26.319 16.2593Z" fill="#fff"/>
+        <path d="M40.0368 20.5952H34.717L39.0615 0.921487H44.3814L40.0368 20.5952Z" fill="#fff"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M10.4272 20.9491C8.80168 20.9491 7.20572 20.3592 6.28951 19.0909L5.96635 20.5867L0 23.75L0.644095 20.5867L4.9891 0.921487H10.309L8.77213 7.853C10.0134 6.49619 11.1661 5.99476 12.6438 5.99476C15.8358 5.99476 17.9637 8.08896 17.9637 11.9234C17.9637 15.8758 15.5107 20.9491 10.4272 20.9491ZM12.4665 13.0443C12.4665 14.873 11.1661 16.2593 9.48145 16.2593C8.53569 16.2593 7.6786 15.9053 7.11705 15.2859L7.94459 11.658C8.56524 11.0385 9.27456 10.6846 10.1021 10.6846C11.373 10.6846 12.4665 11.6285 12.4665 13.0443Z" fill="#fff"/>
+        <path d="M49.9163 20.9491C46.8426 20.9491 44.6555 19.8283 44.6555 17.3506C44.6555 17.1442 44.6851 16.6427 44.7737 16.2298L45.9264 10.9501H43.562L44.5964 6.34871H46.9608L47.8179 2.45527L53.7735 0L53.1378 2.46127L52.2807 6.34871H55.1771L54.1426 10.9501H51.2462L50.4778 14.4306C50.4187 14.696 50.3892 14.991 50.3892 15.109C50.3892 15.7874 50.8029 16.2593 51.7191 16.2593C51.9851 16.2593 52.3693 16.1708 52.458 16.1118V20.3592C51.8965 20.7427 50.8916 20.9491 49.9163 20.9491Z" fill="#fff"/>
+        <path d="M56.461 21.0087C55.7527 21.0087 55.1886 20.4196 55.1886 19.7127C55.1886 18.8879 55.897 18.1941 56.7234 18.1941C57.4317 18.1941 57.9958 18.7832 57.9958 19.4901C57.9958 20.3149 57.2875 21.0087 56.461 21.0087Z" fill="#fff"/>
+        <path d="M65.3576 20.8386H62.9964L63.7309 17.5133C63.7572 17.3955 63.8097 17.186 63.8097 17.0289C63.8097 16.5969 63.4292 16.4398 63.0488 16.4398C62.5372 16.4398 62.183 16.7016 61.9338 16.9242L61.068 20.8386H58.7068L60.1104 14.5153H62.4716L62.3011 15.2354C62.7602 14.8164 63.3374 14.3582 64.295 14.3582C65.6199 14.3582 66.3807 15.0783 66.3807 16.0209C66.3807 16.1256 66.3414 16.4136 66.3151 16.5314L65.3576 20.8386Z" fill="#fff"/>
+        <path d="M70.256 20.9956C68.2096 20.9956 66.7929 19.9745 66.7929 18.1155C66.7929 16.0994 68.3408 14.3582 70.5577 14.3582C72.1319 14.3582 73.5223 15.3139 73.5223 17.2384C73.5223 17.6704 73.4436 18.1679 73.3781 18.4035H69.1279V18.4166C69.1279 18.5083 69.5083 19.2021 70.4265 19.2021C70.925 19.2021 71.5153 19.0843 71.8039 18.8879L72.5254 20.4196C71.8826 20.8255 71.0169 20.9956 70.256 20.9956ZM69.3509 16.9111H71.4366V16.8718C71.4366 16.6885 71.2136 16.1518 70.4659 16.1518C69.8363 16.1518 69.4296 16.6362 69.3509 16.9111Z" fill="#fff"/>
+        <path d="M81.7599 20.8386H79.1888L78.9265 17.3038L77.1293 20.8386H74.5582L74.1254 14.5153H76.4866L76.5521 17.9977L78.4411 14.5153H80.5531L80.881 17.9977L82.4945 14.5153H85L81.7599 20.8386Z" fill="#fff"/>
+      </svg>
+    </a>
+    <button class="mkt-nav-mobile-back" data-back hidden aria-label="Back to menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+      BACK
+    </button>
+    <button class="mkt-nav-mobile-close" aria-label="Close menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+    </button>
+  </div>
+
+  <div class="mkt-nav-mobile-body">
+    <!-- Home view — top-level items -->
+    <div class="mkt-nav-mobile-view is-active" data-view="home">
+      <button class="mkt-nav-mobile-item" data-drill="platform">
+        Platform
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <button class="mkt-nav-mobile-item" data-drill="solutions">
+        Solutions
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <button class="mkt-nav-mobile-item" data-drill="resources">
+        Resources
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <a class="mkt-nav-mobile-item" href="templates/">Templates</a>
+      <a class="mkt-nav-mobile-item" href="../enterprise">Enterprise</a>
+      <a class="mkt-nav-mobile-item" href="pricing.html">Pricing</a>
+    </div>
+
+    <!-- Platform submenu -->
+    <div class="mkt-nav-mobile-view" data-view="platform">
+      <a href="bolt-cli.html" class="mkt-nav-mobile-feature">
+        <p class="mkt-nav-mobile-feature-title">Build with the CLI →</p>
+        <p class="mkt-nav-mobile-feature-desc">Ship full-stack apps from your terminal — same model, no browser tab required.</p>
+      </a>
+      <p class="mkt-nav-mobile-heading">Product Overview</p>
+      <div class="mkt-nav-mobile-links">
+        <a href="#">Platform (Build, Deploy, Govern)</a>
+        <a href="#">Security &amp; Trust</a>
+      </div>
+    </div>
+
+    <!-- Solutions submenu -->
+    <div class="mkt-nav-mobile-view" data-view="solutions">
+      <a href="../solutions/ai-for-real-estate/" class="mkt-nav-mobile-feature">
+        <p class="mkt-nav-mobile-feature-title">AI for Real Estate →</p>
+        <p class="mkt-nav-mobile-feature-desc">Templates and playbooks for agents, brokers, and prop-tech teams shipping with Bolt.</p>
+      </a>
+      <p class="mkt-nav-mobile-heading">Top Use Cases</p>
+      <div class="mkt-nav-mobile-links">
+        <a href="#">AI App Builder</a>
+        <a href="#">AI Website Builder</a>
+        <a href="#">SaaS Dev</a>
+        <a href="#">Prototyping</a>
+      </div>
+      <p class="mkt-nav-mobile-heading">Business Type</p>
+      <div class="mkt-nav-mobile-links">
+        <a href="../solutions/smb/">Small Business</a>
+        <a href="../enterprise">Enterprise</a>
+      </div>
+    </div>
+
+    <!-- Resources submenu -->
+    <div class="mkt-nav-mobile-view" data-view="resources">
+      <a href="#" class="mkt-nav-mobile-feature">
+        <p class="mkt-nav-mobile-feature-title">Build with AI →</p>
+        <p class="mkt-nav-mobile-feature-desc">Guides for agents, AI-powered workflows, and full-stack apps with AI-assisted coding.</p>
+      </a>
+      <p class="mkt-nav-mobile-heading">Support</p>
+      <div class="mkt-nav-mobile-links">
+        <a href="#">Community</a>
+        <a href="#">Help Center</a>
+        <a href="#">Partners</a>
+      </div>
+      <p class="mkt-nav-mobile-heading">Learn</p>
+      <div class="mkt-nav-mobile-links">
+        <a href="https://bolt.new/blog">Blog</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="mkt-nav-mobile-footer">
+    <a href="https://bolt.new/" target="_blank" rel="noopener" class="hero-btn-primary">
+      <div class="btn-bg-hover"></div>
+      <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Started</span><span>Get Started</span></div></div>
+    </a>
+    <a href="https://bolt.new/signin" class="mkt-nav-mobile-signin">Sign in</a>
+  </div>
+</div>
+
 
 
   <div class="page">
@@ -1599,12 +2507,73 @@
         <div class="btn-text-wrap"><div class="btn-text-inner"><span>Start Building</span><span>Start Building</span></div></div>
       </a>
     </div>
+  </section>
+
+<!-- ─── SITE FOOTER (link columns, ported from the Retool footer pattern) ── -->
+<footer class="site-footer">
+  <div class="site-footer-cols">
+    <div class="site-footer-col">
+      <p class="site-footer-label">Platform</p>
+      <ul class="site-footer-links">
+        <li><a href="#">Product Overview</a></li>
+        <li><a href="#">Security &amp; Trust</a></li>
+      </ul>
+    </div>
+    <div class="site-footer-col">
+      <p class="site-footer-label">Solutions</p>
+      <ul class="site-footer-links">
+        <li><a href="#">AI App Builder</a></li>
+        <li><a href="#">AI Website Builder</a></li>
+        <li><a href="#">SaaS Dev</a></li>
+        <li><a href="#">Prototyping</a></li>
+        <li><a href="../solutions/smb/">Small Business</a></li>
+        <li><a href="../enterprise">Enterprise</a></li>
+      </ul>
+    </div>
+    <div class="site-footer-col">
+      <p class="site-footer-label">Resources</p>
+      <ul class="site-footer-links">
+        <li><a href="#">Community</a></li>
+        <li><a href="#">Help Center</a></li>
+        <li><a href="#">Partners</a></li>
+        <li><a href="https://bolt.new/blog">Blog</a></li>
+      </ul>
+    </div>
+    <div class="site-footer-col">
+      <p class="site-footer-label">More</p>
+      <ul class="site-footer-links">
+        <li><a href="templates/">Templates</a></li>
+        <li><a href="pricing.html">Pricing</a></li>
+        <li><a href="https://bolt.new">Terms of Use</a></li>
+        <li><a href="https://bolt.new">Privacy Policy</a></li>
+        <li><a href="https://bolt.new">Security</a></li>
+      </ul>
+    </div>
+    <div class="site-footer-col site-footer-col--connect">
+      <p class="site-footer-label">Connect</p>
+      <div class="site-footer-social site-footer-social--col">
+        <a href="https://x.com/boltdotnew" target="_blank" rel="noopener" aria-label="X (Twitter)">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a>
+        <a href="https://linkedin.com/company/stackblitz" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.03-1.85-3.03-1.86 0-2.14 1.45-2.14 2.94v5.66H9.34V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.61 0 4.28 2.38 4.28 5.47zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56z"/></svg>
+        </a>
+        <a href="https://discord.gg/stackblitz" target="_blank" rel="noopener" aria-label="Discord">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.32 4.37a19.8 19.8 0 0 0-4.89-1.52.07.07 0 0 0-.08.04c-.21.38-.45.86-.61 1.25a18.27 18.27 0 0 0-5.49 0 12.6 12.6 0 0 0-.62-1.25.08.08 0 0 0-.08-.04c-1.7.29-3.36.8-4.89 1.52a.07.07 0 0 0-.03.03C.53 8.6-.32 12.71.1 16.77a.08.08 0 0 0 .03.06 19.9 19.9 0 0 0 6 3.03.08.08 0 0 0 .08-.03c.46-.63.87-1.3 1.23-2a.08.08 0 0 0-.04-.11 13.1 13.1 0 0 1-1.87-.9.08.08 0 0 1-.01-.13c.13-.09.25-.19.37-.29a.07.07 0 0 1 .08-.01c3.93 1.79 8.18 1.79 12.06 0a.07.07 0 0 1 .08.01c.12.1.25.2.37.3a.08.08 0 0 1-.01.12c-.6.35-1.22.65-1.87.9a.08.08 0 0 0-.04.11c.36.7.78 1.36 1.23 2a.08.08 0 0 0 .08.03 19.83 19.83 0 0 0 6.01-3.03.08.08 0 0 0 .03-.06c.5-4.7-.83-8.78-3.5-12.4a.06.06 0 0 0-.03-.03zM8.02 14.24c-1.18 0-2.16-1.08-2.16-2.42s.96-2.42 2.16-2.42c1.21 0 2.18 1.1 2.16 2.42 0 1.34-.96 2.42-2.16 2.42zm7.97 0c-1.18 0-2.16-1.08-2.16-2.42s.96-2.42 2.16-2.42c1.21 0 2.18 1.1 2.16 2.42 0 1.34-.95 2.42-2.16 2.42z"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<section class="footer-image-section">
     <div class="bolt-image-wrap">
       <img src="../images/bolt-bottom.png" alt="" aria-hidden="true" loading="lazy" decoding="async">
       <canvas id="bolt-shimmer-canvas"></canvas>
       <div style="position:absolute;inset:0;background:linear-gradient(to bottom, #000 0%, transparent 22%, transparent 88%, #000 100%);z-index:3;pointer-events:none;"></div>
     </div>
-  </section>
+</section>
+
 
   <script>
     function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
@@ -1771,8 +2740,8 @@
       }
       function update() {
         var top = section.getBoundingClientRect().top;
-        var fadeStart = 0;
-        var fadeEnd = -160;
+        var fadeStart = 68; /* sticky header now pins below the 68px nav */
+        var fadeEnd = -92;
         var t = (top - fadeStart) / (fadeEnd - fadeStart);
         t = Math.max(0, Math.min(1, t));
         wrap.style.opacity = String(1 - t);
@@ -2244,6 +3213,133 @@
 </script>
 
 <!-- pixel-fill hover comes from shared-components.js (.hero-btn-primary/.hero-btn-ghost/.footer-cta-btn) -->
+
+<script>
+/* ── Navbar mega-menu — hover to preview, click to lock, outside-click/ESC closes ─── */
+(function () {
+  var nav = document.querySelector('.mkt-nav');
+  if (!nav) return;
+  var scrim = document.querySelector('.mkt-nav-scrim');
+  var triggers = nav.querySelectorAll('.mkt-nav-link[data-menu]');
+  var panels = nav.querySelectorAll('.mkt-nav-panel');
+  var openKey = null;         /* which menu is currently open, if any */
+  var hoverTimer = null;
+
+  function setOpen(key) {
+    openKey = key;
+    triggers.forEach(function (t) {
+      var active = t.getAttribute('data-menu') === key;
+      t.classList.toggle('is-open', active);
+      t.setAttribute('aria-expanded', active ? 'true' : 'false');
+    });
+    panels.forEach(function (p) {
+      var active = p.getAttribute('data-panel') === key;
+      p.classList.toggle('is-open', active);
+      p.setAttribute('aria-hidden', active ? 'false' : 'true');
+    });
+    if (scrim) scrim.classList.toggle('is-open', !!key);
+  }
+
+  /* Hover listener lives on the parent <li> (which fills the full 68px nav height) rather than the button itself — small vertical cursor movements above/below the button text no longer exit the hover zone and don't cause the dropdown to flicker. Click stays on the button for accessibility. */
+  var hoverZones = nav.querySelectorAll('.mkt-nav-items li[data-menu]');
+  triggers.forEach(function (t) {
+    t.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var key = t.getAttribute('data-menu');
+      setOpen(openKey === key ? null : key);
+    });
+  });
+  hoverZones.forEach(function (z) {
+    var key = z.getAttribute('data-menu');
+    z.addEventListener('mouseenter', function () {
+      clearTimeout(hoverTimer);
+      /* If a menu is already open, switch instantly — no delay. Fresh open uses a short defer to avoid triggering on incidental mouseovers. */
+      if (openKey) setOpen(key);
+      else hoverTimer = setTimeout(function () { setOpen(key); }, 80);
+    });
+  });
+
+  /* Keep the menu open when the pointer is inside the panel, close when both trigger + panel are left. */
+  panels.forEach(function (p) {
+    p.addEventListener('mouseenter', function () { clearTimeout(hoverTimer); });
+    p.addEventListener('mouseleave', function () {
+      hoverTimer = setTimeout(function () { setOpen(null); }, 120);
+    });
+  });
+  nav.addEventListener('mouseleave', function () {
+    hoverTimer = setTimeout(function () { setOpen(null); }, 120);
+  });
+
+  /* Outside-click + Escape close. */
+  document.addEventListener('click', function (e) {
+    if (openKey && !nav.contains(e.target)) setOpen(null);
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && openKey) setOpen(null);
+  });
+  if (scrim) scrim.addEventListener('click', function () { setOpen(null); });
+})();
+
+/* ── Mobile drawer — hamburger toggles the sheet + morphs into an X; drill-down navigation for Platform / Solutions / Resources with a Back button; Escape exits. The drawer sits below the sticky nav so the hamburger stays visible + interactive as the persistent close control. ─── */
+(function () {
+  var drawer = document.getElementById('mkt-nav-mobile');
+  if (!drawer) return;
+  var navEl = document.querySelector('.mkt-nav');
+  var burger = document.querySelector('.mkt-nav-burger');
+  /* Back button now lives in the sticky nav bar (data-mobile-back) — the drawer's own header back button is legacy DOM that stays for a safety net if the nav one isn't found. */
+  var backBtns = document.querySelectorAll('[data-mobile-back], .mkt-nav-mobile-back');
+  var views = drawer.querySelectorAll('.mkt-nav-mobile-view');
+  var drills = drawer.querySelectorAll('[data-drill]');
+
+  function openDrawer() {
+    drawer.classList.add('is-open');
+    drawer.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('mkt-nav-mobile-open');
+    if (burger) {
+      burger.classList.add('is-open');
+      burger.setAttribute('aria-expanded', 'true');
+      burger.setAttribute('aria-label', 'Close menu');
+    }
+    setView('home');
+  }
+  function closeDrawer() {
+    drawer.classList.remove('is-open');
+    drawer.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('mkt-nav-mobile-open');
+    /* Reset submenu state so the next open lands on home. */
+    if (navEl) navEl.classList.remove('is-on-submenu');
+    if (burger) {
+      burger.classList.remove('is-open');
+      burger.setAttribute('aria-expanded', 'false');
+      burger.setAttribute('aria-label', 'Open menu');
+    }
+  }
+  function toggleDrawer() {
+    if (drawer.classList.contains('is-open')) closeDrawer();
+    else openDrawer();
+  }
+  function setView(key) {
+    views.forEach(function (v) {
+      v.classList.toggle('is-active', v.getAttribute('data-view') === key);
+    });
+    var onSubmenu = key !== 'home';
+    drawer.classList.toggle('is-on-submenu', onSubmenu);
+    /* Also flip .is-on-submenu on the sticky nav so the nav-bar Back button appears (and the logo hides) in the same header row. */
+    if (navEl) navEl.classList.toggle('is-on-submenu', onSubmenu);
+  }
+
+  if (burger) burger.addEventListener('click', toggleDrawer);
+  backBtns.forEach(function (b) { b.addEventListener('click', function () { setView('home'); }); });
+  drills.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      setView(btn.getAttribute('data-drill'));
+    });
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && drawer.classList.contains('is-open')) closeDrawer();
+  });
+})();
+</script>
 
 <!-- Shared standardized components (single source of truth) -->
 <link rel="stylesheet" href="shared-components.css">
