@@ -501,25 +501,6 @@
     .compare-tier-head .tier-cta:hover { color: #4aa6ff; }
     .compare-tier-head .tier-cta:hover .tier-cta-arrow { transform: translateX(4px); }
 
-    .compare-pixel-wrap {
-      position: sticky;
-      top: 68px; /* below the sticky mkt-nav */
-      left: 0;
-      right: 0;
-      width: 100%;
-      height: 170px;
-      pointer-events: none;
-      margin-bottom: -170px;
-      z-index: 1;
-      overflow: hidden;
-      transition: opacity 0.2s linear;
-    }
-
-    .compare-header-pixel {
-      display: block;
-      width: 100%;
-      height: 100%;
-    }
 
     .compare-tier-head th {
       background: rgba(10,10,10,0) !important;
@@ -717,7 +698,6 @@
       .compare-table .compare-tier-head th:first-child { font-size: 24px; padding: 24px 16px; }
       .compare-table th, .compare-table td { padding: 14px 12px; font-size: 14px; }
       .compare-group td { font-size: 16px; padding: 40px 12px 16px; }
-      .compare-pixel-wrap { display: none; }
     }
 
     /* ── Security & compliance banner ── */
@@ -2077,7 +2057,6 @@
         <button type="button" data-tier="ent">Enterprise</button>
       </div>
 
-      <div class="compare-pixel-wrap"><canvas id="compare-header-pixel-canvas" class="compare-header-pixel"></canvas></div>
 
       <table class="compare-table">
         <colgroup>
@@ -2674,29 +2653,6 @@
       }, 0.90, '20,136,252'
     );
 
-    makePixelCanvas('compare-header-pixel-canvas', 6, 2,
-      function(c, r, t, p) {
-        var px = c * 6, py = r * 6;
-        var speedMod = 0.05 + (Math.sin(t * 0.00070 + 0.8) * 0.5 + 0.5) * 0.22;
-        function rwave(scale, rotRate, phase, tMult) {
-          var angle = t * rotRate + phase;
-          var u = (px * Math.cos(angle) + py * Math.sin(angle)) / scale;
-          var v = (-px * Math.sin(angle) + py * Math.cos(angle)) / scale;
-          return Math.sin(u * Math.PI * 2 + t * tMult * speedMod)
-               * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7 * speedMod);
-        }
-        var s1 = rwave(500, 0.00012, 0.5, 0.00030);
-        var s2 = rwave(260, 0.00025, 1.8, 0.00065);
-        var s3 = rwave(130, 0.00042, 3.1, 0.00130);
-        var s4 = rwave(380, 0.00018, 4.5, 0.00048);
-        var waveFront = s1 * 0.5 + 0.5;
-        var detail = s2 * 0.45 + s3 * 0.30 + s4 * 0.25;
-        var raw = waveFront * (detail * 0.5 + 0.5);
-        var density = Math.pow(Math.max(0, raw), 0.7);
-        var rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
-        return density > rand ? density * 0.9 : 0;
-      }, 0.90, '140,150,165'
-    );
 
     (function() {
       var section = document.querySelector('.compare-section');
@@ -2740,33 +2696,19 @@
       }
     })();
 
+    /* is-stuck: swap the tier head to its glass background once it pins
+       below the nav (the old animated pixel band behind it was removed). */
     (function() {
       var section = document.querySelector('.compare-section');
-      var wrap = document.querySelector('.compare-pixel-wrap');
       var head = document.querySelector('.compare-tier-head');
-      if (!section || !wrap || !head) return;
-      function syncHeight() {
-        var h = head.getBoundingClientRect().height;
-        if (h > 0) {
-          wrap.style.height = h + 'px';
-          wrap.style.marginBottom = (-h) + 'px';
-        }
-      }
+      if (!section || !head) return;
       function update() {
         var top = section.getBoundingClientRect().top;
-        var fadeStart = 68; /* sticky header now pins below the 68px nav */
-        var fadeEnd = -92;
-        var t = (top - fadeStart) / (fadeEnd - fadeStart);
-        t = Math.max(0, Math.min(1, t));
-        wrap.style.opacity = String(1 - t);
-        head.classList.toggle('is-stuck', t > 0.5);
+        head.classList.toggle('is-stuck', top < -12);
       }
-      syncHeight();
       update();
       window.addEventListener('scroll', update, { passive: true });
-      window.addEventListener('resize', function() { syncHeight(); update(); });
-      window.addEventListener('load', syncHeight);
-      new ResizeObserver(syncHeight).observe(head);
+      window.addEventListener('resize', update);
     })();
 
     makePixelCanvas('footer-pixel-canvas', 6, 2,
