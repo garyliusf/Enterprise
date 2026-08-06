@@ -831,13 +831,18 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; o
        JS adds .at-end when scrolled fully right */
     .plat-tabbar-wrap { position: relative; }
     .plat-tabbar-wrap::after {
-      content: ""; position: absolute; top: 0; right: 0; bottom: 0; width: 64px;
+      content: ""; position: absolute; top: 0; right: 0; bottom: 0; width: 96px;
       pointer-events: none; z-index: 2;
-      background: linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,0.85) 75%, #000 100%);
-      backdrop-filter: blur(1.5px);
-      -webkit-backdrop-filter: blur(1.5px);
-      -webkit-mask-image: linear-gradient(to right, transparent, #000 45%);
-              mask-image: linear-gradient(to right, transparent, #000 45%);
+      /* Deliberately heavy: the label behind this needs to read as CUT OFF, not
+         merely dimmed, or the row looks like it simply ends. Wider (96px), the
+         ramp reaches near-black by ~60% instead of 75%, and the mask starts
+         biting at 22% instead of 45% — the mask was previously cancelling most
+         of the gradient's left half, which is why it read as too subtle. */
+      background: linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,0.55) 30%, rgba(0,0,0,0.88) 60%, #000 85%);
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+      -webkit-mask-image: linear-gradient(to right, transparent, #000 22%);
+              mask-image: linear-gradient(to right, transparent, #000 22%);
       opacity: 1; transition: opacity 0.25s ease;
     }
     .plat-tabbar-wrap.at-end::after { opacity: 0; }
