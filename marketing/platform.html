@@ -624,7 +624,13 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; o
      above already provides a contained box; two in a row read heavy). */
   .unlocks-visual { position: relative; width: 100%; }
   .unlocks-header { position: relative; z-index: 1; margin-bottom: clamp(32px, 5vh, 52px); display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
-  .unlocks-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; position: relative; z-index: 1; }
+  /* 5 cards on a 6-col grid: 3 across the top, the last 2 centred beneath.
+     (A 3-col grid strands the final two left-aligned — the 6th slot used to
+     hold a "See all use cases" CTA, removed until that page ships.) */
+  .unlocks-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 20px; position: relative; z-index: 1; }
+  .unlock-card { grid-column: span 2; }
+  .unlock-card:nth-child(4) { grid-column: 2 / span 2; }
+  .unlock-card:nth-child(5) { grid-column: 4 / span 2; }
   /* Graph-paper field behind the card grid (48px lines + radial fade — the
      unlocks-visual texture, without the panel border/fill) */
   .unlocks-grid::before {
@@ -658,6 +664,9 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; o
   .unlock-title { font-size: 18px; font-weight: 600; color: #fff; margin: 0; letter-spacing: -0.2px; line-height: 1.35; }
   .unlock-desc { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.55; margin: 0; }
   /* CTA cell (6th) — subtle blue tint, centers the standard blue button */
+  /* Kept for when the /use-cases page ships and the CTA cell returns; no markup
+     uses it today. Restoring it means re-adding the 6th card AND dropping the
+     nth-child(4)/(5) centring above, which assumes exactly 5 cards. */
   .unlock-card--cta { align-items: center; justify-content: center; text-align: center; gap: 18px; background: rgba(20,136,252,0.06); }
   .unlock-card--cta .unlock-desc { max-width: 220px; }
 
@@ -805,6 +814,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; o
     .plat-h3 { font-size: clamp(26px, 3.4vw, 34px); }
     .feat-section { padding: 44px 0 64px; }
     .unlocks-grid { grid-template-columns: repeat(2, 1fr); }
+    .unlock-card, .unlock-card:nth-child(4), .unlock-card:nth-child(5) { grid-column: auto; }
     .int-grid { grid-template-columns: repeat(3, 1fr); }
     .trust-grid { grid-template-columns: 1fr; gap: 44px; }
     .trust-left { position: static; }
@@ -872,6 +882,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; o
        specificity as .plat-vcard--browser but comes later, so it would win. */
     .plat-vcard--browser { padding: 0; }
     .unlocks-grid { grid-template-columns: 1fr; }
+    .unlock-card, .unlock-card:nth-child(4), .unlock-card:nth-child(5) { grid-column: auto; }
     /* number stacks above the name; thumb spans both rows on the right.
        num pins to the thumb's top edge, name to its bottom edge. */
     .works-row { grid-template-columns: 1fr auto; grid-template-rows: auto auto; gap: 6px 16px; padding: 16px 4px; }
@@ -1118,14 +1129,6 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; o
         <div class="unlock-card"><div class="unlock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m7 11 2-2-2-2"/><path d="M11 13h4"/></svg></div>
           <h3 class="unlock-title">Software</h3>
           <p class="unlock-desc">Production-ready software, from prompt to deploy</p>
-        </div>
-
-        <div class="unlock-card unlock-card--cta">
-          <p class="unlock-desc">See the full library of what teams build with Bolt.</p>
-          <a href="https://bolt.new/use-cases/" target="_blank" rel="noopener" class="hero-btn-primary">
-            <div class="btn-bg-hover"></div>
-            <div class="btn-text-wrap"><div class="btn-text-inner"><span>See All Use Cases</span><span>See All Use Cases</span></div></div>
-          </a>
         </div>
 
       </div>
