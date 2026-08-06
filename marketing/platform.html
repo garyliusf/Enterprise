@@ -686,64 +686,56 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; o
   .unlock-card--cta { align-items: center; justify-content: center; text-align: center; gap: 18px; background: rgba(20,136,252,0.06); }
   .unlock-card--cta .unlock-desc { max-width: 220px; }
 
-  /* ─── SECTION 5: TEMPLATES (interactive index list + cursor preview) ──── */
+  /* ─── SECTION 5: TEMPLATES (horizontal card rail) ──────────────────────── */
   .tmpl-section { width: 100%; background: #050508; position: relative; }
   .section-cta { margin-top: 40px; display: flex; justify-content: center; }
-  .works { position: relative; }
-  .works-list { border-top: 1px solid rgba(255,255,255,0.10); position: relative; z-index: 2; }
-  .works-row {
-    display: grid; grid-template-columns: 52px 1fr auto; align-items: center; gap: 28px;
-    padding: 26px 8px; border-bottom: 1px solid rgba(255,255,255,0.10);
-    text-decoration: none; position: relative;
-    transition: padding-left 0.45s cubic-bezier(0.22,1,0.36,1);
+
+  /* Rail bleeds past the container's right edge to the viewport, so the row
+     reads as continuing off-screen rather than stopping inside the layout. */
+  .tmpl-rail { position: relative; margin-top: 8px; }
+  .tmpl-track {
+    display: flex; gap: 20px;
+    overflow-x: auto; overflow-y: hidden;
+    touch-action: pan-x; overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; -ms-overflow-style: none;
+    scroll-snap-type: x proximity;
+    margin-right: calc((min(1120px, 100vw - 160px) - 100vw) / 2);
+    padding-right: calc((100vw - min(1120px, 100vw - 160px)) / 2);
   }
-  .works-num { font-family: 'Silkscreen', monospace; font-size: 12px; color: rgba(255,255,255,0.30); letter-spacing: 1px; transition: color 0.3s ease; }
-  .works-title { font-size: clamp(22px, 2.6vw, 32px); font-weight: 500; color: #fff; letter-spacing: -0.6px; line-height: 1.1; margin: 0; transition: color 0.3s ease; }
-  .works-tag { font-family: 'Silkscreen', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.35); white-space: nowrap; transition: color 0.3s ease; }
-  /* Mobile-only row thumbnail — takes the tag's slot at <=768 (no hover preview there) */
-  .works-thumb { display: none; width: 126px; aspect-ratio: 16 / 10; object-fit: cover; object-position: 50% 0%; border-radius: 2px; border: 1px solid rgba(255,255,255,0.10); }
-  /* hover: spotlight the active row, dim the rest, nudge it right */
-  @media (hover: hover) {
-    .works-list:hover .works-title { color: rgba(255,255,255,0.28); }
-    .works-row:hover { padding-left: 22px; }
-    .works-row:hover .works-title { color: #1488FC; }
-    .works-row:hover .works-num, .works-row:hover .works-tag { color: rgba(255,255,255,0.78); }
+  .tmpl-track::-webkit-scrollbar { width: 0; height: 0; display: none; }
+  /* click-and-drag to pan (mouse users have no horizontal wheel axis) */
+  .tmpl-track { cursor: grab; }
+  .tmpl-track.is-dragging { cursor: grabbing; scroll-snap-type: none; user-select: none; }
+  .tmpl-track.is-dragging .tmpl-card-shot { transform: none; }
+
+  .tmpl-card { flex: 0 0 clamp(230px, 24vw, 300px); scroll-snap-align: start; text-decoration: none; display: block; }
+  .tmpl-card-shot {
+    width: 100%; aspect-ratio: 4 / 5; display: block;
+    object-fit: cover; object-position: 50% 0%;
+    background: #0a0a10; border: 1px solid rgba(255,255,255,0.10); border-radius: 2px;
+    transition: border-color 0.3s ease, transform 0.4s cubic-bezier(0.22,1,0.36,1);
   }
-  /* floating cursor-following preview (desktop) */
-  .works-preview {
-    position: absolute; top: 0; left: 0; z-index: 6;
-    width: 360px; height: 232px; pointer-events: none;
-    opacity: 0; transition: opacity 0.4s ease; will-change: transform;
+  .tmpl-card:hover .tmpl-card-shot { border-color: rgba(255,255,255,0.24); transform: translateY(-4px); }
+  .tmpl-card-meta { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-top: 14px; }
+  .tmpl-card-name { font-size: 17px; font-weight: 500; color: #fff; letter-spacing: -0.2px; margin: 0; transition: color 0.3s ease; }
+  .tmpl-card:hover .tmpl-card-name { color: #1488FC; }
+  .tmpl-card-tag { font-family: 'Silkscreen', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.35); white-space: nowrap; }
+
+  /* Right-edge fade+blur — same affordance as the mobile tab bar: signals the
+     row continues. JS adds .at-end once scrolled fully right. */
+  .tmpl-rail::after {
+    content: ""; position: absolute; top: 0; right: 0; bottom: 0; z-index: 2;
+    width: clamp(90px, 12vw, 160px); pointer-events: none;
+    margin-right: calc((min(1120px, 100vw - 160px) - 100vw) / 2);
+    background: linear-gradient(to right, rgba(5,5,8,0) 0%, rgba(5,5,8,0.72) 26%, rgba(5,5,8,0.93) 54%, #050508 78%);
+    backdrop-filter: blur(1px); -webkit-backdrop-filter: blur(1px);
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 22%);
+            mask-image: linear-gradient(to right, transparent, #000 22%);
+    opacity: 1; transition: opacity 0.25s ease;
   }
-  .works.is-active .works-preview { opacity: 1; }
-  .works-preview-inner { position: absolute; inset: 0; border-radius: 2px; overflow: hidden; background: #0a0a10; box-shadow: 0 40px 90px rgba(0,0,0,0.55); }
-  .works-preview-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0%; opacity: 0; transition: opacity 0.35s ease; }
-  .works-preview-img.is-shown { opacity: 1; }
-  .works-preview-scan { position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(0,0,0,0) 0 2px, rgba(0,0,0,0.14) 2px 3px); mix-blend-mode: multiply; }
-  /* Hover affordance — verbatim templates-page catalog-card overlay: dark scrim
-     rising from the bottom + Silkscreen "View Details" label sliding up. */
-  .works-preview-overlay {
-    position: absolute; inset: 0; z-index: 2;
-    display: flex; align-items: flex-end; justify-content: center;
-    padding-bottom: 18px;
-    background: linear-gradient(180deg, rgba(5,5,8,0) 45%, rgba(5,5,8,0.55) 80%, rgba(5,5,8,0.82) 100%);
-    opacity: 0;
-    transition: opacity 0.32s ease 0.1s;
-    pointer-events: none;
-  }
-  .works.is-active .works-preview-overlay { opacity: 1; }
-  .works-preview-overlay span {
-    font-family: 'Silkscreen', monospace;
-    font-size: 10px; letter-spacing: 1.6px; text-transform: uppercase; color: #fff;
-    transform: translateY(6px);
-    transition: transform 0.32s cubic-bezier(0.22, 0.61, 0.36, 1) 0.1s;
-  }
-  .works.is-active .works-preview-overlay span { transform: translateY(0); }
-  @media (prefers-reduced-motion: reduce) {
-    .works-preview-overlay span,
-    .works.is-active .works-preview-overlay span { transform: none; transition: none; }
-  }
-  @media (prefers-reduced-motion: reduce) { .works-preview { display: none; } }
+  .tmpl-rail.at-end::after { opacity: 0; }
+
 
   /* ─── SECTION 6: TRUST BAND ───────────────────────────────────────────── */
   /* #000 (not the #060606 band tint) so the cube video's baked-in black blends invisibly */
@@ -898,17 +890,10 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; o
        specificity as .plat-vcard--browser but comes later, so it would win. */
     .plat-vcard--browser { padding: 0; }
     .unlocks-grid { grid-template-columns: 1fr; }
+    .tmpl-card { flex-basis: clamp(200px, 62vw, 240px); }
     .unlock-card, .unlock-card:nth-child(4), .unlock-card:nth-child(5) { grid-column: auto; }
     /* number stacks above the name; thumb spans both rows on the right.
        num pins to the thumb's top edge, name to its bottom edge. */
-    .works-row { grid-template-columns: 1fr auto; grid-template-rows: auto auto; gap: 6px 16px; padding: 16px 4px; }
-    .works-num { grid-column: 1; grid-row: 1; align-self: start; }
-    .works-title { grid-column: 1; grid-row: 2; align-self: end; }
-    .works-thumb { grid-column: 2; grid-row: 1 / 3; align-self: center; }
-    .works-title { font-size: clamp(17px, 4.8vw, 20px); letter-spacing: -0.3px; }
-    .works-tag { display: none; }
-    .works-thumb { display: block; }
-    .works-preview { display: none; }
     .int-grid { grid-template-columns: repeat(2, 1fr); }
     .trust-grid { gap: 32px; }
     .footer-section { padding: 48px 0 0; justify-content: flex-start; }
@@ -1162,52 +1147,64 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; o
       </div>
       <p class="section-sub">Bolt-built templates give you a working foundation, styled and wired up, so you&rsquo;re customizing instead of starting from nothing.</p>
     </div>
-    <div class="works" id="works">
-      <div class="works-list">
-        <a class="works-row" href="https://bolt.new/resources/templates/saas-landing" target="_blank" rel="noopener" data-thumb="../images/templates/saas-dashboard.webp">
-          <span class="works-num">01</span>
-          <h3 class="works-title">SaaS Dashboard</h3>
-          <span class="works-tag">Dashboard</span>
-          <img class="works-thumb" src="../images/templates/saas-dashboard.webp" alt="" loading="lazy" decoding="async">
+    <div class="tmpl-rail" id="tmpl-rail">
+      <div class="tmpl-track">
+        <a class="tmpl-card" href="https://bolt.new/resources/templates/minimalist-architect-portfolio" target="_blank" rel="noopener">
+          <img class="tmpl-card-shot" src="templates/images/architect-portfolio.webp" alt="Architect Portfolio template" loading="lazy" decoding="async">
+          <div class="tmpl-card-meta">
+            <h3 class="tmpl-card-name">Architect Portfolio</h3>
+            <span class="tmpl-card-tag">Portfolio</span>
+          </div>
         </a>
-        <a class="works-row" href="https://bolt.new/resources/templates/skincare-brand" target="_blank" rel="noopener" data-thumb="../images/templates/ecommerce-storefront.webp">
-          <span class="works-num">02</span>
-          <h3 class="works-title">Ecommerce Storefront</h3>
-          <span class="works-tag">Ecommerce</span>
-          <img class="works-thumb" src="../images/templates/ecommerce-storefront.webp" alt="" loading="lazy" decoding="async">
+        <a class="tmpl-card" href="https://bolt.new/resources/templates/premium-saas-dashboard-lp" target="_blank" rel="noopener">
+          <img class="tmpl-card-shot" src="templates/images/premium-saas-dashboard-lp.webp" alt="SaaS Landing template" loading="lazy" decoding="async">
+          <div class="tmpl-card-meta">
+            <h3 class="tmpl-card-name">SaaS Landing</h3>
+            <span class="tmpl-card-tag">SaaS</span>
+          </div>
         </a>
-        <a class="works-row" href="https://bolt.new/resources/templates/nonprofit-site" target="_blank" rel="noopener" data-thumb="../images/templates/nonprofit-website.webp">
-          <span class="works-num">03</span>
-          <h3 class="works-title">Nonprofit Website</h3>
-          <span class="works-tag">Website</span>
-          <img class="works-thumb" src="../images/templates/nonprofit-website.webp" alt="" loading="lazy" decoding="async">
+        <a class="tmpl-card" href="https://bolt.new/resources/templates/ledger-finance" target="_blank" rel="noopener">
+          <img class="tmpl-card-shot" src="templates/images/ledger-finance.webp" alt="Finance Tracker template" loading="lazy" decoding="async">
+          <div class="tmpl-card-meta">
+            <h3 class="tmpl-card-name">Finance Tracker</h3>
+            <span class="tmpl-card-tag">Apps</span>
+          </div>
         </a>
-        <a class="works-row" href="https://bolt.new/resources/templates/revenue-dashboard" target="_blank" rel="noopener" data-thumb="../images/templates/revenue-dashboard.webp">
-          <span class="works-num">04</span>
-          <h3 class="works-title">Revenue Dashboard</h3>
-          <span class="works-tag">Analytics</span>
-          <img class="works-thumb" src="../images/templates/revenue-dashboard.webp" alt="" loading="lazy" decoding="async">
+        <a class="tmpl-card" href="https://bolt.new/resources/templates/maison-voyage" target="_blank" rel="noopener">
+          <img class="tmpl-card-shot" src="templates/images/maison-voyage.webp" alt="Travel Journal template" loading="lazy" decoding="async">
+          <div class="tmpl-card-meta">
+            <h3 class="tmpl-card-name">Travel Journal</h3>
+            <span class="tmpl-card-tag">Editorial</span>
+          </div>
         </a>
-        <a class="works-row" href="https://bolt.new/resources/templates/kern-studio" target="_blank" rel="noopener" data-thumb="../images/templates/agency-website.webp">
-          <span class="works-num">05</span>
-          <h3 class="works-title">Creative Agency</h3>
-          <span class="works-tag">Agency</span>
-          <img class="works-thumb" src="../images/templates/agency-website.webp" alt="" loading="lazy" decoding="async">
+        <a class="tmpl-card" href="https://bolt.new/resources/templates/noir-agency" target="_blank" rel="noopener">
+          <img class="tmpl-card-shot" src="templates/images/noir-agency.webp" alt="Studio Portfolio template" loading="lazy" decoding="async">
+          <div class="tmpl-card-meta">
+            <h3 class="tmpl-card-name">Studio Portfolio</h3>
+            <span class="tmpl-card-tag">Portfolio</span>
+          </div>
         </a>
-        <a class="works-row" href="https://bolt.new/resources/templates/architect-portfolio" target="_blank" rel="noopener" data-thumb="../images/templates/portfolio.webp">
-          <span class="works-num">06</span>
-          <h3 class="works-title">Minimalist Portfolio</h3>
-          <span class="works-tag">Portfolio</span>
-          <img class="works-thumb" src="../images/templates/portfolio.webp" alt="" loading="lazy" decoding="async">
+        <a class="tmpl-card" href="https://bolt.new/resources/templates/vantage-dashboard" target="_blank" rel="noopener">
+          <img class="tmpl-card-shot" src="templates/images/vantage-dashboard.webp" alt="Revenue Dashboard template" loading="lazy" decoding="async">
+          <div class="tmpl-card-meta">
+            <h3 class="tmpl-card-name">Revenue Dashboard</h3>
+            <span class="tmpl-card-tag">Internal tools</span>
+          </div>
         </a>
-      </div>
-      <!-- Floating cursor-following preview (desktop only; JS positions it) -->
-      <div class="works-preview" aria-hidden="true">
-        <div class="works-preview-inner">
-          <img class="works-preview-img" alt="" decoding="async">
-          <div class="works-preview-scan"></div>
-          <div class="works-preview-overlay"><span>View Details</span></div>
-        </div>
+        <a class="tmpl-card" href="https://bolt.new/resources/templates/vestige-fashion" target="_blank" rel="noopener">
+          <img class="tmpl-card-shot" src="templates/images/vestige-fashion.webp" alt="Fashion Editorial template" loading="lazy" decoding="async">
+          <div class="tmpl-card-meta">
+            <h3 class="tmpl-card-name">Fashion Editorial</h3>
+            <span class="tmpl-card-tag">Editorial</span>
+          </div>
+        </a>
+        <a class="tmpl-card" href="https://bolt.new/resources/templates/townhall-events" target="_blank" rel="noopener">
+          <img class="tmpl-card-shot" src="templates/images/townhall-events.webp" alt="Events Guide template" loading="lazy" decoding="async">
+          <div class="tmpl-card-meta">
+            <h3 class="tmpl-card-name">Events Guide</h3>
+            <span class="tmpl-card-tag">Websites</span>
+          </div>
+        </a>
       </div>
     </div>
     <div class="section-cta">
@@ -1853,59 +1850,50 @@ window.addEventListener('load', function() {
   });
 })();
 
-// ── Templates — cursor-following screenshot preview (desktop) ────────────────
+// ── Templates rail — right-edge fade hides once scrolled fully right ────────
 (function () {
-  var works = document.getElementById('works');
-  if (!works) return;
-  if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;  // desktop pointers only
-  var list = works.querySelector('.works-list');
-  var preview = works.querySelector('.works-preview');
-  var img = preview.querySelector('.works-preview-img');
-  var rows = Array.prototype.slice.call(works.querySelectorAll('.works-row'));
-  var W = 360, H = 232, PAD = 16, OFFSET = 300;   // sit to the right of the pointer
-  var tx = 0, ty = 0, cx = 0, cy = 0, active = false, raf = null, primed = false;
-
-  rows.forEach(function (row) {
-    row.addEventListener('mouseenter', function () {
-      var src = row.getAttribute('data-thumb');
-      if (img.getAttribute('src') !== src) {
-        img.classList.remove('is-shown');
-        img.onload = function () { img.classList.add('is-shown'); };
-        img.src = src;
-      } else {
-        img.classList.add('is-shown');
-      }
-      works.classList.add('is-active');
-      active = true;
-    });
-  });
-
-  list.addEventListener('mousemove', function (e) {
-    var r = works.getBoundingClientRect();
-    var maxX = r.width - W / 2 - PAD, minX = W / 2 + PAD;
-    var maxY = r.height - H / 2 - PAD, minY = H / 2 + PAD;
-    tx = Math.max(minX, Math.min(maxX, (e.clientX - r.left) + OFFSET));
-    ty = Math.max(minY, Math.min(maxY, (e.clientY - r.top)));
-    if (!primed) { cx = tx; cy = ty; primed = true; }   // no fly-in from origin on first enter
-    if (!raf) raf = requestAnimationFrame(loop);
-  });
-
-  list.addEventListener('mouseleave', function () {
-    works.classList.remove('is-active');
-    active = false;
-  });
-
-  function loop() {
-    cx += (tx - cx) * 0.14;
-    cy += (ty - cy) * 0.14;
-    var rot = Math.max(-9, Math.min(9, (tx - cx) * 0.06));
-    preview.style.transform = 'translate3d(' + (cx - W / 2) + 'px,' + (cy - H / 2) + 'px,0) rotate(' + rot.toFixed(2) + 'deg)';
-    if (active || Math.abs(tx - cx) > 0.4 || Math.abs(ty - cy) > 0.4) {
-      raf = requestAnimationFrame(loop);
-    } else {
-      raf = null;
-    }
+  var rail = document.getElementById('tmpl-rail');
+  if (!rail) return;
+  var track = rail.querySelector('.tmpl-track');
+  function update() {
+    var atEnd = track.scrollLeft + track.clientWidth >= track.scrollWidth - 4;
+    rail.classList.toggle('at-end', atEnd);
   }
+  track.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
+  update();
+
+  // Click-and-drag panning. Touch is left to the browser's own momentum
+  // scrolling; this is for mouse/trackpad users, who have no horizontal axis.
+  var down = false, startX = 0, startLeft = 0, moved = 0;
+  track.addEventListener('pointerdown', function (e) {
+    if (e.pointerType === 'touch' || e.button !== 0) return;
+    down = true; moved = 0; startX = e.clientX; startLeft = track.scrollLeft;
+    track.classList.add('is-dragging');
+    try { track.setPointerCapture(e.pointerId); } catch (_) {}
+  });
+  track.addEventListener('pointermove', function (e) {
+    if (!down) return;
+    var dx = e.clientX - startX;
+    if (Math.abs(dx) > moved) moved = Math.abs(dx);
+    track.scrollLeft = startLeft - dx;
+  });
+  function endDrag(e) {
+    if (!down) return;
+    down = false;
+    track.classList.remove('is-dragging');
+    try { track.releasePointerCapture(e.pointerId); } catch (_) {}
+  }
+  track.addEventListener('pointerup', endDrag);
+  track.addEventListener('pointercancel', endDrag);
+  // a drag must not open the card it finished on
+  track.addEventListener('click', function (e) {
+    if (moved > 6) { e.preventDefault(); e.stopPropagation(); }
+  }, true);
+  // native image ghost-drag would hijack the gesture
+  track.querySelectorAll('img').forEach(function (img) {
+    img.addEventListener('dragstart', function (e) { e.preventDefault(); });
+  });
 })();
 
 </script>
