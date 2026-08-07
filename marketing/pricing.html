@@ -37,7 +37,7 @@
       align-items: center;
       text-align: center;
       gap: 28px;
-      margin-bottom: 16px; /* toggle groups tight with the grid below */
+      margin-bottom: 72px;
     }
 
     .page-header { text-align: center; }
@@ -68,13 +68,10 @@
       align-items: center;
       gap: 10px;
       flex-shrink: 0;
-      /* 28px flex gap + 44px = 72px below the subtitle; the toggle sits
-         tight above the plan grid */
-      margin-top: 44px;
     }
 
     @media (max-width: 900px) {
-      .pricing-hero { flex-direction: column; align-items: center; text-align: center; gap: 28px; margin-bottom: 16px; } .billing-row { margin-top: 28px; }
+      .pricing-hero { flex-direction: column; align-items: center; text-align: center; gap: 28px; margin-bottom: 56px; }
       .pricing-hero .page-header { text-align: center; }
       .pricing-hero .page-header p { margin-left: auto; margin-right: auto; }
     }
@@ -178,15 +175,16 @@
     /* Mobile: the toggle rides inside the Pro card's price row (JS moves it)
        so it's at hand while scrolling prices. Compact + chromeless: no
        container border/fill, small segments; the chip stays hero-only. */
-    .card .billing-row { flex-direction: row; justify-content: flex-start; margin: 2px 0 16px; }
-    .cards .billing-save-badge { display: none; }
+    .card-price .billing-row { margin: 0 0 0 auto; align-self: center; }
+    .card .billing-btn { width: 64px; padding: 5px 0; font-size: 12px; }
+    .billing-save-badge { display: none !important; } /* per Gary 2026-08-07: chip off for now (markup kept) */
 
     @media (max-width: 768px) {
       .page {
         width: 100%;
         padding: 64px 16px 48px;
       }
-      .pricing-hero { margin-bottom: 16px; gap: 28px; } .billing-row { margin-top: 16px; }
+      .pricing-hero { margin-bottom: 48px; gap: 28px; }
       .page-header { margin-bottom: 0; }
       .page-header h1 { font-size: clamp(37px, 10.45vw, 51px); margin-bottom: 8px; }
       .page-header p  { font-size: 16px; white-space: normal; max-width: 100%; }
@@ -313,7 +311,7 @@
       display: flex;
       align-items: baseline;
       gap: 6px;
-      margin-bottom: 10px;
+      margin-bottom: 18px;
     }
     .price-amount-wrap {
       overflow: hidden;
@@ -1893,14 +1891,6 @@
         <h1>Pricing</h1>
         <p>Start for free. Upgrade when your team needs more.</p>
       </div>
-      <div class="billing-row">
-        <div class="billing-toggle" data-billing="yearly">
-          <div class="billing-thumb"></div>
-          <button class="billing-btn" id="btn-monthly" onclick="setBilling('monthly')" aria-pressed="false">Monthly</button>
-          <button class="billing-btn active" id="btn-yearly" onclick="setBilling('yearly')" aria-pressed="true">Yearly</button>
-        </div>
-        <span class="billing-save-badge" id="save-badge">Save up to 28%</span>
-      </div>
     </div>
 
     <!-- Cards -->
@@ -1943,7 +1933,15 @@
         <div class="card-price">
           <span class="price-amount-wrap"><span class="price-amount" id="pro-price">$18</span></span>
           <span class="price-period">/month</span>
+      <div class="billing-row">
+        <div class="billing-toggle" data-billing="yearly">
+          <div class="billing-thumb"></div>
+          <button class="billing-btn" data-period="monthly" id="btn-monthly" onclick="setBilling('monthly')" aria-pressed="false">Monthly</button>
+          <button class="billing-btn active" data-period="yearly" id="btn-yearly" onclick="setBilling('yearly')" aria-pressed="true">Yearly</button>
         </div>
+        </div>
+        <span class="billing-save-badge" id="save-badge">Save up to 28%</span>
+      </div>
         <p class="card-description">Everything in Free, plus real app capacity and your own domain.</p>
         <button class="hero-btn-primary card-cta">
           <div class="btn-bg-hover"></div>
@@ -1983,6 +1981,13 @@
         <div class="card-price">
           <span class="price-amount-wrap"><span class="price-amount" id="teams-price">$27</span></span>
           <span class="price-period">/month base</span>
+          <div class="billing-row">
+            <div class="billing-toggle" data-billing="yearly">
+              <div class="billing-thumb"></div>
+              <button class="billing-btn" data-period="monthly" onclick="setBilling('monthly')" aria-pressed="false">Monthly</button>
+              <button class="billing-btn active" data-period="yearly" onclick="setBilling('yearly')" aria-pressed="true">Yearly</button>
+            </div>
+          </div>
         </div>
         <p class="card-description">Everything in Pro, plus shared capacity and team controls.</p>
         <button class="hero-btn-primary card-cta">
@@ -2860,46 +2865,25 @@
       var direction = isYearly ? 'down' : 'up';
       animatePrice(document.getElementById('pro-price'),   isYearly ? '$18' : '$25', direction);
       animatePrice(document.getElementById('teams-price'), isYearly ? '$27' : '$30', direction);
-      document.getElementById('btn-monthly').classList.toggle('active', !isYearly);
-      document.getElementById('btn-yearly').classList.toggle('active', isYearly);
-      document.getElementById('btn-monthly').setAttribute('aria-pressed', String(!isYearly));
-      document.getElementById('btn-yearly').setAttribute('aria-pressed', String(isYearly));
-      document.querySelector('.billing-toggle').setAttribute('data-billing', val);
+      document.querySelectorAll('.billing-btn').forEach(function (b) {
+        var on = (b.getAttribute('data-period') === 'yearly') === isYearly;
+        b.classList.toggle('active', on);
+        b.setAttribute('aria-pressed', String(on));
+      });
+      document.querySelectorAll('.billing-toggle').forEach(function (t) { t.setAttribute('data-billing', val); });
       currentBilling = val;
       positionBillingThumb();
     }
-    /* On phones the toggle moves inside the cards stack so it stays near the
-       prices; back to the hero on desktop. Thumb geometry is relative to the
-       toggle, so reparenting doesn't disturb it. */
-    (function () {
-      var row = document.querySelector('.billing-row');
-      var hero = document.querySelector('.pricing-hero');
-      var proPrice = document.getElementById('pro-price');
-      var cards = proPrice && proPrice.closest('.card-price');
-      if (!row || !hero || !cards) return;
-      /* 640, not 768: the 2x2 grid range uses :nth-child border logic that
-         an injected first child would shift; single-column borders are
-         class-based and safe */
-      var mq = window.matchMedia('(max-width: 640px)');
-      function place() {
-        if (mq.matches) {
-          if (row.previousElementSibling !== cards) cards.insertAdjacentElement('afterend', row);
-        } else if (row.parentElement !== hero) {
-          hero.appendChild(row);
-        }
-        if (typeof positionBillingThumb === 'function') positionBillingThumb();
-      }
-      if (mq.addEventListener) mq.addEventListener('change', place);
-      else mq.addListener(place);
-      place();
-    })();
+    /* (toggle now lives statically in the Pro card at all sizes) */
 
     function positionBillingThumb() {
-      var btn = document.querySelector('.billing-btn.active');
-      var thumb = document.querySelector('.billing-thumb');
-      if (!btn || !thumb) return;
-      thumb.style.left = btn.offsetLeft + 'px';
-      thumb.style.width = btn.offsetWidth + 'px';
+      document.querySelectorAll('.billing-toggle').forEach(function (t) {
+        var btn = t.querySelector('.billing-btn.active');
+        var thumb = t.querySelector('.billing-thumb');
+        if (!btn || !thumb) return;
+        thumb.style.left = btn.offsetLeft + 'px';
+        thumb.style.width = btn.offsetWidth + 'px';
+      });
     }
     positionBillingThumb();
     /* re-measure once webfonts settle + on resize (label widths change) */
