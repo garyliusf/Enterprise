@@ -277,6 +277,7 @@ For a seamless grid with shared borders (no `gap`):
 ## Scroll Animations
 - **Word-reveal:** `.dsa-reveal` is a CONTAINER wrapping the H1/H2. **Never place `.dsa-reveal` directly on an H1/H2 element** — the JS uses `querySelectorAll('h1,h2')` on the container to wrap words. JS auto-wraps words in `.word` spans when the container scrolls into view.
 - **Above-fold rule:** Hero H1s are above the fold — do NOT wrap them in `.dsa-reveal`. The blur animation is for scroll-triggered sections only. Reference pages (microsoft.html, bolt-cli.html) never use `.dsa-reveal` on the hero headline.
+- **First-section rule (Gary, 2026-08-06):** the FIRST content section after the hero (or after a hero + logo strip) also renders its H2 statically — no `.dsa-reveal`/`.reveal-h`/`.reveal-stagger`. It's effectively above/at the fold, so the scroll-in reveal either never fires as intended or plays while the user is already reading. Applied: platform tabs section ("Built for how you ship"), pricing "Compare features" (before it moved into the table head). Later sections keep their reveals.
 - **Eyebrow scramble:** `.eyebrow-scramble` class triggers letter scramble on scroll. Apply to ALL eyebrows including hero eyebrow, success eyebrow, footer eyebrow.
 - **How It Works line:** `.how-steps-wrap` → `.line-active` class triggers node + text animations
 
