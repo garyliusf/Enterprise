@@ -154,6 +154,9 @@
     /* At medium widths, fall to 2x2 before stacking to single column */
     @media (max-width: 1100px) {
       .cards { grid-template-columns: repeat(2, 1fr); }
+      /* wide cards: toggle hugs the price instead of floating to the far
+         edge (.cards prefix outranks the later base margin-left:auto) */
+      .cards .card-price .billing-row { margin-left: 14px; align-self: baseline; }
       .card:nth-child(2) { border-right: none !important; }
       .card:nth-child(1), .card:nth-child(2) { border-bottom: 1px solid rgba(255,255,255,0.07); }
       .faq-section { grid-template-columns: 1fr; gap: 40px; }
@@ -167,11 +170,10 @@
       }
       .card { border-right: none !important; border-bottom: 1px solid rgba(255,255,255,0.07); }
       /* stacked cards don't need the 2-line reserve — kill the dead air
-         between the description and the CTA */
-      .card-description { min-height: 0; }
-      .card .card-cta { margin-top: 12px; }
-      /* toggle hugs the price instead of floating to the far edge */
-      .card-price .billing-row { margin-left: 14px; }
+         between the description and the CTA (.cards prefix outranks the
+         later base rules) */
+      .cards .card-description { min-height: 0; }
+      .cards .card .card-cta { margin-top: 12px; }
       .card:last-child { border-bottom: none; }
       /* On mobile cards stack and size to their content — drop the equal-height
          alignment trick but keep the 36px breathing room above the CTA. */
@@ -181,8 +183,11 @@
     /* Mobile: the toggle rides inside the Pro card's price row (JS moves it)
        so it's at hand while scrolling prices. Compact + chromeless: no
        container border/fill, small segments; the chip stays hero-only. */
-    .card-price .billing-row { margin: 0 0 0 auto; align-self: center; }
+    .card-price .billing-row { margin: 0 0 0 auto; align-self: baseline; }
     .card .billing-btn { width: 52px; padding: 5px 0; font-size: 10px; }
+    /* the segments' text baseline sits below the price numerals' — lift the
+       control so the two read as one line */
+    .card-price .billing-toggle { transform: translateY(-2px); }
     .billing-save-badge { display: none !important; } /* per Gary 2026-08-07: chip off for now (markup kept) */
 
     @media (max-width: 768px) {
@@ -197,7 +202,6 @@
 
       .card { padding: 24px 20px; }
       .plan-label { font-size: 20px; }
-      .badge-popular { top: 25px; } /* re-center on the smaller 20px name line */
       .card-description { font-size: 14px; }
       .feature-item { font-size: 14px; }
 
@@ -291,7 +295,7 @@
     /* ── Teams card — blue-washed surface + the always-on pixel field ── */
     .card-teams {
       background:
-        linear-gradient(180deg, rgba(20,136,252,0.10) 0%, rgba(20,136,252,0.02) 55%, rgba(20,136,252,0.06) 100%),
+        linear-gradient(180deg, rgba(20,136,252,0.16) 0%, rgba(20,136,252,0.05) 55%, rgba(20,136,252,0.10) 100%), /* brightened — carries the emphasis now that POPULAR is gone */
         #0a0a0a;
       border-right: 1px solid rgba(255,255,255,0.07);
       border-left: none;
@@ -805,10 +809,6 @@
       position: relative;
       z-index: 1;
     }
-    .card-teams > .badge-popular {
-      position: absolute;
-      z-index: 2;
-    }
 
     /* ── FAQ ──
        Default to single-column. Two-column sidebar only activates on wide
@@ -955,22 +955,6 @@
     }
 
     /* ── Popular badge ── */
-    .badge-popular {
-      position: absolute;
-      /* centered on the plan-name line: 24px card padding + (35px name line
-         - 21px badge) / 2 */
-      top: 31px;
-      right: 20px;
-      background: rgba(20,136,252,0.12);
-      border: 1px solid rgba(20,136,252,0.25);
-      color: #1488FC;
-      font-size: 10px;
-      font-weight: 400;
-      letter-spacing: 1.2px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-family: 'Silkscreen', monospace;
-    }
 
 
 
@@ -1911,7 +1895,7 @@
         <span class="plan-label green">Free</span>
         <div class="card-price">
           <span class="price-amount-wrap"><span class="price-amount" id="free-price">$0</span></span>
-          <span class="price-period">/mo</span>
+          <span class="price-period">/month</span>
         </div>
         <p class="card-description">Try Bolt with daily limits. No credit card.</p>
         <button class="hero-btn-primary card-cta">
@@ -1941,7 +1925,7 @@
         <span class="plan-label blue">Pro</span>
         <div class="card-price">
           <span class="price-amount-wrap"><span class="price-amount" id="pro-price">$18</span></span>
-          <span class="price-period">/mo</span>
+          <span class="price-period">/month</span>
       <div class="billing-row">
         <div class="billing-toggle" data-billing="yearly">
           <div class="billing-thumb"></div>
@@ -1985,11 +1969,10 @@
       <!-- Teams -->
       <div class="card card-teams">
         <canvas id="teams-pixel-canvas"></canvas>
-        <span class="badge-popular">POPULAR</span>
         <span class="plan-label purple">Teams</span>
         <div class="card-price">
           <span class="price-amount-wrap"><span class="price-amount" id="teams-price">$27</span></span>
-          <span class="price-period">/mo base</span>
+          <span class="price-period">/month base</span>
           <div class="billing-row">
             <div class="billing-toggle" data-billing="yearly">
               <div class="billing-thumb"></div>
