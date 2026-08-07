@@ -847,6 +847,13 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; o
   /* Local H2 word-reveal — fires at ~50% viewport (same as security-agent) */
   .reveal-h .word { display: inline-block; opacity: 0; transform: translate(-10px, -7px); filter: blur(5px); will-change: opacity, transform, filter; }
   .reveal-h.is-revealed .word { animation: dsa-word-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards; animation-delay: calc(var(--i, 0) * 28ms); }
+  /* Fast-scroll catch-up: when a header is first noticed already DEEP in view
+     (blew past the trigger line during momentum scrolling), the cascade would
+     play on text the reader is already trying to read — show it instantly
+     instead. The sibling selector carries the same skip to the shared-owned
+     subtitle words (higher specificity than .sc-sub-words.sc-sub-go .word). */
+  .reveal-h.is-instant .word,
+  .reveal-h.is-instant ~ .sc-sub-words .word { opacity: 1; transform: none; filter: none; animation: none; }
   /* Subtitle reveal is owned by shared-components.js (.sc-sub-words / .sc-sub-go),
      triggered when the sibling .reveal-h gains .is-revealed. No local subtitle CSS. */
 
@@ -1850,21 +1857,32 @@ window.addEventListener('load', function() {
       if (!h.dataset.wrapped) { wrapWords(h); h.dataset.wrapped = '1'; }
     });
   });
+  var pending = containers.length;
   function check() {
     var vh = window.innerHeight || document.documentElement.clientHeight;
     for (var i = 0; i < containers.length; i++) {
       var c = containers[i];
       if (c.classList.contains('is-revealed')) continue;
       var r = c.getBoundingClientRect();
-      /* 0.85: fire shortly after the header enters the viewport (bottom 15%).
-         The old 0.55 made readers wait until the H2 crossed mid-screen —
-         scrolling at normal speed you'd routinely catch it mid-animation. */
-      if (r.top < vh * 0.85 && r.bottom > 0) c.classList.add('is-revealed');
+      if (r.top < vh * 0.85 && r.bottom > 0) {
+        /* Already deep in view (fast scroll blew past the trigger line, or the
+           page loaded mid-scroll): skip the cascade, show the text instantly.
+           Below 45% the reader is looking at it — animating now reads as lag. */
+        if (r.top < vh * 0.45) c.classList.add('is-instant');
+        c.classList.add('is-revealed');
+        pending--;
+      }
     }
   }
+  /* rAF loop AND scroll/resize/load listeners. The loop is the workhorse —
+     momentum scrolling delivers scroll events sparsely, which is exactly how
+     headers got caught blank. The listeners are the fallback for contexts
+     where rAF is throttled (hidden iframes, energy saver). Loop stops once
+     everything is revealed. */
   window.addEventListener('scroll', check, { passive: true });
   window.addEventListener('resize', check);
   window.addEventListener('load', check);
+  (function loop() { check(); if (pending > 0) requestAnimationFrame(loop); })();
   check();
 })();
 
