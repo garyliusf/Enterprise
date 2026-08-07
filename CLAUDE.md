@@ -152,6 +152,9 @@ All buttons must use these exact specs. No inline overrides unless absolutely ne
 
 **Never use less than 16px horizontal padding on any breakpoint.**
 
+### Adjacent-section seams (rule, 2026-08-06)
+The per-section `clamp(80px, 12vh, 140px)` padding applies to each side, so two adjacent sections stack ~215px at the seam. **When both sections share the same background (black-on-black, no visual boundary), the seam must total ~ONE standard unit (~110–155px), not two** — trim ONE side (usually the lower section's `padding-top`, e.g. `clamp(24px, 4vh, 48px)`) rather than shrinking the shared `.section` rule. Keep the full double padding only where a background change, border, or panel edge marks the section break. First applied: platform.html tabs→use-cases seam.
+
 ---
 
 ## FAQ Section Standards
