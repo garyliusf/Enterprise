@@ -81,20 +81,21 @@
 
     /* Segmented billing control — 2px surface language, sliding brand-blue
        thumb (positioned by JS from the active button's box). */
+    /* Same compact chromeless control as the mobile in-card toggle */
     .billing-toggle {
       position: relative;
       display: inline-flex;
-      align-items: stretch; /* Monthly matches the two-line Yearly height */
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.1);
+      align-items: center;
+      background: none;
+      border: none;
+      padding: 0;
       border-radius: 2px;
-      padding: 3px;
     }
 
     .billing-thumb {
       position: absolute;
-      top: 3px;
-      bottom: 3px;
+      top: 0;
+      bottom: 0;
       left: 0;
       width: 0;
       background: #1488FC;
@@ -110,14 +111,11 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      width: 200px; /* equal segments */
-      flex-direction: column;
-      justify-content: center;
-      gap: 3px;
-      padding: 9px 0 8px;
+      width: 84px; /* equal segments (mobile in-card spec) */
+      padding: 8px 0;
       white-space: nowrap;
       border-radius: 2px;
-      font-size: 15px;
+      font-size: 13px;
       font-weight: 500;
       border: none;
       cursor: pointer;
@@ -128,9 +126,11 @@
       letter-spacing: 0.2px;
       outline: none;
     }
+    .billing-btn:not(.active) { background: rgba(255,255,255,0.08); }
     .billing-btn:hover { color: rgba(255,255,255,0.85); }
     .billing-btn.active { color: #fff; font-weight: 600; }
 
+    .billing-row { gap: 10px; }
     .billing-save-badge {
       display: inline-block;
       padding: 2.5px 8px;
@@ -142,11 +142,6 @@
       font-family: 'Inter', sans-serif;
       letter-spacing: 0.2px;
       transition: color 0.25s ease, background-color 0.25s ease;
-    }
-    /* on the blue thumb, white-on-lightened-blue fails contrast — dark inset */
-    .billing-btn.active .billing-save-badge {
-      color: #fff;
-      background: rgba(0,0,0,0.28);
     }
 
 
@@ -184,11 +179,6 @@
        so it's at hand while scrolling prices. Compact + chromeless: no
        container border/fill, small segments; the chip stays hero-only. */
     .card .billing-row { flex-direction: row; justify-content: flex-start; margin: 2px 0 16px; }
-    .card .billing-toggle { background: none; border: none; padding: 0; }
-    .card .billing-btn { width: 84px; padding: 8px 0; font-size: 13px; }
-    /* chromeless container, so the inactive segment carries a light fill to
-       read as part of the control */
-    .card .billing-btn:not(.active) { background: rgba(255,255,255,0.08); }
     .cards .billing-save-badge { display: none; }
 
     @media (max-width: 768px) {
@@ -203,7 +193,6 @@
 
       .card { padding: 24px 20px; }
       .plan-label { font-size: 20px; }
-      .billing-btn { width: 150px; font-size: 14px; }
       .badge-popular { top: 25px; } /* re-center on the smaller 20px name line */
       .card-description { font-size: 14px; }
       .feature-item { font-size: 14px; }
@@ -1908,8 +1897,9 @@
         <div class="billing-toggle" data-billing="yearly">
           <div class="billing-thumb"></div>
           <button class="billing-btn" id="btn-monthly" onclick="setBilling('monthly')" aria-pressed="false">Monthly</button>
-          <button class="billing-btn active" id="btn-yearly" onclick="setBilling('yearly')" aria-pressed="true"><span>Yearly</span><span class="billing-save-badge" id="save-badge">Save up to 28%</span></button>
+          <button class="billing-btn active" id="btn-yearly" onclick="setBilling('yearly')" aria-pressed="true">Yearly</button>
         </div>
+        <span class="billing-save-badge" id="save-badge">Save up to 28%</span>
       </div>
     </div>
 
