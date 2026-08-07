@@ -393,7 +393,9 @@ Production (`bolt.new/platform/integrations/microsoft`, from `bolt-public-pages`
   justify-content: center;
 }
 @media (max-width: 768px) {
-  .hero-section--simple { min-height: 0; padding: 92px 0 56px; }
+  /* mobile floor (PR #143 use-cases, PR #144 solutions, merged 2026-08-07):
+     min-height: 0 let CMS-length H1s collapse the hero on phones */
+  .hero-section--simple { min-height: min(100dvh, 720px); padding: 92px 0 56px; }
 }
 
 /* Short variant — H1 + CTA only, no prompt box */
