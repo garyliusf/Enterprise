@@ -1832,7 +1832,8 @@ window.addEventListener('load', function() {
 <script>
 /* Eyebrow scramble (.eyebrow-scramble) is handled by shared-components.js.
    H2 word-reveal is local: this scroll check adds .is-revealed as each header
-   reaches ~55% of the viewport (canonical timing, matches security-agent).
+   reaches ~85% of the viewport (sooner than the security-agent 55% canon —
+   deliberate for this page, Gary 2026-08-07).
    Subtitle reveal is OWNED BY SHARED (.sc-sub-words/.sc-sub-go) — its
    MutationObserver fires off the same .is-revealed class. Don't add a second
    subtitle animation here (single-owner rule, see CLAUDE.md shared hazards). */
@@ -1855,7 +1856,10 @@ window.addEventListener('load', function() {
       var c = containers[i];
       if (c.classList.contains('is-revealed')) continue;
       var r = c.getBoundingClientRect();
-      if (r.top < vh * 0.55 && r.bottom > 0) c.classList.add('is-revealed');
+      /* 0.85: fire shortly after the header enters the viewport (bottom 15%).
+         The old 0.55 made readers wait until the H2 crossed mid-screen —
+         scrolling at normal speed you'd routinely catch it mid-animation. */
+      if (r.top < vh * 0.85 && r.bottom > 0) c.classList.add('is-revealed');
     }
   }
   window.addEventListener('scroll', check, { passive: true });
