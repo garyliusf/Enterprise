@@ -320,7 +320,7 @@
 /* ============================================================================
    SCROLL ANIMATIONS — eyebrow scramble + word reveal
    Canonical across every marketing page. Triggers when an element scrolls
-   into view (50% threshold):
+   into view (fires on entry):
    - .eyebrow-scramble → letter-by-letter scramble entrance, re-fires every 6s
    - .dsa-reveal       → per-word blur+slide reveal on the h1/h2 inside
    ============================================================================ */
@@ -404,7 +404,10 @@
       }
       io.unobserve(el);
     });
-  }, { threshold: 0.5 });
+  /* Fires as the heading ENTERS view (was threshold 0.5 = half-visible, which
+     on tall sections meant scrolling well past the heading before it appeared).
+     A small bottom rootMargin keeps it from firing on the very first pixel. */
+  }, { threshold: 0 });
 
   /* ── Subtitle block-reveal ───────────────────────────────────────────────
      Section subtitles get a whole-element fade/blur-up when their heading's
