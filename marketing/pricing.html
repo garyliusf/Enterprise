@@ -200,8 +200,9 @@
       .page-header h1 { font-size: clamp(37px, 10.45vw, 51px); margin-bottom: 8px; }
       .page-header p  { font-size: 16px; white-space: normal; max-width: 100%; }
 
-      .card { padding: 24px 20px; }
+      .card { padding: 34px 20px 24px; }
       .plan-label { font-size: 20px; }
+      .badge-popular { top: 35px; right: 20px; }
       .card-description { font-size: 14px; }
       .feature-item { font-size: 14px; }
 
@@ -256,14 +257,14 @@
 
     @media (max-width: 480px) {
       .page { padding: 48px 14px 40px; }
-      .card { padding: 22px 18px; }
+      .card { padding: 30px 18px 22px; }
       .cert-badge { width: 55px; height: 55px; }
     }
 
     /* ── Card base ── */
     .card {
       background: #0a0a0a;
-      padding: 24px 24px 28px;
+      padding: 40px 24px 28px;
       display: flex;
       flex-direction: column;
       border-right: 1px solid rgba(255,255,255,0.07);
@@ -290,7 +291,7 @@
     }
     /* Hover canvas: visible on hover, OR on Teams by default (unless .cards is being hovered) */
     .card:hover .card-hover-canvas { opacity: 1; }
-    .card > *:not(.card-hover-canvas) { position: relative; z-index: 1; }
+    .card > *:not(.card-hover-canvas, .badge-popular) { position: relative; z-index: 1; } /* the badge is absolutely positioned */
 
     /* ── Teams card — blue-washed surface + the always-on pixel field ── */
     .card-teams {
@@ -299,6 +300,28 @@
         #0a0a0a;
       border-right: 1px solid rgba(255,255,255,0.07);
       border-left: none;
+    }
+
+    .badge-popular {
+      position: absolute;
+      top: 48px; /* optically centered on the plan-name line (32px * 1.1 lh inside the 40px card padding) */
+      right: 24px;
+      left: auto;              /* the card's flex column would otherwise stretch it */
+      width: auto;
+      display: inline-flex;
+      align-items: center;
+      line-height: 1;
+      white-space: nowrap;
+      z-index: 2;
+      background: rgba(20,136,252,0.12);
+      border: 1px solid rgba(20,136,252,0.25);
+      color: #1488FC;
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 1.2px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-family: 'Silkscreen', monospace;
     }
 
     /* ── Plan label ── */
@@ -812,7 +835,7 @@
     .cards.is-hovering #teams-pixel-canvas { opacity: 0.12; }
     .card-teams:hover #teams-pixel-canvas { opacity: 0.5 !important; }
 
-    .card-teams > *:not(canvas) {
+    .card-teams > *:not(canvas, .badge-popular) {
       position: relative;
       z-index: 1;
     }
@@ -1999,6 +2022,7 @@
       <!-- Teams -->
       <div class="card card-teams">
         <canvas id="teams-pixel-canvas"></canvas>
+        <span class="badge-popular">POPULAR</span>
         <span class="plan-label purple">Teams</span>
         <div class="card-price">
           <span class="price-amount-wrap"><span class="price-amount" id="teams-price">$27</span></span>
