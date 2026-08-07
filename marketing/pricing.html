@@ -84,7 +84,7 @@
     .billing-toggle {
       position: relative;
       display: inline-flex;
-      align-items: center;
+      align-items: stretch; /* Monthly matches the two-line Yearly height */
       background: rgba(255,255,255,0.04);
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 2px;
@@ -110,8 +110,11 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      width: 200px; /* equal segments — the savings chip lives below now */
-      padding: 11px 0;
+      width: 200px; /* equal segments */
+      flex-direction: column;
+      justify-content: center;
+      gap: 3px;
+      padding: 9px 0 8px;
       white-space: nowrap;
       border-radius: 2px;
       font-size: 15px;
@@ -130,10 +133,6 @@
 
     .billing-save-badge {
       display: inline-block;
-      /* sit under the Yearly (right) segment: half the toggle width minus
-         half the chip, relative to the row's center */
-      align-self: center;
-      transform: translateX(100px); /* half of one 200px segment */
       padding: 2.5px 8px;
       border-radius: 2px;
       font-size: 12px;
@@ -143,6 +142,11 @@
       font-family: 'Inter', sans-serif;
       letter-spacing: 0.2px;
       transition: color 0.25s ease, background-color 0.25s ease;
+    }
+    /* on the blue thumb, white-on-lightened-blue fails contrast — dark inset */
+    .billing-btn.active .billing-save-badge {
+      color: #fff;
+      background: rgba(0,0,0,0.28);
     }
 
 
@@ -200,7 +204,6 @@
       .card { padding: 24px 20px; }
       .plan-label { font-size: 20px; }
       .billing-btn { width: 150px; font-size: 14px; }
-      .billing-save-badge { transform: translateX(75px); }
       .badge-popular { top: 25px; } /* re-center on the smaller 20px name line */
       .card-description { font-size: 14px; }
       .feature-item { font-size: 14px; }
@@ -1905,9 +1908,8 @@
         <div class="billing-toggle" data-billing="yearly">
           <div class="billing-thumb"></div>
           <button class="billing-btn" id="btn-monthly" onclick="setBilling('monthly')" aria-pressed="false">Monthly</button>
-          <button class="billing-btn active" id="btn-yearly" onclick="setBilling('yearly')" aria-pressed="true">Yearly</button>
+          <button class="billing-btn active" id="btn-yearly" onclick="setBilling('yearly')" aria-pressed="true"><span>Yearly</span><span class="billing-save-badge" id="save-badge">Save up to 28%</span></button>
         </div>
-        <span class="billing-save-badge" id="save-badge">Save up to 28%</span>
       </div>
     </div>
 
@@ -2140,7 +2142,7 @@
         <div class="cert-badge">
           <svg viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle class="cert-ring" cx="45" cy="45" r="43" stroke="rgba(255,255,255,0.3)" stroke-width="1" stroke-dasharray="4 3"/>
-            <image href="../images/ccpa-lock.png" x="37.3" y="20" width="15.4" height="24" opacity="0.75"/>
+            <image href="../images/ccpa-lock.png" x="38.85" y="23" width="12.3" height="19.2" opacity="0.75"/>
             <text x="45" y="62" text-anchor="middle" font-family="Inter,sans-serif" font-size="14" font-weight="700" fill="rgba(255,255,255,0.85)" letter-spacing="0.5">CCPA</text>
           </svg>
         </div>
