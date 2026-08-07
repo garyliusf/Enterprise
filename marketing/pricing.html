@@ -205,15 +205,15 @@
       .card-description { font-size: 14px; }
       .feature-item { font-size: 14px; }
 
-      .compliance-banner { flex-direction: column; align-items: center; gap: 14px; padding: 28px 16px; text-align: center; }
+      .compliance-banner { flex-direction: column; align-items: center; text-align: center; } /* sizing lives in the late mobile block */
       /* interleave: title -> subtitle -> badges -> button (left column
          dissolves so its children join the banner's flex order) */
       .compliance-banner .compliance-left { display: contents; } /* 0-2-0: must beat the later base display:flex */
       .compliance-title { order: 1; }
-      .compliance-sub { order: 2; margin-top: -8px; }
-      .compliance-badges { order: 3; margin-left: 0; justify-content: center; gap: 10px; width: 100%; flex-wrap: nowrap; margin: 2px 0; }
+      .compliance-sub { order: 2; margin-top: 0; }
+      .compliance-badges { order: 3; margin-left: 0; justify-content: center; gap: 10px; width: 100%; flex-wrap: nowrap; margin: 6px 0 2px; }
       .compliance-left .hero-btn-ghost { order: 4; margin-top: 0 !important; }
-      .cert-badge { width: 58px; height: 58px; flex: 0 0 auto; } /* -10% */
+      .cert-badge { flex: 0 0 auto; }
       .compliance-left .hero-btn-ghost { width: 100%; max-width: 280px; }
       .compliance-sub { font-size: 15px; }
 
@@ -608,6 +608,7 @@
         border: 1px solid rgba(255,255,255,0.1);
         border-left: 0;
         border-right: 0;
+        border-bottom: 0; /* the per-button ::after bars form the line */
         border-radius: 0;
         background: #0a0a0a;
         position: sticky;
@@ -623,7 +624,7 @@
         color: rgba(255,255,255,0.5); /* matches the billing toggle's inactive label */
         border-radius: 2px;
         font-size: 16px;
-        font-weight: 600;
+        font-weight: 500;
         cursor: pointer;
         transition: background 0.2s, color 0.2s;
         position: relative;
@@ -647,9 +648,9 @@
       .compare-tier-switch button::after {
         content: '';
         position: absolute;
-        left: 0; right: 0; bottom: -1px;
-        height: 3px;
-        background: rgba(255,255,255,0.08); /* track */
+        left: 0; right: 0; bottom: 0;
+        height: 2px; /* identical for track + active so nothing shifts on switch */
+        background: rgba(255,255,255,0.14); /* track — reads as a line on its own */
       }
       .compare-tier-switch button.is-active,
       .compare-tier-switch button.is-active:hover,
@@ -1641,6 +1642,29 @@
     .site-footer-copyright { flex: 0 0 100%; order: 2; margin-top: 4px; }
   }
 
+
+    /* ─────────────────────────────────────────────────────────────────────
+       LATE MOBILE OVERRIDES — this file's main @media (max-width:768px)
+       block sits ABOVE the base component rules, so equal-specificity
+       mobile declarations lose the cascade tie to later base rules
+       (bit us repeatedly: banner gap, cert-badge size, card CTA gap,
+       in-card toggle margin). Anything that must beat a base rule goes
+       here, after every base declaration.
+       ───────────────────────────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .compliance-banner { gap: 16px; padding: 32px 16px; }
+      .compliance-badges { margin: 8px 0 4px; gap: 12px; }
+      .cert-badge { width: 62px; height: 62px; }
+      .cert-badge svg { width: 100%; height: 100%; }
+    }
+    @media (max-width: 640px) {
+      .card-description { min-height: 0; }
+      .card .card-cta { margin-top: 12px; }
+      .card-price .billing-row { margin-left: 14px; }
+    }
+    @media (max-width: 480px) {
+      .cert-badge { width: 56px; height: 56px; } /* below ~54 the SOC 2 / TYPE II lockup crowds */
+    }
   </style>
 </head>
 <body>
