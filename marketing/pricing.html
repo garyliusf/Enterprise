@@ -3072,7 +3072,7 @@
 (function () {
   var CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 
-  function scrambleEyebrow(el) {
+  function scrambleEyebrow(el, once) {
     var original = el.textContent;
     var chars = original.split('');
     var total = chars.length;
@@ -3099,6 +3099,7 @@
         requestAnimationFrame(phase1);
       } else {
         el.textContent = original;
+        if (once) return; /* table group labels scramble a single time */
         setTimeout(function() {
           locked = new Array(total).fill(false);
           startTime = null;
@@ -3114,7 +3115,7 @@
     entries.forEach(function (entry) {
       if (entry.isIntersecting) {
         observer.unobserve(entry.target);
-        setTimeout(function () { scrambleEyebrow(entry.target); }, 80);
+        setTimeout(function () { scrambleEyebrow(entry.target, entry.target.matches('.compare-group td:first-child')); }, 80);
       }
     });
   }, { threshold: 0.5 });
