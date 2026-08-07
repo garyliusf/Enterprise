@@ -176,6 +176,14 @@
 
     }
 
+    /* Mobile: the toggle rides inside the Pro card's price row (JS moves it)
+       so it's at hand while scrolling prices. Compact + chromeless: no
+       container border/fill, small segments; the chip stays hero-only. */
+    .card-price .billing-row { margin: 0 0 0 auto; align-self: center; }
+    .card-price .billing-toggle { background: none; border: none; padding: 0; }
+    .card-price .billing-btn { width: 84px; padding: 8px 0; font-size: 13px; }
+    .cards .billing-save-badge { display: none; }
+
     @media (max-width: 768px) {
       .page {
         width: 100%;
@@ -2876,6 +2884,32 @@
       currentBilling = val;
       positionBillingThumb();
     }
+    /* On phones the toggle moves inside the cards stack so it stays near the
+       prices; back to the hero on desktop. Thumb geometry is relative to the
+       toggle, so reparenting doesn't disturb it. */
+    (function () {
+      var row = document.querySelector('.billing-row');
+      var hero = document.querySelector('.pricing-hero');
+      var proPrice = document.getElementById('pro-price');
+      var cards = proPrice && proPrice.closest('.card-price');
+      if (!row || !hero || !cards) return;
+      /* 640, not 768: the 2x2 grid range uses :nth-child border logic that
+         an injected first child would shift; single-column borders are
+         class-based and safe */
+      var mq = window.matchMedia('(max-width: 640px)');
+      function place() {
+        if (mq.matches) {
+          if (row.parentElement !== cards) cards.appendChild(row);
+        } else if (row.parentElement !== hero) {
+          hero.appendChild(row);
+        }
+        if (typeof positionBillingThumb === 'function') positionBillingThumb();
+      }
+      if (mq.addEventListener) mq.addEventListener('change', place);
+      else mq.addListener(place);
+      place();
+    })();
+
     function positionBillingThumb() {
       var btn = document.querySelector('.billing-btn.active');
       var thumb = document.querySelector('.billing-thumb');
