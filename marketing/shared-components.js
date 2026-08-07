@@ -386,6 +386,14 @@
         el.querySelectorAll('h1, h2').forEach(function (h) {
           if (!h.dataset.wrapped) { wrapWords(h); h.dataset.wrapped = '1'; }
         });
+        /* Fast-scroll catch-up: first noticed already DEEP in view (top above
+           45% of the viewport — momentum scroll blew past the trigger, or the
+           page loaded mid-scroll). Playing the 0.7s cascade now reads as lag
+           on text the reader is already reading — .is-instant (see the CSS)
+           shows the words immediately instead. Subtitles inherit via the
+           sibling selector, so heading and subtitle can't disagree. */
+        var vh = window.innerHeight || document.documentElement.clientHeight;
+        if (entry.boundingClientRect.top < vh * 0.45) el.classList.add('is-instant');
         el.classList.add('is-revealed');
       } else if (el.classList.contains('eyebrow-scramble')) {
         scrambleEl(el);

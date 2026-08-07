@@ -871,6 +871,8 @@
     }
     .reveal-stagger .word { display: inline-block; opacity: 0; transform: translate(-10px, -7px); filter: blur(5px); will-change: opacity, transform, filter; }
     .reveal-stagger.is-revealed .word { animation: word-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards; animation-delay: calc(var(--i, 0) * 28ms); }
+    /* fast-scroll catch-up (see the reveal module): caught deep in view -> words are simply there */
+    .reveal-stagger.is-instant .word { opacity: 1; transform: none; filter: none; animation: none; }
     /* padding + gap come from shared-components.css (canonical footer) */
     .footer-section {
       background: #000;
@@ -3419,9 +3421,13 @@ window.__pageOwnsScrollAnims = true;
     if ('IntersectionObserver' in window) {
       var io = new IntersectionObserver(function (entries) {
         entries.forEach(function (e) {
-          if (e.isIntersecting) { e.target.classList.add('is-revealed'); io.unobserve(e.target); }
+          if (!e.isIntersecting) return;
+          /* fast-scroll catch-up: already deep in view -> skip the cascade */
+          var vh = window.innerHeight || document.documentElement.clientHeight;
+          if (e.boundingClientRect.top < vh * 0.45) e.target.classList.add('is-instant');
+          e.target.classList.add('is-revealed'); io.unobserve(e.target);
         });
-      }, { threshold: 0, rootMargin: '-15% 0px -45% 0px' });
+      }, { threshold: 0, rootMargin: '-15% 0px -15% 0px' }); /* bottom was -45% (mid-screen) — fast scrollers caught headings blank */
       wrappers.forEach(function (w) { io.observe(w); });
     } else {
       wrappers.forEach(function (w) { w.classList.add('is-revealed'); });

@@ -1207,7 +1207,13 @@ window.addEventListener('load', function() {
   });
   if ('IntersectionObserver' in window) {
     var io = new IntersectionObserver(function(entries) {
-      entries.forEach(function(e) { if (e.isIntersecting) { e.target.classList.add('is-revealed'); io.unobserve(e.target); } });
+      entries.forEach(function(e) {
+        if (!e.isIntersecting) return;
+        /* fast-scroll catch-up: already deep in view -> skip the cascade */
+        var vh = window.innerHeight || document.documentElement.clientHeight;
+        if (e.boundingClientRect.top < vh * 0.45) e.target.classList.add('is-instant');
+        e.target.classList.add('is-revealed'); io.unobserve(e.target);
+      });
     }, { threshold: 0, rootMargin: '-5% 0px -20% 0px' });
     headers.forEach(function(h) { io.observe(h); });
   } else { headers.forEach(function(h) { h.classList.add('is-revealed'); }); }

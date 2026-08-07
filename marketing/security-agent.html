@@ -805,9 +805,14 @@ window.addEventListener('load', function() {
   }
   var io = new IntersectionObserver(function (entries) {
     entries.forEach(function (e) {
-      if (e.isIntersecting) { e.target.classList.add('is-revealed'); io.unobserve(e.target); }
+      if (e.isIntersecting) {
+        /* fast-scroll catch-up: already deep in view -> skip the cascade */
+        var vh = window.innerHeight || document.documentElement.clientHeight;
+        if (e.boundingClientRect.top < vh * 0.45) e.target.classList.add('is-instant');
+        e.target.classList.add('is-revealed'); io.unobserve(e.target);
+      }
     });
-  }, { threshold: 0, rootMargin: '0px 0px -45% 0px' });   // fire when heading reaches ~55% down the viewport
+  }, { threshold: 0, rootMargin: '0px 0px -15% 0px' });   // fire when heading clears the bottom 15% (was -45%/mid-screen — readers caught it mid-animation)
   containers.forEach(function (c) {
     // the run-callout heading is triggered by its own 50%-visible observer below
     if (c.closest('.run-callout')) return;

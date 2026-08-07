@@ -24,6 +24,8 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   animation: dsa-word-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   animation-delay: calc(var(--i, 0) * 28ms);
 }
+/* fast-scroll catch-up (see the reveal module): caught deep in view -> words are simply there */
+.dsa-reveal.is-instant .word { opacity: 1; transform: none; filter: none; animation: none; }
 @keyframes dsa-word-reveal {
   from { opacity: 0; transform: translate(-10px, -7px); filter: blur(5px); }
   to   { opacity: 1; transform: translate(0, 0);        filter: blur(0);   }
@@ -2284,6 +2286,9 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
         el.querySelectorAll('h1, h2, .quote-text').forEach(function (h) {
           if (!h.dataset.wrapped) { wrapWords(h); h.dataset.wrapped = '1'; }
         });
+        /* fast-scroll catch-up: already deep in view -> skip the cascade */
+        var vh = window.innerHeight || document.documentElement.clientHeight;
+        if (entry.boundingClientRect.top < vh * 0.45) el.classList.add('is-instant');
         el.classList.add('is-revealed');
         io.unobserve(el);
       } else if (el.classList.contains('eyebrow-scramble')) {
