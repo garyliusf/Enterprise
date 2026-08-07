@@ -457,7 +457,12 @@
       subs.forEach(function (s) { s.classList.add('sc-sub-words'); idx = wrapSubWords(s, idx); });
       var mo = new MutationObserver(function () {
         if (!c.classList.contains('is-revealed')) return;
-        subs.forEach(function (s) { s.classList.add('sc-sub-go'); });
+        /* Propagate the fast-scroll instant state onto the subs THEMSELVES:
+           the CSS sibling-combinator fallback only reaches subs that are
+           siblings of the container, but subs collected from INSIDE it need
+           the class directly (structure-independent). */
+        var inst = c.classList.contains('is-instant');
+        subs.forEach(function (s) { if (inst) s.classList.add('sc-sub-instant'); s.classList.add('sc-sub-go'); });
         mo.disconnect();
       });
       mo.observe(c, { attributes: true, attributeFilter: ['class'] });
