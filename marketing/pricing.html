@@ -843,7 +843,7 @@
     .compare-table-title { font-size: inherit; font-weight: 500; color: #fff; margin: 0; line-height: 1; letter-spacing: -0.5px; transition: opacity 0.25s ease; }
     /* the title reads as section chrome, not table chrome — fade it out once
        the tier head pins so only tiers + CTAs ride along */
-    .compare-tier-head.is-stuck .compare-table-title { opacity: 0; }
+    .compare-tier-head.title-gone .compare-table-title { opacity: 0; } /* one-shot: set once on first pin, never removed */
 
     .faq-sub {
       font-size: clamp(15px, 1.1vw, 17px); /* section-subtitle standard */
@@ -2733,7 +2733,8 @@
       if (!section || !head) return;
       function update() {
         var top = section.getBoundingClientRect().top;
-        head.classList.toggle('is-stuck', top < 72); /* fire as the head pins (it sticks at 68px); the old -12 let ~3 rows pass before the title faded */
+        head.classList.toggle('is-stuck', top < 72); /* fire as the head pins (it sticks at 68px) */
+        if (top < 72) head.classList.add('title-gone'); /* title fade is one-shot per page load */
       }
       update();
       window.addEventListener('scroll', update, { passive: true });
