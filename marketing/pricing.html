@@ -179,9 +179,12 @@
     /* Mobile: the toggle rides inside the Pro card's price row (JS moves it)
        so it's at hand while scrolling prices. Compact + chromeless: no
        container border/fill, small segments; the chip stays hero-only. */
-    .card-price .billing-row { margin: 0 0 0 auto; align-self: center; }
-    .card-price .billing-toggle { background: none; border: none; padding: 0; }
-    .card-price .billing-btn { width: 84px; padding: 8px 0; font-size: 13px; }
+    .card .billing-row { flex-direction: row; justify-content: flex-start; margin: 2px 0 16px; }
+    .card .billing-toggle { background: none; border: none; padding: 0; }
+    .card .billing-btn { width: 84px; padding: 8px 0; font-size: 13px; }
+    /* chromeless container, so the inactive segment carries a light fill to
+       read as part of the control */
+    .card .billing-btn:not(.active) { background: rgba(255,255,255,0.08); }
     .cards .billing-save-badge { display: none; }
 
     @media (max-width: 768px) {
@@ -2899,7 +2902,7 @@
       var mq = window.matchMedia('(max-width: 640px)');
       function place() {
         if (mq.matches) {
-          if (row.parentElement !== cards) cards.appendChild(row);
+          if (row.previousElementSibling !== cards) cards.insertAdjacentElement('afterend', row);
         } else if (row.parentElement !== hero) {
           hero.appendChild(row);
         }
