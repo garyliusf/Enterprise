@@ -116,7 +116,7 @@ All buttons must use these exact specs. No inline overrides unless absolutely ne
 | Card title | `18px` | `600` | `#fff` | `1.35` | `-0.2px` |
 | Body/description | `14–15px` | `400` | `rgba(255,255,255,0.55)` | `1.55–1.65` | — |
 | FAQ question | `18px` desktop / `17px` ≤1024px / `16px` ≤768px | `500` | `rgba(255,255,255,0.7)` default / `#fff` when open | — | — |
-| FAQ answer | `15px` desktop / `13px` ≤768px | `400` | `rgba(255,255,255,0.65)` | `1.7` | — |
+| FAQ answer | `15px` desktop / `13px` ≤768px | `400` | `rgba(255,255,255,0.5)` — standardized to the section-subtitle grey (Gary, 2026-08-07; was 0.65) | `1.7` | — |
 | Success pull-quote | `26px` | `300` | `#EDDCC6` (warm beige) | `1.55` | not italic |
 | Stat number | `72px` | `300` | `#fff` | `0.85` | `-3px` |
 
@@ -209,7 +209,7 @@ Two layers:
 | Question font-size | `18px` desktop / `17px` ≤1024px / `16px` ≤768px |
 | Question padding | `28px 16px` desktop / `22px 0` ≤768px |
 | Answer font-size | `15px` desktop / `13px` ≤768px |
-| Answer color | `rgba(255,255,255,0.65)` |
+| Answer color | `rgba(255,255,255,0.5)` (2026-08-07, was 0.65) |
 | Answer line-height | `1.7` |
 
 ---
