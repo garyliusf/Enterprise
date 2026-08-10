@@ -1,0 +1,614 @@
+<meta charset="utf-8">
+<title>Bolt Dictation — Launch Promo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  @font-face { font-family:'Inter'; font-weight:400; src:url('inter-400.woff2') format('woff2'); font-display:block; }
+  @font-face { font-family:'Inter'; font-weight:500; src:url('inter-500.woff2') format('woff2'); font-display:block; }
+  @font-face { font-family:'Inter'; font-weight:600; src:url('inter-600.woff2') format('woff2'); font-display:block; }
+  @font-face { font-family:'Inter'; font-weight:700; src:url('inter-700.woff2') format('woff2'); font-display:block; }
+
+  :root { --brand:#1488FC; --panel:#1E1E21; --hint:#A4A3AC; --danger:#EF4444; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { height:100%; background:#000; overflow:hidden; }
+  body { display:flex; align-items:center; justify-content:center;
+         font-family:'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+
+  #stage { position:relative; width:1920px; height:1080px;
+           background:#04070f; overflow:hidden; transform-origin:center center; }
+
+  /* ---- brand gradient bloom ---- */
+  /* the brand gradient at its own brightness — it IS the background, not a
+     light source to be dimmed behind a vignette */
+  #glow { position:absolute; inset:-8%; z-index:0;
+          filter:blur(10px) saturate(1.04); will-change:transform; }
+  #glow img { width:100%; height:100%; object-fit:cover; display:block; }
+/* framing only — a whisper of shade at the corners, no black border */
+  #vig { position:absolute; inset:0; z-index:2; pointer-events:none;
+    background:radial-gradient(ellipse 64% 66% at 50% 46%,
+      rgba(0,14,42,0) 46%, rgba(0,12,38,.10) 72%, rgba(0,10,34,.20) 88%,
+      rgba(0,9,30,.28) 100%); }
+  #dots { position:absolute; inset:0; z-index:1; pointer-events:none; opacity:.28;
+    background-image:radial-gradient(rgba(255,255,255,.06) 1px, transparent 1px);
+    background-size:24px 24px; }
+
+  #scene { position:absolute; inset:0; z-index:6; will-change:transform,filter,opacity; }
+
+  /* ---- prompt panel ---- */
+  #box { position:absolute; left:50%; top:530px; width:1400px; height:360px;
+         transform:translate(-50%,-50%); z-index:2;
+         background:var(--panel); border-radius:64px; border:1.5px solid rgba(255,255,255,.07);
+         box-shadow:0 54px 130px rgba(0,0,0,.64), 0 4px 16px rgba(0,0,0,.42);
+         display:flex; flex-direction:column; justify-content:space-between;
+         padding:56px 44px 0; will-change:transform; }
+
+  #textarea { position:relative; font-size:44px; line-height:1.4; color:#fff;
+              letter-spacing:-.012em; min-height:130px; }
+  #placeholder { position:absolute; left:0; top:0; right:0; color:rgba(255,255,255,.28); }
+  .say { position:absolute; left:0; top:0; right:0; opacity:0; }
+  .say.is-live { position:relative; opacity:1; }
+  #promptText .w { display:none; opacity:0; margin-right:.26em; will-change:opacity,transform,filter; }
+  #caret { display:inline-block; width:3px; height:46px; background:var(--brand);
+           vertical-align:-9px; margin-right:.16em; opacity:0; }
+  #hint, #hint2 { color:var(--hint); opacity:0; }
+  #hint2 { display:none; }   /* an opacity-0 label still holds its line box */
+
+  /* ---- control row ---- */
+  #controls { position:relative; height:140px; }
+  .row { position:absolute; inset:0; display:flex; align-items:center; gap:28px; }
+
+  /* idle row — matches the real composer: + · Standard · theme · Plan · mic · send */
+  #row-idle { justify-content:space-between; }
+  #idle-l, #idle-r { display:flex; align-items:center; flex:0 0 auto; }
+  #idle-l { gap:30px; } #idle-r { gap:26px; }
+  .ic-lbl { color:rgba(255,255,255,.52); font-size:27px; font-weight:400; white-space:nowrap; }
+  .stepper { width:17px; height:25px; flex:0 0 auto; color:rgba(255,255,255,.42); }
+  .combo { display:flex; align-items:center; gap:9px; flex:0 0 auto; }
+  #plus { width:62px; height:62px; border-radius:50%; flex:0 0 auto;
+          border:1.6px solid rgba(255,255,255,.20); display:flex; align-items:center;
+          justify-content:center; color:rgba(255,255,255,.72); }
+  #plus svg { width:46px; height:46px; }   /* plus spans ~0.43 of the circle, per the reference */
+  #theme { width:33px; height:33px; color:rgba(255,255,255,.52); }
+  #plan { display:flex; align-items:center; gap:11px; flex:0 0 auto;
+          color:rgba(255,255,255,.55); font-size:27px; font-weight:400; }
+  #plan svg { width:30px; height:30px; }
+  #mic { position:relative; width:52px; height:52px; flex:0 0 auto; display:flex; align-items:center;
+         justify-content:center; color:rgba(255,255,255,.80); will-change:transform,filter; }
+  #mic svg { width:38px; height:38px; }
+  #spin { position:absolute; left:50%; top:50%; margin:-19px 0 0 -19px; opacity:0;
+          color:rgba(255,255,255,.72); will-change:transform; }
+  #send { position:relative; width:76px; height:76px; border-radius:50%; flex:0 0 auto; background:var(--brand);
+          display:flex; align-items:center; justify-content:center; }
+  #send svg { width:47px; height:47px; }
+
+  /* recording row */
+  #row-rec { opacity:0; }
+  #trash { width:116px; height:72px; border-radius:999px; flex:0 0 auto;
+           background:rgba(255,255,255,.05); border:1.4px solid rgba(255,255,255,.15);
+           display:flex; align-items:center; justify-content:center; }
+  #trash svg { width:32px; height:32px; }
+  #wave-wrap { flex:1 1 auto; display:flex; align-items:center; justify-content:flex-start;
+               height:72px; overflow:hidden; }
+  #wave { display:block; width:1040px; height:72px; }
+  #stop { position:relative; width:130px; height:72px; border-radius:999px; flex:0 0 auto;
+          background:rgba(19,44,74,.85); border:1px solid rgba(20,136,252,.18);
+          display:flex; align-items:center; justify-content:center; will-change:transform; }
+  #stop .sq { width:27px; height:27px; border-radius:8px; border:2.6px solid var(--brand); }
+  #stop-ripple { position:absolute; inset:0; border-radius:999px; background:#fff; opacity:0; }
+
+  /* ---- the app the prompt builds ---- */
+  #win { position:absolute; left:50%; top:530px; width:1400px; height:360px;
+         transform:translate(-50%,-50%); z-index:3; opacity:0; overflow:hidden;
+         border-radius:64px; background:#1E1E21; border:1.5px solid rgba(255,255,255,.09);
+         box-shadow:0 54px 130px rgba(0,0,0,.66); will-change:width,height,border-radius; }
+  #win-chrome { position:absolute; left:0; top:0; right:0; height:64px; display:flex;
+                align-items:center; gap:14px; padding:0 22px; background:#1E1E21;
+                border-bottom:1px solid rgba(255,255,255,.07); opacity:0; z-index:2; }
+  #win-chrome .wd { width:12px; height:12px; border-radius:50%; background:rgba(255,255,255,.16); flex:0 0 auto; }
+  #win-chrome .wd:first-child { margin-left:2px; }
+  #win-url { flex:1 1 auto; max-width:520px; margin:0 auto; height:38px; border-radius:999px;
+             background:rgba(255,255,255,.06); display:flex; align-items:center; justify-content:center;
+             gap:9px; color:rgba(255,255,255,.62); font-size:19px; }
+  #win-url svg { width:17px; height:17px; flex:0 0 auto; }
+  #win-url i { font-style:normal; color:rgba(255,255,255,.34); }
+  #win-badge { flex:0 0 auto; display:flex; align-items:center; gap:8px; height:34px; padding:0 14px;
+               border-radius:999px; background:rgba(20,136,252,.16); color:#7FC0FF; font-size:17px; font-weight:500; }
+  #win-badge svg { width:15px; height:15px; }
+  #win-view { position:absolute; left:0; right:0; top:64px; bottom:0; overflow:hidden; background:#fff; opacity:0; }
+  #win-app { position:absolute; left:0; top:0; width:100%; display:block; will-change:transform; }
+
+  /* ---- cursor ---- */
+  #cursor { position:absolute; left:0; top:0; z-index:9; width:56px; height:56px; opacity:0;
+            pointer-events:none; filter:drop-shadow(0 6px 16px rgba(0,0,0,.6)); will-change:transform; }
+
+  /* click feedback — a ring that pops out of whatever was pressed */
+  .tap-ring { position:absolute; left:50%; top:50%; width:64px; height:64px; margin:-32px 0 0 -32px;
+              border-radius:50%; border:2.5px solid rgba(20,136,252,.9); opacity:0;
+              pointer-events:none; z-index:4; }
+
+  /* ---- endcard ---- */
+  #endbg { position:absolute; inset:-2px; z-index:11; opacity:0; pointer-events:none; background:
+      radial-gradient(ellipse 44% 50% at 114% -10%, rgba(22,88,190,.30) 0%, rgba(0,0,0,0) 64%),
+      radial-gradient(ellipse 46% 52% at -14% 112%, rgba(20,78,172,.26) 0%, rgba(0,0,0,0) 62%),
+      #000; }
+
+  #end-copy { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+              z-index:13; text-align:center; white-space:nowrap; }
+  #end-h1 { font-size:78px; font-weight:600; letter-spacing:-.022em; line-height:1.1; color:#fff; }
+  #end-h1 .w { display:inline-block; opacity:0; will-change:transform,opacity,filter; }
+  #end-h1 .hi { background:linear-gradient(96deg,#4FACFF 0%,#A9D6FF 100%);
+                -webkit-background-clip:text; background-clip:text; color:transparent; }
+  #end-mark { position:absolute; left:50%; top:930px; transform:translateX(-50%); z-index:13; opacity:0; }
+  #end-mark img { width:172px; display:block; opacity:.95; }
+
+  #cover { position:absolute; inset:-2px; z-index:30; background:#04070f; opacity:1; pointer-events:none; }
+</style>
+
+<div id="stage">
+  <div id="glow"><img src="bolt-bg-final.webp" alt=""></div>
+  <div id="vig"></div>
+  <div id="dots"></div>
+
+  <div id="scene">
+
+    <div id="box">
+      <div id="textarea">
+        <div id="placeholder">Describe what you want to build…</div>
+        <div class="say is-live" id="sayEN"><span id="promptText"></span><span id="caret"></span><span id="hint">Listening…</span><span id="hint2">Transcribing…</span></div>
+      </div>
+
+      <div id="controls">
+        <div class="row" id="row-idle">
+          <div id="idle-l">
+            <div id="plus">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M12 5.2v13.6M5.2 12h13.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="combo">
+              <span class="ic-lbl">Standard</span>
+              <svg class="stepper" viewBox="0 0 14 20" fill="none">
+                <path d="M3.2 8.2 7 4.4l3.8 3.8M3.2 11.8 7 15.6l3.8-3.8" stroke="currentColor"
+                      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="combo">
+              <svg id="theme" viewBox="0 0 24 24" fill="none">
+                <path d="M12 3.4c-4.8 0-8.6 3.5-8.6 7.9 0 2.7 2.1 4.4 4.5 4.4h1.4c1.1 0 2 .9 2 2 0 .8.6 1.4 1.4 1.4 4.4 0 7.9-3.9 7.9-8.6 0-4.3-3.8-7.1-8.6-7.1Z"
+                      stroke="currentColor" stroke-width="1.5"/>
+                <circle cx="7.9" cy="10" r="1.05" fill="currentColor"/>
+                <circle cx="11.6" cy="7.6" r="1.05" fill="currentColor"/>
+                <circle cx="15.6" cy="9.6" r="1.05" fill="currentColor"/>
+              </svg>
+              <svg class="stepper" viewBox="0 0 14 20" fill="none">
+                <path d="M3.2 8.2 7 4.4l3.8 3.8M3.2 11.8 7 15.6l3.8-3.8" stroke="currentColor"
+                      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </div>
+
+          <div id="idle-r">
+            <div id="plan">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M12 3.6a5.9 5.9 0 0 0-3.5 10.7c.5.4.8 1 .8 1.6v.5h5.4v-.5c0-.6.3-1.2.8-1.6A5.9 5.9 0 0 0 12 3.6Z"
+                      stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                <path d="M10.1 19.3h3.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              <span>Plan</span>
+            </div>
+            <div id="mic">
+              <span class="tap-ring" id="mic-ring"></span>
+              <svg id="spin" viewBox="0 0 24 24" fill="none">
+                <path d="M12 3.4a8.6 8.6 0 1 0 8.6 8.6" stroke="currentColor" stroke-width="1.9"
+                      stroke-linecap="round"/>
+              </svg>
+              <svg id="mic-glyph" viewBox="0 0 24 24" fill="none">
+                <rect x="9.1" y="2.9" width="5.8" height="10.3" rx="2.9" stroke="currentColor" stroke-width="1.6"/>
+                <path d="M6.2 11.3a5.8 5.8 0 0 0 11.6 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                <path d="M12 17.1v3.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div id="send">
+              <span class="tap-ring" id="send-ring" style="border-color:rgba(255,255,255,.9)"></span>
+              <svg viewBox="0 0 24 24" fill="none">
+<!-- wide 45-degree head (span ≈ the arrow's own height) on a thin stroke -->
+                <path d="M12 19.5V4.5" stroke="#fff" stroke-width="1.25" stroke-linecap="round"/>
+                <path d="M5.4 11.1 12 4.5l6.6 6.6" stroke="#fff" stroke-width="1.25"
+                      stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="row" id="row-rec">
+          <div id="trash">
+            <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.62)"
+                 stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4.3 6.6h15.4"/>
+              <path d="M9.4 6.6V5.2a1.4 1.4 0 0 1 1.4-1.4h2.4a1.4 1.4 0 0 1 1.4 1.4v1.4"/>
+              <path d="M6.7 6.6l.75 12.2a1.6 1.6 0 0 0 1.6 1.5h5.9a1.6 1.6 0 0 0 1.6-1.5l.75-12.2"/>
+              <path d="M10.3 10.3v6.5M13.7 10.3v6.5" stroke-width="1.35"/>
+            </svg>
+          </div>
+          <div id="wave-wrap"><canvas id="wave" width="2080" height="144"></canvas></div>
+          <div id="stop"><span id="stop-ripple"></span><span class="tap-ring" id="stop-ring"></span><span class="sq"></span></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="win">
+      <div id="win-chrome">
+        <div class="wd"></div><div class="wd"></div><div class="wd"></div>
+        <div id="win-url">
+          <svg viewBox="0 0 24 24" fill="none">
+            <rect x="4.5" y="10.5" width="15" height="10" rx="2" stroke="currentColor" stroke-width="2"/>
+            <path d="M8 10.5V7a4 4 0 0 1 8 0v3.5" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          <span><i>https://</i>soulpress.bolt.host</span>
+        </div>
+        <div id="win-badge">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="3.2"
+               stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Deployed</span>
+        </div>
+      </div>
+      <div id="win-view"><img id="win-app" src="soulpress-app.webp" alt=""></div>
+    </div>
+
+    <svg id="cursor" viewBox="0 0 24 24">
+      <path d="M5 2.6 18.4 12.1l-5.6.5-2.9 5.3z" fill="#fff" stroke="rgba(0,0,0,.45)" stroke-width="1.2"
+            stroke-linejoin="round"/>
+    </svg>
+  </div>
+
+  <div id="endbg"></div>
+
+  <div id="end-copy">
+    <div id="end-h1"><span class="w">Stop</span> <span class="w hi">typing.</span> <span class="w">Start</span> <span class="w hi">talking.</span></div>
+  </div>
+  <div id="end-mark"><img src="../images/bolt-new.svg" alt="bolt.new"></div>
+
+  <div id="cover"></div>
+</div>
+
+<script src="gsap.min.js"></script>
+<script>
+/* ===================================================================
+   Bolt — Dictation launch promo. 1920x1080, 9.6s seamless loop.
+   UI matches the "Listening" / "Chaining" storyboard frames:
+   panel #1E1E21, blue caret + "Listening…" hint, trash · growing
+   waveform · stop. All continuous motion is time-derived so the
+   timeline can be seeked frame-by-frame for capture without drift.
+   =================================================================== */
+const LOOP = 11.5;
+const $ = (s) => document.querySelector(s);
+const stage = $('#stage');
+
+/* ---------- where the pointer actually has to land ----------
+   The cursor is positioned in STAGE coordinates (0..1920 / 0..1080), but the
+   stage is scaled to fit the window, so a plain getBoundingClientRect() reports
+   scaled screen pixels. Dividing the rects back out is NOT reliable here (the
+   stage is transform-scaled about its centre inside a flex-centred, overflowing
+   body), so we drop the transform for the measurement and restore it right
+   after — with transform:none the stage box IS stage space, 1:1.
+   The offset is the arrow's tip, at 5/24 x 2.6/24 of the SVG box — the cursor's
+   x/y is its top-left corner, not its point. */
+const CURSOR_PX = 56, TIPX = 5 / 24 * CURSOR_PX, TIPY = 2.6 / 24 * CURSOR_PX;
+const HIT = { mic: { x: 0, y: 0 }, stop: { x: 0, y: 0 }, send: { x: 0, y: 0 } };
+function measureHits() {
+  const st = document.getElementById('stage');
+  const prev = st.style.transform;
+  st.style.transform = 'none';
+  const sr = st.getBoundingClientRect();
+  const at = (sel) => {
+    const r = document.querySelector(sel).getBoundingClientRect();
+    return { x: r.left + r.width / 2 - sr.left - TIPX,
+             y: r.top + r.height / 2 - sr.top - TIPY };
+  };
+  HIT.mic = at('#mic'); HIT.stop = at('#stop'); HIT.send = at('#send');
+  st.style.transform = prev;
+}
+
+/* ---------- beats ---------- */
+/* Clicks are deliberately slow: approach → press down → HOLD → spring back.
+   The hold is what makes a click read; an 80ms tap is 5 frames and invisible. */
+const PRESS = 0.13, HOLD = 0.20, RELEASE = 0.34;
+const CLICK_MIC = 0.76, REC_ON = 1.31;      // 0.55s before the row swaps to recording
+/* The real flow: click mic -> "Listening…" while a live full-width meter reacts
+   to the voice -> click stop -> "Transcribing…" with a spinner where the mic was
+   -> the whole transcript lands at once and the send button returns. No text
+   appears while you are still talking. */
+const CLICK_STOP = 5.05;
+const VOICE_START = 1.70, VOICE_END = CLICK_STOP - 0.06;  // when the meter has signal
+const TRANSCRIBE_AT = CLICK_STOP + 0.30;                  // "Listening…" -> "Transcribing…"
+const TEXT_IN = TRANSCRIBE_AT + 1.10;                     // transcript lands, send returns
+
+/* ---------- the dictated sentence, timed like speech ---------- */
+const SENTENCE = "Build me an online record store with artist pages and a checkout.";
+const words = SENTENCE.split(' ').map((w) => ({
+  text: w,
+  raw: 0.14 + w.replace(/[^\w]/g, '').length * 0.028 + (/[,.]$/.test(w) ? 0.22 : 0)
+}));
+/* the word schedule is now only used to shape the meter's loudness envelope,
+   so the bars pulse per syllable with natural gaps between words */
+/* The word schedule only shapes the meter's loudness now. Words were packed
+   edge to edge at equal volume, which is why the meter beamed at a constant
+   level — so each word gets its own emphasis, a gap after it, and two longer
+   breath pauses, all under an arch across the whole utterance. */
+{
+  words.forEach((w, i) => {
+    const h = Math.abs((Math.sin(i * 91.7 + 2.3) * 43758.5453) % 1);
+    w.gain = 0.40 + 0.60 * h;                          // some words land harder
+    w.gapAfter = (i === 4 || i === 8) ? 0.34 : 0.02;   // two breaths; words otherwise run on
+  });
+  const total = words.reduce((a, w) => a + w.raw + w.gapAfter, 0);
+  const k = (VOICE_END - VOICE_START) / total;
+  let t = VOICE_START;
+  words.forEach((w) => { w.dur = w.raw * k; w.start = t; t += (w.raw + w.gapAfter) * k; });
+}
+
+const promptText = $('#promptText');
+const wordEls = words.map((w) => {
+  const el = document.createElement('span');
+  el.className = 'w'; el.textContent = w.text;
+  promptText.appendChild(el);
+  return el;
+});
+
+/* ---------- endcard headline ---------- */
+const h1Els = Array.from(document.querySelectorAll('#end-h1 .w'));
+
+/* =========================== waveform =========================== */
+/* A LIVE meter: every bar exists from the moment recording starts and moves up
+   and down with the voice. Three oscillators per bar — a travelling ripple, a
+   fast flutter and a slow swell, each phase-offset by the bar's own seed — under
+   one loudness envelope, so the whole field breathes per syllable and drops to
+   dots in the gaps between words. */
+const wave = $('#wave'), wctx = wave.getContext('2d');
+const waveGate = { v: 0 };
+const DPR = 2;
+const PITCH = 13, BW = 6, MAXH = 46, MINH = 5;
+const NB = Math.floor((wave.width / DPR) / PITCH);
+const rnd = (i) => { const x = Math.sin(i * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+/* smooth 1-D value noise: random at integer steps, smoothstepped between, so
+   neighbouring bars stay related while the field still has real variety */
+function vnoise(x, off) {
+  const i0 = Math.floor(x), f = x - i0;
+  const h = (n) => { const v = Math.sin((n + off) * 127.1) * 43758.5453; return v - Math.floor(v); };
+  const a = h(i0), b = h(i0 + 1);
+  return a + (b - a) * (f * f * (3 - 2 * f));
+}
+const seed = Array.from({ length: NB }, (_, i) => rnd(i));
+
+function speechAmp(t) {
+  if (t < VOICE_START - 0.10 || t > VOICE_END + 0.16) return 0;
+  let a = 0;
+  for (const w of words) {
+    // bumps are wider than their word so neighbours overlap — the level only
+    // truly falls at the two breaths, not between every word (that strobed)
+    const p = (t - w.start + w.dur * 0.10) / (w.dur * 1.20);
+    if (p > -0.10 && p < 1.10) {
+      a = Math.max(a, w.gain * Math.sin(Math.max(0, Math.min(1, p)) * Math.PI) ** 0.45);
+    }
+  }
+  a = Math.max(a, 0.14);   // room tone — the meter never goes completely dead mid-take
+  // an arch over the utterance: quieter at the start and tail, fuller mid-sentence
+  const u = Math.max(0, Math.min(1, (t - VOICE_START) / (VOICE_END - VOICE_START)));
+  return a * (0.62 + 0.38 * Math.sin(Math.PI * u));
+}
+
+function drawWave(t, gate) {
+  wctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  wctx.clearRect(0, 0, wave.width, wave.height);
+  if (gate <= 0.001) return;
+  const mid = (wave.height / DPR) / 2;
+  const env = speechAmp(t);
+  for (let i = 0; i < NB; i++) {
+    /* Three octaves of value noise instead of three sine waves. Sines made the
+       whole band rise and fall as one piece — evenly. Layering a broad swell,
+       a medium ripple and fine detail (each drifting at its own rate) gives
+       tall bars sitting next to short ones while neighbours stay related. */
+    const x = i * 0.34, tt = t * 0.9;
+    let n = 0.42 * vnoise(x * 0.50 + tt * 0.60, 11)
+          + 0.36 * vnoise(x * 1.30 - tt * 1.10, 37)
+          + 0.22 * vnoise(x * 3.10 + tt * 1.90, 71);
+    // summing octaves pulls values toward the middle, so stretch the contrast
+    // back out — otherwise every bar sits at the same mid height
+    n = Math.max(0, Math.min(1, (n - 0.5) * 2.0 + 0.5));
+    const shape = 0.10 + 1.02 * Math.pow(n, 1.15);   // a few peaks, many mid, some low
+    /* the field is fuller through the middle and tapers to the ends, and the
+       loud centre drifts slowly so it never sits pinned dead centre */
+    const u = i / (NB - 1);
+    const cp = 0.5 + 0.10 * Math.sin(t * 0.75 + 1.1);
+    const uu = Math.max(0, Math.min(1, 0.5 + (u - cp) * 1.06));
+    const bias = 0.38 + 0.62 * Math.pow(Math.sin(Math.PI * uu), 0.70);
+    const level = env * Math.max(0, shape) * bias;
+    const h = MINH + Math.max(0, Math.min(1, level)) * (MAXH - MINH);
+    const a = (env > 0.04 ? 0.95 : 0.5) * gate;
+    wctx.fillStyle = `rgba(20,136,252,${a})`;
+    wctx.beginPath();
+    wctx.roundRect(i * PITCH, mid - h / 2, BW, h, BW / 2);
+    wctx.fill();
+  }
+}
+
+/* =========================== time-derived motion =========================== */
+const glow = $('#glow'), caret = $('#caret'), spin = $('#spin');
+const caretGate = { v: 0 };
+function renderTime(t) {
+  const k = Math.sin((t / LOOP) * Math.PI * 2);
+  glow.style.transform = `scale(${1.05 + k * 0.04}) translate(${k * 20}px, ${-k * 14}px)`;
+  drawWave(t, waveGate.v);
+  spin.style.transform = 'rotate(' + (t * 400) + 'deg)';
+  caret.style.opacity = caretGate.v *
+    (Number(caret.dataset.on || 0) ? ((t * 0.82) % 1 < 0.5 ? 1 : 0.10) : 1);
+}
+
+/* =========================== state reset =========================== */
+function resetState() {
+  gsap.set(wordEls, { display: 'none', opacity: 0, y: 8, filter: 'blur(4px)', color: 'rgba(255,255,255,0.42)' });
+  gsap.set('#placeholder', { opacity: 1 });
+  gsap.set(caret, { opacity: 0 }); caret.dataset.on = 0; caretGate.v = 0;
+  gsap.set('#hint', { display: 'inline', opacity: 0 });
+  gsap.set('#hint2', { display: 'none', opacity: 0 });
+  gsap.set('#spin', { opacity: 0 });
+  gsap.set('#mic-glyph', { opacity: 1 });
+  gsap.set('#promptText', { display: 'none', opacity: 0 });
+  gsap.set('#wave', { opacity: 1 }); waveGate.v = 0;
+  gsap.set('#row-idle', { opacity: 1 });
+  gsap.set('#row-rec', { opacity: 0 });
+  gsap.set('#mic', { scale: 1, filter: 'drop-shadow(0 0 0px rgba(20,136,252,0))' });
+  gsap.set('#stop', { scale: 1 });
+  gsap.set('#stop-ripple', { opacity: 0 });
+  gsap.set('#box', { borderColor: 'rgba(255,255,255,0.07)', scale: 1 });
+  gsap.set('#sayEN', { opacity: 1, filter: 'blur(0px)' });
+  gsap.set('#scene', { scale: 1, opacity: 1, filter: 'blur(0px)' });
+  gsap.set('#cursor', { opacity: 0, x: 1720, y: 1010, scale: 1, transformOrigin: `${TIPX}px ${TIPY}px` });
+  gsap.set('.tap-ring', { opacity: 0, scale: 0.45 });
+  gsap.set('#endbg', { opacity: 0 });
+  gsap.set('#glow', { opacity: 1 }); gsap.set('#dots', { opacity: 0.28 }); gsap.set('#vig', { opacity: 1 });
+  gsap.set('#win', { opacity: 0, width: 1400, height: 360, borderRadius: 64 });
+  gsap.set('#win-chrome, #win-view', { opacity: 0 });
+  gsap.set('#win-view', { clipPath: 'inset(0 0 100% 0)' });
+  gsap.set('#win-app', { y: 0 });
+  gsap.set('#send', { scale: 1, opacity: 1, filter: 'brightness(1)' });
+  gsap.set(h1Els, { opacity: 0, y: 34, filter: 'blur(9px)' });
+  gsap.set('#end-mark', { opacity: 0, y: 14 });
+}
+
+/* =========================== master timeline =========================== */
+const tl = gsap.timeline({ repeat: -1, defaults: { ease: 'power3.inOut' } });
+tl.call(resetState);
+
+// fade up
+tl.to('#cover', { opacity: 0, duration: 0.34, ease: 'power2.out' }, 0);
+
+// cursor → mic, click
+tl.to('#cursor', { opacity: 1, duration: 0.18, ease: 'power2.out' }, 0.06);
+tl.to('#cursor', { x: () => HIT.mic.x, y: () => HIT.mic.y, duration: 0.62, ease: 'power2.out' }, 0.08);
+tl.to('#mic', { scale: 0.74, duration: PRESS, ease: 'power2.in' }, CLICK_MIC);
+tl.to('#mic', { scale: 1, duration: RELEASE, ease: 'back.out(2.6)' }, CLICK_MIC + PRESS + HOLD);
+tl.fromTo('#mic', { filter: 'drop-shadow(0 0 0px rgba(20,136,252,0))' },
+  { filter: 'drop-shadow(0 0 16px rgba(20,136,252,0.95))', duration: 0.22, ease: 'power2.out' }, CLICK_MIC - 0.18);
+tl.fromTo('#mic-ring', { scale: 0.4, opacity: 1 },
+  { scale: 3.0, opacity: 0, duration: 0.62, ease: 'power2.out' }, CLICK_MIC + PRESS);
+tl.to('#cursor', { scale: 0.82, duration: PRESS, ease: 'power2.in' }, CLICK_MIC);
+tl.to('#cursor', { scale: 1, duration: 0.26, ease: 'power2.out' }, CLICK_MIC + PRESS + HOLD);
+
+// → recording
+tl.call(() => { caret.dataset.on = 1; }, null, REC_ON);
+tl.to('#row-idle', { opacity: 0, duration: 0.20, ease: 'power2.in' }, REC_ON - 0.06);
+tl.to('#row-rec', { opacity: 1, duration: 0.30, ease: 'power2.out' }, REC_ON + 0.06);
+tl.to('#placeholder', { opacity: 0, duration: 0.22 }, REC_ON - 0.10);
+tl.to('#box', { borderColor: 'rgba(20,136,252,0.42)', duration: 0.4 }, REC_ON);
+tl.to(caretGate, { v: 1, duration: 0.25, ease: 'power1.out' }, REC_ON + 0.06);
+tl.to('#hint', { opacity: 1, duration: 0.20, ease: 'power1.out' }, REC_ON + 0.06);
+/* "Listening…" belongs to the EMPTY box: it holds on its own, fades out, and
+   only then do the words start landing — it never trails the transcript. */
+tl.to(waveGate, { v: 1, duration: 0.30, ease: 'power2.out' }, REC_ON + 0.06);
+// cursor eases off the button while you talk
+tl.to('#cursor', { x: () => HIT.stop.x, y: () => HIT.stop.y, duration: 0.60, ease: 'power2.inOut' }, REC_ON + 0.42);
+
+words.forEach((w, i) => {
+  tl.fromTo(wordEls[i],
+    { display: 'none', opacity: 0, y: 8, filter: 'blur(4px)' },
+    { display: 'inline-block', opacity: 1, y: 0, filter: 'blur(0px)',
+      duration: 0.18, ease: 'power2.out' },
+    w.start);
+  tl.to(wordEls[i], { color: '#ffffff', duration: 0.26, ease: 'power1.out' }, w.start + 0.26);
+});
+
+// cursor → stop, click
+tl.to('#stop', { scale: 0.88, duration: PRESS, ease: 'power2.in' }, CLICK_STOP);
+tl.to('#stop', { scale: 1, duration: RELEASE, ease: 'back.out(2.6)' }, CLICK_STOP + PRESS + HOLD);
+tl.to('#cursor', { scale: 0.82, duration: PRESS, ease: 'power2.in' }, CLICK_STOP);
+tl.to('#cursor', { scale: 1, duration: 0.26, ease: 'power2.out' }, CLICK_STOP + PRESS + HOLD);
+tl.fromTo('#stop-ripple', { opacity: 0.45 }, { opacity: 0, duration: 0.60, ease: 'power2.out' }, CLICK_STOP + PRESS);
+tl.fromTo('#stop-ring', { scale: 0.5, opacity: 1 },
+  { scale: 2.8, opacity: 0, duration: 0.85, ease: 'power2.out' }, CLICK_STOP + PRESS);
+
+// stop → the prompt settles
+const SETTLE = CLICK_STOP + 0.14;
+tl.call(() => { caret.dataset.on = 0; }, null, TEXT_IN + 0.4);
+tl.to(waveGate, { v: 0, duration: 0.34, ease: 'power2.in' }, SETTLE);
+tl.to('#row-rec', { opacity: 0, duration: 0.26 }, SETTLE + 0.10);
+tl.to('#row-idle', { opacity: 1, duration: 0.26 }, SETTLE + 0.22);
+tl.to('#box', { borderColor: 'rgba(255,255,255,0.07)', duration: 0.4 }, SETTLE);
+
+
+/* stop -> "Transcribing…": a spinner takes the mic's place and the send button
+   steps out until there is something to send */
+tl.to('#hint', { opacity: 0, duration: 0.22, ease: 'power1.in' }, TRANSCRIBE_AT - 0.22);
+tl.set('#hint', { display: 'none' }, TRANSCRIBE_AT);
+tl.set('#hint2', { display: 'inline' }, TRANSCRIBE_AT);
+tl.fromTo('#hint2', { opacity: 0 }, { opacity: 1, duration: 0.26, ease: 'power1.out' }, TRANSCRIBE_AT);
+tl.to('#mic-glyph', { opacity: 0, duration: 0.20 }, TRANSCRIBE_AT - 0.16);
+tl.to('#spin', { opacity: 1, duration: 0.24 }, TRANSCRIBE_AT - 0.10);
+tl.to('#send', { opacity: 0, scale: 0.82, duration: 0.24, ease: 'power2.in' }, TRANSCRIBE_AT - 0.16);
+
+/* …a beat later the whole transcript lands at once, the spinner becomes the mic
+   again and the blue send button comes back */
+tl.to('#hint2', { opacity: 0, duration: 0.24, ease: 'power1.in' }, TEXT_IN - 0.26);
+tl.set('#hint2', { display: 'none' }, TEXT_IN - 0.02);
+tl.fromTo('#promptText', { display: 'none', opacity: 0 },
+  { display: 'inline', opacity: 1, duration: 0.34, ease: 'power2.out' }, TEXT_IN);
+tl.to('#spin', { opacity: 0, duration: 0.22 }, TEXT_IN - 0.06);
+tl.to('#mic-glyph', { opacity: 1, duration: 0.28 }, TEXT_IN + 0.02);
+tl.to('#send', { opacity: 1, scale: 1, duration: 0.34, ease: 'back.out(2.2)' }, TEXT_IN + 0.02);
+
+// cursor -> send, click
+const CLICK_SEND = TEXT_IN + 0.95;
+tl.to('#cursor', { x: () => HIT.send.x, y: () => HIT.send.y, duration: 0.50, ease: 'power2.out' }, TEXT_IN + 0.30);
+tl.to('#send', { scale: 0.86, duration: PRESS, ease: 'power2.in' }, CLICK_SEND);
+tl.to('#send', { scale: 1, duration: RELEASE, ease: 'back.out(2.6)' }, CLICK_SEND + PRESS + HOLD);
+tl.fromTo('#send-ring', { scale: 0.5, opacity: 1 },
+  { scale: 2.7, opacity: 0, duration: 0.85, ease: 'power2.out' }, CLICK_SEND + PRESS);
+tl.to('#cursor', { scale: 0.82, duration: PRESS, ease: 'power2.in' }, CLICK_SEND);
+tl.to('#cursor', { scale: 1, duration: 0.26, ease: 'power2.out' }, CLICK_SEND + PRESS + HOLD);
+// the pointer stays put through the whole press, then leaves
+tl.to('#cursor', { opacity: 0, duration: 0.26 }, CLICK_SEND + PRESS + HOLD + 0.20);
+
+// …and the prompt box becomes the app it just built
+const MORPH = CLICK_SEND + PRESS + HOLD + 0.18;
+tl.to('#win', { opacity: 1, duration: 0.18, ease: 'power2.out' }, MORPH);
+tl.to('#box', { opacity: 0, duration: 0.20, ease: 'power2.in' }, MORPH + 0.06);
+tl.to('#win', { width: 1600, height: 880, borderRadius: 22, duration: 0.78, ease: 'power3.inOut' }, MORPH + 0.12);
+tl.to('#win-chrome', { opacity: 1, duration: 0.28, ease: 'power2.out' }, MORPH + 0.16);
+tl.to('#win-view', { opacity: 1, duration: 0.22, ease: 'power2.out' }, MORPH + 0.26);
+// the page paints in top-down, the way a fresh build renders
+tl.fromTo('#win-view', { clipPath: 'inset(0 0 100% 0)' },
+  { clipPath: 'inset(0 0 0% 0)', duration: 0.55, ease: 'power2.out' }, MORPH + 0.26);
+// the built page scrolls a little, the way a fresh preview does
+tl.fromTo('#win-app', { y: 0 }, { y: -300, duration: 1.60, ease: 'sine.inOut' }, MORPH + 0.72);
+
+// hand off to the endcard
+const OUT = MORPH + 1.90;   // the app holds ~0.6s longer before it hands off
+tl.to('#scene', { scale: 1.05, opacity: 0, filter: 'blur(14px)', duration: 0.6, ease: 'power2.inOut' }, OUT);
+tl.to('#endbg', { opacity: 1, duration: 0.52, ease: 'power2.inOut' }, OUT + 0.06);
+tl.to('#glow, #dots, #vig', { opacity: 0, duration: 0.52, ease: 'power2.inOut' }, OUT + 0.06);
+
+// endcard — "Stop typing. Start talking."
+const END = OUT + 0.26;
+tl.to(h1Els, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.60, stagger: 0.075, ease: 'power3.out' }, END);
+tl.to('#end-mark', { opacity: 1, y: 0, duration: 0.50, ease: 'power2.out' }, END + 0.44);
+
+// fade to black -> seamless loop
+tl.to('#cover', { opacity: 1, duration: 0.42, ease: 'power2.inOut' }, LOOP - 0.42);
+tl.set({}, {}, LOOP);
+
+/* =========================== render + fit =========================== */
+gsap.ticker.add(() => renderTime(tl.time()));
+
+function fit() {
+  const s = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+  stage.style.transform = 'scale(' + s + ')';
+}
+window.addEventListener('resize', function () { fit(); measureHits(); });
+fit(); measureHits();
+document.fonts.ready.then(measureHits);
+
+window.__tl = tl;
+window.__LOOP = LOOP;
+window.__renderAt = function (t) { tl.pause(); tl.seek(t, false); renderTime(t); };
+window.__resetForCapture = function () { measureHits(); tl.invalidate(); tl.pause(); resetState(); tl.seek(0, false); renderTime(0); };
+document.fonts.ready.then(() => { document.documentElement.dataset.ready = '1'; });
+</script>
