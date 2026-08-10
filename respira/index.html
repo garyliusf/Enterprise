@@ -317,6 +317,32 @@ p{ margin:0 0 1.25em; } p:last-child{ margin-bottom:0; }
   gap: clamp(40px,6vw,96px); align-items:start;
 }
 .about-photo{ aspect-ratio:4/5; position:sticky; top:130px; }
+
+/* long-form copy collapses behind a blurred fade until "Read more" */
+.readmore-copy{ position:relative; }
+.readmore.is-clamped .readmore-copy{
+  max-height:var(--clamp-h, 30em); overflow:hidden;
+}
+.readmore.is-clamped .readmore-copy::after{
+  content:""; position:absolute; left:0; right:0; bottom:0; height:190px;
+  pointer-events:none;
+  background:linear-gradient(180deg, rgba(9,34,48,0) 0%, rgba(9,34,48,.72) 55%, var(--night-deep) 100%);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 62%);
+          mask-image: linear-gradient(180deg, transparent 0%, #000 62%);
+}
+.readmore-btn{
+  margin-top:26px;
+  display:inline-flex; align-items:center; gap:12px;
+  background:none; border:0; padding:6px 0; cursor:pointer;
+  font-family:var(--sans); font-size:12px; font-weight:400;
+  letter-spacing:.22em; text-transform:capitalize; color:var(--gold);
+  transition:color .3s ease;
+}
+.readmore-btn:hover{ color:var(--gold-soft); }
+.readmore-btn svg{ transition:transform .45s cubic-bezier(.22,1,.36,1); }
+.readmore:not(.is-clamped) .readmore-btn svg{ transform:rotate(180deg); }
 img.about-photo, img.detail-photo, img.pillar-photo{ object-fit:cover; width:100%;
   border:1px solid var(--line-soft); }
 
@@ -805,7 +831,8 @@ img.about-photo, img.detail-photo, img.pillar-photo{ object-fit:cover; width:100
       <div class="rv">
         <img class="about-photo" src="assets/about-michele.jpg" alt="Michèle Anne Barocchi">
       </div>
-      <div class="rv rv-d1">
+      <div class="rv rv-d1 readmore" id="aboutReadmore">
+        <div class="readmore-copy">
         <p class="lede">I'm a scientist by training and a lifelong student of bowing my head down.</p>
         <p>I earned my Master of Public Health and PhD in Infectious Diseases and Immunity from the University of California, Berkeley, where I developed a deep appreciation for rigorous science and its power to improve human lives. My early career took me to Brazil, working in public health, before I spent fifteen years at Novartis leading research in molecular epidemiology, collaborating with the World Health Organization, and publishing more than forty-five scientific papers.</p>
 
@@ -814,6 +841,11 @@ img.about-photo, img.detail-photo, img.pillar-photo{ object-fit:cover; width:100
         <p>A serious accident that resulted in the loss of my left leg became one of the greatest teachers of my life. It challenged everything I thought I understood about healing and opened the door to an entirely new way of seeing the human experience. My search for recovery led me beyond the western medical paradigm into breath, yoga, contemplative practice, and eventually the emerging field of psychedelic-assisted therapies.</p>
         <p>Rather than choosing between science and spirituality, I discovered that the two can enrich one another. Today, my work lives at that intersection: bringing together evidence, embodied experience, curiosity, and compassion to support the process of healing that is both deeply human and scientifically grounded.</p>
         <p>Whether I'm collaborating with researchers, teaching breathwork, training yoga teachers, or building educational initiatives through MAPS Italia, my intention is always the same: to create spaces where people can reconnect with themselves, with one another, and with the extraordinary capacity we all have to move through challenging circumstances.</p>
+        </div>
+        <button class="readmore-btn" type="button" aria-expanded="false" aria-controls="aboutReadmore">
+          <span>Read More</span>
+          <svg width="12" height="8" viewBox="0 0 12 8" fill="none" aria-hidden="true"><path d="M1 1.5 6 6.5l5-5" stroke="currentColor" stroke-width="1.2"/></svg>
+        </button>
       </div>
     </div>
   </div>
@@ -1202,6 +1234,27 @@ img.about-photo, img.detail-photo, img.pillar-photo{ object-fit:cover; width:100
   }
 
   document.getElementById('yr').textContent = new Date().getFullYear();
+
+  /* read-more: only clamp when the copy is actually taller than the cap,
+     so a short viewport or edited copy never shows a pointless button */
+  document.querySelectorAll('.readmore').forEach(function(block){
+    var copy = block.querySelector('.readmore-copy');
+    var btn  = block.querySelector('.readmore-btn');
+    var label = btn && btn.querySelector('span');
+    if (!copy || !btn) return;
+    var cap = parseFloat(getComputedStyle(copy).fontSize) * 30;   /* 30em */
+    if (copy.scrollHeight <= cap + 40){ btn.style.display = 'none'; return; }
+    block.classList.add('is-clamped');
+    btn.addEventListener('click', function(){
+      var clamped = block.classList.toggle('is-clamped');
+      btn.setAttribute('aria-expanded', String(!clamped));
+      if (label) label.textContent = clamped ? 'Read More' : 'Read Less';
+      if (clamped){
+        var top = block.getBoundingClientRect().top + window.scrollY - 160;
+        window.scrollTo({ top: top, behavior: 'smooth' });
+      }
+    });
+  });
 
   /* nav hover underline — a drift of cosmic sand under each link */
   if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
