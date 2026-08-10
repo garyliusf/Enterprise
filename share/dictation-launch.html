@@ -366,7 +366,7 @@ const h1Els = Array.from(document.querySelectorAll('#end-h1 .w'));
 const wave = $('#wave'), wctx = wave.getContext('2d');
 const waveGate = { v: 0 };
 const DPR = 2;
-const PITCH = 13, BW = 6, MAXH = 46, MINH = 5;
+const PITCH = 13, BW = 6, MAXH = 58, MINH = 5;
 const NB = Math.floor((wave.width / DPR) / PITCH);
 const rnd = (i) => { const x = Math.sin(i * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
 /* smooth 1-D value noise: random at integer steps, smoothstepped between, so
@@ -420,8 +420,12 @@ function drawWave(t, gate) {
     const u = i / (NB - 1);
     const cp = 0.5 + 0.10 * Math.sin(t * 0.75 + 1.1);
     const uu = Math.max(0, Math.min(1, 0.5 + (u - cp) * 1.06));
-    const bias = 0.38 + 0.62 * Math.pow(Math.sin(Math.PI * uu), 0.70);
-    const level = env * Math.max(0, shape) * bias;
+    const bias = 0.24 + 0.76 * Math.pow(Math.sin(Math.PI * uu), 0.62);
+    /* env x shape x bias multiplies out low, so peaks never approached the
+       ceiling. A soft knee lifts the mid range and approaches 1 asymptotically —
+       raising the gain and clamping instead would flat-top the tall bars. */
+    const raw = env * Math.max(0, shape) * bias;
+    const level = 1 - Math.exp(-2.1 * raw);
     const h = MINH + Math.max(0, Math.min(1, level)) * (MAXH - MINH);
     const a = (env > 0.04 ? 0.95 : 0.5) * gate;
     wctx.fillStyle = `rgba(20,136,252,${a})`;
