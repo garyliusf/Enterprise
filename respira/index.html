@@ -81,7 +81,7 @@ section[id]{ scroll-margin-top:140px; }
 
 /* ---------- type ---------- */
 h1,h2,h3,h4{ font-family: var(--serif); color: var(--cream); font-weight:300; margin:0; }
-.h2{ font-size: clamp(34px, 4.8vw, 58px); line-height:1.1; }
+.h2{ font-size: clamp(34px, 4.8vw, 58px); line-height:0.98; }
 .h3{ font-size: clamp(25px, 2.5vw, 33px); line-height:1.22; }
 em{ font-style: italic; }
 .gold{ color: var(--gold); }
@@ -380,14 +380,32 @@ img.about-photo, img.detail-photo, img.pillar-photo{ object-fit:cover; width:100
    ============================================================ */
 .pillars{ display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(24px,3vw,44px); }
 .pillar{
+  position:relative;
   background:var(--night-lift); border:1px solid var(--line-soft);
   padding:44px 38px 46px; text-decoration:none;
   display:flex; flex-direction:column;
-  transition: border-color .5s ease, transform .5s cubic-bezier(.22,1,.36,1), box-shadow .5s ease;
+  transition: background-color .6s ease;
 }
-.pillar:hover{
-  border-color:var(--line); transform:translateY(-6px);
-  box-shadow:0 24px 60px rgba(0,0,0,.35), 0 0 40px rgba(217,174,95,.06);
+.pillar:hover{ background:#123745; }
+/* hover traces a gold line around the border: ::before unfurls from the
+   top-left (across, then down), ::after from the bottom-right — they
+   meet at the opposite corners. Reversed delays make it retract. */
+.pillar::before, .pillar::after{
+  content:""; position:absolute; width:0; height:0; pointer-events:none;
+}
+.pillar::before{
+  top:-1px; left:-1px;
+  border-top:1px solid var(--gold); border-left:1px solid var(--gold);
+  transition: height .36s ease .36s, width .36s ease 0s;
+}
+.pillar::after{
+  bottom:-1px; right:-1px;
+  border-bottom:1px solid var(--gold); border-right:1px solid var(--gold);
+  transition: height .36s ease .36s, width .36s ease 0s;
+}
+.pillar:hover::before, .pillar:hover::after{
+  width:calc(100% + 2px); height:calc(100% + 2px);
+  transition: width .36s ease 0s, height .36s ease .36s;
 }
 .pillar-star{ width:20px; opacity:.75; margin-bottom:30px;
   transition:transform .6s cubic-bezier(.22,1,.36,1), opacity .4s ease; }
