@@ -164,12 +164,15 @@ p{ margin:0 0 1.25em; } p:last-child{ margin-bottom:0; }
    intro flight lands; it traces itself in and stays for the session */
 .nav-brand-box{ position:relative; display:inline-block; }
 .nav-owl{
-  position:absolute; height:82%; width:auto;
+  position:absolute; height:107%; width:auto;   /* +30% */
   left:64.5%; bottom:58%;
-  transform: translateX(-50%);
-  opacity:0; transition: opacity .3s ease;
+  transform: translateX(-50%) scale(.45);
+  transform-origin: 50% 100%;                    /* grows up from its perch */
+  opacity:0;
+  transition: transform .9s cubic-bezier(.22,1,.36,1), opacity .4s ease;
   pointer-events:none;
 }
+.nav-owl.is-landed{ transform: translateX(-50%) scale(1); }
 .nav-owl path{ stroke:var(--gold); stroke-dasharray:1; stroke-dashoffset:1; }
 .nav-owl path.ln{ fill:none; }
 .nav-owl path.fl{ fill:rgba(217,174,95,0); stroke-width:30; }
@@ -227,7 +230,7 @@ p{ margin:0 0 1.25em; } p:last-child{ margin-bottom:0; }
 }
 .hero-seal{
   position:absolute; z-index:0;
-  width:min(104vmin,1000px); aspect-ratio:1;
+  width:min(76vmin,720px); aspect-ratio:1;
   left:50%; top:50%; transform:translate(-50%,-50%);
   opacity:.34;
   /* punch out the middle so the seal frames the wordmark
@@ -464,27 +467,14 @@ img.about-photo, img.detail-photo, img.pillar-photo{ object-fit:cover; width:100
 .foot-meta a:hover{ color:var(--gold); }
 
 /* ============================================================
-   INTRO VEIL — birds over the ocean, then the page breathes in.
-   When the video is ready, swap the <img> inside #introVeil for
-   <video autoplay muted playsinline> with the same class.
+   INTRO VEIL — the owl traces itself on midnight, the veil fades,
+   then the nav owl scales up and draws in above the wordmark icon.
    ============================================================ */
 .intro-veil{
   position:fixed; inset:0; z-index:400;
-  overflow:hidden;
-}
-/* midnight backdrop as its own layer, so it can fade while the owl flies */
-.intro-veil::before{
-  content:""; position:absolute; inset:0;
   background: var(--night);
-  transition: opacity .9s ease;
-}
-.intro-veil.is-flying::before{ opacity:0; }
-/* gentle teal grade so the shot hands off to the midnight page */
-.intro-veil::after{
-  content:""; position:absolute; inset:0;
-  background:
-    linear-gradient(180deg, rgba(12,42,54,.32) 0%, transparent 30%,
-                            transparent 62%, rgba(12,42,54,.5) 100%);
+  overflow:hidden;
+  transition: opacity .8s ease;
 }
 .intro-veil.is-done{ opacity:0; pointer-events:none; }
 
@@ -497,11 +487,7 @@ img.about-photo, img.detail-photo, img.pillar-photo{ object-fit:cover; width:100
 .veil-owl{
   width:min(220px, 44vw); height:auto;
   filter: drop-shadow(0 4px 30px rgba(9,34,48,.5));
-  /* flight: JS sets the translate/scale target; this eases it */
-  transition: transform 1.1s cubic-bezier(.6,.05,.22,1), opacity .35s ease;
-  will-change: transform;
 }
-.intro-veil.is-done .veil-owl{ opacity:0; }   /* dissolve onto the wordmark star */
 .veil-owl path{
   stroke: var(--gold);
   stroke-dasharray: 1;            /* pathLength="1" normalises every path */
@@ -987,33 +973,24 @@ img.about-photo, img.detail-photo, img.pillar-photo{ object-fit:cover; width:100
     document.body.style.overflow = 'hidden';
     /* trace ~2s → owl flies down onto the star above the wordmark while
        the midnight backdrop lifts → owl dissolves into the star */
+    /* trace ~2s → veil fades out → the nav owl scales up and draws
+       itself into its original shape above the wordmark icon */
     window.setTimeout(function(){
-      /* fly to the nav owl's resting spot, over the wordmark star */
-      var navOwl = document.querySelector('.nav-owl');
-      if (navOwl && owlSvg){
-        var or = owlSvg.getBoundingClientRect();
-        var nr = navOwl.getBoundingClientRect();
-        var scale = nr.height / or.height;
-        var tx = (nr.left + nr.width / 2) - (or.left + or.width / 2);
-        var ty = (nr.top  + nr.height / 2) - (or.top  + or.height / 2);
-        owlSvg.style.transform = 'translate(' + tx + 'px,' + ty + 'px) scale(' + scale + ')';
-      }
-      veil.classList.add('is-flying');
+      veil.classList.add('is-done');
       document.body.style.overflow = '';
       startReveal();
       window.setTimeout(function(){
-        /* touchdown: the nav owl draws itself in as the flyer dissolves */
+        var navOwl = document.querySelector('.nav-owl');
         if (navOwl){
           navOwl.querySelectorAll('path').forEach(function(p, i){
             p.style.setProperty('--d', (i * 0.025) + 's');
           });
           navOwl.classList.add('is-landed');
         }
-        veil.classList.add('is-done');
-        window.setTimeout(function(){
-          if (veil.parentNode) veil.parentNode.removeChild(veil);
-        }, 450);
-      }, 1050);
+      }, 550);
+      window.setTimeout(function(){
+        if (veil.parentNode) veil.parentNode.removeChild(veil);
+      }, 900);
     }, 2000);
   }
 
