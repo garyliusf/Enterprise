@@ -154,10 +154,10 @@ p{ margin:0 0 1.25em; } p:last-child{ margin-bottom:0; }
   width:min(var(--maxw), calc(100vw - var(--gutter)*2));
   margin-inline:auto;
   display:flex; flex-direction:column; align-items:center; justify-content:center;
-  gap:14px; padding:56px 0 18px;   /* generous top — the perched owl needs air */
+  gap:10px; padding:56px 0 18px;   /* generous top — the perched owl needs air */
   transition:padding .4s ease;
 }
-.nav.is-stuck .nav-inner{ padding:40px 0 12px; gap:10px; }
+.nav.is-stuck .nav-inner{ padding:40px 0 12px; gap:6px; }
 .nav-brand{ display:flex; align-items:center; text-decoration:none; }
 .nav-brand img{ height:48px; width:auto; transition:height .4s ease; }
 .nav.is-stuck .nav-brand img{ height:36px; }
@@ -230,18 +230,30 @@ p{ margin:0 0 1.25em; } p:last-child{ margin-bottom:0; }
                             rgba(14,16,18,.30) 55%, rgba(9,10,12,.68) 78%,
                             rgba(5,6,7,.96) 100%);
 }
-.hero-seal{
-  position:absolute; z-index:0;
+/* The seal lives outside the hero and is viewport-fixed, so it can
+   shrink into the bottom-right corner as you scroll past the hero.
+   z-index 1 keeps it above the sections' solid backgrounds but below
+   the nav; hero-inner is later in the DOM so it still wins at z 1. */
+.page-seal{
+  position:fixed; z-index:1;
   width:min(76vmin,720px); aspect-ratio:1;
   left:50%; top:50%; transform:translate(-50%,-50%);
-  opacity:.34;
+  opacity:.34; pointer-events:none;
+  will-change:transform;
+}
+.page-seal img{
+  width:100%; height:100%;
   /* punch out the middle so the seal frames the wordmark
      instead of its centre star colliding with it */
   -webkit-mask-image: radial-gradient(circle, transparent 0 30%, #000 42%);
           mask-image: radial-gradient(circle, transparent 0 30%, #000 42%);
-  animation: sealspin 240s linear infinite; pointer-events:none;
+  animation: sealspin 240s linear infinite;
 }
-@keyframes sealspin{ to{ transform:translate(-50%,-50%) rotate(360deg); } }
+@keyframes sealspin{ to{ transform:rotate(360deg); } }
+@media (max-width:1024px){
+  /* phones/tablets: keep it as a hero-only backdrop, no corner travel */
+  .page-seal{ position:absolute; top:46vh; }
+}
 .hero-glow{
   position:absolute; z-index:0;
   width:min(60vmin,560px); aspect-ratio:1; border-radius:50%;
@@ -645,6 +657,9 @@ img.about-photo, img.detail-photo, img.pillar-photo{ object-fit:cover; width:100
 
 <div class="grain" aria-hidden="true"></div>
 
+<!-- brand seal: centered behind the hero, then travels to the corner -->
+<div class="page-seal" id="pageSeal" aria-hidden="true"><img src="assets/seal.png" alt=""></div>
+
 <!-- intro veil — the owl traces itself, then flies down onto the wordmark star -->
 <div class="intro-veil" id="introVeil" aria-hidden="true">
   <div class="veil-owl-wrap">
@@ -733,7 +748,6 @@ img.about-photo, img.detail-photo, img.pillar-photo{ object-fit:cover; width:100
     <video autoplay muted loop playsinline preload="auto"
            poster="assets/intro-birds.jpg" src="assets/hero-seagulls.mp4"></video>
   </div>
-  <img class="hero-seal" src="assets/seal.png" alt="" aria-hidden="true">
   <div class="hero-glow" aria-hidden="true"></div>
   <div class="hero-inner">
     <p class="hero-tag">Where evidence and embodied experience meet</p>
@@ -980,6 +994,35 @@ img.about-photo, img.detail-photo, img.pillar-photo{ object-fit:cover; width:100
   function onScroll(){ nav.classList.toggle('is-stuck', window.scrollY > 24); }
   onScroll();
   window.addEventListener('scroll', onScroll, { passive:true });
+
+  /* seal travel — as the hero scrolls away the dust ring shrinks
+     into the bottom-right corner and stays as an ambient mark */
+  var seal = document.getElementById('pageSeal');
+  var wide = window.matchMedia('(min-width: 1025px)');
+  var SEAL_END = 0.24, SEAL_MARGIN = 56;
+  var sealQueued = false;
+  function drawSeal(){
+    sealQueued = false;
+    if (!seal) return;
+    if (!wide.matches){ seal.style.transform = ''; seal.style.opacity = ''; return; }
+    var hero = document.querySelector('.hero');
+    var span = (hero ? hero.offsetHeight : window.innerHeight) * 0.8;
+    var p = Math.min(1, Math.max(0, window.scrollY / span));
+    var e = p * p * (3 - 2 * p);                    /* smoothstep */
+    var w = seal.offsetWidth, half = w * SEAL_END / 2;
+    var tx = e * ((window.innerWidth  - SEAL_MARGIN - half) - window.innerWidth  / 2);
+    var ty = e * ((window.innerHeight - SEAL_MARGIN - half) - window.innerHeight / 2);
+    seal.style.transform =
+      'translate(calc(-50% + ' + tx.toFixed(1) + 'px), calc(-50% + ' + ty.toFixed(1) + 'px))' +
+      ' scale(' + (1 + e * (SEAL_END - 1)).toFixed(3) + ')';
+    seal.style.opacity = (0.34 - e * 0.12).toFixed(3);
+  }
+  function queueSeal(){
+    if (!sealQueued){ sealQueued = true; window.requestAnimationFrame(drawSeal); }
+  }
+  drawSeal();
+  window.addEventListener('scroll', queueSeal, { passive:true });
+  window.addEventListener('resize', queueSeal);
 
   var toggle = document.getElementById('navToggle');
   var drawer = document.getElementById('drawer');
