@@ -173,6 +173,8 @@ p{ margin:0 0 1.25em; } p:last-child{ margin-bottom:0; }
 .nav-links a:hover{ color:var(--gold); }
 .nav-links a:hover::after{ right:0; }
 .nav-cta{ height:34px; padding:0 18px; font-size:11px; letter-spacing:.2em; }
+.nav-links a.nav-cta{ color:var(--night); padding:0 18px; }   /* beat .nav-links a */
+.nav-links a.nav-cta::after{ content:none; }                  /* no underline slide on the chip */
 .nav-toggle{ display:none; }
 .drawer{ display:none; }   /* desktop: no drawer */
 
@@ -429,17 +431,18 @@ img.about-photo, img.detail-photo, img.pillar-photo{ object-fit:cover; width:100
    ============================================================ */
 .intro-veil{
   position:fixed; inset:0; z-index:400;
-  background: var(--night);
+  background: #000;               /* stage 2: the black we fade through */
   overflow:hidden;
   opacity:1;
-  transition: opacity 1.4s ease;
+  transition: opacity .9s ease;
 }
 .intro-veil .veil-media{
-  width:100%; height:100%; object-fit:cover;
-  transform-origin: 50% 40%;
-  animation: veilDrift 5s ease-out forwards;
+  width:100%; height:100%; object-fit:cover;   /* static — no zoom */
+  transition: opacity .7s ease;
 }
-@keyframes veilDrift{ from{ transform:scale(1.07); } to{ transform:scale(1); } }
+/* stage 1: image (and owl) dip to black… */
+.intro-veil.is-fading .veil-media,
+.intro-veil.is-fading .veil-owl-wrap{ opacity:0; }
 /* gentle teal grade so the shot hands off to the midnight page */
 .intro-veil::after{
   content:""; position:absolute; inset:0;
@@ -453,6 +456,7 @@ img.about-photo, img.detail-photo, img.pillar-photo{ object-fit:cover; width:100
 .veil-owl-wrap{
   position:absolute; inset:0; z-index:1;
   display:grid; place-items:center;
+  transition: opacity .7s ease;
 }
 .veil-owl{
   width:min(220px, 44vw); height:auto;
@@ -462,7 +466,7 @@ img.about-photo, img.detail-photo, img.pillar-photo{ object-fit:cover; width:100
   stroke: var(--gold);
   stroke-dasharray: 1;            /* pathLength="1" normalises every path */
   stroke-dashoffset: 1;
-  animation: owlTrace 1.6s cubic-bezier(.45,0,.3,1) forwards;
+  animation: owlTrace 1.1s cubic-bezier(.45,0,.3,1) forwards;
   animation-delay: var(--d, 0s);
 }
 /* the owl's lines are true stroke paths (width 40/50 in source units) —
@@ -473,9 +477,9 @@ img.about-photo, img.detail-photo, img.pillar-photo{ object-fit:cover; width:100
   fill: rgba(217,174,95,0);
   stroke-width: 30;
   animation:
-    owlTrace 1.6s cubic-bezier(.45,0,.3,1) forwards,
-    owlFill  .9s ease forwards;
-  animation-delay: var(--d, 0s), calc(var(--d, 0s) + 1.4s);
+    owlTrace 1.1s cubic-bezier(.45,0,.3,1) forwards,
+    owlFill  .6s ease forwards;
+  animation-delay: var(--d, 0s), calc(var(--d, 0s) + 1s);
 }
 @keyframes owlTrace{ to{ stroke-dashoffset:0; } }
 @keyframes owlFill{ to{ fill: rgba(217,174,95,1); } }
@@ -909,16 +913,20 @@ img.about-photo, img.detail-photo, img.pillar-photo{ object-fit:cover; width:100
   } else {
     /* stagger the owl's pen strokes */
     var owlPaths = veil.querySelectorAll('.veil-owl path');
-    owlPaths.forEach(function(p, i){ p.style.setProperty('--d', (i * 0.05) + 's'); });
+    owlPaths.forEach(function(p, i){ p.style.setProperty('--d', (i * 0.03) + 's'); });
     document.body.style.overflow = 'hidden';
+    /* hold ~2.4s → dip to black (.7s) → black lifts to the page (.9s) */
     window.setTimeout(function(){
-      veil.classList.add('is-done');
-      document.body.style.overflow = '';
-      startReveal();
+      veil.classList.add('is-fading');
       window.setTimeout(function(){
-        if (veil.parentNode) veil.parentNode.removeChild(veil);
-      }, 1600);
-    }, 3400);
+        veil.classList.add('is-done');
+        document.body.style.overflow = '';
+        startReveal();
+        window.setTimeout(function(){
+          if (veil.parentNode) veil.parentNode.removeChild(veil);
+        }, 1000);
+      }, 700);
+    }, 2400);
   }
 
   document.getElementById('yr').textContent = new Date().getFullYear();
