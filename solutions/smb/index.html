@@ -1127,6 +1127,94 @@ body.bp-page { padding-top: var(--bp-banner-h); }
 .how-learn-more-link:hover { color: #fff; }
 .how-learn-more-link span { color: #1488FC; }
 
+/* ─── TEMPLATES RAIL (ported from marketing/platform.html, 2026-08-11) ───── */
+/* overflow-x: clip (not hidden) so the right bleed can't create a real page
+   scroll while the rail still reads as running off-screen. --rail-w mirrors
+   .section-inner at each breakpoint — the bleed math depends on it. */
+.tmpl-section {
+  width: 100%;
+  background: #050508;
+  position: relative;
+  overflow-x: clip;
+  --rail-w: min(1120px, calc(100vw - 160px));
+}
+.tmpl-rail { position: relative; margin-top: 8px; }
+.tmpl-track {
+  display: flex; gap: 20px;
+  overflow-x: auto; overflow-y: hidden;
+  touch-action: pan-x; overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; -ms-overflow-style: none;
+  scroll-snap-type: x proximity;
+  margin-right: calc((var(--rail-w) - 100vw) / 2);
+  padding-right: calc((100vw - var(--rail-w)) / 2);
+}
+.tmpl-track::-webkit-scrollbar { width: 0; height: 0; display: none; }
+/* click-and-drag to pan (mouse users have no horizontal wheel axis) */
+.tmpl-track { cursor: grab; }
+.tmpl-track.is-dragging { cursor: grabbing; scroll-snap-type: none; user-select: none; }
+.tmpl-track.is-dragging .tmpl-card-shot { transform: none; }
+.tmpl-card { flex: 0 0 clamp(230px, 24vw, 300px); scroll-snap-align: start; text-decoration: none; display: block; }
+.tmpl-card-preview {
+  position: relative; width: 100%; aspect-ratio: 4 / 5; overflow: hidden;
+  background: #0a0a10; border: 1px solid rgba(255,255,255,0.10); border-radius: 2px;
+}
+.tmpl-card-overlay {
+  position: absolute; inset: 0; z-index: 2;
+  display: flex; align-items: flex-end; justify-content: center;
+  padding-bottom: 18px;
+  background: linear-gradient(180deg, rgba(5,5,8,0) 45%, rgba(5,5,8,0.55) 80%, rgba(5,5,8,0.82) 100%);
+  opacity: 0; transition: opacity 0.32s ease; pointer-events: none;
+}
+.tmpl-track.is-dragging .tmpl-card-overlay { opacity: 0; }
+.tmpl-card-overlay span {
+  font-family: 'Silkscreen', monospace; font-size: 10px; letter-spacing: 1.6px;
+  text-transform: uppercase; color: #fff;
+  transform: translateY(6px); transition: transform 0.32s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+/* Shot is top-anchored and clipped by the frame — on hover it drifts up ~40px
+   to hint there's more page below (catalog behavior). */
+.tmpl-card-shot {
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: auto; display: block;
+  transform: translateY(0); transition: transform 0.8s ease-out;
+}
+/* Hover states are pointer-gated: on touch, :hover latches on tap and fires
+   mid-swipe, so the scrim and drift flickered card to card. */
+@media (hover: hover) and (pointer: fine) {
+  .tmpl-card:hover .tmpl-card-overlay { opacity: 1; }
+  .tmpl-card:hover .tmpl-card-overlay span { transform: translateY(0); }
+  .tmpl-card:hover .tmpl-card-shot { transform: translateY(-40px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tmpl-card-shot, .tmpl-card:hover .tmpl-card-shot { transform: none; transition: none; }
+}
+.tmpl-card-meta { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-top: 14px; }
+.tmpl-card-name { font-size: 14px; font-weight: 500; color: #fff; letter-spacing: -0.2px; margin: 0; }
+.tmpl-card-tag { font-family: 'Silkscreen', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.35); white-space: nowrap; }
+/* Right-edge fade+blur: signals the row continues. JS adds .at-end once
+   scrolled fully right. */
+.tmpl-rail::after {
+  content: ""; position: absolute; top: 0; right: 0; bottom: 0; z-index: 2;
+  width: clamp(160px, 20vw, 280px); pointer-events: none;
+  margin-right: calc((var(--rail-w) - 100vw) / 2);
+  background: linear-gradient(to right,
+    rgba(5,5,8,0) 0%, rgba(5,5,8,0.06) 14%, rgba(5,5,8,0.18) 28%,
+    rgba(5,5,8,0.38) 44%, rgba(5,5,8,0.62) 60%, rgba(5,5,8,0.84) 76%,
+    rgba(5,5,8,0.96) 90%, #050508 100%);
+  backdrop-filter: blur(1px); -webkit-backdrop-filter: blur(1px);
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 45%);
+          mask-image: linear-gradient(to right, transparent, #000 45%);
+  opacity: 1; transition: opacity 0.25s ease;
+}
+.tmpl-rail.at-end::after { opacity: 0; }
+.tmpl-section .section-cta { margin-top: 46px; display: flex; justify-content: center; }
+@media (max-width: 1024px) { .tmpl-section { --rail-w: min(900px, calc(100vw - 80px)); } }
+@media (max-width: 768px) {
+  .tmpl-section { --rail-w: calc(100vw - 32px); }
+  .tmpl-card { flex-basis: clamp(200px, 62vw, 240px); }
+}
+
 /* ─── QUOTE SECTION — enterprise card style ──────────────────────────────── */
 .quote-section { border-top: none; padding: clamp(32px,4vh,56px) 0; }
 .quote-card {
@@ -1585,6 +1673,107 @@ body.bp-page { padding-top: var(--bp-banner-h); }
           <p class="how-step-desc">Publish your tool in one click. Share it with clients, applicants, or your team. Update it anytime without touching code.</p>
         </div>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- TEMPLATES RAIL — ported from marketing/platform.html -->
+<section class="section tmpl-section">
+  <div class="section-inner">
+    <div class="section-header dsa-reveal">
+      <p class="section-eyebrow eyebrow-scramble">Templates</p>
+      <h2 class="section-headline">Start from a template, not a blank prompt</h2>
+      <p class="section-sub">Bolt-built templates give you a working foundation, styled and wired up, so you&rsquo;re customizing instead of starting from nothing.</p>
+    </div>
+    <div class="tmpl-rail" id="tmpl-rail">
+      <div class="tmpl-track">
+        <a class="tmpl-card" href="../../marketing/templates/detail/?slug=architect-portfolio">
+          <div class="tmpl-card-preview">
+            <img class="tmpl-card-shot" src="../../marketing/templates/images/architect-portfolio.webp" alt="Architect Portfolio template" loading="lazy" decoding="async">
+            <div class="tmpl-card-overlay"><span>View Details</span></div>
+          </div>
+          <div class="tmpl-card-meta">
+            <h3 class="tmpl-card-name">Architect Portfolio</h3>
+            <span class="tmpl-card-tag">Portfolio</span>
+          </div>
+        </a>
+        <a class="tmpl-card" href="../../marketing/templates/detail/?slug=saas-landing">
+          <div class="tmpl-card-preview">
+            <img class="tmpl-card-shot" src="../../marketing/templates/images/premium-saas-dashboard-lp.webp" alt="SaaS Landing template" loading="lazy" decoding="async">
+            <div class="tmpl-card-overlay"><span>View Details</span></div>
+          </div>
+          <div class="tmpl-card-meta">
+            <h3 class="tmpl-card-name">SaaS Landing</h3>
+            <span class="tmpl-card-tag">SaaS</span>
+          </div>
+        </a>
+        <a class="tmpl-card" href="../../marketing/templates/detail/?slug=finance-tracker">
+          <div class="tmpl-card-preview">
+            <img class="tmpl-card-shot" src="../../marketing/templates/images/ledger-finance.webp" alt="Finance Tracker template" loading="lazy" decoding="async">
+            <div class="tmpl-card-overlay"><span>View Details</span></div>
+          </div>
+          <div class="tmpl-card-meta">
+            <h3 class="tmpl-card-name">Finance Tracker</h3>
+            <span class="tmpl-card-tag">Apps</span>
+          </div>
+        </a>
+        <a class="tmpl-card" href="../../marketing/templates/detail/?slug=travel-journal">
+          <div class="tmpl-card-preview">
+            <img class="tmpl-card-shot" src="../../marketing/templates/images/maison-voyage.webp" alt="Travel Journal template" loading="lazy" decoding="async">
+            <div class="tmpl-card-overlay"><span>View Details</span></div>
+          </div>
+          <div class="tmpl-card-meta">
+            <h3 class="tmpl-card-name">Travel Journal</h3>
+            <span class="tmpl-card-tag">Editorial</span>
+          </div>
+        </a>
+        <a class="tmpl-card" href="../../marketing/templates/detail/?slug=studio-portfolio">
+          <div class="tmpl-card-preview">
+            <img class="tmpl-card-shot" src="../../marketing/templates/images/noir-agency.webp" alt="Studio Portfolio template" loading="lazy" decoding="async">
+            <div class="tmpl-card-overlay"><span>View Details</span></div>
+          </div>
+          <div class="tmpl-card-meta">
+            <h3 class="tmpl-card-name">Studio Portfolio</h3>
+            <span class="tmpl-card-tag">Portfolio</span>
+          </div>
+        </a>
+        <a class="tmpl-card" href="../../marketing/templates/detail/?slug=revenue-dashboard">
+          <div class="tmpl-card-preview">
+            <img class="tmpl-card-shot" src="../../marketing/templates/images/vantage-dashboard.webp" alt="Revenue Dashboard template" loading="lazy" decoding="async">
+            <div class="tmpl-card-overlay"><span>View Details</span></div>
+          </div>
+          <div class="tmpl-card-meta">
+            <h3 class="tmpl-card-name">Revenue Dashboard</h3>
+            <span class="tmpl-card-tag">Internal tools</span>
+          </div>
+        </a>
+        <a class="tmpl-card" href="../../marketing/templates/detail/?slug=fashion-editorial">
+          <div class="tmpl-card-preview">
+            <img class="tmpl-card-shot" src="../../marketing/templates/images/vestige-fashion.webp" alt="Fashion Editorial template" loading="lazy" decoding="async">
+            <div class="tmpl-card-overlay"><span>View Details</span></div>
+          </div>
+          <div class="tmpl-card-meta">
+            <h3 class="tmpl-card-name">Fashion Editorial</h3>
+            <span class="tmpl-card-tag">Editorial</span>
+          </div>
+        </a>
+        <a class="tmpl-card" href="../../marketing/templates/detail/?slug=events-guide">
+          <div class="tmpl-card-preview">
+            <img class="tmpl-card-shot" src="../../marketing/templates/images/townhall-events.webp" alt="Events Guide template" loading="lazy" decoding="async">
+            <div class="tmpl-card-overlay"><span>View Details</span></div>
+          </div>
+          <div class="tmpl-card-meta">
+            <h3 class="tmpl-card-name">Events Guide</h3>
+            <span class="tmpl-card-tag">Websites</span>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="section-cta">
+      <a href="https://bolt.new/resources/templates" target="_blank" rel="noopener" class="hero-btn-primary">
+        <div class="btn-bg-hover"></div>
+        <div class="btn-text-wrap"><div class="btn-text-inner"><span>Browse All Templates</span><span>Browse All Templates</span></div></div>
+      </a>
     </div>
   </div>
 </section>
@@ -2535,6 +2724,83 @@ window.addEventListener('load', function () {
   function arm() { setTimeout(nudge, 120); setTimeout(nudge, 600); }
   if (document.readyState === 'complete') arm();
   else window.addEventListener('load', arm);
+})();
+
+/* ── Templates rail — right-edge fade + click-drag panning (from platform.html) ── */
+(function () {
+  var rail = document.getElementById('tmpl-rail');
+  if (!rail) return;
+  var track = rail.querySelector('.tmpl-track');
+  function update() {
+    var atEnd = track.scrollLeft + track.clientWidth >= track.scrollWidth - 4;
+    rail.classList.toggle('at-end', atEnd);
+  }
+  track.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
+  update();
+
+  // Click-and-drag panning. Touch keeps the browser's own momentum scrolling;
+  // this is for mouse/trackpad users, who have no horizontal axis.
+  var down = false, startX = 0, startLeft = 0, moved = 0, captured = false;
+  var lastX = 0, lastT = 0, vel = 0, momentumId = null;
+  function stopMomentum() {
+    if (momentumId) { cancelAnimationFrame(momentumId); momentumId = null; }
+    track.classList.remove('is-dragging');
+  }
+  track.addEventListener('pointerdown', function (e) {
+    if (e.pointerType === 'touch' || e.button !== 0) return;
+    stopMomentum();
+    down = true; moved = 0; captured = false; vel = 0;
+    startX = e.clientX; startLeft = track.scrollLeft;
+    lastX = e.clientX; lastT = e.timeStamp;
+    /* NOTE: do NOT setPointerCapture here — capturing on pointerdown retargets
+       the pointer stream to the track, so plain clicks resolve to the track
+       instead of the card <a> and navigation silently dies. */
+  });
+  track.addEventListener('pointermove', function (e) {
+    if (!down) return;
+    var dx = e.clientX - startX;
+    if (Math.abs(dx) > moved) moved = Math.abs(dx);
+    if (moved > 6 && !captured) {
+      captured = true;
+      track.classList.add('is-dragging');
+      try { track.setPointerCapture(e.pointerId); } catch (_) {}
+    }
+    if (captured) {
+      track.scrollLeft = startLeft - dx;
+      var dt = e.timeStamp - lastT;
+      if (dt > 0) {
+        var v = (e.clientX - lastX) / dt;
+        vel = vel * 0.8 + v * 0.2;
+      }
+      lastX = e.clientX; lastT = e.timeStamp;
+    }
+  });
+  function endDrag(e) {
+    if (!down) return;
+    down = false;
+    try { track.releasePointerCapture(e.pointerId); } catch (_) {}
+    if (!captured) { stopMomentum(); return; }
+    var v = -vel * 16;
+    if (Math.abs(v) < 2) { stopMomentum(); return; }
+    var max = track.scrollWidth - track.clientWidth;
+    (function glide() {
+      track.scrollLeft += v;
+      v *= 0.94;
+      if (Math.abs(v) < 0.4 || track.scrollLeft <= 0 || track.scrollLeft >= max) { stopMomentum(); return; }
+      momentumId = requestAnimationFrame(glide);
+    })();
+  }
+  track.addEventListener('pointerup', endDrag);
+  track.addEventListener('pointercancel', endDrag);
+  // a drag must not open the card it finished on
+  track.addEventListener('click', function (e) {
+    if (moved > 6) { e.preventDefault(); e.stopPropagation(); }
+  }, true);
+  // native image ghost-drag would hijack the gesture
+  track.querySelectorAll('img').forEach(function (img) {
+    img.addEventListener('dragstart', function (e) { e.preventDefault(); });
+  });
 })();
 
 /* ── Promo banner: animated bolt-blue pixel noise ─────────────────────── */
