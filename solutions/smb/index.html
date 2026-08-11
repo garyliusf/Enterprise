@@ -404,7 +404,10 @@ body.bp-page { padding-top: var(--bp-banner-h); }
   border: none;
   border-radius: 4px;
   padding: 24px 24px 28px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%);
+  /* platform.html card surface: near-black base + subtle top light */
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.045) 0%, rgba(255,255,255,0.012) 34%, rgba(255,255,255,0) 62%),
+    #09090b;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -671,7 +674,10 @@ body.bp-page { padding-top: var(--bp-banner-h); }
   border: none;
   border-radius: 4px;
   padding: 28px 24px 32px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%);
+  /* platform.html card surface: near-black base + subtle top light */
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.045) 0%, rgba(255,255,255,0.012) 34%, rgba(255,255,255,0) 62%),
+    #09090b;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -953,16 +959,8 @@ body.bp-page { padding-top: var(--bp-banner-h); }
   overflow: hidden;
   padding: clamp(32px,3.5vw,56px);
 }
-.unlocks-visual::after {
-  content: '';
-  position: absolute; inset: 0;
-  background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
-                    linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: radial-gradient(circle at 50% 50%, #000 25%, transparent 78%);
-  -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 25%, transparent 78%);
-  pointer-events: none;
-}
+/* Graph-paper overlay removed (platform.html card standard, Gary 2026-08-07):
+   cards now sit on the flat dark surface below — no field texture. */
 .unlocks-grid {
   display: grid;
   grid-template-columns: repeat(3,1fr);
@@ -975,7 +973,10 @@ body.bp-page { padding-top: var(--bp-banner-h); }
   border: none;
   border-radius: 4px;
   padding: 24px 24px 28px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%);
+  /* platform.html card surface: near-black base + subtle top light */
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.045) 0%, rgba(255,255,255,0.012) 34%, rgba(255,255,255,0) 62%),
+    #09090b;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -985,6 +986,13 @@ body.bp-page { padding-top: var(--bp-banner-h); }
   transition: border-color 0.3s ease;
 }
 .unlock-card:hover { border-color: rgba(255,255,255,0.22); }
+/* Flashlight hover — soft radial glow follows the cursor (platform.html standard; JS sets --mx/--my) */
+.unlock-card::before {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), rgba(150,185,255,0.14), rgba(150,185,255,0) 60%);
+  opacity: 0; transition: opacity 0.35s ease;
+}
+.unlock-card:hover::before { opacity: 1; }
 /* pixel hover canvas — exact microsoft.html feat-hover-canvas */
 .unlock-hover-canvas {
   position: absolute; inset: 0;
@@ -1153,13 +1161,26 @@ body.bp-page { padding-top: var(--bp-banner-h); }
   border: 1px solid rgba(255,255,255,0.10);
   border-radius: 10px;
   padding: 24px 24px 22px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.035) 0%, rgba(255,255,255,0.005) 100%);
+  /* platform.html card surface: near-black base + subtle top light */
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.045) 0%, rgba(255,255,255,0.012) 34%, rgba(255,255,255,0) 62%),
+    #09090b;
   display: flex;
   flex-direction: column;
   gap: 20px;
+  position: relative;
+  overflow: hidden;
   transition: border-color 0.3s ease;
 }
 .story-card:hover { border-color: rgba(255,255,255,0.22); }
+/* same flashlight hover as the unlock cards */
+.story-card::before {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), rgba(150,185,255,0.14), rgba(150,185,255,0) 60%);
+  opacity: 0; transition: opacity 0.35s ease;
+}
+.story-card:hover::before { opacity: 1; }
+.story-card > * { position: relative; z-index: 1; }
 .story-card-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .story-avatar {
   width: 38px; height: 38px;
@@ -2550,6 +2571,17 @@ window.addEventListener('load', function () {
   requestAnimationFrame(function () {
     requestAnimationFrame(function () {
       document.querySelectorAll('.unlock-hover-canvas').forEach(drawHoverNoise);
+    });
+  });
+})();
+
+/* ── Card hover "flashlight" — radial glow follows the cursor (platform.html) ── */
+(function () {
+  document.querySelectorAll('.unlock-card, .story-card').forEach(function (el) {
+    el.addEventListener('mousemove', function (e) {
+      var r = el.getBoundingClientRect();
+      el.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+      el.style.setProperty('--my', (e.clientY - r.top) + 'px');
     });
   });
 })();
