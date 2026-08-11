@@ -294,7 +294,7 @@ For a seamless grid with shared borders (no `gap`):
 | Footer CTA | `.hero-btn-primary.footer-cta-btn` "Start Building" → bolt.new | platform.html footer pattern (the old email strip + rotating-name form was removed 2026-08-06) |
 | Toggle (Yearly/Monthly) | `.billing-btn` | `~26px`, `5px 22px`, `13px`, `500`, `#fff`, pill `999px` |
 
-**CTA labels are Title Case (decision: Gary, 2026-08-06):** cap the first letter of each word — "Get Started", "Contact Us", "Learn More", "Start Building" — in BOTH slide-up spans of the button markup.
+**CTA labels are Title Case (decision: Gary, 2026-08-06):** cap the first letter of each word — "Get Started", "Contact Us", "Learn More", "Start Building" — in BOTH slide-up spans of the button markup. **Short function words stay lowercase** (Gary, 2026-08-11): "Start Building for Free", not "For Free".
 
 **Billing toggle (redesigned 2026-08-06):** squared 2px segmented control (rgba(255,255,255,0.04) fill, 0.1 border), sliding `#1488FC` thumb positioned by JS from the active button (re-measured on font-load/resize), active label white/600. The savings chip copy is **"Save up to 28%" — required copy, do not shorten**; 12px/600, inactive `#4DA6FF` on `rgba(20,136,252,0.14)`, active `#fff` on `rgba(0,0,0,0.28)` (dark inset — white-on-lightened-blue failed contrast). Not the old white 999px pill.
 
