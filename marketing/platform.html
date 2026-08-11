@@ -729,14 +729,12 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; o
     background: linear-gradient(180deg, rgba(5,5,8,0) 45%, rgba(5,5,8,0.55) 80%, rgba(5,5,8,0.82) 100%);
     opacity: 0; transition: opacity 0.32s ease; pointer-events: none;
   }
-  .tmpl-card:hover .tmpl-card-overlay { opacity: 1; }
   .tmpl-track.is-dragging .tmpl-card-overlay { opacity: 0; }
   .tmpl-card-overlay span {
     font-family: 'Silkscreen', monospace; font-size: 10px; letter-spacing: 1.6px;
     text-transform: uppercase; color: #fff;
     transform: translateY(6px); transition: transform 0.32s cubic-bezier(0.22, 0.61, 0.36, 1);
   }
-  .tmpl-card:hover .tmpl-card-overlay span { transform: translateY(0); }
   /* Shot is top-anchored and clipped by the preview frame — on hover it
      drifts up ~40px to hint there's more page below (catalog behavior). */
   .tmpl-card-shot {
@@ -744,7 +742,16 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; o
     width: 100%; height: auto; display: block;
     transform: translateY(0); transition: transform 0.8s ease-out;
   }
-  .tmpl-card:hover .tmpl-card-shot { transform: translateY(-40px); }
+  /* Every hover state on the rail is gated to real pointers. On touch, :hover
+     latches on tap and stays stuck on the last-touched card, and it also fires
+     mid-swipe while the rail is being dragged — the scrim and the 40px image
+     drift flickered card to card. `pointer: fine` also keeps stylus/trackpad
+     hybrids honest. Touch users get the plain card; the card is fully tappable. */
+  @media (hover: hover) and (pointer: fine) {
+    .tmpl-card:hover .tmpl-card-overlay { opacity: 1; }
+    .tmpl-card:hover .tmpl-card-overlay span { transform: translateY(0); }
+    .tmpl-card:hover .tmpl-card-shot { transform: translateY(-40px); }
+  }
   @media (prefers-reduced-motion: reduce) {
     .tmpl-card-shot, .tmpl-card:hover .tmpl-card-shot { transform: none; transition: none; }
   }
