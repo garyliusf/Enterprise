@@ -1148,6 +1148,23 @@ body.bp-page { padding-top: var(--bp-banner-h); }
 .stories-arrow:disabled { opacity: 0.25; cursor: default; }
 
 .stories-track-wrap { overflow: hidden; position: relative; }
+/* right-edge overflow cue: page-black gradient + a touch of blur, so the
+   half-visible 4th card reads as "more to come" instead of a clipped card.
+   Fades out (.is-end) once the track is scrolled to the last page. */
+.stories-track-wrap::after {
+  content: '';
+  position: absolute; top: 0; right: 0; bottom: 0;
+  width: clamp(72px, 9vw, 130px);
+  pointer-events: none; z-index: 2;
+  background: linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,0.55) 45%, #000 100%);
+  backdrop-filter: blur(1.5px);
+  -webkit-backdrop-filter: blur(1.5px);
+  /* ramp the blur in with the gradient — no hard edge where the band starts */
+  mask-image: linear-gradient(to right, transparent 0%, #000 55%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 55%);
+  opacity: 1; transition: opacity 0.35s ease;
+}
+.stories-track-wrap.is-end::after { opacity: 0; }
 .stories-track {
   display: flex;
   gap: 16px;
@@ -1592,7 +1609,7 @@ body.bp-page { padding-top: var(--bp-banner-h); }
   <div class="section-inner">
     <div class="why-layout">
       <div class="section-header dsa-reveal why-header">
-        <h2 class="section-headline">Small business owners are building what they used to buy, no developer needed.</h2>
+        <h2 class="section-headline">Small business owners are building what they used to buy.</h2>
       </div>
       <div class="why-stats-grid">
         <div class="why-stat-cell">
@@ -2815,6 +2832,8 @@ window.addEventListener('load', function () {
       var m = maxIdx();
       if (prev) prev.disabled = idx <= 0;
       if (next) next.disabled = idx >= m;
+      /* right-edge fade only while there's more track to the right */
+      if (track.parentElement) track.parentElement.classList.toggle('is-end', idx >= m);
     }
     if (prev) prev.addEventListener('click', function () { if (idx > 0) { idx--; update(); } });
     if (next) next.addEventListener('click', function () { if (idx < maxIdx()) { idx++; update(); } });
