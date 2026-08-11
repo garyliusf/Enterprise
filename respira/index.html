@@ -431,9 +431,17 @@ img.about-photo, img.detail-photo, img.pillar-photo{ object-fit:cover; width:100
    ============================================================ */
 .detail{
   display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-  gap:clamp(32px,5vw,76px); align-items:start;
+  gap:clamp(32px,5vw,76px); align-items:stretch;
 }
-.detail-photo{ aspect-ratio:5/4; }
+.detail > *{ min-height:0; }
+/* the photo takes its height from the copy beside it, so the section's
+   CTA always lands level with the bottom of the image */
+.detail-photo{ align-self:stretch; height:100%; min-height:340px; }
+/* a media column that also carries the breathing circle: the photo takes
+   the leftover space so the circle stays in view instead of being pushed out */
+.detail-media{ display:flex; flex-direction:column; }
+.detail-media .detail-photo{ flex:1 1 auto; min-height:300px; }
+.detail-media .breath-stage{ flex:none; }
 .detail--flip .detail-photo{ order:2; }
 .detail-body .label{ display:block; margin-bottom:16px; }
 .detail-body h2{ margin-bottom:22px; }
@@ -978,8 +986,8 @@ img.about-photo, img.detail-photo, img.pillar-photo{ object-fit:cover; width:100
 <!-- ==================== BREATHWORK ==================== -->
 <section class="band" id="breathwork">
   <div class="wrap detail">
-    <div class="rv">
-      <img class="detail-photo" src="assets/breathwork-session.jpg" alt="Michèle guiding a participant during a breathwork workshop" style="aspect-ratio:4/5">
+    <div class="rv detail-media">
+      <img class="detail-photo" src="assets/breathwork-session.jpg" alt="Michèle guiding a participant during a breathwork workshop">
       <div class="breath-stage" aria-hidden="true" style="margin-inline:auto">
         <span class="breath-ring"></span>
         <span class="breath-ring"></span>
@@ -1012,7 +1020,7 @@ img.about-photo, img.detail-photo, img.pillar-photo{ object-fit:cover; width:100
 <section class="band band--deep" id="yoga">
   <div class="wrap detail detail--flip">
     <!-- data-photo: inbodhi yoga · 5:4 -->
-    <img class="detail-photo rv" src="assets/yoga-shala.jpg" alt="Michèle in front of a yoga shala class schedule board" style="aspect-ratio:auto">
+    <img class="detail-photo rv" width="1345" height="1500" src="assets/yoga-shala.jpg" alt="Michèle in front of a yoga shala class schedule board">
     <div class="detail-body rv rv-d1 readmore readmore--deep">
       <span class="label">inbodhi yoga firenze</span>
       <h2 class="h2">Yoga has been my home for more than two decades</h2>
@@ -1035,7 +1043,7 @@ img.about-photo, img.detail-photo, img.pillar-photo{ object-fit:cover; width:100
 <section class="band" id="research">
   <div class="wrap detail">
     <!-- data-photo: maps italia · 5:4 -->
-    <img class="detail-photo rv" src="assets/maps-wall.jpg" alt="Michèle against a Tuscan stone wall at golden hour" style="aspect-ratio:auto">
+    <img class="detail-photo rv" width="1341" height="1600" src="assets/maps-wall.jpg" alt="Michèle against a Tuscan stone wall at golden hour">
     <div class="detail-body rv rv-d1 readmore">
       <span class="label">psychedelic research &amp; education</span>
       <h2 class="h2">MAPS Italia</h2>
@@ -1358,12 +1366,15 @@ img.about-photo, img.detail-photo, img.pillar-photo{ object-fit:cover; width:100
 
   /* read-more: only clamp when the copy is actually taller than the cap,
      so a short viewport or edited copy never shows a pointless button */
+  function initReadmore(){
   document.querySelectorAll('.readmore').forEach(function(block){
     var copy = block.querySelector('.readmore-copy');
     var btn  = block.querySelector('.readmore-btn');
     var label = btn && btn.querySelector('span');
     if (!copy || !btn) return;
-    var cap = parseFloat(getComputedStyle(copy).fontSize) * 30;   /* 30em */
+    /* Flat cap — the paired photo now stretches to the copy's height, so
+       the CTA lines up with the image bottom without measuring anything. */
+    var cap = parseFloat(getComputedStyle(copy).fontSize) * 26;
     if (copy.scrollHeight <= cap + 40){ btn.style.display = 'none'; return; }
     block.classList.add('is-clamped');
     copy.style.maxHeight = cap + 'px';
@@ -1397,6 +1408,11 @@ img.about-photo, img.detail-photo, img.pillar-photo{ object-fit:cover; width:100
       }
     });
   });
+  }
+  /* wait for images — the clamp height is measured off the photo beside
+     the copy, which has no height until it has loaded */
+  if (document.readyState === 'complete') initReadmore();
+  else window.addEventListener('load', initReadmore);
 
   /* nav hover underline — a drift of cosmic sand under each link */
   if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
