@@ -653,11 +653,22 @@ img.about-photo, img.detail-photo, img.pillar-photo{ object-fit:cover; width:100
 /* ============================================================
    REVEAL
    ============================================================ */
-.rv{ opacity:0; transform:translateY(28px); filter:blur(7px);
-  transition:opacity 1.1s cubic-bezier(.22,1,.36,1),
-             transform 1.1s cubic-bezier(.22,1,.36,1),
-             filter 1.1s cubic-bezier(.22,1,.36,1); }
-.rv.in{ opacity:1; transform:none; filter:none; }
+/* Scroll-triggered reveals were removed (Gary, 2026-08-10) — sections
+   render statically. The .rv classes stay in the markup so the effect
+   can be reinstated without touching every section again. The hero's
+   one-time load cascade is separate and still runs. */
+.rv{ opacity:1; transform:none; filter:none; }
+
+/* the one surviving reveal: eyebrow / headline / lead line drift in
+   from the top-left, staggered — same easing as the hero cascade */
+.ani{
+  opacity:0; transform:translate(-20px,-12px); filter:blur(7px);
+  transition:
+    opacity .95s cubic-bezier(.22,1,.36,1) var(--sd, 0s),
+    transform .95s cubic-bezier(.22,1,.36,1) var(--sd, 0s),
+    filter .95s cubic-bezier(.22,1,.36,1) var(--sd, 0s);
+}
+.ani.in{ opacity:1; transform:none; filter:none; }
 .rv-d1{transition-delay:.12s} .rv-d2{transition-delay:.24s}
 .rv-d3{transition-delay:.36s} .rv-d4{transition-delay:.48s}
 
@@ -719,7 +730,6 @@ img.about-photo, img.detail-photo, img.pillar-photo{ object-fit:cover; width:100
 
 @media (prefers-reduced-motion: reduce){
   html{ scroll-behavior:auto; }
-  .rv{ opacity:1; transform:none; filter:none; transition:none; }
   .nav-owl.is-landed path{ animation:none; stroke-dashoffset:0; }
   .nav-owl.is-landed path.fl{ fill:var(--gold); }
   .stg-i{ opacity:1; filter:none; transform:none; transition:none; }
@@ -932,7 +942,7 @@ img.about-photo, img.detail-photo, img.pillar-photo{ object-fit:cover; width:100
       <a href="#research" class="pillar rv rv-d2">
         <img class="pillar-star" src="assets/star.png" alt="" aria-hidden="true">
         <!-- data-photo: research · 4:3 -->
-        <img class="pillar-photo" src="assets/pillar-research.jpg" alt="Michèle against a Tuscan stone wall at golden hour" style="object-position:center 45%">
+        <img class="pillar-photo" src="assets/maps-portrait.jpg" alt="Portrait of Michèle Anne Barocchi" style="object-position:center 22%">
         <h3 class="h3">Psychedelic Research &amp; Education</h3>
         <p>Co-founder and President of MAPS Italia Foundation ETS, advancing psychedelic medicine through science, education and collaboration.</p>
         <span class="pillar-more">read more
@@ -974,7 +984,7 @@ img.about-photo, img.detail-photo, img.pillar-photo{ object-fit:cover; width:100
 <section class="band band--deep" id="yoga">
   <div class="wrap detail detail--flip">
     <!-- data-photo: inbodhi yoga · 5:4 -->
-    <div class="photo detail-photo rv" data-photo="inbodhi yoga"><span class="photo-note">inbodhi · 5:4</span></div>
+    <img class="detail-photo rv" src="assets/yoga-shala.jpg" alt="Michèle in front of a yoga shala class schedule board" style="aspect-ratio:auto">
     <div class="detail-body rv rv-d1">
       <span class="label">inbodhi yoga firenze</span>
       <h2 class="h2">Yoga has been my home for more than two decades</h2>
@@ -991,7 +1001,7 @@ img.about-photo, img.detail-photo, img.pillar-photo{ object-fit:cover; width:100
 <section class="band" id="research">
   <div class="wrap detail">
     <!-- data-photo: maps italia · 5:4 -->
-    <div class="photo detail-photo rv" data-photo="maps italia"><span class="photo-note">research · 5:4</span></div>
+    <img class="detail-photo rv" src="assets/maps-wall.jpg" alt="Michèle against a Tuscan stone wall at golden hour" style="aspect-ratio:auto">
     <div class="detail-body rv rv-d1">
       <span class="label">psychedelic research &amp; education</span>
       <h2 class="h2">MAPS Italia</h2>
@@ -1200,21 +1210,34 @@ img.about-photo, img.detail-photo, img.pillar-photo{ object-fit:cover; width:100
     return function(){ inner.classList.add('stg-on'); };
   })();
 
-  /* scroll reveal — held until the intro veil starts to lift,
-     so the hero breathes in as the ocean fades out */
+  /* Scroll reveal, deliberately narrow (Gary, 2026-08-10): only the
+     eyebrow, headline and lead line of each section animate — body copy,
+     images and cards render statically so the page isn't busy. Elements
+     drift up-and-in from the top-left, staggered per section. */
   function startReveal(){
     startHeroCascade();
-    var items = document.querySelectorAll('.rv');
-    if (!('IntersectionObserver' in window)){
-      items.forEach(function(el){ el.classList.add('in'); });
-    } else {
-      var io = new IntersectionObserver(function(entries){
-        entries.forEach(function(en){
-          if (en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); }
-        });
-      }, { threshold: 0, rootMargin: '0px 0px -8% 0px' });
-      items.forEach(function(el){ io.observe(el); });
-    }
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!('IntersectionObserver' in window)) return;
+
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (!en.isIntersecting) return;
+        en.target.__ani.forEach(function(el){ el.classList.add('in'); });
+        io.unobserve(en.target);
+      });
+    }, { threshold: 0, rootMargin: '0px 0px -12% 0px' });
+
+    document.querySelectorAll('section').forEach(function(sec){
+      if (sec.classList.contains('hero')) return;   /* hero has its own cascade */
+      var els = [].slice.call(sec.querySelectorAll('.label, .h2, .lede, .philo-quote'));
+      if (!els.length) return;
+      els.forEach(function(el, i){
+        el.classList.add('ani');
+        el.style.setProperty('--sd', (i * 0.11).toFixed(2) + 's');
+      });
+      sec.__ani = els;
+      io.observe(sec);
+    });
   }
 
   /* intro veil — 2.3s hold, 1.4s fade */
