@@ -685,7 +685,15 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; o
   .unlock-card--cta .unlock-desc { max-width: 220px; }
 
   /* ─── SECTION 5: TEMPLATES (horizontal card rail) ──────────────────────── */
-  .tmpl-section { width: 100%; background: #050508; position: relative; }
+  /* overflow-x: clip contains the rail bleed below. The bleed math is built on
+     100vw, which INCLUDES the vertical scrollbar (~15px), while the centered
+     container is laid out inside clientWidth — so the right bleed overshoots by
+     half the scrollbar (~7.5px) and gave the page a real horizontal scroll.
+     Clipping here cuts it at the section's own right edge = the content edge,
+     so the rail still reads as running off-screen. `clip` (not `hidden`) keeps
+     this from becoming a scroll container; body's own overflow-x: clip does NOT
+     propagate to the viewport in Chrome, which is why this has to be fixed here. */
+  .tmpl-section { width: 100%; background: #050508; position: relative; overflow-x: clip; }
   .section-cta { margin-top: 46px; display: flex; justify-content: center; }
 
   /* Rail bleeds past the container's right edge to the viewport, so the row
