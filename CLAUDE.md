@@ -519,3 +519,28 @@ Four breakpoints, all in `blog.css`. `--gutter` scales and drives every centered
 - **Preview deploy (easiest):** the PR should get an automatic preview URL (Cloudflare/Netlify check on the PR). Open it, then the route + DevTools device mode (e.g. iPhone 390px / iPad 834px). Routes: Microsoft `…/platform/integrations/microsoft`, CLI `…/platform/features/cli`.
 - **Local:** `git clone` the repo → `npm install` → `npm run dev` → open the route, resize to ≤768px. (`npm run build` just confirms it compiles.)
 - **What to eyeball at ≤768px** (renders differ from the static sandbox because of the real nav + global styles): hero buttons not overflowing / no horizontal scroll on ~360px; CLI "Request Access" text fits; H1 size matches enterprise; CLI cards have no hard border.
+
+## Component archive — "Bespoke basics" comparison table (solutions/smb)
+
+Two-column bad-vs-good comparison table built for `solutions/smb/index.html` (section "The shift"). **Likely to be cut from the SMB page (Gary, 2026-08-11) — archived here so it can be rebuilt on another page.** Full working source: commit `85205f6`, `solutions/smb/index.html` (markup `<!-- BESPOKE BASICS — comparison -->`, CSS `.bespoke-*` blocks, JS `bespoke-cta-canvas`).
+
+**Structure:** one CSS grid (`1fr 1fr`, `gap: 0`, 1px border, 2px radius, `overflow: hidden`) — the two column headers are the first two cells, then rows alternate left/right cell in DOM order. No `<table>`.
+
+- Column heads: Silkscreen 13px / 2px tracking / uppercase — left `rgba(255,255,255,0.5)` on `rgba(255,255,255,0.01)`, right `#1488FC` on `rgba(20,136,252,0.04)`.
+- `.bespoke-row`: `18px 28px`, 15px, `border-top: 1px rgba(255,255,255,0.08)`, flex + 14px gap. `--neg` = muted `0.55` text, right border, hover `rgba(255,255,255,0.025)`. `--pos` = `#fff` 500, hover `rgba(20,136,252,0.06)`.
+- Row glyphs are **pixel-art data-URI SVGs** in `::before` (18px): `--neg` = four grey dots (`%23ffffff66`), `--pos` = a blue pixel checkmark (`%231488FC`), both `shape-rendering='crispEdges'`.
+- Last right-hand cell is a **CTA link row** (`.bespoke-row--cta-link`, `min-height: 64px`, bg `#050608`) wrapping `#bespoke-cta-canvas` — a `makePixelCanvas` centre-fading rotating-wave field (`'170,210,255'`, spacing 6, dot 2) — plus `.bespoke-cta-text` and `.bespoke-cta-arrow` (28×18 SVG, `opacity 0 → 1` + `translateX(-8px) → 0` on hover).
+- Section spacing: `.bespoke-section { padding-bottom: clamp(48px,7vh,80px) }` and `.bespoke-section + .section { padding-top: clamp(48px,7vh,80px) }` (trims the double seam).
+
+**Copy as written (SMB version):**
+
+| Bloated software | Bespoke basics on Bolt.new |
+|---|---|
+| Built for the average of ten thousand businesses | Built for your business |
+| $89,000/year in waste *(Cledara, 2025)* | Pro plans from $240/year |
+| 4 tools juggled daily, 1.5 hours lost | One tool, your workflow, your way |
+| 53% of licenses go unused | Every feature is one you asked for |
+| Use 5 of 100 features | Ships in 24 hours |
+| Annual contract, 90-day implementation | **Start building now** → (CTA row, links to bolt.new) |
+
+Section intro that ran above it — eyebrow "The shift", H2 "Bespoke basics. Not bloated software.", sub: "The software you've been paying for was built for the average of ten thousand companies. None of them are yours. You get 100 features and use 5. You pay for them all, every month. The other 95? That's how the software industry makes its money."
