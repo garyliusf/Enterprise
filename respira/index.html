@@ -319,6 +319,8 @@ p{ margin:0 0 1.25em; } p:last-child{ margin-bottom:0; }
 .about-photo{ aspect-ratio:4/5; position:sticky; top:130px; }
 
 /* long-form copy collapses behind a blurred fade until "Read more" */
+.readmore{ --fade-c: 12,42,54; }          /* --night, the default ground */
+.readmore--deep{ --fade-c: 9,34,48; }     /* --night-deep bands */
 .readmore-copy{
   position:relative; overflow:hidden;
   /* max-height is driven in px by JS so it can actually animate */
@@ -328,7 +330,9 @@ p{ margin:0 0 1.25em; } p:last-child{ margin-bottom:0; }
   content:""; position:absolute; left:0; right:0; bottom:0; height:190px;
   pointer-events:none;
   opacity:0; transition:opacity .5s ease;
-  background:linear-gradient(180deg, rgba(9,34,48,0) 0%, rgba(9,34,48,.72) 55%, var(--night-deep) 100%);
+  /* fade has to land on whatever ground the section sits on */
+  background:linear-gradient(180deg,
+    rgba(var(--fade-c), 0) 0%, rgba(var(--fade-c), .72) 55%, rgb(var(--fade-c)) 100%);
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
   -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 62%);
@@ -337,7 +341,8 @@ p{ margin:0 0 1.25em; } p:last-child{ margin-bottom:0; }
 .readmore.is-clamped .readmore-copy::after{ opacity:1; }
 .readmore-btn{
   margin-top:26px;
-  display:inline-flex; align-items:center; gap:12px;
+  /* own line — otherwise it flows inline with the section's CTA */
+  display:flex; width:fit-content; align-items:center; gap:12px;
   background:none; border:0; padding:6px 0; cursor:pointer;
   font-family:var(--sans); font-size:12px; font-weight:400;
   letter-spacing:.22em; text-transform:capitalize; color:var(--gold);
@@ -486,7 +491,22 @@ img.about-photo, img.detail-photo, img.pillar-photo{ object-fit:cover; width:100
    ============================================================ */
 .quote-band{ text-align:center; overflow:hidden; }
 .quote-band .wrap{ position:relative; z-index:1; }
-.quote-owl{ width:clamp(64px,8vw,96px); margin:0 auto 34px; opacity:.9; }
+/* the totem draws itself when the quote scrolls into view, the same
+   pen-stroke reveal the loading screen uses */
+.quote-owl{ display:block; width:clamp(64px,8vw,96px); height:auto; margin:0 auto 34px; }
+.quote-owl path{
+  stroke:var(--gold); stroke-dasharray:1; stroke-dashoffset:1;
+}
+.quote-owl path.ln{ fill:none; }
+.quote-owl path.fl{ fill:rgba(217,174,95,0); stroke-width:30; }
+.quote-owl.is-drawn path{
+  animation: owlTrace 1.2s cubic-bezier(.45,0,.3,1) var(--d, 0s) forwards;
+}
+.quote-owl.is-drawn path.fl{
+  animation:
+    owlTrace 1.2s cubic-bezier(.45,0,.3,1) var(--d, 0s) forwards,
+    owlFill  .6s ease calc(var(--d, 0s) + 1.05s) forwards;
+}
 .quote-band blockquote{
   margin:0 auto; max-width:26ch;
   font-family:var(--serif); font-weight:300; font-style:italic;
@@ -731,6 +751,8 @@ img.about-photo, img.detail-photo, img.pillar-photo{ object-fit:cover; width:100
 @media (prefers-reduced-motion: reduce){
   html{ scroll-behavior:auto; }
   .nav-owl.is-landed path{ animation:none; stroke-dashoffset:0; }
+  .quote-owl path{ animation:none; stroke-dashoffset:0; }
+  .quote-owl path.fl{ fill:var(--gold); }
   .nav-owl.is-landed path.fl{ fill:var(--gold); }
   .stg-i{ opacity:1; filter:none; transform:none; transition:none; }
   .hero-seal,.hero-glow,.philo-seal,.breath-ring,.breath-core,
@@ -862,7 +884,7 @@ img.about-photo, img.detail-photo, img.pillar-photo{ object-fit:cover; width:100
       <div class="rv">
         <img class="about-photo" src="assets/about-michele.jpg" alt="Michèle Anne Barocchi">
       </div>
-      <div class="rv rv-d1 readmore" id="aboutReadmore">
+      <div class="rv rv-d1 readmore readmore--deep" id="aboutReadmore">
         <div class="readmore-copy">
         <p class="lede">I'm a scientist by training and a lifelong student of bowing my head down.</p>
         <p>I earned my Master of Public Health and PhD in Infectious Diseases and Immunity from the University of California, Berkeley, where I developed a deep appreciation for rigorous science and its power to improve human lives. My early career took me to Brazil, working in public health, before I spent fifteen years at Novartis leading research in molecular epidemiology, collaborating with the World Health Organization, and publishing more than forty-five scientific papers.</p>
@@ -966,15 +988,21 @@ img.about-photo, img.detail-photo, img.pillar-photo{ object-fit:cover; width:100
         <span class="breath-word"><span class="in">inhale</span><span class="out">exhale</span></span>
       </div>
     </div>
-    <div class="detail-body rv rv-d1">
+    <div class="detail-body rv rv-d1 readmore">
       <span class="label">breathwork</span>
       <h2 class="h2">Breath has been one of<br>my greatest teachers</h2>
+      <div class="readmore-copy">
       <p class="lede">It's why I am here today.</p>
       <p>I've been facilitating breathwork since 2017, beginning my training as a Group Leader in the Transformational Breath® lineage before evolving toward an integrative approach centered on Conscious Connected Breathwork.</p>
       <p>My own experience of recovering after the loss of my leg profoundly shaped how I hold space today. I understand what it means to live in a body that has experienced trauma, pain, grief, and remarkable resilience.</p>
       <p>My workshops combine conscious breathing with body awareness, nervous system regulation, sound, meditation, fresh herbal baths, and carefully curated practices that invite participants to reconnect with themselves in a safe and embodied way.</p>
       <p class="pull">I don't see breathwork as a technique to fix people. I see it as a doorway.</p>
       <p>It helps us soften protective patterns, access our innate intelligence, and rediscover the wholeness that has always been there.</p>
+      </div>
+      <button class="readmore-btn" type="button" aria-expanded="false">
+        <span>Read More</span>
+        <svg width="12" height="8" viewBox="0 0 12 8" fill="none" aria-hidden="true"><path d="M1 1.5 6 6.5l5-5" stroke="currentColor" stroke-width="1.2"/></svg>
+      </button>
       <a href="#contact" class="btn btn--gold">enquire about a workshop</a>
     </div>
   </div>
@@ -985,13 +1013,19 @@ img.about-photo, img.detail-photo, img.pillar-photo{ object-fit:cover; width:100
   <div class="wrap detail detail--flip">
     <!-- data-photo: inbodhi yoga · 5:4 -->
     <img class="detail-photo rv" src="assets/yoga-shala.jpg" alt="Michèle in front of a yoga shala class schedule board" style="aspect-ratio:auto">
-    <div class="detail-body rv rv-d1">
+    <div class="detail-body rv rv-d1 readmore readmore--deep">
       <span class="label">inbodhi yoga firenze</span>
       <h2 class="h2">Yoga has been my home for more than two decades</h2>
+      <div class="readmore-copy">
       <p>I've been teaching for over twenty-three years and have had the privilege of training hundreds of students and teachers. My journey began in San Francisco with the Rocket, through the It's Yoga system and its founder Larry Schultz. I've continued my studies in yoga philosophy, Vedic chanting with Menaka Desikachar, meditation, anatomy, and movement.</p>
       <p>I founded Inbodhi Yoga Firenze in 2004 to create a school that honors both the depth of the yogic tradition and the realities of modern life. Today, our internationally recognized 200-hour and 300-hour Yoga Alliance teacher trainings have supported a generation of teachers in developing not only technical skill but authenticity, confidence, and presence.</p>
       <p>My teaching has evolved alongside my own life. It is informed by science, trauma awareness, breathwork, and the profound lessons that come from living in an imperfect body.</p>
       <p class="pull">Yoga is not about mastering difficult postures. It is a lifelong practice of coming home to ourselves, and finding comfort in the discomfort.</p>
+      </div>
+      <button class="readmore-btn" type="button" aria-expanded="false">
+        <span>Read More</span>
+        <svg width="12" height="8" viewBox="0 0 12 8" fill="none" aria-hidden="true"><path d="M1 1.5 6 6.5l5-5" stroke="currentColor" stroke-width="1.2"/></svg>
+      </button>
       <a href="https://inbodhiyoga.com" target="_blank" rel="noopener" class="btn btn--line">visit inbodhi yoga</a>
     </div>
   </div>
@@ -1002,14 +1036,20 @@ img.about-photo, img.detail-photo, img.pillar-photo{ object-fit:cover; width:100
   <div class="wrap detail">
     <!-- data-photo: maps italia · 5:4 -->
     <img class="detail-photo rv" src="assets/maps-wall.jpg" alt="Michèle against a Tuscan stone wall at golden hour" style="aspect-ratio:auto">
-    <div class="detail-body rv rv-d1">
+    <div class="detail-body rv rv-d1 readmore">
       <span class="label">psychedelic research &amp; education</span>
       <h2 class="h2">MAPS Italia</h2>
+      <div class="readmore-copy">
       <p class="lede">As co-founder and President of MAPS Italia Foundation ETS, I work to advance the responsible development of psychedelic medicine through science, education, and collaboration.</p>
       <p>My role is to help build the ecosystem that allows these therapies to develop safely, ethically, and accessibly. I collaborate with clinicians, researchers, hospitals, universities, policymakers, and nonprofit organizations to strengthen education, research, and professional training across Italy and internationally.</p>
       <p>Over the years I've organized scientific conferences, contributed to books and peer-reviewed publications, developed educational resources, translated training materials, and supported the implementation of the MAPS MDMA-Assisted Therapy Training Program in Italy. I also work closely with university hospitals to create the networks and infrastructure needed for the next generation of mental healthcare.</p>
       <p class="pull">"Psychedelic" medicine is about much more than individual treatments.</p>
       <p>It's about reimagining how we understand trauma, healing, connection, and human flourishing — and ensuring that this emerging field develops with scientific rigor, ethical integrity, and deep compassion.</p>
+      </div>
+      <button class="readmore-btn" type="button" aria-expanded="false">
+        <span>Read More</span>
+        <svg width="12" height="8" viewBox="0 0 12 8" fill="none" aria-hidden="true"><path d="M1 1.5 6 6.5l5-5" stroke="currentColor" stroke-width="1.2"/></svg>
+      </button>
       <a href="https://mapsitalia.org" target="_blank" rel="noopener" class="btn btn--line">visit maps italia</a>
     </div>
   </div>
@@ -1042,7 +1082,28 @@ img.about-photo, img.detail-photo, img.pillar-photo{ object-fit:cover; width:100
 <!-- ==================== QUOTE ==================== -->
 <section class="band band--deep band--seam quote-band">
   <div class="wrap">
-    <img class="quote-owl rv" src="assets/owl-gold.svg" alt="" aria-hidden="true">
+    <svg class="quote-owl" id="quoteOwl" viewBox="0 0 596.82666 663.94666" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <path class="fl" d="m 1215.95,4764.38 c -9.28,35.48 -11.48,71.37 -11.78,107.63 0.26,36.26 2.45,72.15 11.77,107.62 9.33,-35.47 11.52,-71.37 11.78,-107.62 -0.31,-36.26 -2.5,-72.15 -11.77,-107.63 v 0" transform="matrix(0.13333333,0,0,-0.13333333,0,663.94667)" pathLength="1"/>
+  <path class="fl" d="m 1215.95,4555.05 c -6.21,35.69 -7.65,71.58 -7.85,107.63 0.17,36.04 1.6,71.93 7.85,107.62 6.23,-35.69 7.67,-71.58 7.84,-107.62 -0.2,-36.05 -1.64,-71.93 -7.84,-107.63 v 0" transform="matrix(0.13333333,0,0,-0.13333333,0,663.94667)" pathLength="1"/>
+  <path class="fl" d="m 1360.43,4633.6 c -31.65,18.53 -58.58,42.35 -84.43,67.78 -25.46,25.81 -49.28,52.74 -67.78,84.42 31.68,-18.49 58.61,-42.32 84.43,-67.78 25.42,-25.85 49.25,-52.78 67.78,-84.42 v 0" transform="matrix(0.13333333,0,0,-0.13333333,0,663.94667)" pathLength="1"/>
+  <path class="fl" d="m 1214.75,4777.83 c -21.58,-44.05 -67.45,-90.08 -111.58,-111.59 21.48,44.12 67.51,89.99 111.58,111.59 v 0" transform="matrix(0.13333333,0,0,-0.13333333,0,663.94667)" pathLength="1"/>
+  <path class="fl" d="m 1097.77,4895.13 c 23.56,-14.81 43.95,-33.13 63.6,-52.5 19.39,-19.63 37.72,-40.02 52.51,-63.6 -23.59,14.78 -43.98,33.11 -63.61,52.5 -19.36,19.65 -37.69,40.04 -52.5,63.6 v 0" transform="matrix(0.13333333,0,0,-0.13333333,0,663.94667)" pathLength="1"/>
+  <path class="fl" d="m 1219.12,4779.15 c 12.35,21.08 28.22,39.04 45.17,56.26 17.2,16.97 35.15,32.84 56.26,45.16 -12.33,-21.11 -28.2,-39.06 -45.17,-56.26 -17.22,-16.94 -35.17,-32.81 -56.26,-45.16 v 0" transform="matrix(0.13333333,0,0,-0.13333333,0,663.94667)" pathLength="1"/>
+  <path class="fl" d="m 1407.92,4777.27 c -55.51,-15.9 -131.53,-16.02 -187.05,0 55.49,16.03 131.51,15.92 187.05,0 v 0" transform="matrix(0.13333333,0,0,-0.13333333,0,663.94667)" pathLength="1"/>
+  <path class="fl" d="m 1222.22,4774.13 c -35.96,-4.41 -71.87,-4.05 -107.88,-2.45 -35.99,1.97 -71.76,5.2 -107.1,13.22 35.96,4.44 71.88,4.08 107.89,2.45 35.98,-2 71.75,-5.24 107.09,-13.22 v 0" transform="matrix(0.13333333,0,0,-0.13333333,0,663.94667)" pathLength="1"/>
+  <path class="fl" d="m 1244.73,4772.92 c 0,-16.17 -13.11,-29.29 -29.29,-29.29 -16.17,0 -29.28,13.12 -29.28,29.29 0,16.17 13.11,29.29 29.28,29.29 16.18,0 29.29,-13.12 29.29,-29.29" transform="matrix(0.13333333,0,0,-0.13333333,0,663.94667)" pathLength="1"/>
+  <path class="ln" d="m 955.555,4266.46 c 0,-190.53 -154.461,-345 -345,-345 -190.539,0 -345,154.47 -345,345 0,190.54 154.461,345 345,345 190.539,0 345,-154.46 345,-345 z" transform="matrix(0.13333333,0,0,-0.13333333,0,663.94667)" stroke-width="50" pathLength="1"/>
+  <path class="ln" d="m 610.555,4611.46 c 540.005,0 602.665,-1139.78 602.665,-1139.78" transform="matrix(0.13333333,0,0,-0.13333333,0,663.94667)" stroke-width="50" pathLength="1"/>
+  <path class="ln" d="m 1470.56,4271.46 c 0,-190.53 154.46,-345 345,-345 190.53,0 345,154.47 345,345 0,190.54 -154.47,345 -345,345 -190.54,0 -345,-154.46 -345,-345 z" transform="matrix(0.13333333,0,0,-0.13333333,0,663.94667)" stroke-width="50" pathLength="1"/>
+  <path class="ln" d="m 1815.56,4616.46 c -540,0 -602.67,-1139.78 -602.67,-1139.78" transform="matrix(0.13333333,0,0,-0.13333333,0,663.94667)" stroke-width="50" pathLength="1"/>
+  <path class="ln" d="m 554.172,3355.72 c 0,0 83.207,-546.45 360.086,-992.33 C 1191.14,1917.51 2048.65,1349.9 2442.1,1270.24 c 393.45,-79.67 1268.46,-103.78 1268.46,-103.78" transform="matrix(0.13333333,0,0,-0.13333333,0,663.94667)" stroke-width="50" pathLength="1"/>
+  <path class="ln" d="m 1504.04,3019.92 c -8.48,61.54 -13.62,229.59 338.95,445.57 352.57,215.97 753.89,33.47 858.23,-50.28 104.34,-83.75 1904.24,-2366 1739.29,-2529.87 -164.95,-163.879 -1889.4,1018.57 -2157.18,1242.35 -267.77,223.77 -770.8,830.69 -779.29,892.23 z" transform="matrix(0.13333333,0,0,-0.13333333,0,663.94667)" stroke-width="50" pathLength="1"/>
+  <path class="ln" d="m 1674.75,1640.22 c 0,0 162.68,-366.04 182.89,-620.68 20.21,-254.642 14.1,-444.802 -28.34,-570.7 -42.43,-125.891 -611.5,-177.539 -625.37,-232.828 -13.87,-55.301 1029.11,-121.8636 1037.71,-87.742 8.61,34.121 -206.05,259.781 -213.4,374.652 -7.35,114.879 -12.08,383.34 19.14,549.758 31.22,166.42 152.91,298.93 152.91,298.93" transform="matrix(0.13333333,0,0,-0.13333333,0,663.94667)" stroke-width="40" pathLength="1"/>
+  <path class="ln" d="m 1865.45,2556.86 c 0,0 428.25,171.17 909.18,-62.12 480.93,-233.28 1324.48,-841.53 1332.7,-937.41 8.23,-95.87 -997.64,-7.52 -997.64,-7.52" transform="matrix(0.13333333,0,0,-0.13333333,0,663.94667)" stroke-width="40" pathLength="1"/>
+  <path class="ln" d="m 2860.56,1216.46 c -18.26,-74.43 -41.37,-179.9 -60.09,-307.659 -44.6,-304.41 -40.38,-446.211 -6.55,-571.371 34.67,-128.239 599.52,-214.532 609.99,-270.5706 10.47,-56.0391 -1034.62,-58.80862 -1041.13,-24.2305 -6.5,34.582 221.53,246.7111 235.88,360.9301 32.08,255.39 33.05,476.261 14.45,549.902 -34.81,137.749 -91.81,241.879 -134.38,307.699" transform="matrix(0.13333333,0,0,-0.13333333,0,663.94667)" stroke-width="40" pathLength="1"/>
+  <path class="ln" d="m 30.5547,4356.46 c 0,0 -50,-230 150.0003,-470 200,-240 640,-290 640,-290" transform="matrix(0.13333333,0,0,-0.13333333,0,663.94667)" stroke-width="50" pathLength="1"/>
+  <path class="ln" d="m 2406.53,4381.61 c 0,0 50,-230 -150,-470 -200,-240 -640,-290 -640,-290" transform="matrix(0.13333333,0,0,-0.13333333,0,663.94667)" stroke-width="50" pathLength="1"/>
+</svg>
     <blockquote class="rv rv-d1">Healing isn't about becoming someone new. It's about remembering who we already are.</blockquote>
     <p class="attrib rv rv-d2">michèle anne barocchi</p>
   </div>
@@ -1238,6 +1299,22 @@ img.about-photo, img.detail-photo, img.pillar-photo{ object-fit:cover; width:100
       sec.__ani = els;
       io.observe(sec);
     });
+
+    /* the quote's owl traces itself once, when it reaches the viewport */
+    var qOwl = document.getElementById('quoteOwl');
+    if (qOwl){
+      qOwl.querySelectorAll('path').forEach(function(p, i){
+        p.style.setProperty('--d', (i * 0.03).toFixed(2) + 's');
+      });
+      var qio = new IntersectionObserver(function(entries){
+        entries.forEach(function(en){
+          if (!en.isIntersecting) return;
+          qOwl.classList.add('is-drawn');
+          qio.unobserve(en.target);
+        });
+      }, { threshold: 0.9 });
+      qio.observe(qOwl);
+    }
   }
 
   /* intro veil — 2.3s hold, 1.4s fade */
