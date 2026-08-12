@@ -687,6 +687,21 @@
     .card .card-cta--current .btn-text-wrap { display: block; width: 100%; }
     .card .card-cta--current .btn-text-inner span + span { display: none; }
 
+    /* Teams on a team plan gets a plain line, not a dead button — there's
+       nothing to click, so a disabled control only invited the click. Sits
+       where the CTA would, at the foot of the card. */
+    /* shared's .hero-btn-primary sets display:flex, which out-ranks the UA's
+       [hidden] rule — the button stays visible without this */
+    .card .card-cta[hidden], .admin-note[hidden] { display: none; }
+    .admin-note {
+      margin-top: auto;
+      padding: 14px 0 2px;
+      text-align: center;
+      font-size: 15px;
+      font-weight: 500;
+      color: #fff;
+    }
+
     /* sits at the foot of the Pro card — in the top band it pushed the
        description and divider ~80px below the other three cards */
     .switch-note {
@@ -2505,7 +2520,7 @@
             <svg class="token-caret" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
           <ul class="token-menu" id="token-menu" role="listbox"></ul>
-          <p class="token-current">Your current plan: <strong>600M tokens</strong>.</p>
+          <p class="token-current">Your current plan: <strong>10M tokens</strong>.</p>
         </div>
         <p class="card-description">Everything in Pro, plus shared capacity and team controls.</p>
 
@@ -2539,7 +2554,8 @@
           </li>
         </ul>
         </div>
-        <button class="hero-btn-primary card-cta card-cta--current" disabled>
+        <p class="admin-note">Contact an admin to manage</p>
+        <button class="hero-btn-primary card-cta card-cta--current" disabled hidden>
           <div class="btn-bg-hover"></div>
           <div class="btn-text-wrap"><div class="btn-text-inner"><span>Contact an admin to manage</span><span>Contact an admin to manage</span></div></div>
         </button>
@@ -3910,8 +3926,10 @@ window.__pageOwnsScrollAnims = true;
         { tokens: '1200M', yearly: 1800 }
       ];
       TIERS.forEach(function (t) { t.monthly = Math.round(t.yearly / 0.9); });
-      var CURRENT_TIER = 11;  // the workspace is on 600M
-      var tierIdx = 12;       // …and looking at 900M
+      /* The workspace sits on the base Teams tier, so the card opens showing
+         the same $27 / $324 the public pricing page advertises. */
+      var CURRENT_TIER = 0;
+      var tierIdx = 0;
 
       var currentPlan = 'teams';
 
@@ -4000,11 +4018,20 @@ window.__pageOwnsScrollAnims = true;
           var plan = card.getAttribute('data-plan');
           var btn  = card.querySelector('.card-cta');
           if (!btn) return;
+          /* on a team plan there's nothing for Teams to link to — show the
+             plain "contact an admin" line instead of the button */
+          var adminNote = card.querySelector('.admin-note');
+          if (adminNote) {
+            var isManaged = plan === currentPlan;
+            adminNote.hidden = !isManaged;
+            btn.hidden = isManaged;
+            if (isManaged) return;
+          }
           var label, current = true;
           if (plan === 'enterprise') {
             label = 'Ask for a Quote'; current = false;
           } else if (plan === currentPlan) {
-            label = plan === 'teams' ? 'Contact an admin to manage' : 'Your Current Plan';
+            label = 'Your Current Plan';
           } else if (PLAN_ORDER.indexOf(plan) < PLAN_ORDER.indexOf(currentPlan)) {
             label = "You're on " + PLAN_NAME[currentPlan];
           } else {
