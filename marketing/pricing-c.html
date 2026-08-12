@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pricing B · Bolt Enterprise</title>
+  <title>Pricing C · Bolt Enterprise</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet" />
@@ -133,11 +133,7 @@
       justify-content: flex-start;
       gap: 10px;
       flex-shrink: 0;
-      /* --toggle-h is the single source for the control's height: the toggle
-         is pinned to it and .billing-row--spacer reserves the same on Free/
-         Enterprise. Chasing it with a literal drifted twice — once when the
-         coupon icon went in, again when it grew to 16px. */
-      min-height: var(--toggle-h);
+      min-height: 28px;   /* .billing-row--spacer holds this on Free/Enterprise */
     }
     .billing-row--spacer { display: block; }
     .billing-save-badge {
@@ -530,49 +526,54 @@
     }
 
 
-    /* ── Variant B: toggle sits under the price, its note under the toggle ──
-       The annual total and savings move out of a static line and into copy
-       that reacts to the selected term. */
-    .cards { --toggle-h: 34px; }
-    .card .billing-toggle { height: var(--toggle-h); }
-    .card .billing-btn {
-      align-self: stretch;
+    /* ── Variant C: one term switch above the grid ──
+       Form borrowed from the reference: a single dark pill, uppercase
+       letter-spaced labels, the saving stated as a chip inside Yearly.
+       Yearly leads because it's the term being recommended. The fill is the
+       brand blue rather than the reference's lime, which is off-palette. */
+    .term-switch {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+    .term-switch .billing-toggle {
+      padding: 5px;
+      border-radius: 999px;
+      background: #0d0d0f;
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+    .term-switch .billing-thumb {
+      top: 5px;
+      bottom: 5px;
+      border-radius: 999px;
+    }
+    .term-switch .billing-btn {
       width: auto;
-      min-width: 68px;
-      padding: 6px 10px;
-      font-size: 10px;
-      gap: 6px;
-    }
-    .billing-coupon {
-      width: 16px;
-      height: 16px;
-      flex-shrink: 0;
-      color: #1488FC;
-      transition: color 0.25s ease;
-    }
-    /* the active segment's fill IS #1488FC, so a blue tag would vanish on it —
-       it goes white there and keeps the same weight */
-    .billing-btn.active .billing-coupon { color: #fff; }
-
-    .variant-note {
-      margin: 12px 0 0;
-      /* two lines on yearly, one on monthly — reserve both so the CTA
-         doesn't hop when the term changes (15px + 13px at 1.5 = 42) */
-      min-height: 44px;
-    }
-    .vn-line {
+      gap: 10px;
+      padding: 11px 26px;
+      border-radius: 999px;
       font-size: 13px;
-      line-height: 1.5;
-      color: #1488FC;
-      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+      letter-spacing: 1.6px;
+      text-transform: uppercase;
     }
-    /* the saving is the point of the line — the total is supporting detail */
-    .vn-save { font-size: 15px; font-weight: 600; }
-    .vn-total { color: rgba(255,255,255,0.55); } /* the standard muted grey, at the base 13px */
+    .term-chip {
+      padding: 3px 9px;
+      border: 1px solid currentColor;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      white-space: nowrap;
+      opacity: 0.7;
+      transition: opacity 0.25s ease;
+    }
+    .billing-btn.active .term-chip { opacity: 1; }
 
-    /* Free/Enterprise have no toggle — their static line sits where the
-       variant note does, so the four CTAs stay level */
-    .price-note { margin: 12px 0 0; min-height: 44px; }
+    @media (max-width: 768px) {
+      .term-switch .billing-btn { padding: 10px 15px; font-size: 12px; letter-spacing: 1.1px; gap: 7px; }
+      .term-chip { padding: 2px 7px; font-size: 9px; letter-spacing: 0.6px; }
+    }
 
     /* ── Divider ── */
     .divider {
@@ -2205,8 +2206,8 @@
   <span class="variant-state">
     <span class="variant-state-name">Signed out</span>
     <a href="pricing.html" class="variant-btn">A</a>
-    <a href="pricing-b.html" class="variant-btn is-active" aria-current="page">B</a>
-    <a href="pricing-c.html" class="variant-btn">C</a>
+    <a href="pricing-b.html" class="variant-btn">B</a>
+    <a href="pricing-c.html" class="variant-btn is-active" aria-current="page">C</a>
   </span>
   <span class="variant-sep" aria-hidden="true"></span>
   <span class="variant-state">
@@ -2229,6 +2230,17 @@
       </div>
     </div>
 
+    <!-- Term switch — variant C lifts the Monthly/Yearly control out of the
+         cards into one page-level pill above the grid. Keeps the .billing-*
+         class names so setBilling and positionBillingThumb drive it unchanged. -->
+    <div class="term-switch">
+      <div class="billing-toggle" data-billing="yearly">
+        <div class="billing-thumb"></div>
+        <button class="billing-btn active" data-period="yearly" id="btn-yearly" onclick="setBilling('yearly')" aria-pressed="true">Yearly<span class="term-chip">Save up to 28%</span></button>
+        <button class="billing-btn" data-period="monthly" id="btn-monthly" onclick="setBilling('monthly')" aria-pressed="false">Monthly</button>
+      </div>
+    </div>
+
     <!-- Cards -->
     <div class="cards">
 
@@ -2240,7 +2252,6 @@
           <span class="price-amount-wrap"><span class="price-amount" id="free-price">$0</span></span>
           <span class="price-period">/month</span>
         </div>
-        <div class="billing-row billing-row--spacer" aria-hidden="true"></div>
         <div class="price-note">
           <p class="price-total">Free forever, no card required</p>
         </div>
@@ -2287,16 +2298,9 @@
           <span class="price-amount-wrap"><span class="price-amount" id="pro-price">$18</span></span>
           <span class="price-period">/month</span>
         </div>
-        <div class="billing-row" data-billing="yearly">
-          <div class="billing-toggle" data-billing="yearly">
-            <div class="billing-thumb"></div>
-            <button class="billing-btn" data-period="monthly" id="btn-monthly" onclick="setBilling('monthly')" aria-pressed="false">Monthly</button>
-            <button class="billing-btn active" data-period="yearly" id="btn-yearly" onclick="setBilling('yearly')" aria-pressed="true">Yearly<svg class="billing-coupon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M11.17 2H4a2 2 0 0 0-2 2v7.17a2 2 0 0 0 .59 1.42l8.7 8.7a2.43 2.43 0 0 0 3.42 0l6.58-6.58a2.43 2.43 0 0 0 0-3.42l-8.7-8.7A2 2 0 0 0 11.17 2ZM7.5 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/></svg></button>
-          </div>
-        </div>
-        <div class="variant-note">
-          <p class="vn-line vn-save" id="pro-vn-save"></p>
-          <p class="vn-line vn-total" id="pro-vn-total"></p>
+        <div class="price-note">
+          <p class="price-total" id="pro-total"></p>
+          <p class="price-save" id="pro-save"></p>
         </div>
         <button class="hero-btn-primary card-cta">
           <div class="btn-bg-hover"></div>
@@ -2359,16 +2363,9 @@
           <span class="price-amount-wrap"><span class="price-amount" id="teams-price">$27</span></span>
           <span class="price-period">/month</span>
         </div>
-        <div class="billing-row" data-billing="yearly">
-          <div class="billing-toggle" data-billing="yearly">
-            <div class="billing-thumb"></div>
-            <button class="billing-btn" data-period="monthly" onclick="setBilling('monthly')" aria-pressed="false">Monthly</button>
-            <button class="billing-btn active" data-period="yearly" onclick="setBilling('yearly')" aria-pressed="true">Yearly<svg class="billing-coupon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M11.17 2H4a2 2 0 0 0-2 2v7.17a2 2 0 0 0 .59 1.42l8.7 8.7a2.43 2.43 0 0 0 3.42 0l6.58-6.58a2.43 2.43 0 0 0 0-3.42l-8.7-8.7A2 2 0 0 0 11.17 2ZM7.5 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/></svg></button>
-          </div>
-        </div>
-        <div class="variant-note">
-          <p class="vn-line vn-save" id="teams-vn-save"></p>
-          <p class="vn-line vn-total" id="teams-vn-total"></p>
+        <div class="price-note">
+          <p class="price-total" id="teams-total"></p>
+          <p class="price-save" id="teams-save"></p>
         </div>
         <button class="hero-btn-primary card-cta">
           <div class="btn-bg-hover"></div>
@@ -2416,7 +2413,6 @@
         <div class="card-price">
           <span class="price-amount price-amount--custom">Custom</span>
         </div>
-        <div class="billing-row billing-row--spacer" aria-hidden="true"></div>
         <div class="price-note">
           <p class="price-total">Custom annual contract, billed by consumption</p>
         </div>
@@ -3826,35 +3822,5 @@ window.__pageOwnsScrollAnims = true;
   if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', __genericRevealInit); } else { __genericRevealInit(); }
 })();
 </script>
-  <script>
-    /* ── Variant B price copy ──
-       Replaces A's static "Total of $216 $300 / year" with a line that
-       reacts to the selected term: what yearly saves you when it's on, and
-       a nudge toward it when it isn't. Reads the same PLAN_TOTALS as A. */
-    (function () {
-      function render(period) {
-        if (!window.PLAN_TOTALS) return;
-        Object.keys(window.PLAN_TOTALS).forEach(function (plan) {
-          var d = window.PLAN_TOTALS[plan];
-          var save  = document.getElementById(plan + '-vn-save');
-          var total = document.getElementById(plan + '-vn-total');
-          if (!save || !total) return;
-          var diff = d.monthly - d.yearly;
-          var pct  = Math.round(diff / d.monthly * 100);
-          if (period === 'yearly') {
-            save.textContent  = "You're saving $" + diff + ' per year';
-            total.textContent = 'Total $' + d.yearly + ' per year';
-          } else {
-            save.textContent  = 'Choose yearly to save ' + pct + '%';
-            total.textContent = 'Total $' + d.monthly + ' per year';
-          }
-        });
-      }
-      var orig = window.setBilling;
-      window.setBilling = function (val) { orig(val); render(val); };
-      render(document.querySelector('.billing-toggle').getAttribute('data-billing'));
-    })();
-  </script>
-
 </body>
 </html>
