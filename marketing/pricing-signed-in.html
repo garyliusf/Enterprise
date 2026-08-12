@@ -376,12 +376,9 @@
       flex-wrap: wrap; /* the toggle drops as a unit when tight — the period never splits */
       gap: 6px;
       row-gap: 8px;
-      margin-bottom: 18px;
-      /* reserve the badge+toggle stack on every card (Pro/Teams carry one,
-         Free/Enterprise don't) so all four CTAs — and the divider below them —
-         land on the same line. 30px = the toggle's real height (28px box,
-         baseline-aligned and nudged -2px, so it overhangs 2.5px). */
-      min-height: 30px;
+      margin-bottom: 2px;   /* the annual total tucks right under the price */
+      /* the toggle moved out of this row, so there's nothing to reserve */
+      min-height: 0;
     }
     .price-amount-wrap {
       overflow: hidden;
@@ -431,7 +428,8 @@
        saves. min-height reserves the two-line + savings stack on every card
        (Free/Enterprise carry one line) so all four CTAs stay on one row. */
     .price-note {
-      margin: -6px 0 18px;
+      /* tight to the price above, clear gap to the toggle below */
+      margin: 0 0 22px;
       /* every note is exactly two lines now (the copy is short enough not to
          wrap) — Free's single line pads up to it so the CTAs stay level */
       min-height: 42px;
@@ -673,36 +671,6 @@
     }
     .card .card-cta--current .btn-bg-hover { display: none; }
     .card .card-cta--current canvas { display: none !important; }
-
-    /* the account nav slot: avatar + name instead of Sign in / Get Started */
-    .nav-account {
-      display: inline-flex;
-      align-items: center;
-      gap: 9px;
-      padding: 5px 12px 5px 5px;
-      border: 1px solid rgba(255,255,255,0.10);
-      border-radius: 999px;
-      background: transparent;
-      color: #fff;
-      font-family: 'Inter', sans-serif;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: border-color 0.2s ease;
-    }
-    .nav-account:hover { border-color: rgba(255,255,255,0.26); }
-    .nav-account-avatar {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      background: #1488FC;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.3px;
-    }
 
     /* "Contact an admin to manage" is longer than the button is wide at
        4-up; let it wrap rather than clip */
@@ -2174,13 +2142,6 @@
     </ul>
 
     <div class="mkt-nav-right">
-      <div class="mkt-nav-actions">
-        <a href="https://bolt.new/" class="mkt-nav-signin">Dashboard</a>
-        <button class="nav-account" aria-label="Account menu">
-          <span class="nav-account-avatar" aria-hidden="true">GL</span>
-          <span class="nav-account-name">Gary Liu</span>
-        </button>
-      </div>
       <button class="mkt-nav-burger" aria-label="Open menu" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
@@ -2350,7 +2311,6 @@
       <div class="btn-bg-hover"></div>
       <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Started</span><span>Get Started</span></div></div>
     </a>
-    <a href="https://bolt.new/" class="mkt-nav-mobile-signin">Dashboard</a>
   </div>
 </div>
 
@@ -2401,6 +2361,9 @@
           <span class="price-amount-wrap"><span class="price-amount" id="free-price">$0</span></span>
           <span class="price-period">/month</span>
         </div>
+        <div class="price-note">
+          <p class="price-total">Free forever, no card required</p>
+        </div>
         <div class="billing-row billing-row--spacer" aria-hidden="true"></div>
         <button class="hero-btn-primary card-cta card-cta--current" disabled>
           <div class="btn-bg-hover"></div>
@@ -2444,6 +2407,10 @@
         <div class="card-price">
           <span class="price-amount-wrap"><span class="price-amount" id="pro-price">$18</span></span>
           <span class="price-period">/month</span>
+        </div>
+        <div class="price-note">
+          <p class="price-total" id="pro-total"></p>
+          <p class="price-save" id="pro-save"></p>
         </div>
         <div class="billing-row" data-billing="yearly">
           <div class="billing-toggle" data-billing="yearly">
@@ -2515,6 +2482,10 @@
           <span class="price-amount-wrap"><span class="price-amount" id="teams-price">$27</span></span>
           <span class="price-period">/month</span>
         </div>
+        <div class="price-note">
+          <p class="price-total" id="teams-total"></p>
+          <p class="price-save" id="teams-save"></p>
+        </div>
         <div class="billing-row" data-billing="yearly">
           <div class="billing-toggle" data-billing="yearly">
             <div class="billing-thumb"></div>
@@ -2579,6 +2550,9 @@
         <span class="plan-label orange">Enterprise</span>
         <div class="card-price">
           <span class="price-amount price-amount--custom">Custom</span>
+        </div>
+        <div class="price-note">
+          <p class="price-total">Custom annual contract, billed by consumption</p>
         </div>
         <div class="billing-row billing-row--spacer" aria-hidden="true"></div>
         <button class="hero-btn-primary card-cta">
