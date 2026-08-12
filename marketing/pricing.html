@@ -129,24 +129,27 @@
     .billing-btn:hover { color: rgba(255,255,255,0.85); }
     .billing-btn.active { color: #fff; font-weight: 600; }
 
-    /* badge sits BESIDE the toggle on one row, right-aligned to the card edge.
-       The pair is a single flex item of .card-price, so it wraps under the
-       price as a unit when the column is too narrow to hold both. */
-    .billing-row {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 8px;
-    }
+    /* The toggle shares the price's row, so the badge is floated ABOVE it
+       rather than stacked in flow — in flow it adds ~18px to the row and
+       pushes the toggle onto a line of its own. Out of flow it costs no
+       layout height and sits in the plan-label's bottom margin. */
+    .billing-row { position: relative; }
     .billing-save-badge {
-      display: inline-block;
+      position: absolute;
+      right: 0;
+      bottom: calc(100% + 6px);
       font-size: 11px;
       font-weight: 700;
-      color: #1488FC;
       font-family: 'Inter', sans-serif;
       letter-spacing: 0.6px;
       line-height: 1;
+      white-space: nowrap;
+      /* dim until yearly is actually the selected term — it's a claim about
+         yearly billing, so it shouldn't read as live while monthly is on */
+      color: rgba(255,255,255,0.3);
+      transition: color 0.25s ease;
     }
+    .billing-row[data-billing="yearly"] .billing-save-badge { color: #1488FC; }
 
 
     /* ── Cards grid ── */
@@ -381,9 +384,9 @@
       margin-bottom: 18px;
       /* reserve the badge+toggle stack on every card (Pro/Teams carry one,
          Free/Enterprise don't) so all four CTAs — and the divider below them —
-         land on the same line. 58px = the price line plus the badge+toggle
-         row wrapping under it. */
-      min-height: 58px;
+         land on the same line. 30px = the toggle's real height (28px box,
+         baseline-aligned and nudged -2px, so it overhangs 2.5px). */
+      min-height: 30px;
     }
     .price-amount-wrap {
       overflow: hidden;
@@ -2086,7 +2089,7 @@
     <div class="pricing-hero">
       <div class="page-header">
         <h1>Pricing</h1>
-        <p>Start for free. Save up to 28% when you pay yearly.</p>
+        <p>Start for free. No credit card required.</p>
       </div>
     </div>
 
@@ -2146,7 +2149,7 @@
         <div class="card-price">
           <span class="price-amount-wrap"><span class="price-amount" id="pro-price">$18</span></span>
           <span class="price-period">/month</span>
-          <div class="billing-row">
+          <div class="billing-row" data-billing="yearly">
             <span class="billing-save-badge">SAVE 28%</span>
             <div class="billing-toggle" data-billing="yearly">
               <div class="billing-thumb"></div>
@@ -2219,7 +2222,7 @@
         <div class="card-price">
           <span class="price-amount-wrap"><span class="price-amount" id="teams-price">$27</span></span>
           <span class="price-period">/month</span>
-          <div class="billing-row">
+          <div class="billing-row" data-billing="yearly">
             <span class="billing-save-badge">SAVE 10%</span>
             <div class="billing-toggle" data-billing="yearly">
               <div class="billing-thumb"></div>
@@ -3127,7 +3130,7 @@
         b.classList.toggle('active', on);
         b.setAttribute('aria-pressed', String(on));
       });
-      document.querySelectorAll('.billing-toggle').forEach(function (t) { t.setAttribute('data-billing', val); });
+      document.querySelectorAll('.billing-toggle, .billing-row').forEach(function (t) { t.setAttribute('data-billing', val); });
       renderPriceNotes(val);
       currentBilling = val;
       positionBillingThumb();
@@ -3156,7 +3159,7 @@
           save.innerHTML  = 'Billed annually — you save <strong>$' + diff + '</strong>';
         } else {
           total.innerHTML = 'Total of <strong>$' + d.monthly + '</strong> / year';
-          save.innerHTML  = 'Billed monthly — save <strong>$' + diff + '</strong> yearly';
+          save.innerHTML  = 'Save <strong>$' + diff + '</strong> with yearly billing';
         }
       });
     }
