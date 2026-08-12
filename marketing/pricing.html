@@ -129,12 +129,14 @@
     .billing-btn:hover { color: rgba(255,255,255,0.85); }
     .billing-btn.active { color: #fff; font-weight: 600; }
 
-    /* badge stacks ABOVE the toggle, both right-aligned to the card edge */
+    /* badge sits BESIDE the toggle on one row, right-aligned to the card edge.
+       The pair is a single flex item of .card-price, so it wraps under the
+       price as a unit when the column is too narrow to hold both. */
     .billing-row {
       display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 5px;
+      flex-direction: row;
+      align-items: center;
+      gap: 8px;
     }
     .billing-save-badge {
       display: inline-block;
@@ -379,9 +381,9 @@
       margin-bottom: 18px;
       /* reserve the badge+toggle stack on every card (Pro/Teams carry one,
          Free/Enterprise don't) so all four CTAs — and the divider below them —
-         land on the same line. 54px = badge + 5px gap + toggle, baseline-
-         aligned against the price. */
-      min-height: 54px;
+         land on the same line. 58px = the price line plus the badge+toggle
+         row wrapping under it. */
+      min-height: 58px;
     }
     .price-amount-wrap {
       overflow: hidden;
@@ -432,12 +434,15 @@
        (Free/Enterprise carry one line) so all four CTAs stay on one row. */
     .price-note {
       margin: -6px 0 18px;
-      /* worst case is 3 lines (a total that wraps + the savings line) — the
-         1-line Free/Enterprise notes pad up to it so the CTAs stay level */
-      min-height: 62px;
+      /* every note is exactly two lines now (the copy is short enough not to
+         wrap) — Free's single line pads up to it so the CTAs stay level */
+      min-height: 42px;
     }
     .price-total {
       font-size: 13px;
+      /* equal-width digits, so $216/$300 and $324/$360 measure the same and
+         the two cards always break identically */
+      font-variant-numeric: tabular-nums;
       line-height: 1.5;
       color: rgba(255,255,255,0.55);
     }
@@ -449,6 +454,7 @@
     .price-save {
       margin-top: 3px;
       font-size: 13px;
+      font-variant-numeric: tabular-nums;
       line-height: 1.5;
       color: #1488FC;
     }
@@ -3141,12 +3147,16 @@
         var save  = document.getElementById(plan + '-save');
         if (!total || !save) return;
         var diff = d.monthly - d.yearly;
+        /* Two short lines that never wrap, so every card's note is exactly
+           two lines deep and the savings line sits on one row across all
+           four. The old one-liner sat right on the wrap boundary — $324
+           tipped over it while $216 didn't. */
         if (period === 'yearly') {
-          total.innerHTML = 'Total of <strong>$' + d.yearly + '</strong> <s>$' + d.monthly + '</s> / year, billed annually';
-          save.innerHTML  = 'You save <strong>$' + diff + '</strong> / year';
+          total.innerHTML = 'Total of <strong>$' + d.yearly + '</strong> <s>$' + d.monthly + '</s> / year';
+          save.innerHTML  = 'Billed annually — you save <strong>$' + diff + '</strong>';
         } else {
-          total.innerHTML = 'Total of <strong>$' + d.monthly + '</strong> / year, billed monthly';
-          save.innerHTML  = 'Save <strong>$' + diff + '</strong> / year with yearly billing';
+          total.innerHTML = 'Total of <strong>$' + d.monthly + '</strong> / year';
+          save.innerHTML  = 'Billed monthly — save <strong>$' + diff + '</strong> yearly';
         }
       });
     }
