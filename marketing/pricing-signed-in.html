@@ -568,7 +568,11 @@
     .token-menu li[aria-selected="true"] { color: #fff; background: rgba(255,255,255,0.04); }
 
     /* ── Token-tier picker (Teams) ── */
-    .token-picker { position: relative; margin-bottom: 20px; }
+    /* The picker occupies exactly the CTA's band: a 52px control with the
+       same 28/36 margins. Its label and current-plan line are floated into
+       those margins rather than adding to the flow — in flow they pushed
+       Teams' description and divider ~21px below the other three cards. */
+    .token-picker { position: relative; height: 52px; margin: 20px 0 32px; }
     .card-teams > .token-picker { z-index: 30; }
 
     /* Teams' CTA sits at the foot of the card instead of mid-stack: the token
@@ -576,9 +580,13 @@
        to the bottom edge reads as deliberate rather than adrift. */
     .card-teams > .card-cta { margin-top: auto; margin-bottom: 0; }
     .token-label {
-      display: block;
-      margin-bottom: 8px;
+      position: absolute;
+      left: 0;
+      bottom: calc(100% + 6px);
+      margin: 0;
       font-size: 12px;
+      line-height: 1.3;
+      white-space: nowrap;
       color: rgba(255,255,255,0.5);
     }
     .token-btn {
@@ -621,7 +629,7 @@
       transition: transform 0.2s ease;
     }
     .token-btn[aria-expanded="true"] .token-caret { transform: rotate(180deg); }
-    .token-menu { max-height: 232px; overflow-y: auto; }
+    .token-menu { top: 100%; max-height: 232px; overflow-y: auto; }
     /* three columns — token / badge / price — so every row's numbers start
        and end on the same x. A flex row with the badge inline pushed each
        token label to a different position. */
@@ -644,8 +652,13 @@
       line-height: 1.45;
     }
     .token-current {
-      margin-top: 8px;
+      position: absolute;
+      left: 0;
+      top: calc(100% + 8px);
+      margin: 0;
       font-size: 12px;
+      line-height: 1.3;
+      white-space: nowrap;
       color: rgba(255,255,255,0.5);
     }
     .token-current strong { font-weight: 600; color: rgba(255,255,255,0.8); }
@@ -663,10 +676,6 @@
     }
     .card .card-cta--current .btn-bg-hover { display: none; }
     .card .card-cta--current canvas { display: none !important; }
-
-    /* No annual-total note on this page — the price row runs straight into
-       the CTA, so restore the gap the note used to provide. */
-    .card .card-cta { margin-top: 28px; }
 
     /* the account nav slot: avatar + name instead of Sign in / Get Started */
     .nav-account {
@@ -891,7 +900,11 @@
        aligned for equal-height cards). */
     /* 24px below matches the divider's own margin, so CTA → description →
        rule → list all breathe on the same rhythm */
-    .card .card-cta { width: 100%; margin: 20px 0 24px; }
+    /* 20/32 is the "band" between a card's price row and its description.
+       Teams' token picker matches it exactly (see .token-picker) so all four
+       descriptions and dividers land on the same line. The bottom is 32 not
+       24 to clear the picker's floated "current plan" line. */
+    .card .card-cta { width: 100%; margin: 20px 0 32px; }
 
 
     /* ── Compare features table ── */
