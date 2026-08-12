@@ -135,7 +135,11 @@
       justify-content: flex-start;
       gap: 10px;
       flex-shrink: 0;
-      min-height: 28px;   /* .billing-row--spacer holds this on Free/Enterprise */
+      /* --toggle-h is the single source for the control's height: the toggle
+         is pinned to it and .billing-row--spacer reserves the same on Free/
+         Enterprise. Chasing it with a literal drifted twice — once when the
+         coupon icon went in, again when it grew to 16px. */
+      min-height: var(--toggle-h);
     }
     .billing-row--spacer { display: block; }
     .billing-save-badge {
@@ -786,31 +790,32 @@
     /* ── Variant B: toggle sits under the price, its note under the toggle ──
        The annual total and savings move out of a static line and into copy
        that reacts to the selected term. */
+    .cards { --toggle-h: 34px; }
+    .card .billing-toggle { height: var(--toggle-h); }
     .card .billing-btn {
+      align-self: stretch;
       width: auto;
-      min-width: 66px;
+      min-width: 68px;
       padding: 6px 10px;
       font-size: 10px;
       gap: 6px;
     }
     .billing-coupon {
-      width: 14px;
-      height: 14px;
+      width: 16px;
+      height: 16px;
       flex-shrink: 0;
-      /* the system green — shared-components' .hero-social-proof-dot and the
-         solutions pages use the same #22c55e */
-      color: #22c55e;
-      /* the icon is a reason to pick yearly — dim until yearly is chosen */
-      opacity: 0.55;
-      transition: opacity 0.25s ease;
+      color: #1488FC;
+      transition: color 0.25s ease;
     }
-    .billing-btn.active .billing-coupon { opacity: 1; }
+    /* the active segment's fill IS #1488FC, so a blue tag would vanish on it —
+       it goes white there and keeps the same weight */
+    .billing-btn.active .billing-coupon { color: #fff; }
 
     .variant-note {
       margin: 12px 0 0;
       /* two lines on yearly, one on monthly — reserve both so the CTA
-         doesn't hop when the term changes */
-      min-height: 40px;
+         doesn't hop when the term changes (15px + 13px at 1.5 = 42) */
+      min-height: 44px;
     }
     .vn-line {
       font-size: 13px;
@@ -818,12 +823,13 @@
       color: #1488FC;
       font-variant-numeric: tabular-nums;
     }
-    .vn-save { font-weight: 600; }
-    .vn-total { color: rgba(255,255,255,0.55); } /* the standard muted grey */
+    /* the saving is the point of the line — the total is supporting detail */
+    .vn-save { font-size: 15px; font-weight: 600; }
+    .vn-total { color: rgba(255,255,255,0.55); } /* the standard muted grey, at the base 13px */
 
     /* Free/Enterprise have no toggle — their static line sits where the
        variant note does, so the four CTAs stay level */
-    .price-note { margin: 12px 0 0; min-height: 40px; }
+    .price-note { margin: 12px 0 0; min-height: 44px; }
 
     /* ── Divider ── */
     .divider {
@@ -2558,7 +2564,7 @@
           <div class="billing-toggle" data-billing="yearly">
             <div class="billing-thumb"></div>
             <button class="billing-btn" data-period="monthly" id="btn-monthly" onclick="setBilling('monthly')" aria-pressed="false">Monthly</button>
-            <button class="billing-btn active" data-period="yearly" id="btn-yearly" onclick="setBilling('yearly')" aria-pressed="true">Yearly<svg class="billing-coupon" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8.62 1.5H13a1.5 1.5 0 0 1 1.5 1.5v4.38a1.5 1.5 0 0 1-.44 1.06l-5.12 5.12a1.5 1.5 0 0 1-2.12 0L2.44 9.18a1.5 1.5 0 0 1 0-2.12l5.12-5.12A1.5 1.5 0 0 1 8.62 1.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="11" cy="5" r="1.15" fill="currentColor"/></svg></button>
+            <button class="billing-btn active" data-period="yearly" id="btn-yearly" onclick="setBilling('yearly')" aria-pressed="true">Yearly<svg class="billing-coupon" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M8.62 1H13a2 2 0 0 1 2 2v4.38a2 2 0 0 1-.59 1.41l-5.12 5.13a2 2 0 0 1-2.83 0L1.08 9.54a2 2 0 0 1 0-2.83l5.13-5.12A2 2 0 0 1 8.62 1Zm2.38 4.9a1.3 1.3 0 1 0 0-2.6 1.3 1.3 0 0 0 0 2.6Z"/></svg></button>
           </div>
         </div>
         <div class="variant-note">
@@ -2631,7 +2637,7 @@
           <div class="billing-toggle" data-billing="yearly">
             <div class="billing-thumb"></div>
             <button class="billing-btn" data-period="monthly" onclick="setBilling('monthly')" aria-pressed="false">Monthly</button>
-            <button class="billing-btn active" data-period="yearly" onclick="setBilling('yearly')" aria-pressed="true">Yearly<svg class="billing-coupon" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8.62 1.5H13a1.5 1.5 0 0 1 1.5 1.5v4.38a1.5 1.5 0 0 1-.44 1.06l-5.12 5.12a1.5 1.5 0 0 1-2.12 0L2.44 9.18a1.5 1.5 0 0 1 0-2.12l5.12-5.12A1.5 1.5 0 0 1 8.62 1.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="11" cy="5" r="1.15" fill="currentColor"/></svg></button>
+            <button class="billing-btn active" data-period="yearly" onclick="setBilling('yearly')" aria-pressed="true">Yearly<svg class="billing-coupon" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M8.62 1H13a2 2 0 0 1 2 2v4.38a2 2 0 0 1-.59 1.41l-5.12 5.13a2 2 0 0 1-2.83 0L1.08 9.54a2 2 0 0 1 0-2.83l5.13-5.12A2 2 0 0 1 8.62 1Zm2.38 4.9a1.3 1.3 0 1 0 0-2.6 1.3 1.3 0 0 0 0 2.6Z"/></svg></button>
           </div>
         </div>
         <div class="variant-note">
