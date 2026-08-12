@@ -579,6 +579,11 @@
     /* ── Token-tier picker (Teams) ── */
     .token-picker { position: relative; margin-bottom: 20px; }
     .card-teams > .token-picker { z-index: 30; }
+
+    /* Teams' CTA sits at the foot of the card instead of mid-stack: the token
+       picker pushes it well below the other cards' buttons, so anchoring it
+       to the bottom edge reads as deliberate rather than adrift. */
+    .card-teams > .card-cta { margin-top: auto; margin-bottom: 0; }
     .token-label {
       display: block;
       margin-bottom: 8px;
@@ -590,7 +595,10 @@
       align-items: center;
       gap: 10px;
       width: 100%;
-      padding: 10px 12px;
+      /* 52px = the button standard, so it reads as the same control size as
+         the CTAs sitting beside it in the neighbouring cards */
+      height: 52px;
+      padding: 0 14px;
       border: 1px solid rgba(255,255,255,0.12);
       border-radius: 2px;
       background: rgba(255,255,255,0.03);
@@ -623,15 +631,26 @@
     }
     .token-btn[aria-expanded="true"] .token-caret { transform: rotate(180deg); }
     .token-menu { max-height: 232px; overflow-y: auto; }
-    .token-menu li { justify-content: space-between; font-variant-numeric: tabular-nums; }
-    .token-menu .token-opt-price { color: rgba(255,255,255,0.5); }
+    /* three columns — token / badge / price — so every row's numbers start
+       and end on the same x. A flex row with the badge inline pushed each
+       token label to a different position. */
+    .token-menu li {
+      display: grid;
+      grid-template-columns: 52px 1fr auto;
+      align-items: center;
+      gap: 10px;
+      font-variant-numeric: tabular-nums;
+    }
+    .token-menu .token-opt-price { color: rgba(255,255,255,0.5); text-align: right; }
     .token-menu .token-opt-current {
-      padding: 1px 7px;
+      justify-self: start;
+      padding: 2px 8px;
       border-radius: 999px;
       background: #1488FC;
       color: #fff;
       font-size: 11px;
       font-weight: 600;
+      line-height: 1.45;
     }
     .token-current {
       margin-top: 8px;
@@ -2515,13 +2534,8 @@
             <svg class="token-caret" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
           <ul class="token-menu" id="token-menu" role="listbox"></ul>
-          <p class="token-current">Your current plan: <strong>10M tokens</strong>.</p>
+          <p class="token-current">Your current plan: <strong>600M tokens</strong>.</p>
         </div>
-        <button class="hero-btn-primary card-cta card-cta--current" disabled>
-          <div class="btn-bg-hover"></div>
-          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Contact an admin to manage</span><span>Contact an admin to manage</span></div></div>
-        </button>
-
         <p class="card-description">You get everything in Pro, plus:</p>
 
         <hr class="divider" />
@@ -2554,6 +2568,10 @@
           </li>
         </ul>
         </div>
+        <button class="hero-btn-primary card-cta card-cta--current" disabled>
+          <div class="btn-bg-hover"></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Contact an admin to manage</span><span>Contact an admin to manage</span></div></div>
+        </button>
       </div>
 
       <!-- Organization -->
@@ -3900,16 +3918,28 @@ window.__pageOwnsScrollAnims = true;
       /* Per-member monthly token allowance. Yearly is ~10% off monthly, which
          is what the Teams SAVE badge claims. 10M is the workspace's current
          tier, so it opens selected. */
+      /* The real tier table. The listed price is the yearly-term price per
+         member; monthly is that / 0.9, which is the 10% the Teams badge
+         claims — and lands 900M on $1500/mo, matching the product. */
       var TIERS = [
-        { tokens: '10M',  monthly: 30,  yearly: 27  },
-        { tokens: '25M',  monthly: 50,  yearly: 45  },
-        { tokens: '50M',  monthly: 80,  yearly: 72  },
-        { tokens: '100M', monthly: 135, yearly: 122 },
-        { tokens: '250M', monthly: 300, yearly: 270 },
-        { tokens: '500M', monthly: 560, yearly: 504 }
+        { tokens: '10M',   yearly: 27   },
+        { tokens: '26M',   yearly: 55   },
+        { tokens: '55M',   yearly: 100  },
+        { tokens: '120M',  yearly: 190  },
+        { tokens: '180M',  yearly: 270  },
+        { tokens: '240M',  yearly: 360  },
+        { tokens: '300M',  yearly: 450  },
+        { tokens: '360M',  yearly: 540  },
+        { tokens: '420M',  yearly: 630  },
+        { tokens: '480M',  yearly: 720  },
+        { tokens: '540M',  yearly: 810  },
+        { tokens: '600M',  yearly: 900  },
+        { tokens: '900M',  yearly: 1350 },
+        { tokens: '1200M', yearly: 1800 }
       ];
-      var CURRENT_TIER = 0;   // what the workspace is actually on
-      var tierIdx = 0;        // what's selected in the picker
+      TIERS.forEach(function (t) { t.monthly = Math.round(t.yearly / 0.9); });
+      var CURRENT_TIER = 11;  // the workspace is on 600M
+      var tierIdx = 12;       // …and looking at 900M
 
       var currentPlan = 'teams';
 
@@ -3961,7 +3991,8 @@ window.__pageOwnsScrollAnims = true;
         var period = document.querySelector('.billing-toggle').getAttribute('data-billing');
         tk.menu.innerHTML = TIERS.map(function (t, i) {
           return '<li role="option" data-i="' + i + '" aria-selected="' + (i === tierIdx) + '">' +
-                 '<span>' + t.tokens + (i === CURRENT_TIER ? ' <span class="token-opt-current">Current</span>' : '') + '</span>' +
+                 '<span class="token-opt-tokens">' + t.tokens + '</span>' +
+                 (i === CURRENT_TIER ? '<span class="token-opt-current">Current</span>' : '<span></span>') +
                  '<span class="token-opt-price">$' + t[period] + '</span></li>';
         }).join('');
       }
