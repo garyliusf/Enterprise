@@ -155,7 +155,16 @@
 
     /* At medium widths, fall to 2x2 before stacking to single column */
     @media (max-width: 1100px) {
-      .cards { grid-template-columns: repeat(2, 1fr); }
+      .cards { grid-template-columns: repeat(2, 1fr); margin-top: 0; }
+      /* Teams is no longer in the top row — a protruding tab would punch into
+         the card above it. Drop the banner in-flow, full-bleed across the card
+         top (negative margins undo the card's own padding). */
+      .card-teams > .popular-banner {
+        position: static;
+        margin: calc(-1 * var(--cd-pt)) calc(-1 * var(--cd-px)) var(--cd-pt);
+        border-radius: 0;
+        flex-shrink: 0;
+      }
       /* wide cards: toggle hugs the price instead of floating to the far
          edge (.cards prefix outranks the later base margin-left:auto) */
       .cards .card-price .billing-row { margin-left: 14px; align-self: baseline; }
@@ -202,7 +211,7 @@
       .page-header h1 { font-size: clamp(37px, 10.45vw, 51px); margin-bottom: 8px; }
       .page-header p  { font-size: 16px; white-space: normal; max-width: 100%; }
 
-      .card { padding: 24px 20px 14px; }
+      .card { --cd-pt: 24px; --cd-px: 20px; padding: var(--cd-pt) var(--cd-px) 14px; }
       .plan-label { font-size: 20px; }
       .card-description { font-size: 14px; }
       .feature-item { font-size: 14px; }
@@ -258,14 +267,18 @@
 
     @media (max-width: 480px) {
       .page { padding: 48px 14px 40px; }
-      .card { padding: 22px 18px 12px; }
+      .card { --cd-pt: 22px; --cd-px: 18px; padding: var(--cd-pt) var(--cd-px) 12px; }
       .cert-badge { width: 55px; height: 55px; }
     }
 
     /* ── Card base ── */
     .card {
+      /* padding exposed as vars so the Teams "Most Popular" banner can undo it
+         (full-bleed) when it drops in-flow on the stacked layouts */
+      --cd-pt: 28px;
+      --cd-px: 24px;
       background: #0a0a0a;
-      padding: 28px 24px 18px;
+      padding: var(--cd-pt) var(--cd-px) 18px;
       display: flex;
       flex-direction: column;
       border-right: 1px solid rgba(255,255,255,0.07);
@@ -303,34 +316,34 @@
       border-left: none;
     }
 
-    /* The badge is in flow above the plan name, so the other three cards
-       reserve the same block or their names/prices/CTAs would sit higher. */
-    .card:not(.card-teams)::before {
-      content: '';
-      display: block;
-      height: 20px;          /* badge box */
-      margin-bottom: 12px;   /* badge margin */
-      flex-shrink: 0;
-    }
-
-    .badge-popular {
-      /* in flow, above the plan name */
-      align-self: flex-start;
-      margin-bottom: 12px;
-      display: inline-flex;
+    /* ── "Most Popular" banner ──
+       A solid tab that protrudes ABOVE the grid's top edge, full card width, so
+       the Teams column physically sticks out of the row rather than wearing a
+       pill inside it. .cards carries a matching margin-top to hold the space
+       (the hero→cards gap stays 72px, measured to the banner). .card-teams must
+       drop the base overflow:hidden or the tab gets clipped away.
+       All four cards share one content flow now — no badge spacer needed. */
+    .cards { --pop-h: 34px; margin-top: var(--pop-h); }
+    .card-teams { overflow: visible; }
+    .card-teams > .popular-banner {
+      position: absolute;
+      bottom: 100%;
+      left: 0;
+      right: -1px;           /* cover the card's own 1px divider */
+      height: var(--pop-h);
+      display: flex;
       align-items: center;
-      line-height: 1;
-      white-space: nowrap;
-      z-index: 2;
-      background: rgba(20,136,252,0.12);
-      border: 1px solid rgba(20,136,252,0.25);
-      color: #1488FC;
+      justify-content: center;
+      background: #1488FC;
+      color: #fff;
+      font-family: 'Silkscreen', monospace;
       font-size: 10px;
       font-weight: 400;
       letter-spacing: 1.2px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-family: 'Silkscreen', monospace;
+      line-height: 1;
+      white-space: nowrap;
+      border-radius: 2px 2px 0 0;
+      z-index: 2;
     }
 
     /* ── Plan label ── */
@@ -2032,7 +2045,7 @@
       <!-- Teams -->
       <div class="card card-teams">
         <canvas id="teams-pixel-canvas"></canvas>
-        <span class="badge-popular">POPULAR</span>
+        <div class="popular-banner">MOST POPULAR</div>
         <span class="plan-label purple">Teams</span>
         <div class="card-price">
           <span class="price-amount-wrap"><span class="price-amount" id="teams-price">$27</span></span>
