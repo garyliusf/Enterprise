@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pricing B · Bolt (signed in)</title>
+  <title>Pricing B · Bolt Enterprise</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet" />
@@ -37,11 +37,9 @@
       align-items: center;
       text-align: center;
       gap: 28px;
-      /* tighter than the public page's 88px: the workspace row sits between
-         the hero and the cards here, so the same value leaves the cards well
-         down the page. Measured to Teams' MOST POPULAR tab, which protrudes
-         34px above the grid — this leaves ~46px of visible air, not 64. */
-      margin-bottom: 80px;
+      /* the cards protrude upward now (Teams' MOST POPULAR tab), so the seam
+         reads tighter than the number suggests — a little more air here */
+      margin-bottom: 88px;
     }
 
     .page-header { text-align: center; }
@@ -126,8 +124,8 @@
     .billing-btn:hover { color: rgba(255,255,255,0.85); }
     .billing-btn.active { color: #fff; font-weight: 600; }
 
-    /* The toggle sits under the price, left-aligned with the rest of the
-       card, with the SAVE% trailing it on the same row. */
+    /* The toggle sits below the annual-total note, left-aligned with the
+       rest of the card, with the SAVE% trailing it on the same row. */
     .billing-row {
       display: flex;
       flex-direction: row;
@@ -214,7 +212,7 @@
         width: 100%;
         padding: 64px 16px 48px;
       }
-      .pricing-hero { margin-bottom: 56px; gap: 28px; }
+      .pricing-hero { margin-bottom: 48px; gap: 28px; }
       .page-header { margin-bottom: 0; }
       .page-header h1 { font-size: clamp(37px, 10.45vw, 51px); margin-bottom: 8px; }
       .page-header p  { font-size: 16px; white-space: normal; max-width: 100%; }
@@ -377,8 +375,11 @@
       gap: 6px;
       row-gap: 8px;
       margin-bottom: 2px;   /* the annual total tucks right under the price */
-      /* the toggle moved out of this row, so there's nothing to reserve */
-      min-height: 0;
+      /* reserve the badge+toggle stack on every card (Pro/Teams carry one,
+         Free/Enterprise don't) so all four CTAs — and the divider below them —
+         land on the same line. 30px = the toggle's real height (28px box,
+         baseline-aligned and nudged -2px, so it overhangs 2.5px). */
+      min-height: 30px;
     }
     .price-amount-wrap {
       overflow: hidden;
@@ -455,264 +456,6 @@
       color: #1488FC;
     }
     .price-save strong { font-weight: 600; }
-
-
-    /* ═══ Signed-in additions ═══════════════════════════════════════════
-       Everything below is what separates this page from the public pricing
-       page: an account bar (workspace + billing term), a token-tier picker
-       on Teams, and CTAs that reflect the plan you're already on. */
-
-    /* ── Account bar ── */
-    /* In the navbar the menu hangs from the button's right edge, so a long
-       workspace name can't push it off-screen. Living in the sticky nav also
-       keeps it above the page — in the hero it was trapped in a z-index:1
-       stacking context that the cards grid painted over. */
-    .mkt-nav-actions .workspace-menu { left: auto; right: 0; }
-    /* both pickers must out-rank what they open over: the workspace menu
-       overlaps the cards below it, and the token menu overlaps its own card's
-       later children — .card-teams > * gives every child z-index 1, and
-       siblings later in the DOM would otherwise paint on top of the menu. */
-    .workspace-picker {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      position: relative;
-      z-index: 30;
-    }
-    .workspace-anchor { position: relative; display: inline-flex; }
-    .workspace-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 12px 8px 8px;
-      border: 1px solid rgba(255,255,255,0.10);
-      border-radius: 2px;
-      background: #0a0a0a;
-      color: #fff;
-      font-family: 'Inter', sans-serif;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: border-color 0.2s ease, background-color 0.2s ease;
-    }
-    .workspace-btn:hover { border-color: rgba(255,255,255,0.24); }
-    .workspace-mark {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: #1488FC;
-      color: #fff;
-      flex-shrink: 0;
-    }
-    .workspace-mark svg { width: 13px; height: 13px; }
-    .workspace-caret {
-      width: 12px;
-      height: 12px;
-      color: rgba(255,255,255,0.45);
-      transition: transform 0.2s ease;
-    }
-    .workspace-btn[aria-expanded="true"] .workspace-caret { transform: rotate(180deg); }
-
-    .workspace-menu,
-    .token-menu {
-      position: absolute;
-      z-index: 20;
-      left: 0;
-      right: 0;
-      margin-top: 6px;
-      padding: 4px;
-      list-style: none;
-      background: #141416;
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 2px;
-      box-shadow: 0 12px 32px rgba(0,0,0,0.55);
-      opacity: 0;
-      visibility: hidden;
-      transform: translateY(-4px);
-      transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
-    }
-    /* .workspace-anchor is an inline-flex row, so the menu's static position
-       is beside the button, not under it — pin it explicitly. */
-    .workspace-menu { top: 100%; right: auto; min-width: 100%; white-space: nowrap; }
-    .workspace-picker.is-open .workspace-menu,
-    .token-picker.is-open .token-menu {
-      opacity: 1;
-      visibility: visible;
-      transform: translateY(0);
-    }
-    .workspace-menu li,
-    .token-menu li {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 9px 10px;
-      border-radius: 2px;
-      font-size: 14px;
-      color: rgba(255,255,255,0.75);
-      cursor: pointer;
-      transition: background-color 0.15s ease, color 0.15s ease;
-    }
-    .workspace-menu li:hover,
-    .token-menu li:hover { background: rgba(255,255,255,0.06); color: #fff; }
-    .workspace-menu li[aria-selected="true"],
-    .token-menu li[aria-selected="true"] { color: #fff; background: rgba(255,255,255,0.04); }
-
-    /* ── Token-tier picker (Teams) ── */
-    /* The picker occupies exactly the CTA's band: a 52px control with the
-       same 28/36 margins. Its label and current-plan line are floated into
-       those margins rather than adding to the flow — in flow they pushed
-       Teams' description and divider ~21px below the other three cards. */
-    .token-picker { position: relative; height: 52px; margin: 44px 0 48px; }
-    .card-teams > .token-picker { z-index: 30; }
-
-    /* Teams' CTA sits at the foot of the card instead of mid-stack: the token
-       picker pushes it well below the other cards' buttons, so anchoring it
-       to the bottom edge reads as deliberate rather than adrift. */
-    .card-teams > .card-cta { margin-top: auto; margin-bottom: 0; }
-    .token-label {
-      position: absolute;
-      left: 0;
-      bottom: calc(100% + 6px);
-      margin: 0;
-      font-size: 12px;
-      line-height: 1.3;
-      white-space: nowrap;
-      color: rgba(255,255,255,0.5);
-    }
-    .token-btn {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      width: 100%;
-      /* 52px = the button standard, so it reads as the same control size as
-         the CTAs sitting beside it in the neighbouring cards */
-      height: 52px;
-      padding: 0 14px;
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 2px;
-      background: rgba(255,255,255,0.03);
-      color: #fff;
-      font-family: 'Inter', sans-serif;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: border-color 0.2s ease;
-    }
-    .token-btn:hover { border-color: rgba(255,255,255,0.28); }
-    .token-mark {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: rgba(20,136,252,0.18);
-      color: #1488FC;
-      flex-shrink: 0;
-    }
-    .token-mark svg { width: 10px; height: 10px; }
-    .token-value { flex: 1; text-align: left; font-variant-numeric: tabular-nums; }
-    .token-caret {
-      width: 12px;
-      height: 12px;
-      color: rgba(255,255,255,0.45);
-      transition: transform 0.2s ease;
-    }
-    .token-btn[aria-expanded="true"] .token-caret { transform: rotate(180deg); }
-    .token-menu { top: 100%; max-height: 232px; overflow-y: auto; }
-    /* three columns — token / badge / price — so every row's numbers start
-       and end on the same x. A flex row with the badge inline pushed each
-       token label to a different position. */
-    .token-menu li {
-      display: grid;
-      grid-template-columns: 52px 1fr auto;
-      align-items: center;
-      gap: 10px;
-      font-variant-numeric: tabular-nums;
-    }
-    .token-menu .token-opt-price { color: rgba(255,255,255,0.5); text-align: right; }
-    .token-menu .token-opt-current {
-      justify-self: start;
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: #1488FC;
-      color: #fff;
-      font-size: 11px;
-      font-weight: 600;
-      line-height: 1.45;
-    }
-    .token-current {
-      position: absolute;
-      left: 0;
-      top: calc(100% + 8px);
-      margin: 0;
-      font-size: 12px;
-      line-height: 1.3;
-      white-space: nowrap;
-      color: rgba(255,255,255,0.5);
-    }
-    .token-current strong { font-weight: 600; color: rgba(255,255,255,0.8); }
-
-    /* ── CTA in its "already on this plan" state ──
-       .card wins over shared's .hero-btn-primary on specificity (0,2,0 vs
-       0,1,0), so no !important is needed for the base look — only for the
-       pixel canvas shared's JS injects. */
-    .card .card-cta--current {
-      background: transparent;
-      border: 1px solid rgba(255,255,255,0.12);
-      color: rgba(255,255,255,0.45);
-      cursor: default;
-      pointer-events: none;
-    }
-    .card .card-cta--current .btn-bg-hover { display: none; }
-    .card .card-cta--current canvas { display: none !important; }
-
-    /* "Contact an admin to manage" is longer than the button is wide at
-       4-up; let it wrap rather than clip */
-    .card .card-cta--current {
-      height: auto;
-      min-height: 52px;
-      padding: 10px 16px;
-      font-size: 14px;
-      line-height: 1.35;
-      text-align: center;
-      white-space: normal;
-    }
-    .card .card-cta--current .btn-text-inner,
-    .card .card-cta--current .btn-text-wrap { display: block; width: 100%; }
-    .card .card-cta--current .btn-text-inner span + span { display: none; }
-
-    /* Teams on a team plan gets a plain line, not a dead button — there's
-       nothing to click, so a disabled control only invited the click. Sits
-       where the CTA would, at the foot of the card. */
-    /* shared's .hero-btn-primary sets display:flex, which out-ranks the UA's
-       [hidden] rule — the button stays visible without this */
-    .card .card-cta[hidden], .admin-note[hidden] { display: none; }
-    .admin-note {
-      margin-top: auto;
-      padding: 14px 0 2px;
-      text-align: center;
-      font-size: 15px;
-      font-weight: 500;
-      color: #fff;
-    }
-
-    /* sits at the foot of the Pro card — in the top band it pushed the
-       description and divider ~80px below the other three cards */
-    .switch-note {
-      margin-top: auto;
-      font-size: 13px;
-      line-height: 1.55;
-      color: rgba(255,255,255,0.45);
-    }
-
-    @media (max-width: 768px) {
-      .workspace-picker { flex-wrap: wrap; justify-content: center; gap: 8px; }
-    }
-
 
 
     /* ── Prototype variant switcher ──
@@ -933,15 +676,7 @@
        aligned for equal-height cards). */
     /* 24px below matches the divider's own margin, so CTA → description →
        rule → list all breathe on the same rhythm */
-    /* 20/32 is the "band" between a card's price row and its description.
-       Teams' token picker matches it exactly (see .token-picker) so all four
-       descriptions and dividers land on the same line. The bottom is 48 so
-       the picker's floated "current plan" line has real air under it before
-       the description starts — and all four cards get that same gap. The top
-       is 44 so the picker's floated "Monthly tokens per member" label has
-       clear air under the billing toggle row that now sits above it — at 28
-       the label sat ~6px off the toggle and the whole column read cramped. */
-    .card .card-cta { width: 100%; margin: 44px 0 48px; }
+    .card .card-cta { width: 100%; margin: 20px 0 24px; }
 
 
     /* ── Compare features table ── */
@@ -2211,24 +1946,12 @@
     </ul>
 
     <div class="mkt-nav-right">
-      <!-- Workspace selector — the signed-in nav's right-hand slot, where the
-           account control lives. -->
       <div class="mkt-nav-actions">
-      <div class="workspace-picker">
-        <span class="workspace-anchor">
-          <button class="workspace-btn" id="workspace-btn" aria-haspopup="listbox" aria-expanded="false">
-            <span class="workspace-mark" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg>
-            </span>
-            <span class="workspace-name" id="workspace-name">Enterprise · StackBlitz</span>
-            <svg class="workspace-caret" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-          <ul class="workspace-menu" id="workspace-menu" role="listbox">
-            <li role="option" aria-selected="true"  data-plan="teams">Enterprise · StackBlitz</li>
-            <li role="option" aria-selected="false" data-plan="pro">Personal workspace</li>
-          </ul>
-        </span>
-      </div>
+        <a href="https://bolt.new/signin" class="mkt-nav-signin">Sign in</a>
+        <a href="https://bolt.new/" target="_blank" rel="noopener" class="mkt-nav-cta hero-btn-primary">
+          <div class="btn-bg-hover"></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Started</span><span>Get Started</span></div></div>
+        </a>
       </div>
       <button class="mkt-nav-burger" aria-label="Open menu" aria-expanded="false">
         <span></span><span></span><span></span>
@@ -2399,9 +2122,9 @@
       <div class="btn-bg-hover"></div>
       <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Started</span><span>Get Started</span></div></div>
     </a>
+    <a href="https://bolt.new/signin" class="mkt-nav-mobile-signin">Sign in</a>
   </div>
 </div>
-
 
 
 
@@ -2414,13 +2137,13 @@
 <div class="variant-switch" role="group" aria-label="Prototype variant">
   <span class="variant-switch-label">Variant</span>
   <span class="variant-group">
-    <a href="pricing-b.html" class="variant-btn">Signed out</a>
-    <a href="pricing-signed-in-b.html" class="variant-btn is-active" aria-current="page">Signed in</a>
+    <a href="pricing-b.html" class="variant-btn is-active" aria-current="page">Signed out</a>
+    <a href="pricing-signed-in-b.html" class="variant-btn">Signed in</a>
   </span>
   <span class="variant-sep" aria-hidden="true"></span>
   <span class="variant-group">
-    <a href="pricing-signed-in.html" class="variant-btn">A</a>
-    <a href="pricing-signed-in-b.html" class="variant-btn is-active" aria-current="page">B</a>
+    <a href="pricing.html" class="variant-btn">A</a>
+    <a href="pricing-b.html" class="variant-btn is-active" aria-current="page">B</a>
   </span>
 </div>
 
@@ -2432,7 +2155,7 @@
     <div class="pricing-hero">
       <div class="page-header">
         <h1>Pricing</h1>
-        <p>Start for free. Upgrade as you go.</p>
+        <p>Start for free. No credit card required.</p>
       </div>
     </div>
 
@@ -2440,7 +2163,7 @@
     <div class="cards">
 
       <!-- Free -->
-      <div data-plan="free" class="card">
+      <div class="card">
         <canvas class="card-hover-canvas" id="free-hover-canvas"></canvas>
         <span class="plan-label green">Free</span>
         <div class="card-price">
@@ -2451,9 +2174,9 @@
           <p class="price-total">Free forever, no card required</p>
         </div>
         <div class="billing-row billing-row--spacer" aria-hidden="true"></div>
-        <button class="hero-btn-primary card-cta card-cta--current" disabled>
+        <button class="hero-btn-primary card-cta">
           <div class="btn-bg-hover"></div>
-          <div class="btn-text-wrap"><div class="btn-text-inner"><span>You're on Teams</span><span>You're on Teams</span></div></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Started</span><span>Get Started</span></div></div>
         </button>
 
         <p class="card-description">Try Bolt with daily limits. No credit card.</p>
@@ -2487,7 +2210,7 @@
       </div>
 
       <!-- Pro -->
-      <div data-plan="pro" class="card">
+      <div class="card">
         <canvas class="card-hover-canvas" id="pro-hover-canvas"></canvas>
         <span class="plan-label blue">Pro</span>
         <div class="card-price">
@@ -2506,9 +2229,9 @@
           </div>
           <span class="billing-save-badge">SAVE 28%</span>
         </div>
-        <button class="hero-btn-primary card-cta card-cta--current" disabled>
+        <button class="hero-btn-primary card-cta">
           <div class="btn-bg-hover"></div>
-          <div class="btn-text-wrap"><div class="btn-text-inner"><span>You're on Teams</span><span>You're on Teams</span></div></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Started</span><span>Get Started</span></div></div>
         </button>
 
         <p class="card-description">Everything in Free, plus real app capacity and your own domain.</p>
@@ -2556,11 +2279,10 @@
           </li>
         </ul>
         </div>
-        <p class="switch-note">For personal plans, switch to your personal workspace using the selector in the top right.</p>
       </div>
 
       <!-- Teams -->
-      <div data-plan="teams" class="card card-teams">
+      <div class="card card-teams">
         <canvas id="teams-pixel-canvas"></canvas>
         <div class="popular-banner">MOST POPULAR</div>
         <span class="plan-label purple">Teams</span>
@@ -2580,18 +2302,11 @@
           </div>
           <span class="billing-save-badge">SAVE 10%</span>
         </div>
-        <div class="token-picker">
-          <span class="token-label">Monthly tokens per member</span>
-          <button class="token-btn" id="token-btn" aria-haspopup="listbox" aria-expanded="false">
-            <span class="token-mark" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg>
-            </span>
-            <span class="token-value" id="token-value">900M / month</span>
-            <svg class="token-caret" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-          <ul class="token-menu" id="token-menu" role="listbox"></ul>
-          <p class="token-current">Your current plan: <strong>10M tokens</strong>.</p>
-        </div>
+        <button class="hero-btn-primary card-cta">
+          <div class="btn-bg-hover"></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Started</span><span>Get Started</span></div></div>
+        </button>
+
         <p class="card-description">Everything in Pro, plus shared capacity and team controls.</p>
 
         <hr class="divider" />
@@ -2624,15 +2339,10 @@
           </li>
         </ul>
         </div>
-        <p class="admin-note">Contact an admin to manage</p>
-        <button class="hero-btn-primary card-cta card-cta--current" disabled hidden>
-          <div class="btn-bg-hover"></div>
-          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Contact an admin to manage</span><span>Contact an admin to manage</span></div></div>
-        </button>
       </div>
 
       <!-- Organization -->
-      <div data-plan="enterprise" class="card">
+      <div class="card">
         <canvas class="card-hover-canvas" id="enterprise-hover-canvas"></canvas>
         <span class="plan-label orange">Enterprise</span>
         <div class="card-price">
@@ -2644,7 +2354,7 @@
         <div class="billing-row billing-row--spacer" aria-hidden="true"></div>
         <button class="hero-btn-primary card-cta">
           <div class="btn-bg-hover"></div>
-          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Ask for a Quote</span><span>Ask for a Quote</span></div></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Contact Us</span><span>Contact Us</span></div></div>
         </button>
 
         <p class="card-description">Everything in Teams, built for scale, security, and compliance.</p>
@@ -2677,6 +2387,90 @@
         </div>
       </div>
 
+    </div>
+
+    <p class="logos-label">Trusted by teams shipping with AI</p>
+    <span class="sr-only">Trusted by Accenture, Shopify, Google, Cloudflare, AWS, Microsoft, Salesforce, and Meta</span>
+    <div class="logo-train" aria-hidden="true">
+      <div class="logo-track">
+        <span class="logo-item logo-item--nudge-accenture"><img src="../images/logos-home/accenture.svg" alt=""></span>
+        <span class="logo-item"><img src="../images/logos-home/shopify.svg" alt=""></span>
+        <span class="logo-item"><img src="../images/logos-home/google.svg" alt=""></span>
+        <span class="logo-item"><img src="../images/logos-home/cloudflare.svg" alt=""></span>
+        <span class="logo-item logo-item--lg logo-item--nudge-aws"><img src="../images/logos-home/aws.svg" alt=""></span>
+        <span class="logo-item"><img src="../images/logos-home/microsoft.svg" alt=""></span>
+        <span class="logo-item"><img src="../images/logos-home/salesforce.svg" alt=""></span>
+        <span class="logo-item"><img src="../images/logos-home/meta.svg" alt=""></span>
+        <span class="logo-item logo-item--nudge-accenture"><img src="../images/logos-home/accenture.svg" alt=""></span>
+        <span class="logo-item"><img src="../images/logos-home/shopify.svg" alt=""></span>
+        <span class="logo-item"><img src="../images/logos-home/google.svg" alt=""></span>
+        <span class="logo-item"><img src="../images/logos-home/cloudflare.svg" alt=""></span>
+        <span class="logo-item logo-item--lg logo-item--nudge-aws"><img src="../images/logos-home/aws.svg" alt=""></span>
+        <span class="logo-item"><img src="../images/logos-home/microsoft.svg" alt=""></span>
+        <span class="logo-item"><img src="../images/logos-home/salesforce.svg" alt=""></span>
+        <span class="logo-item"><img src="../images/logos-home/meta.svg" alt=""></span>
+        <span class="logo-item logo-item--nudge-accenture"><img src="../images/logos-home/accenture.svg" alt=""></span>
+        <span class="logo-item"><img src="../images/logos-home/shopify.svg" alt=""></span>
+        <span class="logo-item"><img src="../images/logos-home/google.svg" alt=""></span>
+        <span class="logo-item"><img src="../images/logos-home/cloudflare.svg" alt=""></span>
+        <span class="logo-item logo-item--lg logo-item--nudge-aws"><img src="../images/logos-home/aws.svg" alt=""></span>
+        <span class="logo-item"><img src="../images/logos-home/microsoft.svg" alt=""></span>
+        <span class="logo-item"><img src="../images/logos-home/salesforce.svg" alt=""></span>
+        <span class="logo-item"><img src="../images/logos-home/meta.svg" alt=""></span>
+      </div>
+    </div>
+
+    <!-- Security & compliance banner -->
+    <div class="compliance-banner">
+      <canvas id="compliance-pixel-canvas"></canvas>
+      <div class="compliance-left">
+        <h3 class="compliance-title">Security and compliance</h3>
+        <p class="compliance-sub">Enterprise-grade security and compliance certifications</p>
+        <a class="hero-btn-ghost" href="https://trust.bolt.new/" target="_blank" rel="noopener" style="margin-top:16px;">
+          <div class="btn-bg-hover"></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Learn More</span><span>Learn More</span></div></div>
+        </a>
+      </div>
+      <div class="compliance-badges">
+        <!-- SOC 2 -->
+        <div class="cert-badge">
+          <svg viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle class="cert-ring" cx="45" cy="45" r="43" stroke="rgba(255,255,255,0.3)" stroke-width="1" stroke-dasharray="4 3"/>
+            <text x="45" y="43" text-anchor="middle" dominant-baseline="middle" font-family="Inter,sans-serif" font-size="14" font-weight="700" fill="rgba(255,255,255,0.85)">SOC 2</text>
+            <text x="45" y="57" text-anchor="middle" dominant-baseline="middle" font-family="Inter,sans-serif" font-size="8" font-weight="500" fill="rgba(255,255,255,0.4)" letter-spacing="1.5">TYPE II</text>
+          </svg>
+        </div>
+        <!-- GDPR -->
+        <div class="cert-badge">
+          <svg viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle class="cert-ring" cx="45" cy="45" r="43" stroke="rgba(255,255,255,0.3)" stroke-width="1" stroke-dasharray="4 3"/>
+            <!-- 12 EU stars on ring radius 20, each star rotated to point outward -->
+            <g fill="rgba(255,255,255,0.75)">
+              <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(0,45,45)"/>
+              <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(30,45,45)"/>
+              <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(60,45,45)"/>
+              <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(90,45,45)"/>
+              <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(120,45,45)"/>
+              <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(150,45,45)"/>
+              <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(180,45,45)"/>
+              <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(210,45,45)"/>
+              <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(240,45,45)"/>
+              <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(270,45,45)"/>
+              <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(300,45,45)"/>
+              <polygon points="45,12 45.7,14 47.9,14.1 46.1,15.4 46.8,17.4 45,16.2 43.2,17.4 43.9,15.4 42.1,14.1 44.3,14" transform="rotate(330,45,45)"/>
+            </g>
+            <text x="45" y="45" text-anchor="middle" dominant-baseline="middle" font-family="Inter,sans-serif" font-size="11" font-weight="700" fill="rgba(255,255,255,0.85)">GDPR</text>
+          </svg>
+        </div>
+        <!-- CCPA (lock glyph cropped from the CCPA mark, tinted to the badge palette) -->
+        <div class="cert-badge">
+          <svg viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle class="cert-ring" cx="45" cy="45" r="43" stroke="rgba(255,255,255,0.3)" stroke-width="1" stroke-dasharray="4 3"/>
+            <image href="../images/ccpa-lock.png" x="38.85" y="23" width="12.3" height="19.2" opacity="0.75"/>
+            <text x="45" y="62" text-anchor="middle" font-family="Inter,sans-serif" font-size="14" font-weight="700" fill="rgba(255,255,255,0.85)" letter-spacing="0.5">CCPA</text>
+          </svg>
+        </div>
+      </div>
     </div>
 
     <!-- Compare features -->
@@ -3413,11 +3207,10 @@
     /* Annual totals behind the per-month headline: yearly = 12 x the yearly
        rate, monthly = 12 x the monthly rate. Keep in step with the rates in
        setBilling above. */
-    var PLAN_TOTALS = window.PLAN_TOTALS = {
+    var PLAN_TOTALS = {
       pro:   { yearly: 216, monthly: 300 },
       teams: { yearly: 324, monthly: 360 }
     };
-    window.renderPriceNotes = renderPriceNotes;
     function renderPriceNotes(period) {
       Object.keys(PLAN_TOTALS).forEach(function (plan) {
         var d = PLAN_TOTALS[plan];
@@ -3965,168 +3758,5 @@ window.__pageOwnsScrollAnims = true;
   if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', __genericRevealInit); } else { __genericRevealInit(); }
 })();
 </script>
-  <script>
-    /* ═══ Signed-in behaviour ═══════════════════════════════════════════
-       Prototype state only — a real page would read the workspace, its plan
-       and its token tier from the account. */
-    (function () {
-      var PLAN_ORDER = ['free', 'pro', 'teams', 'enterprise'];
-      var PLAN_NAME  = { free: 'Free', pro: 'Pro', teams: 'Teams', enterprise: 'Enterprise' };
-
-      /* Per-member monthly token allowance. Yearly is ~10% off monthly, which
-         is what the Teams SAVE badge claims. 10M is the workspace's current
-         tier, so it opens selected. */
-      /* The real tier table. The listed price is the yearly-term price per
-         member; monthly is that / 0.9, which is the 10% the Teams badge
-         claims — and lands 900M on $1500/mo, matching the product. */
-      var TIERS = [
-        { tokens: '10M',   yearly: 27   },
-        { tokens: '26M',   yearly: 55   },
-        { tokens: '55M',   yearly: 100  },
-        { tokens: '120M',  yearly: 190  },
-        { tokens: '180M',  yearly: 270  },
-        { tokens: '240M',  yearly: 360  },
-        { tokens: '300M',  yearly: 450  },
-        { tokens: '360M',  yearly: 540  },
-        { tokens: '420M',  yearly: 630  },
-        { tokens: '480M',  yearly: 720  },
-        { tokens: '540M',  yearly: 810  },
-        { tokens: '600M',  yearly: 900  },
-        { tokens: '900M',  yearly: 1350 },
-        { tokens: '1200M', yearly: 1800 }
-      ];
-      TIERS.forEach(function (t) { t.monthly = Math.round(t.yearly / 0.9); });
-      /* The workspace sits on the base Teams tier, so the card opens showing
-         the same $27 / $324 the public pricing page advertises. */
-      var CURRENT_TIER = 0;
-      var tierIdx = 0;
-
-      var currentPlan = 'teams';
-
-      /* ── generic dropdown wiring ── */
-      function bindPicker(wrapSel, btnId, menuId) {
-        var wrap = document.querySelector(wrapSel);
-        var btn  = document.getElementById(btnId);
-        var menu = document.getElementById(menuId);
-        if (!wrap || !btn || !menu) return null;
-        btn.addEventListener('click', function (e) {
-          e.stopPropagation();
-          var open = wrap.classList.toggle('is-open');
-          btn.setAttribute('aria-expanded', String(open));
-        });
-        document.addEventListener('click', function (e) {
-          if (wrap.contains(e.target)) return;
-          wrap.classList.remove('is-open');
-          btn.setAttribute('aria-expanded', 'false');
-        });
-        document.addEventListener('keydown', function (e) {
-          if (e.key !== 'Escape') return;
-          wrap.classList.remove('is-open');
-          btn.setAttribute('aria-expanded', 'false');
-        });
-        return { wrap: wrap, btn: btn, menu: menu };
-      }
-
-      /* ── workspace ── */
-      var ws = bindPicker('.workspace-picker', 'workspace-btn', 'workspace-menu');
-      if (ws) {
-        ws.menu.addEventListener('click', function (e) {
-          var li = e.target.closest('li');
-          if (!li) return;
-          [].forEach.call(ws.menu.children, function (o) {
-            o.setAttribute('aria-selected', String(o === li));
-          });
-          document.getElementById('workspace-name').textContent = li.textContent.trim();
-          ws.wrap.classList.remove('is-open');
-          ws.btn.setAttribute('aria-expanded', 'false');
-          currentPlan = li.getAttribute('data-plan');
-          renderCtas();
-        });
-      }
-
-      /* ── token tier ── */
-      var tk = bindPicker('.token-picker', 'token-btn', 'token-menu');
-      function renderTierMenu() {
-        if (!tk) return;
-        var period = document.querySelector('.billing-toggle').getAttribute('data-billing');
-        tk.menu.innerHTML = TIERS.map(function (t, i) {
-          return '<li role="option" data-i="' + i + '" aria-selected="' + (i === tierIdx) + '">' +
-                 '<span class="token-opt-tokens">' + t.tokens + '</span>' +
-                 (i === CURRENT_TIER ? '<span class="token-opt-current">Current</span>' : '<span></span>') +
-                 '<span class="token-opt-price">$' + t[period] + '</span></li>';
-        }).join('');
-      }
-      function renderTier() {
-        if (!tk) return;
-        var t = TIERS[tierIdx];
-        var period = document.querySelector('.billing-toggle').getAttribute('data-billing');
-        document.getElementById('token-value').textContent = t.tokens + ' / month';
-        /* the Teams headline + annual totals follow the selected tier */
-        var price = document.getElementById('teams-price');
-        if (price) price.textContent = '$' + t[period];
-        if (window.PLAN_TOTALS && window.PLAN_TOTALS.teams) {
-          window.PLAN_TOTALS.teams.yearly  = t.yearly  * 12;
-          window.PLAN_TOTALS.teams.monthly = t.monthly * 12;
-          if (window.renderPriceNotes) window.renderPriceNotes(period);
-        }
-        renderTierMenu();
-      }
-      if (tk) {
-        tk.menu.addEventListener('click', function (e) {
-          var li = e.target.closest('li');
-          if (!li) return;
-          tierIdx = +li.getAttribute('data-i');
-          tk.wrap.classList.remove('is-open');
-          tk.btn.setAttribute('aria-expanded', 'false');
-          renderTier();
-        });
-      }
-
-      /* ── CTAs reflect the plan the workspace is already on ── */
-      function renderCtas() {
-        document.querySelectorAll('.card[data-plan]').forEach(function (card) {
-          var plan = card.getAttribute('data-plan');
-          var btn  = card.querySelector('.card-cta');
-          if (!btn) return;
-          /* on a team plan there's nothing for Teams to link to — show the
-             plain "contact an admin" line instead of the button */
-          var adminNote = card.querySelector('.admin-note');
-          if (adminNote) {
-            var isManaged = plan === currentPlan;
-            adminNote.hidden = !isManaged;
-            btn.hidden = isManaged;
-            if (isManaged) return;
-          }
-          var label, current = true;
-          if (plan === 'enterprise') {
-            label = 'Ask for a Quote'; current = false;
-          } else if (plan === currentPlan) {
-            label = 'Your Current Plan';
-          } else if (PLAN_ORDER.indexOf(plan) < PLAN_ORDER.indexOf(currentPlan)) {
-            label = "You're on " + PLAN_NAME[currentPlan];
-          } else {
-            label = 'Upgrade to ' + PLAN_NAME[plan]; current = false;
-          }
-          btn.classList.toggle('card-cta--current', current);
-          btn.disabled = current;
-          btn.querySelectorAll('.btn-text-inner span').forEach(function (sp) { sp.textContent = label; });
-        });
-        /* the "switch workspace" hint only applies while on a team plan */
-        var note = document.querySelector('.switch-note');
-        if (note) note.style.display = currentPlan === 'teams' ? '' : 'none';
-      }
-
-      /* keep tier prices and CTAs in step with the billing toggle */
-      var origSetBilling = window.setBilling;
-      window.setBilling = function (val) {
-        origSetBilling(val);
-        renderTier();
-      };
-
-      renderTier();
-      renderCtas();
-    })();
-  </script>
-
 </body>
 </html>
