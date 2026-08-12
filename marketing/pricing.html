@@ -499,6 +499,73 @@
       height: 13px;
       color: rgba(255,255,255,0.5);
     }
+
+    /* ── Feature tooltip ──
+       A "?" that trails the bullet copy and reveals a note on hover/focus.
+       The bubble is anchored to the <li> (not the mark) and sized to the text
+       column, so it can never spill past the card — .card is overflow:hidden
+       and would clip it. It overlays the bullets below rather than pushing
+       them, so the list never reflows on hover. */
+    .feature-item { position: relative; }
+    .feature-item:hover,
+    .feature-item:focus-within { z-index: 5; }
+
+    /* keeps the mark glued to the last word — on its own it wraps to a line
+       of its own whenever the copy fills the column */
+    .tip-anchor { white-space: nowrap; }
+
+    .tip {
+      display: inline-flex;
+      vertical-align: text-bottom;
+      margin-left: 5px;
+      cursor: help;
+    }
+    .tip-mark {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 13px;
+      height: 13px;
+      border: 1px solid rgba(255,255,255,0.28);
+      border-radius: 50%;
+      font-size: 9px;
+      line-height: 1;
+      color: rgba(255,255,255,0.5);
+      transition: color 0.2s ease, border-color 0.2s ease;
+    }
+    .tip:hover .tip-mark,
+    .tip:focus-visible .tip-mark { color: #fff; border-color: rgba(255,255,255,0.6); }
+    .tip:focus { outline: none; }
+    .tip:focus-visible .tip-mark { box-shadow: 0 0 0 2px rgba(20,136,252,0.5); }
+
+    .tip-bubble {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 23px;              /* clears the check icon (13px) + its 10px gap */
+      width: calc(100% - 23px);
+      padding: 10px 12px;
+      /* the bubble lives inside .tip-anchor — undo its nowrap or the copy runs
+         out as one line and the card's overflow:hidden clips it */
+      white-space: normal;
+      background: #1a1a1c;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 2px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      font-size: 13px;
+      line-height: 1.45;
+      color: rgba(255,255,255,0.75);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-4px);
+      transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+      z-index: 5;
+    }
+    .tip:hover .tip-bubble,
+    .tip:focus .tip-bubble {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
     .check-icon.blue, .check-icon.purple, .check-icon.orange, .check-icon.green { color: rgba(255,255,255,0.35); }
 
     /* ── Plan-card CTAs — shared .hero-btn-primary / .hero-btn-ghost (52px
@@ -2031,7 +2098,17 @@
         <ul class="features">
           <li class="feature-item">
             <svg class="check-icon blue" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
-            10M tokens/month, rollover included
+            <span class="feature-text">10M tokens/month, rollover <span class="tip-anchor">included<span
+              class="tip" tabindex="0" role="button"
+              aria-label="More about token rollover"><span class="tip-mark" aria-hidden="true">?</span><span
+              class="tip-bubble" role="tooltip">Unused tokens roll over for one month only and require an active subscription to use them.</span></span></span></span>
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon blue" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            <span class="feature-text">Expanded database <span class="tip-anchor">capacity<span
+              class="tip" tabindex="0" role="button"
+              aria-label="More about database capacity"><span class="tip-mark" aria-hidden="true">?</span><span
+              class="tip-bubble" role="tooltip">Total capacity of 100 hrs compute, 250MB storage, 1GB file storage.</span></span></span></span>
           </li>
           <li class="feature-item">
             <svg class="check-icon blue" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
