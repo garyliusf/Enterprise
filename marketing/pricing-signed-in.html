@@ -463,9 +463,11 @@
        on Teams, and CTAs that reflect the plan you're already on. */
 
     /* ── Account bar ── */
-    /* Lives inside .pricing-hero, so the hero's own 28px gap spaces it and
-       it centres with the rest of the header stack. */
-    .account-bar { display: flex; justify-content: center; }
+    /* In the navbar the menu hangs from the button's right edge, so a long
+       workspace name can't push it off-screen. Living in the sticky nav also
+       keeps it above the page — in the hero it was trapped in a z-index:1
+       stacking context that the cards grid painted over. */
+    .mkt-nav-actions .workspace-menu { left: auto; right: 0; }
     /* both pickers must out-rank what they open over: the workspace menu
        overlaps the cards below it, and the token menu overlaps its own card's
        later children — .card-teams > * gives every child z-index 1, and
@@ -2158,6 +2160,26 @@
     </ul>
 
     <div class="mkt-nav-right">
+      <!-- Workspace selector — the signed-in nav's right-hand slot, where the
+           account control lives. -->
+      <div class="mkt-nav-actions">
+      <div class="workspace-picker">
+        <span class="workspace-label">Workspace:</span>
+        <span class="workspace-anchor">
+          <button class="workspace-btn" id="workspace-btn" aria-haspopup="listbox" aria-expanded="false">
+            <span class="workspace-mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg>
+            </span>
+            <span class="workspace-name" id="workspace-name">Enterprise · StackBlitz</span>
+            <svg class="workspace-caret" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <ul class="workspace-menu" id="workspace-menu" role="listbox">
+            <li role="option" aria-selected="true"  data-plan="teams">Enterprise · StackBlitz</li>
+            <li role="option" aria-selected="false" data-plan="pro">Personal workspace</li>
+          </ul>
+        </span>
+      </div>
+      </div>
       <button class="mkt-nav-burger" aria-label="Open menu" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
@@ -2342,28 +2364,6 @@
         <h1>Pricing</h1>
         <p>Start for free. Upgrade as you go.</p>
       </div>
-
-      <!-- Workspace selector — centred in the hero, directly under the
-           subtitle, so it reads as part of the header rather than a control
-           attached to the pricing grid. -->
-      <div class="account-bar">
-        <div class="workspace-picker">
-          <span class="workspace-label">Current workspace:</span>
-          <span class="workspace-anchor">
-            <button class="workspace-btn" id="workspace-btn" aria-haspopup="listbox" aria-expanded="false">
-              <span class="workspace-mark" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg>
-              </span>
-              <span class="workspace-name" id="workspace-name">Enterprise · StackBlitz</span>
-              <svg class="workspace-caret" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </button>
-            <ul class="workspace-menu" id="workspace-menu" role="listbox">
-              <li role="option" aria-selected="true"  data-plan="teams">Enterprise · StackBlitz</li>
-              <li role="option" aria-selected="false" data-plan="pro">Personal workspace</li>
-            </ul>
-          </span>
-        </div>
-      </div>
     </div>
 
     <!-- Cards -->
@@ -2486,7 +2486,7 @@
           </li>
         </ul>
         </div>
-        <p class="switch-note">For personal plans, switch to your personal workspace using the selector at the top left.</p>
+        <p class="switch-note">For personal plans, switch to your personal workspace using the selector in the top right.</p>
       </div>
 
       <!-- Teams -->
