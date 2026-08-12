@@ -133,7 +133,7 @@
       justify-content: flex-start;
       gap: 10px;
       flex-shrink: 0;
-      min-height: 28px;   /* .billing-row--spacer holds this on Free/Enterprise */
+      min-height: var(--toggle-h);   /* .billing-row--spacer holds this on Free/Enterprise */
     }
     .billing-row--spacer { display: block; }
     .billing-save-badge {
@@ -201,7 +201,29 @@
     /* Mobile: the toggle rides inside the Pro card's price row (JS moves it)
        so it's at hand while scrolling prices. Compact + chromeless: no
        container border/fill, small segments; the chip stays hero-only. */
-    .card .billing-btn { width: 52px; padding: 5px 0; font-size: 10px; }
+    /* --toggle-h is the single source for the control's height: the toggle is
+       pinned to it and .billing-row--spacer reserves the same on Free and
+       Enterprise, so the coupon icon can't push the middle two cards out of
+       line with the outer two. */
+    .cards { --toggle-h: 30px; }
+    .card .billing-toggle { height: var(--toggle-h); }
+    .card .billing-btn {
+      align-self: stretch;
+      width: auto;
+      min-width: 56px;
+      padding: 0 9px;
+      font-size: 10px;
+      gap: 5px;
+    }
+    .billing-coupon {
+      width: 13px;
+      height: 13px;
+      flex-shrink: 0;
+      color: #1488FC;
+      transition: color 0.25s ease;
+    }
+    /* the active segment's fill IS #1488FC, so a blue tag would vanish on it */
+    .billing-btn.active .billing-coupon { color: #fff; }
     /* the segments' text baseline sits below the price numerals' — lift the
        control so the two read as one line */
     /* (the chip was hidden 2026-08-07; it's back 2026-08-12 as the plain
@@ -2246,7 +2268,7 @@
           <div class="billing-toggle" data-billing="yearly">
             <div class="billing-thumb"></div>
             <button class="billing-btn" data-period="monthly" id="btn-monthly" onclick="setBilling('monthly')" aria-pressed="false">Monthly</button>
-            <button class="billing-btn active" data-period="yearly" id="btn-yearly" onclick="setBilling('yearly')" aria-pressed="true">Yearly</button>
+            <button class="billing-btn active" data-period="yearly" id="btn-yearly" onclick="setBilling('yearly')" aria-pressed="true">Yearly<svg class="billing-coupon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M11.17 2H4a2 2 0 0 0-2 2v7.17a2 2 0 0 0 .59 1.42l8.7 8.7a2.43 2.43 0 0 0 3.42 0l6.58-6.58a2.43 2.43 0 0 0 0-3.42l-8.7-8.7A2 2 0 0 0 11.17 2ZM7.5 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/></svg></button>
           </div>
           <span class="billing-save-badge">SAVE 28%</span>
         </div>
@@ -2319,7 +2341,7 @@
           <div class="billing-toggle" data-billing="yearly">
             <div class="billing-thumb"></div>
             <button class="billing-btn" data-period="monthly" onclick="setBilling('monthly')" aria-pressed="false">Monthly</button>
-            <button class="billing-btn active" data-period="yearly" onclick="setBilling('yearly')" aria-pressed="true">Yearly</button>
+            <button class="billing-btn active" data-period="yearly" onclick="setBilling('yearly')" aria-pressed="true">Yearly<svg class="billing-coupon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M11.17 2H4a2 2 0 0 0-2 2v7.17a2 2 0 0 0 .59 1.42l8.7 8.7a2.43 2.43 0 0 0 3.42 0l6.58-6.58a2.43 2.43 0 0 0 0-3.42l-8.7-8.7A2 2 0 0 0 11.17 2ZM7.5 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/></svg></button>
           </div>
           <span class="billing-save-badge">SAVE 10%</span>
         </div>
