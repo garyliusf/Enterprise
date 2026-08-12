@@ -782,6 +782,46 @@
       .variant-btn { padding: 6px 9px; font-size: 11px; }
     }
 
+
+    /* ── Variant B: toggle sits under the price, its note under the toggle ──
+       The annual total and savings move out of a static line and into copy
+       that reacts to the selected term. */
+    .card .billing-btn {
+      width: auto;
+      min-width: 62px;
+      padding: 5px 10px;
+      font-size: 10px;
+      gap: 5px;
+    }
+    .billing-coupon {
+      width: 12px;
+      height: 12px;
+      flex-shrink: 0;
+      /* the icon is a reason to pick yearly — dim until yearly is chosen */
+      opacity: 0.55;
+      transition: opacity 0.25s ease;
+    }
+    .billing-btn.active .billing-coupon { opacity: 1; }
+
+    .variant-note {
+      margin: 12px 0 0;
+      /* two lines on yearly, one on monthly — reserve both so the CTA
+         doesn't hop when the term changes */
+      min-height: 40px;
+    }
+    .vn-line {
+      font-size: 13px;
+      line-height: 1.5;
+      color: #1488FC;
+      font-variant-numeric: tabular-nums;
+    }
+    .vn-save { font-weight: 600; }
+    .vn-total { color: rgba(20,136,252,0.75); }
+
+    /* Free/Enterprise have no toggle — their static line sits where the
+       variant note does, so the four CTAs stay level */
+    .price-note { margin: 12px 0 0; min-height: 40px; }
+
     /* ── Divider ── */
     .divider {
       border: none;
@@ -2464,10 +2504,10 @@
           <span class="price-amount-wrap"><span class="price-amount" id="free-price">$0</span></span>
           <span class="price-period">/month</span>
         </div>
+        <div class="billing-row billing-row--spacer" aria-hidden="true"></div>
         <div class="price-note">
           <p class="price-total">Free forever, no card required</p>
         </div>
-        <div class="billing-row billing-row--spacer" aria-hidden="true"></div>
         <button class="hero-btn-primary card-cta card-cta--current" disabled>
           <div class="btn-bg-hover"></div>
           <div class="btn-text-wrap"><div class="btn-text-inner"><span>You're on Teams</span><span>You're on Teams</span></div></div>
@@ -2511,17 +2551,16 @@
           <span class="price-amount-wrap"><span class="price-amount" id="pro-price">$18</span></span>
           <span class="price-period">/month</span>
         </div>
-        <div class="price-note">
-          <p class="price-total" id="pro-total"></p>
-          <p class="price-save" id="pro-save"></p>
-        </div>
         <div class="billing-row" data-billing="yearly">
           <div class="billing-toggle" data-billing="yearly">
             <div class="billing-thumb"></div>
             <button class="billing-btn" data-period="monthly" id="btn-monthly" onclick="setBilling('monthly')" aria-pressed="false">Monthly</button>
-            <button class="billing-btn active" data-period="yearly" id="btn-yearly" onclick="setBilling('yearly')" aria-pressed="true">Yearly</button>
+            <button class="billing-btn active" data-period="yearly" id="btn-yearly" onclick="setBilling('yearly')" aria-pressed="true">Yearly<svg class="billing-coupon" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 5.6A1.6 1.6 0 0 1 3.6 4h8.8A1.6 1.6 0 0 1 14 5.6v.9a1.5 1.5 0 0 0 0 3v.9a1.6 1.6 0 0 1-1.6 1.6H3.6A1.6 1.6 0 0 1 2 10.4v-.9a1.5 1.5 0 0 0 0-3v-.9Z" stroke="currentColor" stroke-width="1.2"/><path d="M9.6 6.2v3.6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="1 1.7"/></svg></button>
           </div>
-          <span class="billing-save-badge">SAVE 28%</span>
+        </div>
+        <div class="variant-note">
+          <p class="vn-line vn-save" id="pro-vn-save"></p>
+          <p class="vn-line vn-total" id="pro-vn-total"></p>
         </div>
         <button class="hero-btn-primary card-cta card-cta--current" disabled>
           <div class="btn-bg-hover"></div>
@@ -2585,17 +2624,16 @@
           <span class="price-amount-wrap"><span class="price-amount" id="teams-price">$27</span></span>
           <span class="price-period">/month</span>
         </div>
-        <div class="price-note">
-          <p class="price-total" id="teams-total"></p>
-          <p class="price-save" id="teams-save"></p>
-        </div>
         <div class="billing-row" data-billing="yearly">
           <div class="billing-toggle" data-billing="yearly">
             <div class="billing-thumb"></div>
             <button class="billing-btn" data-period="monthly" onclick="setBilling('monthly')" aria-pressed="false">Monthly</button>
-            <button class="billing-btn active" data-period="yearly" onclick="setBilling('yearly')" aria-pressed="true">Yearly</button>
+            <button class="billing-btn active" data-period="yearly" onclick="setBilling('yearly')" aria-pressed="true">Yearly<svg class="billing-coupon" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 5.6A1.6 1.6 0 0 1 3.6 4h8.8A1.6 1.6 0 0 1 14 5.6v.9a1.5 1.5 0 0 0 0 3v.9a1.6 1.6 0 0 1-1.6 1.6H3.6A1.6 1.6 0 0 1 2 10.4v-.9a1.5 1.5 0 0 0 0-3v-.9Z" stroke="currentColor" stroke-width="1.2"/><path d="M9.6 6.2v3.6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="1 1.7"/></svg></button>
           </div>
-          <span class="billing-save-badge">SAVE 10%</span>
+        </div>
+        <div class="variant-note">
+          <p class="vn-line vn-save" id="teams-vn-save"></p>
+          <p class="vn-line vn-total" id="teams-vn-total"></p>
         </div>
         <div class="token-picker">
           <span class="token-label">Monthly tokens per member</span>
@@ -2655,10 +2693,10 @@
         <div class="card-price">
           <span class="price-amount price-amount--custom">Custom</span>
         </div>
+        <div class="billing-row billing-row--spacer" aria-hidden="true"></div>
         <div class="price-note">
           <p class="price-total">Custom annual contract, billed by consumption</p>
         </div>
-        <div class="billing-row billing-row--spacer" aria-hidden="true"></div>
         <button class="hero-btn-primary card-cta">
           <div class="btn-bg-hover"></div>
           <div class="btn-text-wrap"><div class="btn-text-inner"><span>Ask for a Quote</span><span>Ask for a Quote</span></div></div>
@@ -4142,6 +4180,36 @@ window.__pageOwnsScrollAnims = true;
 
       renderTier();
       renderCtas();
+    })();
+  </script>
+
+  <script>
+    /* ── Variant B price copy ──
+       Replaces A's static "Total of $216 $300 / year" with a line that
+       reacts to the selected term: what yearly saves you when it's on, and
+       a nudge toward it when it isn't. Reads the same PLAN_TOTALS as A. */
+    (function () {
+      function render(period) {
+        if (!window.PLAN_TOTALS) return;
+        Object.keys(window.PLAN_TOTALS).forEach(function (plan) {
+          var d = window.PLAN_TOTALS[plan];
+          var save  = document.getElementById(plan + '-vn-save');
+          var total = document.getElementById(plan + '-vn-total');
+          if (!save || !total) return;
+          var diff = d.monthly - d.yearly;
+          var pct  = Math.round(diff / d.monthly * 100);
+          if (period === 'yearly') {
+            save.textContent  = "You're saving $" + diff + ' per year';
+            total.textContent = 'Total $' + d.yearly + ' per year';
+          } else {
+            save.textContent  = 'Choose yearly to save ' + pct + '%';
+            total.textContent = 'Total $' + d.monthly + ' per year';
+          }
+        });
+      }
+      var orig = window.setBilling;
+      window.setBilling = function (val) { orig(val); render(val); };
+      render(document.querySelector('.billing-toggle').getAttribute('data-billing'));
     })();
   </script>
 
