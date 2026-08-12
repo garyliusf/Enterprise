@@ -473,22 +473,36 @@
        on Teams, and CTAs that reflect the plan you're already on. */
 
     /* ── Account bar ── */
+    /* The bar and the cards grid share one border — .pricing-panel owns it,
+       .cards drops its own. The bar is tall enough to hold Teams' protruding
+       MOST POPULAR tab, which lands flush on the grid's top edge inside it. */
+    .pricing-panel {
+      position: relative;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 2px;
+    }
+    .pricing-panel .cards { border: none; border-radius: 0; margin-top: 0; }
     .account-bar {
       display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: 24px;
-      flex-wrap: wrap;
-      margin-bottom: 20px;
+      align-items: center;
+      min-height: 58px;
+      padding: 8px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      background: #0a0a0a;
     }
     /* both pickers must out-rank what they open over: the workspace menu
        overlaps the cards below it, and the token menu overlaps its own card's
        later children — .card-teams > * gives every child z-index 1, and
        siblings later in the DOM would otherwise paint on top of the menu. */
-    .workspace-picker { position: relative; z-index: 30; }
+    .workspace-picker {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+      z-index: 30;
+    }
+    .workspace-anchor { position: relative; display: inline-flex; }
     .workspace-label {
-      display: block;
-      margin-bottom: 8px;
       font-size: 13px;
       color: rgba(255,255,255,0.5);
     }
@@ -546,7 +560,9 @@
       transform: translateY(-4px);
       transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
     }
-    .workspace-menu { right: auto; min-width: 100%; white-space: nowrap; }
+    /* .workspace-anchor is an inline-flex row, so the menu's static position
+       is beside the button, not under it — pin it explicitly. */
+    .workspace-menu { top: 100%; right: auto; min-width: 100%; white-space: nowrap; }
     .workspace-picker.is-open .workspace-menu,
     .token-picker.is-open .token-menu {
       opacity: 1;
@@ -735,7 +751,8 @@
     }
 
     @media (max-width: 768px) {
-      .account-bar { flex-direction: column; align-items: stretch; gap: 20px; }
+      .account-bar { padding: 10px 16px; }
+      .workspace-picker { flex-wrap: wrap; gap: 8px; }
     }
 
     /* ── Divider ── */
@@ -2373,24 +2390,29 @@
       </div>
     </div>
 
-    <!-- Account controls — the workspace selector. The billing term stays
-         inside the Pro/Teams cards, as on the public pricing page. -->
-    <div class="account-bar">
-      <div class="workspace-picker">
-        <span class="workspace-label">Current workspace:</span>
-        <button class="workspace-btn" id="workspace-btn" aria-haspopup="listbox" aria-expanded="false">
-          <span class="workspace-mark" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg>
+    <!-- Pricing panel — the workspace bar is joined to the top of the cards
+         grid so the two read as one unit, rather than a control floating in
+         the margin above them. Teams' MOST POPULAR tab protrudes up into the
+         bar, which is sized to hold it. -->
+    <div class="pricing-panel">
+      <div class="account-bar">
+        <div class="workspace-picker">
+          <span class="workspace-label">Current workspace:</span>
+          <span class="workspace-anchor">
+            <button class="workspace-btn" id="workspace-btn" aria-haspopup="listbox" aria-expanded="false">
+              <span class="workspace-mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg>
+              </span>
+              <span class="workspace-name" id="workspace-name">Enterprise · StackBlitz</span>
+              <svg class="workspace-caret" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <ul class="workspace-menu" id="workspace-menu" role="listbox">
+              <li role="option" aria-selected="true"  data-plan="teams">Enterprise · StackBlitz</li>
+              <li role="option" aria-selected="false" data-plan="pro">Personal workspace</li>
+            </ul>
           </span>
-          <span class="workspace-name" id="workspace-name">Enterprise · StackBlitz</span>
-          <svg class="workspace-caret" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-        <ul class="workspace-menu" id="workspace-menu" role="listbox">
-          <li role="option" aria-selected="true"  data-plan="teams">Enterprise · StackBlitz</li>
-          <li role="option" aria-selected="false" data-plan="pro">Personal workspace</li>
-        </ul>
+        </div>
       </div>
-    </div>
 
     <!-- Cards -->
     <div class="cards">
@@ -2617,6 +2639,7 @@
       </div>
 
     </div>
+    </div><!-- /.pricing-panel -->
 
     <!-- Compare features -->
     <section class="compare-section" data-active-tier="pro">
