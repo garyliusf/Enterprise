@@ -164,15 +164,6 @@
     /* At medium widths, fall to 2x2 before stacking to single column */
     @media (max-width: 1100px) {
       .cards { grid-template-columns: repeat(2, 1fr); margin-top: 0; }
-      /* Teams is no longer in the top row — a protruding tab would punch into
-         the card above it. Drop the banner in-flow, full-bleed across the card
-         top (negative margins undo the card's own padding). */
-      .card-teams > .popular-banner {
-        position: static;
-        margin: calc(-1 * var(--cd-pt)) calc(-1 * var(--cd-px)) var(--cd-pt);
-        border-radius: 0;
-        flex-shrink: 0;
-      }
       .card:nth-child(2) { border-right: none !important; }
       .card:nth-child(1), .card:nth-child(2) { border-bottom: 1px solid rgba(255,255,255,0.07); }
       .faq-section { grid-template-columns: 1fr; gap: 40px; }
@@ -189,10 +180,23 @@
          between the description and the CTA (.cards prefix outranks the
          later base rules) */
       .cards .card-description { min-height: 0; }
-      /* stacked cards align to nothing — drop the equal-height reserves so a
-         1-line note doesn't leave 40px of dead air above the button */
-      .cards .price-note { min-height: 0; }
-      .cards .card .card-cta { margin-top: 12px; }
+      /* stacked cards align to nothing — drop every equal-height reserve:
+         the note's, the price row's 30px, the empty toggle-row spacer on
+         Free/Enterprise, and B's two-line note. Together they were ~70px of
+         dead air between the price and the CTA on cards with no toggle. */
+      .cards .price-note, .cards .variant-note, .cards .card-price { min-height: 0; }
+      /* the 30px min-height also supplied ~8px of air under the price glyphs
+         — without it the toggle/note sat right on the price. Put that air
+         back as an explicit margin now that the reserve is gone. */
+      .cards .card-price { margin-bottom: 10px; }
+      .cards .billing-row--spacer { display: none; }
+      /* stacked cards: the 44/48 signed-in band exists to keep four cards
+         level around the Teams picker — pointless in a single column, and it
+         read as dead air. Match the signed-out 12/24; the picker keeps just
+         enough margin for its floated label (8+15px above) and current-plan
+         line (10+15px below). */
+      .cards .card .card-cta { margin-top: 12px; margin-bottom: 24px; }
+      .cards .token-picker { margin: 36px 0 44px; }
       .card:last-child { border-bottom: none; }
       /* On mobile cards stack and size to their content — drop the equal-height
          alignment trick but keep the 36px breathing room above the CTA. */
@@ -373,6 +377,21 @@
       white-space: nowrap;
       border-radius: 2px 2px 0 0;
       z-index: 2;
+    }
+    @media (max-width: 1100px) {
+      /* Teams isn't in the top row on stacked layouts — a protruding tab
+         would punch into the card above it. In-flow, full-bleed across the
+         card top instead (negative margins undo the card's own padding).
+         This rule must sit AFTER the base rule above: it originally lived in
+         the early ≤1100 block, where source order made it dead and the tab
+         overlapped the neighbouring card on mobile. */
+      .card-teams > .popular-banner {
+        position: static;
+        margin: calc(-1 * var(--cd-pt)) calc(-1 * var(--cd-px)) var(--cd-pt);
+        border-radius: 0;
+        flex-shrink: 0;
+      }
+      .cards { margin-top: 0; }
     }
 
     /* ── Plan label ── */

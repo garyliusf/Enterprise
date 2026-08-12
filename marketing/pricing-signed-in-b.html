@@ -168,15 +168,6 @@
     /* At medium widths, fall to 2x2 before stacking to single column */
     @media (max-width: 1100px) {
       .cards { grid-template-columns: repeat(2, 1fr); margin-top: 0; }
-      /* Teams is no longer in the top row — a protruding tab would punch into
-         the card above it. Drop the banner in-flow, full-bleed across the card
-         top (negative margins undo the card's own padding). */
-      .card-teams > .popular-banner {
-        position: static;
-        margin: calc(-1 * var(--cd-pt)) calc(-1 * var(--cd-px)) var(--cd-pt);
-        border-radius: 0;
-        flex-shrink: 0;
-      }
       .card:nth-child(2) { border-right: none !important; }
       .card:nth-child(1), .card:nth-child(2) { border-bottom: 1px solid rgba(255,255,255,0.07); }
       .faq-section { grid-template-columns: 1fr; gap: 40px; }
@@ -193,10 +184,23 @@
          between the description and the CTA (.cards prefix outranks the
          later base rules) */
       .cards .card-description { min-height: 0; }
-      /* stacked cards align to nothing — drop the equal-height reserves so a
-         1-line note doesn't leave 40px of dead air above the button */
-      .cards .price-note { min-height: 0; }
-      .cards .card .card-cta { margin-top: 12px; }
+      /* stacked cards align to nothing — drop every equal-height reserve:
+         the note's, the price row's 30px, the empty toggle-row spacer on
+         Free/Enterprise, and B's two-line note. Together they were ~70px of
+         dead air between the price and the CTA on cards with no toggle. */
+      .cards .price-note, .cards .variant-note, .cards .card-price { min-height: 0; }
+      /* the 30px min-height also supplied ~8px of air under the price glyphs
+         — without it the toggle/note sat right on the price. Put that air
+         back as an explicit margin now that the reserve is gone. */
+      .cards .card-price { margin-bottom: 10px; }
+      .cards .billing-row--spacer { display: none; }
+      /* stacked cards: the 44/48 signed-in band exists to keep four cards
+         level around the Teams picker — pointless in a single column, and it
+         read as dead air. Match the signed-out 12/24; the picker keeps just
+         enough margin for its floated label (8+15px above) and current-plan
+         line (10+15px below). */
+      .cards .card .card-cta { margin-top: 12px; margin-bottom: 24px; }
+      .cards .token-picker { margin: 36px 0 44px; }
       .card:last-child { border-bottom: none; }
       /* On mobile cards stack and size to their content — drop the equal-height
          alignment trick but keep the 36px breathing room above the CTA. */
@@ -334,27 +338,37 @@
        (the hero→cards gap stays 72px, measured to the banner). .card-teams must
        drop the base overflow:hidden or the tab gets clipped away.
        All four cards share one content flow now — no badge spacer needed. */
-    .cards { --pop-h: 34px; margin-top: var(--pop-h); }
-    .card-teams { overflow: visible; }
+    /* B carries the badge INSIDE the card, same treatment as C — the
+       protruding tab collapsed into a full-bleed bar over the card above on
+       stacked layouts. Absolutely positioned, so it costs no layout height
+       and the four cards stay level. */
+    .cards { margin-top: 0; }
     .card-teams > .popular-banner {
       position: absolute;
-      bottom: 100%;
-      left: 0;
-      right: -1px;           /* cover the card's own 1px divider */
-      height: var(--pop-h);
-      display: flex;
+      top: 36px;      /* centres on the plan name's line */
+      right: 20px;
+      display: inline-flex;
       align-items: center;
-      justify-content: center;
+      padding: 5px 9px;
       background: #1488FC;
       color: #fff;
       font-family: 'Silkscreen', monospace;
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 400;
-      letter-spacing: 1.2px;
+      letter-spacing: 1.1px;
       line-height: 1;
       white-space: nowrap;
-      border-radius: 2px 2px 0 0;
+      border-radius: 2px;
       z-index: 2;
+    }
+    @media (max-width: 1100px) {
+      /* stacked cards: the pinned chip crowded the top-right corner. In flow
+         above the plan name it gets real air on every side. */
+      .card-teams > .popular-banner {
+        position: static;
+        align-self: flex-start;
+        margin: 2px 0 16px;
+      }
     }
 
     /* ── Plan label ── */
