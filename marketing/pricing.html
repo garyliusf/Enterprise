@@ -64,13 +64,6 @@
     }
 
     /* ── Billing toggle ── */
-    .billing-row {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      flex-shrink: 0;
-    }
 
     @media (max-width: 900px) {
       .pricing-hero { flex-direction: column; align-items: center; text-align: center; gap: 28px; margin-bottom: 64px; }
@@ -131,15 +124,19 @@
     .billing-btn:hover { color: rgba(255,255,255,0.85); }
     .billing-btn.active { color: #fff; font-weight: 600; }
 
-    /* The toggle shares the price's row, so the badge is floated ABOVE it
-       rather than stacked in flow — in flow it adds ~18px to the row and
-       pushes the toggle onto a line of its own. Out of flow it costs no
-       layout height and sits in the plan-label's bottom margin. */
-    .billing-row { position: relative; }
+    /* The toggle sits below the annual-total note, left-aligned with the
+       rest of the card, with the SAVE% trailing it on the same row. */
+    .billing-row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 10px;
+      flex-shrink: 0;
+      min-height: 28px;   /* .billing-row--spacer holds this on Free/Enterprise */
+    }
+    .billing-row--spacer { display: block; }
     .billing-save-badge {
-      position: absolute;
-      right: 0;
-      bottom: calc(100% + 6px);
       font-size: 11px;
       font-weight: 700;
       font-family: 'Inter', sans-serif;
@@ -175,9 +172,6 @@
         border-radius: 0;
         flex-shrink: 0;
       }
-      /* wide cards: toggle hugs the price instead of floating to the far
-         edge (.cards prefix outranks the later base margin-left:auto) */
-      .cards .card-price .billing-row { margin-left: 14px; align-self: baseline; }
       .card:nth-child(2) { border-right: none !important; }
       .card:nth-child(1), .card:nth-child(2) { border-bottom: 1px solid rgba(255,255,255,0.07); }
       .faq-section { grid-template-columns: 1fr; gap: 40px; }
@@ -197,7 +191,6 @@
       /* stacked cards align to nothing — drop the equal-height reserves so a
          1-line note doesn't leave 40px of dead air above the button */
       .cards .price-note { min-height: 0; }
-      .cards .card-price { min-height: 0; }
       .cards .card .card-cta { margin-top: 12px; }
       .card:last-child { border-bottom: none; }
       /* On mobile cards stack and size to their content — drop the equal-height
@@ -208,11 +201,9 @@
     /* Mobile: the toggle rides inside the Pro card's price row (JS moves it)
        so it's at hand while scrolling prices. Compact + chromeless: no
        container border/fill, small segments; the chip stays hero-only. */
-    .card-price .billing-row { margin: 0 0 0 auto; align-self: baseline; }
     .card .billing-btn { width: 52px; padding: 5px 0; font-size: 10px; }
     /* the segments' text baseline sits below the price numerals' — lift the
        control so the two read as one line */
-    .card-price .billing-toggle { transform: translateY(-2px); }
     /* (the chip was hidden 2026-08-07; it's back 2026-08-12 as the plain
        bold "SAVE n%" line sitting above the toggle) */
 
@@ -383,7 +374,7 @@
       flex-wrap: wrap; /* the toggle drops as a unit when tight — the period never splits */
       gap: 6px;
       row-gap: 8px;
-      margin-bottom: 18px;
+      margin-bottom: 2px;   /* the annual total tucks right under the price */
       /* reserve the badge+toggle stack on every card (Pro/Teams carry one,
          Free/Enterprise don't) so all four CTAs — and the divider below them —
          land on the same line. 30px = the toggle's real height (28px box,
@@ -438,7 +429,8 @@
        saves. min-height reserves the two-line + savings stack on every card
        (Free/Enterprise carry one line) so all four CTAs stay on one row. */
     .price-note {
-      margin: -6px 0 18px;
+      /* tight to the price above, clear gap to the toggle below */
+      margin: 0 0 22px;
       /* every note is exactly two lines now (the copy is short enough not to
          wrap) — Free's single line pads up to it so the CTAs stay level */
       min-height: 42px;
@@ -1847,7 +1839,6 @@
     @media (max-width: 640px) {
       .card-description { min-height: 0; }
       .card .card-cta { margin-top: 12px; }
-      .card-price .billing-row { margin-left: 14px; }
     }
     @media (max-width: 480px) {
       .cert-badge { width: 71px; height: 71px; } /* +15% mobile-only */
@@ -2109,6 +2100,7 @@
         <div class="price-note">
           <p class="price-total">Free forever, no card required</p>
         </div>
+        <div class="billing-row billing-row--spacer" aria-hidden="true"></div>
         <button class="hero-btn-primary card-cta">
           <div class="btn-bg-hover"></div>
           <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Started</span><span>Get Started</span></div></div>
@@ -2151,18 +2143,18 @@
         <div class="card-price">
           <span class="price-amount-wrap"><span class="price-amount" id="pro-price">$18</span></span>
           <span class="price-period">/month</span>
-          <div class="billing-row" data-billing="yearly">
-            <span class="billing-save-badge">SAVE 28%</span>
-            <div class="billing-toggle" data-billing="yearly">
-              <div class="billing-thumb"></div>
-              <button class="billing-btn" data-period="monthly" id="btn-monthly" onclick="setBilling('monthly')" aria-pressed="false">Monthly</button>
-              <button class="billing-btn active" data-period="yearly" id="btn-yearly" onclick="setBilling('yearly')" aria-pressed="true">Yearly</button>
-            </div>
-          </div>
         </div>
         <div class="price-note">
           <p class="price-total" id="pro-total"></p>
           <p class="price-save" id="pro-save"></p>
+        </div>
+        <div class="billing-row" data-billing="yearly">
+          <div class="billing-toggle" data-billing="yearly">
+            <div class="billing-thumb"></div>
+            <button class="billing-btn" data-period="monthly" id="btn-monthly" onclick="setBilling('monthly')" aria-pressed="false">Monthly</button>
+            <button class="billing-btn active" data-period="yearly" id="btn-yearly" onclick="setBilling('yearly')" aria-pressed="true">Yearly</button>
+          </div>
+          <span class="billing-save-badge">SAVE 28%</span>
         </div>
         <button class="hero-btn-primary card-cta">
           <div class="btn-bg-hover"></div>
@@ -2224,18 +2216,18 @@
         <div class="card-price">
           <span class="price-amount-wrap"><span class="price-amount" id="teams-price">$27</span></span>
           <span class="price-period">/month</span>
-          <div class="billing-row" data-billing="yearly">
-            <span class="billing-save-badge">SAVE 10%</span>
-            <div class="billing-toggle" data-billing="yearly">
-              <div class="billing-thumb"></div>
-              <button class="billing-btn" data-period="monthly" onclick="setBilling('monthly')" aria-pressed="false">Monthly</button>
-              <button class="billing-btn active" data-period="yearly" onclick="setBilling('yearly')" aria-pressed="true">Yearly</button>
-            </div>
-          </div>
         </div>
         <div class="price-note">
           <p class="price-total" id="teams-total"></p>
           <p class="price-save" id="teams-save"></p>
+        </div>
+        <div class="billing-row" data-billing="yearly">
+          <div class="billing-toggle" data-billing="yearly">
+            <div class="billing-thumb"></div>
+            <button class="billing-btn" data-period="monthly" onclick="setBilling('monthly')" aria-pressed="false">Monthly</button>
+            <button class="billing-btn active" data-period="yearly" onclick="setBilling('yearly')" aria-pressed="true">Yearly</button>
+          </div>
+          <span class="billing-save-badge">SAVE 10%</span>
         </div>
         <button class="hero-btn-primary card-cta">
           <div class="btn-bg-hover"></div>
@@ -2286,6 +2278,7 @@
         <div class="price-note">
           <p class="price-total">Custom annual contract, billed by consumption</p>
         </div>
+        <div class="billing-row billing-row--spacer" aria-hidden="true"></div>
         <button class="hero-btn-primary card-cta">
           <div class="btn-bg-hover"></div>
           <div class="btn-text-wrap"><div class="btn-text-inner"><span>Contact Us</span><span>Contact Us</span></div></div>
