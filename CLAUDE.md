@@ -100,7 +100,7 @@ All buttons must use these exact specs. No inline overrides unless absolutely ne
 
 **Eyebrow color is always `#1488FC` — never use `rgba(20,136,252,0.7)` or any opacity variant.**
 
-**Border radius is always `2px` on surfaces (decision: Gary, 2026-08-05)** — cards, panels, tiles, icon tiles, video frames, stages. Exceptions: true circles (`50%` dots), pill buttons (`999px`), and partial-corner cases like the form-submit `0 2px 2px 0`. platform.html is fully normalized; older pages may still carry 4–16px values — normalize when touching them.
+**Border radius is always `2px` on surfaces (decision: Gary, 2026-08-05)** — cards, panels, tiles, icon tiles, video frames, stages. Exceptions: true circles (`50%` dots), pill buttons (`999px`), and partial-corner cases like the form-submit `0 2px 2px 0`. solutions.html is fully normalized; older pages may still carry 4–16px values — normalize when touching them.
 
 ---
 
@@ -153,7 +153,7 @@ All buttons must use these exact specs. No inline overrides unless absolutely ne
 **Never use less than 16px horizontal padding on any breakpoint.**
 
 ### Adjacent-section seams (rule, 2026-08-06)
-The per-section `clamp(80px, 12vh, 140px)` padding applies to each side, so two adjacent sections stack ~215px at the seam. **When both sections share the same background (black-on-black, no visual boundary), the seam must total ~ONE standard unit (~110–155px), not two** — trim ONE side (usually the lower section's `padding-top`, e.g. `clamp(24px, 4vh, 48px)`) rather than shrinking the shared `.section` rule. Keep the full double padding only where a background change, border, or panel edge marks the section break. First applied: platform.html tabs→use-cases seam.
+The per-section `clamp(80px, 12vh, 140px)` padding applies to each side, so two adjacent sections stack ~215px at the seam. **When both sections share the same background (black-on-black, no visual boundary), the seam must total ~ONE standard unit (~110–155px), not two** — trim ONE side (usually the lower section's `padding-top`, e.g. `clamp(24px, 4vh, 48px)`) rather than shrinking the shared `.section` rule. Keep the full double padding only where a background change, border, or panel edge marks the section break. First applied: solutions.html tabs→use-cases seam.
 
 ---
 
@@ -243,7 +243,7 @@ Canonical source for the sticky **navbar** (`.mkt-nav*` — mega-menu + mobile d
 - **`overflow-x: hidden` on `body` breaks the sticky navbar** — it makes body a scroll container, so `position: sticky` on descendants stops working. Use `overflow-x: hidden; overflow-x: clip;` (hidden first as the fallback). Bit both templates and platform.
 - **Not yet migrated:** `marketing/templates/index.html` and `marketing/templates/detail/index.html` still carry inline copies of this CSS/JS (their markup is now in sync). Mirror changes there until they're migrated to these files.
 
-Pages on the standard: `platform.html`, `templates/index.html`, `pricing.html` (no divider yet — minor). `templates/detail/index.html` still shows the retired tail.
+Pages on the standard: `solutions.html`, `templates/index.html`, `pricing.html` (no divider yet — minor). `templates/detail/index.html` still shows the retired tail.
 
 ---
 
@@ -291,7 +291,7 @@ For a seamless grid with shared borders (no `gap`):
 | Plan CTA (blue) | `.hero-btn-primary.card-cta` | shared 52px standard; `.card .card-cta { width:100%; margin-top:auto }` for equal-height cards |
 | Plan CTA (outline) | `.hero-btn-ghost.card-cta` | shared 52px standard, same layout hook |
 | Compliance "Learn more" / FAQ "Visit Help Center" | `.hero-btn-ghost` | shared standard + `--cta-min-w` floor, `width:fit-content` (flex-column parent) |
-| Footer CTA | `.hero-btn-primary.footer-cta-btn` "Start Building" → bolt.new | platform.html footer pattern (the old email strip + rotating-name form was removed 2026-08-06) |
+| Footer CTA | `.hero-btn-primary.footer-cta-btn` "Start Building" → bolt.new | solutions.html footer pattern (the old email strip + rotating-name form was removed 2026-08-06) |
 | Toggle (Yearly/Monthly) | `.billing-btn` | `~26px`, `5px 22px`, `13px`, `500`, `#fff`, pill `999px` |
 
 **CTA labels are Title Case (decision: Gary, 2026-08-06):** cap the first letter of each word — "Get Started", "Contact Us", "Learn More", "Start Building" — in BOTH slide-up spans of the button markup. **Short function words stay lowercase** (Gary, 2026-08-11): "Start Building for Free", not "For Free".
@@ -302,7 +302,7 @@ For a seamless grid with shared borders (no `gap`):
 
 pricing.html carries the shared **mkt-nav navbar + site-footer** (2026-08-06): the sticky mega-menu nav and link-columns footer copied from `marketing/templates/index.html` (the component's home) with paths shifted one level up and Pricing marked `is-active`. Because the 68px nav is in-flow sticky, `.page` top padding dropped 140→72px and the compare table's sticky tier-head pins at `top: 68px` (its fade JS thresholds shifted by +68 too). Page order: CTA footer-section → site-footer → bolt wordmark.
 
-Other pricing standardizations from the same pass: FAQ = shared `.ms-faq-*` component (two-column layout is page-local), section H2s = `.sc-section-h2`, logo train = platform.html wordmark component (`images/logos-home/`, CSS `scrollLogos` keyframe — mobile overrides must sit AFTER the base rules in source order), all pixel-fill hovers come from `shared-components.js` (no page-side pixelize module).
+Other pricing standardizations from the same pass: FAQ = shared `.ms-faq-*` component (two-column layout is page-local), section H2s = `.sc-section-h2`, logo train = solutions.html wordmark component (`images/logos-home/`, CSS `scrollLogos` keyframe — mobile overrides must sit AFTER the base rules in source order), all pixel-fill hovers come from `shared-components.js` (no page-side pixelize module).
 
 ### Pricing Page Eyebrows
 - Color: `#1488FC` ✓ — consistent with brand standard
@@ -317,7 +317,7 @@ Other pricing standardizations from the same pass: FAQ = shared `.ms-faq-*` comp
 - `marketing/microsoft.html` — Microsoft Teams & Copilot landing page. **RETIRED as a working copy (2026-08-07): production moved to the CMS page builder** — `src/pages/platform/integrations/microsoft.astro` is a `<BuiltPage>` stub; the page is `src/content/pages/platform-integrations-microsoft.json` (sections: ms-hero, browser-slider, stack-cards, how-it-works, faq, footer-cta), edited via `npm run cms`. `microsoft-body.html` is deleted. Same policy as `/platform/referral`: the sandbox copy is a stale one-off mirror — don't edit it expecting changes to go anywhere.
 - `marketing/bolt-cli.html` — Bolt CLI landing page. **Production ALSO moved to the CMS builder (2026-08-07 discovery)** — `platform-features-cli.json`; `cli-body.html` is deleted. Sandbox copy is now prototype-only, same policy as microsoft.
 - `marketing/pricing.html` — Pricing page. **Canonical/correct version, NOT live yet (pending approval).** Its own track; will get its own port + PR when approved.
-- `marketing/platform.html` — Platform overview page, **rebuilt 2026-08-04** from the marketing content doc. Combines Security-page components (hero gradient + pixel dots, feat tab slider — extended to 4 tabs, builtin-cards, footer + bolt shimmer) with Templates-page components (comet-outline prompt shell, section scaffolding, int-logo tiles, arrow links). Sections: hero (eyebrow/H1/sub/CTA/microcopy + prompt box) → logo train (real homepage wordmarks extracted to `images/logos-home/*.svg`, black fills → `filter: invert(1)`) → business-size tabs (Entrepreneur/SMB/Enterprise/Agencies; agencies link URL still TBD) → use cases 5-card (3+2 centered via 6-col grid) → template rows → trust band (copy + 4 checklist cards) → integrations tiles → footer CTA. The old prototype lives at `marketing/platform-old.html` ("Old Platform", reference only). `enterprise-v2/` was deleted the same day (no use) — its optimized footer wordmark strip lives on as `images/bolt-footer.webp` (36KB; do NOT swap to the 1.35MB `bolt-bottom.webp`), referenced by templates/use-cases/integrations/templates-detail footers.
+- `marketing/solutions.html` — Solutions overview page (renamed from `platform.html`, 2026-08-13), **rebuilt 2026-08-04** from the marketing content doc. Combines Security-page components (hero gradient + pixel dots, feat tab slider — extended to 4 tabs, builtin-cards, footer + bolt shimmer) with Templates-page components (comet-outline prompt shell, section scaffolding, int-logo tiles, arrow links). Sections: hero (eyebrow/H1/sub/CTA/microcopy + prompt box) → logo train (real homepage wordmarks extracted to `images/logos-home/*.svg`, black fills → `filter: invert(1)`) → business-size tabs (Entrepreneur/SMB/Enterprise/Agencies; agencies link URL still TBD) → use cases 5-card (3+2 centered via 6-col grid) → template rows → trust band (copy + 4 checklist cards) → integrations tiles → footer CTA. The old prototype lives at `marketing/platform-old.html` ("Old Platform", reference only). `enterprise-v2/` was deleted the same day (no use) — its optimized footer wordmark strip lives on as `images/bolt-footer.webp` (36KB; do NOT swap to the 1.35MB `bolt-bottom.webp`), referenced by templates/use-cases/integrations/templates-detail footers.
 - `marketing/security-agent.html` — Security Agent landing page (built 2026-08, sandbox only — not yet ported/PR'd to the company repo). Hero → agent video → How-It-Works timeline → "What it scans" 5-card → "Free every time" 3-card + `run-callout` (photo bg `run-callout-bg.jpg`, scroll-in reveal at 50% visible) → FAQ → footer.
 - `marketing/shared-components.css` — **Canonical component CSS** (buttons, eyebrows, FAQ). Wins the cascade — linked at end of `<body>`. Edit here, not per-page.
 - `marketing/shared-components.js` — **Canonical component JS** (FAQ per-item pixel canvas animation + scroll animations). Linked at end of `<body>`.

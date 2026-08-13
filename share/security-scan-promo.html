@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>bolt — Security Scan</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    background: #000;
+    overflow: hidden;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  /* ---- Stage: 1280x720 (16:9) for a clean recording crop ---- */
+  .stage {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+      radial-gradient(1200px 900px at 50% 46%, rgba(20,136,252,0.10), transparent 62%),
+      #04070d;
+  }
+
+  /* tron field canvas (grid + code rain + beam) */
+  #field { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+  /* vignette so the edges stay cinematic */
+  .vignette {
+    position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(closest-side at 50% 48%, transparent 52%, rgba(0,0,0,0.72) 100%);
+    z-index: 4;
+  }
+  /* moving scanline sheen */
+  .scanlines {
+    position: absolute; inset: 0; pointer-events: none; z-index: 5; opacity: 0.35;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,0) 0 2px, rgba(0,0,0,0.28) 2px 3px);
+    mix-blend-mode: multiply;
+  }
+
+  .scene { position: absolute; inset: 0; z-index: 6; }
+
+  /* bolt.new home-page blue gradient — fades in behind the browser on the final page */
+  .final-bg {
+    position: absolute; inset: 0; z-index: 2; opacity: 0; pointer-events: none;
+    background: url('bolt-bg-final.webp') center/cover no-repeat;
+  }
+
+  /* morphing scan line: the button's border expands into a full-width blue beam */
+  .scan-line {
+    position: absolute; left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: 800px; height: 184px;
+    border: 1.5px solid rgba(120,180,255,0);
+    border-radius: 8px;
+    background: transparent;
+    box-shadow: none;
+    opacity: 0; pointer-events: none;
+    will-change: width, height, transform, opacity;
+  }
+
+  /* full-screen blue flood for the "explode into blue" beat (opacity-driven = smooth) */
+  .blue-flood {
+    position: absolute; inset: 0; z-index: 9; pointer-events: none; opacity: 0;
+    background: radial-gradient(120% 120% at 50% 50%, #2a9dff 0%, #1c8bf5 42%, #1276e6 100%);
+  }
+
+  /* ==================== PHASE 1 — BUTTON ==================== */
+  .btn-wrap {
+    position: absolute; left: 50%; top: 50%;
+    transform: translate(-50%,-50%);
+    opacity: 0;
+    z-index: 7;
+  }
+  .scan-btn {
+    position: relative;
+    display: inline-flex; align-items: center; justify-content: center;
+    height: 97px; padding: 0 48px;
+    border-radius: 2px;
+    background: linear-gradient(180deg, #1c93ff, #1276e6);
+    color: #fff; font-size: 31px; font-weight: 600; letter-spacing: -0.3px;
+    box-shadow: 0 8px 24px rgba(20,136,252,0.24), inset 0 1px 0 rgba(255,255,255,0.18);
+    white-space: nowrap;
+    transform-origin: 50% 50%;
+    will-change: transform;
+  }
+  .scan-btn-label { display: inline-flex; align-items: center; gap: 18px; }
+  .scan-btn svg { width: 32px; height: 32px; }
+  .btn-ring {
+    position: absolute; inset: -4px; border-radius: 4px;
+    border: 2px solid rgba(90,190,255,0.9);
+    opacity: 0; pointer-events: none;
+  }
+  /* cursor */
+  .cursor {
+    position: absolute; left: 50%; top: 50%; z-index: 9;
+    width: 68px; height: 68px;
+    transform: translate(60px, 70px);
+    opacity: 0;
+    filter: drop-shadow(0 5px 12px rgba(0,0,0,0.7));
+  }
+
+  /* ==================== PHASE 2 — HUD ==================== */
+  .hud {
+    position: absolute; left: 50%; top: 50%;
+    transform: translate(-50%,-50%);
+    text-align: center; z-index: 7;
+    opacity: 0;
+  }
+  .hud-label {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 13px; letter-spacing: 4px; font-weight: 500;
+    color: rgba(255,255,255,0.5); text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  .hud-title {
+    font-size: 81px; font-weight: 700; letter-spacing: -2.5px; color: #fff;
+    line-height: 1; margin-bottom: 22px;
+    text-shadow: 0 0 40px rgba(30,150,255,0.55);
+  }
+  .hud-title .dots::after { content: ''; }
+  .hud-bar {
+    width: 360px; height: 4px; margin: 0 auto;
+    border-radius: 4px; overflow: hidden;
+    background: rgba(255,255,255,0.10);
+  }
+  .hud-bar > i {
+    display: block; height: 100%; width: 0%;
+    background: linear-gradient(90deg, #1276e6, #1c93ff);
+    box-shadow: 0 0 16px rgba(30,150,255,0.8);
+  }
+  .hud-stat {
+    margin-top: 14px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 13px; letter-spacing: 0.3px; color: rgba(255,255,255,0.5);
+  }
+  /* floating check chips that fly through during analysis */
+  .chip {
+    position: absolute; z-index: 7;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px; font-weight: 500; letter-spacing: 0.3px;
+    display: inline-flex; align-items: center; gap: 12px;
+    padding: 10px 18px 10px 13px; border-radius: 11px;
+    background: linear-gradient(180deg, rgba(24,46,35,0.82), rgba(11,25,19,0.82));
+    border: 1px solid rgba(90,220,150,0.36);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.45), 0 0 24px rgba(50,210,130,0.13),
+                inset 0 1px 0 rgba(180,255,215,0.10);
+    opacity: 0; white-space: nowrap;
+    backdrop-filter: blur(6px);
+  }
+  .chip-check {
+    width: 22px; height: 22px; flex: none; color: #4fe39a;
+    filter: drop-shadow(0 0 6px rgba(70,225,150,0.55));
+  }
+  .chip-label { color: #dcf7e9; }
+  .chip-dot   { color: rgba(120,205,165,0.5); margin: 0 -4px; }
+  .chip-stat  { color: #63e6a5; font-weight: 600; }
+
+  /* ==================== PHASE 3 — BROWSER + LOCK ==================== */
+  .browser {
+    position: absolute; left: 50%; top: 50%;
+    width: 720px;
+    transform: translate(-50%,-50%) scale(0.86);
+    opacity: 0; z-index: 7;
+    border-radius: 14px; overflow: hidden;
+    background: #0b0f16;
+    border: 1px solid rgba(120,180,255,0.22);
+    box-shadow: 0 40px 120px rgba(0,0,0,0.7), 0 0 0 1px rgba(0,0,0,0.4),
+                0 0 90px rgba(20,136,252,0.28);
+  }
+  .b-chrome {
+    display: flex; align-items: center; gap: 14px;
+    height: 46px; padding: 0 16px;
+    background: linear-gradient(180deg, #141a24, #0e131b);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .b-dots { display: flex; gap: 8px; }
+  .b-dots i { width: 12px; height: 12px; border-radius: 50%; display: block; }
+  .b-url {
+    flex: 1; height: 28px; border-radius: 7px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(120,200,255,0.18);
+    display: flex; align-items: center; gap: 8px;
+    padding: 0 12px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12.5px; color: #9fb6d0;
+  }
+  .b-url .lock-mini { width: 12px; height: 12px; color: #57e39b; }
+  .b-body {
+    position: relative; height: 400px;
+    background: #070a10;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  /* full built site behind the lock — scrollable (its translateY is animated at the end) */
+  .b-app {
+    position: absolute; top: 0; left: 0; width: 100%; height: auto;
+    transform: translateY(-235px);          /* static — parked on the dashboard */
+    filter: brightness(0.9) saturate(1.05);
+  }
+  /* dark scrim so the shield + copy stay legible over the app */
+  .b-scrim {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(440px 250px at 50% 48%, rgba(6,10,16,0.85), rgba(6,10,16,0.30) 60%, rgba(6,10,16,0) 78%),
+      radial-gradient(600px 320px at 50% 30%, rgba(20,136,252,0.10), transparent 72%),
+      linear-gradient(180deg, rgba(7,10,16,0.18), rgba(7,10,16,0.42));
+  }
+
+  .shield {
+    position: relative; z-index: 2; width: 108px; height: 108px; margin-bottom: 22px;
+    transform: scale(0.4); opacity: 0;
+  }
+  .secured, .secured-sub { position: relative; z-index: 2; }
+  .shield svg { position: absolute; inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 0 26px rgba(60,230,150,0.55)); }
+  .lock-svg { opacity: 0; }
+  .shield-ring {
+    position: absolute; inset: -18px; border-radius: 50%;
+    border: 2px solid rgba(80,230,150,0.35);
+    opacity: 0;
+  }
+  .secured {
+    font-size: 37px; font-weight: 700; letter-spacing: -0.7px; color: #fff;
+    opacity: 0; transform: translateY(10px);
+  }
+  .secured .score { color: #57e39b; }
+  .secured-sub {
+    margin-top: 16px;
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 9px 18px 9px 14px;
+    border-radius: 999px;
+    background: rgba(45,200,120,0.10);
+    border: 1px solid rgba(70,215,140,0.30);
+    font-size: 16px; font-weight: 600; color: #bff3d5; letter-spacing: -0.1px;
+    opacity: 0; transform: translateY(8px);
+  }
+  .secured-sub .sub-check { width: 20px; height: 20px; color: #57e39b; flex: none; }
+
+  /* wordmark bottom-left brand tag on the final frame */
+  .brandtag {
+    /* anchored to the browser (centered) + fixed offset so the gap is
+       constant regardless of viewport height — browser half-height is 223px */
+    position: absolute; left: 50%; top: calc(50% + 282px);
+    transform: translate(-50%, 0);
+    display: flex; align-items: center; gap: 17px;
+    opacity: 0; z-index: 8;
+  }
+  .brandtag svg { width: 118px; height: auto; display: block; }
+  .brandtag .by { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 23px; color: #fff; font-weight: 400; font-style: italic; }
+
+
+</style>
+</head>
+<body>
+<div class="stage">
+  <canvas id="field"></canvas>
+  <div class="final-bg" id="finalBg"></div>
+  <div class="vignette" id="vignette"></div>
+  <div class="scanlines" id="scanlines"></div>
+  <div class="blue-flood" id="blueFlood"></div>
+
+  <div class="scene">
+    <!-- morphing scan line (button frame -> beam), behind the z-indexed content -->
+    <div class="scan-line" id="scanLine"></div>
+    <!-- PHASE 1: button + cursor -->
+    <div class="btn-wrap" id="btnWrap">
+      <div class="btn-ring" id="btnRing"></div>
+      <div class="scan-btn" id="scanBtn">
+        <span class="scan-btn-label" id="scanLabel">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          Run Security Audit
+        </span>
+      </div>
+    </div>
+    <svg class="cursor" id="cursor" viewBox="0 0 24 24" fill="#fff" stroke="#000" stroke-width="1.4" stroke-linejoin="round">
+      <path d="M5 3l14 8-6 1.4L10 20 5 3z"/>
+    </svg>
+
+    <!-- PHASE 2: HUD -->
+    <div class="hud" id="hud">
+      <div class="hud-label">bolt security agent</div>
+      <div class="hud-title"><span id="hudWord">Scanning</span><span class="dots">...</span></div>
+      <div class="hud-bar"><i id="hudFill"></i></div>
+      <div class="hud-stat" id="hudStat">scanning&nbsp; 0 / 1482 files</div>
+    </div>
+
+    <!-- PHASE 3: browser + lock -->
+    <div class="browser" id="browser">
+      <div class="b-chrome">
+        <div class="b-dots"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></div>
+        <div class="b-url">
+          <svg class="lock-mini" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+          https://your-app.bolt.host
+        </div>
+      </div>
+      <div class="b-body">
+        <img class="b-app" id="bApp" src="nexal-fullpage.webp" alt="app">
+        <div class="b-scrim" id="bScrim"></div>
+        <div class="shield" id="shield">
+          <div class="shield-ring" id="shieldRing"></div>
+          <svg class="shield-svg" id="shieldSvg" viewBox="0 0 120 120" fill="none">
+            <path d="M60 8 L104 24 V58 C104 86 84 104 60 114 C36 104 16 86 16 58 V24 Z"
+                  fill="rgba(20,40,32,0.85)" stroke="#57e39b" stroke-width="3"/>
+            <path d="M42 60 L55 73 L80 46" stroke="#57e39b" stroke-width="6"
+                  stroke-linecap="round" stroke-linejoin="round" fill="none"
+                  id="checkPath" pathLength="1"/>
+          </svg>
+          <svg class="lock-svg" id="lockBig" viewBox="0 0 120 120" fill="none">
+            <path d="M40 56 V44 a20 20 0 0 1 40 0 V56" stroke="#57e39b" stroke-width="7"
+                  stroke-linecap="round" fill="none"/>
+            <rect x="30" y="56" width="60" height="48" rx="9"
+                  fill="rgba(20,40,32,0.9)" stroke="#57e39b" stroke-width="4"/>
+            <circle cx="60" cy="76" r="5.5" fill="#57e39b"/>
+            <rect x="57.4" y="78" width="5.2" height="13" rx="2.6" fill="#57e39b"/>
+          </svg>
+        </div>
+        <div class="secured" id="secured">Secured</div>
+        <div class="secured-sub" id="securedSub"><svg class="sub-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.4l2.4 2.4 4.6-5"/></svg>Your site is secured and ready for publish</div>
+      </div>
+    </div>
+
+    <!-- brand tag -->
+    <div class="brandtag" id="brandtag">
+      <span class="by">Built with</span>
+      <svg viewBox="0 0 85 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M26.1121 20.9491C21.0582 20.9491 18.4869 17.9995 18.4869 14.3126C18.4869 9.9472 21.9744 5.99476 27.0283 5.99476C32.0822 5.99476 34.6535 8.94434 34.6535 12.6313C34.6535 16.9967 31.166 20.9491 26.1121 20.9491ZM26.319 16.2593C28.0923 16.2593 29.2154 14.6665 29.2154 12.8968C29.2154 11.481 28.2992 10.6846 26.8214 10.6846C25.0481 10.6846 23.925 12.2774 23.925 14.0471C23.925 15.4629 24.8412 16.2593 26.319 16.2593Z" fill="#FAF4EB"/>
+        <path d="M40.0368 20.5952H34.717L39.0615 0.921487H44.3814L40.0368 20.5952Z" fill="#FAF4EB"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M10.4272 20.9491C8.80168 20.9491 7.20572 20.3592 6.28951 19.0909L5.96635 20.5867L0 23.75L0.644095 20.5867L4.9891 0.921487H10.309L8.77213 7.853C10.0134 6.49619 11.1661 5.99476 12.6438 5.99476C15.8358 5.99476 17.9637 8.08896 17.9637 11.9234C17.9637 15.8758 15.5107 20.9491 10.4272 20.9491ZM12.4665 13.0443C12.4665 14.873 11.1661 16.2593 9.48145 16.2593C8.53569 16.2593 7.6786 15.9053 7.11705 15.2859L7.94459 11.658C8.56524 11.0385 9.27456 10.6846 10.1021 10.6846C11.373 10.6846 12.4665 11.6285 12.4665 13.0443Z" fill="#FAF4EB"/>
+        <path d="M49.9163 20.9491C46.8426 20.9491 44.6555 19.8283 44.6555 17.3506C44.6555 17.1442 44.6851 16.6427 44.7737 16.2298L45.9264 10.9501H43.562L44.5964 6.34871H46.9608L47.8179 2.45527L53.7735 0L53.1378 2.46127L52.2807 6.34871H55.1771L54.1426 10.9501H51.2462L50.4778 14.4306C50.4187 14.696 50.3892 14.991 50.3892 15.109C50.3892 15.7874 50.8029 16.2593 51.7191 16.2593C51.9851 16.2593 52.3693 16.1708 52.458 16.1118V20.3592C51.8965 20.7427 50.8916 20.9491 49.9163 20.9491Z" fill="#FAF4EB"/>
+        <path d="M56.461 21.0087C55.7527 21.0087 55.1886 20.4196 55.1886 19.7127C55.1886 18.8879 55.897 18.1941 56.7234 18.1941C57.4317 18.1941 57.9958 18.7832 57.9958 19.4901C57.9958 20.3149 57.2875 21.0087 56.461 21.0087Z" fill="#FAF4EB"/>
+        <path d="M65.3576 20.8386H62.9964L63.7309 17.5133C63.7572 17.3955 63.8097 17.186 63.8097 17.0289C63.8097 16.5969 63.4292 16.4398 63.0488 16.4398C62.5372 16.4398 62.183 16.7016 61.9338 16.9242L61.068 20.8386H58.7068L60.1104 14.5153H62.4716L62.3011 15.2354C62.7602 14.8164 63.3374 14.3582 64.295 14.3582C65.6199 14.3582 66.3807 15.0783 66.3807 16.0209C66.3807 16.1256 66.3414 16.4136 66.3151 16.5314L65.3576 20.8386Z" fill="#FAF4EB"/>
+        <path d="M70.256 20.9956C68.2096 20.9956 66.7929 19.9745 66.7929 18.1155C66.7929 16.0994 68.3408 14.3582 70.5577 14.3582C72.1319 14.3582 73.5223 15.3139 73.5223 17.2384C73.5223 17.6704 73.4436 18.1679 73.3781 18.4035H69.1279V18.4166C69.1279 18.5083 69.5083 19.2021 70.4265 19.2021C70.925 19.2021 71.5153 19.0843 71.8039 18.8879L72.5254 20.4196C71.8826 20.8255 71.0169 20.9956 70.256 20.9956ZM69.3509 16.9111H71.4366V16.8718C71.4366 16.6885 71.2136 16.1518 70.4659 16.1518C69.8363 16.1518 69.4296 16.6362 69.3509 16.9111Z" fill="#FAF4EB"/>
+        <path d="M81.7599 20.8386H79.1888L78.9265 17.3038L77.1293 20.8386H74.5582L74.1254 14.5153H76.4866L76.5521 17.9977L78.4411 14.5153H80.5531L80.881 17.9977L82.4945 14.5153H85L81.7599 20.8386Z" fill="#FAF4EB"/>
+      </svg>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* =========================================================================
+   MASTER TIMELINE — single JS clock, looping. All motion driven off `t`.
+   Total loop: 7.6s  (story ~7.2s + brief hold)
+   Phases:
+     0.00–1.30  button appears, cursor arrives, click
+     1.30–1.55  white flash -> TRON
+     1.30–4.60  tron field rushes + code rain + analyzing HUD + check chips
+     4.60–4.85  flash -> resolve
+     4.60–7.20  browser + shield lock + "Secured 98/100" + brand tag
+     7.20–7.60  hold, loop
+   ========================================================================= */
+const DURATION = 15.9;
+const cv = document.getElementById('field');
+const ctx = cv.getContext('2d');
+let W, H, DPR;
+function resize(){
+  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  W = cv.clientWidth; H = cv.clientHeight;
+  cv.width = W * DPR; cv.height = H * DPR;
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+window.addEventListener('resize', resize); resize();
+
+const $ = id => document.getElementById(id);
+const el = {
+  btnWrap:$('btnWrap'), btnRing:$('btnRing'), cursor:$('cursor'), scanLabel:$('scanLabel'), scanBtn:$('scanBtn'),
+  blueFlood:$('blueFlood'), hudWord:$('hudWord'), finalBg:$('finalBg'),
+  vignette:$('vignette'), scanlines:$('scanlines'), scanLine:$('scanLine'),
+  bApp:$('bApp'), bScrim:$('bScrim'), shieldSvg:$('shieldSvg'), lockBig:$('lockBig'),
+  hud:$('hud'), hudFill:$('hudFill'), hudStat:$('hudStat'),
+  browser:$('browser'), shield:$('shield'), shieldRing:$('shieldRing'),
+  checkPath:$('checkPath'), secured:$('secured'), securedSub:$('securedSub'),
+  brandtag:$('brandtag'),
+};
+
+/* ---- helpers ---- */
+const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+const lerp = (a,b,t)=>a+(b-a)*t;
+// eased ramp from 0..1 as x goes a..b
+function ramp(x,a,b,ease){ let t=clamp((x-a)/(b-a),0,1); return ease?ease(t):t; }
+const easeOut = t=>1-Math.pow(1-t,3);
+const easeIn = t=>t*t*t;
+const easeInOut = t=> t<0.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2;
+const easeOutBack = t=>{const c1=1.70158,c3=c1+1;return 1+c3*Math.pow(t-1,3)+c1*Math.pow(t-1,2);};
+
+/* ---- floating check chips (pre-created, positioned around center) ---- */
+// real checks from Bolt's security audit (access scoping, RLS, auth/session,
+// secrets, input constraints, XSS/SQLi, disclosure) — revealed as the scan advances
+const CHIP_TEXTS = [
+  'access · scoped','auth · gated','rls · enforced','secrets · clean',
+  'input · validated','xss · 0','sql-injection · 0','disclosure · closed'
+];
+const chips = CHIP_TEXTS.map((txt,i)=>{
+  const d = document.createElement('div');
+  d.className = 'chip';
+  const [lab, stat] = txt.split(' · ');
+  d.innerHTML = `<svg class="chip-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.4l2.4 2.4 4.6-5"/></svg>`
+    + `<span class="chip-label">${lab}</span><span class="chip-dot">·</span><span class="chip-stat">${stat}</span>`;
+  document.querySelector('.scene').appendChild(d);
+  // spread on a rough ring
+  const ang = (i/CHIP_TEXTS.length)*Math.PI*2 + 0.4;
+  const rx = 500, ry = 250;
+  d._x = Math.cos(ang)*rx;
+  d._y = Math.sin(ang)*ry;
+  // reveal timed to the stages: 2 chips per stage (Scanning/Hardening/Verifying/Testing),
+  // each appearing shortly after that stage's word lands
+  const STAGE_STARTS = [3.45, 5.25, 7.05, 8.85];
+  d._reveal = STAGE_STARTS[Math.floor(i/2)] + (i % 2) * 0.30 + 0.18;
+  return d;
+});
+
+/* =========================== CANVAS: TRON FIELD =========================== */
+// code-rain columns
+const COLS = 28;
+const rainChars = '01<>{}/=+*#$[]();&|!ABCDEF0123456789'.split('');
+let rain = [];
+function initRain(){
+  rain = [];
+  for(let i=0;i<COLS;i++){
+    rain.push({ x:(i+0.5)/COLS, y:Math.random(), spd:0.35+Math.random()*0.5, len:5+((Math.random()*9)|0) });
+  }
+}
+initRain();
+
+function drawField(t){
+  ctx.clearRect(0,0,W,H);
+  const cx=W/2, cy=H/2;
+
+  // tron intensity: fades in as the laser plane powers on, out on resolve
+  const tron = clamp(ramp(t,2.75,3.25,easeOut) - ramp(t,10.75,11.20,easeOut),0,1);
+  // approach rush intensity peaks mid-analysis
+  const rush = ramp(t,1.3,2.2,easeOut) * (1-ramp(t,4.3,4.9));
+
+  if(tron>0.01){
+    const horizonY = cy;
+
+    // ---- soft atmospheric glow behind the title (calm, not techy) ----
+    ctx.save();
+    let ag = ctx.createRadialGradient(cx,cy,0,cx,cy,W*0.52);
+    ag.addColorStop(0,`rgba(28,118,222,${0.13*tron})`);
+    ag.addColorStop(0.55,`rgba(24,100,210,${0.05*tron})`);
+    ag.addColorStop(1,'rgba(20,136,252,0)');
+    ctx.fillStyle=ag; ctx.fillRect(0,0,W,H);
+    ctx.restore();
+
+    // ---- very faint, slow receding lines — just a whisper of depth ----
+    ctx.save();
+    const scroll = (t*0.14) % 1;
+    const lines = 11;
+    for(let m=-1;m<=1;m+=2){
+      for(let i=0;i<lines;i++){
+        let p = (i/lines + scroll) % 1;         // 0 far -> 1 near
+        let ez = Math.pow(p,2.2);
+        let y = horizonY + m*(ez*(H*0.6));
+        let a = (0.015 + p*0.09) * tron;        // barely there, no pulse
+        ctx.strokeStyle = `rgba(120,175,235,${a})`;
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke();
+      }
+    }
+    ctx.restore();
+
+    // NOTE: pass-1 sweep is a DOM element (.scan-line) that morphs out of the button.
+
+    // ---- pass 2: LASER FAN scanning from the top (slower, 3D) ----
+    const fanA = clamp(ramp(t,2.90,3.35,easeOut) - ramp(t,10.60,11.05),0,1);
+    if (fanA > 0.01) {
+      const ox = cx, oy = -30;                     // origin just above top-center
+      const NB = 22, spread = 1.5;                 // 22 beams, ~86° fan
+      // POWER-ON: beams extend out from the origin (length grows 0 -> full), no L-R
+      const reach = (H*1.7) * ramp(t,2.90,3.40,easeOut);
+      for (let i=0;i<NB;i++){
+        const f = i/(NB-1);
+        const ang = Math.PI/2 + (f-0.5)*spread;
+        const ex = ox + Math.cos(ang)*reach, ey = oy + Math.sin(ang)*reach;
+        const g = ctx.createLinearGradient(ox,oy,ex,ey);
+        const a = fanA * (0.06 + 0.15*Math.sin(f*Math.PI));  // brighter mid-fan
+        g.addColorStop(0,   `rgba(150,205,255,${a*1.35})`);
+        g.addColorStop(0.55,`rgba(45,150,255,${a})`);
+        g.addColorStop(1,   'rgba(18,118,230,0)');
+        ctx.strokeStyle = g; ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(ex,ey); ctx.stroke();
+      }
+      // origin bloom
+      let og = ctx.createRadialGradient(ox,oy+16,0,ox,oy+16,150);
+      og.addColorStop(0,`rgba(150,210,255,${0.22*fanA})`);
+      og.addColorStop(1,'rgba(40,140,250,0)');
+      ctx.fillStyle=og; ctx.beginPath(); ctx.arc(ox,oy+16,150,0,7); ctx.fill();
+      // a bright scan front travels straight DOWN the plane (vertical only, no L-R)
+      const fy = lerp(-30, H+60, ((t-3.45)/2.1) % 1);  // continuous downward scan passes
+      let sg = ctx.createLinearGradient(0,fy-55,0,fy+55);
+      sg.addColorStop(0,'rgba(120,200,255,0)');
+      sg.addColorStop(0.5,`rgba(150,210,255,${0.20*fanA})`);
+      sg.addColorStop(1,'rgba(120,200,255,0)');
+      ctx.fillStyle=sg; ctx.fillRect(0,fy-55,W,110);
+      ctx.fillStyle=`rgba(190,228,255,${0.30*fanA})`;
+      ctx.fillRect(0,fy-1.5,W,3);
+    }
+  }
+
+}
+
+/* =========================== DOM PHASE DRIVER =========================== */
+function setT(el, tx, ty, s, o, extra=''){
+  el.style.opacity = o;
+  el.style.transform = `translate(${tx}px,${ty}px)${s!=null?` scale(${s})`:''}${extra}`;
+}
+
+function drive(t){
+  /* ---------- PHASE 1: button + cursor + ZOOM-THROUGH ---------- */
+  const btnIn = ramp(t,0.12,0.72,easeOut);         // smooth ease-in, no overshoot
+  // click: FULL depress then reinflate with a little pop, then hold (~0.35s) so the
+  // click clearly registers before the transition.
+  let btnPress = 1;
+  if (t >= 1.12 && t < 1.46) {
+    btnPress = (t < 1.24)
+      ? lerp(1, 0.88, ramp(t,1.12,1.24,easeOut))        // depress
+      : lerp(0.88, 1, ramp(t,1.24,1.46,easeOutBack));   // reinflate with a pop
+  }
+  // The button COLLAPSES vertically into a thin bar (no outline/box ever shown),
+  // then the scan line takes over from that bar — so we never see a border around it.
+  const collapseY = lerp(1, 0.055, ramp(t,1.77,2.10,easeInOut));   // flatten to a thin bar
+  el.scanBtn.style.transform = `scaleY(${collapseY})`;
+  const btnFade = ramp(t,2.02,2.18,easeInOut);                     // fade the flattened bar out
+  el.btnWrap.style.opacity = clamp(btnIn - btnFade,0,1);
+  el.btnWrap.style.transform = `translate(-50%,-50%) scale(${lerp(0.9,1,btnIn)*btnPress})`;
+  el.scanLabel.style.opacity = clamp(btnIn - ramp(t,1.73,1.91),0,1);  // label fades as it collapses
+  el.blueFlood.style.opacity = 0;
+  el.btnRing.style.opacity = 0;
+
+  // --- scan line: takes over from the COLLAPSED button bar — thin from the start
+  //     (never a box/border), extends to full width, then scans down (pass 1) ---
+  const lineIn = ramp(t,2.02,2.12,easeOut);             // appears only once the button has collapsed
+  const expand = ramp(t,2.12,2.60,easeInOut);           // width extends to full
+  const lw = lerp(540, W + 140, expand);
+  const lh = 6;                                         // already a thin line — no box
+  const fillA = ramp(t,2.02,2.27);
+  const glowA = ramp(t,2.05,2.35);
+  // pass 1: brief hold at center, then scan straight down and off the bottom
+  const p1 = ramp(t,2.67,3.21,easeIn);
+  const sweepY = lerp(0, H*0.5+90, p1);
+  const lineFade = ramp(t,3.11,3.37);                   // hands off to the laser fan (pass 2)
+  el.scanLine.style.width = lw+'px';
+  el.scanLine.style.height = lh+'px';
+  el.scanLine.style.borderRadius = '1px';
+  el.scanLine.style.borderColor = 'rgba(0,0,0,0)';      // no border, ever
+  el.scanLine.style.background = `linear-gradient(90deg, rgba(28,147,255,0) 0%, rgba(28,147,255,${0.9*fillA}) 22%, rgba(18,118,230,${0.95*fillA}) 78%, rgba(18,118,230,0) 100%)`;
+  el.scanLine.style.boxShadow = `0 0 ${lerp(0,34,glowA)}px rgba(40,140,250,${0.5*glowA})`;
+  el.scanLine.style.transform = `translate(-50%, calc(-50% + ${sweepY}px))`;
+  el.scanLine.style.opacity = clamp(lineIn - lineFade, 0, 1);
+  // cursor: fly in, land, tap, then vanish as the zoom kicks off
+  const curIn = ramp(t,0.25,0.5);
+  const curMove = ramp(t,0.4,1.12,easeInOut);
+  const tap = (t>1.12 && t<1.26) ? 6 : 0;              // presses with the button, then eases up
+  el.cursor.style.opacity = clamp(curIn - ramp(t,1.66,1.86),0,1);  // lingers through the hold, then leaves
+  el.cursor.style.transform = `translate(${lerp(120,14,curMove)}px,${lerp(120,20,curMove)+tap}px)`;
+
+  /* ---------- PHASE 2: HUD — clean crossfade in, gentle settle, cycling words ---------- */
+  const hudIn = ramp(t,3.45,3.85,easeOut);         // fades in AFTER the laser plane powers on
+  const hudSettle = ramp(t,3.40,4.40,easeOut);     // subtle settle, not a big zoom
+  const hudOut = ramp(t,10.65,11.00);
+  el.hud.style.opacity = clamp(hudIn - hudOut,0,1);
+  el.hud.style.transform = `translate(-50%,-50%) scale(${lerp(1.07,1,hudSettle)*lerp(1,1.06,hudOut)})`;
+  // stage words: Scanning -> Hardening -> Verifying -> Testing — 1.8s each (feels like real work)
+  const stages = [[3.45,'Scanning'],[5.25,'Hardening'],[7.05,'Verifying'],[8.85,'Testing']];
+  let si = 0; for(let i=0;i<stages.length;i++){ if(t>=stages[i][0]) si=i; }
+  el.hudWord.textContent = stages[si][1];
+  el.hudWord.style.opacity = lerp(0.25,1, ramp(t, stages[si][0], stages[si][0]+0.15, easeOut));
+  // progress bar + file counter — climbs gradually over the longer scan
+  const scan = ramp(t,3.45,10.55,easeInOut);
+  el.hudFill.style.width = (scan*100)+'%';
+  const files = Math.round(scan*1482);
+  el.hudStat.textContent = `Deep scanning  ${files.toLocaleString()} / 1,482 files`;
+
+  // check chips popping in around HUD then flying off on resolve
+  chips.forEach(d=>{
+    const cin = ramp(t, d._reveal, d._reveal + 0.42, easeOut);
+    const cout = ramp(t,10.65,11.10,easeInOut);   // on resolve
+    const x = d._x * lerp(0.82,1,cin);        // settle in place, no outward drift
+    const y = d._y * lerp(0.82,1,cin);
+    d.style.left = `calc(50% + ${x}px)`;
+    d.style.top  = `calc(50% + ${y}px)`;
+    // scale up on entry, then fade + scale down when the scan finishes
+    const scale = lerp(0.8,1,cin) * lerp(1,0.65,cout);
+    d.style.transform = `translate(-50%,-50%) scale(${scale})`;
+    d.style.opacity = clamp(cin - cout,0,1);
+  });
+
+  /* ---------- PHASE 3: browser + lock (on bolt.new blue bg) ---------- */
+  // fade the bolt.new blue gradient in behind the browser on the final page,
+  // and drop the vignette + scanlines so the blue reads clean (no radial halo)
+  const finalBgOp = clamp(ramp(t,10.85,11.55,easeOut) - ramp(t,15.30,15.70),0,1);
+  el.finalBg.style.opacity = finalBgOp;
+  el.vignette.style.opacity = 1 - finalBgOp;
+  el.scanlines.style.opacity = (1 - finalBgOp) * 0.35;
+  const brIn = ramp(t,10.95,11.45,easeOut);
+  const brOut = ramp(t,15.30,15.70);
+  el.browser.style.opacity = clamp(brIn - brOut,0,1);
+  // browser pops in on resolve, then FREEZES (no enlarge, no scroll)
+  const brResolve = lerp(0.86,1,easeOutBack(clamp(ramp(t,10.95,11.55),0,1)));
+  el.browser.style.transform = `translate(-50%,-50%) scale(${brResolve})`;
+
+  // shield pops in + check draws, then MORPHS into a lock
+  const shIn = ramp(t,11.25,11.70,easeOutBack);
+  el.shield.style.opacity = clamp(shIn,0,1);
+  el.shield.style.transform = `scale(${lerp(0.4,1,shIn)})`;
+  const ring = ramp(t,11.40,12.00,easeOut);
+  el.shieldRing.style.opacity = (t>11.40&&t<12.00)?(1-ring):0;
+  el.shieldRing.style.transform = `scale(${lerp(0.7,1.35,ring)})`;
+  const chk = ramp(t,11.55,12.05,easeOut);
+  el.checkPath.style.strokeDasharray = '1';
+  el.checkPath.style.strokeDashoffset = (1-chk);
+  // crossfade morph: shield+check -> lock
+  const morph = ramp(t,12.35,12.90,easeInOut);
+  el.shieldSvg.style.opacity = 1 - morph;
+  el.shieldSvg.style.transform = `scale(${lerp(1,0.82,morph)})`;
+  el.lockBig.style.opacity = morph;
+  el.lockBig.style.transform = `scale(${lerp(1.18,1,morph)})`;
+
+  const secIn = ramp(t,11.80,12.20,easeOut);
+  el.secured.style.opacity = secIn;
+  el.secured.style.transform = `translateY(${lerp(10,0,secIn)}px)`;
+  const subIn = ramp(t,12.05,12.45,easeOut);
+  el.securedSub.style.opacity = subIn;
+  el.securedSub.style.transform = `translateY(${lerp(8,0,subIn)}px)`;
+
+  // brand tag (Built with bolt.new)
+  const bt = clamp(ramp(t,12.45,12.85,easeOut) - brOut,0,1);
+  el.brandtag.style.opacity = bt;
+  el.brandtag.style.transform = `translate(-50%, ${lerp(10,0,bt)}px)`;
+}
+
+/* =========================== LOOP =========================== */
+let start = null;
+function frame(ts){
+  if(start==null) start=ts;
+  if(window.__freeze!=null){ drawField(window.__freeze); drive(window.__freeze); requestAnimationFrame(frame); return; }
+  let t = ((ts-start)/1000) % DURATION;
+  drawField(t);
+  drive(t);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+// debug seek: window.__freeze = <seconds>  (null to resume)
+window.__seek = s => { window.__freeze = s; };
+</script>
+</body>
+</html>

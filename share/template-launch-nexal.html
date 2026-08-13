@@ -1,0 +1,261 @@
+<meta charset="utf-8">
+<title>Template Launch — Motion Promo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  @font-face { font-family:'Inter'; font-weight:700; font-style:normal; font-display:swap; src:url('inter-700.woff2') format('woff2'); }
+  @font-face { font-family:'Inter'; font-weight:800; font-style:normal; font-display:swap; src:url('inter-800.woff2') format('woff2'); }
+  :root { --grey:#6d7079; --lav:#96829f; --char:#332f38; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { height:100%; background:#0b0b0d; overflow:hidden; }
+  body { display:flex; align-items:center; justify-content:center;
+         font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; }
+
+  /* 1280x720 stage, scaled to fit the window */
+  #stage {
+    position:relative; width:1280px; height:720px;
+    background:#08183a; overflow:hidden;
+    transform-origin:center center;
+  }
+
+  /* ---- bolt.new background (real asset) with a slow Ken Burns drift ---- */
+  #bg { position:absolute; inset:0; z-index:0; overflow:hidden; background:#0a1a3a; }
+  #bg img { position:absolute; inset:0; width:100%; height:100%;
+            object-fit:cover; object-position:70% 28%; will-change:transform; }
+
+  /* ---- collage tiles ---- */
+  .tile {
+    position:absolute; left:0; top:0; width:46px; height:60px;
+    overflow:hidden; will-change:transform,width,height;
+    background:#222; box-shadow:0 6px 22px rgba(0,0,0,.28);
+  }
+  .tile img { width:100%; height:100%; object-fit:cover; object-position:top center; display:block; }
+
+  /* ---- centre title ---- */
+  .title {
+    position:absolute; left:50%; top:0; z-index:6;
+    text-align:center; color:#f2f1f4; text-transform:uppercase;
+    font-family:'Inter', 'Helvetica Neue', Arial, sans-serif;
+    font-weight:800; font-size:44px; line-height:.92; letter-spacing:-.03em;
+    text-shadow:0 2px 26px rgba(0,0,0,.30);
+    white-space:nowrap;
+  }
+  /* all three title lines share the same size (44px, from .title) */
+
+  /* ---- fixed labels ---- */
+  .lbl {
+    position:absolute; z-index:8; font-family:"SFMono-Regular",Menlo,Consolas,monospace;
+    font-size:10px; letter-spacing:3px; text-transform:uppercase;
+    color:rgba(255,255,255,.6); white-space:nowrap;
+  }
+  #lblTop { top:26px; left:50%; transform:translateX(-50%); }
+  #lblBot { bottom:26px; left:50%; transform:translateX(-50%); }
+
+  /* ---- black intro reveal overlay ---- */
+  #intro-cover { position:absolute; inset:0; z-index:22; background:#0a0a0b; }
+
+  /* ---- dashed container frame (SVG-traced) ---- */
+  #endcard { position:absolute; inset:0; z-index:25; opacity:0; pointer-events:none; }
+  #frame-svg { position:absolute; inset:0; width:100%; height:100%; }
+  #frame-svg .frame-dash { stroke:rgba(255,255,255,.5); stroke-width:1; fill:none; stroke-dasharray:4 5; }
+  #endcard .nub { position:absolute; width:6px; height:6px; border-radius:50%;
+                  background:rgba(255,255,255,.55); transform:translate(-50%,-50%); }
+  #endcard .lbl { color:rgba(255,255,255,.62); }
+  #ecTL { top:26px; left:40px; }
+  #ecTR { top:26px; right:40px; }
+  #ecBL { bottom:26px; left:40px; }
+  #ecBR { bottom:26px; right:40px; }
+</style>
+
+<div id="stage">
+  <div id="bg"><img src="bolt-bg.webp" alt=""></div>
+
+  <!-- tiles injected by JS, before title so title stacks above -->
+  <div class="title title-top" id="tTop"><span class="l1">Bolt</span><br><span class="l2">Templates</span></div>
+  <div class="title title-bot" id="tBot"></div>
+
+  <div id="intro-cover"></div>
+
+  <div id="endcard">
+    <svg id="frame-svg" viewBox="0 0 1280 720" preserveAspectRatio="none" fill="none">
+      <rect class="frame-dash" x="26.5" y="26.5" width="1227" height="667" mask="url(#frameMask)"></rect>
+      <defs>
+        <mask id="frameMask">
+          <rect x="26.5" y="26.5" width="1227" height="667" fill="none" stroke="#fff" stroke-width="8"
+                pathLength="1000" stroke-dasharray="1000" stroke-dashoffset="1000" id="frameMaskStroke"></rect>
+        </mask>
+      </defs>
+    </svg>
+    <div class="nub" style="left:26px;top:26px"></div>
+    <div class="nub" style="left:50%;top:26px"></div>
+    <div class="nub" style="right:26px;top:26px;left:auto"></div>
+    <div class="nub" style="left:26px;top:50%"></div>
+    <div class="nub" style="right:26px;top:50%;left:auto"></div>
+    <div class="nub" style="left:26px;bottom:26px;top:auto"></div>
+    <div class="nub" style="left:50%;bottom:26px;top:auto"></div>
+    <div class="nub" style="right:26px;bottom:26px;top:auto;left:auto"></div>
+  </div>
+</div>
+
+<script src="gsap.min.js"></script>
+<script>
+const IMG = "../marketing/templates/images/";
+// tile array — index 6 is the gradient. strip order = array order.
+// The 10 launch templates (uniform 4:5 cards). Order = ring/strip order.
+// The `hero` tile opens full-bleed and scales down into its card (middle of strip).
+const TILES = [
+  { img:"vestige-fashion.webp" },            // Vestige
+  { img:"architect-portfolio.webp" },        // Hald Atelier
+  { img:"maison-voyage.webp" },              // Maison Voyage
+  { img:"gridline-journal.webp" },           // Gridline
+  { img:"meridian-journal.webp" },           // Meridian
+  { img:"nexal-hero.webp", hero:true },      // Nexal — opening full-screen hero (hi-res, scrolls)
+  { img:"ledger-finance.webp" },             // Ledger finance
+  { img:"townhall-events.webp" },            // Townhall
+  { img:"forkful-recipe.webp" },             // Forkful
+  { img:"noir-agency.webp" },                // Noir
+];
+
+const stage = document.getElementById('stage');
+const tTop = document.getElementById('tTop');
+const tBot = document.getElementById('tBot');
+
+const N = TILES.length;                 // 10 tiles
+// uniform tile size — 4:5 (matches /marketing/templates catalog cards)
+const TW = 134, TH = 168;
+// strip thumbnails (also 4:5)
+const SW = 62, SH = 78, GAP = 8, STEP = SW + GAP;
+const stripW = N * STEP - GAP;
+const stripX0 = 640 - stripW / 2;
+const stripY = 360 - SH / 2;
+
+// ring geometry (even wreath around the centre text)
+const CX = 640, CY = 360, RX = 274, RY = 234;
+function ringAngle(i) { return -90 + i * (360 / N); }              // degrees, start at top
+function ringCenter(i, rot) {
+  const a = (ringAngle(i) + (rot || 0)) * Math.PI / 180;
+  return { x: CX + RX * Math.cos(a), y: CY + RY * Math.sin(a) };
+}
+
+const els = TILES.map((t, i) => {
+  const el = document.createElement('div');
+  el.className = 'tile';
+  const im = document.createElement('img');
+  im.src = IMG + t.img; im.alt = ''; el.appendChild(im);
+  stage.insertBefore(el, tTop);
+  t.stripCX = stripX0 + i * STEP + SW / 2;   // strip centre x
+  return el;
+});
+
+function stripProps(t) { return { x:t.stripCX - SW/2, y:stripY, width:SW, height:SH }; }
+
+// the hero tile opens full-bleed and scales down into its card
+const HERO_I = TILES.findIndex(t => t.hero);
+const hero = els[HERO_I];
+hero.style.zIndex = 20;
+
+// (hero liveliness now comes from the page scroll, not a zoom)
+
+// ---------- slow Ken Burns drift on the bolt.new background (independent) ----------
+gsap.fromTo('#bg img', { scale:1.0 },
+  { scale:1.07, duration:24, ease:"sine.inOut", yoyo:true, repeat:-1, transformOrigin:"75% 25%" });
+
+// ---------- master timeline ----------
+const all = els.map((el, i) => ({ el, t: TILES[i] }));
+const qNoHero = els.filter((_, i) => i !== HERO_I);   // the 9 non-hero cards
+
+// per-tile bezier path: strip centre <-> ring slot (at ring rotation `rotDeg`),
+// bowed outward from centre. Returns fn(t): t=0 strip, t=1 ring.
+function makePath(i, rotDeg) {
+  const s = { x: all[i].t.stripCX, y: 360 };
+  const e = ringCenter(i, rotDeg);
+  const mx = (s.x + e.x) / 2, my = (s.y + e.y) / 2;
+  let dx = mx - CX, dy = my - CY; const dl = Math.hypot(dx, dy) || 1; dx /= dl; dy /= dl;
+  const BOW = 120;                       // how far the arc bows outward
+  const c = { x: mx + dx * BOW, y: my + dy * BOW };
+  return function (t) {
+    const mt = 1 - t;
+    const x = mt*mt*s.x + 2*mt*t*c.x + t*t*e.x;
+    const y = mt*mt*s.y + 2*mt*t*c.y + t*t*e.y;
+    const w = SW + (TW - SW) * t, h = SH + (TH - SH) * t;
+    gsap.set(all[i].el, { x: x - w/2, y: y - h/2, width: w, height: h });
+  };
+}
+const paths = all.map((p, i) => makePath(i, 0));
+const spin = { rot: 0 };     // ring rotation (deg)
+let heroUp = false;          // true while the architect is scaled up out of the ring
+// place every card on the ring at rotation `rot` — skips the architect while it's detached
+function placeRing(rot) {
+  all.forEach((p, i) => {
+    if (heroUp && i === HERO_I) return;
+    const c = ringCenter(i, rot);
+    gsap.set(p.el, { x: c.x - TW/2, y: c.y - TH/2, width: TW, height: TH });
+  });
+}
+
+function resetState() {
+  // the loop opens (and closes) on the RING — all 10 cards on the ring, BOLT TEMPLATES centred
+  spin.rot = 0; heroUp = false;
+  placeRing(0);
+  els.forEach((el) => gsap.set(el, { opacity:1 }));
+  gsap.set(hero, { zIndex:1, clipPath:"none" });
+  gsap.set(hero.querySelector('img'), { objectPosition:"50% 0%", scale:1 });
+  gsap.set([tTop], { xPercent:-50, yPercent:-50, y:360, opacity:1 });   // BOLT / TEMPLATES
+  gsap.set([tBot], { xPercent:-50, yPercent:-50, y:400, opacity:1 });
+  // dashed container frame is UNDRAWN at the ring (traces on when the template scales up)
+  gsap.set('#intro-cover', { opacity:0 });
+  gsap.set('#frameMaskStroke', { strokeDashoffset:1000 });
+  gsap.set('#endcard', { opacity:1 });
+  gsap.set('.nub, #endcard .lbl', { opacity:0 });
+}
+
+const tl = gsap.timeline({ repeat:-1, defaults:{ ease:"power3.inOut" } });
+tl.timeScale(1.1);   // whole thing plays ~10% faster
+tl.call(resetState);
+
+// continuous slow spin over the whole loop — one full revolution so it loops seamlessly
+tl.to(spin, { rot: 360, duration: 12.0, ease: "none",
+              onUpdate: () => placeRing(spin.rot) }, 0);
+
+// (t≈2.2) ZOOM INTO THE ARCHITECT: its ring card scales UP to full-bleed (TOP of page)
+tl.call(() => { heroUp = true; gsap.set(hero, { zIndex:20 }); }, null, 2.2);
+{ const o = { t:0 };
+  tl.to(o, { t:1, duration:1.3, ease:"power3.inOut", onUpdate:()=>{
+    const c = ringCenter(HERO_I, spin.rot), tt = o.t;
+    gsap.set(hero, { x:(c.x-TW/2)*(1-tt), y:(c.y-TH/2)*(1-tt),
+                     width:TW+(1280-TW)*tt, height:TH+(720-TH)*tt }); }}, 2.2); }
+tl.to(qNoHero, { opacity:0, duration:.5 }, 2.5);
+tl.to([tTop,tBot], { opacity:0, duration:.5 }, 2.5);
+// dashed container TRACES around as the template scales up
+tl.to('#frameMaskStroke', { strokeDashoffset:0, duration:1.5, ease:"power1.inOut" }, 2.2);
+tl.to('.nub, #endcard .lbl', { opacity:1, duration:0.5 }, 3.0);
+
+// SCROLL the landing page top → bottom in ONE continuous move (constant speed, no stop)
+{ const hi = hero.querySelector('img'), sc = { p:0 };
+  tl.to(sc, { p:100, duration:7.2, ease:"none",
+              onUpdate:()=> hi.style.objectPosition = "50% "+sc.p+"%" }, 3.5); }
+
+// at ~3/4 of the scroll the template BEGINS scaling down into its (moving) ring slot —
+// the scroll keeps going (no stall); other cards + title fade in — ring re-forms
+{ const o = { t:0 };
+  tl.to(o, { t:1, duration:1.8, ease:"power3.inOut", onUpdate:()=>{
+    const c = ringCenter(HERO_I, spin.rot), tt = o.t;
+    gsap.set(hero, { x:(c.x-TW/2)*tt, y:(c.y-TH/2)*tt,
+                     width:1280+(TW-1280)*tt, height:720+(TH-720)*tt }); }}, 8.9); }
+tl.to(qNoHero, { opacity:1, duration:.5 }, 9.7);
+tl.to([tTop,tBot], { opacity:1, duration:.5 }, 9.7);
+// dashed container UN-TRACES as the template scales back into the ring
+tl.to('#frameMaskStroke', { strokeDashoffset:1000, duration:1.5, ease:"power1.inOut" }, 8.9);
+tl.to('.nub, #endcard .lbl', { opacity:0, duration:0.5 }, 8.9);
+tl.call(() => { heroUp = false; gsap.set(hero, { zIndex:1 }); }, null, 10.7);
+// ring holds/spins to t=11 → seamless loop back to the ring
+
+// ---------- fit to window ----------
+function fit() {
+  const s = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+  stage.style.transform = "scale(" + s + ")";
+}
+window.addEventListener('resize', fit); fit();
+
+// expose for verification seeking
+window.__tl = tl;
+</script>

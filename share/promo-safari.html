@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>bolt.new — Now on Safari</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    background: #000;
+    overflow: hidden;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  /* ---- Stage: 1280x720 (16:9) so a screen-recording crop is clean ---- */
+  .stage {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+      radial-gradient(1200px 800px at 50% 42%, rgba(20,136,252,0.10), transparent 60%),
+      #000;
+  }
+
+  /* faint pixel grid */
+  .grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: radial-gradient(closest-side at 50% 45%, #000 40%, transparent 78%);
+    -webkit-mask-image: radial-gradient(closest-side at 50% 45%, #000 40%, transparent 78%);
+    animation: gridFade 8s linear infinite;
+  }
+  @keyframes gridFade {
+    0%, 100% { opacity: 0; }
+    16%, 82% { opacity: 1; }
+  }
+
+  .scene {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    z-index: 2;
+    transform: translateY(-40px);
+  }
+
+  /* ---------- Compass ---------- */
+  .compass {
+    width: 128px; height: 128px;
+    margin-bottom: 52px;
+    filter: drop-shadow(0 12px 40px rgba(20,136,252,0.35));
+    animation: compassIn 8s cubic-bezier(.2,.8,.2,1) infinite;
+  }
+  @keyframes compassIn {
+    0%      { opacity: 0; transform: scale(.4) rotate(-140deg); }
+    8%      { opacity: 0; transform: scale(.4) rotate(-140deg); }
+    27%     { opacity: 1; transform: scale(1)  rotate(0deg); }
+    80%     { opacity: 1; transform: scale(1)  rotate(0deg); }
+    90%,100%{ opacity: 0; transform: scale(.9) rotate(20deg); }
+  }
+  /* needle keeps a subtle live wobble once settled */
+  .needle {
+    transform-origin: 64px 64px;
+    animation: needleSpin 8s cubic-bezier(.2,.8,.2,1) infinite;
+  }
+  @keyframes needleSpin {
+    0%,8%   { transform: rotate(-320deg); }
+    27%     { transform: rotate(-8deg); }
+    36%     { transform: rotate(6deg); }
+    50%     { transform: rotate(-2deg); }
+    80%,100%{ transform: rotate(0deg); }
+  }
+  /* spark flash behind the wordmark handoff */
+  .spark {
+    position: absolute;
+    top: 64px; left: 50%;
+    width: 260px; height: 260px;
+    transform: translate(-50%,-50%);
+    background: radial-gradient(circle, rgba(20,136,252,0.55), transparent 62%);
+    opacity: 0;
+    animation: sparkFlash 8s ease-out infinite;
+    pointer-events: none;
+  }
+  @keyframes sparkFlash {
+    0%,22%   { opacity: 0; transform: translate(-50%,-50%) scale(.6); }
+    27%      { opacity: 1; transform: translate(-50%,-50%) scale(1.15); }
+    37%      { opacity: 0; transform: translate(-50%,-50%) scale(1.4); }
+    100%     { opacity: 0; }
+  }
+
+  /* ---------- Wordmark ---------- */
+  .wordmark {
+    width: 150px;
+    margin-bottom: 22px;
+    opacity: 0;
+    animation: fadeUp 8s ease-out infinite;
+  }
+  .wordmark svg { width: 100%; height: auto; display: block; }
+  @keyframes fadeUp {
+    0%,27%   { opacity: 0; transform: translateY(12px); }
+    40%      { opacity: 1; transform: translateY(0); }
+    81%      { opacity: 1; transform: translateY(0); }
+    91%,100% { opacity: 0; transform: translateY(-8px); }
+  }
+
+  /* ---------- Headline ---------- */
+  .headline {
+    font-size: 60px;
+    font-weight: 600;
+    letter-spacing: -1.5px;
+    line-height: 1.05;
+    color: #fff;
+    margin-bottom: 16px;
+  }
+  .headline .w {
+    display: inline-block;
+    opacity: 0;
+    filter: blur(10px);
+    transform: translateY(14px);
+  }
+  .headline .safari {
+    background: linear-gradient(90deg, #1488FC, #6db6ff);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .headline .w:nth-child(1){ animation: wordIn 8s ease-out infinite; }
+  .headline .w:nth-child(2){ animation: wordIn 8s ease-out infinite; animation-delay: .12s; }
+  .headline .w:nth-child(3){ animation: wordIn 8s ease-out infinite; animation-delay: .24s; }
+  @keyframes wordIn {
+    0%,40%   { opacity: 0; filter: blur(10px); transform: translateY(14px); }
+    53%      { opacity: 1; filter: blur(0);   transform: translateY(0); }
+    81%      { opacity: 1; filter: blur(0);   transform: translateY(0); }
+    91%,100% { opacity: 0; filter: blur(6px); transform: translateY(-8px); }
+  }
+
+  /* ---------- Subline ---------- */
+  .subline {
+    font-size: 19px;
+    font-weight: 400;
+    color: #ABABAB;
+    max-width: 520px;
+    line-height: 1.5;
+    margin-bottom: 0;
+    opacity: 0;
+    animation: subIn 8s ease-out infinite;
+  }
+  @keyframes subIn {
+    0%,52%   { opacity: 0; transform: translateY(10px); }
+    64%      { opacity: 1; transform: translateY(0); }
+    81%      { opacity: 1; transform: translateY(0); }
+    91%,100% { opacity: 0; transform: translateY(-6px); }
+  }
+
+  /* ---------- CTA ---------- */
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    height: 52px;
+    padding: 0 30px;
+    background: #1488FC;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 6px;
+    box-shadow: 0 10px 34px rgba(20,136,252,0.45);
+    opacity: 0;
+    animation: ctaIn 8s cubic-bezier(.2,.9,.2,1) infinite;
+  }
+  .cta svg { width: 16px; height: 16px; }
+  @keyframes ctaIn {
+    0%,54%   { opacity: 0; transform: translateY(12px) scale(.94); }
+    62%      { opacity: 1; transform: translateY(0) scale(1.04); }
+    66%      { transform: translateY(0) scale(1); }
+    88%      { opacity: 1; transform: translateY(0) scale(1); }
+    96%,100% { opacity: 0; transform: translateY(-6px) scale(.98); }
+  }
+
+  /* progress hairline at the bottom — reads as a "video" affordance */
+  .progress {
+    position: absolute;
+    left: 0; bottom: 0; height: 3px;
+    background: linear-gradient(90deg, #1488FC, #6db6ff);
+    animation: prog 8s linear infinite;
+    z-index: 5;
+  }
+  @keyframes prog { 0%{ width: 0; } 100%{ width: 100%; } }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="grid"></div>
+  <div class="scene">
+    <div style="position:relative;">
+      <div class="spark"></div>
+      <!-- Safari-style compass -->
+      <svg class="compass" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="ring" x1="0" y1="0" x2="0" y2="128" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#2a2c33"/>
+            <stop offset="1" stop-color="#0c0d10"/>
+          </linearGradient>
+          <linearGradient id="needleN" x1="64" y1="30" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#ff5b52"/>
+            <stop offset="1" stop-color="#c0392b"/>
+          </linearGradient>
+        </defs>
+        <!-- outer ring -->
+        <circle cx="64" cy="64" r="60" fill="url(#ring)" stroke="#3a3d45" stroke-width="2"/>
+        <circle cx="64" cy="64" r="52" fill="#0a0b0e" stroke="rgba(20,136,252,0.25)" stroke-width="1"/>
+        <!-- tick marks -->
+        <g stroke="rgba(255,255,255,0.35)" stroke-width="1.5" stroke-linecap="round">
+          <line x1="64" y1="14" x2="64" y2="22"/>
+          <line x1="64" y1="106" x2="64" y2="114"/>
+          <line x1="14" y1="64" x2="22" y2="64"/>
+          <line x1="106" y1="64" x2="114" y2="64"/>
+        </g>
+        <g stroke="rgba(255,255,255,0.14)" stroke-width="1" stroke-linecap="round">
+          <line x1="93.5" y1="27" x2="88" y2="33"/>
+          <line x1="34.5" y1="27" x2="40" y2="33"/>
+          <line x1="93.5" y1="101" x2="88" y2="95"/>
+          <line x1="34.5" y1="101" x2="40" y2="95"/>
+        </g>
+        <!-- needle -->
+        <g class="needle">
+          <path d="M64 30 L74 66 L64 60 Z" fill="url(#needleN)"/>
+          <path d="M64 98 L54 62 L64 68 Z" fill="#e9edf5"/>
+          <path d="M64 30 L54 66 L64 60 Z" fill="#ff8079"/>
+          <path d="M64 98 L74 62 L64 68 Z" fill="#c7ccd6"/>
+        </g>
+        <circle cx="64" cy="64" r="5" fill="#14151a" stroke="#1488FC" stroke-width="2"/>
+      </svg>
+    </div>
+
+    <!-- bolt wordmark -->
+    <div class="wordmark">
+      <svg viewBox="0 0 85 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M26.1121 20.9491C21.0582 20.9491 18.4869 17.9995 18.4869 14.3126C18.4869 9.9472 21.9744 5.99476 27.0283 5.99476C32.0822 5.99476 34.6535 8.94434 34.6535 12.6313C34.6535 16.9967 31.166 20.9491 26.1121 20.9491ZM26.319 16.2593C28.0923 16.2593 29.2154 14.6665 29.2154 12.8968C29.2154 11.481 28.2992 10.6846 26.8214 10.6846C25.0481 10.6846 23.925 12.2774 23.925 14.0471C23.925 15.4629 24.8412 16.2593 26.319 16.2593Z" fill="#FAF4EB"/>
+        <path d="M40.0368 20.5952H34.717L39.0615 0.921487H44.3814L40.0368 20.5952Z" fill="#FAF4EB"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M10.4272 20.9491C8.80168 20.9491 7.20572 20.3592 6.28951 19.0909L5.96635 20.5867L0 23.75L0.644095 20.5867L4.9891 0.921487H10.309L8.77213 7.853C10.0134 6.49619 11.1661 5.99476 12.6438 5.99476C15.8358 5.99476 17.9637 8.08896 17.9637 11.9234C17.9637 15.8758 15.5107 20.9491 10.4272 20.9491ZM12.4665 13.0443C12.4665 14.873 11.1661 16.2593 9.48145 16.2593C8.53569 16.2593 7.6786 15.9053 7.11705 15.2859L7.94459 11.658C8.56524 11.0385 9.27456 10.6846 10.1021 10.6846C11.373 10.6846 12.4665 11.6285 12.4665 13.0443Z" fill="#FAF4EB"/>
+        <path d="M49.9163 20.9491C46.8426 20.9491 44.6555 19.8283 44.6555 17.3506C44.6555 17.1442 44.6851 16.6427 44.7737 16.2298L45.9264 10.9501H43.562L44.5964 6.34871H46.9608L47.8179 2.45527L53.7735 0L53.1378 2.46127L52.2807 6.34871H55.1771L54.1426 10.9501H51.2462L50.4778 14.4306C50.4187 14.696 50.3892 14.991 50.3892 15.109C50.3892 15.7874 50.8029 16.2593 51.7191 16.2593C51.9851 16.2593 52.3693 16.1708 52.458 16.1118V20.3592C51.8965 20.7427 50.8916 20.9491 49.9163 20.9491Z" fill="#FAF4EB"/>
+        <path d="M56.461 21.0087C55.7527 21.0087 55.1886 20.4196 55.1886 19.7127C55.1886 18.8879 55.897 18.1941 56.7234 18.1941C57.4317 18.1941 57.9958 18.7832 57.9958 19.4901C57.9958 20.3149 57.2875 21.0087 56.461 21.0087Z" fill="#FAF4EB"/>
+        <path d="M65.3576 20.8386H62.9964L63.7309 17.5133C63.7572 17.3955 63.8097 17.186 63.8097 17.0289C63.8097 16.5969 63.4292 16.4398 63.0488 16.4398C62.5372 16.4398 62.183 16.7016 61.9338 16.9242L61.068 20.8386H58.7068L60.1104 14.5153H62.4716L62.3011 15.2354C62.7602 14.8164 63.3374 14.3582 64.295 14.3582C65.6199 14.3582 66.3807 15.0783 66.3807 16.0209C66.3807 16.1256 66.3414 16.4136 66.3151 16.5314L65.3576 20.8386Z" fill="#FAF4EB"/>
+        <path d="M70.256 20.9956C68.2096 20.9956 66.7929 19.9745 66.7929 18.1155C66.7929 16.0994 68.3408 14.3582 70.5577 14.3582C72.1319 14.3582 73.5223 15.3139 73.5223 17.2384C73.5223 17.6704 73.4436 18.1679 73.3781 18.4035H69.1279V18.4166C69.1279 18.5083 69.5083 19.2021 70.4265 19.2021C70.925 19.2021 71.5153 19.0843 71.8039 18.8879L72.5254 20.4196C71.8826 20.8255 71.0169 20.9956 70.256 20.9956ZM69.3509 16.9111H71.4366V16.8718C71.4366 16.6885 71.2136 16.1518 70.4659 16.1518C69.8363 16.1518 69.4296 16.6362 69.3509 16.9111Z" fill="#FAF4EB"/>
+        <path d="M81.7599 20.8386H79.1888L78.9265 17.3038L77.1293 20.8386H74.5582L74.1254 14.5153H76.4866L76.5521 17.9977L78.4411 14.5153H80.5531L80.881 17.9977L82.4945 14.5153H85L81.7599 20.8386Z" fill="#FAF4EB"/>
+      </svg>
+    </div>
+
+    <h1 class="headline">
+      <span class="w">Now</span>
+      <span class="w">on</span>
+      <span class="w safari">Safari</span>
+    </h1>
+
+    <p class="subline">A smoother bolt.new — now running beautifully in Safari.</p>
+  </div>
+
+  <div class="progress"></div>
+</div>
+</body>
+</html>

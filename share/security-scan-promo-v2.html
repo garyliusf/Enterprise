@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>bolt — Security Scanner Loop</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    background: #000;
+    overflow: hidden;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    width: 100%; height: 100%;
+  }
+
+  /* Page centers the square stage on a black page */
+  .page {
+    position: fixed; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: #000;
+  }
+
+  /* Square stage — the recording crop. 1080x1080 target, sized responsively. */
+  .stage {
+    position: relative;
+    width: min(100vw, 100vh);
+    height: min(100vw, 100vh);
+    aspect-ratio: 1 / 1;
+    background: #04070d;
+    overflow: hidden;
+  }
+
+  /* matrix-like perspective grid + laser fan */
+  #field { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+  /* radial mask fades the square to solid black at the edges so it
+     blends seamlessly onto any black background */
+  .edge-fade {
+    position: absolute; inset: 0; pointer-events: none;
+    background:
+      radial-gradient(closest-side at 50% 50%, transparent 46%, #000 96%);
+    z-index: 3;
+  }
+
+  /* subtle scanline sheen for texture */
+  .scanlines {
+    position: absolute; inset: 0; pointer-events: none; z-index: 4; opacity: 0.28;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,0) 0 2px, rgba(0,0,0,0.28) 2px 3px);
+    mix-blend-mode: multiply;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="stage">
+    <canvas id="field"></canvas>
+    <div class="edge-fade"></div>
+    <div class="scanlines"></div>
+  </div>
+</div>
+
+<script>
+/* =========================================================================
+   Square scanner-only loop.
+   DURATION 5.4s — one full "sweep down" per loop.
+   ========================================================================= */
+const DURATION = 5.4;
+const cv = document.getElementById('field');
+const ctx = cv.getContext('2d');
+let W, H, DPR;
+function resize(){
+  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  W = cv.clientWidth; H = cv.clientHeight;
+  cv.width = W * DPR; cv.height = H * DPR;
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+window.addEventListener('resize', resize); resize();
+
+const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+const lerp = (a,b,t)=>a+(b-a)*t;
+
+function drawField(t){
+  ctx.clearRect(0,0,W,H);
+  const cx=W/2, cy=H/2;
+
+  // ---- soft atmospheric glow behind the field ----
+  const ag = ctx.createRadialGradient(cx,cy,0,cx,cy,W*0.55);
+  ag.addColorStop(0,'rgba(28,118,222,0.14)');
+  ag.addColorStop(0.55,'rgba(24,100,210,0.05)');
+  ag.addColorStop(1,'rgba(20,136,252,0)');
+  ctx.fillStyle=ag; ctx.fillRect(0,0,W,H);
+
+  // ---- perspective grid (horizon at center) ----
+  const horizonY = cy;
+
+  // horizontal receding lines (scrolling downward feel)
+  const scroll = (t / DURATION) % 1;
+  const lines = 14;
+  for(let m=-1;m<=1;m+=2){
+    for(let i=0;i<lines;i++){
+      let p = (i/lines + scroll) % 1;               // 0 far -> 1 near
+      let ez = Math.pow(p, 2.2);
+      let y = horizonY + m*(ez*(H*0.62));
+      let a = (0.02 + p*0.16);
+      ctx.strokeStyle = `rgba(120,175,235,${a})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke();
+    }
+  }
+
+  // radial (vanishing-point) lines — top half & bottom half
+  const VP = 44;
+  for(let m=-1;m<=1;m+=2){
+    for(let i=0;i<=VP;i++){
+      const f = i/VP;
+      const ang = (f - 0.5) * Math.PI * 0.98;       // fan across the square
+      const rx = cx + Math.tan(ang) * (H*0.62) * (m>0?1:1);
+      const y2 = horizonY + m*H*0.62;
+      const g = ctx.createLinearGradient(cx, horizonY, rx, y2);
+      const a = 0.08 + 0.20 * Math.pow(1 - Math.abs(f-0.5)*2, 0.6);
+      g.addColorStop(0, 'rgba(120,175,235,0.02)');
+      g.addColorStop(1, `rgba(120,175,235,${a})`);
+      ctx.strokeStyle = g; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(cx, horizonY); ctx.lineTo(rx, y2); ctx.stroke();
+    }
+  }
+
+  // ---- laser fan scanner from top-center (continuous, per-loop sweep) ----
+  const ox = cx, oy = -H*0.04;
+  const NB = 22, spread = 1.55;
+  const reach = H*1.8;
+  for (let i=0;i<NB;i++){
+    const f = i/(NB-1);
+    const ang = Math.PI/2 + (f-0.5)*spread;
+    const ex = ox + Math.cos(ang)*reach, ey = oy + Math.sin(ang)*reach;
+    const g = ctx.createLinearGradient(ox,oy,ex,ey);
+    const a = 0.06 + 0.16*Math.sin(f*Math.PI);
+    g.addColorStop(0,    `rgba(150,205,255,${a*1.35})`);
+    g.addColorStop(0.55, `rgba(45,150,255,${a})`);
+    g.addColorStop(1,    'rgba(18,118,230,0)');
+    ctx.strokeStyle = g; ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(ex,ey); ctx.stroke();
+  }
+  // origin bloom
+  const og = ctx.createRadialGradient(ox, oy+16, 0, ox, oy+16, H*0.24);
+  og.addColorStop(0, 'rgba(150,210,255,0.28)');
+  og.addColorStop(1, 'rgba(40,140,250,0)');
+  ctx.fillStyle = og;
+  ctx.beginPath(); ctx.arc(ox, oy+16, H*0.24, 0, 7); ctx.fill();
+
+  // bright scan-front travels straight down each loop
+  const p = (t / DURATION);
+  const fy = lerp(-H*0.08, H*1.08, p);
+  const bandH = H * 0.22;
+  const sg = ctx.createLinearGradient(0, fy-bandH/2, 0, fy+bandH/2);
+  sg.addColorStop(0,   'rgba(120,200,255,0)');
+  sg.addColorStop(0.5, 'rgba(150,210,255,0.22)');
+  sg.addColorStop(1,   'rgba(120,200,255,0)');
+  ctx.fillStyle = sg; ctx.fillRect(0, fy-bandH/2, W, bandH);
+  ctx.fillStyle = 'rgba(190,228,255,0.35)';
+  ctx.fillRect(0, fy-1.5, W, 3);
+}
+
+/* =========================== LOOP =========================== */
+let start = null;
+function frame(ts){
+  if(start==null) start=ts;
+  const t = ((ts-start)/1000) % DURATION;
+  drawField(t);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

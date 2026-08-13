@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Email preview — Bolt dictation launch</title>
+<style>
+  @font-face { font-family:'InterLocal'; src:url('inter-400.woff2') format('woff2'); font-weight:400; font-display:swap; }
+  @font-face { font-family:'InterLocal'; src:url('inter-500.woff2') format('woff2'); font-weight:500; font-display:swap; }
+  @font-face { font-family:'InterLocal'; src:url('inter-600.woff2') format('woff2'); font-weight:600; font-display:swap; }
+
+  * { box-sizing:border-box; }
+  html,body { margin:0; padding:0; }
+  body {
+    background:#0B0B0D; color:#fff;
+    font-family:'InterLocal',Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+
+  /* ---------- top control bar ---------- */
+  .bar {
+    position:sticky; top:0; z-index:20;
+    display:flex; align-items:center; gap:22px; flex-wrap:wrap;
+    padding:14px 24px;
+    background:rgba(11,11,13,0.86); backdrop-filter:blur(14px);
+    border-bottom:1px solid rgba(255,255,255,0.08);
+  }
+  .bar-title { font-size:13px; font-weight:600; letter-spacing:-0.1px; color:#fff; margin-right:4px; }
+  .bar-title span { color:#1488FC; }
+
+  .seg { display:flex; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:2px; padding:3px; }
+  .seg button {
+    appearance:none; border:0; background:transparent; cursor:pointer;
+    font:inherit; font-size:12px; font-weight:500; color:rgba(255,255,255,0.55);
+    padding:6px 13px; border-radius:2px; transition:color .18s, background .18s; white-space:nowrap;
+  }
+  .seg button:hover { color:#fff; }
+  .seg button.is-on { background:#1488FC; color:#fff; font-weight:600; }
+
+  .switch { display:flex; align-items:center; gap:8px; font-size:12px; color:rgba(255,255,255,0.6); cursor:pointer; user-select:none; }
+  .switch input { display:none; }
+  .switch .track { width:34px; height:19px; border-radius:999px; background:rgba(255,255,255,0.14); position:relative; transition:background .2s; }
+  .switch .track::after { content:''; position:absolute; top:2px; left:2px; width:15px; height:15px; border-radius:50%; background:#fff; transition:transform .2s; }
+  .switch input:checked + .track { background:#1488FC; }
+  .switch input:checked + .track::after { transform:translateX(15px); }
+  .switch:hover { color:#fff; }
+
+  .spacer { flex:1 1 auto; }
+
+  .drop {
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:12px; color:rgba(255,255,255,0.55);
+    border:1px dashed rgba(255,255,255,0.22); border-radius:2px;
+    padding:8px 14px; cursor:pointer; transition:border-color .2s, color .2s, background .2s;
+  }
+  .drop:hover, .drop.is-over { border-color:#1488FC; color:#fff; background:rgba(20,136,252,0.08); }
+  .drop input { display:none; }
+
+  /* ---------- stage ---------- */
+  .stage {
+    display:flex; align-items:flex-start; justify-content:center;
+    padding:40px 24px 80px;
+    min-height:calc(100vh - 58px);
+  }
+  .frame-slot { transform-origin:top center; }
+
+  /* ===== Gmail desktop chrome ===== */
+  .gmail {
+    width:1180px; height:800px; background:#fff; color:#202124;
+    border-radius:8px; overflow:hidden; display:flex; flex-direction:column;
+    box-shadow:0 40px 90px rgba(0,0,0,0.6);
+    font-family:'Google Sans',Roboto,Arial,sans-serif;
+  }
+  .gm-top { height:64px; flex:0 0 64px; display:flex; align-items:center; gap:20px; padding:0 20px; border-bottom:1px solid #f1f3f4; }
+  .gm-burger { width:20px; }
+  .gm-burger i { display:block; height:2px; background:#5f6368; margin:4px 0; border-radius:2px; }
+  .gm-logo { display:flex; align-items:center; gap:8px; font-size:22px; color:#5f6368; letter-spacing:-0.5px; }
+  .gm-envelope { width:30px; height:22px; border-radius:3px; background:linear-gradient(135deg,#EA4335 0%,#EA4335 40%,#FBBC04 40%,#FBBC04 55%,#34A853 55%,#34A853 72%,#4285F4 72%); }
+  .gm-search { flex:1; max-width:700px; height:46px; background:#EAF1FB; border-radius:8px; display:flex; align-items:center; padding:0 16px; color:#5f6368; font-size:15px; gap:12px; }
+  .gm-avatar { width:32px; height:32px; border-radius:50%; background:#1488FC; margin-left:auto; }
+  .gm-body { flex:1; display:flex; min-height:0; }
+  .gm-side { width:230px; flex:0 0 230px; padding:12px 8px; font-size:14px; color:#202124; }
+  .gm-compose { width:130px; height:48px; border-radius:24px; background:#C2E7FF; display:flex; align-items:center; justify-content:center; font-size:14px; color:#001d35; margin:0 8px 14px; }
+  .gm-side-item { display:flex; align-items:center; gap:16px; padding:0 12px 0 22px; height:32px; border-radius:0 16px 16px 0; color:#202124; }
+  .gm-side-item.is-on { background:#D3E3FD; font-weight:600; }
+  .gm-side-item b { margin-left:auto; font-size:12px; font-weight:600; }
+  .gm-dot { width:16px; height:16px; border-radius:3px; border:2px solid #5f6368; }
+  .gm-main { flex:1; min-width:0; overflow-y:auto; background:#fff; padding:12px 24px 40px 12px; }
+  .gm-subject { font-size:22px; color:#202124; padding:12px 0 16px; font-weight:400; }
+  .gm-subject .gm-label { font-size:11px; background:#ddd; color:#444; border-radius:4px; padding:2px 6px; vertical-align:middle; margin-left:10px; }
+  .gm-sender { display:flex; align-items:center; gap:14px; padding-bottom:14px; }
+  .gm-sender-av { width:40px; height:40px; border-radius:50%; background:#000; display:flex; align-items:center; justify-content:center; }
+  .gm-sender-av img { width:22px; }
+  .gm-sender-name { font-size:14px; font-weight:600; color:#202124; }
+  .gm-sender-name span { font-weight:400; color:#5f6368; }
+  .gm-sender-to { font-size:12px; color:#5f6368; margin-top:2px; }
+  .gm-sender-time { margin-left:auto; font-size:12px; color:#5f6368; }
+
+  /* ===== iPhone Mail chrome ===== */
+  .iphone {
+    width:390px; height:844px; border-radius:52px; padding:12px;
+    background:#1a1a1c; box-shadow:0 40px 90px rgba(0,0,0,0.6), 0 0 0 2px #2c2c2e inset;
+    position:relative;
+  }
+  .iphone-screen { width:100%; height:100%; border-radius:41px; overflow:hidden; background:#fff; display:flex; flex-direction:column;
+    font-family:-apple-system,'SF Pro Text','InterLocal',sans-serif; }
+  .ios-status { height:52px; flex:0 0 52px; display:flex; align-items:flex-end; padding:0 30px 6px; font-size:14px; font-weight:600; color:#000; }
+  .ios-status .r { margin-left:auto; display:flex; gap:5px; align-items:center; }
+  .ios-bat { width:22px; height:11px; border:1px solid rgba(0,0,0,0.4); border-radius:3px; padding:1px; }
+  .ios-bat i { display:block; height:100%; width:72%; background:#000; border-radius:1px; }
+  .ios-notch { position:absolute; top:12px; left:50%; transform:translateX(-50%); width:126px; height:35px; background:#000; border-radius:20px; z-index:3; }
+  .ios-nav { flex:0 0 auto; padding:2px 16px 10px; display:flex; align-items:center; gap:4px; color:#007AFF; font-size:17px; border-bottom:1px solid rgba(0,0,0,0.1); }
+  .ios-mailhead { padding:12px 16px 10px; border-bottom:1px solid rgba(0,0,0,0.1); }
+  .ios-from { display:flex; align-items:center; gap:10px; }
+  .ios-av { width:34px; height:34px; border-radius:50%; background:#000; display:flex; align-items:center; justify-content:center; }
+  .ios-av img { width:19px; }
+  .ios-name { font-size:15px; font-weight:600; color:#000; }
+  .ios-meta { font-size:13px; color:rgba(60,60,67,0.6); }
+  .ios-subj { font-size:15px; font-weight:600; color:#000; margin-top:8px; }
+  .ios-scroll { flex:1; min-height:0; overflow:hidden; }
+
+  /* iPhone dark */
+  .iphone.dark .iphone-screen { background:#000; }
+  .iphone.dark .ios-status { color:#fff; }
+  .iphone.dark .ios-bat { border-color:rgba(255,255,255,0.4); }
+  .iphone.dark .ios-bat i { background:#fff; }
+  .iphone.dark .ios-nav,
+  .iphone.dark .ios-mailhead { border-color:rgba(255,255,255,0.12); }
+  .iphone.dark .ios-name, .iphone.dark .ios-subj { color:#fff; }
+  .iphone.dark .ios-meta { color:rgba(235,235,245,0.6); }
+  .iphone.dark .ios-av { background:#1c1c1e; }
+
+  /* ===== Outlook desktop chrome ===== */
+  .outlook {
+    width:1180px; height:800px; background:#faf9f8; color:#201f1e;
+    border-radius:8px; overflow:hidden; display:flex; flex-direction:column;
+    box-shadow:0 40px 90px rgba(0,0,0,0.6);
+    font-family:'Segoe UI',system-ui,sans-serif;
+  }
+  .ol-top { height:48px; flex:0 0 48px; background:#0F6CBD; color:#fff; display:flex; align-items:center; padding:0 18px; gap:16px; font-size:14px; }
+  .ol-search { flex:1; max-width:520px; height:30px; background:rgba(255,255,255,0.16); border-radius:4px; display:flex; align-items:center; padding:0 12px; font-size:13px; color:rgba(255,255,255,0.8); }
+  .ol-ribbon { height:44px; flex:0 0 44px; background:#fff; border-bottom:1px solid #edebe9; display:flex; align-items:center; gap:22px; padding:0 20px; font-size:13px; color:#323130; }
+  .ol-body { flex:1; display:flex; min-height:0; }
+  .ol-list { width:320px; flex:0 0 320px; background:#fff; border-right:1px solid #edebe9; padding:8px 0; }
+  .ol-item { padding:10px 16px; border-left:3px solid transparent; }
+  .ol-item.is-on { background:#EFF6FC; border-left-color:#0F6CBD; }
+  .ol-item-from { font-size:13px; font-weight:600; color:#201f1e; }
+  .ol-item-subj { font-size:13px; color:#0F6CBD; margin-top:2px; }
+  .ol-item-prev { font-size:12px; color:#605e5c; margin-top:2px; line-height:1.35; }
+  .ol-read { flex:1; min-width:0; overflow-y:auto; background:#fff; padding:20px 24px 40px; }
+  .ol-subject { font-size:21px; font-weight:600; color:#201f1e; margin-bottom:14px; }
+  .ol-sender { display:flex; align-items:center; gap:12px; padding-bottom:16px; border-bottom:1px solid #edebe9; margin-bottom:6px; }
+  .ol-av { width:36px; height:36px; border-radius:50%; background:#000; display:flex; align-items:center; justify-content:center; }
+  .ol-av img { width:20px; }
+
+  /* shared iframe */
+  iframe { width:100%; border:0; display:block; background:transparent; }
+
+  /* ---------- readout ---------- */
+  .readout {
+    position:fixed; right:20px; bottom:20px; z-index:30;
+    width:290px; background:rgba(17,17,19,0.94); backdrop-filter:blur(12px);
+    border:1px solid rgba(255,255,255,0.1); border-radius:2px;
+    padding:16px 18px; font-size:12px; line-height:1.55;
+  }
+  .readout h4 { margin:0 0 10px; font-size:11px; font-weight:600; letter-spacing:1.6px; text-transform:uppercase; color:#1488FC; }
+  .readout .row { display:flex; justify-content:space-between; gap:12px; padding:3px 0; color:rgba(255,255,255,0.55); }
+  .readout .row b { color:#fff; font-weight:500; text-align:right; }
+  .readout .verdict { margin-top:10px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.55); }
+  .readout .ok   { color:#4ADE80; }
+  .readout .warn { color:#FBBF24; }
+  .readout .bad  { color:#F87171; }
+  .readout button.hide { position:absolute; top:10px; right:10px; background:none; border:0; color:rgba(255,255,255,0.35); cursor:pointer; font-size:14px; line-height:1; }
+
+  .hint {
+    display:none; margin:0 24px; padding:12px 16px; border-radius:2px;
+    background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.35);
+    color:#FBBF24; font-size:12px; line-height:1.6;
+  }
+  .hint.show { display:block; }
+  code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; background:rgba(255,255,255,0.08); padding:1px 5px; border-radius:2px; }
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <div class="bar-title">Email preview <span>·</span> dictation launch</div>
+
+  <div class="seg" id="clients">
+    <button data-client="gmail"   class="is-on">Gmail — Desktop</button>
+    <button data-client="iphone">Apple Mail — iPhone</button>
+    <button data-client="outlook">Outlook — Desktop</button>
+  </div>
+
+  <label class="switch"><input type="checkbox" id="tDark"><span class="track"></span>Dark mode</label>
+  <label class="switch"><input type="checkbox" id="tImages"><span class="track"></span>Images blocked</label>
+  <label class="switch"><input type="checkbox" id="tFont"><span class="track"></span>No Inter (Arial fallback)</label>
+
+  <div class="spacer"></div>
+
+  <label class="drop" id="drop">
+    <input type="file" id="file" accept="image/*">
+    ⬆ Drop your hero image here
+  </label>
+</div>
+
+<div class="hint" id="hint">
+  Serve this over <code>http://localhost:8765/share/dictation-email-preview.html</code> —
+  on <code>file://</code> the browser blocks reading into the email iframe, so the toggles and
+  the measurement panel go dead.
+  <br>Run <code>python3 -m http.server 8765</code> from the repo root.
+</div>
+
+<div class="stage">
+  <div class="frame-slot" id="slot"></div>
+</div>
+
+<div class="readout" id="readout">
+  <button class="hide" id="hideReadout">✕</button>
+  <h4>Hero image check</h4>
+  <div class="row"><span>Source</span><b id="rSrc">1920 × 1080</b></div>
+  <div class="row"><span>Renders at</span><b id="rRender">—</b></div>
+  <div class="row"><span>Pixel density</span><b id="rDensity">—</b></div>
+  <div class="row"><span>Headline in image</span><b id="rHead">—</b></div>
+  <div class="row"><span>Prompt line in image</span><b id="rText">—</b></div>
+  <div class="row"><span>File size</span><b id="rWeight">—</b></div>
+  <div class="verdict" id="rVerdict">—</div>
+</div>
+
+<script>
+/* ------------------------------------------------------------------
+   Client chrome templates. Each embeds the real email file in an
+   iframe so what you see is the actual sendable HTML, at the real
+   pixel width that client gives it.
+------------------------------------------------------------------ */
+const EMAIL = 'dictation-email.html';
+
+const CHROME = {
+  gmail: () => `
+    <div class="gmail">
+      <div class="gm-top">
+        <div class="gm-burger"><i></i><i></i><i></i></div>
+        <div class="gm-logo"><div class="gm-envelope"></div> Gmail</div>
+        <div class="gm-search">🔍 Search mail</div>
+        <div class="gm-avatar"></div>
+      </div>
+      <div class="gm-body">
+        <div class="gm-side">
+          <div class="gm-compose">✎ Compose</div>
+          <div class="gm-side-item is-on"><div class="gm-dot"></div> Inbox <b>128</b></div>
+          <div class="gm-side-item"><div class="gm-dot"></div> Starred</div>
+          <div class="gm-side-item"><div class="gm-dot"></div> Snoozed</div>
+          <div class="gm-side-item"><div class="gm-dot"></div> Sent</div>
+          <div class="gm-side-item"><div class="gm-dot"></div> Drafts <b>3</b></div>
+        </div>
+        <div class="gm-main">
+          <div class="gm-subject">Build with your voice on bolt.new <span class="gm-label">Updates</span></div>
+          <div class="gm-sender">
+            <div class="gm-sender-av"><img src="../images/bolt-new.svg" alt=""></div>
+            <div>
+              <div class="gm-sender-name">Bolt <span>&lt;hello@bolt.new&gt;</span></div>
+              <div class="gm-sender-to">to me ▾</div>
+            </div>
+            <div class="gm-sender-time">9:41 AM (2 minutes ago)</div>
+          </div>
+          <iframe id="mail" src="${EMAIL}" scrolling="no"></iframe>
+        </div>
+      </div>
+    </div>`,
+
+  iphone: () => `
+    <div class="iphone" id="phoneShell">
+      <div class="ios-notch"></div>
+      <div class="iphone-screen">
+        <div class="ios-status">9:41<span class="r">▮▮▮ ⌁ <span class="ios-bat"><i></i></span></span></div>
+        <div class="ios-nav">‹ Inbox</div>
+        <div class="ios-mailhead">
+          <div class="ios-from">
+            <div class="ios-av"><img src="../images/bolt-new.svg" alt=""></div>
+            <div>
+              <div class="ios-name">Bolt</div>
+              <div class="ios-meta">To: me &nbsp;·&nbsp; 9:41 AM</div>
+            </div>
+          </div>
+          <div class="ios-subj">Build with your voice on bolt.new</div>
+        </div>
+        <div class="ios-scroll"><iframe id="mail" src="${EMAIL}"></iframe></div>
+      </div>
+    </div>`,
+
+  outlook: () => `
+    <div class="outlook">
+      <div class="ol-top"><b>Outlook</b><div class="ol-search">Search</div></div>
+      <div class="ol-ribbon"><span>Home</span><span>View</span><span>Help</span><span style="margin-left:auto">↩ Reply</span><span>↪ Forward</span></div>
+      <div class="ol-body">
+        <div class="ol-list">
+          <div class="ol-item is-on">
+            <div class="ol-item-from">Bolt</div>
+            <div class="ol-item-subj">Build with your voice on bolt.new</div>
+            <div class="ol-item-prev">Just say it — Bolt builds it. Voice prompting is live for everyone today.</div>
+          </div>
+          <div class="ol-item">
+            <div class="ol-item-from">Figma</div>
+            <div class="ol-item-subj">Your weekly file digest</div>
+            <div class="ol-item-prev">7 files changed in Marketing / Enterprise…</div>
+          </div>
+        </div>
+        <div class="ol-read">
+          <div class="ol-subject">Build with your voice on bolt.new</div>
+          <div class="ol-sender">
+            <div class="ol-av"><img src="../images/bolt-new.svg" alt=""></div>
+            <div>
+              <div style="font-size:14px;font-weight:600">Bolt</div>
+              <div style="font-size:12px;color:#605e5c">hello@bolt.new &nbsp;·&nbsp; Mon 9:41 AM</div>
+            </div>
+          </div>
+          <iframe id="mail" src="${EMAIL}" scrolling="no"></iframe>
+        </div>
+      </div>
+    </div>`
+};
+
+/* ------------------------------------------------------------------ */
+const slot     = document.getElementById('slot');
+const stage    = document.querySelector('.stage');
+const hint     = document.getElementById('hint');
+let   client   = 'gmail';
+let   customSrc = null;              // object URL when the user drops an image
+
+function render() {
+  slot.innerHTML = CHROME[client]();
+  const f = slot.querySelector('#mail');
+  f.addEventListener('load', onMailLoad);
+  applyPhoneTheme();
+  fit();
+}
+
+/* Scale the chrome down so the whole client fits the viewport */
+function fit() {
+  const el = slot.firstElementChild;
+  if (!el) return;
+  slot.style.transform = 'scale(1)';
+  const availW = stage.clientWidth  - 48;
+  const availH = window.innerHeight - 58 - 100;
+  const s = Math.min(1, availW / el.offsetWidth, availH / el.offsetHeight);
+  slot.style.transform = `scale(${s.toFixed(3)})`;
+  slot.style.height = (el.offsetHeight * s) + 'px';
+}
+
+/* ---------- toggles applied inside the email document ---------- */
+function mailDoc() {
+  const f = slot.querySelector('#mail');
+  try { return f && f.contentDocument; } catch (e) { return null; }
+}
+
+function onMailLoad() {
+  const doc = mailDoc();
+  if (!doc) { hint.classList.add('show'); return; }
+  hint.classList.remove('show');
+
+  if (customSrc) {
+    const hero = doc.querySelector('img[src*="dictation-email-hero"]');
+    if (hero) hero.src = customSrc;
+  }
+
+  // auto-height the iframe on the desktop clients (they don't scroll internally)
+  const f = slot.querySelector('#mail');
+  if (client !== 'iphone') {
+    const h = doc.documentElement.scrollHeight;
+    f.style.height = h + 'px';
+  } else {
+    f.style.height = '100%';
+  }
+
+  applyToggles();
+  // hero may still be decoding — measure once it's ready
+  const hero = doc.querySelector('img[src*="hero"], img[src*="blob:"]');
+  if (hero && !hero.complete) hero.addEventListener('load', measure, { once:true });
+  measure();
+}
+
+function applyToggles() {
+  const doc = mailDoc(); if (!doc) return;
+  let s = doc.getElementById('__preview_style');
+  if (!s) { s = doc.createElement('style'); s.id = '__preview_style'; doc.head.appendChild(s); }
+
+  // Real mail clients use overlay scrollbars; a classic one would eat ~15px
+  // of width and skew every measurement below.
+  const rules = ['html{scrollbar-width:none}::-webkit-scrollbar{display:none}'];
+
+  setImagesBlocked(doc, document.getElementById('tImages').checked);
+
+  if (document.getElementById('tFont').checked) {
+    // Inter is not a mail-safe font and @font-face is unreliable in email —
+    // most recipients (all of Outlook, most Windows) fall down the stack.
+    rules.push(`*, *::before, *::after { font-family:Arial,Helvetica,sans-serif !important; }`);
+  }
+
+  if (document.getElementById('tDark').checked && client !== 'iphone') {
+    // Outlook.com / Gmail-on-Android style forced inversion of light surfaces.
+    // The email is already dark, so this mostly shows what DOESN'T move.
+    rules.push(`
+      body { background:#1B1A19 !important; }
+    `);
+  }
+
+  s.textContent = rules.join('\n');
+  measure();
+}
+
+/* Swap every image for the plate a client shows when remote images are off:
+   the declared box, at the declared size, holding nothing but the alt text. */
+function setImagesBlocked(doc, on) {
+  doc.querySelectorAll('.__ph').forEach(p => p.remove());
+  doc.querySelectorAll('img').forEach(img => {
+    img.style.display = on ? 'none' : 'block';
+    if (!on) return;
+
+    const w  = parseInt(img.getAttribute('width'), 10) || img.offsetWidth || 120;
+    const nh = img.naturalHeight, nw = img.naturalWidth;
+    const ratio = nw && nh ? `${nw}/${nh}` : '4/1';
+
+    const ph = doc.createElement('div');
+    ph.className = '__ph';
+    ph.textContent = img.alt || '';
+    ph.style.cssText = `
+      width:${w}px; max-width:100%; aspect-ratio:${ratio}; height:auto;
+      box-sizing:border-box; overflow:hidden;
+      background:#EFEFEF; border:1px solid #CFCFCF; color:#5B5B5B;
+      font:italic 13px/1.45 Arial,Helvetica,sans-serif; padding:14px 16px;
+      display:flex; align-items:flex-start;`;
+    img.parentNode.insertBefore(ph, img);
+  });
+}
+
+function applyPhoneTheme() {
+  const shell = document.getElementById('phoneShell');
+  if (shell) shell.classList.toggle('dark', document.getElementById('tDark').checked);
+}
+
+/* ---------- measurement ---------- */
+function measure() {
+  const doc = mailDoc(); if (!doc) return;
+
+  // While images are blocked the hero is a styled placeholder — measuring it
+  // would report the plate, not the artwork. Keep the last real numbers.
+  if (document.getElementById('tImages').checked) {
+    document.getElementById('rVerdict').innerHTML =
+      `<span class="warn">!</span> Images off: the whole message is carried by the alt text and the live copy below it.`;
+    return;
+  }
+
+  const hero = doc.querySelector('td img[width="598"], td img[src^="blob:"]');
+  if (!hero) return;
+
+  // offsetWidth, NOT getBoundingClientRect — the chrome is CSS-scaled to fit
+  // the stage, and the rect would report the scaled-down size.
+  const w  = hero.offsetWidth;
+  const h  = hero.offsetHeight;
+  const nw = hero.naturalWidth  || 1920;
+  const nh = hero.naturalHeight || 1080;
+  const density = w ? (nw / w) : 0;
+  const scale   = w / nw;
+
+  // Glyph bands measured off the 1920-wide master (ascender→descender), then
+  // expressed as a fraction of frame width so the numbers hold no matter what
+  // resolution the hero is exported at.
+  const HEAD_FRAC   = 79 / 1920;   // "Build with your voice on bolt.new"
+  const PROMPT_FRAC = 40 / 1920;   // the transcribed sentence in the box
+  const headPx   = HEAD_FRAC   * w;
+  const promptPx = PROMPT_FRAC * w;
+
+  document.getElementById('rSrc').textContent    = `${nw} × ${nh}`;
+  document.getElementById('rRender').textContent = `${w} × ${h} CSS px`;
+  document.getElementById('rDensity').textContent = density.toFixed(2) + '×';
+  document.getElementById('rHead').textContent   = headPx.toFixed(1) + 'px';
+  document.getElementById('rText').textContent   = promptPx.toFixed(1) + 'px';
+
+  const grade = px => px >= 14 ? 'ok' : px >= 11 ? 'warn' : 'bad';
+  const word  = px => px >= 14 ? 'reads cleanly' : px >= 11 ? 'squint-legible' : 'illegible';
+
+  const v = document.getElementById('rVerdict');
+  const bits = [];
+  bits.push(density >= 2
+    ? `<span class="ok">✓</span> Sharp — ${density.toFixed(1)}× the display size.`
+    : `<span class="warn">!</span> Only ${density.toFixed(1)}× — softens on retina.`);
+  bits.push(`<span class="${grade(headPx)}">•</span> Headline ${headPx.toFixed(0)}px — ${word(headPx)}.`);
+  bits.push(`<span class="${grade(promptPx)}">•</span> Prompt line ${promptPx.toFixed(0)}px — ${word(promptPx)}.`);
+  v.innerHTML = bits.join('<br>');
+}
+
+/* ---------- wiring ---------- */
+document.getElementById('clients').addEventListener('click', e => {
+  const b = e.target.closest('button[data-client]'); if (!b) return;
+  [...e.currentTarget.children].forEach(c => c.classList.remove('is-on'));
+  b.classList.add('is-on');
+  client = b.dataset.client;
+  render();
+});
+
+document.getElementById('tDark').addEventListener('change', () => { applyPhoneTheme(); applyToggles(); });
+document.getElementById('tImages').addEventListener('change', applyToggles);
+document.getElementById('tFont').addEventListener('change', applyToggles);
+
+/* real weight of the hero on disk, unless the user dropped their own */
+fetch('dictation-email-hero.jpg', { method:'HEAD' })
+  .then(r => r.headers.get('content-length'))
+  .then(n => { if (n && !customSrc) document.getElementById('rWeight').textContent = (n/1024).toFixed(0) + ' KB'; })
+  .catch(() => {});
+
+/* drop / pick a replacement hero */
+const drop = document.getElementById('drop');
+const file = document.getElementById('file');
+function useFile(f) {
+  if (!f || !f.type.startsWith('image/')) return;
+  if (customSrc) URL.revokeObjectURL(customSrc);
+  customSrc = URL.createObjectURL(f);
+  document.getElementById('rWeight').textContent = (f.size / 1024).toFixed(0) + ' KB';
+  render();
+}
+file.addEventListener('change', e => useFile(e.target.files[0]));
+['dragenter','dragover'].forEach(t => document.addEventListener(t, e => {
+  e.preventDefault(); drop.classList.add('is-over');
+}));
+['dragleave','drop'].forEach(t => document.addEventListener(t, e => {
+  e.preventDefault(); if (t === 'drop') useFile(e.dataTransfer.files[0]);
+  drop.classList.remove('is-over');
+}));
+
+document.getElementById('hideReadout').addEventListener('click', () => {
+  document.getElementById('readout').style.display = 'none';
+});
+
+window.addEventListener('resize', fit);
+render();
+</script>
+</body>
+</html>
