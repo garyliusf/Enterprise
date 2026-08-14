@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How FlagStat shipped without a developer · Customer Stories · Bolt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Silkscreen&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared-nav-footer.css?v=20260811b">
+<style>
+/* ════════════════════════════════════════════════════════════════════════════
+   CUSTOMER STORY DETAIL — the blog post page ([slug]) design, replicated from
+   the LIVE bolt.new/blog post styles (audited 2026-08-14) for the static
+   customers section (no CMS — hand-authored pages). Chrome = canonical
+   mkt-nav + site-footer, same as customers.html. Light theme: fully
+   self-contained post CSS; never link the dark marketing shared-components
+   styles beyond the nav/footer + button base (CLAUDE.md: themes never mix).
+   ════════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F0EDE9;
+  --surface: #E8E3DE;
+  --card-bg: #D8D3CD;
+  --border: rgba(0,0,0,0.09);
+  --text-primary: #10100F;
+  --text-secondary: #555;
+  --text-muted: #999;
+  --accent-mint: #0d9b7a;
+  --accent-salmon: #c05030;
+  --accent-blue: #1488FC;
+  --font-sans: 'Inter', sans-serif;
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+  --font-mono: 'Silkscreen', monospace;
+  --max-w: 1120px;
+  --article-w: 880px;
+  --hero-w: 1040px;
+  --gutter: 80px;
+  --bolt-nav-h: 68px; /* mkt-nav height — sub-nav + progress bar pin below it */
+}
+
+html { scroll-behavior: smooth; scrollbar-gutter: stable; }
+body { background: var(--bg); color: var(--text-primary); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+
+/* company-style rounded button (in-content CTAs — matches customers.html) */
+.bolt-btn {
+  display: inline-flex; flex-direction: row; gap: 6px; align-items: center; justify-content: center;
+  border: none; border-radius: 6px; cursor: pointer; text-decoration: none;
+  font-family: var(--font-sans); font-weight: 500; font-size: 14px;
+  background: #1488FC; color: #fff;
+  padding: 8px 12px 8.8px;
+  transition: background-color 0.2s;
+}
+.bolt-btn:hover { background: #0d6fe8; }
+.bolt-btn--lg { font-size: 15px; padding: 12px 20px 12.8px; }
+
+/* ── SUB-NAV (customers.html light bar: label | pills-as-links) ── */
+.nav {
+  position: sticky; top: var(--bolt-nav-h); z-index: 90; /* under the mkt-nav scrim (99) */
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+  padding: 0 max(var(--gutter), calc((100% - var(--max-w)) / 2));
+  height: 60px;
+  background: rgba(240,237,233,0.95);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo { display: flex; align-items: center; gap: 0; text-decoration: none; grid-column: 1; justify-self: start; }
+.nav-logo-label {
+  font-family: var(--font-mono); font-size: 16px; font-weight: 400;
+  color: var(--accent-blue); letter-spacing: 2px; text-transform: uppercase;
+  white-space: nowrap; display: inline-block;
+}
+.nav > .filter-group-wrap { grid-column: 2; justify-self: center; min-width: 0; }
+.filter-group { display: flex; align-items: center; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.filter-group::-webkit-scrollbar { display: none; }
+.filter-group-wrap { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; }
+.filter-btn {
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--text-secondary); background: none; border: none; border-radius: 4px;
+  padding: 8px 16px; margin: 6px 2px; cursor: pointer; white-space: nowrap;
+  text-decoration: none; display: inline-flex; align-items: center;
+  transition: color 0.2s, background 0.2s;
+}
+.filter-btn:hover { color: var(--text-primary); }
+@media (max-width: 768px) {
+  .nav { padding: 0 var(--gutter); grid-template-columns: auto minmax(0,1fr) auto; column-gap: 12px; }
+  .nav > .filter-group-wrap { width: 100%; }
+  .filter-btn { font-size: 11px; padding: 7px 12px; }
+}
+
+/* ── READING PROGRESS (live: animated blue static fills to scroll pos) ── */
+.reading-progress { position: fixed; top: calc(var(--bolt-nav-h) + 60px); left: 0; width: 100%; height: 3px; z-index: 89; pointer-events: none; display: block; }
+
+/* ── BREADCRUMBS (live) ── */
+.blog-breadcrumbs { font-family: var(--font-mono); }
+.blog-breadcrumbs-list { list-style: none; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 0; margin: 0; }
+.blog-breadcrumb { display: inline-flex; align-items: center; gap: 8px; }
+.blog-breadcrumb-link, .blog-breadcrumb-current { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; }
+.blog-breadcrumb-link { color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+.blog-breadcrumb-link:hover { color: var(--accent-blue); }
+.blog-breadcrumb-current { color: var(--text-secondary); max-width: 360px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.blog-breadcrumb-sep { color: var(--text-muted); font-size: 10px; }
+.post-breadcrumbs { max-width: var(--article-w); margin: 0 auto; padding: 40px var(--gutter) 0; }
+.post-breadcrumbs .blog-breadcrumbs-list { justify-content: center; }
+
+/* ── POST HEADER (live) ── */
+.post-header { max-width: var(--hero-w); margin: 0 auto; padding: 64px var(--gutter) 32px; text-align: center; }
+.post-meta-top { display: inline-flex; align-items: center; gap: 12px; margin-bottom: 28px; }
+.post-tag { font-family: var(--font-mono); font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; padding: 5px 12px; border-radius: 2px; border: 1px solid var(--border); color: var(--text-secondary); background: none; text-decoration: none; transition: color 0.2s, border-color 0.2s; }
+a.post-tag:hover { color: var(--accent-blue); border-color: var(--accent-blue); }
+.post-date { font-size: 13px; color: var(--text-muted); }
+.post-title { font-family: var(--font-serif); font-size: clamp(34px, 4.2vw, 52px); font-weight: 600; line-height: 1.06; letter-spacing: -0.02em; color: var(--text-primary); margin-bottom: 24px; }
+.post-subtitle { font-size: 17px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 0; max-width: 580px; margin-left: auto; margin-right: auto; }
+
+/* ── HERO IMAGE + film grain (live) ── */
+@keyframes grain {
+  0%, 100% { transform: translate(0,0); }
+  10% { transform: translate(-2%,-3%); } 20% { transform: translate(3%,2%); }
+  30% { transform: translate(-1%,4%); } 40% { transform: translate(4%,-1%); }
+  50% { transform: translate(-3%,3%); } 60% { transform: translate(2%,-4%); }
+  70% { transform: translate(-4%,1%); } 80% { transform: translate(1%,3%); }
+  90% { transform: translate(3%,-2%); }
+}
+.post-hero { max-width: min(1200px, 100%); margin: 0 auto 36px; padding: 0 var(--gutter); }
+.post-hero-image { width: 100%; aspect-ratio: 16/9; border-radius: 6px; overflow: hidden; background: var(--surface); position: relative; }
+.post-hero-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.post-hero-image::after, .related-card-image::after {
+  content: ""; position: absolute; inset: -50%; width: 200%; height: 200%; z-index: 2; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='ng'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23ng)'/%3E%3C/svg%3E");
+  background-size: 150px 150px; opacity: 0.38; mix-blend-mode: overlay;
+  animation: grain 0.5s steps(2) infinite;
+}
+@media (prefers-reduced-motion: reduce) { .post-hero-image::after, .related-card-image::after { animation: none; } }
+
+/* ── BYLINE (live — below the hero image) ── */
+.post-author-avatar { width: 28px; height: 28px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: var(--card-bg); }
+.post-author-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.post-author-name { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+.post-readtime { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 5px; }
+.post-readtime svg { opacity: 0.45; flex-shrink: 0; }
+.post-byline { max-width: var(--article-w); margin: 0 auto 44px; padding: 0 var(--gutter) 28px; position: relative; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; }
+.post-byline::after { content: ""; position: absolute; left: var(--gutter); right: var(--gutter); bottom: 0; height: 1px; background: var(--border); }
+.post-byline > * { display: inline-flex; align-items: center; }
+.post-byline > *:not(:first-child)::before { content: "·"; margin: 0 14px; color: var(--text-muted); }
+.post-byline-author { gap: 10px; }
+
+/* ── ARTICLE BODY (live rich-text styles) ── */
+.post-body { max-width: var(--article-w); margin: 0 auto; padding: 0 var(--gutter) 0; overflow-wrap: break-word; }
+.post-body p { font-size: 19px; line-height: 1.75; color: var(--text-secondary); margin-bottom: 28px; }
+.post-body > p:first-child { color: var(--text-primary); font-size: 20px; }
+.post-body h2 { font-family: var(--font-serif); font-size: 34px; font-weight: 600; color: var(--text-primary); margin: 52px 0 18px; letter-spacing: -0.01em; line-height: 1.2; }
+.post-body h3 { font-family: var(--font-serif); font-size: 26px; font-weight: 600; color: var(--text-primary); margin: 36px 0 12px; letter-spacing: -0.01em; line-height: 1.25; }
+.post-body h4 { font-family: var(--font-serif); font-size: 21px; font-weight: 600; color: var(--text-primary); margin: 28px 0 10px; line-height: 1.3; }
+.post-body ul, .post-body ol { padding-left: 24px; margin-bottom: 28px; }
+.post-body li { font-size: 19px; line-height: 1.75; color: var(--text-secondary); margin-bottom: 4px; }
+.post-body ol li::marker { font-size: 15px; color: var(--text-secondary); font-weight: 500; }
+.post-body a:not([class]) { color: var(--accent-mint); text-decoration: none; border-bottom: 1px solid rgba(13,155,122,0.3); }
+.post-body a:not([class]):hover { border-bottom-color: var(--accent-mint); }
+.post-body strong { color: var(--text-primary); font-weight: 600; }
+.post-body hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+.post-body table { width: 100%; border-collapse: separate; border-spacing: 0; margin: 32px 0; font-size: 15px; border: 1px solid var(--border); border-radius: 2px; overflow: hidden; }
+.post-body th, .post-body td { padding: 13px 18px; text-align: left; color: var(--text-secondary); border-bottom: 1px solid var(--border); }
+.post-body thead th { background: var(--surface); color: var(--text-primary); font-family: var(--font-mono); font-weight: 400; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+.post-body tbody tr:last-child td { border-bottom: none; }
+.post-body tbody tr:nth-child(2n) { background: rgba(0,0,0,0.02); }
+.post-body tbody tr:hover { background: rgba(20,136,252,0.05); }
+.post-body tbody td:first-child { color: var(--text-primary); font-weight: 500; }
+.post-body code { font-family: 'Courier New', monospace; font-size: 0.9em; background: var(--surface); padding: 1px 5px; border-radius: 3px; color: #0d7a62; overflow-wrap: anywhere; }
+.post-quote { margin: 56px auto; padding: 40px 0; background: none; border: none; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); border-radius: 0; text-align: center; }
+.post-quote p { font-family: var(--font-serif); font-size: clamp(24px, 3vw, 33px); font-style: italic; font-weight: 500; color: var(--text-primary) !important; line-height: 1.4; margin: 0 auto !important; max-width: 640px; }
+.post-body h2[id] { scroll-margin-top: 148px; } /* clears mkt-nav (68) + sub-nav (60) + margin */
+
+/* ── RICH-TEXT CTA (live rt-cta banner, company rounded button) ── */
+.rt-cta { margin: 40px 0; padding: 32px 36px; background: var(--surface); border: 1px solid var(--border); border-radius: 2px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.rt-cta--banner { background: rgba(20,136,252,0.06); border-color: rgba(20,136,252,0.2); }
+.post-body .rt-cta-heading { font-family: var(--font-serif); font-size: 34px; font-weight: 600; color: var(--text-primary); margin: 0 0 8px; line-height: 1.1; }
+.post-body .rt-cta-body { font-size: 15px; color: var(--text-secondary); line-height: 1.6; margin: 0 !important; }
+.rt-cta-actions { display: flex; gap: 12px; flex-shrink: 0; align-self: flex-end; }
+
+/* ── TAGS + AUTHOR BIO (live) ── */
+.post-tags { display: flex; gap: 8px; flex-wrap: wrap; margin: 56px 0 0; padding-top: 32px; border-top: 1px solid var(--border); }
+.post-tags .post-tag-item { font-family: var(--font-mono); font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; padding: 5px 12px; border-radius: 2px; border: 1px solid var(--border); color: var(--text-secondary); background: none; text-decoration: none; transition: background 0.2s, color 0.2s, border-color 0.2s; }
+.post-tags .post-tag-item:hover { background: #7FDDC1; color: #10100F; border-color: #7FDDC1; }
+.post-author-bio { max-width: var(--article-w); margin: 56px auto 80px; padding: 0 var(--gutter); }
+.author-bio-card { display: flex; gap: 24px; padding: 32px; background: var(--surface); border-radius: 4px; }
+.author-bio-avatar { width: 64px; height: 64px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: var(--card-bg); }
+.author-bio-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.author-bio-name { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+.author-bio-role { font-family: var(--font-mono); font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent-blue); margin-bottom: 12px; }
+.author-bio-text { font-size: 14px; color: var(--text-secondary); line-height: 1.65; }
+
+/* ── RELATED ("Keep Reading" — live) ── */
+.related-posts { max-width: var(--article-w); margin: 80px auto 64px; padding: 0 var(--gutter); }
+.related-eyebrow { font-family: var(--font-mono); font-size: 16px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-blue); margin-bottom: 28px; display: flex; align-items: center; gap: 10px; }
+.related-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+.related-card { background: var(--surface); border-radius: 4px; overflow: hidden; text-decoration: none; }
+.related-card-image { aspect-ratio: 16/9; overflow: hidden; background: var(--card-bg); position: relative; }
+.related-card-image img { width: 100%; height: 100%; object-fit: cover; transition: filter 0.4s; }
+.related-card:hover .related-card-image img { filter: grayscale(1); }
+.related-card-body { padding: 20px; }
+.related-card-tag { font-family: var(--font-mono); font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 10px; }
+.related-card-title { font-size: 15px; font-weight: 600; color: var(--text-primary); line-height: 1.35; transition: color 0.2s; }
+.related-card:hover .related-card-title { color: var(--text-secondary); }
+.related-card-readtime { font-family: var(--font-mono); font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); display: inline-flex; align-items: center; gap: 5px; margin-top: 12px; }
+.related-card-readtime svg { opacity: 0.45; flex-shrink: 0; }
+
+/* ── TABLE OF CONTENTS rail (live — ≥1440px only) ── */
+.post-toc-col { display: none; }
+.post-toc-eyebrow { font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 18px; padding-left: 18px; }
+.post-toc-list { position: relative; display: flex; flex-direction: column; border-left: 1px solid var(--border); }
+.post-toc-list::before { content: ""; position: absolute; left: -1px; top: 0; width: 2px; height: var(--toc-fill, 0px); background: var(--accent-mint); border-radius: 2px; opacity: 0; transition: height 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease; }
+.post-toc-list.has-active::before { opacity: 1; }
+.post-toc-link { display: flex; align-items: baseline; gap: 11px; padding: 9px 0 9px 18px; font-family: var(--font-sans); font-size: 13.5px; line-height: 1.45; color: var(--text-muted); text-decoration: none; transition: color 0.2s ease, transform 0.2s ease; }
+.post-toc-num { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.5px; color: var(--text-muted); opacity: 0.5; flex-shrink: 0; transition: color 0.2s, opacity 0.2s; }
+.post-toc-link:hover { color: var(--text-secondary); transform: translateX(2px); }
+.post-toc-link:hover .post-toc-num { opacity: 0.85; }
+.post-toc-link.is-active { color: var(--accent-mint); font-weight: 500; }
+.post-toc-link.is-active .post-toc-num { color: var(--accent-mint); opacity: 1; }
+@media (min-width: 1440px) {
+  .post-shell:not(.post-shell--no-toc) { display: grid; grid-template-columns: 1fr minmax(0, var(--hero-w)) 1fr; align-items: start; }
+  .post-shell:not(.post-shell--no-toc) .post-doc { grid-column: 2; min-width: 0; }
+  .post-shell:not(.post-shell--no-toc) .post-toc-col { display: block; grid-column: 1; justify-self: start; width: 175px; margin-left: var(--gutter); position: sticky; top: 150px; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; }
+  .post-shell:not(.post-shell--no-toc) .post-toc-col.is-in-view { opacity: 1; pointer-events: auto; }
+}
+
+/* ── FINAL CTA (blog newsletter panel — same as customers.html) ── */
+.blog-newsletter { width: min(var(--max-w), calc(100vw - var(--gutter) * 2)); margin: 0 auto 128px; }
+.blog-newsletter-inner {
+  background: #0d0e11; border-radius: 4px; padding: 64px 48px;
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 28px;
+  position: relative; overflow: hidden;
+}
+.blog-newsletter-glow { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+.blog-newsletter-inner::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(180deg, rgba(13,14,17,0), rgba(13,14,17,0.55) 24% 78%, rgba(13,14,17,0)); }
+.blog-newsletter-inner > *:not(.blog-newsletter-glow) { position: relative; z-index: 2; }
+.blog-newsletter-eyebrow { font-family: var(--font-mono); font-size: 16px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-blue); margin-bottom: 18px; }
+.blog-newsletter-heading { font-family: var(--font-sans); font-size: clamp(32px, 4vw, 52px); font-weight: 500; letter-spacing: -1px; color: #fff; line-height: 1.2; margin-bottom: 12px; }
+.blog-newsletter-body { font-size: 18px; color: rgba(255,255,255,0.82); line-height: 1.6; max-width: 660px; margin: 0 auto; }
+
+/* ── FOOTER BAND (same as customers.html) ── */
+.footer-dark-band { background: #000; }
+.bolt-image-wrap { margin-top: 0; width: 100%; overflow: hidden; position: relative; height: 32vw; max-height: 32vw; }
+
+/* ── RESPONSIVE (live post breakpoints) ── */
+@media (max-width: 1024px) { :root { --gutter: 40px; } }
+@media (max-width: 768px) {
+  :root { --gutter: 24px; }
+  .post-header { padding: 40px var(--gutter) 24px; }
+  .post-hero { margin-bottom: 28px; }
+  .post-subtitle { font-size: 16px; }
+  .post-byline { margin-bottom: 36px; padding-bottom: 22px; }
+  .post-body p, .post-body li { font-size: 17px; line-height: 1.7; }
+  .post-body > p:first-child { font-size: 18px; }
+  .post-body h2 { font-size: 28px; margin: 40px 0 14px; }
+  .post-body h3 { font-size: 23px; margin: 30px 0 10px; }
+  .post-body h4 { font-size: 19px; }
+  .post-quote { margin: 40px auto; padding: 32px 0; }
+  .post-author-bio { margin: 44px auto 64px; }
+  .related-posts { margin: 64px auto 56px; }
+  .rt-cta { flex-direction: column; align-items: flex-start; padding: 24px; }
+  .rt-cta-actions { width: 100%; flex-wrap: wrap; align-self: auto; }
+  .blog-newsletter { margin-bottom: 80px; }
+  .blog-newsletter-inner { padding: 44px 24px; }
+  .blog-newsletter-body { font-size: 16px; }
+  .bolt-image-wrap { width: 100vw !important; margin-left: 0 !important; height: 42vw !important; max-height: 42vw !important; }
+}
+@media (max-width: 640px) {
+  .related-grid { grid-template-columns: 1fr; }
+  .author-bio-card { flex-direction: column; }
+  .post-body table { font-size: 13px; }
+  .post-body thead th { font-size: 10px; }
+  .post-body th, .post-body td { padding: 10px 12px; }
+}
+@media (max-width: 560px) { :root { --gutter: 20px; } }
+</style>
+</head>
+<body>
+
+<!-- ─── NAVBAR ────────────────────────────────────────────────────────────── -->
+<nav class="mkt-nav" aria-label="Primary">
+  <div class="mkt-nav-inner">
+    <!-- Nav-bar Back button — only appears on mobile when a submenu is active (JS toggles .is-on-submenu on .mkt-nav). Replaces the logo in the same slot. -->
+    <button class="mkt-nav-back" data-mobile-back aria-label="Back to main menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+      Back
+    </button>
+    <a href="../" class="mkt-nav-logo" aria-label="bolt.new home">
+      <!-- Canonical bolt.new wordmark (from images/bolt-new.svg) — inlined so the nav renders without an extra network request. -->
+      <svg viewBox="0 0 85 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M26.1121 20.9491C21.0582 20.9491 18.4869 17.9995 18.4869 14.3126C18.4869 9.9472 21.9744 5.99476 27.0283 5.99476C32.0822 5.99476 34.6535 8.94434 34.6535 12.6313C34.6535 16.9967 31.166 20.9491 26.1121 20.9491ZM26.319 16.2593C28.0923 16.2593 29.2154 14.6665 29.2154 12.8968C29.2154 11.481 28.2992 10.6846 26.8214 10.6846C25.0481 10.6846 23.925 12.2774 23.925 14.0471C23.925 15.4629 24.8412 16.2593 26.319 16.2593Z" fill="#fff"/>
+        <path d="M40.0368 20.5952H34.717L39.0615 0.921487H44.3814L40.0368 20.5952Z" fill="#fff"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M10.4272 20.9491C8.80168 20.9491 7.20572 20.3592 6.28951 19.0909L5.96635 20.5867L0 23.75L0.644095 20.5867L4.9891 0.921487H10.309L8.77213 7.853C10.0134 6.49619 11.1661 5.99476 12.6438 5.99476C15.8358 5.99476 17.9637 8.08896 17.9637 11.9234C17.9637 15.8758 15.5107 20.9491 10.4272 20.9491ZM12.4665 13.0443C12.4665 14.873 11.1661 16.2593 9.48145 16.2593C8.53569 16.2593 7.6786 15.9053 7.11705 15.2859L7.94459 11.658C8.56524 11.0385 9.27456 10.6846 10.1021 10.6846C11.373 10.6846 12.4665 11.6285 12.4665 13.0443Z" fill="#fff"/>
+        <path d="M49.9163 20.9491C46.8426 20.9491 44.6555 19.8283 44.6555 17.3506C44.6555 17.1442 44.6851 16.6427 44.7737 16.2298L45.9264 10.9501H43.562L44.5964 6.34871H46.9608L47.8179 2.45527L53.7735 0L53.1378 2.46127L52.2807 6.34871H55.1771L54.1426 10.9501H51.2462L50.4778 14.4306C50.4187 14.696 50.3892 14.991 50.3892 15.109C50.3892 15.7874 50.8029 16.2593 51.7191 16.2593C51.9851 16.2593 52.3693 16.1708 52.458 16.1118V20.3592C51.8965 20.7427 50.8916 20.9491 49.9163 20.9491Z" fill="#fff"/>
+        <path d="M56.461 21.0087C55.7527 21.0087 55.1886 20.4196 55.1886 19.7127C55.1886 18.8879 55.897 18.1941 56.7234 18.1941C57.4317 18.1941 57.9958 18.7832 57.9958 19.4901C57.9958 20.3149 57.2875 21.0087 56.461 21.0087Z" fill="#fff"/>
+        <path d="M65.3576 20.8386H62.9964L63.7309 17.5133C63.7572 17.3955 63.8097 17.186 63.8097 17.0289C63.8097 16.5969 63.4292 16.4398 63.0488 16.4398C62.5372 16.4398 62.183 16.7016 61.9338 16.9242L61.068 20.8386H58.7068L60.1104 14.5153H62.4716L62.3011 15.2354C62.7602 14.8164 63.3374 14.3582 64.295 14.3582C65.6199 14.3582 66.3807 15.0783 66.3807 16.0209C66.3807 16.1256 66.3414 16.4136 66.3151 16.5314L65.3576 20.8386Z" fill="#fff"/>
+        <path d="M70.256 20.9956C68.2096 20.9956 66.7929 19.9745 66.7929 18.1155C66.7929 16.0994 68.3408 14.3582 70.5577 14.3582C72.1319 14.3582 73.5223 15.3139 73.5223 17.2384C73.5223 17.6704 73.4436 18.1679 73.3781 18.4035H69.1279V18.4166C69.1279 18.5083 69.5083 19.2021 70.4265 19.2021C70.925 19.2021 71.5153 19.0843 71.8039 18.8879L72.5254 20.4196C71.8826 20.8255 71.0169 20.9956 70.256 20.9956ZM69.3509 16.9111H71.4366V16.8718C71.4366 16.6885 71.2136 16.1518 70.4659 16.1518C69.8363 16.1518 69.4296 16.6362 69.3509 16.9111Z" fill="#fff"/>
+        <path d="M81.7599 20.8386H79.1888L78.9265 17.3038L77.1293 20.8386H74.5582L74.1254 14.5153H76.4866L76.5521 17.9977L78.4411 14.5153H80.5531L80.881 17.9977L82.4945 14.5153H85L81.7599 20.8386Z" fill="#fff"/>
+      </svg>
+    </a>
+
+    <ul class="mkt-nav-items">
+      <li data-menu="solutions">
+        <!-- Real link, not a button: clicking goes to the Solutions page, hovering
+             still opens the panel. The nav JS binds on '.mkt-nav-link[data-menu]'
+             (class + attribute, not tag), so the dropdown behaviour is unchanged. -->
+        <a href="https://garyliusf.github.io/Enterprise/marketing/solutions.html" class="mkt-nav-link" data-menu="solutions" aria-haspopup="true" aria-expanded="false">
+          Solutions
+          <svg class="mkt-nav-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </a>
+      </li>
+      <li data-menu="resources">
+        <button class="mkt-nav-link" data-menu="resources" aria-haspopup="true" aria-expanded="false">
+          Resources
+          <svg class="mkt-nav-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </li>
+      <li><a href="https://bolt.new/resources/templates" class="mkt-nav-link">Templates</a></li>
+      <li><a href="pricing.html" class="mkt-nav-link">Pricing</a></li>
+    </ul>
+
+    <div class="mkt-nav-right">
+      <div class="mkt-nav-actions">
+        <a href="https://bolt.new/signin" class="mkt-nav-signin">Sign in</a>
+        <a href="https://bolt.new/" target="_blank" rel="noopener" class="mkt-nav-cta hero-btn-primary">
+          <div class="btn-bg-hover"></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Started</span><span>Get Started</span></div></div>
+        </a>
+      </div>
+      <button class="mkt-nav-burger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mega panels — one per top-level menu, JS toggles .is-open on the matching data-panel -->
+
+  <div class="mkt-nav-panel" data-panel="solutions" aria-hidden="true">
+    <div class="mkt-nav-panel-inner">
+      <a href="https://bolt.new/blog/introducing-bolt-slides" class="mkt-nav-panel-feature">
+        <div class="mkt-nav-panel-feature-visual" aria-hidden="true"></div>
+        <p class="mkt-nav-panel-feature-eyebrow">Featured</p>
+        <p class="mkt-nav-panel-feature-title">Bolt Slides</p>
+        <p class="mkt-nav-panel-feature-desc">An AI deck builder that turns a prompt into a live, interactive presentation — shareable by link, no account needed.</p>
+      </a>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Top Use Cases</p>
+        <a href="https://garyliusf.github.io/Enterprise/marketing/solutions.html">All Solutions</a>
+        <a href="https://bolt.new/use-cases/ai-app-builder">AI App Builder</a>
+        <a href="https://bolt.new/use-cases/ai-website-builder">AI Website Builder</a>
+        <a href="https://bolt.new/use-cases/custom-crm-software">SaaS Dev</a>
+        <a href="https://bolt.new/use-cases/ai-prototyping-tools">Prototyping</a>
+      </div>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Business Type</p>
+        <a href="https://garyliusf.github.io/Enterprise/solutions/smb/">Small Business</a>
+        <a href="https://bolt.new/enterprise">Enterprise</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="mkt-nav-panel" data-panel="resources" aria-hidden="true">
+    <div class="mkt-nav-panel-inner">
+      <a href="https://bolt.new/resources/templates" class="mkt-nav-panel-feature">
+        <div class="mkt-nav-panel-feature-visual" aria-hidden="true"></div>
+        <p class="mkt-nav-panel-feature-eyebrow">Featured collection</p>
+        <p class="mkt-nav-panel-feature-title">Bolt Templates</p>
+        <p class="mkt-nav-panel-feature-desc">Production-ready starting points — dashboards, storefronts, portfolios, and more. Fork one and make it yours.</p>
+      </a>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Support</p>
+        <a href="https://discord.com/invite/stackblitz" target="_blank" rel="noopener">Community</a>
+        <a href="https://support.bolt.new/" target="_blank" rel="noopener">Help Center</a>
+        <a href="https://bolt.new/careers">Careers</a>
+      </div>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Build and Learn</p>
+        <a href="https://bolt.new/platform/security">Security &amp; Trust</a>
+        <a href="https://bolt.new/blog">Blog</a>
+      </div>
+    </div>
+  </div>
+</nav>
+<div class="mkt-nav-scrim" aria-hidden="true"></div>
+
+<!-- Mobile drawer — full-screen slide-in sheet with drill-down. Only rendered on ≤1024px via CSS. -->
+<div class="mkt-nav-mobile" id="mkt-nav-mobile" aria-hidden="true" role="dialog" aria-label="Menu">
+  <div class="mkt-nav-mobile-header">
+    <!-- Left slot swaps: logo on home view, Back on submenu views. Both live in the DOM; JS toggles which is visible via a class on the drawer. -->
+    <a href="../" class="mkt-nav-logo" aria-label="bolt.new home" data-mobile-role="logo">
+      <svg viewBox="0 0 85 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M26.1121 20.9491C21.0582 20.9491 18.4869 17.9995 18.4869 14.3126C18.4869 9.9472 21.9744 5.99476 27.0283 5.99476C32.0822 5.99476 34.6535 8.94434 34.6535 12.6313C34.6535 16.9967 31.166 20.9491 26.1121 20.9491ZM26.319 16.2593C28.0923 16.2593 29.2154 14.6665 29.2154 12.8968C29.2154 11.481 28.2992 10.6846 26.8214 10.6846C25.0481 10.6846 23.925 12.2774 23.925 14.0471C23.925 15.4629 24.8412 16.2593 26.319 16.2593Z" fill="#fff"/>
+        <path d="M40.0368 20.5952H34.717L39.0615 0.921487H44.3814L40.0368 20.5952Z" fill="#fff"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M10.4272 20.9491C8.80168 20.9491 7.20572 20.3592 6.28951 19.0909L5.96635 20.5867L0 23.75L0.644095 20.5867L4.9891 0.921487H10.309L8.77213 7.853C10.0134 6.49619 11.1661 5.99476 12.6438 5.99476C15.8358 5.99476 17.9637 8.08896 17.9637 11.9234C17.9637 15.8758 15.5107 20.9491 10.4272 20.9491ZM12.4665 13.0443C12.4665 14.873 11.1661 16.2593 9.48145 16.2593C8.53569 16.2593 7.6786 15.9053 7.11705 15.2859L7.94459 11.658C8.56524 11.0385 9.27456 10.6846 10.1021 10.6846C11.373 10.6846 12.4665 11.6285 12.4665 13.0443Z" fill="#fff"/>
+        <path d="M49.9163 20.9491C46.8426 20.9491 44.6555 19.8283 44.6555 17.3506C44.6555 17.1442 44.6851 16.6427 44.7737 16.2298L45.9264 10.9501H43.562L44.5964 6.34871H46.9608L47.8179 2.45527L53.7735 0L53.1378 2.46127L52.2807 6.34871H55.1771L54.1426 10.9501H51.2462L50.4778 14.4306C50.4187 14.696 50.3892 14.991 50.3892 15.109C50.3892 15.7874 50.8029 16.2593 51.7191 16.2593C51.9851 16.2593 52.3693 16.1708 52.458 16.1118V20.3592C51.8965 20.7427 50.8916 20.9491 49.9163 20.9491Z" fill="#fff"/>
+        <path d="M56.461 21.0087C55.7527 21.0087 55.1886 20.4196 55.1886 19.7127C55.1886 18.8879 55.897 18.1941 56.7234 18.1941C57.4317 18.1941 57.9958 18.7832 57.9958 19.4901C57.9958 20.3149 57.2875 21.0087 56.461 21.0087Z" fill="#fff"/>
+        <path d="M65.3576 20.8386H62.9964L63.7309 17.5133C63.7572 17.3955 63.8097 17.186 63.8097 17.0289C63.8097 16.5969 63.4292 16.4398 63.0488 16.4398C62.5372 16.4398 62.183 16.7016 61.9338 16.9242L61.068 20.8386H58.7068L60.1104 14.5153H62.4716L62.3011 15.2354C62.7602 14.8164 63.3374 14.3582 64.295 14.3582C65.6199 14.3582 66.3807 15.0783 66.3807 16.0209C66.3807 16.1256 66.3414 16.4136 66.3151 16.5314L65.3576 20.8386Z" fill="#fff"/>
+        <path d="M70.256 20.9956C68.2096 20.9956 66.7929 19.9745 66.7929 18.1155C66.7929 16.0994 68.3408 14.3582 70.5577 14.3582C72.1319 14.3582 73.5223 15.3139 73.5223 17.2384C73.5223 17.6704 73.4436 18.1679 73.3781 18.4035H69.1279V18.4166C69.1279 18.5083 69.5083 19.2021 70.4265 19.2021C70.925 19.2021 71.5153 19.0843 71.8039 18.8879L72.5254 20.4196C71.8826 20.8255 71.0169 20.9956 70.256 20.9956ZM69.3509 16.9111H71.4366V16.8718C71.4366 16.6885 71.2136 16.1518 70.4659 16.1518C69.8363 16.1518 69.4296 16.6362 69.3509 16.9111Z" fill="#fff"/>
+        <path d="M81.7599 20.8386H79.1888L78.9265 17.3038L77.1293 20.8386H74.5582L74.1254 14.5153H76.4866L76.5521 17.9977L78.4411 14.5153H80.5531L80.881 17.9977L82.4945 14.5153H85L81.7599 20.8386Z" fill="#fff"/>
+      </svg>
+    </a>
+    <button class="mkt-nav-mobile-back" data-back hidden aria-label="Back to menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+      BACK
+    </button>
+    <button class="mkt-nav-mobile-close" aria-label="Close menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+    </button>
+  </div>
+
+  <div class="mkt-nav-mobile-body">
+    <!-- Home view — top-level items -->
+    <div class="mkt-nav-mobile-view is-active" data-view="home">
+      <button class="mkt-nav-mobile-item" data-drill="solutions">
+        Solutions
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <button class="mkt-nav-mobile-item" data-drill="resources">
+        Resources
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <a class="mkt-nav-mobile-item" href="https://bolt.new/resources/templates">Templates</a>
+      <a class="mkt-nav-mobile-item" href="pricing.html">Pricing</a>
+    </div>
+
+    <!-- Solutions submenu -->
+    <div class="mkt-nav-mobile-view" data-view="solutions">
+      <a href="https://bolt.new/blog/introducing-bolt-slides" class="mkt-nav-mobile-feature">
+        <p class="mkt-nav-mobile-feature-title">Bolt Slides →</p>
+        <p class="mkt-nav-mobile-feature-desc">An AI deck builder that turns a prompt into a live, interactive presentation — shareable by link, no account needed.</p>
+      </a>
+      <p class="mkt-nav-mobile-heading">Top Use Cases</p>
+      <div class="mkt-nav-mobile-links">
+        <a href="https://garyliusf.github.io/Enterprise/marketing/solutions.html">All Solutions</a>
+        <a href="https://bolt.new/use-cases/ai-app-builder">AI App Builder</a>
+        <a href="https://bolt.new/use-cases/ai-website-builder">AI Website Builder</a>
+        <a href="https://bolt.new/use-cases/custom-crm-software">SaaS Dev</a>
+        <a href="https://bolt.new/use-cases/ai-prototyping-tools">Prototyping</a>
+      </div>
+      <p class="mkt-nav-mobile-heading">Business Type</p>
+      <div class="mkt-nav-mobile-links">
+        <a href="https://garyliusf.github.io/Enterprise/solutions/smb/">Small Business</a>
+        <a href="https://bolt.new/enterprise">Enterprise</a>
+      </div>
+    </div>
+
+    <!-- Resources submenu -->
+    <div class="mkt-nav-mobile-view" data-view="resources">
+      <a href="https://bolt.new/resources/templates" class="mkt-nav-mobile-feature">
+        <p class="mkt-nav-mobile-feature-title">Bolt Templates →</p>
+        <p class="mkt-nav-mobile-feature-desc">Production-ready starting points — dashboards, storefronts, portfolios, and more. Fork one and make it yours.</p>
+      </a>
+      <p class="mkt-nav-mobile-heading">Support</p>
+      <div class="mkt-nav-mobile-links">
+        <a href="https://discord.com/invite/stackblitz" target="_blank" rel="noopener">Community</a>
+        <a href="https://support.bolt.new/" target="_blank" rel="noopener">Help Center</a>
+        <a href="https://bolt.new/careers">Careers</a>
+      </div>
+      <p class="mkt-nav-mobile-heading">Build and Learn</p>
+      <div class="mkt-nav-mobile-links">
+        <a href="https://bolt.new/platform/security">Security &amp; Trust</a>
+        <a href="https://bolt.new/blog">Blog</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="mkt-nav-mobile-footer">
+    <a href="https://bolt.new/" target="_blank" rel="noopener" class="hero-btn-primary">
+      <div class="btn-bg-hover"></div>
+      <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Started</span><span>Get Started</span></div></div>
+    </a>
+    <a href="https://bolt.new/signin" class="mkt-nav-mobile-signin">Sign in</a>
+  </div>
+</div>
+
+<!-- ── SUB-NAV (label + segment links back to the index) ── -->
+<nav class="nav">
+  <a href="customers.html" class="nav-logo">
+    <span class="nav-logo-label eyebrow-scramble">Customers</span>
+  </a>
+  <div class="filter-group-wrap">
+    <div class="filter-group">
+      <a class="filter-btn" href="customers.html">All</a>
+      <a class="filter-btn" href="customers.html">Founders</a>
+      <a class="filter-btn" href="customers.html">Small Business</a>
+      <a class="filter-btn" href="customers.html">Enterprise</a>
+      <a class="filter-btn" href="customers.html">Agencies</a>
+      <a class="filter-btn" href="customers.html">Side Projects</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ── READING PROGRESS ── -->
+<canvas class="reading-progress" id="reading-progress"></canvas>
+
+<!-- ── BREADCRUMBS ── -->
+<div class="post-breadcrumbs">
+  <nav class="blog-breadcrumbs" aria-label="Breadcrumb">
+    <ol class="blog-breadcrumbs-list">
+      <li class="blog-breadcrumb">
+        <a class="blog-breadcrumb-link" href="customers.html">Customers</a>
+        <span class="blog-breadcrumb-sep" aria-hidden="true">/</span>
+      </li>
+      <li class="blog-breadcrumb">
+        <a class="blog-breadcrumb-link" href="customers.html">Founders</a>
+        <span class="blog-breadcrumb-sep" aria-hidden="true">/</span>
+      </li>
+      <li class="blog-breadcrumb">
+        <span class="blog-breadcrumb-current" aria-current="page">How FlagStat shipped without a developer</span>
+      </li>
+    </ol>
+  </nav>
+</div>
+
+<!-- ── POST HEADER ── -->
+<header class="post-header">
+  <h1 class="post-title">"A developer would've made this impossible" &mdash; how FlagStat shipped without one</h1>
+  <p class="post-subtitle">Customers in eight states, 50,000 page views in 60 days, and a pre-seed round closing &mdash; all off a product Bradley Metrock described into existence on Bolt.</p>
+</header>
+
+<!-- ── HERO IMAGE ── -->
+<div class="post-hero">
+  <div class="post-hero-image"><img src="https://picsum.photos/seed/flagstat-hq/1200/675" alt="FlagStat"></div>
+</div>
+
+<div class="post-shell">
+  <aside class="post-toc-col">
+    <div class="post-toc-eyebrow">On this page</div>
+    <nav class="post-toc-list" aria-label="Table of contents"></nav>
+  </aside>
+  <div class="post-doc">
+
+    <div class="post-byline">
+      <span class="post-byline-author">
+        <span class="post-author-avatar"><img src="https://picsum.photos/seed/bradley/80/80?grayscale" alt="Bradley Metrock"></span>
+        <span class="post-author-name">Bradley Metrock, Founder of FlagStat</span>
+      </span>
+      <span class="post-date">Aug 14, 2026</span>
+      <span class="post-readtime">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        4 min
+      </span>
+    </div>
+
+    <article class="post-body">
+      <p>Bradley Metrock isn't an engineer. He had an idea for FlagStat, a data product for college-sports fans and analysts, and every conventional path to building it ended in the same place: a quote he couldn't justify and a timeline he couldn't survive.</p>
+
+      <h2>Highlights</h2>
+      <ul>
+        <li><strong>8 states</strong> with active, paying customers</li>
+        <li><strong>50,000 page views</strong> in the first 60 days after launch</li>
+        <li><strong>Pre-seed round</strong> closing off the product he built himself</li>
+        <li><strong>Zero engineering hires</strong> &mdash; and no agency invoice</li>
+      </ul>
+
+      <h2>The quote that almost killed the idea</h2>
+      <p>The standard playbook for a non-technical founder is grim: find a technical co-founder, or pay an agency. The co-founder search costs months. The agency route costs tens of thousands of dollars before you've validated anything &mdash; and every revision afterward is a change order.</p>
+      <p>FlagStat needed something harder than a landing page: live data, search, and pages that hold up under real traffic. The kind of scope that turns agency quotes into five figures and timelines into quarters.</p>
+
+      <div class="post-quote">
+        <p>"A developer, or development agency, would've made the task impossible for what we were trying to do."</p>
+      </div>
+
+      <h2>Describing software into existence</h2>
+      <p>Instead, Bradley opened Bolt and described what FlagStat should do &mdash; in plain English. The first working version existed the same day. Not a mockup: a deployed product with real pages he could put in front of real people.</p>
+      <p>Iteration worked the same way. When something needed to change, he described the change and watched it happen. No backlog, no hand-off, no translating his own product vision through someone else's schedule. The feedback loop between <em>seeing a problem</em> and <em>shipping the fix</em> collapsed to minutes.</p>
+
+      <div class="rt-cta rt-cta--banner">
+        <div class="rt-cta-text">
+          <h3 class="rt-cta-heading">Start building today</h3>
+          <p class="rt-cta-body">Describe what you want to build. Bolt does the rest.</p>
+        </div>
+        <div class="rt-cta-actions">
+          <a class="bolt-btn bolt-btn--lg" href="https://bolt.new/?get_started=1">Sign Up Now</a>
+        </div>
+      </div>
+
+      <h2>Fifty thousand page views later</h2>
+      <p>FlagStat launched to a real market, not a waitlist. Within two months the numbers looked like this:</p>
+      <table>
+        <thead>
+          <tr><th>Metric</th><th>Result</th><th>Timeframe</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Page views</td><td>50,000</td><td>First 60 days</td></tr>
+          <tr><td>States with active customers</td><td>8</td><td>At launch + 60 days</td></tr>
+          <tr><td>Engineering headcount</td><td>0</td><td>Still</td></tr>
+          <tr><td>Funding</td><td>Pre-seed closing</td><td>Off the shipped product</td></tr>
+        </tbody>
+      </table>
+      <p>The traction did what a pitch deck can't: it turned investor conversations into a closing pre-seed round. Investors weren't evaluating a promise &mdash; they were clicking around a product with users in eight states.</p>
+
+      <h2>What's next for FlagStat</h2>
+      <p>The round funds growth, not a rebuild. Because the product is already production software &mdash; with the code his, editable, and deployable &mdash; new capital goes to data partnerships and reach instead of paying down the "we'll rebuild it properly later" debt that prototype tools leave behind.</p>
+      <p>Bradley's advice for other non-technical founders is simple: stop waiting for permission to build. <a href="https://bolt.new">Describe it, ship it, and let the traction argue for you.</a></p>
+
+      <div class="post-tags">
+        <a class="post-tag-item" href="customers.html">Founders</a>
+        <a class="post-tag-item" href="customers.html">SaaS</a>
+        <a class="post-tag-item" href="customers.html">Sports Data</a>
+      </div>
+    </article>
+
+    <div class="post-author-bio">
+      <div class="author-bio-card">
+        <div class="author-bio-avatar"><img src="https://picsum.photos/seed/bradley/128/128?grayscale" alt="Bradley Metrock"></div>
+        <div>
+          <div class="author-bio-name">Bradley Metrock</div>
+          <div class="author-bio-role">Founder, FlagStat</div>
+          <p class="author-bio-text">Bradley built FlagStat end-to-end on Bolt.new without writing code &mdash; taking it from an idea to paying customers in eight states and a closing pre-seed round.</p>
+        </div>
+      </div>
+    </div>
+
+    <section class="related-posts">
+      <div class="related-eyebrow"><span class="eyebrow-text eyebrow-scramble">Keep Reading</span></div>
+      <div class="related-grid">
+        <a href="customers.html" class="related-card">
+          <div class="related-card-image"><img src="https://picsum.photos/seed/harborline-app/640/360" alt=""></div>
+          <div class="related-card-body">
+            <div class="related-card-tag">Founders</div>
+            <div class="related-card-title">Pitching investors with a working product, not a deck</div>
+            <div class="related-card-readtime">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              3 min read
+            </div>
+          </div>
+        </a>
+        <a href="customers.html" class="related-card">
+          <div class="related-card-image"><img src="https://picsum.photos/seed/meridian-app/640/360" alt=""></div>
+          <div class="related-card-body">
+            <div class="related-card-tag">Agencies</div>
+            <div class="related-card-title">Client sites in three days, with revisions live on the call</div>
+            <div class="related-card-readtime">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              4 min read
+            </div>
+          </div>
+        </a>
+      </div>
+    </section>
+
+  </div><!-- /post-doc -->
+</div><!-- /post-shell -->
+
+<!-- ── FINAL CTA ── -->
+<div class="blog-newsletter">
+  <div class="blog-newsletter-inner">
+    <canvas class="blog-newsletter-glow" id="cta-glow-canvas" aria-hidden="true"></canvas>
+    <div>
+      <div class="blog-newsletter-eyebrow eyebrow-scramble">Get started</div>
+      <div class="blog-newsletter-heading">Your story starts with a prompt.</div>
+      <p class="blog-newsletter-body">Join millions of builders shipping real products on Bolt.new. Start for free &mdash; upgrade when you&rsquo;re ready to scale.</p>
+    </div>
+    <a href="https://bolt.new/?get_started=1" class="bolt-btn bolt-btn--lg">Start Building</a>
+  </div>
+</div>
+
+<!-- ── SITE FOOTER (canonical: divider → link columns → bolt wordmark; the
+     dark band supplies the black ground the shared footer assumes) ── -->
+<div class="footer-dark-band" style="padding-top:88px;">
+  <div class="site-footer-divider" style="max-width:1200px;margin:0 auto;padding:0 min(80px, 5vw);box-sizing:border-box;"></div>
+
+<footer class="site-footer">
+  <div class="site-footer-cols">
+    <div class="site-footer-col">
+      <p class="site-footer-label">Solutions</p>
+      <ul class="site-footer-links">
+        <li><a href="https://bolt.new/use-cases/ai-app-builder">AI App Builder</a></li>
+        <li><a href="https://bolt.new/use-cases/ai-website-builder">AI Website Builder</a></li>
+        <li><a href="https://bolt.new/use-cases/custom-crm-software">SaaS Dev</a></li>
+        <li><a href="https://bolt.new/use-cases/ai-prototyping-tools">Prototyping</a></li>
+        <li><a href="https://garyliusf.github.io/Enterprise/solutions/smb/">Small Business</a></li>
+        <li><a href="https://bolt.new/enterprise">Enterprise</a></li>
+      </ul>
+    </div>
+    <div class="site-footer-col">
+      <p class="site-footer-label">Resources</p>
+      <ul class="site-footer-links">
+        <li><a href="https://bolt.new/blog">Blog</a></li>
+        <li><a href="https://bolt.new/platform/security">Security &amp; Trust</a></li>
+        <li><a href="https://discord.com/invite/stackblitz" target="_blank" rel="noopener">Community</a></li>
+        <li><a href="https://support.bolt.new/" target="_blank" rel="noopener">Help Center</a></li>
+        <li><a href="https://bolt.new/careers">Careers</a></li>
+      </ul>
+    </div>
+    <div class="site-footer-col">
+      <p class="site-footer-label">More</p>
+      <ul class="site-footer-links">
+        <li><a href="https://bolt.new/resources/templates">Templates</a></li>
+        <li><a href="pricing.html">Pricing</a></li>
+        <li><a href="https://stackblitz.com/terms-of-service">Terms of Use</a></li>
+        <li><a href="https://stackblitz.com/privacy-policy">Privacy Policy</a></li>
+      </ul>
+    </div>
+    <div class="site-footer-col site-footer-col--connect">
+      <p class="site-footer-label">Connect</p>
+      <div class="site-footer-social site-footer-social--col">
+        <a href="https://x.com/boltdotnew" target="_blank" rel="noopener" aria-label="X (Twitter)">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a>
+        <a href="https://linkedin.com/company/stackblitz" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.03-1.85-3.03-1.86 0-2.14 1.45-2.14 2.94v5.66H9.34V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.61 0 4.28 2.38 4.28 5.47zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56z"/></svg>
+        </a>
+        <a href="https://discord.gg/stackblitz" target="_blank" rel="noopener" aria-label="Discord">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.32 4.37a19.8 19.8 0 0 0-4.89-1.52.07.07 0 0 0-.08.04c-.21.38-.45.86-.61 1.25a18.27 18.27 0 0 0-5.49 0 12.6 12.6 0 0 0-.62-1.25.08.08 0 0 0-.08-.04c-1.7.29-3.36.8-4.89 1.52a.07.07 0 0 0-.03.03C.53 8.6-.32 12.71.1 16.77a.08.08 0 0 0 .03.06 19.9 19.9 0 0 0 6 3.03.08.08 0 0 0 .08-.03c.46-.63.87-1.3 1.23-2a.08.08 0 0 0-.04-.11 13.1 13.1 0 0 1-1.87-.9.08.08 0 0 1-.01-.13c.13-.09.25-.19.37-.29a.07.07 0 0 1 .08-.01c3.93 1.79 8.18 1.79 12.06 0a.07.07 0 0 1 .08.01c.12.1.25.2.37.3a.08.08 0 0 1-.01.12c-.6.35-1.22.65-1.87.9a.08.08 0 0 0-.04.11c.36.7.78 1.36 1.23 2a.08.08 0 0 0 .08.03 19.83 19.83 0 0 0 6.01-3.03.08.08 0 0 0 .03-.06c.5-4.7-.83-8.78-3.5-12.4a.06.06 0 0 0-.03-.03zM8.02 14.24c-1.18 0-2.16-1.08-2.16-2.42s.96-2.42 2.16-2.42c1.21 0 2.18 1.1 2.16 2.42 0 1.34-.96 2.42-2.16 2.42zm7.97 0c-1.18 0-2.16-1.08-2.16-2.42s.96-2.42 2.16-2.42c1.21 0 2.18 1.1 2.16 2.42 0 1.34-.95 2.42-2.16 2.42z"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- bolt wordmark — own section so the site-footer columns sit above it -->
+<section class="footer-image-section">
+  <div class="bolt-image-wrap">
+    <img src="../images/bolt-footer.webp" alt="bolt" loading="lazy" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;opacity:0.20;">
+    <canvas id="bolt-shimmer-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;mix-blend-mode:screen;"></canvas>
+    <div style="position:absolute;inset:0;background:linear-gradient(to bottom, #000 0%, transparent 22%, transparent 88%, #000 100%);z-index:3;"></div>
+  </div>
+</section>
+</div><!-- /footer-dark-band -->
+
+<script>
+/* ── Eyebrow scramble (verbatim live blog) ──────────────────────────────── */
+(function() {
+  var CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  function scramble(el) {
+    var original = el.textContent; var chars = original.split(''); var total = chars.length;
+    el.style.whiteSpace = 'nowrap'; el.style.display = 'inline-block';
+    el.style.minWidth = el.getBoundingClientRect().width + 'px';
+    var locked = new Array(total).fill(false); var startTime = null; var duration = 500;
+    function phase1(ts) {
+      if (!startTime) startTime = ts;
+      var progress = Math.min((ts - startTime) / duration, 1);
+      var result = '', allDone = true;
+      for (var i = 0; i < total; i++) {
+        if (chars[i] === ' ') { locked[i] = true; result += ' '; continue; }
+        if (!locked[i] && progress >= (i / total) * 0.85) locked[i] = true;
+        if (locked[i]) { result += chars[i]; } else { allDone = false; result += CHARS[Math.floor(Math.random() * CHARS.length)]; }
+      }
+      el.textContent = result;
+      if (!allDone || progress < 1) { requestAnimationFrame(phase1); }
+      else { el.textContent = original; setTimeout(function() { locked = new Array(total).fill(false); startTime = null; requestAnimationFrame(phase1); }, 4000 + Math.random() * 1000); }
+    }
+    requestAnimationFrame(phase1);
+  }
+  var obs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting && !e.target.dataset.scrambling) {
+        e.target.dataset.scrambling = '1';
+        scramble(e.target);
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.5 });
+  document.querySelectorAll('.eyebrow-scramble').forEach(function(el) { obs.observe(el); });
+})();
+
+/* ── Table of contents — build from h2s, numbered, mint fill scroll-spy ─── */
+(function () {
+  var article = document.querySelector('.post-body');
+  var shell = document.querySelector('.post-shell');
+  var col = document.querySelector('.post-toc-col');
+  var list = document.querySelector('.post-toc-list');
+  if (!article || !list) return;
+  var h2s = Array.prototype.slice.call(article.querySelectorAll('h2'));
+  if (!h2s.length) { shell.classList.add('post-shell--no-toc'); return; }
+  var links = h2s.map(function (h, i) {
+    var id = h.textContent.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    h.id = id;
+    var a = document.createElement('a');
+    a.className = 'post-toc-link';
+    a.href = '#' + id;
+    var num = document.createElement('span');
+    num.className = 'post-toc-num';
+    num.textContent = (i + 1 < 10 ? '0' : '') + (i + 1);
+    a.appendChild(num);
+    a.appendChild(document.createTextNode(h.textContent.trim()));
+    list.appendChild(a);
+    return a;
+  });
+  /* rail appears while the article is on screen */
+  if (col && 'IntersectionObserver' in window) {
+    new IntersectionObserver(function (entries) {
+      col.classList.toggle('is-in-view', entries[0].isIntersecting);
+    }, { rootMargin: '-140px 0px -80px 0px' }).observe(article);
+  }
+  function spy() {
+    var mid = (window.innerHeight || document.documentElement.clientHeight) * 0.4;
+    var active = -1;
+    for (var i = 0; i < h2s.length; i++) {
+      if (h2s[i].getBoundingClientRect().top <= mid) active = i;
+    }
+    links.forEach(function (a, i) { a.classList.toggle('is-active', i === active); });
+    if (active >= 0) {
+      var a = links[active];
+      list.style.setProperty('--toc-fill', (a.offsetTop + a.offsetHeight) + 'px');
+      list.classList.add('has-active');
+    } else {
+      list.style.setProperty('--toc-fill', '0px');
+      list.classList.remove('has-active');
+    }
+  }
+  window.addEventListener('scroll', spy, { passive: true });
+  window.addEventListener('resize', spy);
+  spy();
+})();
+
+/* ── Reading progress — animated blue static fills to scroll position ───── */
+(function () {
+  var canvas = document.getElementById('reading-progress');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  function size() { canvas.width = window.innerWidth; canvas.height = 3; }
+  window.addEventListener('resize', size); size();
+  var REDUCE = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function draw() {
+    var doc = document.documentElement;
+    var max = doc.scrollHeight - doc.clientHeight;
+    var p = max > 0 ? Math.min(1, window.scrollY / max) : 0;
+    var W = canvas.width, filled = Math.round(W * p);
+    ctx.clearRect(0, 0, W, 3);
+    for (var x = 0; x < filled; x += 2) {
+      ctx.fillStyle = 'rgba(20,136,252,' + (0.55 + Math.random() * 0.45).toFixed(2) + ')';
+      ctx.fillRect(x, 0, 2, 3);
+    }
+    if (!REDUCE) requestAnimationFrame(draw);
+  }
+  if (REDUCE) { window.addEventListener('scroll', draw, { passive: true }); draw(); }
+  else requestAnimationFrame(draw);
+})();
+
+/* ── CTA panel glow — soft animated blue pixel field (same as index) ────── */
+(function () {
+  var canvas = document.getElementById('cta-glow-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var SPACING = 8, DOT = 2, cols, rows, phases;
+  function init() {
+    var r = canvas.parentElement.getBoundingClientRect();
+    canvas.width = Math.round(r.width); canvas.height = Math.round(r.height);
+    cols = Math.ceil(canvas.width / SPACING) + 1;
+    rows = Math.ceil(canvas.height / SPACING) + 1;
+    phases = Array.from({ length: rows }, function () { return Float32Array.from({ length: cols }, function () { return Math.random() * Math.PI * 2; }); });
+  }
+  window.addEventListener('resize', init); init();
+  var start = null;
+  function draw(ts) {
+    if (!start) start = ts; var t = ts - start;
+    var W = canvas.width, H = canvas.height;
+    if (!W || !H) { requestAnimationFrame(draw); return; }
+    ctx.clearRect(0, 0, W, H);
+    for (var c = 0; c < cols; c++) {
+      var cf = c / cols;
+      var hm = Math.exp(-Math.pow(cf - 0.5, 2) / (2 * 0.26 * 0.26));
+      if (hm < 0.05) continue;
+      for (var r = 0; r < rows; r++) {
+        var rf = r / rows;
+        var vm = Math.min(1, rf / 0.35) * Math.min(1, (1 - rf) / 0.35);
+        if (vm < 0.08) continue;
+        var ph = phases[r][c];
+        var w1 = Math.sin(c * 0.11 + r * 0.23 - t * 0.0011 + ph);
+        var w2 = Math.sin(c * 0.06 - r * 0.09 + t * 0.0007 + ph * 0.7);
+        var wave = (w1 + w2) / 2;
+        var op = hm * vm * Math.max(0, wave) * 0.30;
+        if (op < 0.02) continue;
+        ctx.fillStyle = 'rgba(90,150,240,' + op.toFixed(3) + ')';
+        ctx.fillRect(c * SPACING, r * SPACING, DOT, DOT);
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
+})();
+</script>
+
+<script>
+// ── Bolt strip shimmer (verbatim security-agent) ─────────────────────────────
+(function() {
+  var canvas = document.getElementById('bolt-shimmer-canvas');
+  if (!canvas) return;
+  var wrap = canvas.parentElement;
+  var ctx = canvas.getContext('2d');
+  var img = wrap.querySelector('img');
+  var W, H, strips = [], t = 0;
+  var hoverT = 0, isHovered = false, splashT = 0, splashStart = null, splashDuration = 300;
+  var observer = new IntersectionObserver(function(entries) {
+    if (entries[0].isIntersecting && !splashStart) { splashStart = Date.now(); observer.disconnect(); }
+  }, { threshold: 0.1 });
+  observer.observe(wrap);
+  function sampleStrips() {
+    var SW = 400, SH = 200;
+    var s = document.createElement('canvas'); s.width = SW; s.height = SH;
+    var sc = s.getContext('2d'); sc.drawImage(img, 0, 0, SW, SH);
+    var data = sc.getImageData(0, 0, SW, SH).data;
+    strips = [];
+    var inStrip = false, stripStart = 0;
+    for (var x = 0; x < SW; x++) {
+      var b = 0;
+      for (var y = 20; y < SH - 20; y++) { var idx = (y * SW + x) * 4; b += (data[idx] + data[idx+1] + data[idx+2]) / 3; }
+      b /= (SH - 40);
+      if (b > 28 && !inStrip) { inStrip = true; stripStart = x; }
+      else if (b <= 28 && inStrip) {
+        inStrip = false;
+        strips.push({ cx: (stripStart + x) / 2 / SW, w: (x - stripStart) / SW, phase: Math.random() * Math.PI * 2, freq: 0.5 + Math.random() * 1.2, yPhase: Math.random() * Math.PI * 2, yFreq: 0.35 + Math.random() * 0.7, speedMult: 0.6 + Math.random() * 0.8 });
+      }
+    }
+  }
+  function init() {
+    var r = wrap.getBoundingClientRect(); W = canvas.width = r.width; H = canvas.height = r.height;
+    t = Math.random() * 80; sampleStrips();
+    var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+    if (isTouch) { splashDuration = 1500; } else {
+      wrap.addEventListener('mouseenter', function() { isHovered = true; });
+      wrap.addEventListener('mouseleave', function() { isHovered = false; });
+    }
+    requestAnimationFrame(tick);
+  }
+  function tick() {
+    var splashRaw = splashStart ? Math.max(0, 1 - (Date.now() - splashStart) / splashDuration) : 0;
+    splashT = splashRaw * splashRaw * splashRaw;
+    t += 0.028 + hoverT * 0.016;
+    hoverT += ((isHovered ? 1 : 0) - hoverT) * (isHovered ? 0.07 : 0.025);
+    ctx.clearRect(0, 0, W, H);
+    for (var i = 0; i < strips.length; i++) {
+      var st = strips[i];
+      var brightness = (Math.sin(t * st.freq * st.speedMult + st.phase) * 0.5 + 0.5);
+      if (brightness < 0.01) continue;
+      var x = st.cx * W; var w = Math.max(st.w * W, 3);
+      var centerY = (Math.sin(t * st.yFreq * st.speedMult + st.yPhase) * 0.5 + 0.5) * H;
+      var spread = H * (0.55 + hoverT * 0.25);
+      var baseA = brightness * 0.11; var peakA = brightness * 0.28;
+      var boost = Math.max(hoverT, splashT);
+      var a = (baseA + (peakA - baseA) * boost).toFixed(3);
+      var a2 = (parseFloat(a) * 1.4).toFixed(3);
+      var grad = ctx.createLinearGradient(0, centerY - spread, 0, centerY + spread);
+      grad.addColorStop(0, 'rgba(220,225,240,0)'); grad.addColorStop(0.3, 'rgba(220,225,240,' + a + ')');
+      grad.addColorStop(0.5, 'rgba(255,255,255,' + a2 + ')'); grad.addColorStop(0.7, 'rgba(220,225,240,' + a + ')');
+      grad.addColorStop(1, 'rgba(220,225,240,0)');
+      ctx.fillStyle = grad; ctx.fillRect(x - w / 2, 0, w, H);
+    }
+    requestAnimationFrame(tick);
+  }
+  if (img.complete) init(); else img.addEventListener('load', init);
+})();
+</script>
+
+<!-- Shared standardized components + nav/footer (single source of truth) -->
+<link rel="stylesheet" href="shared-components.css?v=20260811b">
+<script>window.__pageOwnsScrollAnims = true; /* page owns its eyebrow scramble (shared-file hazard rule) */</script>
+<script src="shared-components.js"></script>
+<script src="shared-nav-footer.js"></script>
+</body>
+</html>
