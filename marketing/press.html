@@ -53,19 +53,6 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
    includes) — see solutions.html. The nav CTA extends .hero-btn-primary from
    shared-components.css (linked at end of body, standard order). ── */
 
-/* company-style rounded button (kept for in-content CTAs — matches how the
-   live blog styles content buttons vs. its chrome) */
-.bolt-btn {
-  display: inline-flex; flex-direction: row; gap: 6px; align-items: center; justify-content: center;
-  border: none; border-radius: 6px; cursor: pointer; text-decoration: none;
-  font-family: var(--font-sans); font-weight: 500; font-size: 14px;
-  background: #1488FC; color: #fff;
-  padding: 8px 12px 8.8px;
-  transition: background-color 0.2s;
-}
-.bolt-btn:hover { background: #0d6fe8; }
-.bolt-btn--lg { font-size: 15px; padding: 12px 20px 12.8px; }
-
 /* ── BLOG SUB-NAV (live .nav — label | centered pills | search) ── */
 .nav {
   position: sticky; top: var(--bolt-nav-h); z-index: 90; /* under the mkt-nav scrim (99) so the mega-panel dims it */
@@ -267,9 +254,17 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
   text-align: center; font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.5px;
   text-transform: uppercase; color: var(--text-muted); padding: 12px 0 30px;
 }
-.np-list { list-style: none; columns: 2; column-gap: 56px; column-rule: 1px solid var(--border); }
-.np-list > li { break-inside: avoid; }
+/* grid, not CSS columns: multi-column packs each column independently, so the
+   row separators drift out of alignment when titles wrap to 2 lines — grid
+   pairs items into rows that share a height, keeping every rule aligned.
+   The centre rule is a background line (survives filtering, unlike per-item
+   borders keyed to nth-child). */
+.np-list {
+  list-style: none; display: grid; grid-template-columns: 1fr 1fr; column-gap: 56px;
+  background: linear-gradient(var(--border), var(--border)) center top / 1px 100% no-repeat;
+}
 .np-list > li[hidden] { display: none; }
+.np-item { height: 100%; }
 .np-item { display: block; padding: 20px 4px 24px; border-top: 1px solid var(--border); text-decoration: none; }
 .np-item-date { display: block; font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
 .np-item-title {
@@ -305,6 +300,16 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
 .blog-newsletter-body { font-size: 18px; color: rgba(255,255,255,0.82); line-height: 1.6; max-width: 660px; margin: 0 auto; }
 .blog-newsletter-body a { color: #7FDDC1; text-decoration: none; border-bottom: 1px solid rgba(127,221,193,0.35); }
 .blog-newsletter-body a:hover { border-bottom-color: #7FDDC1; }
+/* email-capture form — verbatim from LIVE bolt.new/blog (blog.*.css, audited
+   2026-08-14): dark #141518 field, blue focus ring, marketing .hero-btn-primary
+   Subscribe with right-side-only radius */
+.blog-newsletter-form { display: flex; gap: 0; width: 100%; max-width: 460px; border: 1px solid transparent; border-radius: 4px; overflow: hidden; background: #141518; transition: border-color .18s ease, box-shadow .18s ease; }
+.blog-newsletter-form:focus-within { border-color: #1488fc; box-shadow: 0 0 0 1px #1488fc; }
+.blog-newsletter-input { flex: 1; font-family: var(--font-sans); font-size: 15px; padding: 0 20px; height: 52px; border: none; background: transparent; color: #fff; outline: none; }
+.blog-newsletter-input:focus { outline: none; }
+.blog-newsletter-input::placeholder { color: rgba(255,255,255,0.45); font-size: 15px; }
+.blog-newsletter-btn { height: 52px; padding: 0 24px; font-size: 15px; border-radius: 0 3px 3px 0; }
+.blog-newsletter-success { font-size: 14px; color: var(--accent-mint); font-weight: 500; }
 
 /* ── FOOTER BAND (site-footer + bolt wordmark live on black; the page is
    beige, so a wrapper carries the dark ground the shared footer assumes) ── */
@@ -345,7 +350,7 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
   .blog-hero-title { font-size: clamp(26px, 7vw, 34px); }
   .blog-hero-subscribe { margin-top: 32px; width: max(62%, 240px); }
   .np-section-head { padding: 44px 0 0; }
-  .np-list { columns: 1; }
+  .np-list { grid-template-columns: 1fr; background: none; }
   .np-item-title { font-size: 20px; }
   .blog-newsletter { margin-bottom: 80px; }
   .blog-newsletter-inner { padding: 44px 24px; }
@@ -1239,9 +1244,15 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
     <div>
       <div class="blog-newsletter-eyebrow eyebrow-scramble">Media inquiries</div>
       <div class="blog-newsletter-heading">Writing about Bolt?</div>
-      <p class="blog-newsletter-body">For interviews, comments, or embargoed briefings, reach the team at <a href="mailto:press@stackblitz.com">press@stackblitz.com</a>. We reply within one business day.</p>
+      <p class="blog-newsletter-body">For interviews, comments, or embargoed briefings, reach the team at <a href="mailto:press@stackblitz.com">press@stackblitz.com</a> &mdash; or get every release in your inbox.</p>
     </div>
-    <a href="mailto:press@stackblitz.com" class="bolt-btn bolt-btn--lg">Contact the Press Team</a>
+    <form class="blog-newsletter-form" id="nl-form" data-success="You&rsquo;re on the press list &mdash; see you in your inbox.">
+      <input class="blog-newsletter-input" type="email" name="email" placeholder="you@newsroom.com" required aria-label="Email address">
+      <button class="hero-btn-primary blog-newsletter-btn" type="submit">
+        <div class="btn-bg-hover"></div>
+        <div class="btn-text-wrap"><div class="btn-text-inner"><span>Subscribe</span><span>Subscribe</span></div></div>
+      </button>
+    </form>
   </div>
 </div>
 
@@ -1415,6 +1426,21 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     form.outerHTML = '<p class="blog-hero-subscribe-success">You’re in — new coverage lands in your inbox.</p>';
+  });
+})();
+
+/* ── Newsletter CTA form (live blog nl-form pattern; sandbox has no backend,
+   so success is shown immediately) ──────────────────────────────────────── */
+(function () {
+  var form = document.getElementById('nl-form');
+  if (!form || form.__init) return;
+  form.__init = true;
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var p = document.createElement('p');
+    p.className = 'blog-newsletter-success';
+    p.textContent = form.getAttribute('data-success') || 'You’re subscribed!';
+    form.replaceWith(p);
   });
 })();
 
