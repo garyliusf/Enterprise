@@ -71,11 +71,11 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
 .nav > .filter-group-wrap { grid-column: 1; justify-self: center; min-width: 0; width: 100%; }
 .nav > .blog-search { grid-column: 2; justify-self: end; }
 
-/* Desktop: WRAP instead of horizontal scroll — a hidden-scrollbar overflow row
-   can't be scrolled with a mouse (Gary hit the fade with no way to reach
-   "Owned"). Mobile (≤768) switches back to touch-scroll + fade. Always
-   left-aligned: centre-justify + overflow clips the "All" pill. */
-.filter-group { display: flex; align-items: center; min-width: 0; flex-wrap: wrap; }
+/* ONE row, scrollable right (Gary): nowrap + overflow, edge fades as the cue.
+   Mouse users can't scroll a hidden-scrollbar row natively, so JS translates
+   vertical wheel to scrollLeft over the row. Always left-aligned:
+   centre-justify + overflow clips the "All" pill. */
+.filter-group { display: flex; align-items: center; min-width: 0; overflow-x: auto; scrollbar-width: none; }
 .filter-group::-webkit-scrollbar { display: none; }
 .filter-group-wrap { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; }
 .filter-group-wrap .filter-group { flex: 1; }
@@ -372,8 +372,6 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
   .blog-newsletter-inner { padding: 44px 24px; }
   .blog-newsletter-body { font-size: 16px; }
   .nav { column-gap: 12px; margin-top: 36px; }
-  /* phones: back to the blog's touch-scroll pill row (swiping works there) */
-  .filter-group { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
 }
 @media (max-width: 560px) {
   :root { --gutter: 20px; }
@@ -1707,6 +1705,7 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
       b.classList.add('active');
       seg = b.dataset.seg;
       apply(true);
+      b.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' }); /* pull a half-clipped pill fully into view */
     });
   });
   search.addEventListener('input', function () { apply(true); });
@@ -1730,6 +1729,15 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
   group.addEventListener('scroll', pillFade, { passive: true });
   window.addEventListener('resize', pillFade);
   pillFade();
+  /* mouse wheel → horizontal scroll over the pill row (a hidden-scrollbar
+     overflow row is otherwise unreachable with a mouse; trackpads swipe natively) */
+  group.addEventListener('wheel', function (e) {
+    if (group.scrollWidth <= group.clientWidth + 2) return;
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+      group.scrollLeft += e.deltaY;
+      e.preventDefault();
+    }
+  }, { passive: false });
   /* Silkscreen loads async and widens the pills — re-measure once fonts land */
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(pillFade);
 })();
