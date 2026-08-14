@@ -62,7 +62,7 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
      overflows and paints OVER the Press label and the Search field — pills
      scroll internally behind the fade affordance instead */
   display: grid; grid-template-columns: minmax(0,1fr) auto; column-gap: 16px; align-items: center;
-  height: 60px; margin-top: 44px;
+  min-height: 60px; padding: 4px 0; margin-top: 44px;
   background: rgba(240,237,233,0.95);
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
   border-top: 1px solid var(--rule-strong);
@@ -71,9 +71,11 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
 .nav > .filter-group-wrap { grid-column: 1; justify-self: center; min-width: 0; width: 100%; }
 .nav > .blog-search { grid-column: 2; justify-self: end; }
 
-/* always left-aligned: centre-justified flex + overflow clips the "All" pill
-   off the left edge, and JS re-measuring (font-load races) proved unreliable */
-.filter-group { display: flex; align-items: center; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+/* Desktop: WRAP instead of horizontal scroll — a hidden-scrollbar overflow row
+   can't be scrolled with a mouse (Gary hit the fade with no way to reach
+   "Owned"). Mobile (≤768) switches back to touch-scroll + fade. Always
+   left-aligned: centre-justify + overflow clips the "All" pill. */
+.filter-group { display: flex; align-items: center; min-width: 0; flex-wrap: wrap; }
 .filter-group::-webkit-scrollbar { display: none; }
 .filter-group-wrap { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; }
 .filter-group-wrap .filter-group { flex: 1; }
@@ -124,7 +126,8 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
 }
 .np-topbar-motto { color: var(--text-secondary); text-align: center; }
 .blog-hero-heading {
-  font-family: var(--font-serif); font-size: clamp(44px, 6.4vw, 84px); font-weight: 700;
+  /* same type as the blog masthead H1 ("The Bolt Blog") — clamp(36,5vw,64)/600 */
+  font-family: var(--font-serif); font-size: clamp(36px, 5vw, 64px); font-weight: 600;
   color: var(--text-primary); line-height: 1; letter-spacing: -0.02em;
   text-align: center; margin: 34px 0 14px;
 }
@@ -234,13 +237,13 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
   70% { transform: translate(-4%,1%); } 80% { transform: translate(1%,3%); }
   90% { transform: translate(3%,-2%); }
 }
-.blog-hero-image::after {
+.blog-hero-image::after, .np-item-thumb::after {
   content: ""; position: absolute; inset: -50%; width: 200%; height: 200%; z-index: 2; pointer-events: none;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='ng'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23ng)'/%3E%3C/svg%3E");
   background-size: 150px 150px; opacity: 0.38; mix-blend-mode: overlay;
   animation: grain 0.5s steps(2) infinite;
 }
-@media (prefers-reduced-motion: reduce) { .blog-hero-image::after { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .blog-hero-image::after, .np-item-thumb::after { animation: none; } }
 
 /* ── CLIPPINGS FEED — single column, 10 at a time behind Load More ── */
 .blog-list-section { padding: 0 0 96px; }
@@ -275,7 +278,14 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
 .btn-outline > span { position: relative; z-index: 2; }
 .btn-outline:hover { border-color: var(--text-primary); }
 .btn-outline .btn-pixel-canvas { z-index: 1; border-radius: 2px; } /* under the label span, like the ghost button */
-.np-item { display: block; padding: 20px 4px 24px; border-top: 1px solid var(--border); text-decoration: none; }
+.np-item {
+  display: grid; grid-template-columns: minmax(0,1fr) 320px; gap: 48px; align-items: start;
+  padding: 24px 4px 28px; border-top: 1px solid var(--border); text-decoration: none;
+}
+.np-item--noimg { grid-template-columns: 1fr; } /* article offers no og:image (or blocks it) */
+.np-item-thumb { aspect-ratio: 16/9; overflow: hidden; border-radius: 3px; background: var(--surface); position: relative; }
+.np-item-thumb img { width: 100%; height: 100%; object-fit: cover; transition: filter 0.4s ease; }
+.np-item:hover .np-item-thumb img { filter: grayscale(1); }
 .np-item-date { display: block; font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
 .np-item-title {
   font-family: var(--font-serif); font-size: 22px; font-weight: 600; line-height: 1.18;
@@ -346,6 +356,8 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
   .blog-hero-image { grid-column: 1; grid-row: auto; aspect-ratio: 16/9; }
   .blog-hero-content { grid-column: 1; grid-row: auto; align-self: auto; margin: 32px 24px 0; padding: 26px 30px; box-shadow: 0 12px 40px rgba(0,0,0,0.06); }
   .blog-hero-subscribe { grid-column: 1; grid-row: auto; align-self: auto; justify-self: end; width: 62%; max-width: none; margin-top: 40px; }
+  .np-item { grid-template-columns: minmax(0,1fr) 200px; gap: 28px; }
+  .np-item--noimg { grid-template-columns: 1fr; }
 }
 @media (max-width: 768px) {
   :root { --gutter: 24px; }
@@ -359,10 +371,15 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
   .blog-hero-title { font-size: clamp(26px, 7vw, 34px); }
   .blog-hero-subscribe { margin-top: 32px; width: max(62%, 240px); }
   .np-item-title { font-size: 20px; }
+  /* phones: thumb on top, full width (blog-feed pattern) */
+  .np-item { grid-template-columns: 1fr; gap: 14px; }
+  .np-item-thumb { order: -1; }
   .blog-newsletter { margin-bottom: 80px; }
   .blog-newsletter-inner { padding: 44px 24px; }
   .blog-newsletter-body { font-size: 16px; }
   .nav { column-gap: 12px; margin-top: 36px; }
+  /* phones: back to the blog's touch-scroll pill row (swiping works there) */
+  .filter-group { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
 }
 @media (max-width: 560px) {
   :root { --gutter: 20px; }
@@ -581,7 +598,7 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
     <div class="np-double-rule"></div>
     <div class="blog-hero-card">
       <a href="https://www.fastcompany.com/91495408/applied-ai-most-innovative-companies-2026" target="_blank" rel="noopener" class="blog-hero-image" aria-label="Read the Fast Company story">
-        <img src="https://picsum.photos/seed/bolt-press-front/1200/675" alt="">
+        <img src="images/press/fastcompany-com-d31d6f6e.jpg" alt="">
       </a>
       <a href="https://www.fastcompany.com/91495408/applied-ai-most-innovative-companies-2026" target="_blank" rel="noopener" class="blog-hero-content">
         <div>
@@ -643,585 +660,873 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
 
       <li data-seg="international">
         <a class="np-item" href="https://www.blogdumoderateur.com/outils-vibe-coding-code-ia-tester-2026/" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">August 14, 2026</span>
           <h3 class="np-item-title">10 outils de vibe coding et de code par IA &agrave; tester en 2026</h3>
           <span class="np-item-credit"><span class="np-item-pub">Blog du Mod&eacute;rateur</span> &middot; International <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/blogdumoderateur-com-70bfaf77.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="tier1">
         <a class="np-item" href="https://www.fastcompany.com/91581232/23-industry-shifts-leaders-see-coming-soon" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">August 10, 2026</span>
           <h3 class="np-item-title">23 industry shifts leaders see coming soon</h3>
           <span class="np-item-credit"><span class="np-item-pub">Fast Company</span> &middot; Tier-1 Press <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/fastcompany-com-231cb8e0.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="tier1">
         <a class="np-item" href="https://www.fastcompany.com/91581189/15-leadership-lessons-that-leaders-learned-the-hard-way" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">August 6, 2026</span>
           <h3 class="np-item-title">15 leadership lessons that leaders learned the hard way</h3>
           <span class="np-item-credit"><span class="np-item-pub">Fast Company</span> &middot; Tier-1 Press <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/fastcompany-com-8fdfe392.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="mention">
         <a class="np-item" href="https://news.google.com/rss/articles/CBMia0FVX3lxTFByNlc0QmR4a2VLd3NoelNzSWYtT1k4bmxZZmZ0aEdzZVFzdmRsU2M5SW9JSVY5MkZhWl90bXd5ZElseHU4MHFVQTllWXdIalBBSGVXaW42Umg1MDc0alFOdzVqYUFJVXJ1OGdz?oc=5" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">July 17, 2026</span>
           <h3 class="np-item-title">Lovable vs Bolt.new vs v0 &mdash; the $400M vs $40M ARR gap</h3>
           <span class="np-item-credit"><span class="np-item-pub">tech-insider.org</span> &middot; Mention <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/news-google-com-f7505a40.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="mention">
         <a class="np-item" href="https://venturebeat.com/technology/canva-launches-code-2-0-offering-ai-website-building-to-every-user-including-free-accounts" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">July 14, 2026</span>
           <h3 class="np-item-title">Canva launches Code 2.0 &mdash; Bolt.new&rsquo;s ARR ramp cited as competitive context</h3>
           <span class="np-item-credit"><span class="np-item-pub">VentureBeat</span> &middot; Mention <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/venturebeat-com-56315024.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="trade">
         <a class="np-item" href="https://www.techradar.com/pro/software-services/bolt-no-code-review" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">July 1, 2026</span>
           <h3 class="np-item-title">Bolt no-code review</h3>
           <span class="np-item-credit"><span class="np-item-pub">TechRadar Pro</span> &middot; Trade &amp; Review <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/techradar-com-a3a732d6.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="tier1">
         <a class="np-item" href="https://finance.yahoo.com/news/vibe-coding-being-called-greatest-055519409.html" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">June 30, 2026</span>
           <h3 class="np-item-title">Vibe coding is being called the greatest unlock for non-techies. These 9 startups are raising billions.</h3>
           <span class="np-item-credit"><span class="np-item-pub">Business Insider</span> &middot; Tier-1 Press <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/finance-yahoo-com-3b0d832c.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="trade">
         <a class="np-item" href="https://www.xda-developers.com/tried-vibe-coding-a-real-app-in-bolt-v0-and-lovable/" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">May 6, 2026</span>
           <h3 class="np-item-title">I tried vibe coding a real app in Bolt, v0, and Lovable</h3>
           <span class="np-item-credit"><span class="np-item-pub">XDA Developers</span> &middot; Trade &amp; Review <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/xda-developers-com-8fc2a587.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="mention">
-        <a class="np-item" href="https://news.google.com/rss/articles/CBMitAFBVV95cUxONGhtVWlNak1rdUdZTjdMWUpIOEhTNkdiNzlKUGVuN0NDNlBNMElnNlNuSHVQOFlQQWx6aGNpb2pzMmxicG5HQUx6OWNnT0RzVHhMdUlVU3YwVXVaQ1R6QkNwRjExZUcyTVdQN0kyNHhiUHRxXzFkdC1PUFpZbUl5dGZucXlRTy1TaFUyMnoyems3UFVCQ1I3eURnVktoM2w1b1I4Q0tDeFF1WGNhQlliMEtLelU?oc=5" target="_blank" rel="noopener">
+        <a class="np-item np-item--noimg" href="https://news.google.com/rss/articles/CBMitAFBVV95cUxONGhtVWlNak1rdUdZTjdMWUpIOEhTNkdiNzlKUGVuN0NDNlBNMElnNlNuSHVQOFlQQWx6aGNpb2pzMmxicG5HQUx6OWNnT0RzVHhMdUlVU3YwVXVaQ1R6QkNwRjExZUcyTVdQN0kyNHhiUHRxXzFkdC1PUFpZbUl5dGZucXlRTy1TaFUyMnoyems3UFVCQ1I3eURnVktoM2w1b1I4Q0tDeFF1WGNhQlliMEtLelU?oc=5" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">May 5, 2026</span>
           <h3 class="np-item-title">Agentic building across the enterprise with Bolt.new on Microsoft Azure and Microsoft 365</h3>
           <span class="np-item-credit"><span class="np-item-pub">VMblog</span> &middot; Mention <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
         </a>
       </li>
 
       <li data-seg="analyst">
         <a class="np-item" href="https://sacra.com/c/bolt-new/" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">May 1, 2026</span>
           <h3 class="np-item-title">Bolt.new company research page (living profile)</h3>
           <span class="np-item-credit"><span class="np-item-pub">Sacra</span> &middot; Analyst <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/sacra-com-e3ddcfca.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="analyst">
-        <a class="np-item" href="https://news.google.com/rss/articles/CBMiggFBVV95cUxNak11Z1gwLUpfaU9PekEzM2RKc2h2ZWRSUGcxbFpPNjNDdDdLY2Zock53MWdpNmpPeGhDS1k4QTNMOF93OVRfaXB1WnJBV3hBcU0xWjRiZjJ1aVZhZDVuY1ZrNmp1aXhHc3BGTzZaa1VyR0Mtb29MZDZ4YjVhTVpKdmt3?oc=5" target="_blank" rel="noopener">
+        <a class="np-item np-item--noimg" href="https://news.google.com/rss/articles/CBMiggFBVV95cUxNak11Z1gwLUpfaU9PekEzM2RKc2h2ZWRSUGcxbFpPNjNDdDdLY2Zock53MWdpNmpPeGhDS1k4QTNMOF93OVRfaXB1WnJBV3hBcU0xWjRiZjJ1aVZhZDVuY1ZrNmp1aXhHc3BGTzZaa1VyR0Mtb29MZDZ4YjVhTVpKdmt3?oc=5" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">April 9, 2026</span>
           <h3 class="np-item-title">Bolt.new by StackBlitz: $20M ARR in 2 months (company profile)</h3>
           <span class="np-item-credit"><span class="np-item-pub">Dealroom</span> &middot; Analyst <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
         </a>
       </li>
 
       <li data-seg="newsletter">
         <a class="np-item" href="https://www.news.aakashg.com/p/pm-guide-bolt" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">April 1, 2026</span>
           <h3 class="np-item-title">The PM&rsquo;s complete guide to Bolt.new</h3>
           <span class="np-item-credit"><span class="np-item-pub">Product Growth</span> &middot; Newsletter <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/news-aakashg-com-7dc25932.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="newsletter">
         <a class="np-item" href="https://technically.dev/posts/vibe-coding-tool-comparison" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">March 23, 2026</span>
           <h3 class="np-item-title">2026 vibe coding tool comparison</h3>
           <span class="np-item-credit"><span class="np-item-pub">Technically</span> &middot; Newsletter <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/technically-dev-e653e2f1.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="tier1">
         <a class="np-item" href="https://www.fastcompany.com/91495408/applied-ai-most-innovative-companies-2026" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">March 1, 2026</span>
           <h3 class="np-item-title">The most innovative companies in applied AI for 2026 &mdash; Bolt recognized</h3>
           <span class="np-item-credit"><span class="np-item-pub">Fast Company</span> &middot; Tier-1 Press <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/fastcompany-com-d31d6f6e.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="podcast">
         <a class="np-item" href="https://theroompodcast.medium.com/s13e4-from-sleeping-at-aol-to-building-bolt-new-with-eric-simons-founder-and-ceo-of-stackblitz-ad416ed13ac9" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">February 16, 2026</span>
           <h3 class="np-item-title">From sleeping at AOL to building Bolt.new (S13E4)</h3>
           <span class="np-item-credit"><span class="np-item-pub">The Room Podcast</span> &middot; Podcast <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/theroompodcast-medium-co-75fd90ab.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="tier1">
         <a class="np-item" href="https://news.google.com/rss/articles/CBMimgFBVV95cUxPVmlOVDRISEtEWktBZlAxdXNKR3RPdGd2TVBHNHA4QUJzNmVRSnlxb3ZPeWFtd29JeGNFSXNFSldQMm9Lb2xHVjhybVBxU3oxYmlrcWF5OW5kOWswbFM2Rzc4SlBMQ1k1OE5qU09EajJkNlZXRDM3TXJkSnBLd0FDTDN5MnQ1dEtXWnViWVd5MUtsSHp1a3k1VThR?oc=5" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">January 30, 2026</span>
           <h3 class="np-item-title">&ldquo;Wait, you&rsquo;re that guy?&rdquo; Here&rsquo;s what the AOL squatter did next</h3>
           <span class="np-item-credit"><span class="np-item-pub">The Business Journals</span> &middot; Tier-1 Press <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/news-google-com-52f16270.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="tier1">
         <a class="np-item" href="https://fortune.com/2026/01/02/advice-to-gen-z-from-startup-founder-vibe-coding-college-taboo-worth-it/" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">January 2, 2026</span>
           <h3 class="np-item-title">15 years after skipping college to launch 3 startups &mdash; Eric Simons&rsquo; advice to Gen Z (op-ed)</h3>
           <span class="np-item-credit"><span class="np-item-pub">Fortune</span> &middot; Tier-1 Press <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/fortune-com-9af0568e.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="trade">
         <a class="np-item" href="https://dev.to/strapi/build-a-company-website-with-boltnew-and-strapi-5-part-1-28oo" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">November 13, 2025</span>
           <h3 class="np-item-title">Build a company website with Bolt.new and Strapi 5 (official partner series)</h3>
           <span class="np-item-credit"><span class="np-item-pub">dev.to &times; Strapi</span> &middot; Trade &amp; Review <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/dev-to-d6dd3ab3.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="podcast">
         <a class="np-item" href="https://www.iheart.com/podcast/269-world-of-daas-83463657/episode/boltnew-ceo-eric-simons-one-306290011/" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">November 11, 2025</span>
           <h3 class="np-item-title">Bolt.new CEO Eric Simons &mdash; one of the fastest growing AI companies in the world</h3>
           <span class="np-item-credit"><span class="np-item-pub">World of DaaS</span> &middot; Podcast <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/iheart-com-477dae78.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="trade">
         <a class="np-item" href="https://www.infoworld.com/article/4078884/what-is-vibe-coding-ai-writes-the-code-so-developers-can-think-big.html" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">November 4, 2025</span>
           <h3 class="np-item-title">What is vibe coding? AI writes the code so developers can think big</h3>
           <span class="np-item-credit"><span class="np-item-pub">InfoWorld</span> &middot; Trade &amp; Review <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/infoworld-com-12ce0512.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="podcast">
         <a class="np-item" href="https://www.youtube.com/watch?v=yzD7F2BVpv0" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">October 30, 2025</span>
           <h3 class="np-item-title">A conversation with bolt.new CEO and founder Eric Simons (fireside)</h3>
           <span class="np-item-credit"><span class="np-item-pub">Stripe</span> &middot; Podcast &amp; Video <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/youtube-com-7a18cd9e.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="tier1">
         <a class="np-item" href="https://techcrunch.com/2025/09/29/vibe-coding-startup-anything-nabs-a-100m-valuation-after-hitting-2m-arr-in-its-first-two-weeks/" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">September 29, 2025</span>
           <h3 class="np-item-title">Vibe-coding startup Anything nabs a $100M valuation &mdash; Bolt named among rivals</h3>
           <span class="np-item-credit"><span class="np-item-pub">TechCrunch</span> &middot; Tier-1 Press <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/techcrunch-com-12e57700.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="mention">
         <a class="np-item" href="https://news.google.com/rss/articles/CBMilAFBVV95cUxOcHhNajFIZXdJZHN1OTZ6M003TUdqb0ltTFNFa0RaX0J5ZHVxV05qa0dxZU1Lb2lrS19VempLTmhxLXRoczlaOVlpVWEyXzlEVEJ5SmFkZW1aMjc3R2ZPbEVZRWt5LUM0ZE1OcUtscDl5T2RadkdFd3AwZHlrM2RCMDJHU0pFN1ZCaEtrc3FIcVlzdjFO?oc=5" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">September 26, 2025</span>
           <h3 class="np-item-title">AI vibe coding tools were supposed to change everything. Now traffic is crashing.</h3>
           <span class="np-item-credit"><span class="np-item-pub">Business Insider</span> &middot; Mention <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/news-google-com-ae4290d4.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="newsletter">
         <a class="np-item" href="https://newsletter.posthog.com/p/from-0-to-40m-arr-inside-the-tech" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">September 16, 2025</span>
           <h3 class="np-item-title">How bolt.new works &mdash; inside the tech that powers Bolt.new</h3>
           <span class="np-item-credit"><span class="np-item-pub">PostHog</span> &middot; Newsletter <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/newsletter-posthog-com-6ed6beed.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="tier1">
         <a class="np-item" href="https://biztoc.com/x/157c1676d47a93a8" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">August 14, 2025</span>
           <h3 class="np-item-title">As AI coding services face a reckoning, Bolt tries to go beyond building</h3>
           <span class="np-item-credit"><span class="np-item-pub">Business Insider</span> &middot; Tier-1 Press <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/biztoc-com-944428c9.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="mention">
         <a class="np-item" href="https://news.google.com/rss/articles/CBMi4wFBVV95cUxPaG13OGhsN2lHMWR2amhIaF9tSHRpMVpqVGtLTmJDUnJLak1qbHRjTzRvTVdFUkhLNGxjYlJnWXpFcFV3NzVXX1A5a3VQV2N0eGxDUFNFcnh4VFZzNDhWTUxmNHFtcjdXY04xbXhzdHg2Mk80V0hsZmNqRUVfZTFZdk9JTVMtWU5nR3BlMzRxQnJ2ZFAyOGltdGRONkhzUzlsZXZHbXJmcURQWEpoQ2xlNkhpNUVkdDA5RDJyYTQ4T3paeWRVWXFSdDlpYlc3VEFqZVdDMWlYTjJxN2J6U19xVzc1WQ?oc=5" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">August 14, 2025</span>
           <h3 class="np-item-title">Victory Square partner Alex Chieng wins world&rsquo;s largest AI hackathon</h3>
           <span class="np-item-credit"><span class="np-item-pub">TMX Newsfile</span> &middot; Mention <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/news-google-com-470e6bc1.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="mention">
         <a class="np-item" href="https://news.google.com/rss/articles/CBMinwFBVV95cUxQMmJnVGZQcGRTbkszTnVGUHZCVktXMTR4RnpMcGliS2Y3Q2xRbEFLWXlVOThQbHZRRG9Vb3BFUUI0Q29makN1MGhJMjg0eVNpazdRdkdfTFpycXVtS3NDVVZ0Yk9wRXFFRlhCQVNmNXNGMEk5NmVpaThrdzZpVVJZQUttX3dMa3pNNDdib3AzdTh3bkFXQ3NSV1E0dDNkbWs?oc=5" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">August 12, 2025</span>
           <h3 class="np-item-title">&lsquo;Inference whales&rsquo; are eating into AI coding startups&rsquo; business model</h3>
           <span class="np-item-credit"><span class="np-item-pub">Business Insider</span> &middot; Mention <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/news-google-com-c75d8855.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="tier1">
         <a class="np-item" href="https://www.forbes.com/sites/amyfeldman/2025/08/12/next-billion-dollar-startups-2025/" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">August 12, 2025</span>
           <h3 class="np-item-title">Forbes Next Billion-Dollar Startups 2025 &mdash; StackBlitz named</h3>
           <span class="np-item-credit"><span class="np-item-pub">Forbes</span> &middot; Tier-1 Press <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/forbes-com-7d0a437e.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="tier1">
         <a class="np-item" href="https://venturebeat.com/infrastructure/claude-can-now-process-entire-software-projects-in-single-request-anthropic-says" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">August 12, 2025</span>
           <h3 class="np-item-title">Claude can now process entire software projects in a single request &mdash; Simons quoted</h3>
           <span class="np-item-credit"><span class="np-item-pub">VentureBeat</span> &middot; Tier-1 Press <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/venturebeat-com-b2b152b9.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="mention">
         <a class="np-item" href="https://news.google.com/rss/articles/CBMiugFBVV95cUxNQTNWb2F6bjIyaFJaS09TZF9VZkk0b2NWMzFlTkQ5N1R4N2ZReGw5MFRBR2ZZX2h2SnBoVUEyT3JVVDlNRHJlZl9rekNOclRrcjJpb0M3UUl3ZmdJYXM2Rjh0aWNRVHNwUmNIemFYUDZrNElTZXczVHVIVzZtRXpRMXRLSjFZalJxbVRfMjFSSFduYzF5LVRiem54eXNPSER6dHhtTlFQU3dRLTVDaDVxdWYzTlg1bWZWcEE?oc=5" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">July 28, 2025</span>
           <h3 class="np-item-title">Why Bolt.new won when I asked Claude about coding platforms: the GEO wars</h3>
           <span class="np-item-credit"><span class="np-item-pub">SaaStr</span> &middot; Mention <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/news-google-com-7dcf260c.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="podcast">
         <a class="np-item" href="https://www.youtube.com/watch?v=s8RM8uYxkoY" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">July 15, 2025</span>
           <h3 class="np-item-title">Bolt.new: how we scaled $0&ndash;20M ARR in 60 days, with 15 people (conference talk)</h3>
           <span class="np-item-credit"><span class="np-item-pub">AI Engineer World&rsquo;s Fair</span> &middot; Podcast &amp; Video <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/youtube-com-ecaac0c4.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="podcast">
         <a class="np-item" href="https://www.tsp.show/unlock-hypergrowth-how-vibe-coding-can-fast-track-your-startup-success-w-bolt-ceo-eric-simons/" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">July 14, 2025</span>
           <h3 class="np-item-title">Unlock hypergrowth: how vibe coding can fast-track your startup success</h3>
           <span class="np-item-credit"><span class="np-item-pub">The Startup Podcast</span> &middot; Podcast <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/tsp-show-0648ed0d.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="international">
-        <a class="np-item" href="https://www.heise.de/download/specials/Vibe-Coding-Dienste-im-Vergleich-Apps-entwickeln-ohne-Programmierkenntnisse-10467260" target="_blank" rel="noopener">
+        <a class="np-item np-item--noimg" href="https://www.heise.de/download/specials/Vibe-Coding-Dienste-im-Vergleich-Apps-entwickeln-ohne-Programmierkenntnisse-10467260" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">July 11, 2025</span>
           <h3 class="np-item-title">Vibe-Coding-Dienste im Vergleich: Apps entwickeln ohne Programmierkenntnisse</h3>
           <span class="np-item-credit"><span class="np-item-pub">heise Download</span> &middot; International <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
         </a>
       </li>
 
       <li data-seg="newsletter">
         <a class="np-item" href="https://www.growthunhinged.com/p/boltnew-growth-journey" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">July 9, 2025</span>
           <h3 class="np-item-title">How bolt.new hit $40M ARR in 5 months</h3>
           <span class="np-item-credit"><span class="np-item-pub">Growth Unhinged</span> &middot; Newsletter <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/growthunhinged-com-2a06524d.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="podcast">
         <a class="np-item" href="https://www.youtube.com/watch?v=ViAGOAc2LAo" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">June 22, 2025</span>
           <h3 class="np-item-title">How Bolt hit $40M ARR in 5 months with this AI pivot strategy</h3>
           <span class="np-item-credit"><span class="np-item-pub">EO (YouTube)</span> &middot; Podcast &amp; Video <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/youtube-com-b101a657.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="mention">
         <a class="np-item" href="https://news.google.com/rss/articles/CBMigAFBVV95cUxNRWlIVFdyZ1BGbmVWNzV0SEVKTWRuVndtb2ZxemdSM1N1anZNbWlhSVAzb2d3Xzd2dEx4aHZNU25pc1lCNzZSRlB3Y1h2U2NuWjZiMEk4VzhlU3VPUzN2WU9WUmlSdFoyMUpLTkhDTnNLOFhMTU1QMzk1MUw4Z2J6cA?oc=5" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">June 18, 2025</span>
           <h3 class="np-item-title">I vibe coded a website with my daughter using AI. We&rsquo;re complete novices.</h3>
           <span class="np-item-credit"><span class="np-item-pub">Business Insider</span> &middot; Mention <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/news-google-com-83055594.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="owned">
         <a class="np-item" href="https://www.youtube.com/watch?v=6z0dr_jQhDo" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">June 12, 2025</span>
           <h3 class="np-item-title">Hackathon News Live with CEO Eric Simons &mdash; #1</h3>
           <span class="np-item-credit"><span class="np-item-pub">Bolt.new (YouTube)</span> &middot; Owned <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/youtube-com-555c8e4e.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="podcast">
         <a class="np-item" href="https://www.joinpavilion.com/blog/how-bolt-hit-40m-in-four-months-and-why-it-took-eric-simons-seven-years-to-get-there" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">June 2, 2025</span>
           <h3 class="np-item-title">How Bolt hit $40M in four months &mdash; and why it took Eric Simons seven years to get there (E111)</h3>
           <span class="np-item-credit"><span class="np-item-pub">Topline by Pavilion</span> &middot; Podcast <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/joinpavilion-com-c5f39aa5.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="newsletter">
         <a class="np-item" href="https://www.productgrowth.blog/p/how-bolt-new-hacked-its-growth" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">June 2, 2025</span>
           <h3 class="np-item-title">Bolt.new growth teardown: near-shutdown to $40M ARR</h3>
           <span class="np-item-credit"><span class="np-item-pub">ProductGrowth.blog</span> &middot; Newsletter <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/productgrowth-blog-eca077e7.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="mention">
         <a class="np-item" href="https://news.google.com/rss/articles/CBMifEFVX3lxTE93VEVTemVtckRqRU95ZmZ5X3REbVNMTG1XcG5ndEllakZZMHotcHdMSWh4T3E5YzFRWFN6RzhjeVY2b1I4UHBYRFBtSWhRSEEwbmVZU2tYSVdvR2w1QWk0R3pxaGE1TXc4LS05cW1WS2dJdlRUeDVzSGFkNm8?oc=5" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">May 29, 2025</span>
           <h3 class="np-item-title">Claude-powered coding tools are poised to transform programming</h3>
           <span class="np-item-credit"><span class="np-item-pub">Understanding AI</span> &middot; Mention <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/news-google-com-faf4fd14.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="tier1">
         <a class="np-item" href="https://www.businessinsider.com/stackblitz-bolt-silicon-valley-hottest-ai-coding-startup-nearly-died-2025-5" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">May 18, 2025</span>
           <h3 class="np-item-title">The inside story of how Silicon Valley&rsquo;s hottest AI coding startup almost died</h3>
           <span class="np-item-credit"><span class="np-item-pub">Business Insider</span> &middot; Tier-1 Press <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/businessinsider-com-949ca84d.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="trade">
         <a class="np-item" href="https://www.computerworld.com/article/3975705/from-prompts-to-production-ai-will-soon-write-most-code-reshape-developer-roles.html" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">May 7, 2025</span>
           <h3 class="np-item-title">From prompts to production: AI will soon write most code &mdash; Gartner names Bolt.new</h3>
           <span class="np-item-credit"><span class="np-item-pub">Computerworld</span> &middot; Trade &amp; Review <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/computerworld-com-b10cee45.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="analyst">
         <a class="np-item" href="https://research.contrary.com/company/bolt" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">May 2, 2025</span>
           <h3 class="np-item-title">Report: Bolt business breakdown &amp; founding story</h3>
           <span class="np-item-credit"><span class="np-item-pub">Contrary Research</span> &middot; Analyst <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/research-contrary-com-ec7dd808.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="owned">
         <a class="np-item" href="https://www.youtube.com/watch?v=KY8xaxkQz0w" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">May 1, 2025</span>
           <h3 class="np-item-title">World&rsquo;s Largest Hackathon kickoff: live with Greg Isenberg &amp; Eric Simons</h3>
           <span class="np-item-credit"><span class="np-item-pub">Bolt.new (YouTube)</span> &middot; Owned <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/youtube-com-1bdc0f94.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="podcast">
-        <a class="np-item" href="https://www.aroundtheprompt.com/an-unfiltered-conversation-with-eric-simons-ceo-of-boltnew/" target="_blank" rel="noopener">
+        <a class="np-item np-item--noimg" href="https://www.aroundtheprompt.com/an-unfiltered-conversation-with-eric-simons-ceo-of-boltnew/" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">April 23, 2025</span>
           <h3 class="np-item-title">An unfiltered conversation with Eric Simons, CEO of Bolt.new</h3>
           <span class="np-item-credit"><span class="np-item-pub">Around the Prompt</span> &middot; Podcast <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
         </a>
       </li>
 
       <li data-seg="trade">
         <a class="np-item" href="https://thenewstack.io/how-developers-are-using-bolt-a-fast-growing-ai-coding-tool/" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">April 3, 2025</span>
           <h3 class="np-item-title">How developers are using Bolt, a fast-growing AI coding tool</h3>
           <span class="np-item-credit"><span class="np-item-pub">The New Stack</span> &middot; Trade &amp; Review <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/thenewstack-io-2796d56b.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="podcast">
         <a class="np-item" href="https://open.spotify.com/episode/1fNdM3QkaHlDYqiVFDrZz0" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">April 3, 2025</span>
           <h3 class="np-item-title">From 0 to $40M in 5 months: the Bolt.new story with Eric Simons</h3>
           <span class="np-item-credit"><span class="np-item-pub">High Agency (Humanloop)</span> &middot; Podcast <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/open-spotify-com-4292787e.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="analyst">
         <a class="np-item" href="https://sacra.com/research/bolt-new-at-40m-arr/" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">March 31, 2025</span>
           <h3 class="np-item-title">Bolt.new at $40M ARR</h3>
           <span class="np-item-credit"><span class="np-item-pub">Sacra</span> &middot; Analyst <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/sacra-com-14a58d44.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="mention">
         <a class="np-item" href="https://news.google.com/rss/articles/CBMi8gFBVV95cUxPNllBbjM5LWhzN0RqSmJVaGpubEVNeUJXRWhCM044ZnV6WktaNDBXQWlVMWJiTDNGLXN5UEpoWWhGTHdoSE01b2hyNDdVQjVjQnJYVTNWR210SEFIa0xWY01kR0hhU2hMaWRfWUMyN0VXTWlMVGpIaFYxVzBER3FzM2hyOUYyN19HMkVSclkyelVYU3ZtUFlnN1NxR1ZBR0FtU09UN1UxWjI1bi0yQ3d2S2t2ek1sVHZ0ZXkxUDJyNEdHMHVsMkZDaFZNdUNfQVJfMUdIY3VzQWgzWnUycEN1ZG5UR2Y0dFVUcmlwQ1QtYzF0Zw?oc=5" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">March 27, 2025</span>
           <h3 class="np-item-title">Bolt.new and Netlify power 1 million AI-generated websites</h3>
           <span class="np-item-credit"><span class="np-item-pub">PR Newswire</span> &middot; Mention <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/news-google-com-5c605275.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="tier1">
         <a class="np-item" href="https://fortune.com/2025/03/25/exclusive-emergence-capital-raises-1-billion-seventh-fund/" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">March 25, 2025</span>
           <h3 class="np-item-title">Exclusive: Emergence Capital raises $1 billion seventh fund &mdash; Bolt.new cited as breakout</h3>
           <span class="np-item-credit"><span class="np-item-pub">Fortune</span> &middot; Tier-1 Press <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/fortune-com-f53ac81f.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="international">
         <a class="np-item" href="https://www.publickey1.jp/blog/25/figmaaiwebboltnewfigma.html" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">March 25, 2025</span>
           <h3 class="np-item-title">Figma designs auto-converted to web apps: Bolt.new adds Figma import</h3>
           <span class="np-item-credit"><span class="np-item-pub">Publickey (Japan)</span> &middot; International <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/publickey1-jp-00d10bc1.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="podcast">
         <a class="np-item" href="https://www.lennysnewsletter.com/p/inside-bolt-eric-simons" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">March 13, 2025</span>
           <h3 class="np-item-title">Inside Bolt: from near-death to ~$40M ARR in 5 months</h3>
           <span class="np-item-credit"><span class="np-item-pub">Lenny&rsquo;s Podcast</span> &middot; Podcast <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/lennysnewsletter-com-9749977a.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="international">
         <a class="np-item" href="https://codezine.jp/news/detail/21065" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">February 28, 2025</span>
           <h3 class="np-item-title">Mobile app development with Expo now possible in Bolt.new</h3>
           <span class="np-item-credit"><span class="np-item-pub">CodeZine (Japan)</span> &middot; International <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/codezine-jp-f00b48bf.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="international">
         <a class="np-item" href="https://www.publickey1.jp/blog/25/aiboltnewiosandroid.html" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">February 25, 2025</span>
           <h3 class="np-item-title">Bolt.new adds iOS/Android native app development</h3>
           <span class="np-item-credit"><span class="np-item-pub">Publickey (Japan)</span> &middot; International <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/publickey1-jp-3d85bb60.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="trade">
         <a class="np-item" href="https://thenewstack.io/introduction-to-bolt-does-it-suit-professional-developers/" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">February 25, 2025</span>
           <h3 class="np-item-title">Introduction to Bolt: does it suit professional developers?</h3>
           <span class="np-item-credit"><span class="np-item-pub">The New Stack</span> &middot; Trade &amp; Review <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/thenewstack-io-f7ec4035.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="podcast">
         <a class="np-item" href="https://www.youtube.com/watch?v=moaX7CsqZjc" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">February 23, 2025</span>
           <h3 class="np-item-title">We were going to shut down our company&hellip; now we&rsquo;re worth $700M</h3>
           <span class="np-item-credit"><span class="np-item-pub">Behind the Craft</span> &middot; Podcast <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/youtube-com-a454f07e.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="podcast">
         <a class="np-item" href="https://www.listennotes.com/podcasts/the-peel-with/zero-to-20m-arr-in-two-WL9KwjGYZsB/" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">February 20, 2025</span>
           <h3 class="np-item-title">Zero to $20M ARR in two months: inside Bolt&rsquo;s 7-year journey to overnight success</h3>
           <span class="np-item-credit"><span class="np-item-pub">The Peel with Turner Novak</span> &middot; Podcast <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/listennotes-com-c349885b.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="international">
         <a class="np-item" href="https://news.google.com/rss/articles/CBMiW0FVX3lxTE54ZkpSV0lLb0kwemI0NmJoU2NTdU0xYlUxQTJiaW4wQnpzSWV3d3hnTGN2R1J0ZEszWkxmaUh0YzFkempwRHVnYTh1UWRuQldvYlpmTWlzY1lseDA?oc=5" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">February 18, 2025</span>
           <h3 class="np-item-title">How to build with AI</h3>
           <span class="np-item-credit"><span class="np-item-pub">Sifted (UK/EU)</span> &middot; International <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/news-google-com-8f83a7f5.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="trade">
         <a class="np-item" href="https://www.tomsguide.com/ai/i-just-tried-this-game-changing-ai-tool-that-lets-you-build-iphone-apps-with-a-text-prompt-no-coding-required" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">February 15, 2025</span>
           <h3 class="np-item-title">I just tried this game-changing AI tool that lets you build iPhone apps with a text prompt</h3>
           <span class="np-item-credit"><span class="np-item-pub">Tom&rsquo;s Guide</span> &middot; Trade &amp; Review <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/tomsguide-com-252d5af3.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="newsletter">
         <a class="np-item" href="https://www.bensbites.com/p/get-started-with-bolt-a-beginners-guide" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">February 13, 2025</span>
           <h3 class="np-item-title">Get started with Bolt: a beginner&rsquo;s guide</h3>
           <span class="np-item-credit"><span class="np-item-pub">Ben&rsquo;s Bites</span> &middot; Newsletter <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/bensbites-com-5304f08d.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="podcast">
         <a class="np-item" href="https://www.cognitiverevolution.ai/software-supernova-bolt-new-the-ai-web-app-developer-in-your-browser/" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">February 9, 2025</span>
           <h3 class="np-item-title">Software supernova: Bolt.new &mdash; the AI web app developer in your browser</h3>
           <span class="np-item-credit"><span class="np-item-pub">The Cognitive Revolution</span> &middot; Podcast <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/cognitiverevolution-ai-5a66585f.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="tier1">
         <a class="np-item" href="https://www.bloomberg.com/news/articles/2025-01-21/ai-speech-to-code-startup-stackblitz-is-in-talks-for-a-700-million-valuation" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">January 21, 2025</span>
           <h3 class="np-item-title">AI text-to-code startup StackBlitz is in talks for a $700 million valuation</h3>
           <span class="np-item-credit"><span class="np-item-pub">Bloomberg</span> &middot; Tier-1 Press <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/bloomberg-com-8967b074.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="trade">
         <a class="np-item" href="https://dev.to/sagar/exploring-boltnew-a-promising-tool-for-quick-prototyping-5g55" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">January 5, 2025</span>
           <h3 class="np-item-title">Exploring Bolt.new: a promising tool for quick prototyping</h3>
           <span class="np-item-credit"><span class="np-item-pub">dev.to</span> &middot; Trade &amp; Review <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/dev-to-0d760eb5.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="podcast">
         <a class="np-item" href="https://open.spotify.com/episode/4YBYTAtpdZgiHcbw9sW8nd" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">December 5, 2024</span>
           <h3 class="np-item-title">Bolt&rsquo;s Eric Simons on enabling everyone to generate websites with AI (Ep. 92)</h3>
           <span class="np-item-credit"><span class="np-item-pub">No Priors</span> &middot; Podcast <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/open-spotify-com-6a5e84b8.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="podcast">
         <a class="np-item" href="https://www.latent.space/p/bolt" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">December 2, 2024</span>
           <h3 class="np-item-title">Bolt.new, flow engineering for code agents, and +$8M ARR in 2 months</h3>
           <span class="np-item-credit"><span class="np-item-pub">Latent Space</span> &middot; Podcast <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/latent-space-98146e6c.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="trade">
         <a class="np-item" href="https://evilmartians.com/chronicles/bolt-new-from-stackblitz-how-they-surfed-the-ai-wave-with-no-wipeouts" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">December 2, 2024</span>
           <h3 class="np-item-title">bolt.new from StackBlitz: how they surfed the AI wave, with no wipeouts</h3>
           <span class="np-item-credit"><span class="np-item-pub">Evil Martians</span> &middot; Trade &amp; Review <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/evilmartians-com-48462c5c.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="newsletter">
         <a class="np-item" href="https://newsletter.pragmaticengineer.com/p/ide-that-software-engineers-love" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">November 26, 2024</span>
           <h3 class="np-item-title">IDEs with GenAI features that software engineers love &mdash; Bolt listed</h3>
           <span class="np-item-credit"><span class="np-item-pub">The Pragmatic Engineer</span> &middot; Newsletter <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/newsletter-pragmaticengi-a80f3017.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="podcast">
         <a class="np-item" href="https://www.youtube.com/watch?v=1SfUMQ1yTY8" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">November 8, 2024</span>
           <h3 class="np-item-title">Bolt tutorial for beginners with the Bolt CEO Eric Simons</h3>
           <span class="np-item-credit"><span class="np-item-pub">Greg Isenberg / Startup Ideas</span> &middot; Podcast &amp; Video <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/youtube-com-f001893a.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="trade">
         <a class="np-item" href="https://devclass.com/2024/10/16/stackblitz-bolt-new-blurs-boundaries-between-web-development-and-skilled-use-of-ai-prompts/" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">October 16, 2024</span>
           <h3 class="np-item-title">StackBlitz Bolt.new blurs boundaries between web development and skilled use of AI prompts</h3>
           <span class="np-item-credit"><span class="np-item-pub">DevClass</span> &middot; Trade &amp; Review <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/devclass-com-607f6bc2.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="international">
         <a class="np-item" href="https://www.publickey1.jp/blog/24/aiwebnodejsboltnewstackblitz.html" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">October 7, 2024</span>
           <h3 class="np-item-title">bolt.new launch coverage from ViteConf 2024</h3>
           <span class="np-item-credit"><span class="np-item-pub">Publickey (Japan)</span> &middot; International <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/publickey1-jp-5bc43add.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="owned">
         <a class="np-item" href="https://www.youtube.com/watch?v=knLe8zzwNRA" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">October 4, 2024</span>
           <h3 class="np-item-title">WebContainers &amp; AI &mdash; introducing bolt.new (launch keynote)</h3>
           <span class="np-item-credit"><span class="np-item-pub">ViteConf 2024</span> &middot; Owned <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/youtube-com-fbff76a7.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="podcast">
         <a class="np-item" href="https://www.youtube.com/watch?v=yIo-E5jKUXs" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">2025 (undated)</span>
           <h3 class="np-item-title">Eric Simons &mdash; Bolt.new</h3>
           <span class="np-item-credit"><span class="np-item-pub">Founders You Should Know</span> &middot; Podcast <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/youtube-com-44180db6.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
       <li data-seg="podcast">
         <a class="np-item" href="https://www.youtube.com/watch?v=vCWCJuzmGcs" target="_blank" rel="noopener">
+          <div class="np-item-body">
           <span class="np-item-date">2025 (undated)</span>
           <h3 class="np-item-title">Navigating the unpredictable sands of time with Eric Simons</h3>
           <span class="np-item-credit"><span class="np-item-pub">Pavilion (summit session)</span> &middot; Podcast <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        
+          </div>
+          <div class="np-item-thumb"><img src="images/press/youtube-com-c2ddc6e5.jpg" alt="" loading="lazy"></div>
         </a>
       </li>
 
