@@ -3893,6 +3893,19 @@
       else hoverTimer = setTimeout(function () { setOpen(key); }, 80);
     });
   });
+  /* Plain items (Templates, Pricing) and the right-hand actions have no
+     data-menu, so nothing fired when the pointer moved onto them and an open
+     panel just stayed up: the nav's own mouseleave can't help because the
+     cursor is still inside the nav. Moving onto a non-dropdown item is a
+     deliberate move away, so close immediately — same instant feel as
+     switching between two dropdowns. */
+  var closeZones = nav.querySelectorAll('.mkt-nav-items li:not([data-menu]), .mkt-nav-right');
+  closeZones.forEach(function (z) {
+    z.addEventListener('mouseenter', function () {
+      clearTimeout(hoverTimer);
+      if (openKey) setOpen(null);
+    });
+  });
 
   /* Keep the menu open when the pointer is inside the panel, close when both trigger + panel are left. */
   panels.forEach(function (p) {
