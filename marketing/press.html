@@ -53,30 +53,27 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
    includes) — see solutions.html. The nav CTA extends .hero-btn-primary from
    shared-components.css (linked at end of body, standard order). ── */
 
-/* ── BLOG SUB-NAV (live .nav — label | centered pills | search) ── */
+/* ── FILTER BAR (blog .nav component, moved IN-FLOW above the clippings feed —
+   it heads the feed instead of an "All coverage" label; sticks under the
+   mkt-nav while the feed scrolls) ── */
 .nav {
   position: sticky; top: var(--bolt-nav-h); z-index: 90; /* under the mkt-nav scrim (99) so the mega-panel dims it */
   /* middle track must be shrinkable: with 9 category pills an `auto` track
      overflows and paints OVER the Press label and the Search field — pills
      scroll internally behind the fade affordance instead */
-  display: grid; grid-template-columns: auto minmax(0,1fr) auto; column-gap: 16px; align-items: center;
-  padding: 0 max(var(--gutter), calc((100% - var(--max-w)) / 2));
-  height: 60px;
+  display: grid; grid-template-columns: minmax(0,1fr) auto; column-gap: 16px; align-items: center;
+  height: 60px; margin-top: 44px;
   background: rgba(240,237,233,0.95);
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--rule-strong);
   border-bottom: 1px solid var(--border);
 }
-.nav-logo { display: flex; align-items: center; gap: 0; text-decoration: none; grid-column: 1; justify-self: start; }
-.nav-logo-label {
-  font-family: var(--font-mono); font-size: 16px; font-weight: 400;
-  color: var(--accent-blue); letter-spacing: 2px; text-transform: uppercase;
-  white-space: nowrap; display: inline-block;
-}
-.nav > .filter-group-wrap { grid-column: 2; justify-self: center; min-width: 0; width: 100%; }
-.nav > .blog-search { grid-column: 3; justify-self: end; }
+.nav > .filter-group-wrap { grid-column: 1; justify-self: center; min-width: 0; width: 100%; }
+.nav > .blog-search { grid-column: 2; justify-self: end; }
 
-.filter-group { display: flex; align-items: center; min-width: 0; overflow-x: auto; scrollbar-width: none; justify-content: center; }
-.filter-group-wrap.is-scrollable .filter-group { justify-content: flex-start; } /* centered content + overflow clips the left edge unreachable — left-align when scrolling */
+/* always left-aligned: centre-justified flex + overflow clips the "All" pill
+   off the left edge, and JS re-measuring (font-load races) proved unreliable */
+.filter-group { display: flex; align-items: center; min-width: 0; overflow-x: auto; scrollbar-width: none; }
 .filter-group::-webkit-scrollbar { display: none; }
 .filter-group-wrap { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; }
 .filter-group-wrap .filter-group { flex: 1; }
@@ -245,26 +242,39 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
 }
 @media (prefers-reduced-motion: reduce) { .blog-hero-image::after { animation: none; } }
 
-/* ── CLIPPINGS FEED — newspaper two-column, rule-divided ── */
+/* ── CLIPPINGS FEED — single column, 10 at a time behind Load More ── */
 .blog-list-section { padding: 0 0 96px; }
-.np-section-head { display: flex; align-items: center; gap: 20px; padding: 56px 0 0; }
-.np-section-head::before, .np-section-head::after { content: ""; flex: 1; border-top: 1px solid var(--rule-strong); }
-.np-section-label { font-family: var(--font-mono); font-size: 15px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-blue); white-space: nowrap; }
 .np-section-sub {
   text-align: center; font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.5px;
-  text-transform: uppercase; color: var(--text-muted); padding: 12px 0 30px;
+  text-transform: uppercase; color: var(--text-muted); padding: 14px 0 26px;
 }
-/* grid, not CSS columns: multi-column packs each column independently, so the
-   row separators drift out of alignment when titles wrap to 2 lines — grid
-   pairs items into rows that share a height, keeping every rule aligned.
-   The centre rule is a background line (survives filtering, unlike per-item
-   borders keyed to nth-child). */
-.np-list {
-  list-style: none; display: grid; grid-template-columns: 1fr 1fr; column-gap: 56px;
-  background: linear-gradient(var(--border), var(--border)) center top / 1px 100% no-repeat;
-}
+.np-list { list-style: none; }
 .np-list > li[hidden] { display: none; }
-.np-item { height: 100%; }
+/* truncation fade — the page's fade-affordance treatment (gradient to bg +
+   soft blur, blur ramped in by a mask) over the last visible rows */
+.np-feed-wrap { position: relative; }
+.np-feed-fade {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 170px;
+  pointer-events: none; z-index: 2;
+  background: linear-gradient(to bottom, rgba(240,237,233,0), rgba(240,237,233,0.92) 55%, var(--bg));
+  backdrop-filter: blur(1.5px); -webkit-backdrop-filter: blur(1.5px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 60%); mask-image: linear-gradient(to bottom, transparent, #000 60%);
+}
+.np-feed-fade[hidden] { display: none; }
+/* Load More — live blog .blog-load-more / .btn-outline (audited 2026-08-14),
+   pulled up over the fade like the live feed */
+.blog-load-more { position: relative; z-index: 3; margin-top: -40px; padding: 0; display: flex; gap: 12px; justify-content: center; align-items: center; }
+.blog-load-more[hidden] { display: none; }
+.btn-outline {
+  display: inline-flex; align-items: center; justify-content: center; height: 50px; padding: 0 40px;
+  background: transparent; border: 1px solid rgba(0,0,0,0.22); border-radius: 2px;
+  color: var(--text-primary); font-size: 14px; font-weight: 600; letter-spacing: 0.2px;
+  font-family: var(--font-sans); cursor: pointer; text-decoration: none; white-space: nowrap;
+  position: relative; overflow: hidden; transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.btn-outline > span { position: relative; z-index: 2; }
+.btn-outline:hover { border-color: var(--text-primary); }
+.btn-outline .btn-pixel-canvas { z-index: 1; border-radius: 2px; } /* under the label span, like the ghost button */
 .np-item { display: block; padding: 20px 4px 24px; border-top: 1px solid var(--border); text-decoration: none; }
 .np-item-date { display: block; font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
 .np-item-title {
@@ -336,7 +346,6 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
   .blog-hero-image { grid-column: 1; grid-row: auto; aspect-ratio: 16/9; }
   .blog-hero-content { grid-column: 1; grid-row: auto; align-self: auto; margin: 32px 24px 0; padding: 26px 30px; box-shadow: 0 12px 40px rgba(0,0,0,0.06); }
   .blog-hero-subscribe { grid-column: 1; grid-row: auto; align-self: auto; justify-self: end; width: 62%; max-width: none; margin-top: 40px; }
-  .np-list { column-gap: 44px; }
 }
 @media (max-width: 768px) {
   :root { --gutter: 24px; }
@@ -349,18 +358,11 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
   .blog-hero-content { margin: 24px 14px 0; padding: 22px; }
   .blog-hero-title { font-size: clamp(26px, 7vw, 34px); }
   .blog-hero-subscribe { margin-top: 32px; width: max(62%, 240px); }
-  .np-section-head { padding: 44px 0 0; }
-  .np-list { grid-template-columns: 1fr; background: none; }
   .np-item-title { font-size: 20px; }
   .blog-newsletter { margin-bottom: 80px; }
   .blog-newsletter-inner { padding: 44px 24px; }
   .blog-newsletter-body { font-size: 16px; }
-  /* sub-nav: the desktop `1fr auto 1fr` centering track can't shrink below the
-     pill row's content width, so on phones it forced ~150px of page overflow —
-     switch the middle track to minmax(0,1fr) so the pills shrink and scroll
-     internally behind the fade affordance instead */
-  .nav { padding: 0 var(--gutter); grid-template-columns: auto minmax(0,1fr) auto; column-gap: 12px; }
-  .nav > .filter-group-wrap { width: 100%; }
+  .nav { column-gap: 12px; margin-top: 36px; }
 }
 @media (max-width: 560px) {
   :root { --gutter: 20px; }
@@ -370,7 +372,7 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
 <body>
 
 <!-- ─── NAVBAR ────────────────────────────────────────────────────────────── -->
-<nav class="mkt-nav" aria-label="Primary">
+<nav class="mkt-nav mkt-nav--on-light" aria-label="Primary">
   <div class="mkt-nav-inner">
     <!-- Nav-bar Back button — only appears on mobile when a submenu is active (JS toggles .is-on-submenu on .mkt-nav). Replaces the logo in the same slot. -->
     <button class="mkt-nav-back" data-mobile-back aria-label="Back to main menu">
@@ -565,35 +567,6 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
   </div>
 </div>
 
-<!-- ── BLOG SUB-NAV (live .nav: label | centered pills | search) ── -->
-<nav class="nav">
-  <a href="press.html" class="nav-logo">
-    <span class="nav-logo-label eyebrow-scramble">Press</span>
-  </a>
-  <div class="filter-group-wrap">
-    <div class="filter-group" id="filter-group">
-      <button class="filter-btn active" data-seg="all">All</button>
-      <button class="filter-btn" data-seg="tier1">Tier-1 Press</button>
-      <button class="filter-btn" data-seg="trade">Trade &amp; Reviews</button>
-      <button class="filter-btn" data-seg="podcast">Podcasts</button>
-      <button class="filter-btn" data-seg="newsletter">Newsletters</button>
-      <button class="filter-btn" data-seg="analyst">Analysts</button>
-      <button class="filter-btn" data-seg="international">International</button>
-      <button class="filter-btn" data-seg="mention">Mentions</button>
-      <button class="filter-btn" data-seg="owned">Owned</button>
-    </div>
-  </div>
-  <form class="blog-search" role="search" id="press-search-form">
-    <input class="blog-search-input" id="press-search" type="search" placeholder="Search" aria-label="Search coverage" autocomplete="off">
-    <button class="blog-search-clear" type="button" aria-label="Clear search" id="press-search-clear" hidden>
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
-    <button class="blog-search-btn" type="submit" aria-label="Search">
-      <svg class="blog-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-    </button>
-  </form>
-</nav>
-
 <div class="blog-wrap">
 
   <!-- ── NAMEPLATE MASTHEAD + FEATURED STORY ── -->
@@ -638,12 +611,34 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
     <div class="np-dinkus" aria-hidden="true">&#9670; &#9670; &#9670;</div>
   </section>
 
-  <!-- ── CLIPPINGS FEED ── -->
+  <!-- ── CLIPPINGS FEED (filter bar heads the feed — no section label) ── -->
   <section class="blog-list-section">
-    <div class="np-section-head">
-      <span class="np-section-label eyebrow-scramble">All coverage</span>
-    </div>
+    <nav class="nav" aria-label="Coverage filters">
+      <div class="filter-group-wrap">
+        <div class="filter-group" id="filter-group">
+          <button class="filter-btn active" data-seg="all">All</button>
+          <button class="filter-btn" data-seg="tier1">Tier-1 Press</button>
+          <button class="filter-btn" data-seg="trade">Trade &amp; Reviews</button>
+          <button class="filter-btn" data-seg="podcast">Podcasts</button>
+          <button class="filter-btn" data-seg="newsletter">Newsletters</button>
+          <button class="filter-btn" data-seg="analyst">Analysts</button>
+          <button class="filter-btn" data-seg="international">International</button>
+          <button class="filter-btn" data-seg="mention">Mentions</button>
+          <button class="filter-btn" data-seg="owned">Owned</button>
+        </div>
+      </div>
+      <form class="blog-search" role="search" id="press-search-form">
+        <input class="blog-search-input" id="press-search" type="search" placeholder="Search" aria-label="Search coverage" autocomplete="off">
+        <button class="blog-search-clear" type="button" aria-label="Clear search" id="press-search-clear" hidden>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+        <button class="blog-search-btn" type="submit" aria-label="Search">
+          <svg class="blog-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        </button>
+      </form>
+    </nav>
     <p class="np-section-sub"><span id="press-count">73 clippings</span> &middot; October 2024 &mdash; August 2026</p>
+    <div class="np-feed-wrap">
     <ul class="np-list" id="press-list">
 
       <li data-seg="international">
@@ -1231,7 +1226,12 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
       </li>
 
     </ul>
+    <div class="np-feed-fade" id="feed-fade" aria-hidden="true"></div>
+    </div><!-- /np-feed-wrap -->
     <p class="feed-empty" id="feed-empty" hidden>No coverage matches &mdash; try a different category or search.</p>
+    <div class="blog-load-more" id="load-more-wrap">
+      <button class="btn-outline" id="load-more-btn" type="button"><span>Load More</span></button>
+    </div>
     <div class="np-dinkus" aria-hidden="true">&#9670; &#9670; &#9670;</div>
   </section>
 
@@ -1367,8 +1367,9 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
   document.querySelectorAll('.eyebrow-scramble').forEach(function(el) { obs.observe(el); });
 })();
 
-/* ── Category filter + live search ──────────────────────────────────────── */
+/* ── Category filter + live search + 10-at-a-time Load More ─────────────── */
 (function () {
+  var PAGE = 10;
   var buttons = Array.prototype.slice.call(document.querySelectorAll('.filter-btn'));
   var items = Array.prototype.slice.call(document.querySelectorAll('#press-list > li'));
   var form = document.getElementById('press-search-form');
@@ -1376,47 +1377,64 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
   var clear = document.getElementById('press-search-clear');
   var count = document.getElementById('press-count');
   var empty = document.getElementById('feed-empty');
+  var fade = document.getElementById('feed-fade');
+  var loadWrap = document.getElementById('load-more-wrap');
+  var loadBtn = document.getElementById('load-more-btn');
   var seg = 'all';
+  var limit = PAGE;
 
-  function apply() {
+  function apply(resetLimit) {
+    if (resetLimit) limit = PAGE;
     var q = (search.value || '').trim().toLowerCase();
-    var shown = 0;
+    var matches = 0;
     items.forEach(function (li) {
       var okSeg = seg === 'all' || li.dataset.seg === seg;
       var okQ = !q || li.textContent.toLowerCase().indexOf(q) !== -1;
-      var show = okSeg && okQ;
-      li.hidden = !show;
-      if (show) shown++;
+      if (okSeg && okQ) {
+        matches++;
+        li.hidden = matches > limit; /* only the first `limit` matches show */
+      } else {
+        li.hidden = true;
+      }
     });
-    count.textContent = shown + (shown === 1 ? ' clipping' : ' clippings');
-    empty.hidden = shown !== 0;
+    count.textContent = matches + (matches === 1 ? ' clipping' : ' clippings');
+    empty.hidden = matches !== 0;
     clear.hidden = !search.value;
+    var more = matches > limit;
+    fade.hidden = !more;
+    loadWrap.hidden = !more;
   }
   buttons.forEach(function (b) {
     b.addEventListener('click', function () {
       buttons.forEach(function (x) { x.classList.remove('active'); });
       b.classList.add('active');
       seg = b.dataset.seg;
-      apply();
+      apply(true);
     });
   });
-  search.addEventListener('input', apply);
-  clear.addEventListener('click', function () { search.value = ''; apply(); search.focus(); });
-  form.addEventListener('submit', function (e) { e.preventDefault(); apply(); });
-  apply(); /* set the initial clippings count from the actual list */
+  search.addEventListener('input', function () { apply(true); });
+  clear.addEventListener('click', function () { search.value = ''; apply(true); search.focus(); });
+  form.addEventListener('submit', function (e) { e.preventDefault(); apply(true); });
+  loadBtn.addEventListener('click', function () { limit += PAGE; apply(false); });
+  apply(true); /* initial: first 10 shown, count from the actual list */
 
-  /* overflow fade affordance on the pill row (blog __enhanceFilterFade) */
+  /* overflow fade affordance on the pill row (blog __enhanceFilterFade).
+     NOTE: named pillFade — `fade` is the feed-truncation overlay element above,
+     and shadowing it threw "fade is not a function", killing the rest of this
+     script block (pixel hover, newsletter form). */
   var group = document.getElementById('filter-group');
   var wrap = group.parentElement;
-  function fade() {
+  function pillFade() {
     var scrollable = group.scrollWidth > group.clientWidth + 2;
     wrap.classList.toggle('is-scrollable', scrollable);
     wrap.classList.toggle('is-fade-right', scrollable && group.scrollLeft + group.clientWidth < group.scrollWidth - 2);
     wrap.classList.toggle('is-fade-left', scrollable && group.scrollLeft > 2);
   }
-  group.addEventListener('scroll', fade, { passive: true });
-  window.addEventListener('resize', fade);
-  fade();
+  group.addEventListener('scroll', pillFade, { passive: true });
+  window.addEventListener('resize', pillFade);
+  pillFade();
+  /* Silkscreen loads async and widens the pills — re-measure once fonts land */
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(pillFade);
 })();
 
 /* ── Mini subscribe (hero cell) ─────────────────────────────────────────── */
@@ -1427,6 +1445,80 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
     e.preventDefault();
     form.outerHTML = '<p class="blog-hero-subscribe-success">You’re in — new coverage lands in your inbox.</p>';
   });
+})();
+
+/* ── Load More pixel-fill hover — the live blog attaches the standard pixel
+   hover to .btn-outline with ink dots rgba(16,16,15,0.22); shared-components.js
+   only auto-targets the marketing button classes, so this page-local copy of
+   the same attach() (verbatim algorithm) covers the Load More button ──────── */
+(function () {
+  function attach(btn, color) {
+    if (btn.__pixelized) return;
+    btn.__pixelized = true;
+    btn.classList.add('btn-pixelized');
+    var canvas = document.createElement('canvas');
+    canvas.className = 'btn-pixel-canvas';
+    btn.insertBefore(canvas, btn.firstChild);
+    var ctx = canvas.getContext('2d');
+    var spacing = 4, dot = 2, cols = 0, rows = 0, noise = [];
+    function resize() {
+      var r = btn.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      canvas.width = Math.round(r.width);
+      canvas.height = Math.round(r.height);
+      cols = Math.ceil(canvas.width / spacing);
+      rows = Math.ceil(canvas.height / spacing);
+      noise = [];
+      for (var y = 0; y < rows; y++) {
+        noise[y] = [];
+        for (var x = 0; x < cols; x++) {
+          var bias = 1 - (y / Math.max(1, rows - 1));
+          noise[y][x] = bias * 0.55 + Math.random() * 0.55;
+        }
+      }
+      draw();
+    }
+    try { new ResizeObserver(resize).observe(btn); } catch (e) {}
+    window.addEventListener('resize', resize);
+    requestAnimationFrame(resize);
+    var progress = 0, target = 0, raf = null, last = 0;
+    function tick(t) {
+      if (!last) last = t;
+      var dt = Math.min(0.05, (t - last) / 1000); last = t;
+      progress += (target - progress) * Math.min(1, dt * 8);
+      if (Math.abs(target - progress) < 0.003) progress = target;
+      draw();
+      if (progress !== target) { raf = requestAnimationFrame(tick); }
+      else { raf = null; last = 0; if (target === 1) flickerLoop(); }
+    }
+    function flickerLoop() {
+      requestAnimationFrame(function step() {
+        if (target !== 1) return;
+        draw(true);
+        setTimeout(function () { requestAnimationFrame(step); }, 120);
+      });
+    }
+    function draw(flicker) {
+      if (!canvas.width) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = color;
+      var threshold = progress * 1.3;
+      for (var y = 0; y < rows; y++) {
+        for (var x = 0; x < cols; x++) {
+          var n = noise[y][x];
+          if (n < threshold) {
+            if (flicker && target === 1 && Math.random() < 0.015) continue;
+            var edge = threshold - n;
+            if (edge < 0.08 && Math.random() < 0.45) continue;
+            ctx.fillRect(x * spacing, y * spacing, dot, dot);
+          }
+        }
+      }
+    }
+    btn.addEventListener('mouseenter', function () { target = 1; if (!raf) { last = 0; raf = requestAnimationFrame(tick); } });
+    btn.addEventListener('mouseleave', function () { target = 0; if (!raf) { last = 0; raf = requestAnimationFrame(tick); } });
+  }
+  document.querySelectorAll('.btn-outline').forEach(function (b) { attach(b, 'rgba(16,16,15,0.22)'); });
 })();
 
 /* ── Newsletter CTA form (live blog nl-form pattern; sandbox has no backend,
