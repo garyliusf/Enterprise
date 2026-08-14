@@ -76,6 +76,9 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
    vertical wheel to scrollLeft over the row. Always left-aligned:
    centre-justify + overflow clips the "All" pill. */
 .filter-group { display: flex; align-items: center; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.filter-group-wrap.is-scrollable .filter-group { cursor: grab; }
+.filter-group.is-grabbing { cursor: grabbing; user-select: none; -webkit-user-select: none; }
+.filter-group.is-grabbing .filter-btn { cursor: grabbing; }
 .filter-group::-webkit-scrollbar { display: none; }
 .filter-group-wrap { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; }
 .filter-group-wrap .filter-group { flex: 1; }
@@ -1738,6 +1741,26 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
       e.preventDefault();
     }
   }, { passive: false });
+  /* press-and-grab drag-to-scroll; a real drag suppresses the pill click */
+  var down = false, dragged = false, dragX = 0, dragLeft = 0;
+  group.addEventListener('pointerdown', function (e) {
+    if (group.scrollWidth <= group.clientWidth + 2) return;
+    down = true; dragged = false; dragX = e.clientX; dragLeft = group.scrollLeft;
+    group.classList.add('is-grabbing');
+  });
+  window.addEventListener('pointermove', function (e) {
+    if (!down) return;
+    var dx = e.clientX - dragX;
+    if (Math.abs(dx) > 4) dragged = true;
+    group.scrollLeft = dragLeft - dx;
+  });
+  window.addEventListener('pointerup', function () {
+    down = false;
+    group.classList.remove('is-grabbing');
+  });
+  group.addEventListener('click', function (e) {
+    if (dragged) { e.preventDefault(); e.stopPropagation(); dragged = false; }
+  }, true);
   /* Silkscreen loads async and widens the pills — re-measure once fonts land */
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(pillFade);
 })();
