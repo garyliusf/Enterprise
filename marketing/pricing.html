@@ -37,9 +37,9 @@
       align-items: center;
       text-align: center;
       gap: 28px;
-      /* the cards protrude upward now (Teams' MOST POPULAR tab), so the seam
-         reads tighter than the number suggests — a little more air here */
-      margin-bottom: 88px;
+      /* the term switch sits between the hero and the cards on this variant,
+         so the hero holds only the gap down to it */
+      margin-bottom: 52px;
     }
 
     .page-header { text-align: center; }
@@ -133,7 +133,7 @@
       justify-content: flex-start;
       gap: 10px;
       flex-shrink: 0;
-      min-height: var(--toggle-h);   /* .billing-row--spacer holds this on Free/Enterprise */
+      min-height: 28px;   /* .billing-row--spacer holds this on Free/Enterprise */
     }
     .billing-row--spacer { display: block; }
     .billing-save-badge {
@@ -179,16 +179,9 @@
          between the description and the CTA (.cards prefix outranks the
          later base rules) */
       .cards .card-description { min-height: 0; }
-      /* stacked cards align to nothing — drop every equal-height reserve:
-         the note's, the price row's 30px, the empty toggle-row spacer on
-         Free/Enterprise, and B's two-line note. Together they were ~70px of
-         dead air between the price and the CTA on cards with no toggle. */
-      .cards .price-note, .cards .variant-note, .cards .card-price { min-height: 0; }
-      /* the 30px min-height also supplied ~8px of air under the price glyphs
-         — without it the toggle/note sat right on the price. Put that air
-         back as an explicit margin now that the reserve is gone. */
-      .cards .card-price { margin-bottom: 10px; }
-      .cards .billing-row--spacer { display: none; }
+      /* stacked cards align to nothing — drop the equal-height reserves so a
+         1-line note doesn't leave 40px of dead air above the button */
+      .cards .price-note { min-height: 0; }
       .cards .card .card-cta { margin-top: 12px; }
       .card:last-child { border-bottom: none; }
       /* On mobile cards stack and size to their content — drop the equal-height
@@ -199,29 +192,7 @@
     /* Mobile: the toggle rides inside the Pro card's price row (JS moves it)
        so it's at hand while scrolling prices. Compact + chromeless: no
        container border/fill, small segments; the chip stays hero-only. */
-    /* --toggle-h is the single source for the control's height: the toggle is
-       pinned to it and .billing-row--spacer reserves the same on Free and
-       Enterprise, so the coupon icon can't push the middle two cards out of
-       line with the outer two. */
-    .cards { --toggle-h: 30px; }
-    .card .billing-toggle { height: var(--toggle-h); }
-    .card .billing-btn {
-      align-self: stretch;
-      width: auto;
-      min-width: 56px;
-      padding: 0 9px;
-      font-size: 10px;
-      gap: 5px;
-    }
-    .billing-coupon {
-      width: 13px;
-      height: 13px;
-      flex-shrink: 0;
-      color: #1488FC;
-      transition: color 0.25s ease;
-    }
-    /* the active segment's fill IS #1488FC, so a blue tag would vanish on it */
-    .billing-btn.active .billing-coupon { color: #fff; }
+    .card .billing-btn { width: 52px; padding: 5px 0; font-size: 10px; }
     /* the segments' text baseline sits below the price numerals' — lift the
        control so the two read as one line */
     /* (the chip was hidden 2026-08-07; it's back 2026-08-12 as the plain
@@ -349,46 +320,37 @@
        (the hero→cards gap stays 72px, measured to the banner). .card-teams must
        drop the base overflow:hidden or the tab gets clipped away.
        All four cards share one content flow now — no badge spacer needed. */
-    .cards { --pop-h: 34px; margin-top: var(--pop-h); }
-    .card-teams { overflow: visible; }
+    /* Variant C keeps the badge INSIDE the card. With the term switch lifted
+       above the grid, a protruding full-width tab put two blue bars 45px
+       apart and the pair read as competing. Absolutely positioned, so it
+       still costs no layout height and the four cards stay level. */
+    .cards { margin-top: 0; }
     .card-teams > .popular-banner {
       position: absolute;
-      bottom: 100%;
-      left: 0;
-      right: -1px;           /* cover the card's own 1px divider */
-      height: var(--pop-h);
-      display: flex;
+      top: 36px;      /* centres on the plan name's line */
+      right: 20px;
+      display: inline-flex;
       align-items: center;
-      justify-content: center;
+      padding: 5px 9px;
       background: #1488FC;
       color: #fff;
       font-family: 'Silkscreen', monospace;
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 400;
-      letter-spacing: 1.2px;
+      letter-spacing: 1.1px;
       line-height: 1;
       white-space: nowrap;
-      border-radius: 2px 2px 0 0;
+      border-radius: 2px;
       z-index: 2;
     }
     @media (max-width: 1100px) {
-      /* Teams isn't in the top row on stacked layouts, so the protruding tab
-         has nothing to protrude from — and rendered full-bleed it read as a
-         stray blue stripe wedged between two cards. Same in-flow chip as B
-         and C instead. (Must sit AFTER the base rule; the original ≤1100
-         rule was written before it and was dead.) */
+      /* stacked cards: the pinned chip crowded the top-right corner. In flow
+         above the plan name it gets real air on every side. */
       .card-teams > .popular-banner {
         position: static;
         align-self: flex-start;
-        height: auto;
         margin: 2px 0 16px;
-        padding: 5px 9px;
-        font-size: 9px;
-        letter-spacing: 1.1px;
-        border-radius: 2px;
-        flex-shrink: 0;
       }
-      .cards { margin-top: 0; }
     }
 
     /* ── Plan label ── */
@@ -413,7 +375,7 @@
       flex-wrap: wrap; /* the toggle drops as a unit when tight — the period never splits */
       gap: 6px;
       row-gap: 8px;
-      margin-bottom: 2px;   /* the annual total tucks right under the price */
+      margin-bottom: 12px;  /* matches B: 12px from the price to the note */
       /* reserve the badge+toggle stack on every card (Pro/Teams carry one,
          Free/Enterprise don't) so all four CTAs — and the divider below them —
          land on the same line. 30px = the toggle's real height (28px box,
@@ -468,8 +430,10 @@
        saves. min-height reserves the two-line + savings stack on every card
        (Free/Enterprise carry one line) so all four CTAs stay on one row. */
     .price-note {
-      /* tight to the price above, clear gap to the toggle below */
-      margin: 0 0 22px;
+      /* mirrors B's rhythm around the note: 12px above (on .card-price),
+         and nothing below — the CTA's own 20px top margin is the gap, same
+         as B. */
+      margin: 0;
       /* every note is exactly two lines now (the copy is short enough not to
          wrap) — Free's single line pads up to it so the CTAs stay level */
       min-height: 42px;
@@ -497,71 +461,66 @@
     .price-save strong { font-weight: 600; }
 
 
-    /* ── Prototype variant switcher ──
-       Deliberately unlike anything else on the page so it reads as a tool,
-       not as page furniture. Sits clear of the 68px sticky nav. */
-    .variant-switch {
-      position: fixed;
-      top: 84px;
-      left: 20px;
-      z-index: 200;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 4px 4px 4px 12px;
-      background: rgba(8,8,10,0.92);
-      border: 1px solid rgba(255,255,255,0.18);
+
+    /* ── Variant C: one term switch above the grid ──
+       Form borrowed from the reference: a single dark pill, uppercase
+       letter-spaced labels, the saving stated as a chip inside Yearly.
+       Yearly leads because it's the term being recommended. The fill is the
+       brand blue rather than the reference's lime, which is off-palette. */
+    .term-switch {
+      display: flex;
+      justify-content: center;
+      /* nothing protrudes above the grid on this variant, so this is the
+         whole gap rather than tab-height plus gap */
+      margin-bottom: 44px;
+    }
+    .term-switch .billing-toggle {
+      padding: 6px;
       border-radius: 2px;
-      backdrop-filter: blur(8px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      background: #0d0d0f;
+      border: 1px solid rgba(255,255,255,0.10);
     }
-    .variant-switch-label {
-      font-family: 'Silkscreen', monospace;
-      font-size: 10px;
-      letter-spacing: 1.4px;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.4);
-    }
-    /* A/B nests inside each state, so the pairing is explicit and every
-       prototype is one click away */
-    .variant-state {
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
-    }
-    .variant-state-name {
-      margin-right: 3px;
-      font-family: 'Inter', sans-serif;
-      font-size: 12px;
-      font-weight: 500;
-      white-space: nowrap;
-      color: rgba(255,255,255,0.5);
-    }
-    .variant-sep {
-      width: 1px;
-      align-self: stretch;
-      margin: 2px 2px;
-      background: rgba(255,255,255,0.14);
-    }
-    .variant-btn {
-      padding: 6px 12px;
+    .term-switch .billing-thumb {
+      top: 6px;
+      bottom: 6px;
       border-radius: 2px;
-      font-family: 'Inter', sans-serif;
+    }
+    .term-switch .billing-btn {
+      width: auto;
+      gap: 9px;
+      padding: 9px 20px;
+      border-radius: 2px;
       font-size: 12px;
       font-weight: 600;
-      letter-spacing: 0.2px;
-      white-space: nowrap;
-      color: rgba(255,255,255,0.55);
-      text-decoration: none;
-      transition: color 0.2s ease, background-color 0.2s ease;
+      letter-spacing: 1.3px;
+      text-transform: uppercase;
     }
-    .variant-btn:hover { color: #fff; background: rgba(255,255,255,0.07); }
-    .variant-btn.is-active { color: #fff; background: #1488FC; }
+    .billing-coupon {
+      width: 15px;
+      height: 15px;
+      flex-shrink: 0;
+      color: #1488FC;
+      transition: color 0.25s ease;
+    }
+    /* the active segment's fill IS #1488FC, so a blue tag would vanish on it */
+    .billing-btn.active .billing-coupon { color: #fff; }
 
-    @media (max-width: 900px) {
-      .variant-switch { top: 76px; left: 12px; padding-left: 10px; gap: 6px; }
-      .variant-switch-label { display: none; }
-      .variant-btn { padding: 6px 9px; font-size: 11px; }
+    .term-chip {
+      padding: 2px 8px;
+      border: 1px solid currentColor;
+      border-radius: 2px;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.9px;
+      white-space: nowrap;
+      opacity: 0.7;
+      transition: opacity 0.25s ease;
+    }
+    .billing-btn.active .term-chip { opacity: 1; }
+
+    @media (max-width: 768px) {
+      .term-switch .billing-btn { padding: 10px 15px; font-size: 12px; letter-spacing: 1.1px; gap: 7px; }
+      .term-chip { padding: 2px 7px; font-size: 9px; letter-spacing: 0.6px; }
     }
 
     /* ── Divider ── */
@@ -1977,14 +1936,17 @@
     </a>
 
     <ul class="mkt-nav-items">
+      <li data-menu="platform">
+        <button class="mkt-nav-link" data-menu="platform" aria-haspopup="true" aria-expanded="false">
+          Platform
+          <svg class="mkt-nav-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </li>
       <li data-menu="solutions">
-        <!-- Real link, not a button: clicking goes to the Solutions page, hovering
-             still opens the panel. The nav JS binds on '.mkt-nav-link[data-menu]'
-             (class + attribute, not tag), so the dropdown behaviour is unchanged. -->
-        <a href="https://garyliusf.github.io/Enterprise/marketing/solutions.html" class="mkt-nav-link" data-menu="solutions" aria-haspopup="true" aria-expanded="false">
+        <button class="mkt-nav-link" data-menu="solutions" aria-haspopup="true" aria-expanded="false">
           Solutions
           <svg class="mkt-nav-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
-        </a>
+        </button>
       </li>
       <li data-menu="resources">
         <button class="mkt-nav-link" data-menu="resources" aria-haspopup="true" aria-expanded="false">
@@ -1992,7 +1954,6 @@
           <svg class="mkt-nav-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
       </li>
-      <li><a href="https://bolt.new/resources/templates" class="mkt-nav-link">Templates</a></li>
       <li><a href="pricing.html" class="mkt-nav-link is-active">Pricing</a></li>
     </ul>
 
@@ -2011,6 +1972,21 @@
   </div>
 
   <!-- Mega panels — one per top-level menu, JS toggles .is-open on the matching data-panel -->
+  <div class="mkt-nav-panel" data-panel="platform" aria-hidden="true">
+    <div class="mkt-nav-panel-inner">
+      <a href="https://garyliusf.github.io/Enterprise/solutions/smb/" class="mkt-nav-panel-feature">
+        <div class="mkt-nav-panel-feature-visual" aria-hidden="true"></div>
+        <p class="mkt-nav-panel-feature-eyebrow">Featured</p>
+        <p class="mkt-nav-panel-feature-title">AI for Small Business</p>
+        <p class="mkt-nav-panel-feature-desc">Custom apps for your business, built in an afternoon — no code, no developer, no $100K project.</p>
+      </a>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Product Overview</p>
+        <a href="https://garyliusf.github.io/Enterprise/marketing/solutions.html">Platform</a>
+        <a href="https://bolt.new/platform/security">Security &amp; Trust</a>
+      </div>
+    </div>
+  </div>
 
   <div class="mkt-nav-panel" data-panel="solutions" aria-hidden="true">
     <div class="mkt-nav-panel-inner">
@@ -2022,7 +1998,6 @@
       </a>
       <div class="mkt-nav-panel-col">
         <p class="mkt-nav-panel-heading">Top Use Cases</p>
-        <a href="https://garyliusf.github.io/Enterprise/marketing/solutions.html">All Solutions</a>
         <a href="https://bolt.new/use-cases/ai-app-builder">AI App Builder</a>
         <a href="https://bolt.new/use-cases/ai-website-builder">AI Website Builder</a>
         <a href="https://bolt.new/use-cases/custom-crm-software">SaaS Dev</a>
@@ -2048,11 +2023,10 @@
         <p class="mkt-nav-panel-heading">Support</p>
         <a href="https://discord.com/invite/stackblitz" target="_blank" rel="noopener">Community</a>
         <a href="https://support.bolt.new/" target="_blank" rel="noopener">Help Center</a>
-        <a href="https://bolt.new/careers">Careers</a>
       </div>
       <div class="mkt-nav-panel-col">
         <p class="mkt-nav-panel-heading">Build and Learn</p>
-        <a href="https://bolt.new/platform/security">Security &amp; Trust</a>
+        <a href="https://bolt.new/resources/templates">Templates</a>
         <a href="https://bolt.new/blog">Blog</a>
       </div>
     </div>
@@ -2088,6 +2062,10 @@
   <div class="mkt-nav-mobile-body">
     <!-- Home view — top-level items -->
     <div class="mkt-nav-mobile-view is-active" data-view="home">
+      <button class="mkt-nav-mobile-item" data-drill="platform">
+        Platform
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
       <button class="mkt-nav-mobile-item" data-drill="solutions">
         Solutions
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
@@ -2096,8 +2074,20 @@
         Resources
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
-      <a class="mkt-nav-mobile-item" href="https://bolt.new/resources/templates">Templates</a>
       <a class="mkt-nav-mobile-item" href="pricing.html">Pricing</a>
+    </div>
+
+    <!-- Platform submenu -->
+    <div class="mkt-nav-mobile-view" data-view="platform">
+      <a href="https://garyliusf.github.io/Enterprise/solutions/smb/" class="mkt-nav-mobile-feature">
+        <p class="mkt-nav-mobile-feature-title">AI for Small Business →</p>
+        <p class="mkt-nav-mobile-feature-desc">Custom apps for your business, built in an afternoon — no code, no developer, no $100K project.</p>
+      </a>
+      <p class="mkt-nav-mobile-heading">Product Overview</p>
+      <div class="mkt-nav-mobile-links">
+        <a href="https://garyliusf.github.io/Enterprise/marketing/solutions.html">Platform</a>
+        <a href="https://bolt.new/platform/security">Security &amp; Trust</a>
+      </div>
     </div>
 
     <!-- Solutions submenu -->
@@ -2108,7 +2098,6 @@
       </a>
       <p class="mkt-nav-mobile-heading">Top Use Cases</p>
       <div class="mkt-nav-mobile-links">
-        <a href="https://garyliusf.github.io/Enterprise/marketing/solutions.html">All Solutions</a>
         <a href="https://bolt.new/use-cases/ai-app-builder">AI App Builder</a>
         <a href="https://bolt.new/use-cases/ai-website-builder">AI Website Builder</a>
         <a href="https://bolt.new/use-cases/custom-crm-software">SaaS Dev</a>
@@ -2131,11 +2120,10 @@
       <div class="mkt-nav-mobile-links">
         <a href="https://discord.com/invite/stackblitz" target="_blank" rel="noopener">Community</a>
         <a href="https://support.bolt.new/" target="_blank" rel="noopener">Help Center</a>
-        <a href="https://bolt.new/careers">Careers</a>
       </div>
       <p class="mkt-nav-mobile-heading">Build and Learn</p>
       <div class="mkt-nav-mobile-links">
-        <a href="https://bolt.new/platform/security">Security &amp; Trust</a>
+        <a href="https://bolt.new/resources/templates">Templates</a>
         <a href="https://bolt.new/blog">Blog</a>
       </div>
     </div>
@@ -2156,28 +2144,6 @@
 
 
 
-<!-- ─── PROTOTYPE VARIANT SWITCHER ────────────────────────────────────────
-     Not part of the page design — a fixed control for moving between the
-     six prototypes. A/B/C sits inside each state, so every prototype is one
-     click away and the pairing is explicit. Delete both the markup and the
-     .variant-* CSS before any of these ship. -->
-<div class="variant-switch" role="group" aria-label="Prototype variant">
-  <span class="variant-switch-label">Variant</span>
-  <span class="variant-state">
-    <span class="variant-state-name">Signed out</span>
-    <a href="pricing.html" class="variant-btn is-active" aria-current="page">A</a>
-    <a href="pricing-b.html" class="variant-btn">B</a>
-    <a href="pricing-c.html" class="variant-btn">C</a>
-  </span>
-  <span class="variant-sep" aria-hidden="true"></span>
-  <span class="variant-state">
-    <span class="variant-state-name">Signed in</span>
-    <a href="pricing-signed-in.html" class="variant-btn">A</a>
-    <a href="pricing-signed-in-b.html" class="variant-btn">B</a>
-    <a href="pricing-signed-in-c.html" class="variant-btn">C</a>
-  </span>
-</div>
-
   <div class="page">
 
     <div class="pricing-hero-glow"></div>
@@ -2187,6 +2153,17 @@
       <div class="page-header">
         <h1>Pricing</h1>
         <p>Start for free. No credit card required.</p>
+      </div>
+    </div>
+
+    <!-- Term switch — variant C lifts the Monthly/Yearly control out of the
+         cards into one page-level pill above the grid. Keeps the .billing-*
+         class names so setBilling and positionBillingThumb drive it unchanged. -->
+    <div class="term-switch">
+      <div class="billing-toggle" data-billing="yearly">
+        <div class="billing-thumb"></div>
+        <button class="billing-btn active" data-period="yearly" id="btn-yearly" onclick="setBilling('yearly')" aria-pressed="true">Yearly<svg class="billing-coupon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M11.17 2H4a2 2 0 0 0-2 2v7.17a2 2 0 0 0 .59 1.42l8.7 8.7a2.43 2.43 0 0 0 3.42 0l6.58-6.58a2.43 2.43 0 0 0 0-3.42l-8.7-8.7A2 2 0 0 0 11.17 2ZM7.5 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/></svg><span class="term-chip">Save up to 28%</span></button>
+        <button class="billing-btn" data-period="monthly" id="btn-monthly" onclick="setBilling('monthly')" aria-pressed="false">Monthly</button>
       </div>
     </div>
 
@@ -2204,7 +2181,6 @@
         <div class="price-note">
           <p class="price-total">Free forever, no card required</p>
         </div>
-        <div class="billing-row billing-row--spacer" aria-hidden="true"></div>
         <button class="hero-btn-primary card-cta">
           <div class="btn-bg-hover"></div>
           <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Started</span><span>Get Started</span></div></div>
@@ -2251,14 +2227,6 @@
         <div class="price-note">
           <p class="price-total" id="pro-total"></p>
           <p class="price-save" id="pro-save"></p>
-        </div>
-        <div class="billing-row" data-billing="yearly">
-          <div class="billing-toggle" data-billing="yearly">
-            <div class="billing-thumb"></div>
-            <button class="billing-btn" data-period="monthly" id="btn-monthly" onclick="setBilling('monthly')" aria-pressed="false">Monthly</button>
-            <button class="billing-btn active" data-period="yearly" id="btn-yearly" onclick="setBilling('yearly')" aria-pressed="true">Yearly<svg class="billing-coupon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M11.17 2H4a2 2 0 0 0-2 2v7.17a2 2 0 0 0 .59 1.42l8.7 8.7a2.43 2.43 0 0 0 3.42 0l6.58-6.58a2.43 2.43 0 0 0 0-3.42l-8.7-8.7A2 2 0 0 0 11.17 2ZM7.5 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/></svg></button>
-          </div>
-          <span class="billing-save-badge">SAVE 28%</span>
         </div>
         <button class="hero-btn-primary card-cta">
           <div class="btn-bg-hover"></div>
@@ -2325,14 +2293,6 @@
           <p class="price-total" id="teams-total"></p>
           <p class="price-save" id="teams-save"></p>
         </div>
-        <div class="billing-row" data-billing="yearly">
-          <div class="billing-toggle" data-billing="yearly">
-            <div class="billing-thumb"></div>
-            <button class="billing-btn" data-period="monthly" onclick="setBilling('monthly')" aria-pressed="false">Monthly</button>
-            <button class="billing-btn active" data-period="yearly" onclick="setBilling('yearly')" aria-pressed="true">Yearly<svg class="billing-coupon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M11.17 2H4a2 2 0 0 0-2 2v7.17a2 2 0 0 0 .59 1.42l8.7 8.7a2.43 2.43 0 0 0 3.42 0l6.58-6.58a2.43 2.43 0 0 0 0-3.42l-8.7-8.7A2 2 0 0 0 11.17 2ZM7.5 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/></svg></button>
-          </div>
-          <span class="billing-save-badge">SAVE 10%</span>
-        </div>
         <button class="hero-btn-primary card-cta">
           <div class="btn-bg-hover"></div>
           <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Started</span><span>Get Started</span></div></div>
@@ -2382,7 +2342,6 @@
         <div class="price-note">
           <p class="price-total">Custom annual contract, billed by consumption</p>
         </div>
-        <div class="billing-row billing-row--spacer" aria-hidden="true"></div>
         <button class="hero-btn-primary card-cta">
           <div class="btn-bg-hover"></div>
           <div class="btn-text-wrap"><div class="btn-text-inner"><span>Contact Us</span><span>Contact Us</span></div></div>
@@ -2888,6 +2847,13 @@
 <footer class="site-footer">
   <div class="site-footer-cols">
     <div class="site-footer-col">
+      <p class="site-footer-label">Platform</p>
+      <ul class="site-footer-links">
+        <li><a href="https://garyliusf.github.io/Enterprise/marketing/solutions.html">Product</a></li>
+        <li><a href="https://bolt.new/platform/security">Security &amp; Trust</a></li>
+      </ul>
+    </div>
+    <div class="site-footer-col">
       <p class="site-footer-label">Solutions</p>
       <ul class="site-footer-links">
         <li><a href="https://bolt.new/use-cases/ai-app-builder">AI App Builder</a></li>
@@ -2901,11 +2867,9 @@
     <div class="site-footer-col">
       <p class="site-footer-label">Resources</p>
       <ul class="site-footer-links">
-        <li><a href="https://bolt.new/blog">Blog</a></li>
-        <li><a href="https://bolt.new/platform/security">Security &amp; Trust</a></li>
         <li><a href="https://discord.com/invite/stackblitz" target="_blank" rel="noopener">Community</a></li>
         <li><a href="https://support.bolt.new/" target="_blank" rel="noopener">Help Center</a></li>
-        <li><a href="https://bolt.new/careers">Careers</a></li>
+        <li><a href="https://bolt.new/blog">Blog</a></li>
       </ul>
     </div>
     <div class="site-footer-col">
@@ -2915,6 +2879,7 @@
         <li><a href="pricing.html">Pricing</a></li>
         <li><a href="https://stackblitz.com/terms-of-service">Terms of Use</a></li>
         <li><a href="https://stackblitz.com/privacy-policy">Privacy Policy</a></li>
+        <li><a href="https://bolt.new/platform/security">Security</a></li>
       </ul>
     </div>
     <div class="site-footer-col site-footer-col--connect">

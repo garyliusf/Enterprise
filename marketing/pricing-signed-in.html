@@ -37,10 +37,11 @@
       align-items: center;
       text-align: center;
       gap: 28px;
-      /* tighter than the public page's 88px: the workspace row sits between
-         the hero and the cards here, so the same value leaves the cards well
-         down the page. Matches the signed-out pages. */
-      margin-bottom: 88px;
+      /* the term switch sits between the hero and the cards on this variant,
+         so the hero holds only the gap down to it — same as signed-out C.
+         (The 80px this replaced was sized for the workspace row, which has
+         since moved to the nav.) */
+      margin-bottom: 52px;
     }
 
     .page-header { text-align: center; }
@@ -134,7 +135,7 @@
       justify-content: flex-start;
       gap: 10px;
       flex-shrink: 0;
-      min-height: var(--toggle-h);   /* .billing-row--spacer holds this on Free/Enterprise */
+      min-height: 28px;   /* .billing-row--spacer holds this on Free/Enterprise */
     }
     .billing-row--spacer { display: block; }
     .billing-save-badge {
@@ -180,16 +181,9 @@
          between the description and the CTA (.cards prefix outranks the
          later base rules) */
       .cards .card-description { min-height: 0; }
-      /* stacked cards align to nothing — drop every equal-height reserve:
-         the note's, the price row's 30px, the empty toggle-row spacer on
-         Free/Enterprise, and B's two-line note. Together they were ~70px of
-         dead air between the price and the CTA on cards with no toggle. */
-      .cards .price-note, .cards .variant-note, .cards .card-price { min-height: 0; }
-      /* the 30px min-height also supplied ~8px of air under the price glyphs
-         — without it the toggle/note sat right on the price. Put that air
-         back as an explicit margin now that the reserve is gone. */
-      .cards .card-price { margin-bottom: 10px; }
-      .cards .billing-row--spacer { display: none; }
+      /* stacked cards align to nothing — drop the equal-height reserves so a
+         1-line note doesn't leave 40px of dead air above the button */
+      .cards .price-note { min-height: 0; }
       /* stacked cards: the 44/48 signed-in band exists to keep four cards
          level around the Teams picker — pointless in a single column, and it
          read as dead air. Match the signed-out 12/24; the picker keeps just
@@ -206,29 +200,7 @@
     /* Mobile: the toggle rides inside the Pro card's price row (JS moves it)
        so it's at hand while scrolling prices. Compact + chromeless: no
        container border/fill, small segments; the chip stays hero-only. */
-    /* --toggle-h is the single source for the control's height: the toggle is
-       pinned to it and .billing-row--spacer reserves the same on Free and
-       Enterprise, so the coupon icon can't push the middle two cards out of
-       line with the outer two. */
-    .cards { --toggle-h: 30px; }
-    .card .billing-toggle { height: var(--toggle-h); }
-    .card .billing-btn {
-      align-self: stretch;
-      width: auto;
-      min-width: 56px;
-      padding: 0 9px;
-      font-size: 10px;
-      gap: 5px;
-    }
-    .billing-coupon {
-      width: 13px;
-      height: 13px;
-      flex-shrink: 0;
-      color: #1488FC;
-      transition: color 0.25s ease;
-    }
-    /* the active segment's fill IS #1488FC, so a blue tag would vanish on it */
-    .billing-btn.active .billing-coupon { color: #fff; }
+    .card .billing-btn { width: 52px; padding: 5px 0; font-size: 10px; }
     /* the segments' text baseline sits below the price numerals' — lift the
        control so the two read as one line */
     /* (the chip was hidden 2026-08-07; it's back 2026-08-12 as the plain
@@ -356,46 +328,37 @@
        (the hero→cards gap stays 72px, measured to the banner). .card-teams must
        drop the base overflow:hidden or the tab gets clipped away.
        All four cards share one content flow now — no badge spacer needed. */
-    .cards { --pop-h: 34px; margin-top: var(--pop-h); }
-    .card-teams { overflow: visible; }
+    /* Variant C keeps the badge INSIDE the card. With the term switch lifted
+       above the grid, a protruding full-width tab put two blue bars 45px
+       apart and the pair read as competing. Absolutely positioned, so it
+       still costs no layout height and the four cards stay level. */
+    .cards { margin-top: 0; }
     .card-teams > .popular-banner {
       position: absolute;
-      bottom: 100%;
-      left: 0;
-      right: -1px;           /* cover the card's own 1px divider */
-      height: var(--pop-h);
-      display: flex;
+      top: 36px;      /* centres on the plan name's line */
+      right: 20px;
+      display: inline-flex;
       align-items: center;
-      justify-content: center;
+      padding: 5px 9px;
       background: #1488FC;
       color: #fff;
       font-family: 'Silkscreen', monospace;
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 400;
-      letter-spacing: 1.2px;
+      letter-spacing: 1.1px;
       line-height: 1;
       white-space: nowrap;
-      border-radius: 2px 2px 0 0;
+      border-radius: 2px;
       z-index: 2;
     }
     @media (max-width: 1100px) {
-      /* Teams isn't in the top row on stacked layouts, so the protruding tab
-         has nothing to protrude from — and rendered full-bleed it read as a
-         stray blue stripe wedged between two cards. Same in-flow chip as B
-         and C instead. (Must sit AFTER the base rule; the original ≤1100
-         rule was written before it and was dead.) */
+      /* stacked cards: the pinned chip crowded the top-right corner. In flow
+         above the plan name it gets real air on every side. */
       .card-teams > .popular-banner {
         position: static;
         align-self: flex-start;
-        height: auto;
         margin: 2px 0 16px;
-        padding: 5px 9px;
-        font-size: 9px;
-        letter-spacing: 1.1px;
-        border-radius: 2px;
-        flex-shrink: 0;
       }
-      .cards { margin-top: 0; }
     }
 
     /* ── Plan label ── */
@@ -420,7 +383,7 @@
       flex-wrap: wrap; /* the toggle drops as a unit when tight — the period never splits */
       gap: 6px;
       row-gap: 8px;
-      margin-bottom: 2px;   /* the annual total tucks right under the price */
+      margin-bottom: 12px;  /* matches B: 12px from the price to the note */
       /* matches the signed-out pages: the row keeps the 30px it had when the
          toggle lived here, which reads as ~8px of air under the price glyphs.
          Dropping it to 0 was what pulled the annual total visibly tighter to
@@ -475,8 +438,10 @@
        saves. min-height reserves the two-line + savings stack on every card
        (Free/Enterprise carry one line) so all four CTAs stay on one row. */
     .price-note {
-      /* tight to the price above, clear gap to the toggle below */
-      margin: 0 0 22px;
+      /* mirrors B's rhythm around the note: 12px above (on .card-price),
+         and nothing below — the CTA's own 20px top margin is the gap, same
+         as B. */
+      margin: 0;
       /* every note is exactly two lines now (the copy is short enough not to
          wrap) — Free's single line pads up to it so the CTAs stay level */
       min-height: 42px;
@@ -762,71 +727,66 @@
 
 
 
-    /* ── Prototype variant switcher ──
-       Deliberately unlike anything else on the page so it reads as a tool,
-       not as page furniture. Sits clear of the 68px sticky nav. */
-    .variant-switch {
-      position: fixed;
-      top: 84px;
-      left: 20px;
-      z-index: 200;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 4px 4px 4px 12px;
-      background: rgba(8,8,10,0.92);
-      border: 1px solid rgba(255,255,255,0.18);
+
+    /* ── Variant C: one term switch above the grid ──
+       Form borrowed from the reference: a single dark pill, uppercase
+       letter-spaced labels, the saving stated as a chip inside Yearly.
+       Yearly leads because it's the term being recommended. The fill is the
+       brand blue rather than the reference's lime, which is off-palette. */
+    .term-switch {
+      display: flex;
+      justify-content: center;
+      /* nothing protrudes above the grid on this variant, so this is the
+         whole gap rather than tab-height plus gap */
+      margin-bottom: 44px;
+    }
+    .term-switch .billing-toggle {
+      padding: 6px;
       border-radius: 2px;
-      backdrop-filter: blur(8px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      background: #0d0d0f;
+      border: 1px solid rgba(255,255,255,0.10);
     }
-    .variant-switch-label {
-      font-family: 'Silkscreen', monospace;
-      font-size: 10px;
-      letter-spacing: 1.4px;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.4);
-    }
-    /* A/B nests inside each state, so the pairing is explicit and every
-       prototype is one click away */
-    .variant-state {
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
-    }
-    .variant-state-name {
-      margin-right: 3px;
-      font-family: 'Inter', sans-serif;
-      font-size: 12px;
-      font-weight: 500;
-      white-space: nowrap;
-      color: rgba(255,255,255,0.5);
-    }
-    .variant-sep {
-      width: 1px;
-      align-self: stretch;
-      margin: 2px 2px;
-      background: rgba(255,255,255,0.14);
-    }
-    .variant-btn {
-      padding: 6px 12px;
+    .term-switch .billing-thumb {
+      top: 6px;
+      bottom: 6px;
       border-radius: 2px;
-      font-family: 'Inter', sans-serif;
+    }
+    .term-switch .billing-btn {
+      width: auto;
+      gap: 9px;
+      padding: 9px 20px;
+      border-radius: 2px;
       font-size: 12px;
       font-weight: 600;
-      letter-spacing: 0.2px;
-      white-space: nowrap;
-      color: rgba(255,255,255,0.55);
-      text-decoration: none;
-      transition: color 0.2s ease, background-color 0.2s ease;
+      letter-spacing: 1.3px;
+      text-transform: uppercase;
     }
-    .variant-btn:hover { color: #fff; background: rgba(255,255,255,0.07); }
-    .variant-btn.is-active { color: #fff; background: #1488FC; }
+    .billing-coupon {
+      width: 15px;
+      height: 15px;
+      flex-shrink: 0;
+      color: #1488FC;
+      transition: color 0.25s ease;
+    }
+    /* the active segment's fill IS #1488FC, so a blue tag would vanish on it */
+    .billing-btn.active .billing-coupon { color: #fff; }
 
-    @media (max-width: 900px) {
-      .variant-switch { top: 76px; left: 12px; padding-left: 10px; gap: 6px; }
-      .variant-switch-label { display: none; }
-      .variant-btn { padding: 6px 9px; font-size: 11px; }
+    .term-chip {
+      padding: 2px 8px;
+      border: 1px solid currentColor;
+      border-radius: 2px;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.9px;
+      white-space: nowrap;
+      opacity: 0.7;
+      transition: opacity 0.25s ease;
+    }
+    .billing-btn.active .term-chip { opacity: 1; }
+
+    @media (max-width: 768px) {
+      .term-switch .billing-btn { padding: 10px 15px; font-size: 12px; letter-spacing: 1.1px; gap: 7px; }
+      .term-chip { padding: 2px 7px; font-size: 9px; letter-spacing: 0.6px; }
     }
 
     /* ── Divider ── */
@@ -2471,28 +2431,6 @@
 
 
 
-<!-- ─── PROTOTYPE VARIANT SWITCHER ────────────────────────────────────────
-     Not part of the page design — a fixed control for moving between the
-     six prototypes. A/B/C sits inside each state, so every prototype is one
-     click away and the pairing is explicit. Delete both the markup and the
-     .variant-* CSS before any of these ship. -->
-<div class="variant-switch" role="group" aria-label="Prototype variant">
-  <span class="variant-switch-label">Variant</span>
-  <span class="variant-state">
-    <span class="variant-state-name">Signed out</span>
-    <a href="pricing.html" class="variant-btn">A</a>
-    <a href="pricing-b.html" class="variant-btn">B</a>
-    <a href="pricing-c.html" class="variant-btn">C</a>
-  </span>
-  <span class="variant-sep" aria-hidden="true"></span>
-  <span class="variant-state">
-    <span class="variant-state-name">Signed in</span>
-    <a href="pricing-signed-in.html" class="variant-btn is-active" aria-current="page">A</a>
-    <a href="pricing-signed-in-b.html" class="variant-btn">B</a>
-    <a href="pricing-signed-in-c.html" class="variant-btn">C</a>
-  </span>
-</div>
-
   <div class="page">
 
     <div class="pricing-hero-glow"></div>
@@ -2502,6 +2440,17 @@
       <div class="page-header">
         <h1>Pricing</h1>
         <p>Start for free. Upgrade as you go.</p>
+      </div>
+    </div>
+
+    <!-- Term switch — variant C lifts the Monthly/Yearly control out of the
+         cards into one page-level pill above the grid. Keeps the .billing-*
+         class names so setBilling and positionBillingThumb drive it unchanged. -->
+    <div class="term-switch">
+      <div class="billing-toggle" data-billing="yearly">
+        <div class="billing-thumb"></div>
+        <button class="billing-btn active" data-period="yearly" id="btn-yearly" onclick="setBilling('yearly')" aria-pressed="true">Yearly<svg class="billing-coupon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M11.17 2H4a2 2 0 0 0-2 2v7.17a2 2 0 0 0 .59 1.42l8.7 8.7a2.43 2.43 0 0 0 3.42 0l6.58-6.58a2.43 2.43 0 0 0 0-3.42l-8.7-8.7A2 2 0 0 0 11.17 2ZM7.5 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/></svg><span class="term-chip">Save up to 28%</span></button>
+        <button class="billing-btn" data-period="monthly" id="btn-monthly" onclick="setBilling('monthly')" aria-pressed="false">Monthly</button>
       </div>
     </div>
 
@@ -2519,7 +2468,6 @@
         <div class="price-note">
           <p class="price-total">Free forever, no card required</p>
         </div>
-        <div class="billing-row billing-row--spacer" aria-hidden="true"></div>
         <button class="hero-btn-primary card-cta card-cta--current" disabled>
           <div class="btn-bg-hover"></div>
           <div class="btn-text-wrap"><div class="btn-text-inner"><span>You're on Teams</span><span>You're on Teams</span></div></div>
@@ -2566,14 +2514,6 @@
         <div class="price-note">
           <p class="price-total" id="pro-total"></p>
           <p class="price-save" id="pro-save"></p>
-        </div>
-        <div class="billing-row" data-billing="yearly">
-          <div class="billing-toggle" data-billing="yearly">
-            <div class="billing-thumb"></div>
-            <button class="billing-btn" data-period="monthly" id="btn-monthly" onclick="setBilling('monthly')" aria-pressed="false">Monthly</button>
-            <button class="billing-btn active" data-period="yearly" id="btn-yearly" onclick="setBilling('yearly')" aria-pressed="true">Yearly<svg class="billing-coupon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M11.17 2H4a2 2 0 0 0-2 2v7.17a2 2 0 0 0 .59 1.42l8.7 8.7a2.43 2.43 0 0 0 3.42 0l6.58-6.58a2.43 2.43 0 0 0 0-3.42l-8.7-8.7A2 2 0 0 0 11.17 2ZM7.5 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/></svg></button>
-          </div>
-          <span class="billing-save-badge">SAVE 28%</span>
         </div>
         <button class="hero-btn-primary card-cta card-cta--current" disabled>
           <div class="btn-bg-hover"></div>
@@ -2641,14 +2581,6 @@
           <p class="price-total" id="teams-total"></p>
           <p class="price-save" id="teams-save"></p>
         </div>
-        <div class="billing-row" data-billing="yearly">
-          <div class="billing-toggle" data-billing="yearly">
-            <div class="billing-thumb"></div>
-            <button class="billing-btn" data-period="monthly" onclick="setBilling('monthly')" aria-pressed="false">Monthly</button>
-            <button class="billing-btn active" data-period="yearly" onclick="setBilling('yearly')" aria-pressed="true">Yearly<svg class="billing-coupon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M11.17 2H4a2 2 0 0 0-2 2v7.17a2 2 0 0 0 .59 1.42l8.7 8.7a2.43 2.43 0 0 0 3.42 0l6.58-6.58a2.43 2.43 0 0 0 0-3.42l-8.7-8.7A2 2 0 0 0 11.17 2ZM7.5 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/></svg></button>
-          </div>
-          <span class="billing-save-badge">SAVE 10%</span>
-        </div>
         <div class="token-picker">
           <span class="token-label">Monthly tokens per member</span>
           <button class="token-btn" id="token-btn" aria-haspopup="listbox" aria-expanded="false">
@@ -2710,7 +2642,6 @@
         <div class="price-note">
           <p class="price-total">Custom annual contract, billed by consumption</p>
         </div>
-        <div class="billing-row billing-row--spacer" aria-hidden="true"></div>
         <button class="hero-btn-primary card-cta">
           <div class="btn-bg-hover"></div>
           <div class="btn-text-wrap"><div class="btn-text-inner"><span>Ask for a Quote</span><span>Ask for a Quote</span></div></div>
