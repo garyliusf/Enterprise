@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Customer Stories · Bolt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Silkscreen&display=swap" rel="stylesheet">
+<style>
+/* ════════════════════════════════════════════════════════════════════════════
+   CUSTOMERS — blog-family page. Chrome (company header, blog sub-nav, company
+   footer) and component CSS are replicated from the LIVE bolt.new/blog
+   (audited 2026-08-14): fixed dark company header (56px) → light sticky
+   sub-nav with centered filter pills → content → company footer. Buttons are
+   the company rounded style (rounded-md, accent-600), NOT the marketing
+   slide-up buttons. Light theme: keep this file fully self-contained; never
+   link the dark marketing shared-components files (CLAUDE.md: marketing CSS
+   and blog CSS must never mix).
+   ════════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F0EDE9;
+  --surface: #E8E3DE;
+  --card-bg: #D8D3CD;
+  --border: rgba(0,0,0,0.09);
+  --text-primary: #10100F;
+  --text-secondary: #555;
+  --text-muted: #999;
+  --accent-mint: #0d9b7a;
+  --accent-salmon: #c05030;
+  --accent-blue: #1488FC;
+  --font-sans: 'Inter', sans-serif;
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+  --font-mono: 'Silkscreen', monospace;
+  --max-w: 1120px;
+  --hero-w: 1040px;
+  --gutter: 80px;
+  --bolt-nav-h: 56px; /* company header height (live: h-14) */
+}
+
+html { scroll-behavior: smooth; scrollbar-gutter: stable; }
+body { background: var(--bg); color: var(--text-primary); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; padding-top: var(--bolt-nav-h); }
+
+/* ── COMPANY HEADER (live bolt.new global nav — fixed, dark) ── */
+.bolt-header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 110;
+  height: var(--bolt-nav-h);
+  background: #000;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.bolt-header-inner {
+  width: 100%; height: 100%; margin: 0 auto; padding: 0 16px;
+  display: flex; align-items: center; justify-content: space-between; gap: 32px;
+  position: relative;
+}
+.bolt-header-logo { display: flex; align-items: center; height: 32px; transition: opacity 0.2s; }
+.bolt-header-logo:hover { opacity: 0.7; }
+.bolt-header-logo svg { width: 70.5px; height: 24px; display: block; }
+.bolt-header-links {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 12px;
+}
+.bolt-header-links a {
+  display: flex; align-items: center; gap: 4px; padding: 4px 8px;
+  font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.75);
+  text-decoration: none; transition: color 0.2s;
+}
+.bolt-header-links a:hover { color: #fff; }
+.bolt-header-right { display: flex; align-items: center; gap: 12px; }
+
+/* company button (live: rounded-md bg-accent-600 hover:bg-accent-700) */
+.bolt-btn {
+  display: inline-flex; flex-direction: row; gap: 6px; align-items: center; justify-content: center;
+  border: none; border-radius: 6px; cursor: pointer; text-decoration: none;
+  font-family: var(--font-sans); font-weight: 500; font-size: 14px;
+  background: #1488FC; color: #fff;
+  padding: 8px 12px 8.8px;
+  transition: background-color 0.2s;
+}
+.bolt-btn:hover { background: #0d6fe8; }
+.bolt-btn--lg { font-size: 15px; padding: 12px 20px 12.8px; }
+
+@media (max-width: 768px) { .bolt-header-links { display: none; } }
+
+/* ── BLOG SUB-NAV (live .nav — label | centered pills | search) ── */
+.nav {
+  position: sticky; top: var(--bolt-nav-h); z-index: 100;
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+  padding: 0 max(var(--gutter), calc((100% - var(--max-w)) / 2));
+  height: 60px;
+  background: rgba(240,237,233,0.95);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo { display: flex; align-items: center; gap: 0; text-decoration: none; grid-column: 1; justify-self: start; }
+.nav-logo-label {
+  font-family: var(--font-mono); font-size: 16px; font-weight: 400;
+  color: var(--accent-blue); letter-spacing: 2px; text-transform: uppercase;
+  white-space: nowrap; display: inline-block;
+}
+.nav > .filter-group-wrap { grid-column: 2; justify-self: center; min-width: 0; }
+.nav > .blog-search { grid-column: 3; justify-self: end; }
+
+.filter-group { display: flex; align-items: center; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.filter-group::-webkit-scrollbar { display: none; }
+.filter-group-wrap { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; }
+.filter-group-wrap .filter-group { flex: 1; }
+.filter-group-wrap::before, .filter-group-wrap::after {
+  content: ""; position: absolute; top: 0; bottom: 0; width: 84px;
+  pointer-events: none; opacity: 0; transition: opacity 0.22s ease; z-index: 2;
+  backdrop-filter: blur(1.5px); -webkit-backdrop-filter: blur(1.5px);
+}
+.filter-group-wrap::after { right: 0; background: linear-gradient(to right, rgba(239,236,231,0), rgba(239,236,231,0.92) 55%, #efece7); -webkit-mask-image: linear-gradient(to right, transparent, #000 60%); mask-image: linear-gradient(to right, transparent, #000 60%); }
+.filter-group-wrap::before { left: 0; background: linear-gradient(to left, rgba(239,236,231,0), rgba(239,236,231,0.92) 55%, #efece7); -webkit-mask-image: linear-gradient(to left, transparent, #000 60%); mask-image: linear-gradient(to left, transparent, #000 60%); }
+.filter-group-wrap.is-fade-right::after { opacity: 1; }
+.filter-group-wrap.is-fade-left::before { opacity: 1; }
+.filter-btn {
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--text-secondary); background: none; border: none; border-radius: 4px;
+  padding: 8px 16px; margin: 6px 2px; cursor: pointer; white-space: nowrap;
+  text-decoration: none; display: inline-flex; align-items: center;
+  transition: color 0.2s, background 0.2s;
+}
+.filter-btn:hover { color: var(--text-primary); }
+.filter-btn.active { color: #0b6e57; background: #BCE6D7; }
+.blog-search { display: flex; align-items: center; gap: 8px; flex-shrink: 0; padding-left: 16px; position: relative; }
+.blog-search-input {
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.5px; text-align: left;
+  color: var(--text-primary); background: none; border: none; outline: none;
+  width: auto; min-width: 56px; max-width: 230px; field-sizing: content;
+  padding: 14px 0; caret-color: var(--accent-blue);
+}
+.blog-search-input::placeholder { color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-size: 11px; }
+.blog-search-input::-webkit-search-cancel-button { -webkit-appearance: none; }
+.blog-search-btn, .blog-search-clear { display: inline-flex; align-items: center; background: none; border: none; padding: 0; cursor: pointer; color: var(--text-muted); transition: color 0.2s; }
+.blog-search-clear { padding: 0 2px; margin-right: 2px; }
+.blog-search-clear[hidden] { display: none; }
+.blog-search-clear:hover { color: var(--text-primary); }
+.blog-search-btn:hover, .blog-search:focus-within .blog-search-btn { color: var(--accent-blue); }
+
+/* ── MAIN WRAP ── */
+.blog-wrap { width: min(var(--max-w), calc(100vw - var(--gutter) * 2)); margin: 0 auto; }
+
+/* ── MASTHEAD + FEATURED HERO (live blog staggered grid) ── */
+.blog-hero { padding: 56px 0 0; }
+.blog-hero-heading {
+  font-family: var(--font-serif); font-size: clamp(36px, 5vw, 64px); font-weight: 600;
+  color: var(--text-primary); line-height: 1; letter-spacing: -0.02em; margin-bottom: 28px;
+}
+.blog-hero-card {
+  display: grid; grid-template-columns: repeat(4, minmax(0,1fr));
+  column-gap: 24px; row-gap: 24px;
+  text-decoration: none; position: relative;
+  background-image: linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px);
+  background-size: 46px 46px; background-position: -1px -1px;
+}
+/* entrance: grid draws in mint then fades to the resting grey */
+.blog-hero-card::before, .blog-hero-card::after {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-size: 46px 46px; background-position: -1px -1px;
+}
+.blog-hero-card::before {
+  background-image: linear-gradient(90deg, rgba(13,155,122,0.5) 1px, transparent 1px);
+  -webkit-mask-image: linear-gradient(to right, #000 38%, transparent 66%); mask-image: linear-gradient(to right, #000 38%, transparent 66%);
+  -webkit-mask-size: 200% 100%; mask-size: 200% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  animation: heroGridDrawX 1.6s cubic-bezier(0.4,0,0.2,1) both;
+}
+.blog-hero-card::after {
+  background-image: linear-gradient(rgba(13,155,122,0.5) 1px, transparent 1px);
+  -webkit-mask-image: linear-gradient(to bottom, #000 38%, transparent 66%); mask-image: linear-gradient(to bottom, #000 38%, transparent 66%);
+  -webkit-mask-size: 100% 200%; mask-size: 100% 200%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  animation: heroGridDrawY 1.6s cubic-bezier(0.4,0,0.2,1) 0.1s both;
+}
+.blog-hero-card > * { position: relative; z-index: 1; }
+.blog-hero-card a { text-decoration: none; }
+@keyframes heroGridDrawX {
+  0% { opacity: 0; -webkit-mask-position: 100% 0; mask-position: 100% 0; }
+  18% { opacity: 1; }
+  62% { opacity: 1; -webkit-mask-position: 0% 0; mask-position: 0% 0; }
+  to { opacity: 0; -webkit-mask-position: 0% 0; mask-position: 0% 0; }
+}
+@keyframes heroGridDrawY {
+  0% { opacity: 0; -webkit-mask-position: 0 100%; mask-position: 0 100%; }
+  18% { opacity: 1; }
+  62% { opacity: 1; -webkit-mask-position: 0 0%; mask-position: 0 0%; }
+  to { opacity: 0; -webkit-mask-position: 0 0%; mask-position: 0 0%; }
+}
+@keyframes heroClipReveal {
+  0% { opacity: 0; clip-path: inset(0 100% 0 0); }
+  22% { opacity: 1; }
+  to { opacity: 1; clip-path: inset(0 0 0 0); }
+}
+.blog-hero-image { will-change: opacity, clip-path; animation: heroClipReveal 0.95s cubic-bezier(0.5,0,0.2,1) 0.28s both; }
+.blog-hero-content { will-change: opacity, clip-path; animation: heroClipReveal 0.95s cubic-bezier(0.5,0,0.2,1) 0.5s both; }
+.blog-hero-subscribe { will-change: opacity, clip-path; animation: heroClipReveal 0.95s cubic-bezier(0.5,0,0.2,1) 0.7s both; }
+@media (prefers-reduced-motion: reduce) {
+  .blog-hero-card::before, .blog-hero-card::after, .blog-hero-image, .blog-hero-content, .blog-hero-subscribe { animation: none; }
+}
+.blog-hero-image { position: relative; overflow: hidden; border-radius: 4px; grid-column: 1 / 4; grid-row: 1; aspect-ratio: 16 / 9; }
+.blog-hero-image img { width: 100%; height: 100%; object-fit: cover; transition: filter 0.5s ease; }
+.blog-hero-card:hover .blog-hero-image img { filter: grayscale(1); }
+.blog-hero-card:hover .blog-hero-title { color: var(--text-secondary); }
+.blog-hero-content {
+  grid-column: 2 / 5; grid-row: 2; display: flex; flex-direction: column; align-self: start;
+  margin-top: -140px; /* lift into the image's band — the staggered diagonal */
+  background: var(--surface); padding: 32px 36px; border-radius: 4px;
+}
+.blog-hero-top-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-bottom: 20px; }
+.blog-hero-tag {
+  display: inline-flex; align-items: center; font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: 1.5px; text-transform: uppercase; padding: 4px 10px; border-radius: 2px;
+  background: none; border: 1px solid var(--border); color: var(--text-secondary); width: fit-content;
+}
+.blog-hero-title {
+  font-family: var(--font-serif); font-size: clamp(30px, 3.2vw, 46px); font-weight: 600;
+  line-height: 1.1; color: var(--text-primary); margin-bottom: 18px; letter-spacing: -0.02em;
+  transition: color 0.2s; overflow-wrap: break-word;
+}
+.blog-hero-excerpt { font-size: 15px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 36px; overflow-wrap: break-word; }
+.blog-hero-meta { display: flex; align-items: center; gap: 14px; }
+.blog-hero-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--card-bg); overflow: hidden; flex-shrink: 0; }
+.blog-hero-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.blog-hero-author { font-size: 13px; color: var(--text-secondary); font-weight: 600; }
+.blog-hero-author-role { font-family: var(--font-sans); font-size: 12px; font-weight: 300; color: var(--text-primary); opacity: 0.55; margin-top: 1px; }
+.blog-hero-metric { font-size: 13px; color: var(--text-muted); display: inline-flex; align-items: center; gap: 5px; }
+.blog-hero-metric svg { opacity: 0.4; flex-shrink: 0; }
+/* bottom-left cell — mini subscribe (blog pattern, repurposed for stories) */
+.blog-hero-subscribe { grid-column: 1 / 2; grid-row: 2; align-self: end; max-width: 380px; }
+.blog-hero-subscribe-label { font-family: var(--font-sans); font-size: 17px; font-weight: 500; color: var(--text-primary); margin-bottom: 14px; }
+.blog-hero-subscribe-form { display: flex; align-items: center; border-bottom: 1px solid rgba(0,0,0,0.25); }
+.blog-hero-subscribe-input { flex: 1; min-width: 0; border: none; background: none; font-family: var(--font-sans); font-size: 15px; padding: 8px 0; color: var(--text-primary); outline: none; }
+.blog-hero-subscribe-input::placeholder { color: var(--text-muted); }
+.blog-hero-subscribe-btn { border: none; background: none; cursor: pointer; color: var(--accent-blue); font-size: 18px; line-height: 1; padding: 0 0 0 12px; transition: transform 0.2s; }
+.blog-hero-subscribe-btn:hover { transform: translateX(3px); }
+.blog-hero-subscribe-success { font-size: 14px; color: var(--accent-mint); font-weight: 500; }
+
+/* ── FILM GRAIN on all imagery (live blog) ── */
+@keyframes grain {
+  0%, 100% { transform: translate(0,0); }
+  10% { transform: translate(-2%,-3%); } 20% { transform: translate(3%,2%); }
+  30% { transform: translate(-1%,4%); } 40% { transform: translate(4%,-1%); }
+  50% { transform: translate(-3%,3%); } 60% { transform: translate(2%,-4%); }
+  70% { transform: translate(-4%,1%); } 80% { transform: translate(1%,3%); }
+  90% { transform: translate(3%,-2%); }
+}
+.blog-hero-image, .blog-list-thumb { position: relative; }
+.blog-hero-image::after, .blog-list-thumb::after {
+  content: ""; position: absolute; inset: -50%; width: 200%; height: 200%; z-index: 2; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='ng'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23ng)'/%3E%3C/svg%3E");
+  background-size: 150px 150px; opacity: 0.38; mix-blend-mode: overlay;
+  animation: grain 0.5s steps(2) infinite;
+}
+@media (prefers-reduced-motion: reduce) { .blog-hero-image::after, .blog-list-thumb::after { animation: none; } }
+
+/* ── STORY FEED (live blog-feed list) ── */
+.blog-list-section { padding: 0 0 96px; }
+.blog-list-header { display: flex; align-items: center; justify-content: space-between; padding: 84px 0 0; margin-bottom: 18px; }
+.blog-list-label { font-family: var(--font-mono); font-size: 16px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-blue); }
+.blog-list-count { font-family: var(--font-mono); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); }
+.blog-list { list-style: none; }
+.blog-list-item { display: grid; align-items: start; padding: 36px 0; border-top: 1px solid var(--border); text-decoration: none; position: relative; }
+.blog-list-item:last-child { border-bottom: 1px solid var(--border); }
+.blog-list-item:hover .blog-list-thumb img { filter: grayscale(1); }
+#story-list > li[hidden] { display: none; }
+.blog-list-meta { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+.blog-list-company { font-family: var(--font-mono); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); }
+.blog-list-tag {
+  display: inline-flex; font-family: var(--font-mono); font-size: 9px; letter-spacing: 1.5px;
+  text-transform: uppercase; padding: 3px 8px; border-radius: 2px; width: fit-content;
+  background: none; border: 1px solid var(--border); color: var(--text-secondary);
+}
+.blog-list-title { font-family: var(--font-serif); font-weight: 600; line-height: 1.2; color: var(--text-primary); margin-bottom: 10px; letter-spacing: -0.01em; transition: color 0.2s; overflow-wrap: break-word; }
+.blog-list-excerpt { font-size: 14px; color: var(--text-secondary); line-height: 1.65; margin-bottom: 18px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.blog-list-author { display: flex; align-items: center; gap: 8px; }
+.blog-list-avatar { border-radius: 50%; background: var(--card-bg); overflow: hidden; flex-shrink: 0; width: 40px; height: 40px; }
+.blog-list-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.blog-list-author-name { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+.blog-list-metric { font-size: 13px; color: var(--text-muted); display: inline-flex; align-items: center; gap: 5px; }
+.blog-list-metric svg { opacity: 0.4; flex-shrink: 0; }
+.blog-list-thumb { aspect-ratio: 16/9; overflow: hidden; border-radius: 3px; background: var(--surface); }
+.blog-list-thumb img { width: 100%; height: 100%; object-fit: cover; transition: filter 0.4s ease; }
+.blog-feed .blog-list-item { grid-template-columns: minmax(0,1fr) 320px; gap: 48px; }
+.blog-feed .blog-list-title { font-size: 32px; }
+.blog-feed .blog-list-item:hover .blog-list-title { color: var(--text-secondary); }
+.feed-empty { padding: 48px 0; border-top: 1px solid var(--border); font-size: 15px; color: var(--text-muted); }
+.feed-empty[hidden] { display: none; }
+
+/* ── INDUSTRY TAG CLOUD (live blog tags section) ── */
+.blog-tags-outer { padding: 0 0 40px; background: var(--bg); }
+.blog-tags-section {
+  background: var(--surface); padding: 72px var(--gutter); margin: 0 auto;
+  width: min(var(--max-w), calc(100vw - var(--gutter) * 2));
+  position: relative; overflow: hidden; border-radius: 4px;
+}
+.blog-tags-section::before {
+  content: ""; position: absolute; inset: -50%; width: 200%; height: 200%;
+  opacity: 0.18; pointer-events: none; z-index: 0; animation: grain 0.6s steps(1) infinite;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+}
+.blog-tags-section > * { position: relative; z-index: 1; }
+.blog-tags-eyebrow { font-family: var(--font-mono); font-size: 16px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-blue); margin-bottom: 18px; }
+.blog-tags-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); border-top: 1px solid rgba(0,0,0,0.1); border-left: 1px solid rgba(0,0,0,0.1); }
+.blog-tag-cell {
+  position: relative; padding: 28px 24px; background: var(--surface);
+  border-bottom: 1px solid rgba(0,0,0,0.1); border-right: 1px solid rgba(0,0,0,0.1);
+  text-decoration: none; display: flex; align-items: flex-end; cursor: pointer; transition: background 0.2s;
+}
+.blog-tag-cell:hover { background: #7FDDC1; }
+.blog-tag-cell:hover .blog-tag-name { color: #10100F; }
+.blog-tag-cell:hover .blog-tag-count { color: rgba(0,0,0,0.45); }
+.blog-tag-name { font-family: var(--font-sans); font-size: 16px; font-weight: 400; color: var(--text-primary); letter-spacing: -0.01em; line-height: 1; }
+.blog-tag-count { font-family: var(--font-mono); font-size: 10px; color: var(--accent-mint); font-weight: 400; line-height: 1; position: absolute; top: 14px; right: 16px; }
+#tags-pixel-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; opacity: 0.3; }
+
+/* ── FINAL CTA (live blog newsletter panel, repurposed) ── */
+.blog-newsletter { width: min(var(--max-w), calc(100vw - var(--gutter) * 2)); margin: 0 auto 128px; }
+.blog-newsletter-inner {
+  background: #0d0e11; border-radius: 4px; padding: 64px 48px;
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 28px;
+  position: relative; overflow: hidden;
+}
+.blog-newsletter-glow { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+.blog-newsletter-inner::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(180deg, rgba(13,14,17,0), rgba(13,14,17,0.55) 24% 78%, rgba(13,14,17,0)); }
+.blog-newsletter-inner > *:not(.blog-newsletter-glow) { position: relative; z-index: 2; }
+.blog-newsletter-eyebrow { font-family: var(--font-mono); font-size: 16px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-blue); margin-bottom: 18px; }
+.blog-newsletter-heading { font-family: var(--font-sans); font-size: clamp(32px, 4vw, 52px); font-weight: 500; letter-spacing: -1px; color: #fff; line-height: 1.2; margin-bottom: 12px; }
+.blog-newsletter-body { font-size: 18px; color: rgba(255,255,255,0.82); line-height: 1.6; max-width: 660px; margin: 0 auto; }
+
+/* ── COMPANY FOOTER (live bolt.new footer — dark, columns) ── */
+.bolt-footer {
+  background: #0a0a0a; position: relative; width: 100%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 32px 16px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+.bolt-footer-inner { display: flex; flex-direction: column; gap: 32px; align-items: center; justify-content: center; width: 100%; max-width: 1152px; }
+.bolt-footer-row { display: flex; flex-direction: column; gap: 32px; align-items: flex-start; justify-content: space-between; width: 100%; }
+.bolt-footer-main { display: flex; flex-direction: column; flex-grow: 1; align-items: stretch; justify-content: space-between; width: 100%; gap: 32px; }
+.bolt-footer-brand { display: flex; flex-direction: column; gap: 24px; align-items: stretch; justify-content: space-between; height: 100%; width: 100%; }
+.bolt-footer-brand svg { width: 56px; height: 24px; display: block; }
+.bolt-footer-copy { font-size: 12px; font-weight: 400; line-height: 1; color: rgba(255,255,255,0.6); margin-top: auto; }
+.bolt-footer-cols { display: flex; flex-direction: column; gap: 24px; align-items: flex-start; width: 100%; }
+.bolt-footer-col { display: flex; flex-direction: column; gap: 12px; align-items: flex-start; justify-content: center; min-width: 120px; }
+.bolt-footer-col-title { font-size: 14px; font-weight: 500; line-height: 1; color: #fff; }
+.bolt-footer-col a {
+  display: flex; flex-direction: row; gap: 6px; align-items: center;
+  font-size: 14px; font-weight: 400; line-height: 1; color: rgba(255,255,255,0.6);
+  text-decoration: none; transition: opacity 0.15s ease-out; cursor: pointer;
+}
+.bolt-footer-col a:hover { opacity: 0.5; }
+.bolt-footer-social-grid { display: grid; grid-template-columns: 1fr; gap: 12px 16px; }
+@media (min-width: 640px) {
+  .bolt-footer-cols { flex-direction: row; gap: 32px; width: auto; }
+  .bolt-footer-social-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (min-width: 768px) {
+  .bolt-footer { padding: 32px; }
+  .bolt-footer-inner { gap: 48px; }
+  .bolt-footer-main { flex-direction: row; gap: 0; }
+  .bolt-footer-brand { max-width: 320px; gap: 80px; }
+  .bolt-footer-cols { gap: 40px; }
+}
+@media (min-width: 1024px) { .bolt-footer { padding: 32px 144px; } }
+
+/* ── WORD REVEAL (blog masthead) ── */
+@keyframes dsa-word-reveal {
+  from { opacity: 0; transform: translate(-10px,-7px); filter: blur(5px); }
+  to   { opacity: 1; transform: translate(0,0); filter: blur(0); }
+}
+.dsa-reveal .word { display: inline-block; opacity: 0; transform: translate(-10px,-7px); filter: blur(5px); will-change: opacity, transform, filter; }
+.dsa-reveal.is-revealed .word { animation: dsa-word-reveal 0.7s cubic-bezier(0.22,1,0.36,1) forwards; animation-delay: calc(var(--i,0) * 28ms); }
+
+/* ── RESPONSIVE (live blog breakpoints) ── */
+@media (max-width: 1024px) {
+  :root { --gutter: 40px; }
+  .filter-btn { font-size: 11px; padding: 7px 12px; }
+  .blog-hero { padding: 40px 0 0; }
+  .blog-hero-heading { margin-bottom: 24px; }
+  .blog-hero-card { grid-template-columns: 1fr; row-gap: 0; }
+  .blog-hero-image { grid-column: 1; grid-row: auto; aspect-ratio: 16/9; }
+  .blog-hero-content { grid-column: 1; grid-row: auto; align-self: auto; margin: 32px 24px 0; padding: 26px 30px; box-shadow: 0 12px 40px rgba(0,0,0,0.06); }
+  .blog-hero-subscribe { grid-column: 1; grid-row: auto; align-self: auto; justify-self: end; width: 62%; max-width: none; margin-top: 40px; }
+  .blog-feed .blog-list-item { gap: 28px; grid-template-columns: minmax(0,1fr) 200px; }
+  .blog-feed .blog-list-title { font-size: 26px; }
+  .blog-list-header { padding: 56px 0 0; }
+}
+@media (max-width: 768px) {
+  :root { --gutter: 24px; }
+  .blog-hero { padding: 28px 0 0; }
+  .blog-hero-content { margin: 24px 14px 0; padding: 22px; }
+  .blog-hero-title { font-size: clamp(26px, 7vw, 34px); }
+  .blog-hero-subscribe { margin-top: 32px; width: max(62%, 240px); }
+  .blog-list-header { padding: 40px 0 0; }
+  .blog-feed .blog-list-item { grid-template-columns: 1fr; gap: 18px; }
+  .blog-feed .blog-list-thumb { width: 100%; aspect-ratio: 16/9; order: -1; }
+  .blog-feed .blog-list-title { font-size: 24px; }
+  .blog-newsletter { margin-bottom: 80px; }
+  .blog-newsletter-inner { padding: 44px 24px; }
+  .blog-newsletter-body { font-size: 16px; }
+  .blog-tags-section { padding: 48px var(--gutter); }
+  /* sub-nav: the desktop `1fr auto 1fr` centering track can't shrink below the
+     pill row's content width, so on phones it forced ~150px of page overflow —
+     switch the middle track to minmax(0,1fr) so the pills shrink and scroll
+     internally behind the fade affordance instead */
+  .nav { padding: 0 var(--gutter); grid-template-columns: auto minmax(0,1fr) auto; column-gap: 12px; }
+  .nav > .filter-group-wrap { width: 100%; }
+}
+@media (max-width: 560px) {
+  :root { --gutter: 20px; }
+  .blog-feed .blog-list-meta { flex-wrap: wrap; gap: 8px 12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── COMPANY HEADER (replica of the live bolt.new global nav) ── -->
+<header class="bolt-header">
+  <div class="bolt-header-inner">
+    <a href="https://bolt.new" class="bolt-header-logo" aria-label="Bolt.new">
+      <svg viewBox="0 0 85 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M26.1121 20.9491C21.0582 20.9491 18.4869 17.9995 18.4869 14.3126C18.4869 9.9472 21.9744 5.99476 27.0283 5.99476C32.0822 5.99476 34.6535 8.94434 34.6535 12.6313C34.6535 16.9967 31.166 20.9491 26.1121 20.9491ZM26.319 16.2593C28.0923 16.2593 29.2154 14.6665 29.2154 12.8968C29.2154 11.481 28.2992 10.6846 26.8214 10.6846C25.0481 10.6846 23.925 12.2774 23.925 14.0471C23.925 15.4629 24.8412 16.2593 26.319 16.2593Z" fill="#fff"/>
+        <path d="M40.0368 20.5952H34.717L39.0615 0.921487H44.3814L40.0368 20.5952Z" fill="#fff"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M10.4272 20.9491C8.80168 20.9491 7.20572 20.3592 6.28951 19.0909L5.96635 20.5867L0 23.75L0.644095 20.5867L4.9891 0.921487H10.309L8.77213 7.853C10.0134 6.49619 11.1661 5.99476 12.6438 5.99476C15.8358 5.99476 17.9637 8.08896 17.9637 11.9234C17.9637 15.8758 15.5107 20.9491 10.4272 20.9491ZM12.4665 13.0443C12.4665 14.873 11.1661 16.2593 9.48145 16.2593C8.53569 16.2593 7.6786 15.9053 7.11705 15.2859L7.94459 11.658C8.56524 11.0385 9.27456 10.6846 10.1021 10.6846C11.373 10.6846 12.4665 11.6285 12.4665 13.0443Z" fill="#fff"/>
+        <path d="M49.9163 20.9491C46.8426 20.9491 44.6555 19.8283 44.6555 17.3506C44.6555 17.1442 44.6851 16.6427 44.7737 16.2298L45.9264 10.9501H43.562L44.5964 6.34871H46.9608L47.8179 2.45527L53.7735 0L53.1378 2.46127L52.2807 6.34871H55.1771L54.1426 10.9501H51.2462L50.4778 14.4306C50.4187 14.696 50.3892 14.991 50.3892 15.109C50.3892 15.7874 50.8029 16.2593 51.7191 16.2593C51.9851 16.2593 52.3693 16.1708 52.458 16.1118V20.3592C51.8965 20.7427 50.8916 20.9491 49.9163 20.9491Z" fill="#fff"/>
+        <path d="M56.461 21.0087C55.7527 21.0087 55.1886 20.4196 55.1886 19.7127C55.1886 18.8879 55.897 18.1941 56.7234 18.1941C57.4317 18.1941 57.9958 18.7832 57.9958 19.4901C57.9958 20.3149 57.2875 21.0087 56.461 21.0087Z" fill="#fff"/>
+        <path d="M65.3576 20.8386H62.9964L63.7309 17.5133C63.7572 17.3955 63.8097 17.186 63.8097 17.0289C63.8097 16.5969 63.4292 16.4398 63.0488 16.4398C62.5372 16.4398 62.183 16.7016 61.9338 16.9242L61.068 20.8386H58.7068L60.1104 14.5153H62.4716L62.3011 15.2354C62.7602 14.8164 63.3374 14.3582 64.295 14.3582C65.6199 14.3582 66.3807 15.0783 66.3807 16.0209C66.3807 16.1256 66.3414 16.4136 66.3151 16.5314L65.3576 20.8386Z" fill="#fff"/>
+        <path d="M70.256 20.9956C68.2096 20.9956 66.7929 19.9745 66.7929 18.1155C66.7929 16.0994 68.3408 14.3582 70.5577 14.3582C72.1319 14.3582 73.5223 15.3139 73.5223 17.2384C73.5223 17.6704 73.4436 18.1679 73.3781 18.4035H69.1279V18.4166C69.1279 18.5083 69.5083 19.2021 70.4265 19.2021C70.925 19.2021 71.5153 19.0843 71.8039 18.8879L72.5254 20.4196C71.8826 20.8255 71.0169 20.9956 70.256 20.9956ZM69.3509 16.9111H71.4366V16.8718C71.4366 16.6885 71.2136 16.1518 70.4659 16.1518C69.8363 16.1518 69.4296 16.6362 69.3509 16.9111Z" fill="#fff"/>
+        <path d="M81.7599 20.8386H79.1888L78.9265 17.3038L77.1293 20.8386H74.5582L74.1254 14.5153H76.4866L76.5521 17.9977L78.4411 14.5153H80.5531L80.881 17.9977L82.4945 14.5153H85L81.7599 20.8386Z" fill="#fff"/>
+      </svg>
+    </a>
+    <nav class="bolt-header-links" aria-label="Primary">
+      <a href="https://discord.com/invite/stackblitz" target="_blank" rel="noopener"><span>Community</span></a>
+      <a href="https://bolt.new/enterprise"><span>Enterprise</span></a>
+      <a href="https://bolt.new/resources/templates"><span>Templates</span></a>
+      <a href="https://bolt.new/careers"><span>Careers</span></a>
+      <a href="https://bolt.new/pricing"><span>Pricing</span></a>
+    </nav>
+    <div class="bolt-header-right">
+      <a href="https://bolt.new/?get_started=1" class="bolt-btn">Get Started</a>
+    </div>
+  </div>
+</header>
+
+<!-- ── BLOG SUB-NAV (live .nav: label | centered pills | search) ── -->
+<nav class="nav">
+  <a href="customers.html" class="nav-logo">
+    <span class="nav-logo-label eyebrow-scramble">Customers</span>
+  </a>
+  <div class="filter-group-wrap">
+    <div class="filter-group" id="filter-group">
+      <button class="filter-btn active" data-seg="all">All</button>
+      <button class="filter-btn" data-seg="founders">Founders</button>
+      <button class="filter-btn" data-seg="small-business">Small Business</button>
+      <button class="filter-btn" data-seg="enterprise">Enterprise</button>
+      <button class="filter-btn" data-seg="agencies">Agencies</button>
+      <button class="filter-btn" data-seg="side-projects">Side Projects</button>
+    </div>
+  </div>
+  <form class="blog-search" role="search" id="story-search-form">
+    <input class="blog-search-input" id="story-search" type="search" placeholder="Search" aria-label="Search stories" autocomplete="off">
+    <button class="blog-search-clear" type="button" aria-label="Clear search" id="story-search-clear" hidden>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <button class="blog-search-btn" type="submit" aria-label="Search">
+      <svg class="blog-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    </button>
+  </form>
+</nav>
+
+<div class="blog-wrap">
+
+  <!-- ── MASTHEAD + FEATURED STORY ── -->
+  <section class="blog-hero">
+    <h1 class="blog-hero-heading dsa-reveal">Customer Stories</h1>
+    <div class="blog-hero-card">
+      <a href="#" class="blog-hero-image" aria-label="Read the FlagStat story">
+        <img src="https://picsum.photos/seed/flagstat-hq/1200/675" alt="">
+      </a>
+      <a href="#" class="blog-hero-content">
+        <div>
+          <div class="blog-hero-top-meta">
+            <span class="blog-hero-tag">Featured</span>
+            <span class="blog-hero-tag">Founders</span>
+            <span class="blog-hero-metric">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              50K page views in 60 days
+            </span>
+          </div>
+          <h2 class="blog-hero-title">"A developer would've made this impossible" &mdash; how FlagStat shipped without one</h2>
+          <p class="blog-hero-excerpt">Bradley Metrock had customers in eight states and a pre-seed round closing &mdash; all off a product he described into existence on Bolt. No engineering hires, no agency invoice, no hand-off.</p>
+        </div>
+        <div class="blog-hero-meta">
+          <div class="blog-hero-avatar"><img src="https://picsum.photos/seed/bradley/80/80?grayscale" alt=""></div>
+          <div>
+            <div class="blog-hero-author">Bradley Metrock</div>
+            <div class="blog-hero-author-role">Founder, FlagStat</div>
+          </div>
+        </div>
+      </a>
+      <div class="blog-hero-subscribe">
+        <p class="blog-hero-subscribe-label">New stories, in your inbox</p>
+        <form class="blog-hero-subscribe-form" id="hero-subscribe-form">
+          <input class="blog-hero-subscribe-input" type="email" placeholder="you@company.com" required aria-label="Email address">
+          <button class="blog-hero-subscribe-btn" type="submit" aria-label="Subscribe">&rarr;</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── STORY FEED ── -->
+  <section class="blog-list-section blog-feed">
+    <div class="blog-list-header">
+      <span class="blog-list-label eyebrow-scramble">All stories</span>
+      <span class="blog-list-count" id="story-count">6 stories</span>
+    </div>
+    <ul class="blog-list" id="story-list">
+
+      <li data-seg="founders">
+        <a href="#" class="blog-list-item">
+          <div class="blog-list-body">
+            <div class="blog-list-meta">
+              <span class="blog-list-tag">Founders</span>
+              <span class="blog-list-company">Harborline</span>
+              <span class="blog-list-metric">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                MVP in one weekend
+              </span>
+            </div>
+            <div class="blog-list-title">Pitching investors with a working product, not a deck</div>
+            <p class="blog-list-excerpt">The same idea had been stuck in a Notion doc for a year. Dana described it to Bolt on a Friday night and walked into Monday's investor meeting with a live product.</p>
+            <div class="blog-list-author">
+              <div class="blog-list-avatar"><img src="https://picsum.photos/seed/harborline/80/80?grayscale" alt=""></div>
+              <span class="blog-list-author-name">Dana M. &middot; Founder, Harborline</span>
+            </div>
+          </div>
+          <div class="blog-list-thumb"><img src="https://picsum.photos/seed/harborline-app/640/360" alt="" loading="lazy"></div>
+        </a>
+      </li>
+
+      <li data-seg="small-business">
+        <a href="#" class="blog-list-item">
+          <div class="blog-list-body">
+            <div class="blog-list-meta">
+              <span class="blog-list-tag">Small Business</span>
+              <span class="blog-list-company">Fieldrow Ops</span>
+              <span class="blog-list-metric">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                3 subscriptions replaced
+              </span>
+            </div>
+            <div class="blog-list-title">The dispatch dashboard that replaced three subscriptions</div>
+            <p class="blog-list-excerpt">Fieldrow's ops team built their own internal tool in an afternoon &mdash; one that does exactly what dispatch needs and nothing they don't pay attention to.</p>
+            <div class="blog-list-author">
+              <div class="blog-list-avatar"><img src="https://picsum.photos/seed/fieldrow/80/80?grayscale" alt=""></div>
+              <span class="blog-list-author-name">Luis O. &middot; Operations Manager</span>
+            </div>
+          </div>
+          <div class="blog-list-thumb"><img src="https://picsum.photos/seed/fieldrow-app/640/360" alt="" loading="lazy"></div>
+        </a>
+      </li>
+
+      <li data-seg="enterprise">
+        <a href="#" class="blog-list-item">
+          <div class="blog-list-body">
+            <div class="blog-list-meta">
+              <span class="blog-list-tag">Enterprise</span>
+              <span class="blog-list-company">Northbeam &amp; Co</span>
+              <span class="blog-list-metric">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Ideas validated in days
+              </span>
+            </div>
+            <div class="blog-list-title">Prototyping in Bolt before anything hits the engineering backlog</div>
+            <p class="blog-list-excerpt">Northbeam's product team validates ideas in days, and the ones that survive ship with SSO and audit logs already in place. Engineering gets specs that already work.</p>
+            <div class="blog-list-author">
+              <div class="blog-list-avatar"><img src="https://picsum.photos/seed/northbeam/80/80?grayscale" alt=""></div>
+              <span class="blog-list-author-name">Priya S. &middot; Director of Product</span>
+            </div>
+          </div>
+          <div class="blog-list-thumb"><img src="https://picsum.photos/seed/northbeam-app/640/360" alt="" loading="lazy"></div>
+        </a>
+      </li>
+
+      <li data-seg="agencies">
+        <a href="#" class="blog-list-item">
+          <div class="blog-list-body">
+            <div class="blog-list-meta">
+              <span class="blog-list-tag">Agencies</span>
+              <span class="blog-list-company">Studio Meridian</span>
+              <span class="blog-list-metric">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                3 weeks &rarr; 3 days
+              </span>
+            </div>
+            <div class="blog-list-title">Client sites in three days, with revisions live on the call</div>
+            <p class="blog-list-excerpt">Studio Meridian used to lose margin to revision rounds. Now changes happen live while the client watches &mdash; and the studio takes on twice the work with the same team.</p>
+            <div class="blog-list-author">
+              <div class="blog-list-avatar"><img src="https://picsum.photos/seed/meridian/80/80?grayscale" alt=""></div>
+              <span class="blog-list-author-name">Alex T. &middot; Agency Owner</span>
+            </div>
+          </div>
+          <div class="blog-list-thumb"><img src="https://picsum.photos/seed/meridian-app/640/360" alt="" loading="lazy"></div>
+        </a>
+      </li>
+
+      <li data-seg="agencies">
+        <a href="#" class="blog-list-item">
+          <div class="blog-list-body">
+            <div class="blog-list-meta">
+              <span class="blog-list-tag">Agencies</span>
+              <span class="blog-list-company">Wrenfield</span>
+              <span class="blog-list-metric">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Figma to live, same day
+              </span>
+            </div>
+            <div class="blog-list-title">From Figma file to deployed site in one afternoon</div>
+            <p class="blog-list-excerpt">Sofia imported her design file and had a responsive, deployed site the same afternoon &mdash; closer to her original design than any developer hand-off ever managed.</p>
+            <div class="blog-list-author">
+              <div class="blog-list-avatar"><img src="https://picsum.photos/seed/wrenfield/80/80?grayscale" alt=""></div>
+              <span class="blog-list-author-name">Sofia R. &middot; Independent Designer</span>
+            </div>
+          </div>
+          <div class="blog-list-thumb"><img src="https://picsum.photos/seed/wrenfield-app/640/360" alt="" loading="lazy"></div>
+        </a>
+      </li>
+
+      <li data-seg="side-projects">
+        <a href="#" class="blog-list-item">
+          <div class="blog-list-body">
+            <div class="blog-list-meta">
+              <span class="blog-list-tag">Side Projects</span>
+              <span class="blog-list-company">Kestrel Labs</span>
+              <span class="blog-list-metric">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Weekend build, paying users
+              </span>
+            </div>
+            <div class="blog-list-title">A weekend experiment that became a paid product</div>
+            <p class="blog-list-excerpt">Bolt handled the database, auth, and Stripe. Marcus handled the idea. What started as a Saturday experiment now has real customers and real revenue.</p>
+            <div class="blog-list-author">
+              <div class="blog-list-avatar"><img src="https://picsum.photos/seed/kestrel/80/80?grayscale" alt=""></div>
+              <span class="blog-list-author-name">Marcus J. &middot; Builder, Kestrel Labs</span>
+            </div>
+          </div>
+          <div class="blog-list-thumb"><img src="https://picsum.photos/seed/kestrel-app/640/360" alt="" loading="lazy"></div>
+        </a>
+      </li>
+
+    </ul>
+    <p class="feed-empty" id="feed-empty" hidden>No stories match &mdash; try a different segment or search.</p>
+  </section>
+
+</div><!-- /blog-wrap -->
+
+<!-- ── BROWSE BY INDUSTRY ── -->
+<div class="blog-tags-outer">
+  <section class="blog-tags-section">
+    <canvas id="tags-pixel-canvas" aria-hidden="true"></canvas>
+    <div class="blog-tags-eyebrow eyebrow-scramble">Browse by industry</div>
+    <div class="blog-tags-grid">
+      <a href="#" class="blog-tag-cell"><span class="blog-tag-count">31</span><span class="blog-tag-name">SaaS</span></a>
+      <a href="#" class="blog-tag-cell"><span class="blog-tag-count">24</span><span class="blog-tag-name">E-commerce</span></a>
+      <a href="#" class="blog-tag-cell"><span class="blog-tag-count">19</span><span class="blog-tag-name">Real Estate</span></a>
+      <a href="#" class="blog-tag-cell"><span class="blog-tag-count">16</span><span class="blog-tag-name">Internal Tools</span></a>
+      <a href="#" class="blog-tag-cell"><span class="blog-tag-count">13</span><span class="blog-tag-name">Education</span></a>
+      <a href="#" class="blog-tag-cell"><span class="blog-tag-count">11</span><span class="blog-tag-name">Healthcare</span></a>
+      <a href="#" class="blog-tag-cell"><span class="blog-tag-count">9</span><span class="blog-tag-name">Finance</span></a>
+      <a href="#" class="blog-tag-cell"><span class="blog-tag-count">8</span><span class="blog-tag-name">Hospitality</span></a>
+      <a href="#" class="blog-tag-cell"><span class="blog-tag-count">7</span><span class="blog-tag-name">Nonprofits</span></a>
+      <a href="#" class="blog-tag-cell"><span class="blog-tag-count">6</span><span class="blog-tag-name">Media</span></a>
+      <a href="#" class="blog-tag-cell"><span class="blog-tag-count">5</span><span class="blog-tag-name">Logistics</span></a>
+      <a href="#" class="blog-tag-cell"><span class="blog-tag-count">4</span><span class="blog-tag-name">Legal</span></a>
+    </div>
+  </section>
+</div>
+
+<!-- ── FINAL CTA (newsletter-panel treatment) ── -->
+<div class="blog-newsletter">
+  <div class="blog-newsletter-inner">
+    <canvas class="blog-newsletter-glow" id="cta-glow-canvas" aria-hidden="true"></canvas>
+    <div>
+      <div class="blog-newsletter-eyebrow eyebrow-scramble">Get started</div>
+      <div class="blog-newsletter-heading">Your story starts with a prompt.</div>
+      <p class="blog-newsletter-body">Join millions of builders shipping real products on Bolt.new. Start for free &mdash; upgrade when you&rsquo;re ready to scale.</p>
+    </div>
+    <a href="https://bolt.new/?get_started=1" class="bolt-btn bolt-btn--lg">Start Building</a>
+  </div>
+</div>
+
+<!-- ── COMPANY FOOTER (replica of the live bolt.new footer) ── -->
+<footer class="bolt-footer">
+  <div class="bolt-footer-inner">
+    <div class="bolt-footer-row">
+      <div class="bolt-footer-main">
+        <div class="bolt-footer-brand">
+          <svg viewBox="0 0 56 24" xmlns="http://www.w3.org/2000/svg" aria-label="Bolt">
+            <path d="M26.1121 20.9491C21.0582 20.9491 18.4869 17.9995 18.4869 14.3126C18.4869 9.9472 21.9744 5.99476 27.0283 5.99476C32.0822 5.99476 34.6535 8.94434 34.6535 12.6313C34.6535 16.9967 31.166 20.9491 26.1121 20.9491ZM26.319 16.2593C28.0923 16.2593 29.2154 14.6665 29.2154 12.8968C29.2154 11.481 28.2992 10.6846 26.8214 10.6846C25.0481 10.6846 23.925 12.2774 23.925 14.0471C23.925 15.4629 24.8412 16.2593 26.319 16.2593Z" fill="#fff"/>
+            <path d="M40.0368 20.5952H34.717L39.0615 0.921487H44.3814L40.0368 20.5952Z" fill="#fff"/>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M10.4272 20.9491C8.80168 20.9491 7.20572 20.3592 6.28951 19.0909L5.96635 20.5867L0 23.75L0.644095 20.5867L4.9891 0.921487H10.309L8.77213 7.853C10.0134 6.49619 11.1661 5.99476 12.6438 5.99476C15.8358 5.99476 17.9637 8.08896 17.9637 11.9234C17.9637 15.8758 15.5107 20.9491 10.4272 20.9491ZM12.4665 13.0443C12.4665 14.873 11.1661 16.2593 9.48145 16.2593C8.53569 16.2593 7.6786 15.9053 7.11705 15.2859L7.94459 11.658C8.56524 11.0385 9.27456 10.6846 10.1021 10.6846C11.373 10.6846 12.4665 11.6285 12.4665 13.0443Z" fill="#fff"/>
+            <path d="M49.9163 20.9491C46.8426 20.9491 44.6555 19.8283 44.6555 17.3506C44.6555 17.1442 44.6851 16.6427 44.7737 16.2298L45.9264 10.9501H43.562L44.5964 6.34871H46.9608L47.8179 2.45527L53.7735 0L53.1378 2.46127L52.2807 6.34871H55.1771L54.1426 10.9501H51.2462L50.4778 14.4306C50.4187 14.696 50.3892 14.991 50.3892 15.109C50.3892 15.7874 50.8029 16.2593 51.7191 16.2593C51.9851 16.2593 52.3693 16.1708 52.458 16.1118V20.3592C51.8965 20.7427 50.8916 20.9491 49.9163 20.9491Z" fill="#fff"/>
+          </svg>
+          <div class="bolt-footer-copy"><p>&copy; 2026 StackBlitz - All rights reserved.</p></div>
+        </div>
+        <div class="bolt-footer-cols">
+          <div class="bolt-footer-col">
+            <div class="bolt-footer-col-title">Resources</div>
+            <a href="https://bolt.new/pricing">Pricing</a>
+            <a href="https://support.bolt.new/" target="_blank" rel="noopener">Support</a>
+            <a href="https://bolt.new/blog">Blog</a>
+            <a href="https://status.bolt.new" target="_blank" rel="noopener">Status</a>
+          </div>
+          <div class="bolt-footer-col">
+            <div class="bolt-footer-col-title">Company</div>
+            <a href="https://bolt.new/careers">Careers</a>
+            <a href="https://stackblitz.com/privacy-policy">Privacy</a>
+            <a href="https://stackblitz.com/terms-of-service">Terms</a>
+          </div>
+          <div class="bolt-footer-col">
+            <div class="bolt-footer-col-title">Social</div>
+            <div class="bolt-footer-social-grid">
+              <a href="https://discord.bolt.new/" target="_blank" rel="noopener">Discord</a>
+              <a href="https://www.linkedin.com/company/boltdotnew/" target="_blank" rel="noopener">Linkedin</a>
+              <a href="https://youtube.com/@boltdotnew" target="_blank" rel="noopener">YouTube</a>
+              <a href="https://x.com/boltdotnew" target="_blank" rel="noopener">Twitter/X</a>
+              <a href="https://instagram.com/boltdotnew" target="_blank" rel="noopener">Instagram</a>
+              <a href="https://www.reddit.com/r/boltnewbuilders/" target="_blank" rel="noopener">Reddit</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ── Masthead word reveal (blog dsa-reveal) ─────────────────────────────── */
+(function () {
+  document.querySelectorAll('.dsa-reveal').forEach(function (el) {
+    var i = 0;
+    el.innerHTML = el.innerHTML.replace(/\S+/g, function (w) {
+      return '<span class="word" style="--i:' + (i++) + '">' + w + '</span>';
+    });
+    el.classList.add('is-revealed'); /* masthead is above the fold — fire on load */
+  });
+})();
+
+/* ── Eyebrow scramble (verbatim live blog) ──────────────────────────────── */
+(function() {
+  var CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  function scramble(el) {
+    var original = el.textContent; var chars = original.split(''); var total = chars.length;
+    el.style.whiteSpace = 'nowrap'; el.style.display = 'inline-block';
+    el.style.minWidth = el.getBoundingClientRect().width + 'px';
+    var locked = new Array(total).fill(false); var startTime = null; var duration = 500;
+    function phase1(ts) {
+      if (!startTime) startTime = ts;
+      var progress = Math.min((ts - startTime) / duration, 1);
+      var result = '', allDone = true;
+      for (var i = 0; i < total; i++) {
+        if (chars[i] === ' ') { locked[i] = true; result += ' '; continue; }
+        if (!locked[i] && progress >= (i / total) * 0.85) locked[i] = true;
+        if (locked[i]) { result += chars[i]; } else { allDone = false; result += CHARS[Math.floor(Math.random() * CHARS.length)]; }
+      }
+      el.textContent = result;
+      if (!allDone || progress < 1) { requestAnimationFrame(phase1); }
+      else { el.textContent = original; setTimeout(function() { locked = new Array(total).fill(false); startTime = null; requestAnimationFrame(phase1); }, 4000 + Math.random() * 1000); }
+    }
+    requestAnimationFrame(phase1);
+  }
+  var obs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting && !e.target.dataset.scrambling) {
+        e.target.dataset.scrambling = '1';
+        scramble(e.target);
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.5 });
+  document.querySelectorAll('.eyebrow-scramble').forEach(function(el) { obs.observe(el); });
+})();
+
+/* ── Segment filter + live search ───────────────────────────────────────── */
+(function () {
+  var buttons = Array.prototype.slice.call(document.querySelectorAll('.filter-btn'));
+  var items = Array.prototype.slice.call(document.querySelectorAll('#story-list > li'));
+  var form = document.getElementById('story-search-form');
+  var search = document.getElementById('story-search');
+  var clear = document.getElementById('story-search-clear');
+  var count = document.getElementById('story-count');
+  var empty = document.getElementById('feed-empty');
+  var seg = 'all';
+
+  function apply() {
+    var q = (search.value || '').trim().toLowerCase();
+    var shown = 0;
+    items.forEach(function (li) {
+      var okSeg = seg === 'all' || li.dataset.seg === seg;
+      var okQ = !q || li.textContent.toLowerCase().indexOf(q) !== -1;
+      var show = okSeg && okQ;
+      li.hidden = !show;
+      if (show) shown++;
+    });
+    count.textContent = shown + (shown === 1 ? ' story' : ' stories');
+    empty.hidden = shown !== 0;
+    clear.hidden = !search.value;
+  }
+  buttons.forEach(function (b) {
+    b.addEventListener('click', function () {
+      buttons.forEach(function (x) { x.classList.remove('active'); });
+      b.classList.add('active');
+      seg = b.dataset.seg;
+      apply();
+    });
+  });
+  search.addEventListener('input', apply);
+  clear.addEventListener('click', function () { search.value = ''; apply(); search.focus(); });
+  form.addEventListener('submit', function (e) { e.preventDefault(); apply(); });
+
+  /* overflow fade affordance on the pill row (blog __enhanceFilterFade) */
+  var group = document.getElementById('filter-group');
+  var wrap = group.parentElement;
+  function fade() {
+    var scrollable = group.scrollWidth > group.clientWidth + 2;
+    wrap.classList.toggle('is-fade-right', scrollable && group.scrollLeft + group.clientWidth < group.scrollWidth - 2);
+    wrap.classList.toggle('is-fade-left', scrollable && group.scrollLeft > 2);
+  }
+  group.addEventListener('scroll', fade, { passive: true });
+  window.addEventListener('resize', fade);
+  fade();
+})();
+
+/* ── Mini subscribe (hero cell) ─────────────────────────────────────────── */
+(function () {
+  var form = document.getElementById('hero-subscribe-form');
+  if (!form) return;
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    form.outerHTML = '<p class="blog-hero-subscribe-success">You’re in — new stories land in your inbox.</p>';
+  });
+})();
+
+/* ── Tag-cloud pixel canvas — enterprise diagonal pixel wave (blog algo) ── */
+(function () {
+  var canvas = document.getElementById('tags-pixel-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var SPACING = 11, DOT = 4, cols, rows, phases;
+  function init() {
+    var r = canvas.parentElement.getBoundingClientRect();
+    canvas.width = Math.round(r.width); canvas.height = Math.round(r.height);
+    cols = Math.ceil(canvas.width / SPACING) + 1;
+    rows = Math.ceil(canvas.height / SPACING) + 1;
+    phases = Array.from({ length: rows }, function () { return Float32Array.from({ length: cols }, function () { return Math.random() * Math.PI * 2; }); });
+  }
+  window.addEventListener('resize', init); init();
+  var start = null;
+  function draw(ts) {
+    if (!start) start = ts; var t = ts - start;
+    var W = canvas.width, H = canvas.height;
+    if (!W || !H) { requestAnimationFrame(draw); return; }
+    ctx.clearRect(0, 0, W, H);
+    for (var c = 0; c < cols; c++) {
+      for (var r = 0; r < rows; r++) {
+        var x = c * SPACING, y = r * SPACING;
+        var ph = phases[r][c];
+        var w1 = Math.sin(c * 0.13 + r * 0.29 - t * 0.0012 + ph);
+        var w2 = Math.sin(c * 0.07 - r * 0.11 + t * 0.0008 + ph * 0.6);
+        var wave = (w1 + w2) / 2;
+        var op = Math.max(0, wave) * 0.6;
+        if (op < 0.04) continue;
+        ctx.fillStyle = 'rgba(60,66,88,' + op.toFixed(3) + ')';
+        ctx.fillRect(x, y, DOT, DOT);
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
+})();
+
+/* ── CTA panel glow — soft animated blue pixel field on the dark panel ──── */
+(function () {
+  var canvas = document.getElementById('cta-glow-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var SPACING = 8, DOT = 2, cols, rows, phases;
+  function init() {
+    var r = canvas.parentElement.getBoundingClientRect();
+    canvas.width = Math.round(r.width); canvas.height = Math.round(r.height);
+    cols = Math.ceil(canvas.width / SPACING) + 1;
+    rows = Math.ceil(canvas.height / SPACING) + 1;
+    phases = Array.from({ length: rows }, function () { return Float32Array.from({ length: cols }, function () { return Math.random() * Math.PI * 2; }); });
+  }
+  window.addEventListener('resize', init); init();
+  var start = null;
+  function draw(ts) {
+    if (!start) start = ts; var t = ts - start;
+    var W = canvas.width, H = canvas.height;
+    if (!W || !H) { requestAnimationFrame(draw); return; }
+    ctx.clearRect(0, 0, W, H);
+    for (var c = 0; c < cols; c++) {
+      var cf = c / cols;
+      var hm = Math.exp(-Math.pow(cf - 0.5, 2) / (2 * 0.26 * 0.26));
+      if (hm < 0.05) continue;
+      for (var r = 0; r < rows; r++) {
+        var rf = r / rows;
+        var vm = Math.min(1, rf / 0.35) * Math.min(1, (1 - rf) / 0.35);
+        if (vm < 0.08) continue;
+        var ph = phases[r][c];
+        var w1 = Math.sin(c * 0.11 + r * 0.23 - t * 0.0011 + ph);
+        var w2 = Math.sin(c * 0.06 - r * 0.09 + t * 0.0007 + ph * 0.7);
+        var wave = (w1 + w2) / 2;
+        var op = hm * vm * Math.max(0, wave) * 0.30;
+        if (op < 0.02) continue;
+        ctx.fillStyle = 'rgba(90,150,240,' + op.toFixed(3) + ')';
+        ctx.fillRect(c * SPACING, r * SPACING, DOT, DOT);
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
+})();
+</script>
+</body>
+</html>
