@@ -1,0 +1,1627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Press &amp; Coverage · Bolt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Silkscreen&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared-nav-footer.css?v=20260811b">
+<style>
+/* ════════════════════════════════════════════════════════════════════════════
+   PRESS — blog-family page (sibling of customers.html, built 2026-08-14) with
+   NEWSPAPER flourishes: nameplate masthead + dateline bar + double rules,
+   drop-cap featured story, two-column rule-divided clippings feed, dinkus
+   dividers. Chrome (mkt-nav, blog sub-nav, site-footer) replicated from
+   customers.html, which mirrors the LIVE bolt.new/blog. Content: all 73
+   verified press/podcast items from the coverage doc (Oct 2024 – Aug 2026),
+   each linking OUT to the original article. Light theme: keep this file fully
+   self-contained; never mix the dark marketing CSS into the light styles here
+   (the shared-components.css link at end of body is chrome-only, for the nav
+   CTA button — same as customers.html).
+   ════════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F0EDE9;
+  --surface: #E8E3DE;
+  --card-bg: #D8D3CD;
+  --border: rgba(0,0,0,0.09);
+  --rule-strong: rgba(0,0,0,0.35);
+  --text-primary: #10100F;
+  --text-secondary: #555;
+  --text-muted: #999;
+  --accent-mint: #0d9b7a;
+  --accent-salmon: #c05030;
+  --accent-blue: #1488FC;
+  --font-sans: 'Inter', sans-serif;
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+  --font-mono: 'Silkscreen', monospace;
+  --max-w: 1120px;
+  --hero-w: 1040px;
+  --gutter: 80px;
+  --bolt-nav-h: 68px; /* mkt-nav height (shared-nav-footer.css) — the sub-nav pins below it */
+}
+
+html { scroll-behavior: smooth; scrollbar-gutter: stable; }
+/* mkt-nav is in-flow sticky (not fixed), so no body offset needed */
+body { background: var(--bg); color: var(--text-primary); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+
+/* ── NAVBAR + SITE FOOTER come from shared-nav-footer.css (canonical mkt-nav
+   mega-menu + site-footer). Markup is copied per page (static sandbox, no
+   includes) — see solutions.html. The nav CTA extends .hero-btn-primary from
+   shared-components.css (linked at end of body, standard order). ── */
+
+/* company-style rounded button (kept for in-content CTAs — matches how the
+   live blog styles content buttons vs. its chrome) */
+.bolt-btn {
+  display: inline-flex; flex-direction: row; gap: 6px; align-items: center; justify-content: center;
+  border: none; border-radius: 6px; cursor: pointer; text-decoration: none;
+  font-family: var(--font-sans); font-weight: 500; font-size: 14px;
+  background: #1488FC; color: #fff;
+  padding: 8px 12px 8.8px;
+  transition: background-color 0.2s;
+}
+.bolt-btn:hover { background: #0d6fe8; }
+.bolt-btn--lg { font-size: 15px; padding: 12px 20px 12.8px; }
+
+/* ── BLOG SUB-NAV (live .nav — label | centered pills | search) ── */
+.nav {
+  position: sticky; top: var(--bolt-nav-h); z-index: 90; /* under the mkt-nav scrim (99) so the mega-panel dims it */
+  /* middle track must be shrinkable: with 9 category pills an `auto` track
+     overflows and paints OVER the Press label and the Search field — pills
+     scroll internally behind the fade affordance instead */
+  display: grid; grid-template-columns: auto minmax(0,1fr) auto; column-gap: 16px; align-items: center;
+  padding: 0 max(var(--gutter), calc((100% - var(--max-w)) / 2));
+  height: 60px;
+  background: rgba(240,237,233,0.95);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo { display: flex; align-items: center; gap: 0; text-decoration: none; grid-column: 1; justify-self: start; }
+.nav-logo-label {
+  font-family: var(--font-mono); font-size: 16px; font-weight: 400;
+  color: var(--accent-blue); letter-spacing: 2px; text-transform: uppercase;
+  white-space: nowrap; display: inline-block;
+}
+.nav > .filter-group-wrap { grid-column: 2; justify-self: center; min-width: 0; width: 100%; }
+.nav > .blog-search { grid-column: 3; justify-self: end; }
+
+.filter-group { display: flex; align-items: center; min-width: 0; overflow-x: auto; scrollbar-width: none; justify-content: center; }
+.filter-group-wrap.is-scrollable .filter-group { justify-content: flex-start; } /* centered content + overflow clips the left edge unreachable — left-align when scrolling */
+.filter-group::-webkit-scrollbar { display: none; }
+.filter-group-wrap { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; }
+.filter-group-wrap .filter-group { flex: 1; }
+.filter-group-wrap::before, .filter-group-wrap::after {
+  content: ""; position: absolute; top: 0; bottom: 0; width: 84px;
+  pointer-events: none; opacity: 0; transition: opacity 0.22s ease; z-index: 2;
+  backdrop-filter: blur(1.5px); -webkit-backdrop-filter: blur(1.5px);
+}
+.filter-group-wrap::after { right: 0; background: linear-gradient(to right, rgba(239,236,231,0), rgba(239,236,231,0.92) 55%, #efece7); -webkit-mask-image: linear-gradient(to right, transparent, #000 60%); mask-image: linear-gradient(to right, transparent, #000 60%); }
+.filter-group-wrap::before { left: 0; background: linear-gradient(to left, rgba(239,236,231,0), rgba(239,236,231,0.92) 55%, #efece7); -webkit-mask-image: linear-gradient(to left, transparent, #000 60%); mask-image: linear-gradient(to left, transparent, #000 60%); }
+.filter-group-wrap.is-fade-right::after { opacity: 1; }
+.filter-group-wrap.is-fade-left::before { opacity: 1; }
+.filter-btn {
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--text-secondary); background: none; border: none; border-radius: 4px;
+  padding: 8px 16px; margin: 6px 2px; cursor: pointer; white-space: nowrap;
+  text-decoration: none; display: inline-flex; align-items: center;
+  transition: color 0.2s, background 0.2s;
+}
+.filter-btn:hover { color: var(--text-primary); }
+.filter-btn.active { color: #0b6e57; background: #BCE6D7; }
+.blog-search { display: flex; align-items: center; gap: 8px; flex-shrink: 0; padding-left: 16px; position: relative; }
+.blog-search-input {
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.5px; text-align: left;
+  color: var(--text-primary); background: none; border: none; outline: none;
+  width: auto; min-width: 56px; max-width: 230px; field-sizing: content;
+  padding: 14px 0; caret-color: var(--accent-blue);
+}
+.blog-search-input::placeholder { color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-size: 11px; }
+.blog-search-input::-webkit-search-cancel-button { -webkit-appearance: none; }
+.blog-search-btn, .blog-search-clear { display: inline-flex; align-items: center; background: none; border: none; padding: 0; cursor: pointer; color: var(--text-muted); transition: color 0.2s; }
+.blog-search-clear { padding: 0 2px; margin-right: 2px; }
+.blog-search-clear[hidden] { display: none; }
+.blog-search-clear:hover { color: var(--text-primary); }
+.blog-search-btn:hover, .blog-search:focus-within .blog-search-btn { color: var(--accent-blue); }
+
+/* ── MAIN WRAP ── */
+.blog-wrap { width: min(var(--max-w), calc(100vw - var(--gutter) * 2)); margin: 0 auto; }
+
+/* ── NEWSPAPER NAMEPLATE MASTHEAD ── */
+.blog-hero { padding: 44px 0 0; }
+.np-topbar {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  border-top: 1px solid var(--rule-strong); border-bottom: 1px solid var(--border);
+  padding: 9px 2px;
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--text-muted);
+}
+.np-topbar-motto { color: var(--text-secondary); text-align: center; }
+.blog-hero-heading {
+  font-family: var(--font-serif); font-size: clamp(44px, 6.4vw, 84px); font-weight: 700;
+  color: var(--text-primary); line-height: 1; letter-spacing: -0.02em;
+  text-align: center; margin: 34px 0 14px;
+}
+.np-tagline {
+  font-family: var(--font-serif); font-style: italic; font-size: 18px;
+  color: var(--text-secondary); text-align: center; margin-bottom: 30px;
+}
+.np-double-rule { border-bottom: 4px double var(--rule-strong); margin-bottom: 40px; }
+.np-dinkus { text-align: center; font-size: 10px; letter-spacing: 14px; color: var(--text-muted); padding: 44px 0 0; text-indent: 14px; }
+
+/* ── FEATURED HERO (live blog staggered grid) ── */
+.blog-hero-card {
+  display: grid; grid-template-columns: repeat(4, minmax(0,1fr));
+  column-gap: 24px; row-gap: 24px;
+  text-decoration: none; position: relative;
+  background-image: linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px);
+  background-size: 46px 46px; background-position: -1px -1px;
+}
+/* entrance: grid draws in mint then fades to the resting grey */
+.blog-hero-card::before, .blog-hero-card::after {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-size: 46px 46px; background-position: -1px -1px;
+}
+.blog-hero-card::before {
+  background-image: linear-gradient(90deg, rgba(13,155,122,0.5) 1px, transparent 1px);
+  -webkit-mask-image: linear-gradient(to right, #000 38%, transparent 66%); mask-image: linear-gradient(to right, #000 38%, transparent 66%);
+  -webkit-mask-size: 200% 100%; mask-size: 200% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  animation: heroGridDrawX 1.6s cubic-bezier(0.4,0,0.2,1) both;
+}
+.blog-hero-card::after {
+  background-image: linear-gradient(rgba(13,155,122,0.5) 1px, transparent 1px);
+  -webkit-mask-image: linear-gradient(to bottom, #000 38%, transparent 66%); mask-image: linear-gradient(to bottom, #000 38%, transparent 66%);
+  -webkit-mask-size: 100% 200%; mask-size: 100% 200%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  animation: heroGridDrawY 1.6s cubic-bezier(0.4,0,0.2,1) 0.1s both;
+}
+.blog-hero-card > * { position: relative; z-index: 1; }
+.blog-hero-card a { text-decoration: none; }
+@keyframes heroGridDrawX {
+  0% { opacity: 0; -webkit-mask-position: 100% 0; mask-position: 100% 0; }
+  18% { opacity: 1; }
+  62% { opacity: 1; -webkit-mask-position: 0% 0; mask-position: 0% 0; }
+  to { opacity: 0; -webkit-mask-position: 0% 0; mask-position: 0% 0; }
+}
+@keyframes heroGridDrawY {
+  0% { opacity: 0; -webkit-mask-position: 0 100%; mask-position: 0 100%; }
+  18% { opacity: 1; }
+  62% { opacity: 1; -webkit-mask-position: 0 0%; mask-position: 0 0%; }
+  to { opacity: 0; -webkit-mask-position: 0 0%; mask-position: 0 0%; }
+}
+@keyframes heroClipReveal {
+  0% { opacity: 0; clip-path: inset(0 100% 0 0); }
+  22% { opacity: 1; }
+  to { opacity: 1; clip-path: inset(0 0 0 0); }
+}
+.blog-hero-image { will-change: opacity, clip-path; animation: heroClipReveal 0.95s cubic-bezier(0.5,0,0.2,1) 0.28s both; }
+.blog-hero-content { will-change: opacity, clip-path; animation: heroClipReveal 0.95s cubic-bezier(0.5,0,0.2,1) 0.5s both; }
+.blog-hero-subscribe { will-change: opacity, clip-path; animation: heroClipReveal 0.95s cubic-bezier(0.5,0,0.2,1) 0.7s both; }
+@media (prefers-reduced-motion: reduce) {
+  .blog-hero-card::before, .blog-hero-card::after, .blog-hero-image, .blog-hero-content, .blog-hero-subscribe { animation: none; }
+}
+.blog-hero-image { position: relative; overflow: hidden; border-radius: 4px; grid-column: 1 / 4; grid-row: 1; aspect-ratio: 16 / 9; }
+.blog-hero-image img { width: 100%; height: 100%; object-fit: cover; transition: filter 0.5s ease; }
+.blog-hero-card:hover .blog-hero-image img { filter: grayscale(1); }
+.blog-hero-card:hover .blog-hero-title { color: var(--text-secondary); }
+.blog-hero-content {
+  grid-column: 2 / 5; grid-row: 2; display: flex; flex-direction: column; align-self: start;
+  margin-top: -140px; /* lift into the image's band — the staggered diagonal */
+  background: var(--surface); padding: 32px 36px; border-radius: 4px;
+}
+.blog-hero-top-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-bottom: 20px; }
+.blog-hero-tag {
+  display: inline-flex; align-items: center; font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: 1.5px; text-transform: uppercase; padding: 4px 10px; border-radius: 2px;
+  background: none; border: 1px solid var(--border); color: var(--text-secondary); width: fit-content;
+}
+.blog-hero-title {
+  font-family: var(--font-serif); font-size: clamp(30px, 3.2vw, 46px); font-weight: 600;
+  line-height: 1.1; color: var(--text-primary); margin-bottom: 18px; letter-spacing: -0.02em;
+  transition: color 0.2s; overflow-wrap: break-word;
+}
+.blog-hero-excerpt { font-size: 15px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 36px; overflow-wrap: break-word; }
+/* newspaper drop cap on the featured stand-first */
+.blog-hero-excerpt::first-letter {
+  font-family: var(--font-serif); font-weight: 600; color: var(--text-primary);
+  font-size: 52px; float: left; line-height: 0.8; padding: 5px 8px 0 0;
+}
+.blog-hero-meta { display: flex; align-items: center; gap: 14px; }
+.blog-hero-date { font-family: var(--font-mono); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); }
+.blog-hero-metric { font-size: 13px; color: var(--text-muted); display: inline-flex; align-items: center; gap: 5px; }
+.blog-hero-metric svg { opacity: 0.4; flex-shrink: 0; }
+/* bottom-left cell — mini subscribe (blog pattern, repurposed for press) */
+.blog-hero-subscribe { grid-column: 1 / 2; grid-row: 2; align-self: end; max-width: 380px; }
+.blog-hero-subscribe-label { font-family: var(--font-sans); font-size: 17px; font-weight: 500; color: var(--text-primary); margin-bottom: 14px; }
+.blog-hero-subscribe-form { display: flex; align-items: center; border-bottom: 1px solid rgba(0,0,0,0.25); }
+.blog-hero-subscribe-input { flex: 1; min-width: 0; border: none; background: none; font-family: var(--font-sans); font-size: 15px; padding: 8px 0; color: var(--text-primary); outline: none; }
+.blog-hero-subscribe-input::placeholder { color: var(--text-muted); }
+.blog-hero-subscribe-btn { border: none; background: none; cursor: pointer; color: var(--accent-blue); font-size: 18px; line-height: 1; padding: 0 0 0 12px; transition: transform 0.2s; }
+.blog-hero-subscribe-btn:hover { transform: translateX(3px); }
+.blog-hero-subscribe-success { font-size: 14px; color: var(--accent-mint); font-weight: 500; }
+
+/* ── FILM GRAIN on imagery (live blog) ── */
+@keyframes grain {
+  0%, 100% { transform: translate(0,0); }
+  10% { transform: translate(-2%,-3%); } 20% { transform: translate(3%,2%); }
+  30% { transform: translate(-1%,4%); } 40% { transform: translate(4%,-1%); }
+  50% { transform: translate(-3%,3%); } 60% { transform: translate(2%,-4%); }
+  70% { transform: translate(-4%,1%); } 80% { transform: translate(1%,3%); }
+  90% { transform: translate(3%,-2%); }
+}
+.blog-hero-image::after {
+  content: ""; position: absolute; inset: -50%; width: 200%; height: 200%; z-index: 2; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='ng'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23ng)'/%3E%3C/svg%3E");
+  background-size: 150px 150px; opacity: 0.38; mix-blend-mode: overlay;
+  animation: grain 0.5s steps(2) infinite;
+}
+@media (prefers-reduced-motion: reduce) { .blog-hero-image::after { animation: none; } }
+
+/* ── CLIPPINGS FEED — newspaper two-column, rule-divided ── */
+.blog-list-section { padding: 0 0 96px; }
+.np-section-head { display: flex; align-items: center; gap: 20px; padding: 56px 0 0; }
+.np-section-head::before, .np-section-head::after { content: ""; flex: 1; border-top: 1px solid var(--rule-strong); }
+.np-section-label { font-family: var(--font-mono); font-size: 15px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-blue); white-space: nowrap; }
+.np-section-sub {
+  text-align: center; font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--text-muted); padding: 12px 0 30px;
+}
+.np-list { list-style: none; columns: 2; column-gap: 56px; column-rule: 1px solid var(--border); }
+.np-list > li { break-inside: avoid; }
+.np-list > li[hidden] { display: none; }
+.np-item { display: block; padding: 20px 4px 24px; border-top: 1px solid var(--border); text-decoration: none; }
+.np-item-date { display: block; font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
+.np-item-title {
+  font-family: var(--font-serif); font-size: 22px; font-weight: 600; line-height: 1.18;
+  color: var(--text-primary); letter-spacing: -0.01em; margin-bottom: 10px;
+  overflow-wrap: break-word; transition: color 0.2s;
+}
+.np-item:hover .np-item-title { color: var(--text-secondary); }
+.np-item-credit {
+  display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--text-muted);
+}
+.np-item-pub { color: var(--text-secondary); transition: color 0.2s; }
+.np-item:hover .np-item-pub { color: var(--accent-mint); }
+.np-item-credit svg { flex-shrink: 0; color: var(--text-muted); transition: color 0.2s, transform 0.2s; }
+.np-item:hover .np-item-credit svg { color: var(--accent-mint); transform: translate(2px,-2px); }
+.feed-empty { padding: 48px 0; border-top: 1px solid var(--border); font-size: 15px; color: var(--text-muted); text-align: center; }
+.feed-empty[hidden] { display: none; }
+
+/* ── MEDIA KIT (blog tags-section surface, cells repurposed as downloads) ── */
+.blog-tags-outer { padding: 0 0 40px; background: var(--bg); }
+.blog-tags-section {
+  background: var(--surface); padding: 72px var(--gutter); margin: 0 auto;
+  width: min(var(--max-w), calc(100vw - var(--gutter) * 2));
+  position: relative; overflow: hidden; border-radius: 4px;
+}
+.blog-tags-section::before {
+  content: ""; position: absolute; inset: -50%; width: 200%; height: 200%;
+  opacity: 0.18; pointer-events: none; z-index: 0; animation: grain 0.6s steps(1) infinite;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+}
+.blog-tags-section > * { position: relative; z-index: 1; }
+.blog-tags-eyebrow { font-family: var(--font-mono); font-size: 16px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-blue); margin-bottom: 18px; }
+.media-kit-intro { font-size: 15px; color: var(--text-secondary); line-height: 1.7; max-width: 560px; margin-bottom: 32px; }
+.blog-tags-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); border-top: 1px solid rgba(0,0,0,0.1); border-left: 1px solid rgba(0,0,0,0.1); }
+.blog-tag-cell {
+  position: relative; padding: 28px 24px; background: var(--surface);
+  border-bottom: 1px solid rgba(0,0,0,0.1); border-right: 1px solid rgba(0,0,0,0.1);
+  text-decoration: none; display: flex; align-items: flex-end; cursor: pointer; transition: background 0.2s;
+}
+.blog-tag-cell:hover { background: #7FDDC1; }
+.blog-tag-cell:hover .blog-tag-name { color: #10100F; }
+.blog-tag-cell:hover .blog-tag-count { color: rgba(0,0,0,0.45); }
+.blog-tag-name { font-family: var(--font-sans); font-size: 16px; font-weight: 400; color: var(--text-primary); letter-spacing: -0.01em; line-height: 1; }
+.blog-tag-count { font-family: var(--font-mono); font-size: 10px; color: var(--accent-mint); font-weight: 400; line-height: 1; position: absolute; top: 14px; right: 16px; }
+#tags-pixel-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; opacity: 0.3; }
+
+/* ── MEDIA INQUIRIES (live blog newsletter panel, repurposed) ── */
+.blog-newsletter { width: min(var(--max-w), calc(100vw - var(--gutter) * 2)); margin: 0 auto 128px; }
+.blog-newsletter-inner {
+  background: #0d0e11; border-radius: 4px; padding: 64px 48px;
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 28px;
+  position: relative; overflow: hidden;
+}
+.blog-newsletter-glow { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+.blog-newsletter-inner::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(180deg, rgba(13,14,17,0), rgba(13,14,17,0.55) 24% 78%, rgba(13,14,17,0)); }
+.blog-newsletter-inner > *:not(.blog-newsletter-glow) { position: relative; z-index: 2; }
+.blog-newsletter-eyebrow { font-family: var(--font-mono); font-size: 16px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-blue); margin-bottom: 18px; }
+.blog-newsletter-heading { font-family: var(--font-sans); font-size: clamp(32px, 4vw, 52px); font-weight: 500; letter-spacing: -1px; color: #fff; line-height: 1.2; margin-bottom: 12px; }
+.blog-newsletter-body { font-size: 18px; color: rgba(255,255,255,0.82); line-height: 1.6; max-width: 660px; margin: 0 auto; }
+.blog-newsletter-body a { color: #7FDDC1; text-decoration: none; border-bottom: 1px solid rgba(127,221,193,0.35); }
+.blog-newsletter-body a:hover { border-bottom-color: #7FDDC1; }
+
+/* ── FOOTER BAND (site-footer + bolt wordmark live on black; the page is
+   beige, so a wrapper carries the dark ground the shared footer assumes) ── */
+.footer-dark-band { background: #000; }
+.bolt-image-wrap { margin-top: 0; width: 100%; overflow: hidden; position: relative; height: 32vw; max-height: 32vw; }
+@media (max-width: 768px) {
+  .bolt-image-wrap { width: 100vw !important; margin-left: 0 !important; height: 42vw !important; max-height: 42vw !important; }
+}
+
+/* ── WORD REVEAL (blog masthead) ── */
+@keyframes dsa-word-reveal {
+  from { opacity: 0; transform: translate(-10px,-7px); filter: blur(5px); }
+  to   { opacity: 1; transform: translate(0,0); filter: blur(0); }
+}
+.dsa-reveal .word { display: inline-block; opacity: 0; transform: translate(-10px,-7px); filter: blur(5px); will-change: opacity, transform, filter; }
+.dsa-reveal.is-revealed .word { animation: dsa-word-reveal 0.7s cubic-bezier(0.22,1,0.36,1) forwards; animation-delay: calc(var(--i,0) * 28ms); }
+
+/* ── RESPONSIVE (live blog breakpoints) ── */
+@media (max-width: 1024px) {
+  :root { --gutter: 40px; }
+  .filter-btn { font-size: 11px; padding: 7px 12px; }
+  .blog-hero { padding: 32px 0 0; }
+  .blog-hero-card { grid-template-columns: 1fr; row-gap: 0; }
+  .blog-hero-image { grid-column: 1; grid-row: auto; aspect-ratio: 16/9; }
+  .blog-hero-content { grid-column: 1; grid-row: auto; align-self: auto; margin: 32px 24px 0; padding: 26px 30px; box-shadow: 0 12px 40px rgba(0,0,0,0.06); }
+  .blog-hero-subscribe { grid-column: 1; grid-row: auto; align-self: auto; justify-self: end; width: 62%; max-width: none; margin-top: 40px; }
+  .np-list { column-gap: 44px; }
+}
+@media (max-width: 768px) {
+  :root { --gutter: 24px; }
+  .blog-hero { padding: 24px 0 0; }
+  .np-topbar { justify-content: center; }
+  .np-topbar-place, .np-topbar-motto { display: none; }
+  .blog-hero-heading { margin: 26px 0 12px; }
+  .np-tagline { font-size: 16px; margin-bottom: 24px; }
+  .np-double-rule { margin-bottom: 28px; }
+  .blog-hero-content { margin: 24px 14px 0; padding: 22px; }
+  .blog-hero-title { font-size: clamp(26px, 7vw, 34px); }
+  .blog-hero-subscribe { margin-top: 32px; width: max(62%, 240px); }
+  .np-section-head { padding: 44px 0 0; }
+  .np-list { columns: 1; }
+  .np-item-title { font-size: 20px; }
+  .blog-newsletter { margin-bottom: 80px; }
+  .blog-newsletter-inner { padding: 44px 24px; }
+  .blog-newsletter-body { font-size: 16px; }
+  .blog-tags-section { padding: 48px var(--gutter); }
+  /* sub-nav: the desktop `1fr auto 1fr` centering track can't shrink below the
+     pill row's content width, so on phones it forced ~150px of page overflow —
+     switch the middle track to minmax(0,1fr) so the pills shrink and scroll
+     internally behind the fade affordance instead */
+  .nav { padding: 0 var(--gutter); grid-template-columns: auto minmax(0,1fr) auto; column-gap: 12px; }
+  .nav > .filter-group-wrap { width: 100%; }
+}
+@media (max-width: 560px) {
+  :root { --gutter: 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ─── NAVBAR ────────────────────────────────────────────────────────────── -->
+<nav class="mkt-nav" aria-label="Primary">
+  <div class="mkt-nav-inner">
+    <!-- Nav-bar Back button — only appears on mobile when a submenu is active (JS toggles .is-on-submenu on .mkt-nav). Replaces the logo in the same slot. -->
+    <button class="mkt-nav-back" data-mobile-back aria-label="Back to main menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+      Back
+    </button>
+    <a href="../" class="mkt-nav-logo" aria-label="bolt.new home">
+      <!-- Canonical bolt.new wordmark (from images/bolt-new.svg) — inlined so the nav renders without an extra network request. -->
+      <svg viewBox="0 0 85 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M26.1121 20.9491C21.0582 20.9491 18.4869 17.9995 18.4869 14.3126C18.4869 9.9472 21.9744 5.99476 27.0283 5.99476C32.0822 5.99476 34.6535 8.94434 34.6535 12.6313C34.6535 16.9967 31.166 20.9491 26.1121 20.9491ZM26.319 16.2593C28.0923 16.2593 29.2154 14.6665 29.2154 12.8968C29.2154 11.481 28.2992 10.6846 26.8214 10.6846C25.0481 10.6846 23.925 12.2774 23.925 14.0471C23.925 15.4629 24.8412 16.2593 26.319 16.2593Z" fill="#fff"/>
+        <path d="M40.0368 20.5952H34.717L39.0615 0.921487H44.3814L40.0368 20.5952Z" fill="#fff"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M10.4272 20.9491C8.80168 20.9491 7.20572 20.3592 6.28951 19.0909L5.96635 20.5867L0 23.75L0.644095 20.5867L4.9891 0.921487H10.309L8.77213 7.853C10.0134 6.49619 11.1661 5.99476 12.6438 5.99476C15.8358 5.99476 17.9637 8.08896 17.9637 11.9234C17.9637 15.8758 15.5107 20.9491 10.4272 20.9491ZM12.4665 13.0443C12.4665 14.873 11.1661 16.2593 9.48145 16.2593C8.53569 16.2593 7.6786 15.9053 7.11705 15.2859L7.94459 11.658C8.56524 11.0385 9.27456 10.6846 10.1021 10.6846C11.373 10.6846 12.4665 11.6285 12.4665 13.0443Z" fill="#fff"/>
+        <path d="M49.9163 20.9491C46.8426 20.9491 44.6555 19.8283 44.6555 17.3506C44.6555 17.1442 44.6851 16.6427 44.7737 16.2298L45.9264 10.9501H43.562L44.5964 6.34871H46.9608L47.8179 2.45527L53.7735 0L53.1378 2.46127L52.2807 6.34871H55.1771L54.1426 10.9501H51.2462L50.4778 14.4306C50.4187 14.696 50.3892 14.991 50.3892 15.109C50.3892 15.7874 50.8029 16.2593 51.7191 16.2593C51.9851 16.2593 52.3693 16.1708 52.458 16.1118V20.3592C51.8965 20.7427 50.8916 20.9491 49.9163 20.9491Z" fill="#fff"/>
+        <path d="M56.461 21.0087C55.7527 21.0087 55.1886 20.4196 55.1886 19.7127C55.1886 18.8879 55.897 18.1941 56.7234 18.1941C57.4317 18.1941 57.9958 18.7832 57.9958 19.4901C57.9958 20.3149 57.2875 21.0087 56.461 21.0087Z" fill="#fff"/>
+        <path d="M65.3576 20.8386H62.9964L63.7309 17.5133C63.7572 17.3955 63.8097 17.186 63.8097 17.0289C63.8097 16.5969 63.4292 16.4398 63.0488 16.4398C62.5372 16.4398 62.183 16.7016 61.9338 16.9242L61.068 20.8386H58.7068L60.1104 14.5153H62.4716L62.3011 15.2354C62.7602 14.8164 63.3374 14.3582 64.295 14.3582C65.6199 14.3582 66.3807 15.0783 66.3807 16.0209C66.3807 16.1256 66.3414 16.4136 66.3151 16.5314L65.3576 20.8386Z" fill="#fff"/>
+        <path d="M70.256 20.9956C68.2096 20.9956 66.7929 19.9745 66.7929 18.1155C66.7929 16.0994 68.3408 14.3582 70.5577 14.3582C72.1319 14.3582 73.5223 15.3139 73.5223 17.2384C73.5223 17.6704 73.4436 18.1679 73.3781 18.4035H69.1279V18.4166C69.1279 18.5083 69.5083 19.2021 70.4265 19.2021C70.925 19.2021 71.5153 19.0843 71.8039 18.8879L72.5254 20.4196C71.8826 20.8255 71.0169 20.9956 70.256 20.9956ZM69.3509 16.9111H71.4366V16.8718C71.4366 16.6885 71.2136 16.1518 70.4659 16.1518C69.8363 16.1518 69.4296 16.6362 69.3509 16.9111Z" fill="#fff"/>
+        <path d="M81.7599 20.8386H79.1888L78.9265 17.3038L77.1293 20.8386H74.5582L74.1254 14.5153H76.4866L76.5521 17.9977L78.4411 14.5153H80.5531L80.881 17.9977L82.4945 14.5153H85L81.7599 20.8386Z" fill="#fff"/>
+      </svg>
+    </a>
+
+    <ul class="mkt-nav-items">
+      <li data-menu="solutions">
+        <!-- Real link, not a button: clicking goes to the Solutions page, hovering
+             still opens the panel. The nav JS binds on '.mkt-nav-link[data-menu]'
+             (class + attribute, not tag), so the dropdown behaviour is unchanged. -->
+        <a href="https://garyliusf.github.io/Enterprise/marketing/solutions.html" class="mkt-nav-link" data-menu="solutions" aria-haspopup="true" aria-expanded="false">
+          Solutions
+          <svg class="mkt-nav-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </a>
+      </li>
+      <li data-menu="resources">
+        <button class="mkt-nav-link" data-menu="resources" aria-haspopup="true" aria-expanded="false">
+          Resources
+          <svg class="mkt-nav-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </li>
+      <li><a href="https://bolt.new/resources/templates" class="mkt-nav-link">Templates</a></li>
+      <li><a href="pricing.html" class="mkt-nav-link">Pricing</a></li>
+    </ul>
+
+    <div class="mkt-nav-right">
+      <div class="mkt-nav-actions">
+        <a href="https://bolt.new/signin" class="mkt-nav-signin">Sign in</a>
+        <a href="https://bolt.new/" target="_blank" rel="noopener" class="mkt-nav-cta hero-btn-primary">
+          <div class="btn-bg-hover"></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Started</span><span>Get Started</span></div></div>
+        </a>
+      </div>
+      <button class="mkt-nav-burger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mega panels — one per top-level menu, JS toggles .is-open on the matching data-panel -->
+
+  <div class="mkt-nav-panel" data-panel="solutions" aria-hidden="true">
+    <div class="mkt-nav-panel-inner">
+      <a href="https://bolt.new/blog/introducing-bolt-slides" class="mkt-nav-panel-feature">
+        <div class="mkt-nav-panel-feature-visual" aria-hidden="true"></div>
+        <p class="mkt-nav-panel-feature-eyebrow">Featured</p>
+        <p class="mkt-nav-panel-feature-title">Bolt Slides</p>
+        <p class="mkt-nav-panel-feature-desc">An AI deck builder that turns a prompt into a live, interactive presentation — shareable by link, no account needed.</p>
+      </a>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Top Use Cases</p>
+        <a href="https://garyliusf.github.io/Enterprise/marketing/solutions.html">All Solutions</a>
+        <a href="https://bolt.new/use-cases/ai-app-builder">AI App Builder</a>
+        <a href="https://bolt.new/use-cases/ai-website-builder">AI Website Builder</a>
+        <a href="https://bolt.new/use-cases/custom-crm-software">SaaS Dev</a>
+        <a href="https://bolt.new/use-cases/ai-prototyping-tools">Prototyping</a>
+      </div>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Business Type</p>
+        <a href="https://garyliusf.github.io/Enterprise/solutions/smb/">Small Business</a>
+        <a href="https://bolt.new/enterprise">Enterprise</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="mkt-nav-panel" data-panel="resources" aria-hidden="true">
+    <div class="mkt-nav-panel-inner">
+      <a href="https://bolt.new/resources/templates" class="mkt-nav-panel-feature">
+        <div class="mkt-nav-panel-feature-visual" aria-hidden="true"></div>
+        <p class="mkt-nav-panel-feature-eyebrow">Featured collection</p>
+        <p class="mkt-nav-panel-feature-title">Bolt Templates</p>
+        <p class="mkt-nav-panel-feature-desc">Production-ready starting points — dashboards, storefronts, portfolios, and more. Fork one and make it yours.</p>
+      </a>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Support</p>
+        <a href="https://discord.com/invite/stackblitz" target="_blank" rel="noopener">Community</a>
+        <a href="https://support.bolt.new/" target="_blank" rel="noopener">Help Center</a>
+        <a href="https://bolt.new/careers">Careers</a>
+      </div>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Build and Learn</p>
+        <a href="https://bolt.new/platform/security">Security &amp; Trust</a>
+        <a href="https://bolt.new/blog">Blog</a>
+      </div>
+    </div>
+  </div>
+</nav>
+<div class="mkt-nav-scrim" aria-hidden="true"></div>
+
+<!-- Mobile drawer — full-screen slide-in sheet with drill-down. Only rendered on ≤1024px via CSS. -->
+<div class="mkt-nav-mobile" id="mkt-nav-mobile" aria-hidden="true" role="dialog" aria-label="Menu">
+  <div class="mkt-nav-mobile-header">
+    <!-- Left slot swaps: logo on home view, Back on submenu views. Both live in the DOM; JS toggles which is visible via a class on the drawer. -->
+    <a href="../" class="mkt-nav-logo" aria-label="bolt.new home" data-mobile-role="logo">
+      <svg viewBox="0 0 85 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M26.1121 20.9491C21.0582 20.9491 18.4869 17.9995 18.4869 14.3126C18.4869 9.9472 21.9744 5.99476 27.0283 5.99476C32.0822 5.99476 34.6535 8.94434 34.6535 12.6313C34.6535 16.9967 31.166 20.9491 26.1121 20.9491ZM26.319 16.2593C28.0923 16.2593 29.2154 14.6665 29.2154 12.8968C29.2154 11.481 28.2992 10.6846 26.8214 10.6846C25.0481 10.6846 23.925 12.2774 23.925 14.0471C23.925 15.4629 24.8412 16.2593 26.319 16.2593Z" fill="#fff"/>
+        <path d="M40.0368 20.5952H34.717L39.0615 0.921487H44.3814L40.0368 20.5952Z" fill="#fff"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M10.4272 20.9491C8.80168 20.9491 7.20572 20.3592 6.28951 19.0909L5.96635 20.5867L0 23.75L0.644095 20.5867L4.9891 0.921487H10.309L8.77213 7.853C10.0134 6.49619 11.1661 5.99476 12.6438 5.99476C15.8358 5.99476 17.9637 8.08896 17.9637 11.9234C17.9637 15.8758 15.5107 20.9491 10.4272 20.9491ZM12.4665 13.0443C12.4665 14.873 11.1661 16.2593 9.48145 16.2593C8.53569 16.2593 7.6786 15.9053 7.11705 15.2859L7.94459 11.658C8.56524 11.0385 9.27456 10.6846 10.1021 10.6846C11.373 10.6846 12.4665 11.6285 12.4665 13.0443Z" fill="#fff"/>
+        <path d="M49.9163 20.9491C46.8426 20.9491 44.6555 19.8283 44.6555 17.3506C44.6555 17.1442 44.6851 16.6427 44.7737 16.2298L45.9264 10.9501H43.562L44.5964 6.34871H46.9608L47.8179 2.45527L53.7735 0L53.1378 2.46127L52.2807 6.34871H55.1771L54.1426 10.9501H51.2462L50.4778 14.4306C50.4187 14.696 50.3892 14.991 50.3892 15.109C50.3892 15.7874 50.8029 16.2593 51.7191 16.2593C51.9851 16.2593 52.3693 16.1708 52.458 16.1118V20.3592C51.8965 20.7427 50.8916 20.9491 49.9163 20.9491Z" fill="#fff"/>
+        <path d="M56.461 21.0087C55.7527 21.0087 55.1886 20.4196 55.1886 19.7127C55.1886 18.8879 55.897 18.1941 56.7234 18.1941C57.4317 18.1941 57.9958 18.7832 57.9958 19.4901C57.9958 20.3149 57.2875 21.0087 56.461 21.0087Z" fill="#fff"/>
+        <path d="M65.3576 20.8386H62.9964L63.7309 17.5133C63.7572 17.3955 63.8097 17.186 63.8097 17.0289C63.8097 16.5969 63.4292 16.4398 63.0488 16.4398C62.5372 16.4398 62.183 16.7016 61.9338 16.9242L61.068 20.8386H58.7068L60.1104 14.5153H62.4716L62.3011 15.2354C62.7602 14.8164 63.3374 14.3582 64.295 14.3582C65.6199 14.3582 66.3807 15.0783 66.3807 16.0209C66.3807 16.1256 66.3414 16.4136 66.3151 16.5314L65.3576 20.8386Z" fill="#fff"/>
+        <path d="M70.256 20.9956C68.2096 20.9956 66.7929 19.9745 66.7929 18.1155C66.7929 16.0994 68.3408 14.3582 70.5577 14.3582C72.1319 14.3582 73.5223 15.3139 73.5223 17.2384C73.5223 17.6704 73.4436 18.1679 73.3781 18.4035H69.1279V18.4166C69.1279 18.5083 69.5083 19.2021 70.4265 19.2021C70.925 19.2021 71.5153 19.0843 71.8039 18.8879L72.5254 20.4196C71.8826 20.8255 71.0169 20.9956 70.256 20.9956ZM69.3509 16.9111H71.4366V16.8718C71.4366 16.6885 71.2136 16.1518 70.4659 16.1518C69.8363 16.1518 69.4296 16.6362 69.3509 16.9111Z" fill="#fff"/>
+        <path d="M81.7599 20.8386H79.1888L78.9265 17.3038L77.1293 20.8386H74.5582L74.1254 14.5153H76.4866L76.5521 17.9977L78.4411 14.5153H80.5531L80.881 17.9977L82.4945 14.5153H85L81.7599 20.8386Z" fill="#fff"/>
+      </svg>
+    </a>
+    <button class="mkt-nav-mobile-back" data-back hidden aria-label="Back to menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+      BACK
+    </button>
+    <button class="mkt-nav-mobile-close" aria-label="Close menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+    </button>
+  </div>
+
+  <div class="mkt-nav-mobile-body">
+    <!-- Home view — top-level items -->
+    <div class="mkt-nav-mobile-view is-active" data-view="home">
+      <button class="mkt-nav-mobile-item" data-drill="solutions">
+        Solutions
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <button class="mkt-nav-mobile-item" data-drill="resources">
+        Resources
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <a class="mkt-nav-mobile-item" href="https://bolt.new/resources/templates">Templates</a>
+      <a class="mkt-nav-mobile-item" href="pricing.html">Pricing</a>
+    </div>
+
+    <!-- Solutions submenu -->
+    <div class="mkt-nav-mobile-view" data-view="solutions">
+      <a href="https://bolt.new/blog/introducing-bolt-slides" class="mkt-nav-mobile-feature">
+        <p class="mkt-nav-mobile-feature-title">Bolt Slides →</p>
+        <p class="mkt-nav-mobile-feature-desc">An AI deck builder that turns a prompt into a live, interactive presentation — shareable by link, no account needed.</p>
+      </a>
+      <p class="mkt-nav-mobile-heading">Top Use Cases</p>
+      <div class="mkt-nav-mobile-links">
+        <a href="https://garyliusf.github.io/Enterprise/marketing/solutions.html">All Solutions</a>
+        <a href="https://bolt.new/use-cases/ai-app-builder">AI App Builder</a>
+        <a href="https://bolt.new/use-cases/ai-website-builder">AI Website Builder</a>
+        <a href="https://bolt.new/use-cases/custom-crm-software">SaaS Dev</a>
+        <a href="https://bolt.new/use-cases/ai-prototyping-tools">Prototyping</a>
+      </div>
+      <p class="mkt-nav-mobile-heading">Business Type</p>
+      <div class="mkt-nav-mobile-links">
+        <a href="https://garyliusf.github.io/Enterprise/solutions/smb/">Small Business</a>
+        <a href="https://bolt.new/enterprise">Enterprise</a>
+      </div>
+    </div>
+
+    <!-- Resources submenu -->
+    <div class="mkt-nav-mobile-view" data-view="resources">
+      <a href="https://bolt.new/resources/templates" class="mkt-nav-mobile-feature">
+        <p class="mkt-nav-mobile-feature-title">Bolt Templates →</p>
+        <p class="mkt-nav-mobile-feature-desc">Production-ready starting points — dashboards, storefronts, portfolios, and more. Fork one and make it yours.</p>
+      </a>
+      <p class="mkt-nav-mobile-heading">Support</p>
+      <div class="mkt-nav-mobile-links">
+        <a href="https://discord.com/invite/stackblitz" target="_blank" rel="noopener">Community</a>
+        <a href="https://support.bolt.new/" target="_blank" rel="noopener">Help Center</a>
+        <a href="https://bolt.new/careers">Careers</a>
+      </div>
+      <p class="mkt-nav-mobile-heading">Build and Learn</p>
+      <div class="mkt-nav-mobile-links">
+        <a href="https://bolt.new/platform/security">Security &amp; Trust</a>
+        <a href="https://bolt.new/blog">Blog</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="mkt-nav-mobile-footer">
+    <a href="https://bolt.new/" target="_blank" rel="noopener" class="hero-btn-primary">
+      <div class="btn-bg-hover"></div>
+      <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Started</span><span>Get Started</span></div></div>
+    </a>
+    <a href="https://bolt.new/signin" class="mkt-nav-mobile-signin">Sign in</a>
+  </div>
+</div>
+
+<!-- ── BLOG SUB-NAV (live .nav: label | centered pills | search) ── -->
+<nav class="nav">
+  <a href="press.html" class="nav-logo">
+    <span class="nav-logo-label eyebrow-scramble">Press</span>
+  </a>
+  <div class="filter-group-wrap">
+    <div class="filter-group" id="filter-group">
+      <button class="filter-btn active" data-seg="all">All</button>
+      <button class="filter-btn" data-seg="tier1">Tier-1 Press</button>
+      <button class="filter-btn" data-seg="trade">Trade &amp; Reviews</button>
+      <button class="filter-btn" data-seg="podcast">Podcasts</button>
+      <button class="filter-btn" data-seg="newsletter">Newsletters</button>
+      <button class="filter-btn" data-seg="analyst">Analysts</button>
+      <button class="filter-btn" data-seg="international">International</button>
+      <button class="filter-btn" data-seg="mention">Mentions</button>
+      <button class="filter-btn" data-seg="owned">Owned</button>
+    </div>
+  </div>
+  <form class="blog-search" role="search" id="press-search-form">
+    <input class="blog-search-input" id="press-search" type="search" placeholder="Search" aria-label="Search coverage" autocomplete="off">
+    <button class="blog-search-clear" type="button" aria-label="Clear search" id="press-search-clear" hidden>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <button class="blog-search-btn" type="submit" aria-label="Search">
+      <svg class="blog-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    </button>
+  </form>
+</nav>
+
+<div class="blog-wrap">
+
+  <!-- ── NAMEPLATE MASTHEAD + FEATURED STORY ── -->
+  <section class="blog-hero">
+    <div class="np-topbar">
+      <span class="np-topbar-place">San Francisco, Calif.</span>
+      <span class="np-topbar-motto">&ldquo;All the coverage that&rsquo;s fit to link.&rdquo;</span>
+      <span class="np-topbar-date">Friday, August 14, 2026</span>
+    </div>
+    <h1 class="blog-hero-heading dsa-reveal">The Bolt Press</h1>
+    <p class="np-tagline">Every verified press story, review, analyst note &amp; podcast about Bolt &mdash; October 2024 to today.</p>
+    <div class="np-double-rule"></div>
+    <div class="blog-hero-card">
+      <a href="https://www.fastcompany.com/91495408/applied-ai-most-innovative-companies-2026" target="_blank" rel="noopener" class="blog-hero-image" aria-label="Read the Fast Company story">
+        <img src="https://picsum.photos/seed/bolt-press-front/1200/675" alt="">
+      </a>
+      <a href="https://www.fastcompany.com/91495408/applied-ai-most-innovative-companies-2026" target="_blank" rel="noopener" class="blog-hero-content">
+        <div>
+          <div class="blog-hero-top-meta">
+            <span class="blog-hero-tag">Front Page</span>
+            <span class="blog-hero-tag">Tier-1 Press</span>
+            <span class="blog-hero-metric">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              March 1, 2026
+            </span>
+          </div>
+          <h2 class="blog-hero-title">The most innovative companies in applied AI for 2026</h2>
+          <p class="blog-hero-excerpt">Fast Company names Bolt among the most innovative companies in applied AI &mdash; recognition for the platform that turned &ldquo;describe it&rdquo; into &ldquo;ship it&rdquo; for millions of builders, two years after a near-shutdown became one of the fastest revenue ramps in software history.</p>
+        </div>
+        <div class="blog-hero-meta">
+          <span class="blog-hero-date">Fast Company &middot; Read the story &nearr;</span>
+        </div>
+      </a>
+      <div class="blog-hero-subscribe">
+        <p class="blog-hero-subscribe-label">New coverage, in your inbox</p>
+        <form class="blog-hero-subscribe-form" id="hero-subscribe-form">
+          <input class="blog-hero-subscribe-input" type="email" placeholder="you@newsroom.com" required aria-label="Email address">
+          <button class="blog-hero-subscribe-btn" type="submit" aria-label="Subscribe">&rarr;</button>
+        </form>
+      </div>
+    </div>
+    <div class="np-dinkus" aria-hidden="true">&#9670; &#9670; &#9670;</div>
+  </section>
+
+  <!-- ── CLIPPINGS FEED ── -->
+  <section class="blog-list-section">
+    <div class="np-section-head">
+      <span class="np-section-label eyebrow-scramble">All coverage</span>
+    </div>
+    <p class="np-section-sub"><span id="press-count">73 clippings</span> &middot; October 2024 &mdash; August 2026</p>
+    <ul class="np-list" id="press-list">
+
+      <li data-seg="international">
+        <a class="np-item" href="https://www.blogdumoderateur.com/outils-vibe-coding-code-ia-tester-2026/" target="_blank" rel="noopener">
+          <span class="np-item-date">August 14, 2026</span>
+          <h3 class="np-item-title">10 outils de vibe coding et de code par IA &agrave; tester en 2026</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Blog du Mod&eacute;rateur</span> &middot; International <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="tier1">
+        <a class="np-item" href="https://www.fastcompany.com/91581232/23-industry-shifts-leaders-see-coming-soon" target="_blank" rel="noopener">
+          <span class="np-item-date">August 10, 2026</span>
+          <h3 class="np-item-title">23 industry shifts leaders see coming soon</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Fast Company</span> &middot; Tier-1 Press <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="tier1">
+        <a class="np-item" href="https://www.fastcompany.com/91581189/15-leadership-lessons-that-leaders-learned-the-hard-way" target="_blank" rel="noopener">
+          <span class="np-item-date">August 6, 2026</span>
+          <h3 class="np-item-title">15 leadership lessons that leaders learned the hard way</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Fast Company</span> &middot; Tier-1 Press <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="mention">
+        <a class="np-item" href="https://news.google.com/rss/articles/CBMia0FVX3lxTFByNlc0QmR4a2VLd3NoelNzSWYtT1k4bmxZZmZ0aEdzZVFzdmRsU2M5SW9JSVY5MkZhWl90bXd5ZElseHU4MHFVQTllWXdIalBBSGVXaW42Umg1MDc0alFOdzVqYUFJVXJ1OGdz?oc=5" target="_blank" rel="noopener">
+          <span class="np-item-date">July 17, 2026</span>
+          <h3 class="np-item-title">Lovable vs Bolt.new vs v0 &mdash; the $400M vs $40M ARR gap</h3>
+          <span class="np-item-credit"><span class="np-item-pub">tech-insider.org</span> &middot; Mention <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="mention">
+        <a class="np-item" href="https://venturebeat.com/technology/canva-launches-code-2-0-offering-ai-website-building-to-every-user-including-free-accounts" target="_blank" rel="noopener">
+          <span class="np-item-date">July 14, 2026</span>
+          <h3 class="np-item-title">Canva launches Code 2.0 &mdash; Bolt.new&rsquo;s ARR ramp cited as competitive context</h3>
+          <span class="np-item-credit"><span class="np-item-pub">VentureBeat</span> &middot; Mention <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="trade">
+        <a class="np-item" href="https://www.techradar.com/pro/software-services/bolt-no-code-review" target="_blank" rel="noopener">
+          <span class="np-item-date">July 1, 2026</span>
+          <h3 class="np-item-title">Bolt no-code review</h3>
+          <span class="np-item-credit"><span class="np-item-pub">TechRadar Pro</span> &middot; Trade &amp; Review <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="tier1">
+        <a class="np-item" href="https://finance.yahoo.com/news/vibe-coding-being-called-greatest-055519409.html" target="_blank" rel="noopener">
+          <span class="np-item-date">June 30, 2026</span>
+          <h3 class="np-item-title">Vibe coding is being called the greatest unlock for non-techies. These 9 startups are raising billions.</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Business Insider</span> &middot; Tier-1 Press <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="trade">
+        <a class="np-item" href="https://www.xda-developers.com/tried-vibe-coding-a-real-app-in-bolt-v0-and-lovable/" target="_blank" rel="noopener">
+          <span class="np-item-date">May 6, 2026</span>
+          <h3 class="np-item-title">I tried vibe coding a real app in Bolt, v0, and Lovable</h3>
+          <span class="np-item-credit"><span class="np-item-pub">XDA Developers</span> &middot; Trade &amp; Review <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="mention">
+        <a class="np-item" href="https://news.google.com/rss/articles/CBMitAFBVV95cUxONGhtVWlNak1rdUdZTjdMWUpIOEhTNkdiNzlKUGVuN0NDNlBNMElnNlNuSHVQOFlQQWx6aGNpb2pzMmxicG5HQUx6OWNnT0RzVHhMdUlVU3YwVXVaQ1R6QkNwRjExZUcyTVdQN0kyNHhiUHRxXzFkdC1PUFpZbUl5dGZucXlRTy1TaFUyMnoyems3UFVCQ1I3eURnVktoM2w1b1I4Q0tDeFF1WGNhQlliMEtLelU?oc=5" target="_blank" rel="noopener">
+          <span class="np-item-date">May 5, 2026</span>
+          <h3 class="np-item-title">Agentic building across the enterprise with Bolt.new on Microsoft Azure and Microsoft 365</h3>
+          <span class="np-item-credit"><span class="np-item-pub">VMblog</span> &middot; Mention <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="analyst">
+        <a class="np-item" href="https://sacra.com/c/bolt-new/" target="_blank" rel="noopener">
+          <span class="np-item-date">May 1, 2026</span>
+          <h3 class="np-item-title">Bolt.new company research page (living profile)</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Sacra</span> &middot; Analyst <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="analyst">
+        <a class="np-item" href="https://news.google.com/rss/articles/CBMiggFBVV95cUxNak11Z1gwLUpfaU9PekEzM2RKc2h2ZWRSUGcxbFpPNjNDdDdLY2Zock53MWdpNmpPeGhDS1k4QTNMOF93OVRfaXB1WnJBV3hBcU0xWjRiZjJ1aVZhZDVuY1ZrNmp1aXhHc3BGTzZaa1VyR0Mtb29MZDZ4YjVhTVpKdmt3?oc=5" target="_blank" rel="noopener">
+          <span class="np-item-date">April 9, 2026</span>
+          <h3 class="np-item-title">Bolt.new by StackBlitz: $20M ARR in 2 months (company profile)</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Dealroom</span> &middot; Analyst <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="newsletter">
+        <a class="np-item" href="https://www.news.aakashg.com/p/pm-guide-bolt" target="_blank" rel="noopener">
+          <span class="np-item-date">April 1, 2026</span>
+          <h3 class="np-item-title">The PM&rsquo;s complete guide to Bolt.new</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Product Growth</span> &middot; Newsletter <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="newsletter">
+        <a class="np-item" href="https://technically.dev/posts/vibe-coding-tool-comparison" target="_blank" rel="noopener">
+          <span class="np-item-date">March 23, 2026</span>
+          <h3 class="np-item-title">2026 vibe coding tool comparison</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Technically</span> &middot; Newsletter <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="tier1">
+        <a class="np-item" href="https://www.fastcompany.com/91495408/applied-ai-most-innovative-companies-2026" target="_blank" rel="noopener">
+          <span class="np-item-date">March 1, 2026</span>
+          <h3 class="np-item-title">The most innovative companies in applied AI for 2026 &mdash; Bolt recognized</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Fast Company</span> &middot; Tier-1 Press <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="podcast">
+        <a class="np-item" href="https://theroompodcast.medium.com/s13e4-from-sleeping-at-aol-to-building-bolt-new-with-eric-simons-founder-and-ceo-of-stackblitz-ad416ed13ac9" target="_blank" rel="noopener">
+          <span class="np-item-date">February 16, 2026</span>
+          <h3 class="np-item-title">From sleeping at AOL to building Bolt.new (S13E4)</h3>
+          <span class="np-item-credit"><span class="np-item-pub">The Room Podcast</span> &middot; Podcast <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="tier1">
+        <a class="np-item" href="https://news.google.com/rss/articles/CBMimgFBVV95cUxPVmlOVDRISEtEWktBZlAxdXNKR3RPdGd2TVBHNHA4QUJzNmVRSnlxb3ZPeWFtd29JeGNFSXNFSldQMm9Lb2xHVjhybVBxU3oxYmlrcWF5OW5kOWswbFM2Rzc4SlBMQ1k1OE5qU09EajJkNlZXRDM3TXJkSnBLd0FDTDN5MnQ1dEtXWnViWVd5MUtsSHp1a3k1VThR?oc=5" target="_blank" rel="noopener">
+          <span class="np-item-date">January 30, 2026</span>
+          <h3 class="np-item-title">&ldquo;Wait, you&rsquo;re that guy?&rdquo; Here&rsquo;s what the AOL squatter did next</h3>
+          <span class="np-item-credit"><span class="np-item-pub">The Business Journals</span> &middot; Tier-1 Press <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="tier1">
+        <a class="np-item" href="https://fortune.com/2026/01/02/advice-to-gen-z-from-startup-founder-vibe-coding-college-taboo-worth-it/" target="_blank" rel="noopener">
+          <span class="np-item-date">January 2, 2026</span>
+          <h3 class="np-item-title">15 years after skipping college to launch 3 startups &mdash; Eric Simons&rsquo; advice to Gen Z (op-ed)</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Fortune</span> &middot; Tier-1 Press <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="trade">
+        <a class="np-item" href="https://dev.to/strapi/build-a-company-website-with-boltnew-and-strapi-5-part-1-28oo" target="_blank" rel="noopener">
+          <span class="np-item-date">November 13, 2025</span>
+          <h3 class="np-item-title">Build a company website with Bolt.new and Strapi 5 (official partner series)</h3>
+          <span class="np-item-credit"><span class="np-item-pub">dev.to &times; Strapi</span> &middot; Trade &amp; Review <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="podcast">
+        <a class="np-item" href="https://www.iheart.com/podcast/269-world-of-daas-83463657/episode/boltnew-ceo-eric-simons-one-306290011/" target="_blank" rel="noopener">
+          <span class="np-item-date">November 11, 2025</span>
+          <h3 class="np-item-title">Bolt.new CEO Eric Simons &mdash; one of the fastest growing AI companies in the world</h3>
+          <span class="np-item-credit"><span class="np-item-pub">World of DaaS</span> &middot; Podcast <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="trade">
+        <a class="np-item" href="https://www.infoworld.com/article/4078884/what-is-vibe-coding-ai-writes-the-code-so-developers-can-think-big.html" target="_blank" rel="noopener">
+          <span class="np-item-date">November 4, 2025</span>
+          <h3 class="np-item-title">What is vibe coding? AI writes the code so developers can think big</h3>
+          <span class="np-item-credit"><span class="np-item-pub">InfoWorld</span> &middot; Trade &amp; Review <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="podcast">
+        <a class="np-item" href="https://www.youtube.com/watch?v=yzD7F2BVpv0" target="_blank" rel="noopener">
+          <span class="np-item-date">October 30, 2025</span>
+          <h3 class="np-item-title">A conversation with bolt.new CEO and founder Eric Simons (fireside)</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Stripe</span> &middot; Podcast &amp; Video <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="tier1">
+        <a class="np-item" href="https://techcrunch.com/2025/09/29/vibe-coding-startup-anything-nabs-a-100m-valuation-after-hitting-2m-arr-in-its-first-two-weeks/" target="_blank" rel="noopener">
+          <span class="np-item-date">September 29, 2025</span>
+          <h3 class="np-item-title">Vibe-coding startup Anything nabs a $100M valuation &mdash; Bolt named among rivals</h3>
+          <span class="np-item-credit"><span class="np-item-pub">TechCrunch</span> &middot; Tier-1 Press <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="mention">
+        <a class="np-item" href="https://news.google.com/rss/articles/CBMilAFBVV95cUxOcHhNajFIZXdJZHN1OTZ6M003TUdqb0ltTFNFa0RaX0J5ZHVxV05qa0dxZU1Lb2lrS19VempLTmhxLXRoczlaOVlpVWEyXzlEVEJ5SmFkZW1aMjc3R2ZPbEVZRWt5LUM0ZE1OcUtscDl5T2RadkdFd3AwZHlrM2RCMDJHU0pFN1ZCaEtrc3FIcVlzdjFO?oc=5" target="_blank" rel="noopener">
+          <span class="np-item-date">September 26, 2025</span>
+          <h3 class="np-item-title">AI vibe coding tools were supposed to change everything. Now traffic is crashing.</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Business Insider</span> &middot; Mention <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="newsletter">
+        <a class="np-item" href="https://newsletter.posthog.com/p/from-0-to-40m-arr-inside-the-tech" target="_blank" rel="noopener">
+          <span class="np-item-date">September 16, 2025</span>
+          <h3 class="np-item-title">How bolt.new works &mdash; inside the tech that powers Bolt.new</h3>
+          <span class="np-item-credit"><span class="np-item-pub">PostHog</span> &middot; Newsletter <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="tier1">
+        <a class="np-item" href="https://biztoc.com/x/157c1676d47a93a8" target="_blank" rel="noopener">
+          <span class="np-item-date">August 14, 2025</span>
+          <h3 class="np-item-title">As AI coding services face a reckoning, Bolt tries to go beyond building</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Business Insider</span> &middot; Tier-1 Press <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="mention">
+        <a class="np-item" href="https://news.google.com/rss/articles/CBMi4wFBVV95cUxPaG13OGhsN2lHMWR2amhIaF9tSHRpMVpqVGtLTmJDUnJLak1qbHRjTzRvTVdFUkhLNGxjYlJnWXpFcFV3NzVXX1A5a3VQV2N0eGxDUFNFcnh4VFZzNDhWTUxmNHFtcjdXY04xbXhzdHg2Mk80V0hsZmNqRUVfZTFZdk9JTVMtWU5nR3BlMzRxQnJ2ZFAyOGltdGRONkhzUzlsZXZHbXJmcURQWEpoQ2xlNkhpNUVkdDA5RDJyYTQ4T3paeWRVWXFSdDlpYlc3VEFqZVdDMWlYTjJxN2J6U19xVzc1WQ?oc=5" target="_blank" rel="noopener">
+          <span class="np-item-date">August 14, 2025</span>
+          <h3 class="np-item-title">Victory Square partner Alex Chieng wins world&rsquo;s largest AI hackathon</h3>
+          <span class="np-item-credit"><span class="np-item-pub">TMX Newsfile</span> &middot; Mention <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="mention">
+        <a class="np-item" href="https://news.google.com/rss/articles/CBMinwFBVV95cUxQMmJnVGZQcGRTbkszTnVGUHZCVktXMTR4RnpMcGliS2Y3Q2xRbEFLWXlVOThQbHZRRG9Vb3BFUUI0Q29makN1MGhJMjg0eVNpazdRdkdfTFpycXVtS3NDVVZ0Yk9wRXFFRlhCQVNmNXNGMEk5NmVpaThrdzZpVVJZQUttX3dMa3pNNDdib3AzdTh3bkFXQ3NSV1E0dDNkbWs?oc=5" target="_blank" rel="noopener">
+          <span class="np-item-date">August 12, 2025</span>
+          <h3 class="np-item-title">&lsquo;Inference whales&rsquo; are eating into AI coding startups&rsquo; business model</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Business Insider</span> &middot; Mention <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="tier1">
+        <a class="np-item" href="https://www.forbes.com/sites/amyfeldman/2025/08/12/next-billion-dollar-startups-2025/" target="_blank" rel="noopener">
+          <span class="np-item-date">August 12, 2025</span>
+          <h3 class="np-item-title">Forbes Next Billion-Dollar Startups 2025 &mdash; StackBlitz named</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Forbes</span> &middot; Tier-1 Press <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="tier1">
+        <a class="np-item" href="https://venturebeat.com/infrastructure/claude-can-now-process-entire-software-projects-in-single-request-anthropic-says" target="_blank" rel="noopener">
+          <span class="np-item-date">August 12, 2025</span>
+          <h3 class="np-item-title">Claude can now process entire software projects in a single request &mdash; Simons quoted</h3>
+          <span class="np-item-credit"><span class="np-item-pub">VentureBeat</span> &middot; Tier-1 Press <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="mention">
+        <a class="np-item" href="https://news.google.com/rss/articles/CBMiugFBVV95cUxNQTNWb2F6bjIyaFJaS09TZF9VZkk0b2NWMzFlTkQ5N1R4N2ZReGw5MFRBR2ZZX2h2SnBoVUEyT3JVVDlNRHJlZl9rekNOclRrcjJpb0M3UUl3ZmdJYXM2Rjh0aWNRVHNwUmNIemFYUDZrNElTZXczVHVIVzZtRXpRMXRLSjFZalJxbVRfMjFSSFduYzF5LVRiem54eXNPSER6dHhtTlFQU3dRLTVDaDVxdWYzTlg1bWZWcEE?oc=5" target="_blank" rel="noopener">
+          <span class="np-item-date">July 28, 2025</span>
+          <h3 class="np-item-title">Why Bolt.new won when I asked Claude about coding platforms: the GEO wars</h3>
+          <span class="np-item-credit"><span class="np-item-pub">SaaStr</span> &middot; Mention <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="podcast">
+        <a class="np-item" href="https://www.youtube.com/watch?v=s8RM8uYxkoY" target="_blank" rel="noopener">
+          <span class="np-item-date">July 15, 2025</span>
+          <h3 class="np-item-title">Bolt.new: how we scaled $0&ndash;20M ARR in 60 days, with 15 people (conference talk)</h3>
+          <span class="np-item-credit"><span class="np-item-pub">AI Engineer World&rsquo;s Fair</span> &middot; Podcast &amp; Video <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="podcast">
+        <a class="np-item" href="https://www.tsp.show/unlock-hypergrowth-how-vibe-coding-can-fast-track-your-startup-success-w-bolt-ceo-eric-simons/" target="_blank" rel="noopener">
+          <span class="np-item-date">July 14, 2025</span>
+          <h3 class="np-item-title">Unlock hypergrowth: how vibe coding can fast-track your startup success</h3>
+          <span class="np-item-credit"><span class="np-item-pub">The Startup Podcast</span> &middot; Podcast <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="international">
+        <a class="np-item" href="https://www.heise.de/download/specials/Vibe-Coding-Dienste-im-Vergleich-Apps-entwickeln-ohne-Programmierkenntnisse-10467260" target="_blank" rel="noopener">
+          <span class="np-item-date">July 11, 2025</span>
+          <h3 class="np-item-title">Vibe-Coding-Dienste im Vergleich: Apps entwickeln ohne Programmierkenntnisse</h3>
+          <span class="np-item-credit"><span class="np-item-pub">heise Download</span> &middot; International <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="newsletter">
+        <a class="np-item" href="https://www.growthunhinged.com/p/boltnew-growth-journey" target="_blank" rel="noopener">
+          <span class="np-item-date">July 9, 2025</span>
+          <h3 class="np-item-title">How bolt.new hit $40M ARR in 5 months</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Growth Unhinged</span> &middot; Newsletter <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="podcast">
+        <a class="np-item" href="https://www.youtube.com/watch?v=ViAGOAc2LAo" target="_blank" rel="noopener">
+          <span class="np-item-date">June 22, 2025</span>
+          <h3 class="np-item-title">How Bolt hit $40M ARR in 5 months with this AI pivot strategy</h3>
+          <span class="np-item-credit"><span class="np-item-pub">EO (YouTube)</span> &middot; Podcast &amp; Video <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="mention">
+        <a class="np-item" href="https://news.google.com/rss/articles/CBMigAFBVV95cUxNRWlIVFdyZ1BGbmVWNzV0SEVKTWRuVndtb2ZxemdSM1N1anZNbWlhSVAzb2d3Xzd2dEx4aHZNU25pc1lCNzZSRlB3Y1h2U2NuWjZiMEk4VzhlU3VPUzN2WU9WUmlSdFoyMUpLTkhDTnNLOFhMTU1QMzk1MUw4Z2J6cA?oc=5" target="_blank" rel="noopener">
+          <span class="np-item-date">June 18, 2025</span>
+          <h3 class="np-item-title">I vibe coded a website with my daughter using AI. We&rsquo;re complete novices.</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Business Insider</span> &middot; Mention <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="owned">
+        <a class="np-item" href="https://www.youtube.com/watch?v=6z0dr_jQhDo" target="_blank" rel="noopener">
+          <span class="np-item-date">June 12, 2025</span>
+          <h3 class="np-item-title">Hackathon News Live with CEO Eric Simons &mdash; #1</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Bolt.new (YouTube)</span> &middot; Owned <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="podcast">
+        <a class="np-item" href="https://www.joinpavilion.com/blog/how-bolt-hit-40m-in-four-months-and-why-it-took-eric-simons-seven-years-to-get-there" target="_blank" rel="noopener">
+          <span class="np-item-date">June 2, 2025</span>
+          <h3 class="np-item-title">How Bolt hit $40M in four months &mdash; and why it took Eric Simons seven years to get there (E111)</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Topline by Pavilion</span> &middot; Podcast <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="newsletter">
+        <a class="np-item" href="https://www.productgrowth.blog/p/how-bolt-new-hacked-its-growth" target="_blank" rel="noopener">
+          <span class="np-item-date">June 2, 2025</span>
+          <h3 class="np-item-title">Bolt.new growth teardown: near-shutdown to $40M ARR</h3>
+          <span class="np-item-credit"><span class="np-item-pub">ProductGrowth.blog</span> &middot; Newsletter <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="mention">
+        <a class="np-item" href="https://news.google.com/rss/articles/CBMifEFVX3lxTE93VEVTemVtckRqRU95ZmZ5X3REbVNMTG1XcG5ndEllakZZMHotcHdMSWh4T3E5YzFRWFN6RzhjeVY2b1I4UHBYRFBtSWhRSEEwbmVZU2tYSVdvR2w1QWk0R3pxaGE1TXc4LS05cW1WS2dJdlRUeDVzSGFkNm8?oc=5" target="_blank" rel="noopener">
+          <span class="np-item-date">May 29, 2025</span>
+          <h3 class="np-item-title">Claude-powered coding tools are poised to transform programming</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Understanding AI</span> &middot; Mention <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="tier1">
+        <a class="np-item" href="https://www.businessinsider.com/stackblitz-bolt-silicon-valley-hottest-ai-coding-startup-nearly-died-2025-5" target="_blank" rel="noopener">
+          <span class="np-item-date">May 18, 2025</span>
+          <h3 class="np-item-title">The inside story of how Silicon Valley&rsquo;s hottest AI coding startup almost died</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Business Insider</span> &middot; Tier-1 Press <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="trade">
+        <a class="np-item" href="https://www.computerworld.com/article/3975705/from-prompts-to-production-ai-will-soon-write-most-code-reshape-developer-roles.html" target="_blank" rel="noopener">
+          <span class="np-item-date">May 7, 2025</span>
+          <h3 class="np-item-title">From prompts to production: AI will soon write most code &mdash; Gartner names Bolt.new</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Computerworld</span> &middot; Trade &amp; Review <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="analyst">
+        <a class="np-item" href="https://research.contrary.com/company/bolt" target="_blank" rel="noopener">
+          <span class="np-item-date">May 2, 2025</span>
+          <h3 class="np-item-title">Report: Bolt business breakdown &amp; founding story</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Contrary Research</span> &middot; Analyst <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="owned">
+        <a class="np-item" href="https://www.youtube.com/watch?v=KY8xaxkQz0w" target="_blank" rel="noopener">
+          <span class="np-item-date">May 1, 2025</span>
+          <h3 class="np-item-title">World&rsquo;s Largest Hackathon kickoff: live with Greg Isenberg &amp; Eric Simons</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Bolt.new (YouTube)</span> &middot; Owned <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="podcast">
+        <a class="np-item" href="https://www.aroundtheprompt.com/an-unfiltered-conversation-with-eric-simons-ceo-of-boltnew/" target="_blank" rel="noopener">
+          <span class="np-item-date">April 23, 2025</span>
+          <h3 class="np-item-title">An unfiltered conversation with Eric Simons, CEO of Bolt.new</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Around the Prompt</span> &middot; Podcast <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="trade">
+        <a class="np-item" href="https://thenewstack.io/how-developers-are-using-bolt-a-fast-growing-ai-coding-tool/" target="_blank" rel="noopener">
+          <span class="np-item-date">April 3, 2025</span>
+          <h3 class="np-item-title">How developers are using Bolt, a fast-growing AI coding tool</h3>
+          <span class="np-item-credit"><span class="np-item-pub">The New Stack</span> &middot; Trade &amp; Review <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="podcast">
+        <a class="np-item" href="https://open.spotify.com/episode/1fNdM3QkaHlDYqiVFDrZz0" target="_blank" rel="noopener">
+          <span class="np-item-date">April 3, 2025</span>
+          <h3 class="np-item-title">From 0 to $40M in 5 months: the Bolt.new story with Eric Simons</h3>
+          <span class="np-item-credit"><span class="np-item-pub">High Agency (Humanloop)</span> &middot; Podcast <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="analyst">
+        <a class="np-item" href="https://sacra.com/research/bolt-new-at-40m-arr/" target="_blank" rel="noopener">
+          <span class="np-item-date">March 31, 2025</span>
+          <h3 class="np-item-title">Bolt.new at $40M ARR</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Sacra</span> &middot; Analyst <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="mention">
+        <a class="np-item" href="https://news.google.com/rss/articles/CBMi8gFBVV95cUxPNllBbjM5LWhzN0RqSmJVaGpubEVNeUJXRWhCM044ZnV6WktaNDBXQWlVMWJiTDNGLXN5UEpoWWhGTHdoSE01b2hyNDdVQjVjQnJYVTNWR210SEFIa0xWY01kR0hhU2hMaWRfWUMyN0VXTWlMVGpIaFYxVzBER3FzM2hyOUYyN19HMkVSclkyelVYU3ZtUFlnN1NxR1ZBR0FtU09UN1UxWjI1bi0yQ3d2S2t2ek1sVHZ0ZXkxUDJyNEdHMHVsMkZDaFZNdUNfQVJfMUdIY3VzQWgzWnUycEN1ZG5UR2Y0dFVUcmlwQ1QtYzF0Zw?oc=5" target="_blank" rel="noopener">
+          <span class="np-item-date">March 27, 2025</span>
+          <h3 class="np-item-title">Bolt.new and Netlify power 1 million AI-generated websites</h3>
+          <span class="np-item-credit"><span class="np-item-pub">PR Newswire</span> &middot; Mention <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="tier1">
+        <a class="np-item" href="https://fortune.com/2025/03/25/exclusive-emergence-capital-raises-1-billion-seventh-fund/" target="_blank" rel="noopener">
+          <span class="np-item-date">March 25, 2025</span>
+          <h3 class="np-item-title">Exclusive: Emergence Capital raises $1 billion seventh fund &mdash; Bolt.new cited as breakout</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Fortune</span> &middot; Tier-1 Press <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="international">
+        <a class="np-item" href="https://www.publickey1.jp/blog/25/figmaaiwebboltnewfigma.html" target="_blank" rel="noopener">
+          <span class="np-item-date">March 25, 2025</span>
+          <h3 class="np-item-title">Figma designs auto-converted to web apps: Bolt.new adds Figma import</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Publickey (Japan)</span> &middot; International <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="podcast">
+        <a class="np-item" href="https://www.lennysnewsletter.com/p/inside-bolt-eric-simons" target="_blank" rel="noopener">
+          <span class="np-item-date">March 13, 2025</span>
+          <h3 class="np-item-title">Inside Bolt: from near-death to ~$40M ARR in 5 months</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Lenny&rsquo;s Podcast</span> &middot; Podcast <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="international">
+        <a class="np-item" href="https://codezine.jp/news/detail/21065" target="_blank" rel="noopener">
+          <span class="np-item-date">February 28, 2025</span>
+          <h3 class="np-item-title">Mobile app development with Expo now possible in Bolt.new</h3>
+          <span class="np-item-credit"><span class="np-item-pub">CodeZine (Japan)</span> &middot; International <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="international">
+        <a class="np-item" href="https://www.publickey1.jp/blog/25/aiboltnewiosandroid.html" target="_blank" rel="noopener">
+          <span class="np-item-date">February 25, 2025</span>
+          <h3 class="np-item-title">Bolt.new adds iOS/Android native app development</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Publickey (Japan)</span> &middot; International <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="trade">
+        <a class="np-item" href="https://thenewstack.io/introduction-to-bolt-does-it-suit-professional-developers/" target="_blank" rel="noopener">
+          <span class="np-item-date">February 25, 2025</span>
+          <h3 class="np-item-title">Introduction to Bolt: does it suit professional developers?</h3>
+          <span class="np-item-credit"><span class="np-item-pub">The New Stack</span> &middot; Trade &amp; Review <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="podcast">
+        <a class="np-item" href="https://www.youtube.com/watch?v=moaX7CsqZjc" target="_blank" rel="noopener">
+          <span class="np-item-date">February 23, 2025</span>
+          <h3 class="np-item-title">We were going to shut down our company&hellip; now we&rsquo;re worth $700M</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Behind the Craft</span> &middot; Podcast <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="podcast">
+        <a class="np-item" href="https://www.listennotes.com/podcasts/the-peel-with/zero-to-20m-arr-in-two-WL9KwjGYZsB/" target="_blank" rel="noopener">
+          <span class="np-item-date">February 20, 2025</span>
+          <h3 class="np-item-title">Zero to $20M ARR in two months: inside Bolt&rsquo;s 7-year journey to overnight success</h3>
+          <span class="np-item-credit"><span class="np-item-pub">The Peel with Turner Novak</span> &middot; Podcast <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="international">
+        <a class="np-item" href="https://news.google.com/rss/articles/CBMiW0FVX3lxTE54ZkpSV0lLb0kwemI0NmJoU2NTdU0xYlUxQTJiaW4wQnpzSWV3d3hnTGN2R1J0ZEszWkxmaUh0YzFkempwRHVnYTh1UWRuQldvYlpmTWlzY1lseDA?oc=5" target="_blank" rel="noopener">
+          <span class="np-item-date">February 18, 2025</span>
+          <h3 class="np-item-title">How to build with AI</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Sifted (UK/EU)</span> &middot; International <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="trade">
+        <a class="np-item" href="https://www.tomsguide.com/ai/i-just-tried-this-game-changing-ai-tool-that-lets-you-build-iphone-apps-with-a-text-prompt-no-coding-required" target="_blank" rel="noopener">
+          <span class="np-item-date">February 15, 2025</span>
+          <h3 class="np-item-title">I just tried this game-changing AI tool that lets you build iPhone apps with a text prompt</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Tom&rsquo;s Guide</span> &middot; Trade &amp; Review <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="newsletter">
+        <a class="np-item" href="https://www.bensbites.com/p/get-started-with-bolt-a-beginners-guide" target="_blank" rel="noopener">
+          <span class="np-item-date">February 13, 2025</span>
+          <h3 class="np-item-title">Get started with Bolt: a beginner&rsquo;s guide</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Ben&rsquo;s Bites</span> &middot; Newsletter <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="podcast">
+        <a class="np-item" href="https://www.cognitiverevolution.ai/software-supernova-bolt-new-the-ai-web-app-developer-in-your-browser/" target="_blank" rel="noopener">
+          <span class="np-item-date">February 9, 2025</span>
+          <h3 class="np-item-title">Software supernova: Bolt.new &mdash; the AI web app developer in your browser</h3>
+          <span class="np-item-credit"><span class="np-item-pub">The Cognitive Revolution</span> &middot; Podcast <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="tier1">
+        <a class="np-item" href="https://www.bloomberg.com/news/articles/2025-01-21/ai-speech-to-code-startup-stackblitz-is-in-talks-for-a-700-million-valuation" target="_blank" rel="noopener">
+          <span class="np-item-date">January 21, 2025</span>
+          <h3 class="np-item-title">AI text-to-code startup StackBlitz is in talks for a $700 million valuation</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Bloomberg</span> &middot; Tier-1 Press <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="trade">
+        <a class="np-item" href="https://dev.to/sagar/exploring-boltnew-a-promising-tool-for-quick-prototyping-5g55" target="_blank" rel="noopener">
+          <span class="np-item-date">January 5, 2025</span>
+          <h3 class="np-item-title">Exploring Bolt.new: a promising tool for quick prototyping</h3>
+          <span class="np-item-credit"><span class="np-item-pub">dev.to</span> &middot; Trade &amp; Review <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="podcast">
+        <a class="np-item" href="https://open.spotify.com/episode/4YBYTAtpdZgiHcbw9sW8nd" target="_blank" rel="noopener">
+          <span class="np-item-date">December 5, 2024</span>
+          <h3 class="np-item-title">Bolt&rsquo;s Eric Simons on enabling everyone to generate websites with AI (Ep. 92)</h3>
+          <span class="np-item-credit"><span class="np-item-pub">No Priors</span> &middot; Podcast <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="podcast">
+        <a class="np-item" href="https://www.latent.space/p/bolt" target="_blank" rel="noopener">
+          <span class="np-item-date">December 2, 2024</span>
+          <h3 class="np-item-title">Bolt.new, flow engineering for code agents, and +$8M ARR in 2 months</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Latent Space</span> &middot; Podcast <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="trade">
+        <a class="np-item" href="https://evilmartians.com/chronicles/bolt-new-from-stackblitz-how-they-surfed-the-ai-wave-with-no-wipeouts" target="_blank" rel="noopener">
+          <span class="np-item-date">December 2, 2024</span>
+          <h3 class="np-item-title">bolt.new from StackBlitz: how they surfed the AI wave, with no wipeouts</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Evil Martians</span> &middot; Trade &amp; Review <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="newsletter">
+        <a class="np-item" href="https://newsletter.pragmaticengineer.com/p/ide-that-software-engineers-love" target="_blank" rel="noopener">
+          <span class="np-item-date">November 26, 2024</span>
+          <h3 class="np-item-title">IDEs with GenAI features that software engineers love &mdash; Bolt listed</h3>
+          <span class="np-item-credit"><span class="np-item-pub">The Pragmatic Engineer</span> &middot; Newsletter <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="podcast">
+        <a class="np-item" href="https://www.youtube.com/watch?v=1SfUMQ1yTY8" target="_blank" rel="noopener">
+          <span class="np-item-date">November 8, 2024</span>
+          <h3 class="np-item-title">Bolt tutorial for beginners with the Bolt CEO Eric Simons</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Greg Isenberg / Startup Ideas</span> &middot; Podcast &amp; Video <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="trade">
+        <a class="np-item" href="https://devclass.com/2024/10/16/stackblitz-bolt-new-blurs-boundaries-between-web-development-and-skilled-use-of-ai-prompts/" target="_blank" rel="noopener">
+          <span class="np-item-date">October 16, 2024</span>
+          <h3 class="np-item-title">StackBlitz Bolt.new blurs boundaries between web development and skilled use of AI prompts</h3>
+          <span class="np-item-credit"><span class="np-item-pub">DevClass</span> &middot; Trade &amp; Review <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="international">
+        <a class="np-item" href="https://www.publickey1.jp/blog/24/aiwebnodejsboltnewstackblitz.html" target="_blank" rel="noopener">
+          <span class="np-item-date">October 7, 2024</span>
+          <h3 class="np-item-title">bolt.new launch coverage from ViteConf 2024</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Publickey (Japan)</span> &middot; International <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="owned">
+        <a class="np-item" href="https://www.youtube.com/watch?v=knLe8zzwNRA" target="_blank" rel="noopener">
+          <span class="np-item-date">October 4, 2024</span>
+          <h3 class="np-item-title">WebContainers &amp; AI &mdash; introducing bolt.new (launch keynote)</h3>
+          <span class="np-item-credit"><span class="np-item-pub">ViteConf 2024</span> &middot; Owned <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="podcast">
+        <a class="np-item" href="https://www.youtube.com/watch?v=yIo-E5jKUXs" target="_blank" rel="noopener">
+          <span class="np-item-date">2025 (undated)</span>
+          <h3 class="np-item-title">Eric Simons &mdash; Bolt.new</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Founders You Should Know</span> &middot; Podcast <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+      <li data-seg="podcast">
+        <a class="np-item" href="https://www.youtube.com/watch?v=vCWCJuzmGcs" target="_blank" rel="noopener">
+          <span class="np-item-date">2025 (undated)</span>
+          <h3 class="np-item-title">Navigating the unpredictable sands of time with Eric Simons</h3>
+          <span class="np-item-credit"><span class="np-item-pub">Pavilion (summit session)</span> &middot; Podcast <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
+        </a>
+      </li>
+
+    </ul>
+    <p class="feed-empty" id="feed-empty" hidden>No coverage matches &mdash; try a different category or search.</p>
+    <div class="np-dinkus" aria-hidden="true">&#9670; &#9670; &#9670;</div>
+  </section>
+
+</div><!-- /blog-wrap -->
+
+<!-- ── MEDIA KIT ── -->
+<div class="blog-tags-outer">
+  <section class="blog-tags-section">
+    <canvas id="tags-pixel-canvas" aria-hidden="true"></canvas>
+    <div class="blog-tags-eyebrow eyebrow-scramble">Media kit</div>
+    <p class="media-kit-intro">Logos, screenshots, and facts for writing about Bolt. Everything below is approved for editorial use &mdash; no permission needed.</p>
+    <div class="blog-tags-grid">
+      <a href="#" class="blog-tag-cell"><span class="blog-tag-count">ZIP &middot; 2.4 MB</span><span class="blog-tag-name">Logo pack</span></a>
+      <a href="#" class="blog-tag-cell"><span class="blog-tag-count">PDF &middot; 8 MB</span><span class="blog-tag-name">Brand guidelines</span></a>
+      <a href="#" class="blog-tag-cell"><span class="blog-tag-count">ZIP &middot; 14 MB</span><span class="blog-tag-name">Product screenshots</span></a>
+      <a href="#" class="blog-tag-cell"><span class="blog-tag-count">ZIP &middot; 9 MB</span><span class="blog-tag-name">Leadership photos</span></a>
+      <a href="#" class="blog-tag-cell"><span class="blog-tag-count">PDF &middot; 1 MB</span><span class="blog-tag-name">Company fact sheet</span></a>
+      <a href="#" class="blog-tag-cell"><span class="blog-tag-count">TXT &middot; 2 KB</span><span class="blog-tag-name">Boilerplate copy</span></a>
+    </div>
+  </section>
+</div>
+
+<!-- ── MEDIA INQUIRIES (newsletter-panel treatment) ── -->
+<div class="blog-newsletter">
+  <div class="blog-newsletter-inner">
+    <canvas class="blog-newsletter-glow" id="cta-glow-canvas" aria-hidden="true"></canvas>
+    <div>
+      <div class="blog-newsletter-eyebrow eyebrow-scramble">Media inquiries</div>
+      <div class="blog-newsletter-heading">Writing about Bolt?</div>
+      <p class="blog-newsletter-body">For interviews, comments, or embargoed briefings, reach the team at <a href="mailto:press@stackblitz.com">press@stackblitz.com</a>. We reply within one business day.</p>
+    </div>
+    <a href="mailto:press@stackblitz.com" class="bolt-btn bolt-btn--lg">Contact the Press Team</a>
+  </div>
+</div>
+
+<!-- ── SITE FOOTER (canonical: divider → link columns → bolt wordmark; the
+     dark band supplies the black ground the shared footer assumes) ── -->
+<div class="footer-dark-band" style="padding-top:88px;">
+  <div class="site-footer-divider" style="max-width:1200px;margin:0 auto;padding:0 min(80px, 5vw);box-sizing:border-box;"></div>
+
+<footer class="site-footer">
+  <div class="site-footer-cols">
+    <div class="site-footer-col">
+      <p class="site-footer-label">Solutions</p>
+      <ul class="site-footer-links">
+        <li><a href="https://bolt.new/use-cases/ai-app-builder">AI App Builder</a></li>
+        <li><a href="https://bolt.new/use-cases/ai-website-builder">AI Website Builder</a></li>
+        <li><a href="https://bolt.new/use-cases/custom-crm-software">SaaS Dev</a></li>
+        <li><a href="https://bolt.new/use-cases/ai-prototyping-tools">Prototyping</a></li>
+        <li><a href="https://garyliusf.github.io/Enterprise/solutions/smb/">Small Business</a></li>
+        <li><a href="https://bolt.new/enterprise">Enterprise</a></li>
+      </ul>
+    </div>
+    <div class="site-footer-col">
+      <p class="site-footer-label">Resources</p>
+      <ul class="site-footer-links">
+        <li><a href="https://bolt.new/blog">Blog</a></li>
+        <li><a href="https://bolt.new/platform/security">Security &amp; Trust</a></li>
+        <li><a href="https://discord.com/invite/stackblitz" target="_blank" rel="noopener">Community</a></li>
+        <li><a href="https://support.bolt.new/" target="_blank" rel="noopener">Help Center</a></li>
+        <li><a href="https://bolt.new/careers">Careers</a></li>
+      </ul>
+    </div>
+    <div class="site-footer-col">
+      <p class="site-footer-label">More</p>
+      <ul class="site-footer-links">
+        <li><a href="https://bolt.new/resources/templates">Templates</a></li>
+        <li><a href="pricing.html">Pricing</a></li>
+        <li><a href="https://stackblitz.com/terms-of-service">Terms of Use</a></li>
+        <li><a href="https://stackblitz.com/privacy-policy">Privacy Policy</a></li>
+      </ul>
+    </div>
+    <div class="site-footer-col site-footer-col--connect">
+      <p class="site-footer-label">Connect</p>
+      <div class="site-footer-social site-footer-social--col">
+        <a href="https://x.com/boltdotnew" target="_blank" rel="noopener" aria-label="X (Twitter)">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a>
+        <a href="https://linkedin.com/company/stackblitz" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.03-1.85-3.03-1.86 0-2.14 1.45-2.14 2.94v5.66H9.34V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.61 0 4.28 2.38 4.28 5.47zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56z"/></svg>
+        </a>
+        <a href="https://discord.gg/stackblitz" target="_blank" rel="noopener" aria-label="Discord">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.32 4.37a19.8 19.8 0 0 0-4.89-1.52.07.07 0 0 0-.08.04c-.21.38-.45.86-.61 1.25a18.27 18.27 0 0 0-5.49 0 12.6 12.6 0 0 0-.62-1.25.08.08 0 0 0-.08-.04c-1.7.29-3.36.8-4.89 1.52a.07.07 0 0 0-.03.03C.53 8.6-.32 12.71.1 16.77a.08.08 0 0 0 .03.06 19.9 19.9 0 0 0 6 3.03.08.08 0 0 0 .08-.03c.46-.63.87-1.3 1.23-2a.08.08 0 0 0-.04-.11 13.1 13.1 0 0 1-1.87-.9.08.08 0 0 1-.01-.13c.13-.09.25-.19.37-.29a.07.07 0 0 1 .08-.01c3.93 1.79 8.18 1.79 12.06 0a.07.07 0 0 1 .08.01c.12.1.25.2.37.3a.08.08 0 0 1-.01.12c-.6.35-1.22.65-1.87.9a.08.08 0 0 0-.04.11c.36.7.78 1.36 1.23 2a.08.08 0 0 0 .08.03 19.83 19.83 0 0 0 6.01-3.03.08.08 0 0 0 .03-.06c.5-4.7-.83-8.78-3.5-12.4a.06.06 0 0 0-.03-.03zM8.02 14.24c-1.18 0-2.16-1.08-2.16-2.42s.96-2.42 2.16-2.42c1.21 0 2.18 1.1 2.16 2.42 0 1.34-.96 2.42-2.16 2.42zm7.97 0c-1.18 0-2.16-1.08-2.16-2.42s.96-2.42 2.16-2.42c1.21 0 2.18 1.1 2.16 2.42 0 1.34-.95 2.42-2.16 2.42z"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- bolt wordmark — own section so the site-footer columns sit above it -->
+<section class="footer-image-section">
+  <div class="bolt-image-wrap">
+    <img src="../images/bolt-footer.webp" alt="bolt" loading="lazy" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;opacity:0.20;">
+    <canvas id="bolt-shimmer-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;mix-blend-mode:screen;"></canvas>
+    <div style="position:absolute;inset:0;background:linear-gradient(to bottom, #000 0%, transparent 22%, transparent 88%, #000 100%);z-index:3;"></div>
+  </div>
+</section>
+</div><!-- /footer-dark-band -->
+
+<script>
+/* ── Masthead word reveal (blog dsa-reveal) ─────────────────────────────── */
+(function () {
+  document.querySelectorAll('.dsa-reveal').forEach(function (el) {
+    var i = 0;
+    el.innerHTML = el.innerHTML.replace(/\S+/g, function (w) {
+      return '<span class="word" style="--i:' + (i++) + '">' + w + '</span>';
+    });
+    el.classList.add('is-revealed'); /* masthead is above the fold — fire on load */
+  });
+})();
+
+/* ── Eyebrow scramble (verbatim live blog) ──────────────────────────────── */
+(function() {
+  var CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  function scramble(el) {
+    var original = el.textContent; var chars = original.split(''); var total = chars.length;
+    el.style.whiteSpace = 'nowrap'; el.style.display = 'inline-block';
+    el.style.minWidth = el.getBoundingClientRect().width + 'px';
+    var locked = new Array(total).fill(false); var startTime = null; var duration = 500;
+    function phase1(ts) {
+      if (!startTime) startTime = ts;
+      var progress = Math.min((ts - startTime) / duration, 1);
+      var result = '', allDone = true;
+      for (var i = 0; i < total; i++) {
+        if (chars[i] === ' ') { locked[i] = true; result += ' '; continue; }
+        if (!locked[i] && progress >= (i / total) * 0.85) locked[i] = true;
+        if (locked[i]) { result += chars[i]; } else { allDone = false; result += CHARS[Math.floor(Math.random() * CHARS.length)]; }
+      }
+      el.textContent = result;
+      if (!allDone || progress < 1) { requestAnimationFrame(phase1); }
+      else { el.textContent = original; setTimeout(function() { locked = new Array(total).fill(false); startTime = null; requestAnimationFrame(phase1); }, 4000 + Math.random() * 1000); }
+    }
+    requestAnimationFrame(phase1);
+  }
+  var obs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting && !e.target.dataset.scrambling) {
+        e.target.dataset.scrambling = '1';
+        scramble(e.target);
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.5 });
+  document.querySelectorAll('.eyebrow-scramble').forEach(function(el) { obs.observe(el); });
+})();
+
+/* ── Category filter + live search ──────────────────────────────────────── */
+(function () {
+  var buttons = Array.prototype.slice.call(document.querySelectorAll('.filter-btn'));
+  var items = Array.prototype.slice.call(document.querySelectorAll('#press-list > li'));
+  var form = document.getElementById('press-search-form');
+  var search = document.getElementById('press-search');
+  var clear = document.getElementById('press-search-clear');
+  var count = document.getElementById('press-count');
+  var empty = document.getElementById('feed-empty');
+  var seg = 'all';
+
+  function apply() {
+    var q = (search.value || '').trim().toLowerCase();
+    var shown = 0;
+    items.forEach(function (li) {
+      var okSeg = seg === 'all' || li.dataset.seg === seg;
+      var okQ = !q || li.textContent.toLowerCase().indexOf(q) !== -1;
+      var show = okSeg && okQ;
+      li.hidden = !show;
+      if (show) shown++;
+    });
+    count.textContent = shown + (shown === 1 ? ' clipping' : ' clippings');
+    empty.hidden = shown !== 0;
+    clear.hidden = !search.value;
+  }
+  buttons.forEach(function (b) {
+    b.addEventListener('click', function () {
+      buttons.forEach(function (x) { x.classList.remove('active'); });
+      b.classList.add('active');
+      seg = b.dataset.seg;
+      apply();
+    });
+  });
+  search.addEventListener('input', apply);
+  clear.addEventListener('click', function () { search.value = ''; apply(); search.focus(); });
+  form.addEventListener('submit', function (e) { e.preventDefault(); apply(); });
+  apply(); /* set the initial clippings count from the actual list */
+
+  /* overflow fade affordance on the pill row (blog __enhanceFilterFade) */
+  var group = document.getElementById('filter-group');
+  var wrap = group.parentElement;
+  function fade() {
+    var scrollable = group.scrollWidth > group.clientWidth + 2;
+    wrap.classList.toggle('is-scrollable', scrollable);
+    wrap.classList.toggle('is-fade-right', scrollable && group.scrollLeft + group.clientWidth < group.scrollWidth - 2);
+    wrap.classList.toggle('is-fade-left', scrollable && group.scrollLeft > 2);
+  }
+  group.addEventListener('scroll', fade, { passive: true });
+  window.addEventListener('resize', fade);
+  fade();
+})();
+
+/* ── Mini subscribe (hero cell) ─────────────────────────────────────────── */
+(function () {
+  var form = document.getElementById('hero-subscribe-form');
+  if (!form) return;
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    form.outerHTML = '<p class="blog-hero-subscribe-success">You’re in — new coverage lands in your inbox.</p>';
+  });
+})();
+
+/* ── Media-kit pixel canvas — enterprise diagonal pixel wave (blog algo) ── */
+(function () {
+  var canvas = document.getElementById('tags-pixel-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var SPACING = 11, DOT = 4, cols, rows, phases;
+  function init() {
+    var r = canvas.parentElement.getBoundingClientRect();
+    canvas.width = Math.round(r.width); canvas.height = Math.round(r.height);
+    cols = Math.ceil(canvas.width / SPACING) + 1;
+    rows = Math.ceil(canvas.height / SPACING) + 1;
+    phases = Array.from({ length: rows }, function () { return Float32Array.from({ length: cols }, function () { return Math.random() * Math.PI * 2; }); });
+  }
+  window.addEventListener('resize', init); init();
+  var start = null;
+  function draw(ts) {
+    if (!start) start = ts; var t = ts - start;
+    var W = canvas.width, H = canvas.height;
+    if (!W || !H) { requestAnimationFrame(draw); return; }
+    ctx.clearRect(0, 0, W, H);
+    for (var c = 0; c < cols; c++) {
+      for (var r = 0; r < rows; r++) {
+        var x = c * SPACING, y = r * SPACING;
+        var ph = phases[r][c];
+        var w1 = Math.sin(c * 0.13 + r * 0.29 - t * 0.0012 + ph);
+        var w2 = Math.sin(c * 0.07 - r * 0.11 + t * 0.0008 + ph * 0.6);
+        var wave = (w1 + w2) / 2;
+        var op = Math.max(0, wave) * 0.6;
+        if (op < 0.04) continue;
+        ctx.fillStyle = 'rgba(60,66,88,' + op.toFixed(3) + ')';
+        ctx.fillRect(x, y, DOT, DOT);
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
+})();
+
+/* ── CTA panel glow — soft animated blue pixel field on the dark panel ──── */
+(function () {
+  var canvas = document.getElementById('cta-glow-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var SPACING = 8, DOT = 2, cols, rows, phases;
+  function init() {
+    var r = canvas.parentElement.getBoundingClientRect();
+    canvas.width = Math.round(r.width); canvas.height = Math.round(r.height);
+    cols = Math.ceil(canvas.width / SPACING) + 1;
+    rows = Math.ceil(canvas.height / SPACING) + 1;
+    phases = Array.from({ length: rows }, function () { return Float32Array.from({ length: cols }, function () { return Math.random() * Math.PI * 2; }); });
+  }
+  window.addEventListener('resize', init); init();
+  var start = null;
+  function draw(ts) {
+    if (!start) start = ts; var t = ts - start;
+    var W = canvas.width, H = canvas.height;
+    if (!W || !H) { requestAnimationFrame(draw); return; }
+    ctx.clearRect(0, 0, W, H);
+    for (var c = 0; c < cols; c++) {
+      var cf = c / cols;
+      var hm = Math.exp(-Math.pow(cf - 0.5, 2) / (2 * 0.26 * 0.26));
+      if (hm < 0.05) continue;
+      for (var r = 0; r < rows; r++) {
+        var rf = r / rows;
+        var vm = Math.min(1, rf / 0.35) * Math.min(1, (1 - rf) / 0.35);
+        if (vm < 0.08) continue;
+        var ph = phases[r][c];
+        var w1 = Math.sin(c * 0.11 + r * 0.23 - t * 0.0011 + ph);
+        var w2 = Math.sin(c * 0.06 - r * 0.09 + t * 0.0007 + ph * 0.7);
+        var wave = (w1 + w2) / 2;
+        var op = hm * vm * Math.max(0, wave) * 0.30;
+        if (op < 0.02) continue;
+        ctx.fillStyle = 'rgba(90,150,240,' + op.toFixed(3) + ')';
+        ctx.fillRect(c * SPACING, r * SPACING, DOT, DOT);
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
+})();
+</script>
+
+<script>
+// ── Bolt strip shimmer (verbatim security-agent) ─────────────────────────────
+(function() {
+  var canvas = document.getElementById('bolt-shimmer-canvas');
+  if (!canvas) return;
+  var wrap = canvas.parentElement;
+  var ctx = canvas.getContext('2d');
+  var img = wrap.querySelector('img');
+  var W, H, strips = [], t = 0;
+  var hoverT = 0, isHovered = false, splashT = 0, splashStart = null, splashDuration = 300;
+  var observer = new IntersectionObserver(function(entries) {
+    if (entries[0].isIntersecting && !splashStart) { splashStart = Date.now(); observer.disconnect(); }
+  }, { threshold: 0.1 });
+  observer.observe(wrap);
+  function sampleStrips() {
+    var SW = 400, SH = 200;
+    var s = document.createElement('canvas'); s.width = SW; s.height = SH;
+    var sc = s.getContext('2d'); sc.drawImage(img, 0, 0, SW, SH);
+    var data = sc.getImageData(0, 0, SW, SH).data;
+    strips = [];
+    var inStrip = false, stripStart = 0;
+    for (var x = 0; x < SW; x++) {
+      var b = 0;
+      for (var y = 20; y < SH - 20; y++) { var idx = (y * SW + x) * 4; b += (data[idx] + data[idx+1] + data[idx+2]) / 3; }
+      b /= (SH - 40);
+      if (b > 28 && !inStrip) { inStrip = true; stripStart = x; }
+      else if (b <= 28 && inStrip) {
+        inStrip = false;
+        strips.push({ cx: (stripStart + x) / 2 / SW, w: (x - stripStart) / SW, phase: Math.random() * Math.PI * 2, freq: 0.5 + Math.random() * 1.2, yPhase: Math.random() * Math.PI * 2, yFreq: 0.35 + Math.random() * 0.7, speedMult: 0.6 + Math.random() * 0.8 });
+      }
+    }
+  }
+  function init() {
+    var r = wrap.getBoundingClientRect(); W = canvas.width = r.width; H = canvas.height = r.height;
+    t = Math.random() * 80; sampleStrips();
+    var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+    if (isTouch) { splashDuration = 1500; } else {
+      wrap.addEventListener('mouseenter', function() { isHovered = true; });
+      wrap.addEventListener('mouseleave', function() { isHovered = false; });
+    }
+    requestAnimationFrame(tick);
+  }
+  function tick() {
+    var splashRaw = splashStart ? Math.max(0, 1 - (Date.now() - splashStart) / splashDuration) : 0;
+    splashT = splashRaw * splashRaw * splashRaw;
+    t += 0.028 + hoverT * 0.016;
+    hoverT += ((isHovered ? 1 : 0) - hoverT) * (isHovered ? 0.07 : 0.025);
+    ctx.clearRect(0, 0, W, H);
+    for (var i = 0; i < strips.length; i++) {
+      var st = strips[i];
+      var brightness = (Math.sin(t * st.freq * st.speedMult + st.phase) * 0.5 + 0.5);
+      if (brightness < 0.01) continue;
+      var x = st.cx * W; var w = Math.max(st.w * W, 3);
+      var centerY = (Math.sin(t * st.yFreq * st.speedMult + st.yPhase) * 0.5 + 0.5) * H;
+      var spread = H * (0.55 + hoverT * 0.25);
+      var baseA = brightness * 0.11; var peakA = brightness * 0.28;
+      var boost = Math.max(hoverT, splashT);
+      var a = (baseA + (peakA - baseA) * boost).toFixed(3);
+      var a2 = (parseFloat(a) * 1.4).toFixed(3);
+      var grad = ctx.createLinearGradient(0, centerY - spread, 0, centerY + spread);
+      grad.addColorStop(0, 'rgba(220,225,240,0)'); grad.addColorStop(0.3, 'rgba(220,225,240,' + a + ')');
+      grad.addColorStop(0.5, 'rgba(255,255,255,' + a2 + ')'); grad.addColorStop(0.7, 'rgba(220,225,240,' + a + ')');
+      grad.addColorStop(1, 'rgba(220,225,240,0)');
+      ctx.fillStyle = grad; ctx.fillRect(x - w / 2, 0, w, H);
+    }
+    requestAnimationFrame(tick);
+  }
+  if (img.complete) init(); else img.addEventListener('load', init);
+})();
+</script>
+
+<!-- Shared standardized components + nav/footer (single source of truth) -->
+<link rel="stylesheet" href="shared-components.css?v=20260811b">
+<script>window.__pageOwnsScrollAnims = true; /* page owns its word-reveal + eyebrow scramble (shared-file hazard rule) */</script>
+<script src="shared-components.js"></script>
+<script src="shared-nav-footer.js"></script>
+</body>
+</html>
