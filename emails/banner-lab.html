@@ -1,0 +1,172 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Email banner lab</title>
+<style>
+*{box-sizing:border-box}
+:root{--bg:#131316;--panel:#1b1b1f;--line:#2c2c32;--ink:#f0eff2;--mute:#94919b;--accent:#1389fd}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:14px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;padding:36px 20px 80px}
+.wrap{max-width:680px;margin:0 auto}
+h1{font-size:20px;margin:0 0 4px}
+.lede{color:var(--mute);font-size:13px;margin:0 0 30px;line-height:1.6}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;
+  padding:18px;margin-bottom:26px}
+.card h2{font-size:14px;margin:0 0 2px}
+.card p{font-size:12px;color:var(--mute);margin:0 0 12px;line-height:1.55}
+canvas{width:600px;max-width:100%;display:block;border-radius:4px;background:#fff}
+.btns{display:flex;gap:8px;margin-top:12px}
+.btns a,.btns button{font:500 12px inherit;padding:7px 12px;border-radius:6px;cursor:pointer;
+  border:1px solid var(--line);background:var(--bg);color:var(--ink);text-decoration:none}
+.btns .primary{background:var(--accent);border-color:var(--accent);color:#fff}
+</style></head><body><div class="wrap">
+<h1>Email banner lab — the blue gradient</h1>
+<p class="lede">Your chosen background, rebuilt in layers at full size and cropped to
+600×120 bands with the white wordmark. This is a close recreation — a pasted image
+reaches me as pixels, not a file — so when you export the original from Figma, drop
+it into the editor's <b>Banner</b> slot (or give me the path) and it replaces this
+exactly. <b>Preview in editor</b> shows any band on all 38 emails.</p>
+<div id="lab"></div>
+</div>
+
+<script>
+const LOGO = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTg2MyIgaGVpZ2h0PSI1MjciIHZpZXdCb3g9IjAgMCAxODYzIDUyNyIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTU2OC42NTEgNDY0Ljg1QzQ1OC41OTEgNDY0Ljg1IDQwMi41OTUgMzk5LjQgNDAyLjU5NSAzMTcuNTg4QzQwMi41OTUgMjIwLjcyMyA0NzguNTQzIDEzMy4wMjEgNTg4LjYwMyAxMzMuMDIxQzY5OC42NjMgMTMzLjAyMSA3NTQuNjU5IDE5OC40NyA3NTQuNjU5IDI4MC4yODJDNzU0LjY1OSAzNzcuMTQ4IDY3OC43MTEgNDY0Ljg1IDU2OC42NTEgNDY0Ljg1Wk01NzMuMTU2IDM2MC43ODVDNjExLjc3NCAzNjAuNzg1IDYzNi4yMzIgMzI1LjQ0MiA2MzYuMjMyIDI4Ni4xNzNDNjM2LjIzMiAyNTQuNzU3IDYxNi4yNzkgMjM3LjA4NSA1ODQuMDk4IDIzNy4wODVDNTQ1LjQ4IDIzNy4wODUgNTIxLjAyMiAyNzIuNDI4IDUyMS4wMjIgMzExLjY5OEM1MjEuMDIyIDM0My4xMTQgNTQwLjk3NSAzNjAuNzg1IDU3My4xNTYgMzYwLjc4NVoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik04NzEuODk0IDQ1Ni45OTZINzU2LjA0MUw4NTAuNjU1IDIwLjQ0NzNIOTY2LjUwN0w4NzEuODk0IDQ1Ni45OTZaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsaXAtcnVsZT0iZXZlbm9kZCIgZD0iTTIyNy4wNzYgNDY0Ljg1QzE5MS42NzcgNDY0Ljg1IDE1Ni45MjEgNDUxLjc2IDEzNi45NjkgNDIzLjYxN0wxMjkuOTMxIDQ1Ni44MDhMMCA1MjdMMTQuMDI2NiA0NTYuODA4TDEwOC42NDkgMjAuNDQ3M0gyMjQuNTAyTDE5MS4wMzMgMTc0LjI1NEMyMTguMDY2IDE0NC4xNDcgMjQzLjE2NyAxMzMuMDIxIDI3NS4zNDggMTMzLjAyMUMzNDQuODYgMTMzLjAyMSAzOTEuMjAxIDE3OS40OSAzOTEuMjAxIDI2NC41NzRDMzkxLjIwMSAzNTIuMjc3IDMzNy43OCA0NjQuODUgMjI3LjA3NiA0NjQuODVaTTI3MS40ODYgMjg5LjQ0NUMyNzEuNDg2IDMzMC4wMjQgMjQzLjE2NyAzNjAuNzg1IDIwNi40OCAzNjAuNzg1QzE4NS44ODQgMzYwLjc4NSAxNjcuMjE5IDM1Mi45MzEgMTU0Ljk5IDMzOS4xODdMMTczLjAxMiAyNTguNjg0QzE4Ni41MjggMjQ0LjkzOSAyMDEuOTc1IDIzNy4wODUgMjE5Ljk5NiAyMzcuMDg1QzI0Ny42NzIgMjM3LjA4NSAyNzEuNDg2IDI1OC4wMjkgMjcxLjQ4NiAyODkuNDQ1WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTEwODcuMDQgNDY0Ljg1QzEwMjAuMSA0NjQuODUgOTcyLjQ3NiA0MzkuOTc5IDk3Mi40NzYgMzg1LjAwMkM5NzIuNDc2IDM4MC40MiA5NzMuMTIgMzY5LjI5NCA5NzUuMDUgMzYwLjEzMUwxMDAwLjE1IDI0Mi45NzZIOTQ4LjY2Mkw5NzEuMTg5IDE0MC44NzVIMTAyMi42OEwxMDQxLjM0IDU0LjQ4MTFMMTE3MS4wNCAwTDExNTcuMiA1NC42MTQzTDExMzguNTMgMTQwLjg3NUgxMjAxLjYxTDExNzkuMDggMjQyLjk3NkgxMTE2TDEwOTkuMjcgMzIwLjIwNkMxMDk3Ljk4IDMyNi4wOTcgMTA5Ny4zNCAzMzIuNjQyIDEwOTcuMzQgMzM1LjI2QzEwOTcuMzQgMzUwLjMxMyAxMTA2LjM1IDM2MC43ODUgMTEyNi4zIDM2MC43ODVDMTEzMi4xIDM2MC43ODUgMTE0MC40NiAzNTguODIyIDExNDIuMzkgMzU3LjUxM1Y0NTEuNzZDMTEzMC4xNiA0NjAuMjY5IDExMDguMjggNDY0Ljg1IDEwODcuMDQgNDY0Ljg1WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTEyMjkuODkgNDcxLjkzN0MxMjE0LjE4IDQ3MS45MzcgMTIwMS42NyA0NTguNjIgMTIwMS42NyA0NDIuNjQxQzEyMDEuNjcgNDIzLjk5OCAxMjE3LjM4IDQwOC4zMTQgMTIzNS43MSA0MDguMzE0QzEyNTEuNDMgNDA4LjMxNCAxMjYzLjk0IDQyMS42MyAxMjYzLjk0IDQzNy42MUMxMjYzLjk0IDQ1Ni4yNTMgMTI0OC4yMyA0NzEuOTM3IDEyMjkuODkgNDcxLjkzN1oiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0xNDI3LjI1IDQ2OC4wOUgxMzc0Ljg3TDEzOTEuMTcgMzkyLjkyNkMxMzkxLjc1IDM5MC4yNjMgMTM5Mi45MSAzODUuNTI4IDEzOTIuOTEgMzgxLjk3N0MxMzkyLjkxIDM3Mi4yMTIgMTM4NC40OCAzNjguNjYxIDEzNzYuMDQgMzY4LjY2MUMxMzY0LjY5IDM2OC42NjEgMTM1Ni44MyAzNzQuNTc5IDEzNTEuMyAzNzkuNjFMMTMzMi4wOSA0NjguMDlIMTI3OS43MUwxMzEwLjg1IDMyNS4xNjFIMTM2My4yM0wxMzU5LjQ1IDM0MS40MzZDMTM2OS42MyAzMzEuOTY3IDEzODIuNDQgMzIxLjYxIDE0MDMuNjggMzIxLjYxQzE0MzMuMDcgMzIxLjYxIDE0NDkuOTUgMzM3Ljg4NSAxNDQ5Ljk1IDM1OS4xOTJDMTQ0OS45NSAzNjEuNTU5IDE0NDkuMDggMzY4LjA2OSAxNDQ4LjUgMzcwLjczMkwxNDI3LjI1IDQ2OC4wOVoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0xNTM1LjkyIDQ3MS42NDFDMTQ5MC41MiA0NzEuNjQxIDE0NTkuMSA0NDguNTU5IDE0NTkuMSA0MDYuNTM5QzE0NTkuMSAzNjAuOTY3IDE0OTMuNDMgMzIxLjYxIDE1NDIuNjEgMzIxLjYxQzE1NzcuNTMgMzIxLjYxIDE2MDguMzggMzQzLjIxMiAxNjA4LjM4IDM4Ni43MTJDMTYwOC4zOCAzOTYuNDc3IDE2MDYuNjMgNDA3LjcyMiAxNjA1LjE4IDQxMy4wNDlIMTUxMC44OVY0MTMuMzQ1QzE1MTAuODkgNDE1LjQxNiAxNTE5LjMzIDQzMS4xIDE1MzkuNyA0MzEuMUMxNTUwLjc2IDQzMS4xIDE1NjMuODYgNDI4LjQzNyAxNTcwLjI2IDQyMy45OThMMTU4Ni4yNiA0NTguNjJDMTU3MiA0NjcuNzk0IDE1NTIuOCA0NzEuNjQxIDE1MzUuOTIgNDcxLjY0MVpNMTUxNS44NCAzNzkuMzE0SDE1NjIuMTFWMzc4LjQyNkMxNTYyLjExIDM3NC4yODMgMTU1Ny4xNiAzNjIuMTUxIDE1NDAuNTggMzYyLjE1MUMxNTI2LjYxIDM2Mi4xNTEgMTUxNy41OSAzNzMuMSAxNTE1Ljg0IDM3OS4zMTRaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMTc5MS4xMiA0NjguMDlIMTczNC4wOUwxNzI4LjI3IDM4OC4xOTJMMTY4OC40IDQ2OC4wOUgxNjMxLjM2TDE2MjEuNzYgMzI1LjE2MUgxNjc0LjE0TDE2NzUuNTkgNDAzLjg3NUwxNzE3LjUgMzI1LjE2MUgxNzY0LjM1TDE3NzEuNjIgNDAzLjg3NUwxODA3LjQyIDMyNS4xNjFIMTg2M0wxNzkxLjEyIDQ2OC4wOVoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo=";   // official white wordmark (logo.svg)
+const BLUE = [20,136,252];        // #1488FC — the marketing brand blue, not the email #1389fd
+const W = 1200, H = 240;          // 2x of 600x120
+
+/* white + black versions of the logo */
+function tint(img, color){
+  const c = document.createElement('canvas'); c.width = img.width; c.height = img.height;
+  const x = c.getContext('2d');
+  x.drawImage(img, 0, 0);
+  x.globalCompositeOperation = 'source-in';
+  x.fillStyle = color; x.fillRect(0, 0, c.width, c.height);
+  return c;
+}
+
+/* the house pixel-dot wave — square pixels, alpha from a crossing sine field */
+function dots(ctx, {spacing=20, size=6, color=BLUE, phase=0, clearLeft=0.42, boost=0.9, yFade=0}){
+  for (let y = spacing/2; y < H; y += spacing){
+    for (let x = spacing/2; x < W; x += spacing){
+      const wave = Math.sin((x*0.9 + y*1.35)/86 + phase) * Math.cos((x*0.45 - y*0.9)/64);
+      let a = Math.max(0, wave) * boost;
+      const fx = x / W;
+      if (fx < clearLeft) a *= Math.max(0, (fx - (clearLeft-0.20)) / 0.20);  // keep logo zone clean
+      if (yFade) a *= 1 - yFade * (1 - y/H);                                  // optional fade upward
+      if (a > 0.03){
+        ctx.fillStyle = `rgba(${color},${a.toFixed(3)})`;
+        ctx.fillRect(x, y, size, size);
+      }
+    }
+  }
+}
+
+function logoLeft(ctx, img, fill){
+  const l = fill === '#fff' ? img : tint(img, fill), targetW = 250, s = targetW / img.width;
+  ctx.drawImage(l, 56, (H - img.height*s)/2, targetW, img.height*s);
+}
+function logoCenter(ctx, img, fill){
+  const l = fill === '#fff' ? img : tint(img, fill), targetW = 240, s = targetW / img.width;
+  ctx.drawImage(l, (W - targetW)/2, (H - img.height*s)/2, targetW, img.height*s);
+}
+
+const VARIANTS = [
+ {name:'1 · Glow band', why:'Upper band — black top edge, the white glow blooming right, cyan curtains centre. The most dramatic crop; logo sits on the dark corner.',
+  draw(ctx, img){ cover(ctx, BG, 0.10); logoLeft(ctx, img, '#fff'); }},
+ {name:'2 · Mid band', why:'The glow tail sweeps in from the upper right over the open blue field. Balanced — probably the everyday header.',
+  draw(ctx, img){ cover(ctx, BG, 0.38); scrim(ctx); logoLeft(ctx, img, '#fff'); }},
+ {name:'3 · Calm band', why:'Lower band — near-uniform rich blue, glow just kissing the top edge. The quietest option, closest to a flat brand-blue header.',
+  draw(ctx, img){ cover(ctx, BG, 0.68); scrim(ctx); logoLeft(ctx, img, '#fff'); }},
+];
+
+/* cover-crop the background to the banner, picking a vertical band (0=top, 1=bottom) */
+function cover(ctx, im, yFrac){
+  const s = W / im.width, h = im.height * s, yOff = (h - H) * yFrac;
+  ctx.drawImage(im, 0, -yOff, W, h);
+}
+/* soft left scrim so the white wordmark always reads */
+function scrim(ctx){
+  const g = ctx.createLinearGradient(0, 0, W*0.5, 0);
+  g.addColorStop(0, 'rgba(4,8,20,0.55)'); g.addColorStop(1, 'rgba(4,8,20,0)');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+}
+
+/* Faithful layered recreation of the reference gradient (2000x1000).
+   Swap for the real Figma export whenever it exists. */
+function buildGradient(){
+  const GW = 2000, GH = 1000;
+  const c = document.createElement('canvas'); c.width = GW; c.height = GH;
+  const x = c.getContext('2d');
+  let g;
+  // base — vivid royal blue, brightest through the middle
+  g = x.createLinearGradient(0, 0, 0, GH);
+  g.addColorStop(0, '#0d3db4'); g.addColorStop(0.45, '#1b5ae2');
+  g.addColorStop(0.8, '#1653d8'); g.addColorStop(1, '#0f47c4');
+  x.fillStyle = g; x.fillRect(0, 0, GW, GH);
+  // black bleeding down from the top-left
+  g = x.createRadialGradient(GW*0.14, -GH*0.10, 60, GW*0.14, -GH*0.10, GW*0.42);
+  g.addColorStop(0, 'rgba(1,3,12,0.95)'); g.addColorStop(0.6, 'rgba(1,3,12,0.45)');
+  g.addColorStop(1, 'rgba(1,3,12,0)');
+  x.fillStyle = g; x.fillRect(0, 0, GW, GH);
+  // dark band along the top edge
+  g = x.createLinearGradient(0, 0, 0, GH*0.30);
+  g.addColorStop(0, 'rgba(0,2,10,0.8)'); g.addColorStop(1, 'rgba(0,2,10,0)');
+  x.fillStyle = g; x.fillRect(0, 0, GW, GH*0.30);
+  // black top-right corner
+  g = x.createRadialGradient(GW*0.99, -GH*0.06, 30, GW*0.99, -GH*0.06, GW*0.24);
+  g.addColorStop(0, 'rgba(0,1,8,0.95)'); g.addColorStop(1, 'rgba(0,1,8,0)');
+  x.fillStyle = g; x.fillRect(0, 0, GW, GH);
+  // darker blue blob, left edge middle
+  g = x.createRadialGradient(0, GH*0.35, 40, 0, GH*0.35, GW*0.22);
+  g.addColorStop(0, 'rgba(8,24,90,0.5)'); g.addColorStop(1, 'rgba(8,24,90,0)');
+  x.fillStyle = g; x.fillRect(0, 0, GW, GH);
+  // the white diagonal glow under the top-right corner
+  x.save(); x.translate(GW*0.815, GH*0.20); x.rotate(-0.62); x.scale(1, 0.45);
+  g = x.createRadialGradient(0, 0, 10, 0, 0, GW*0.30);
+  g.addColorStop(0, 'rgba(255,255,255,0.96)');
+  g.addColorStop(0.35, 'rgba(205,225,255,0.55)');
+  g.addColorStop(0.7, 'rgba(120,175,255,0.22)');
+  g.addColorStop(1, 'rgba(120,175,255,0)');
+  x.fillStyle = g; x.fillRect(-GW*0.35, -GW*0.35, GW*0.7, GW*0.7); x.restore();
+  // cyan curtain streaks descending centre-top
+  [[0.47,0.10,0.42],[0.53,0.16,0.5],[0.585,0.10,0.45],[0.62,0.22,0.32]].forEach(([fx,fy,a])=>{
+    x.save(); x.translate(GW*fx, GH*fy); x.scale(1, 3.1);
+    g = x.createRadialGradient(0, 0, 4, 0, 0, GW*0.045);
+    g.addColorStop(0, `rgba(90,195,255,${a})`); g.addColorStop(1, 'rgba(90,195,255,0)');
+    x.fillStyle = g; x.fillRect(-GW*0.06, -GW*0.06, GW*0.12, GW*0.12); x.restore();
+  });
+  // faint dark smudges along the bottom
+  [[0.42,1.04,0.4],[0.06,1.02,0.35],[0.75,1.06,0.3]].forEach(([fx,fy,a])=>{
+    g = x.createRadialGradient(GW*fx, GH*fy, 20, GW*fx, GH*fy, GW*0.18);
+    g.addColorStop(0, `rgba(0,8,28,${a})`); g.addColorStop(1, 'rgba(0,8,28,0)');
+    x.fillStyle = g; x.fillRect(0, 0, GW, GH);
+  });
+  return c;
+}
+const img = new Image(), BG = buildGradient();
+const _go = () => render();
+function render(){
+  const lab = document.getElementById('lab');
+  VARIANTS.forEach(v => {
+    const card = document.createElement('div'); card.className = 'card';
+    card.innerHTML = `<h2>${v.name}</h2><p>${v.why}</p>`;
+    const c = document.createElement('canvas'); c.width = W; c.height = H;
+    v.draw(c.getContext('2d'), img);
+    card.appendChild(c);
+    const btns = document.createElement('div'); btns.className = 'btns';
+    const dl = document.createElement('a');
+    dl.textContent = 'Download PNG (2×)';
+    dl.href = c.toDataURL('image/png');
+    dl.download = `bolt-email-banner-${v.name[0]}.png`;
+    const prev = document.createElement('button');
+    prev.textContent = 'Preview in editor →'; prev.className = 'primary';
+    prev.onclick = () => {
+      localStorage.setItem('emailBanner', c.toDataURL('image/png'));
+      location.href = 'editor.html';
+    };
+    btns.appendChild(dl); btns.appendChild(prev); card.appendChild(btns);
+    lab.appendChild(card);
+  });
+}
+img.onload = _go;
+img.src = LOGO;
+</script></body></html>
