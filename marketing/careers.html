@@ -345,10 +345,13 @@ html { scroll-behavior: smooth; }
     padding: 34px 36px; display: flex; flex-direction: column; justify-content: space-between;
     gap: 26px; position: relative; z-index: 2;
   }
-  .testi-eyebrow {
-    font-size: 13px; font-weight: 400; font-family: 'Silkscreen', monospace;
-    letter-spacing: 2px; color: #1488FC; text-transform: uppercase; margin: 0;
-  }
+  /* Panel label, not a section eyebrow: it reuses the shared .section-eyebrow
+     component (Silkscreen / 2px / #1488FC) and overrides only the size, rather
+     than restating the token values and becoming another alias of it. */
+  /* .testi-panel prefix is required, not cosmetic: shared-components.css
+     loads at end of body and its 0-1-0 .section-eyebrow rule would
+     otherwise beat a bare .testi-eyebrow and force this back to 16px. */
+  .testi-panel .testi-eyebrow { font-size: 13px; margin: 0; }
   .testi-quote {
     font-family: 'Cormorant Garamond', Georgia, serif;
     font-size: clamp(18px, 1.55vw, 21px); font-weight: 300; color: #fff;
@@ -540,12 +543,14 @@ html { scroll-behavior: smooth; }
     .section-inner, .hero-inner, .ms-faq-inner { width: min(900px, calc(100vw - 80px)); }
     .hero-h1 { font-size: 51px; }
     .hero-subtitle { font-size: 18px; }
-      .values-grid { grid-template-columns: repeat(4, 1fr); }
+    .values-grid { grid-template-columns: repeat(4, 1fr); }
     .value-card { grid-column: span 2; }
     .value-card:nth-child(4) { grid-column: 1 / span 2; }
     .value-card:nth-child(5) { grid-column: 3 / span 2; }
     .perks-grid { grid-template-columns: repeat(2, 1fr); }
-      }
+    .testi-panel, .testi-panel--flip { grid-template-columns: 1fr minmax(190px, 240px); min-height: 280px; }
+    .testi-content { padding: 28px 28px; gap: 22px; }
+  }
   @media (max-width: 768px) {
     /* 100dvh made the hero much taller than its content (H1 + sub + one CTA +
        counter), and justify-content:center parked that surplus as dead space
@@ -576,7 +581,7 @@ html { scroll-behavior: smooth; }
     .testi-content { padding: 28px 24px 30px; gap: 26px; }
     .testi-photo { aspect-ratio: 4/3; order: -1; }
     .testi-photo::after, .testi-panel--flip .testi-photo::after { background: linear-gradient(to bottom, transparent 55%, rgba(13,13,13,0.75) 100%); }
-    .testi-eyebrow { font-size: 13px; }
+    .testi-panel .testi-eyebrow { font-size: 12px; }
     .perks-grid { grid-template-columns: 1fr; }
     .roles-controls { flex-direction: column; align-items: stretch; gap: 14px; }
     .roles-select { flex: 0 0 auto; width: 100%; min-width: 0; height: 44px; }
@@ -691,7 +696,7 @@ html { scroll-behavior: smooth; }
       <article class="testi-panel">
         <canvas class="testi-pixels" id="testi-pixels-1"></canvas>
         <div class="testi-content">
-          <p class="testi-eyebrow">Customer Experience</p>
+          <p class="section-eyebrow testi-eyebrow">Customer Experience</p>
           <p class="testi-quote">&ldquo;I&rsquo;ve never worked for a company that is as collaborative as this one. At Bolt, regardless of your role in the company, you are empowered to provide feedback and suggest improvements to the product. Working at Bolt really makes you feel like you&rsquo;re contributing to something great.&rdquo;</p>
           <div class="testi-attr">
             <span class="testi-name">Charles W.</span>
@@ -706,7 +711,7 @@ html { scroll-behavior: smooth; }
       <article class="testi-panel testi-panel--flip">
         <canvas class="testi-pixels" id="testi-pixels-2"></canvas>
         <div class="testi-content">
-          <p class="testi-eyebrow">People Ops</p>
+          <p class="section-eyebrow testi-eyebrow">People Ops</p>
           <p class="testi-quote">&ldquo;What sold me on Bolt was the opportunity to help build something special, but what&rsquo;s kept me here is the people. I&rsquo;ve watched teammates jump in wherever they&rsquo;re needed and leadership move fast without losing sight of the people behind the work. It&rsquo;s rare to find a team this driven and this genuine.&rdquo;</p>
           <div class="testi-attr">
             <span class="testi-name">Brianna L.</span>
@@ -726,7 +731,7 @@ html { scroll-behavior: smooth; }
 <section class="section" style="padding-top:clamp(24px, 4vh, 48px);">
   <div class="section-inner">
     <div class="section-header">
-      <p class="section-eyebrow eyebrow-scramble" style="font-family:'Silkscreen',monospace;">Perks &amp; benefits</p>
+      <p class="section-eyebrow eyebrow-scramble">Perks &amp; benefits</p>
       <div class="reveal-h"><h2 class="sc-section-h2">Taken care of, so you can do the work</h2></div>
       <p class="section-sub">Health, retirement, time off, and the setup to do good work from wherever you are.</p>
     </div>
@@ -771,7 +776,7 @@ html { scroll-behavior: smooth; }
 <section class="section" id="open-roles" style="padding-top:clamp(24px, 4vh, 48px);">
   <div class="section-inner">
     <div class="section-header">
-      <p class="section-eyebrow eyebrow-scramble" style="font-family:'Silkscreen',monospace;">Open roles</p>
+      <p class="section-eyebrow eyebrow-scramble">Open roles</p>
       <div class="reveal-h"><h2 class="sc-section-h2">Find your seat</h2></div>
       <p class="section-sub">Live from our job board. If nothing fits today, the general application at the bottom goes to a human.</p>
     </div>
@@ -809,7 +814,7 @@ html { scroll-behavior: smooth; }
   <canvas id="faq-pixel-canvas"></canvas>
   <div class="ms-faq-inner">
     <div class="section-header section-header--center">
-      <p class="ms-faq-eyebrow eyebrow-scramble" style="font-family:'Silkscreen',monospace;">Hiring process</p>
+      <p class="ms-faq-eyebrow eyebrow-scramble">Hiring process</p>
       <div class="reveal-h"><h2 class="ms-faq-headline">What to expect</h2></div>
     </div>
     <div class="ms-faq-list">
