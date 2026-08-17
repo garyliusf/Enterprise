@@ -314,8 +314,14 @@ html { scroll-behavior: smooth; }
   /* Grayscale to sit with the testimonial portraits below it. The seam above
      is trimmed (values already carry a full bottom pad) per the
      adjacent-section rule. */
-  .teamshot-section { padding: clamp(24px, 4vh, 48px) 0 0; }
-  .teamshot { margin: 0; border-radius: 2px; overflow: hidden; line-height: 0; background: #0a0a0a; }
+  /* photo -> testimonials seam totals ~one standard unit (photo's bottom pad
+     + the testimonial section's top pad), per the adjacent-section rule. */
+  .teamshot-section { padding: clamp(24px, 4vh, 48px) 0 clamp(56px, 8vh, 100px); }
+  /* padded frame gives the pixel field a band to live in around the photo */
+  .teamshot-frame { position: relative; padding: clamp(18px, 2.6vw, 40px); }
+  #teamshot-pixels { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+  .teamshot { position: relative; z-index: 1; margin: 0; border-radius: 2px; overflow: hidden; line-height: 0; background: #0a0a0a; }
+  @media (prefers-reduced-motion: reduce) { #teamshot-pixels { display: none; } }
   .teamshot img { display: block; width: 100%; height: auto; }
 
   /* ─── TESTIMONIALS (split panel) ──────────────────────────────────────── */
@@ -653,9 +659,12 @@ html { scroll-behavior: smooth; }
      like, this shows who "we" is, then the quotes are individual voices. -->
 <section class="teamshot-section">
   <div class="section-inner">
-    <figure class="teamshot">
-      <img src="images/careers/team-photo-bw.jpg" alt="The Bolt team together on the steps at an offsite" loading="lazy">
-    </figure>
+    <div class="teamshot-frame">
+      <canvas id="teamshot-pixels" aria-hidden="true"></canvas>
+      <figure class="teamshot">
+        <img src="images/careers/team-photo-bw.jpg" alt="The Bolt team together on the steps at an offsite" loading="lazy">
+      </figure>
+    </div>
   </div>
 </section>
 
@@ -967,6 +976,35 @@ makePixelCanvas('faq-pixel-canvas', 9, 2, function(c, r, t, p) {
 </script>
 
 <script>
+/* ── Team-photo pixel frame — dots occupy only the band around the image,
+      densest against its edge and fading outward. padCache is hoisted so the
+      per-dot wave never calls getComputedStyle. ── */
+(function () {
+  if (!document.getElementById('teamshot-pixels')) return;
+  var pad = 32;
+  function refreshPad() {
+    var f = document.querySelector('.teamshot-frame');
+    if (f) pad = parseFloat(getComputedStyle(f).paddingLeft) || 32;
+  }
+  refreshPad();
+  window.addEventListener('resize', refreshPad);
+
+  makePixelCanvas('teamshot-pixels', 7, 2, function (c, r, t, p) {
+    var el = document.getElementById('teamshot-pixels');
+    if (!el) return 0;
+    var W = el.width, H = el.height, px = c * 7, py = r * 7;
+    /* how far this dot sits OUTSIDE the photo rect (0 = over the photo) */
+    var dx = Math.max(pad - px, px - (W - pad), 0);
+    var dy = Math.max(pad - py, py - (H - pad), 0);
+    var d = Math.max(dx, dy);
+    if (d <= 0) return 0;
+    var fade = Math.max(0, 1 - d / pad);
+    var wave = Math.sin((px * 0.5 + py * 0.7) / 42 - t * 0.0016);
+    var twinkle = (Math.sin(p * 53.7 + t * 0.004) * 0.5 + 0.5) * 0.22;
+    return (0.18 + Math.max(0, wave) * 0.5 + twinkle) * Math.pow(fade, 1.25);
+  }, 1.0, '20,136,252');
+})();
+
 /* ── Testimonial panel pixel fields (microsoft .success-pull-quote treatment) ── */
 ['testi-pixels-1', 'testi-pixels-2'].forEach(function (id, i) {
   makePixelCanvas(id, 9, 2, function (c, r, t, p) {
