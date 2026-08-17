@@ -203,6 +203,13 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
+
+  /* Public re-init for buttons rendered AFTER load (e.g. careers.html builds
+     its role list from the Greenhouse API, so those CTAs don't exist at
+     DOMContentLoaded and would otherwise never get the hover effect).
+     Idempotent — attach() early-returns on any button it already owns, so
+     calling this repeatedly is safe. */
+  window.__scPixelizeButtons = init;
 })();
 
 /* ============================================================================

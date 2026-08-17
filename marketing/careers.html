@@ -281,13 +281,6 @@ html { scroll-behavior: smooth; }
   }
 
   /* ─── MISSION ─────────────────────────────────────────────────────────── */
-  /* Headline left, body right — the stat grid that used to hold the right
-     column was removed, so this keeps the section from becoming one long
-     full-width measure. */
-  .mission-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 72px; align-items: start; }
-  .mission-copy p { font-size: 16px; line-height: 1.7; color: rgba(255,255,255,0.55); margin: 0 0 18px; }
-  .mission-copy p:last-child { margin-bottom: 0; }
-  .mission-copy strong { color: #fff; font-weight: 500; }
 
   /* ─── VALUES ──────────────────────────────────────────────────────────── */
   .values-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
@@ -459,7 +452,7 @@ html { scroll-behavior: smooth; }
      already the link, and nesting an anchor inside one is invalid. The row's
      hover drives the button's slide-up so the animation fires from anywhere
      on the row, not just when the cursor is over the button itself. */
-  .role-apply { flex-shrink: 0; }
+  .role-apply { flex-shrink: 0; min-width: 200px; }
   .role-row:hover .role-apply .btn-bg-hover { transform: translateY(0); }
   .role-row:hover .role-apply .btn-text-inner { transform: translateY(-50%); }
 
@@ -493,8 +486,7 @@ html { scroll-behavior: smooth; }
     .section-inner, .hero-inner, .ms-faq-inner { width: min(900px, calc(100vw - 80px)); }
     .hero-h1 { font-size: 51px; }
     .hero-subtitle { font-size: 18px; }
-    .mission-grid { grid-template-columns: 1fr; gap: 44px; }
-    .values-grid { grid-template-columns: repeat(4, 1fr); }
+      .values-grid { grid-template-columns: repeat(4, 1fr); }
     .value-card { grid-column: span 2; }
     .value-card:nth-child(4) { grid-column: 1 / span 2; }
     .value-card:nth-child(5) { grid-column: 3 / span 2; }
@@ -569,27 +561,15 @@ html { scroll-behavior: smooth; }
      ambience, and this is the same film full-frame, with sound. -->
 <section class="film-section">
   <div class="section-inner">
-    <!-- A real inline player: native controls, poster = the 0:21 kitchen frame,
-         preload="none" so the 26MB file is only fetched if someone presses
-         play. Audio intact — this is the version meant to be watched. -->
+    <!-- Plays on its own — a frozen poster sitting here reads as a broken
+         embed. Muted+loop so autoplay is allowed, controls kept so anyone can
+         unmute or scrub. src is attached by an IntersectionObserver rather
+         than in markup, so the file is only fetched once the section is
+         actually scrolled to, not on page load. -->
     <div class="film-card">
-      <video class="film-video" id="film-video" controls playsinline preload="none"
-             poster="careers-film-poster.jpg" src="careers-film.mp4"></video>
-    </div>
-  </div>
-</section>
-
-<!-- ─── SECTION 3: MISSION ────────────────────────────────────────────────── -->
-<section class="section">
-  <div class="section-inner">
-    <div class="mission-grid">
-      <div class="section-header" style="margin-bottom:0;">
-        <p class="section-eyebrow eyebrow-scramble" style="font-family:'Silkscreen',monospace;">The team</p>
-        <div class="reveal-h"><h2 class="sc-section-h2">Who we are</h2></div>
-      </div>
-      <div class="mission-copy">
-        <p>We&rsquo;re a team of builders, designers, and dreamers reinventing how software is created. We move fast and win as a team, shipping bold ideas that make development faster, more joyful, and more accessible for the next generation of creators.</p>
-      </div>
+      <video class="film-video" id="film-video" muted loop playsinline controls
+             preload="none" poster="careers-film-poster.jpg"
+             data-src="careers-film.mp4"></video>
     </div>
   </div>
 </section>
@@ -598,9 +578,8 @@ html { scroll-behavior: smooth; }
 <section class="section" id="values" style="padding-top:clamp(24px, 4vh, 48px);">
   <div class="section-inner">
     <div class="section-header section-header--center">
-      <p class="section-eyebrow eyebrow-scramble" style="font-family:'Silkscreen',monospace;">How we operate</p>
-      <div class="reveal-h"><h2 class="sc-section-h2">Five values we actually use</h2></div>
-      <p class="section-sub">Not a poster in a lobby we don&rsquo;t have. These are the words that come up in code review, in planning, and in the conversation about whether to ship on Friday.</p>
+      <div class="reveal-h"><h2 class="sc-section-h2">Who we are</h2></div>
+      <p class="section-sub">We&rsquo;re a team of builders, designers, and dreamers reinventing how software is created. We move fast and win as a team, shipping bold ideas that make development faster, more joyful, and more accessible for the next generation of creators.</p>
     </div>
     <div class="values-grid">
       <!-- Copy is the official values list, verbatim.
@@ -1046,6 +1025,41 @@ makePixelCanvas('footer-pixel-canvas', 6, 2,
 })();
 
 /* ============================================================================
+   FILM PLAYER — autoplays when scrolled into view, pauses when it leaves.
+
+   The clip is 26MB (it carries audio, unlike the hero loop), so the src is
+   attached on first intersection rather than in markup: someone who never
+   scrolls this far never downloads it. Muted + loop is what makes autoplay
+   permissible; controls stay on so a viewer can unmute or scrub. If the
+   viewer takes manual control we stop auto-pausing on scroll, so we never
+   yank playback out from under them.
+   ========================================================================== */
+(function () {
+  var v = document.getElementById('film-video');
+  if (!v || typeof IntersectionObserver === 'undefined') return;
+
+  var userDriven = false;
+  ['play', 'pause', 'seeking', 'volumechange'].forEach(function (evt) {
+    v.addEventListener(evt, function (e) { if (e.isTrusted) userDriven = true; });
+  });
+
+  var io = new IntersectionObserver(function (entries) {
+    var e = entries[0];
+    if (e.isIntersecting) {
+      if (!v.src) { v.muted = true; v.src = v.dataset.src; }
+      if (!userDriven || v.paused === false) {
+        var p = v.play();
+        if (p && p.catch) p.catch(function () { /* blocked — poster stands in */ });
+      }
+    } else if (!userDriven) {
+      v.pause();
+    }
+  }, { threshold: 0.25 });
+
+  io.observe(v);
+})();
+
+/* ============================================================================
    CARD HOVER PIXEL FIELD — animated dot field that fades in on hover.
    Byte-for-byte the rotating-wave algo from solutions/ai-for-real-estate's
    .template-hover-canvas, pointed at this page's card classes. Only draws
@@ -1150,6 +1164,19 @@ makePixelCanvas('footer-pixel-canvas', 6, 2,
   var activeDept  = '';      // '' = all
   var pinIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
   var arrowIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
+
+  /* The Apply CTAs are built from the API response, so the shared pixel-fill
+     hover (which runs once, at load) never sees them. Re-run it after every
+     render — but this inline block sits ABOVE the shared-components.js tag,
+     and a warm-cached API response can finish before that script executes,
+     so the hook may not exist yet. Fall back to window 'load', by which point
+     it always does. Idempotent per button, so double-calling is harmless. */
+  function pixelizeCTAs() {
+    if (window.__scPixelizeButtons) { window.__scPixelizeButtons(); return; }
+    window.addEventListener('load', function () {
+      if (window.__scPixelizeButtons) window.__scPixelizeButtons();
+    }, { once: true });
+  }
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (ch) {
@@ -1259,6 +1286,7 @@ makePixelCanvas('footer-pixel-canvas', 6, 2,
 
     out.innerHTML = html;
     buildPills();
+    pixelizeCTAs();
   }
 
   fetch(API, { headers: { 'Accept': 'application/json' } })
