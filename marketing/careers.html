@@ -1052,6 +1052,24 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
 
 <script>
 /* ============================================================================
+   FAQ ACCORDION — toggles .is-open only. The expand itself is a CSS
+   grid-template-rows 0fr->1fr transition (shared-components.css); the per-item
+   pixel canvas is owned by shared-components.js.
+   (Restored: lost to a range-delete when the hero-video block was removed.)
+   ========================================================================== */
+(function () {
+  document.querySelectorAll('.ms-faq-item').forEach(function (item) {
+    var btn = item.querySelector('.ms-faq-q');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      var isOpen = item.classList.contains('is-open');
+      document.querySelectorAll('.ms-faq-item.is-open').forEach(function (o) { o.classList.remove('is-open'); });
+      if (!isOpen) item.classList.add('is-open');
+    });
+  });
+})();
+
+/* ============================================================================
    FILM PLAYER — autoplays when scrolled into view, pauses when it leaves.
 
    The clip is 26MB (it carries audio, unlike the hero loop), so the src is
