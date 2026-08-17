@@ -1864,43 +1864,44 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
   });
 })();
 
-/* ── CTA panel glow — soft animated blue pixel field on the dark panel ──── */
+/* ── CTA panel glow — VERBATIM live blog __enhanceNewsletterGlow (audited
+   2026-08-14): mint→blue halftone dome anchored below the panel (cy = H*1.12),
+   breathing + ripple. Bound to the page's existing #cta-glow-canvas. ──────── */
 (function () {
   var canvas = document.getElementById('cta-glow-canvas');
   if (!canvas) return;
+  var inner = canvas.parentElement;
   var ctx = canvas.getContext('2d');
-  var SPACING = 8, DOT = 2, cols, rows, phases;
-  function init() {
-    var r = canvas.parentElement.getBoundingClientRect();
-    canvas.width = Math.round(r.width); canvas.height = Math.round(r.height);
-    cols = Math.ceil(canvas.width / SPACING) + 1;
-    rows = Math.ceil(canvas.height / SPACING) + 1;
-    phases = Array.from({ length: rows }, function () { return Float32Array.from({ length: cols }, function () { return Math.random() * Math.PI * 2; }); });
+  var SPACING = 9, W, H, cx, cy, maxR, t = 0, rt;
+  function resize() {
+    var r = inner.getBoundingClientRect();
+    W = canvas.width = Math.round(r.width);
+    H = canvas.height = Math.round(r.height);
+    cx = W * 0.5; cy = H * 1.12; maxR = Math.max(W, H) * 0.62;
   }
-  window.addEventListener('resize', init); init();
-  var start = null;
-  function draw(ts) {
-    if (!start) start = ts; var t = ts - start;
-    var W = canvas.width, H = canvas.height;
+  window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(resize, 200); });
+  resize();
+  function draw() {
+    if (!document.body.contains(canvas)) return;
+    t += 0.028;
+    var breathe = 0.8 + Math.sin(t) * 0.07 + Math.sin(t * 2.7) * 0.04 + Math.sin(t * 0.53) * 0.04;
     if (!W || !H) { requestAnimationFrame(draw); return; }
     ctx.clearRect(0, 0, W, H);
-    for (var c = 0; c < cols; c++) {
-      var cf = c / cols;
-      var hm = Math.exp(-Math.pow(cf - 0.5, 2) / (2 * 0.26 * 0.26));
-      if (hm < 0.05) continue;
-      for (var r = 0; r < rows; r++) {
-        var rf = r / rows;
-        var vm = Math.min(1, rf / 0.35) * Math.min(1, (1 - rf) / 0.35);
-        if (vm < 0.08) continue;
-        var ph = phases[r][c];
-        var w1 = Math.sin(c * 0.11 + r * 0.23 - t * 0.0011 + ph);
-        var w2 = Math.sin(c * 0.06 - r * 0.09 + t * 0.0007 + ph * 0.7);
-        var wave = (w1 + w2) / 2;
-        var op = hm * vm * Math.max(0, wave) * 0.30;
-        if (op < 0.02) continue;
-        ctx.fillStyle = 'rgba(90,150,240,' + op.toFixed(3) + ')';
-        ctx.fillRect(c * SPACING, r * SPACING, DOT, DOT);
-      }
+    var cols = Math.ceil(W / SPACING) + 1, rows = Math.ceil(H / SPACING) + 1;
+    for (var r = 0; r < rows; r++) for (var c = 0; c < cols; c++) {
+      var px = c * SPACING, py = r * SPACING, dx = px - cx, dy = py - cy;
+      var dist = Math.sqrt(dx * dx + dy * dy); if (dist > maxR) continue;
+      var norm = dist / maxR;
+      var seed = Math.sin(c * 127.1 + r * 311.7) * 43758.5453; var noise = (seed - Math.floor(seed)) - 0.5;
+      var ripple = Math.sin(t * 1.8 - norm * 6.0 + noise * 2.0) * 0.06; var lb = breathe + ripple + noise * 0.05;
+      var dotSize = SPACING * Math.pow(Math.max(0, 1 - norm), 0.9) * lb; if (dotSize < 0.5) continue; dotSize = Math.min(dotSize, SPACING);
+      var op = Math.pow(Math.max(0, 1 - norm), 0.6) * lb * 0.6; if (op < 0.02) continue;
+      var rr, gg, bb, p;
+      if (norm < 0.5) { p = norm / 0.5; rr = Math.round(127 + (20 - 127) * p); gg = Math.round(221 + (136 - 221) * p); bb = Math.round(193 + (252 - 193) * p); }
+      else { p = (norm - 0.5) / 0.5; rr = Math.round(20 + (28 - 20) * p); gg = Math.round(136 + (70 - 136) * p); bb = Math.round(252 + (120 - 252) * p); }
+      var half = dotSize * 0.5;
+      ctx.fillStyle = 'rgba(' + rr + ',' + gg + ',' + bb + ',' + op.toFixed(3) + ')';
+      ctx.fillRect(px - half, py - half, dotSize, dotSize);
     }
     requestAnimationFrame(draw);
   }
