@@ -415,9 +415,11 @@ html { scroll-behavior: smooth; }
 
 
   /* ─── OPEN ROLES ──────────────────────────────────────────────────────── */
-  .roles-controls { display: flex; gap: 12px; align-items: stretch; margin-bottom: 32px; }
+  /* flex-start, not stretch: the pill row carries a scrollbar gutter below
+     it, and stretch would grow the select to match that extra height. */
+  .roles-controls { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 32px; }
   .roles-select {
-    flex: 0 0 auto;
+    flex: 0 0 auto; align-self: flex-start;
     height: 44px; padding: 0 36px 0 14px; background: rgba(255,255,255,0.04);
     border: 1px solid rgba(255,255,255,0.12); border-radius: 2px; color: #fff;
     font-family: 'Inter', sans-serif; font-size: 15px; cursor: pointer;
@@ -433,7 +435,7 @@ html { scroll-behavior: smooth; }
      overflows (same affordance as the blog filter bar / platform tab bar).
      JS toggles .at-end when scrolled fully right. */
   .roles-pills-wrap::after {
-    content: ""; position: absolute; top: 0; right: 0; bottom: 0; width: 72px;
+    content: ""; position: absolute; top: 0; right: 0; bottom: 10px; width: 72px;
     pointer-events: none; z-index: 2; opacity: 0; transition: opacity 0.25s ease;
     background: linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,0.55) 35%, rgba(0,0,0,0.88) 65%, #000 88%);
   }
@@ -442,9 +444,16 @@ html { scroll-behavior: smooth; }
   .roles-pills {
     display: flex; gap: 8px; overflow-x: auto; overflow-y: hidden;
     touch-action: pan-x; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
+    /* visible slim scrollbar — the edge fade alone gave no draggable affordance
+       on desktop, and macOS hides overlay scrollbars until you scroll. */
+    padding-bottom: 10px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.22) rgba(255,255,255,0.05);
   }
-  .roles-pills::-webkit-scrollbar { display: none; }
+  .roles-pills::-webkit-scrollbar { height: 6px; }
+  .roles-pills::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 999px; }
+  .roles-pills::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.22); border-radius: 999px; }
+  .roles-pills::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.38); }
   .role-pill {
     flex: 0 0 auto; height: 44px; padding: 0 18px; border-radius: 2px;
     display: inline-flex; align-items: center;
@@ -1002,7 +1011,9 @@ makePixelCanvas('faq-pixel-canvas', 9, 2, function(c, r, t, p) {
     var wave = Math.sin((px * 0.5 + py * 0.7) / 42 - t * 0.0016);
     var twinkle = (Math.sin(p * 53.7 + t * 0.004) * 0.5 + 0.5) * 0.22;
     return (0.18 + Math.max(0, wave) * 0.5 + twinkle) * Math.pow(fade, 1.25);
-  }, 1.0, '20,136,252');
+    /* deeper indigo than the brand #1488FC used elsewhere — the azure read
+       too light against a full-bleed grayscale photo */
+  }, 1.0, '38,72,214');
 })();
 
 /* ── Testimonial panel pixel fields (microsoft .success-pull-quote treatment) ── */
