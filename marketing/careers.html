@@ -220,15 +220,16 @@ html { scroll-behavior: smooth; }
   .section-header--center .section-sub { max-width: 620px; }
 
   /* ─── HERO — full-bleed video ─────────────────────────────────────────── */
-  /* Tall variant per CLAUDE.md (min(80vh,900px)) — the video is the content,
-     so it needs presence; the short 65vh variant is for H1 + CTA only heroes. */
+  /* Short variant per CLAUDE.md (min(65vh,720px)): the hero is now H1 + sub +
+     CTAs only — the film moved out from under it into its own section, so the
+     tall 80vh variant would leave dead space above the fold. */
   .hero-section {
     position: relative; width: 100%;
-    min-height: min(80vh, 900px);
-    min-height: min(80dvh, 900px);
+    min-height: min(65vh, 720px);
+    min-height: min(65dvh, 720px);
     display: flex; flex-direction: column; justify-content: center;
     overflow: hidden; background: #000;
-    padding: clamp(90px, calc(24px + 8.5vh), 148px) 0 clamp(72px, 8vh, 112px);
+    padding: clamp(90px, calc(24px + 8.5vh), 148px) 0 clamp(56px, 6vh, 88px);
   }
   .hero-video {
     position: absolute; inset: 0; width: 100%; height: 100%;
@@ -269,9 +270,9 @@ html { scroll-behavior: smooth; }
   /* Live role counter — real data from the Greenhouse board, not a claim */
   .hero-meta {
     display: flex; align-items: center; justify-content: center; gap: 10px;
-    font-size: 13px; color: rgba(255,255,255,0.45); margin-top: 4px;
+    font-size: 12px; color: rgba(255,255,255,0.45); margin-top: 4px;
     font-family: 'Inter', sans-serif; font-weight: 500;
-    letter-spacing: 1px; text-transform: uppercase;
+    letter-spacing: 0.9px; text-transform: uppercase;
     min-height: 16px;
   }
   .hero-meta-dot {
@@ -336,8 +337,11 @@ html { scroll-behavior: smooth; }
   /* ─── FILM CARD ───────────────────────────────────────────────────────── */
   /* The hero uses this footage blurred-back as ambience. This is where you can
      actually watch it — full frame, with sound, in a modal. */
+  /* Flush under the hero — no top padding, so the card reads as part of the
+     hero block rather than as a separate band. */
+  .film-section { width: 100%; padding: 0 0 clamp(80px, 12vh, 140px); position: relative; }
   .film-card {
-    position: relative; width: 100%; margin-top: 20px;
+    position: relative; width: 100%;
     border: 1px solid rgba(255,255,255,0.10); border-radius: 2px;
     overflow: hidden; cursor: pointer; background: #050505;
     transition: border-color 0.3s ease;
@@ -564,6 +568,7 @@ html { scroll-behavior: smooth; }
     .hero-btn-group .hero-btn-ghost { min-width: 0; width: 100%; }
     .hero-meta { font-size: 11px; letter-spacing: 0.5px; }
     .section { padding: 48px 0; }
+    .film-section { padding: 0 0 48px; }
     .section-inner, .ms-faq-inner { width: calc(100vw - 32px); }
     .section-header { margin-bottom: 32px; }
     .stat-grid { grid-template-columns: 1fr 1fr; }
@@ -607,7 +612,6 @@ html { scroll-behavior: smooth; }
   <canvas id="hero-pixel-canvas"></canvas>
 
   <div class="hero-inner">
-    <p class="section-eyebrow eyebrow-scramble" style="font-family:'Silkscreen',monospace;">Careers at Bolt</p>
     <h1 class="hero-h1">Come build the thing everyone else builds with.</h1>
     <p class="hero-subtitle">Bolt turns a sentence into a working, deployable app. Millions of people have shipped on it. We&rsquo;re still a small team &mdash; which is exactly why the next stretch is the interesting part.</p>
     <div class="hero-btn-group">
@@ -625,14 +629,33 @@ html { scroll-behavior: smooth; }
   </div>
 </section>
 
-<!-- ─── SECTION 2: MISSION ────────────────────────────────────────────────── -->
+<!-- ─── SECTION 2: FILM ───────────────────────────────────────────────────── -->
+<!-- Sits flush under the hero: the hero runs this footage blurred back as
+     ambience, and this is the same film full-frame, with sound. -->
+<section class="film-section">
+  <div class="section-inner">
+    <div class="film-card" id="film-card" role="button" tabindex="0" aria-label="Play the team film">
+      <img class="film-poster" src="careers-film-poster.jpg" alt="Two members of the Bolt team laughing in the office kitchen">
+      <div class="film-overlay"></div>
+      <button class="film-play" aria-hidden="true" tabindex="-1">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      </button>
+      <div class="film-caption">
+        <span class="film-caption-label">Watch &middot; 54 sec</span>
+        <span class="film-caption-title">A week at Bolt, more or less.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── SECTION 3: MISSION ────────────────────────────────────────────────── -->
 <section class="section">
   <div class="section-inner">
     <div class="mission-grid">
       <div>
         <div class="section-header" style="margin-bottom:28px;">
           <p class="section-eyebrow eyebrow-scramble" style="font-family:'Silkscreen',monospace;">Why we&rsquo;re here</p>
-          <div class="reveal-h"><h2 class="sc-section-h2">Software should cost a sentence.</h2></div>
+          <div class="reveal-h"><h2 class="sc-section-h2">Software should cost a sentence</h2></div>
         </div>
         <div class="mission-copy">
           <p>For fifty years, building software meant hiring people who could write it. That put a floor under every idea &mdash; a budget, a quarter, a team &mdash; and most ideas never cleared it.</p>
@@ -674,34 +697,37 @@ html { scroll-behavior: smooth; }
   <div class="section-inner">
     <div class="section-header section-header--center">
       <p class="section-eyebrow eyebrow-scramble" style="font-family:'Silkscreen',monospace;">How we operate</p>
-      <div class="reveal-h"><h2 class="sc-section-h2">Five values we actually use.</h2></div>
+      <div class="reveal-h"><h2 class="sc-section-h2">Five values we actually use</h2></div>
       <p class="section-sub">Not a poster in a lobby we don&rsquo;t have. These are the words that come up in code review, in planning, and in the conversation about whether to ship on Friday.</p>
     </div>
     <div class="values-grid">
+      <!-- Copy is the official values list, verbatim.
+           NOTE: flagged internally as "subject to change per Hyllarie Colyer
+           review" — re-check before this page goes live. -->
       <div class="value-card">
         <span class="value-num">01</span>
-        <h3 class="value-title">Own it</h3>
-        <p class="value-desc">Take responsibility, follow through, and drive things forward. If you found it, it&rsquo;s yours until it&rsquo;s fixed or handed to someone who agreed to take it.</p>
+        <h3 class="value-title">Extreme Ownership</h3>
+        <p class="value-desc">Ownership here isn&rsquo;t a title, it&rsquo;s a mindset, see what needs to happen, make it happen, carry it to the finish.</p>
       </div>
       <div class="value-card">
         <span class="value-num">02</span>
-        <h3 class="value-title">Win together</h3>
-        <p class="value-desc">We build bigger things by working as a team &mdash; with humility, empathy, and trust. Credit is cheap and shared; blame isn&rsquo;t a tool we use.</p>
+        <h3 class="value-title">Win Together</h3>
+        <p class="value-desc">We win together, that means jumping in wherever we&rsquo;re needed and wearing as many hats as it takes to get there.</p>
       </div>
       <div class="value-card">
         <span class="value-num">03</span>
-        <h3 class="value-title">Move fast</h3>
-        <p class="value-desc">Momentum matters more than perfection. A decision made today and revisited next week beats a perfect one made next quarter.</p>
+        <h3 class="value-title">Bias for Momentum</h3>
+        <p class="value-desc">We keep the pace fast and the feedback loop tight, ship, learn, adjust, repeat.</p>
       </div>
       <div class="value-card">
         <span class="value-num">04</span>
-        <h3 class="value-title">Make impact</h3>
-        <p class="value-desc">Solve real problems, sweat the details, and create things that matter. Effort that no user ever feels isn&rsquo;t work &mdash; it&rsquo;s motion.</p>
+        <h3 class="value-title">Build for Impact</h3>
+        <p class="value-desc">Impact starts with listening, we build what solves real problems and sweat every detail to get it right.</p>
       </div>
       <div class="value-card">
         <span class="value-num">05</span>
-        <h3 class="value-title">All in</h3>
-        <p class="value-desc">Show up with energy, own your work, and support each other when it counts. This stage of a company asks a lot, and we&rsquo;re honest about that.</p>
+        <h3 class="value-title">All In</h3>
+        <p class="value-desc">All-in means being present when it counts and human the rest of the time, we take care of each other and respect boundaries.</p>
       </div>
     </div>
   </div>
@@ -712,7 +738,7 @@ html { scroll-behavior: smooth; }
   <div class="section-inner">
     <div class="section-header">
       <p class="section-eyebrow eyebrow-scramble" style="font-family:'Silkscreen',monospace;">Life at Bolt</p>
-      <div class="reveal-h"><h2 class="sc-section-h2">Proof, not adjectives.</h2></div>
+      <div class="reveal-h"><h2 class="sc-section-h2">Proof, not adjectives</h2></div>
       <p class="section-sub">Every careers page says &ldquo;fast-paced&rdquo; and &ldquo;high-ownership.&rdquo; Here&rsquo;s the public record instead &mdash; go read it before you apply.</p>
     </div>
     <div class="life-grid">
@@ -744,20 +770,6 @@ html { scroll-behavior: smooth; }
         <a href="https://bolt.new/" class="arrow-link" target="_blank" rel="noopener">Try it yourself
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
         </a>
-      </div>
-    </div>
-
-    <!-- The hero runs this same film blurred back as ambience; here it's the
-         real thing — full frame, with sound. -->
-    <div class="film-card" id="film-card" role="button" tabindex="0" aria-label="Play the team film">
-      <img class="film-poster" src="careers-film-poster.jpg" alt="Two members of the Bolt team laughing in the office kitchen" loading="lazy">
-      <div class="film-overlay"></div>
-      <button class="film-play" aria-hidden="true" tabindex="-1">
-        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-      </button>
-      <div class="film-caption">
-        <span class="film-caption-label">Watch &middot; 54 sec</span>
-        <span class="film-caption-title">A week at Bolt, more or less.</span>
       </div>
     </div>
   </div>
@@ -798,7 +810,7 @@ html { scroll-behavior: smooth; }
   <div class="section-inner">
     <div class="section-header">
       <p class="section-eyebrow eyebrow-scramble" style="font-family:'Silkscreen',monospace;">Perks &amp; benefits</p>
-      <div class="reveal-h"><h2 class="sc-section-h2">Taken care of, so you can do the work.</h2></div>
+      <div class="reveal-h"><h2 class="sc-section-h2">Taken care of, so you can do the work</h2></div>
       <p class="section-sub">The basics, done properly &mdash; and stated plainly so you don&rsquo;t have to read between the lines of a job post.</p>
     </div>
 
@@ -868,7 +880,7 @@ html { scroll-behavior: smooth; }
   <div class="section-inner">
     <div class="section-header">
       <p class="section-eyebrow eyebrow-scramble" style="font-family:'Silkscreen',monospace;">Open roles</p>
-      <div class="reveal-h"><h2 class="sc-section-h2">Find your seat.</h2></div>
+      <div class="reveal-h"><h2 class="sc-section-h2">Find your seat</h2></div>
       <p class="section-sub">Live from our job board. If nothing fits today, the general application at the bottom goes to a human.</p>
     </div>
 
@@ -903,7 +915,7 @@ html { scroll-behavior: smooth; }
   <div class="ms-faq-inner">
     <div class="section-header section-header--center">
       <p class="ms-faq-eyebrow eyebrow-scramble" style="font-family:'Silkscreen',monospace;">Hiring process</p>
-      <div class="reveal-h"><h2 class="ms-faq-headline">What to expect.</h2></div>
+      <div class="reveal-h"><h2 class="ms-faq-headline">What to expect</h2></div>
     </div>
     <div class="ms-faq-list">
       <div class="ms-faq-item">
@@ -949,7 +961,7 @@ html { scroll-behavior: smooth; }
 <section class="footer-section">
   <p class="footer-eyebrow eyebrow-scramble" style="font-weight:400;letter-spacing:2px;text-transform:uppercase;color:#1488FC;margin:0;font-family:'Silkscreen',monospace;">Join us</p>
   <div class="dsa-reveal">
-    <h2 class="footer-headline">The next version of this product is built by whoever shows up.</h2>
+    <h2 class="footer-headline">The next version of this product is built by whoever shows up</h2>
   </div>
   <p class="footer-subtitle">Find the role that fits, or tell us what you&rsquo;d build if nobody stopped you.</p>
   <div style="position:relative;width:100%;max-width:700px;margin-top:-152px;display:flex;flex-direction:column;align-items:center;">
