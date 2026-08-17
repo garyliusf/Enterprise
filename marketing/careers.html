@@ -231,24 +231,6 @@ html { scroll-behavior: smooth; }
     overflow: hidden; background: #000;
     padding: clamp(90px, calc(24px + 8.5vh), 148px) 0 clamp(56px, 6vh, 88px);
   }
-  .hero-video {
-    position: absolute; inset: 0; width: 100%; height: 100%;
-    object-fit: cover; z-index: 0; opacity: 0.34;
-    /* The source film has burned-in titles ("Move fast", a bolt.new endcard).
-       Unblurred they land right behind the H1 and read as a second, competing
-       headline. A slight blur keeps the faces, motion, and colour — which is
-       the point of the footage — while turning that baked-in type into
-       texture. scale() hides the soft edge the blur leaves at the frame. */
-    filter: blur(3px) saturate(0.92);
-    transform: scale(1.06);
-  }
-  /* Vignette + bottom fade so the H1 always has contrast over any frame */
-  .hero-veil {
-    position: absolute; inset: 0; z-index: 1; pointer-events: none;
-    background:
-      radial-gradient(ellipse 110% 70% at 50% 45%, rgba(0,0,0,0.58) 0%, rgba(0,0,0,0.80) 58%, rgba(0,0,0,0.94) 100%),
-      linear-gradient(to bottom, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.28) 32%, rgba(0,0,0,0.60) 78%, #000 100%);
-  }
   #hero-pixel-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; opacity: 0.5; }
   .hero-inner {
     position: relative; z-index: 2;
@@ -548,13 +530,6 @@ html { scroll-behavior: smooth; }
 
 <!-- ─── SECTION 1: HERO ───────────────────────────────────────────────────── -->
 <section class="hero-section">
-  <!-- src is attached by JS, not markup: preload="none" + a poster means the
-       page paints instantly, and phones / Save-Data / 2G never download the
-       clip at all (they keep the 61KB poster). See the hero-video block below. -->
-  <video class="hero-video" id="hero-video" autoplay muted loop playsinline
-         preload="none" poster="careers-hero-poster.jpg" aria-hidden="true"
-         data-src="careers-hero.mp4" data-src-mobile="careers-hero-mobile.mp4"></video>
-  <div class="hero-veil"></div>
   <canvas id="hero-pixel-canvas"></canvas>
 
   <div class="hero-inner">
@@ -915,83 +890,6 @@ makePixelCanvas('faq-pixel-canvas', 9, 2, function(c, r, t, p) {
   return fade * breathe * ripple * 0.7;
 }, 1.0, '20,136,252');
 
-</script>
-
-<script>
-/* ============================================================================
-   HERO VIDEO — attach the source only when it's worth the bytes.
-
-   The 4K master was 67MB; these are 1080p/720p muted H.264 (9.8MB / 6.6MB).
-   Even so, a hero clip is decoration: it must never block the headline or burn
-   a phone's data plan. So the <video> ships with preload="none" and no src —
-   we attach one here only when the viewport is desktop-sized AND the browser
-   isn't reporting a metered/slow connection. Everyone else keeps the poster,
-   which is what the first frame looks like anyway.
-   ========================================================================== */
-(function () {
-  var v = document.getElementById('hero-video');
-  if (!v) return;
-
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-  var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-  if (conn && (conn.saveData || /(^|-)2g$/.test(conn.effectiveType || ''))) return;
-
-  var isMobile = window.matchMedia('(max-width: 768px)').matches;
-  var src = isMobile ? v.getAttribute('data-src-mobile') : v.getAttribute('data-src');
-  if (!src) return;
-
-  /* Phones keep the poster: the clip is ambient, and 6.6MB on cellular to
-     decorate a hero the user scrolls past in two seconds isn't a trade we
-     want to make. Remove this guard if the video becomes load-bearing. */
-  if (isMobile) return;
-
-  /* Set the property, not just the attribute: after load() some browsers
-     re-evaluate the autoplay policy and an attribute-only `muted` isn't
-     always honoured, which silently leaves the hero on its poster. */
-  v.muted = true;
-  v.src = src;
-  v.load();
-
-  function tryPlay() {
-    var p = v.play();
-    if (p && p.catch) p.catch(function () { /* blocked — poster stands in */ });
-  }
-  /* play() immediately after load() can land before the element is ready, so
-     retry once there's actually a frame to show. */
-  v.addEventListener('loadeddata', tryPlay, { once: true });
-  tryPlay();
-})();
-
-/* ============================================================================
-   FAQ ACCORDION — toggles .is-open only. The expand itself is a CSS
-   grid-template-rows 0fr→1fr transition (shared-components.css); the per-item
-   pixel canvas is owned by shared-components.js.
-   ========================================================================== */
-(function () {
-  document.querySelectorAll('.ms-faq-item').forEach(function (item) {
-    var btn = item.querySelector('.ms-faq-q');
-    if (!btn) return;
-    btn.addEventListener('click', function () {
-      var isOpen = item.classList.contains('is-open');
-      document.querySelectorAll('.ms-faq-item.is-open').forEach(function (o) { o.classList.remove('is-open'); });
-      if (!isOpen) item.classList.add('is-open');
-    });
-  });
-})();
-
-/* ── Section divider — verbatim solutions/security-agent traveling shimmer ── */
-if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-  makePixelCanvas('section-divider-canvas', 11, 2,
-    function (c, r, t, p) {
-      var px = c * 11, py = r * 11;
-      var phase = (px * 0.012 + py * 0.018) - t * 0.0018 + 1.0;
-      var band = Math.sin(phase) * 0.5 + 0.5;
-      var highlight = Math.pow(band, 3) * 0.32;
-      var twinkle = (Math.sin(p * 53.7 + t * 0.004) * 0.5 + 0.5) * 0.07;
-      return 0.06 + highlight + twinkle;
-    }, 1.0, '170,185,210');
-}
 </script>
 
 <script>
