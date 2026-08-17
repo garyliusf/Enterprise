@@ -309,29 +309,52 @@ html { scroll-behavior: smooth; }
   }
   .film-video { display: block; width: 100%; aspect-ratio: 16/9; background: #050505; }
 
-  /* ─── TEAM — polaroid marquee ─────────────────────────────────────────── */
-  .team-section { padding: clamp(24px, 4vh, 48px) 0 clamp(80px, 12vh, 140px); overflow: hidden; }
-  .team-marquee { position: relative; width: 100%; overflow: hidden; }
-  .team-marquee::before, .team-marquee::after {
-    content: ""; position: absolute; top: 0; bottom: 0; width: 14vw; z-index: 3; pointer-events: none;
+  /* ─── TESTIMONIALS ────────────────────────────────────────────────────── */
+  /* .testi-card from solutions/_template, restyled onto this page's card
+     surface (borderless flat panel, 2px) so it matches the perk cards. */
+  .testi-section { padding: clamp(24px, 4vh, 48px) 0 clamp(80px, 12vh, 140px); }
+  .testi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .testi-card {
+    position: relative; overflow: hidden;
+    border: none; border-radius: 2px;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0.045) 0%, rgba(255,255,255,0.012) 34%, rgba(255,255,255,0) 62%),
+      #09090b;
+    padding: 38px 36px 34px;
+    display: flex; flex-direction: column;
   }
-  .team-marquee::before { left: 0; background: linear-gradient(to right, #000, transparent); }
-  .team-marquee::after { right: 0; background: linear-gradient(to left, #000, transparent); }
-  .team-track { display: flex; gap: 28px; width: max-content; animation: teamScroll 64s linear infinite; }
-  .team-marquee:hover .team-track { animation-play-state: paused; }
-  @keyframes teamScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-  .pola {
-    flex: 0 0 auto; width: 210px; background: #f4f1ea; padding: 10px 10px 34px;
-    border-radius: 2px; box-shadow: 0 14px 34px rgba(0,0,0,0.5);
-    transition: transform 0.35s cubic-bezier(0.22,1,0.36,1);
+  .testi-card > * { position: relative; z-index: 1; }
+  /* same cursor flashlight as the perk cards */
+  .testi-card::before {
+    content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), rgba(150,185,255,0.14), rgba(150,185,255,0) 60%);
+    opacity: 0; transition: opacity 0.35s ease;
   }
-  .pola:nth-child(odd)  { transform: rotate(-2deg); }
-  .pola:nth-child(even) { transform: rotate(1.6deg); }
-  .pola:hover { transform: rotate(0deg) translateY(-8px); }
-  .pola img { width: 100%; aspect-ratio: 1/1; object-fit: cover; display: block; border-radius: 1px; }
-  @media (prefers-reduced-motion: reduce) {
-    .team-track { animation: none; flex-wrap: wrap; width: 100%; justify-content: center; }
+  .testi-card:hover::before { opacity: 1; }
+  .testi-quote {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: clamp(21px, 1.9vw, 25px); font-weight: 400;
+    color: rgba(255,255,255,0.78); line-height: 1.5; margin: 0;
   }
+  .testi-attr { display: flex; align-items: center; gap: 14px; margin-top: auto; padding-top: 32px; }
+  /* Initials render from data-initials; the portrait covers them once it
+     loads, and onerror drops a missing <img> so the initials stay. Lets the
+     section ship before the photography does. */
+  .testi-avatar {
+    position: relative; width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.6); letter-spacing: 0.3px;
+    overflow: hidden;
+  }
+  .testi-avatar::before { content: attr(data-initials); }
+  .testi-avatar img {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; border-radius: 50%; filter: grayscale(1);
+  }
+  .testi-who { display: flex; flex-direction: column; gap: 3px; }
+  .testi-name { font-size: 15px; font-weight: 600; color: #fff; }
+  .testi-role { font-size: 13px; color: rgba(255,255,255,0.45); }
 
   /* ─── PERKS + COMP ────────────────────────────────────────────────────── */
   .perks-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 24px; }
@@ -512,9 +535,8 @@ html { scroll-behavior: smooth; }
     .section-header { margin-bottom: 32px; }
     .values-grid { grid-template-columns: 1fr; }
     .value-card, .value-card:nth-child(4), .value-card:nth-child(5) { grid-column: auto; }
-    .team-section { padding: 24px 0 48px; }
-    .pola { width: 150px; padding: 8px 8px 26px; }
-    .team-track { gap: 18px; }
+    .testi-grid { grid-template-columns: 1fr; }
+    .testi-card { padding: 28px 24px 26px; }
     .perks-grid { grid-template-columns: 1fr; }
     .roles-controls { flex-direction: column; align-items: stretch; gap: 14px; }
     .roles-select { flex: 0 0 auto; width: 100%; min-width: 0; height: 44px; }
@@ -604,25 +626,33 @@ html { scroll-behavior: smooth; }
   </div>
 </section>
 
-<!-- ─── SECTION 4: TEAM MARQUEE ──────────────────────────────────────── -->
-<section class="team-section">
-  <div class="team-marquee">
-    <!-- Track is duplicated by JS; the -50% keyframe makes the seam invisible.
-         01–05 are the team photos from the existing careers page. 06–11 are
-         stills pulled from the team film — the old 06–10 on the live page were
-         solid-colour placeholder tiles, not photographs. -->
-    <div class="team-track" id="team-track">
-      <div class="pola"><img src="images/careers/polas/pola-01.webp" alt="" loading="lazy"></div>
-      <div class="pola"><img src="images/careers/polas/pola-02.webp" alt="" loading="lazy"></div>
-      <div class="pola"><img src="images/careers/polas/pola-03.webp" alt="" loading="lazy"></div>
-      <div class="pola"><img src="images/careers/polas/pola-04.webp" alt="" loading="lazy"></div>
-      <div class="pola"><img src="images/careers/polas/pola-05.webp" alt="" loading="lazy"></div>
-      <div class="pola"><img src="images/careers/polas/pola-06.webp" alt="" loading="lazy"></div>
-      <div class="pola"><img src="images/careers/polas/pola-07.webp" alt="" loading="lazy"></div>
-      <div class="pola"><img src="images/careers/polas/pola-08.webp" alt="" loading="lazy"></div>
-      <div class="pola"><img src="images/careers/polas/pola-09.webp" alt="" loading="lazy"></div>
-      <div class="pola"><img src="images/careers/polas/pola-10.webp" alt="" loading="lazy"></div>
-      <div class="pola"><img src="images/careers/polas/pola-11.webp" alt="" loading="lazy"></div>
+<!-- ─── SECTION 4: TESTIMONIALS ──────────────────────────────────────── -->
+<section class="section testi-section">
+  <div class="section-inner">
+    <div class="section-header section-header--center">
+      <div class="reveal-h"><h2 class="sc-section-h2">From the team</h2></div>
+    </div>
+    <div class="testi-grid">
+      <article class="testi-card">
+        <p class="testi-quote">&ldquo;I&rsquo;ve never worked for a company that is as collaborative as this one. At Bolt, regardless of your role in the company, you are empowered to provide feedback and suggest improvements to the product. Working at Bolt really makes you feel like you&rsquo;re contributing to something great.&rdquo;</p>
+        <div class="testi-attr">
+          <span class="testi-avatar" data-initials="CW" aria-hidden="true"><img src="images/careers/team/charles-w.jpg" alt="" loading="lazy" onerror="this.remove()"></span>
+          <span class="testi-who">
+            <span class="testi-name">Charles W.</span>
+            <span class="testi-role">Senior Customer Experience Engineer</span>
+          </span>
+        </div>
+      </article>
+      <article class="testi-card">
+        <p class="testi-quote">&ldquo;What sold me on Bolt was the opportunity to help build something special, but what&rsquo;s kept me here is the people. I&rsquo;ve watched teammates jump in wherever they&rsquo;re needed and leadership move fast without losing sight of the people behind the work. It&rsquo;s rare to find a team this driven and this genuine.&rdquo;</p>
+        <div class="testi-attr">
+          <span class="testi-avatar" data-initials="BL" aria-hidden="true"><img src="images/careers/team/brianna-l.jpg" alt="" loading="lazy" onerror="this.remove()"></span>
+          <span class="testi-who">
+            <span class="testi-name">Brianna L.</span>
+            <span class="testi-role">People Ops Generalist</span>
+          </span>
+        </div>
+      </article>
     </div>
   </div>
 </section>
@@ -929,11 +959,11 @@ makePixelCanvas('faq-pixel-canvas', 9, 2, function(c, r, t, p) {
 })();
 
 /* ============================================================================
-   CARD FLASHLIGHT — radial glow follows the cursor across the perk cards.
+   CARD FLASHLIGHT — radial glow follows the cursor across perk + testimonial cards.
    Verbatim behaviour from solutions.html's .unlock-card.
    ========================================================================== */
 (function () {
-  document.querySelectorAll('.perk-card').forEach(function (el) {
+  document.querySelectorAll('.perk-card, .testi-card').forEach(function (el) {
     el.addEventListener('mousemove', function (e) {
       var r = el.getBoundingClientRect();
       el.style.setProperty('--mx', (e.clientX - r.left) + 'px');
@@ -1008,17 +1038,6 @@ makePixelCanvas('faq-pixel-canvas', 9, 2, function(c, r, t, p) {
     requestAnimationFrame(draw);
   }
   requestAnimationFrame(draw);
-})();
-
-/* ============================================================================
-   TEAM MARQUEE — duplicate the polaroid track so the -50% keyframe loops
-   seamlessly. Done in JS so the markup only lists each photo once.
-   ========================================================================== */
-(function () {
-  var track = document.getElementById('team-track');
-  if (!track) return;
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  track.innerHTML += track.innerHTML;
 })();
 
 /* ============================================================================
