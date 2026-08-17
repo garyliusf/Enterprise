@@ -325,6 +325,17 @@ html { scroll-behavior: smooth; }
   .value-title { font-size: 18px; font-weight: 600; color: #fff; line-height: 1.35; letter-spacing: -0.2px; margin: 0; }
   .value-desc { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.6; margin: 0; }
 
+  /* ─── FILM ────────────────────────────────────────────────────────────── */
+  /* Flush under the hero — no top padding, so the player reads as part of the
+     hero block rather than as a separate band. */
+  .film-section { width: 100%; padding: 0 0 clamp(80px, 12vh, 140px); position: relative; }
+  .film-card {
+    position: relative; width: 100%; line-height: 0;
+    border: 1px solid rgba(255,255,255,0.10); border-radius: 2px;
+    overflow: hidden; background: #050505;
+  }
+  .film-video { display: block; width: 100%; aspect-ratio: 16/9; background: #050505; }
+
   /* ─── TEAM — polaroid marquee ─────────────────────────────────────────── */
   .team-section { padding: clamp(24px, 4vh, 48px) 0 clamp(80px, 12vh, 140px); overflow: hidden; }
   .team-marquee { position: relative; width: 100%; overflow: hidden; }
@@ -558,16 +569,12 @@ html { scroll-behavior: smooth; }
      ambience, and this is the same film full-frame, with sound. -->
 <section class="film-section">
   <div class="section-inner">
-    <div class="film-card" id="film-card" role="button" tabindex="0" aria-label="Play the team film">
-      <img class="film-poster" src="careers-film-poster.jpg" alt="Four members of the Bolt team talking over coffee in the office kitchen">
-      <div class="film-overlay"></div>
-      <button class="film-play" aria-hidden="true" tabindex="-1">
-        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-      </button>
-      <div class="film-caption">
-        <span class="film-caption-label">Watch &middot; 54 sec</span>
-        <span class="film-caption-title">A week at Bolt, more or less.</span>
-      </div>
+    <!-- A real inline player: native controls, poster = the 0:21 kitchen frame,
+         preload="none" so the 26MB file is only fetched if someone presses
+         play. Audio intact — this is the version meant to be watched. -->
+    <div class="film-card">
+      <video class="film-video" id="film-video" controls playsinline preload="none"
+             poster="careers-film-poster.jpg" src="careers-film.mp4"></video>
     </div>
   </div>
 </section>
@@ -577,13 +584,11 @@ html { scroll-behavior: smooth; }
   <div class="section-inner">
     <div class="mission-grid">
       <div class="section-header" style="margin-bottom:0;">
-        <p class="section-eyebrow eyebrow-scramble" style="font-family:'Silkscreen',monospace;">Why we&rsquo;re here</p>
-        <div class="reveal-h"><h2 class="sc-section-h2">Software should cost a sentence</h2></div>
+        <p class="section-eyebrow eyebrow-scramble" style="font-family:'Silkscreen',monospace;">The team</p>
+        <div class="reveal-h"><h2 class="sc-section-h2">Who we are</h2></div>
       </div>
       <div class="mission-copy">
-        <p>For fifty years, building software meant hiring people who could write it. That put a floor under every idea &mdash; a budget, a quarter, a team &mdash; and most ideas never cleared it.</p>
-        <p><strong>Bolt removes the floor.</strong> You describe what you want, and a real application appears: a full stack, running in the browser, deployable in a click. Not a mockup. Not a scaffold you still have to finish.</p>
-        <p>That shift is still early, and most of the hard problems are still open. Making generated code trustworthy at scale. Making the agent understand intent instead of keywords. Making a browser hold a full dev environment without flinching. These are the problems you&rsquo;d be working on.</p>
+        <p>We&rsquo;re a team of builders, designers, and dreamers reinventing how software is created. We move fast and win as a team, shipping bold ideas that make development faster, more joyful, and more accessible for the next generation of creators.</p>
       </div>
     </div>
   </div>
@@ -629,13 +634,6 @@ html { scroll-behavior: smooth; }
     </div>
   </div>
 </section>
-
-<div class="film-modal" id="film-modal" role="dialog" aria-modal="true" aria-label="Team film">
-  <button class="film-modal-close" id="film-modal-close" aria-label="Close video">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
-  </button>
-  <video id="film-modal-video" controls playsinline preload="none" poster="careers-film-poster.jpg"></video>
-</div>
 
 <!-- ─── SECTION 5: TEAM MARQUEE ───────────────────────────────────────────── -->
 <section class="team-section">
@@ -1013,10 +1011,21 @@ makePixelCanvas('footer-pixel-canvas', 6, 2,
      want to make. Remove this guard if the video becomes load-bearing. */
   if (isMobile) return;
 
+  /* Set the property, not just the attribute: after load() some browsers
+     re-evaluate the autoplay policy and an attribute-only `muted` isn't
+     always honoured, which silently leaves the hero on its poster. */
+  v.muted = true;
   v.src = src;
   v.load();
-  var p = v.play();
-  if (p && p.catch) p.catch(function () { /* autoplay blocked — poster stands in */ });
+
+  function tryPlay() {
+    var p = v.play();
+    if (p && p.catch) p.catch(function () { /* blocked — poster stands in */ });
+  }
+  /* play() immediately after load() can land before the element is ready, so
+     retry once there's actually a frame to show. */
+  v.addEventListener('loadeddata', tryPlay, { once: true });
+  tryPlay();
 })();
 
 /* ============================================================================
@@ -1033,45 +1042,6 @@ makePixelCanvas('footer-pixel-canvas', 6, 2,
       document.querySelectorAll('.ms-faq-item.is-open').forEach(function (o) { o.classList.remove('is-open'); });
       if (!isOpen) item.classList.add('is-open');
     });
-  });
-})();
-
-/* ============================================================================
-   FILM MODAL — plays the full team film (with audio) over the page.
-   Self-hosted, so the shared video-modal module in shared-components.js can't
-   drive it: that one only builds YouTube/Tella iframes. The src is attached on
-   open, not in markup, so the file is never fetched unless someone asks for it.
-   ========================================================================== */
-(function () {
-  var card  = document.getElementById('film-card');
-  var modal = document.getElementById('film-modal');
-  var video = document.getElementById('film-modal-video');
-  var close = document.getElementById('film-modal-close');
-  if (!card || !modal || !video) return;
-
-  var SRC = 'careers-film.mp4';
-
-  function open() {
-    if (!video.src) video.src = SRC;
-    modal.classList.add('open');
-    document.body.style.overflow = 'hidden';
-    var p = video.play();
-    if (p && p.catch) p.catch(function () { /* user can hit the native control */ });
-  }
-  function shut() {
-    modal.classList.remove('open');
-    document.body.style.overflow = '';
-    video.pause();
-  }
-
-  card.addEventListener('click', open);
-  card.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
-  });
-  if (close) close.addEventListener('click', shut);
-  modal.addEventListener('click', function (e) { if (e.target === modal) shut(); });
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && modal.classList.contains('open')) shut();
   });
 })();
 
