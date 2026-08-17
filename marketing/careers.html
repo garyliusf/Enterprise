@@ -385,27 +385,6 @@ html { scroll-behavior: smooth; }
   .perk-title { font-size: 18px; font-weight: 600; color: #fff; line-height: 1.35; letter-spacing: -0.2px; margin: 0; }
   .perk-desc { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.55; margin: 0; }
 
-  /* Pay block — deliberately NOT a panel. A blue-tinted box with mono labels
-     read like a spec sheet; this is the one place on the page where we're
-     making a promise to a candidate, so it uses the warm Cormorant pull-quote
-     treatment (the #EDDCC6 token) and a hairline instead of a container. */
-  .comp-block {
-    margin-top: clamp(48px, 6vh, 72px); padding-top: clamp(40px, 5vh, 60px);
-    border-top: 1px solid rgba(255,255,255,0.10);
-    display: flex; flex-direction: column; align-items: center; text-align: center;
-  }
-  .comp-statement {
-    font-family: 'Cormorant Garamond', Georgia, serif;
-    font-size: clamp(26px, 3vw, 38px); font-weight: 300; color: #EDDCC6;
-    line-height: 1.4; letter-spacing: -0.2px; margin: 0 0 clamp(36px, 4.5vh, 56px);
-    max-width: 720px;
-  }
-  .comp-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 36px; width: 100%; text-align: left; }
-  .comp-item-label {
-    font-size: 15px; font-weight: 600; color: #fff;
-    letter-spacing: -0.1px; margin: 0 0 8px;
-  }
-  .comp-item-desc { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.65; margin: 0; }
 
   /* ─── OPEN ROLES ──────────────────────────────────────────────────────── */
   .roles-controls { display: flex; gap: 12px; align-items: center; margin-bottom: 32px; }
@@ -486,6 +465,21 @@ html { scroll-behavior: smooth; }
   .roles-note a { color: #1488FC; text-decoration: none; }
   .roles-note a:hover { text-decoration: underline; }
 
+  /* ─── ANIMATED PIXEL DIVIDER (verbatim solutions / security-agent) ─────── */
+  .section-divider {
+    position: relative; height: 210px;
+    width: min(1200px, calc(100vw - 160px));
+    /* negative margins bleed the strip into both neighbouring sections */
+    margin: -100px auto -160px;
+    overflow: hidden; pointer-events: none; z-index: 1;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 30%, #000 76%, transparent 100%);
+            mask-image: linear-gradient(to bottom, transparent 0%, #000 30%, #000 76%, transparent 100%);
+  }
+  .section-divider canvas { display: block; width: 100%; height: 100%; }
+  @media (max-width: 1024px) { .section-divider { height: 160px; width: min(900px, calc(100vw - 80px)); margin: -80px auto -110px; } }
+  @media (max-width: 768px)  { .section-divider { height: 110px; width: calc(100vw - 32px); margin: -50px auto -60px; } }
+  @media (prefers-reduced-motion: reduce) { .section-divider { display: none; } }
+
   /* ─── FAQ ─────────────────────────────────────────────────────────────── */
   .ms-faq { position: relative; overflow: hidden; }
   #faq-pixel-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
@@ -510,16 +504,22 @@ html { scroll-behavior: smooth; }
     .value-card:nth-child(4) { grid-column: 1 / span 2; }
     .value-card:nth-child(5) { grid-column: 3 / span 2; }
     .perks-grid { grid-template-columns: repeat(2, 1fr); }
-    .comp-list { grid-template-columns: 1fr 1fr; gap: 28px; }
       }
   @media (max-width: 768px) {
     .hero-section { min-height: min(100dvh, 760px); padding: 92px 0 56px; }
     .hero-inner { width: 100%; padding: 0 16px; }
     .hero-h1 { font-size: clamp(37px, 10.45vw, 51px); line-height: 1.1; }
     .hero-subtitle { font-size: 16px; max-width: 100%; }
-    .hero-btn-group { width: 100%; flex-direction: column; align-items: stretch; }
+    /* Standalone CTAs are a min-width FLOOR, never full-bleed (CLAUDE.md
+       "Standalone CTA button min-width"). The old `width:100%` here overrode
+       the shared --cta-min-w token and stretched the button edge to edge.
+       Centered, 52px, 16px label — the token supplies the 220px floor. */
+    .hero-btn-group { width: 100%; flex-direction: column; align-items: center; }
     .hero-btn-group .hero-btn-primary,
-    .hero-btn-group .hero-btn-ghost { min-width: 0; width: 100%; }
+    .hero-btn-group .hero-btn-ghost {
+      width: auto; min-width: var(--cta-min-w); max-width: 100%;
+      height: 52px; font-size: 16px;
+    }
     .hero-meta { font-size: 11px; letter-spacing: 0.5px; }
     .section { padding: 48px 0; }
     .film-section { padding: 0 0 48px; }
@@ -531,14 +531,15 @@ html { scroll-behavior: smooth; }
     .pola { width: 150px; padding: 8px 8px 26px; }
     .team-track { gap: 18px; }
     .perks-grid { grid-template-columns: 1fr; }
-    .comp-list { grid-template-columns: 1fr; gap: 24px; text-align: center; }
     .roles-controls { flex-direction: column; align-items: stretch; gap: 14px; }
     .roles-select { flex: 0 0 auto; width: 100%; min-width: 0; height: 44px; }
-    /* Role row collapses to title over meta — the hover arrow is desktop-only affordance */
-    .role-row { grid-template-columns: 1fr; gap: 8px; padding: 18px 16px; }
-    .role-arrow { display: none; }
-      .bolt-image-wrap { width: 100vw !important; margin-left: 0 !important; height: 42vw !important; max-height: 42vw !important; }
-    }
+    /* Title and location share row 1; the CTA drops to row 2, left-aligned at
+       its natural width (a full-bleed button per row would dominate the list). */
+    .role-row { grid-template-columns: 1fr auto; gap: 28px 18px; padding: 28px 18px; align-items: center; }
+    .role-loc { justify-self: end; font-size: 14px; align-self: start; padding-top: 2px; }
+    .role-apply { grid-column: 1 / -1; justify-self: start; min-width: 150px; }
+    .bolt-image-wrap { width: 100vw !important; margin-left: 0 !important; height: 42vw !important; max-height: 42vw !important; }
+  }
 </style>
 
 <!-- ─── SECTION 1: HERO ───────────────────────────────────────────────────── -->
@@ -624,7 +625,7 @@ html { scroll-behavior: smooth; }
   </div>
 </section>
 
-<!-- ─── SECTION 5: TEAM MARQUEE ───────────────────────────────────────────── -->
+<!-- ─── SECTION 4: TEAM MARQUEE ──────────────────────────────────────── -->
 <section class="team-section">
   <div class="team-marquee">
     <!-- Track is duplicated by JS; the -50% keyframe makes the seam invisible.
@@ -647,7 +648,7 @@ html { scroll-behavior: smooth; }
   </div>
 </section>
 
-<!-- ─── SECTION 6: PERKS + COMP ───────────────────────────────────────────── -->
+<!-- ─── SECTION 5: PERKS ─────────────────────────────────────────────── -->
 <section class="section" style="padding-top:clamp(24px, 4vh, 48px);">
   <div class="section-inner">
     <div class="section-header">
@@ -689,35 +690,10 @@ html { scroll-behavior: smooth; }
       </div>
     </div>
 
-    <!-- ──────────────────────────────────────────────────────────────────────
-         TODO — CONFIRM WITH PEOPLE OPS BEFORE PUBLISH.
-         The three comp statements below are the industry-standard position for
-         a company at this stage, written the way candidates want to read it.
-         They must be checked against our actual comp policy (band structure,
-         equity for every employee, location adjustment) and edited or removed
-         if any of them isn't true here.
-         ────────────────────────────────────────────────────────────────── -->
-    <div class="comp-block">
-      <p class="comp-statement">We&rsquo;d rather tell you the number than make you guess at it.</p>
-      <div class="comp-list">
-        <div>
-          <p class="comp-item-label">Equity</p>
-          <p class="comp-item-desc">Every full-time employee gets it. You should own a piece of what you&rsquo;re building, not just be paid to build it.</p>
-        </div>
-        <div>
-          <p class="comp-item-label">Bands, not haggling</p>
-          <p class="comp-item-desc">Each role has a level and a range attached before we ever speak to you. Your offer comes from the band &mdash; not from how hard you push.</p>
-        </div>
-        <div>
-          <p class="comp-item-label">Told up front</p>
-          <p class="comp-item-desc">The range is on the job post. You&rsquo;ll know the number before you invest hours in an interview loop.</p>
-        </div>
-      </div>
-    </div>
   </div>
 </section>
 
-<!-- ─── SECTION 7: OPEN ROLES ─────────────────────────────────────────────── -->
+<!-- ─── SECTION 6: OPEN ROLES ────────────────────────────────────────── -->
 <section class="section" id="open-roles" style="padding-top:clamp(24px, 4vh, 48px);">
   <div class="section-inner">
     <div class="section-header">
@@ -750,8 +726,12 @@ html { scroll-behavior: smooth; }
   </div>
 </section>
 
-<!-- ─── SECTION 8: FAQ ────────────────────────────────────────────────────── -->
-<section class="section ms-faq">
+<div class="section-divider" aria-hidden="true">
+  <canvas id="section-divider-canvas"></canvas>
+</div>
+
+<!-- ─── SECTION 7: FAQ ───────────────────────────────────────────────── -->
+<section class="section ms-faq" style="padding-top:clamp(72px, 9vh, 112px);">
   <canvas id="faq-pixel-canvas"></canvas>
   <div class="ms-faq-inner">
     <div class="section-header section-header--center">
@@ -798,7 +778,7 @@ html { scroll-behavior: smooth; }
   </div>
 </section>
 
-<!-- ─── SECTION 9: SITE FOOTER ───────────────────────────────────────────── -->
+<!-- ─── SECTION 8: SITE FOOTER ───────────────────────────────────────── -->
 <div class="site-footer-divider" style="max-width:1200px;margin:0 auto;padding:0 min(80px, 5vw);box-sizing:border-box;"></div>
 
 <footer class="site-footer">
@@ -996,6 +976,21 @@ makePixelCanvas('faq-pixel-canvas', 9, 2, function(c, r, t, p) {
   });
 })();
 
+/* ── Section divider — verbatim solutions/security-agent traveling shimmer ── */
+if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  makePixelCanvas('section-divider-canvas', 11, 2,
+    function (c, r, t, p) {
+      var px = c * 11, py = r * 11;
+      var phase = (px * 0.012 + py * 0.018) - t * 0.0018 + 1.0;
+      var band = Math.sin(phase) * 0.5 + 0.5;
+      var highlight = Math.pow(band, 3) * 0.32;
+      var twinkle = (Math.sin(p * 53.7 + t * 0.004) * 0.5 + 0.5) * 0.07;
+      return 0.06 + highlight + twinkle;
+    }, 1.0, '170,185,210');
+}
+</script>
+
+<script>
 /* ============================================================================
    FILM PLAYER — autoplays when scrolled into view, pauses when it leaves.
 
