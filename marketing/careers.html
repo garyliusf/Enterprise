@@ -498,7 +498,7 @@ html { scroll-behavior: smooth; }
      overflows (same affordance as the blog filter bar / platform tab bar).
      JS toggles .at-end when scrolled fully right. */
   .roles-pills-wrap::after {
-    content: ""; position: absolute; top: 0; right: 0; bottom: 9px; width: 72px;
+    content: ""; position: absolute; top: 0; right: 0; bottom: 10px; width: 72px;
     pointer-events: none; z-index: 2; opacity: 0; transition: opacity 0.25s ease;
     background: linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,0.55) 35%, rgba(0,0,0,0.88) 65%, #000 88%);
   }
@@ -507,16 +507,24 @@ html { scroll-behavior: smooth; }
   .roles-pills {
     display: flex; gap: 8px; overflow-x: auto; overflow-y: hidden;
     touch-action: pan-x; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch;
-    /* visible slim scrollbar — the edge fade alone gave no draggable affordance
-       on desktop, and macOS hides overlay scrollbars until you scroll. */
-    padding-bottom: 9px;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255,255,255,0.14) transparent;
+    /* Visible slim scrollbar — the edge fade alone gave no draggable affordance
+       on desktop, and macOS hides overlay scrollbars until you scroll.
+       6px is a floor, NOT a style choice: below ~4px Chrome ignores the
+       ::-webkit-scrollbar height entirely and reverts to an overlay bar that
+       reserves no space and only flashes mid-scroll (a 3px version measured
+       offsetHeight - clientHeight = 0, i.e. no scrollbar at all). Keep it
+       restrained with colour, not size. */
+    padding-bottom: 10px;
+    /* Deliberately NOT setting scrollbar-width/scrollbar-color: Chrome 121+
+       ignores every ::-webkit-scrollbar rule when either standard property is
+       present, and `scrollbar-width: thin` on macOS is an OVERLAY bar that
+       reserves no space — which is why the bar vanished (offsetHeight -
+       clientHeight measured 0). Firefox falls back to its native thin bar. */
   }
-  .roles-pills::-webkit-scrollbar { height: 3px; }
-  .roles-pills::-webkit-scrollbar-track { background: transparent; }
-  .roles-pills::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.14); border-radius: 999px; }
-  .roles-pills:hover::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.26); }
+  .roles-pills::-webkit-scrollbar { height: 6px; }
+  .roles-pills::-webkit-scrollbar-track { background: rgba(255,255,255,0.045); border-radius: 999px; }
+  .roles-pills::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.20); border-radius: 999px; }
+  .roles-pills:hover::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.34); }
   .role-pill {
     flex: 0 0 auto; height: 44px; padding: 0 18px; border-radius: 2px;
     display: inline-flex; align-items: center;
