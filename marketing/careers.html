@@ -392,8 +392,11 @@ html { scroll-behavior: smooth; }
   .lightbox-close { position: absolute; top: clamp(16px, 3vw, 32px); right: clamp(16px, 3vw, 32px); }
   @media (max-width: 768px) {
     /* arrows move below the image so the photo gets the full width */
-    .lightbox { flex-wrap: wrap; }
-    .lightbox-stage { order: 1; flex: 1 0 100%; }
+    /* Wrapped rows defaulted to align-content: stretch, which pushed the
+       arrows to the bottom of the viewport, far from the photo. Centre the
+       rows and set an explicit row gap so the controls sit just under it. */
+    .lightbox { flex-wrap: wrap; align-content: center; row-gap: 18px; }
+    .lightbox-stage { order: 1; flex: 1 0 100%; margin-bottom: 0; }
     .lightbox-prev { order: 2; } .lightbox-next { order: 3; }
     .lightbox-stage img { max-height: 62vh; }
   }
@@ -552,7 +555,7 @@ html { scroll-behavior: smooth; }
   .roles-group:last-child { margin-bottom: 0; }
   .roles-group-label {
     font-family: 'Silkscreen', monospace; font-size: 11px; letter-spacing: 2px;
-    text-transform: uppercase; color: #1488FC; margin: 0 0 14px;
+    text-transform: uppercase; color: rgba(255,255,255,0.4); margin: 0 0 14px;
   }
   .roles-list { border: 1px solid rgba(255,255,255,0.10); border-radius: 2px; overflow: hidden; }
   .role-row {
@@ -1404,8 +1407,15 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   if (!v || typeof IntersectionObserver === 'undefined') return;
 
   var userDriven = false;
-  ['play', 'pause', 'seeking', 'volumechange'].forEach(function (evt) {
-    v.addEventListener(evt, function (e) { if (e.isTrusted) userDriven = true; });
+  var visible = false;
+  /* Intent has to come from a real interaction, NOT from media events:
+     e.isTrusted is true for any event the browser dispatches, including the
+     'play' event our own v.play() causes. Keying off that latched userDriven
+     on the very first autoplay and permanently disabled the scroll-away pause
+     — the film kept playing thousands of pixels off-screen. pointerdown and
+     keydown on the element fire for the native controls and nothing else. */
+  ['pointerdown', 'keydown'].forEach(function (evt) {
+    v.addEventListener(evt, function () { userDriven = true; });
   });
 
   /* iOS will not start a video that has no decodable data yet. With
@@ -1413,7 +1423,12 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
      play() in the same tick always rejected there and the silent catch hid it
      — you got the placeholder instead of the film. Attach, load(), then try to
      play, and try again once the browser says it can. */
+  /* Re-check at call time, not just at schedule time. The canplay retry can
+     fire long after it was queued — by then the viewer may have scrolled the
+     film out of view or hit pause, and playing anyway would restart it
+     off-screen or override them. */
   function attempt() {
+    if (!visible || userDriven) return;
     v.muted = true;                       // property, not just the attribute
     var p = v.play();
     if (p && p.catch) p.catch(function () { /* blocked — poster stands in */ });
@@ -1430,12 +1445,13 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
 
   var io = new IntersectionObserver(function (entries) {
     var e = entries[0];
-    if (e.isIntersecting) {
+    visible = e.isIntersecting;
+    if (visible) {
       /* Skip only on metered or genuinely slow connections — the file is
          ~16MB and autoplaying it over 2G is not a trade worth making. */
       var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
       if (conn && (conn.saveData || /(^|-)2g$/.test(conn.effectiveType || ''))) return;
-      if (!userDriven || v.paused === false) start();
+      if (!userDriven) start();
     } else if (!userDriven) {
       v.pause();
     }
