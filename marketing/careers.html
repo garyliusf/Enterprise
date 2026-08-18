@@ -598,17 +598,37 @@ html { scroll-behavior: smooth; }
   #faq-pixel-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
   .ms-faq-inner { position: relative; z-index: 1; width: min(1200px, calc(100vw - 160px)); margin: 0 auto; }
 
-  /* FAQ answer bodies. The page reset zeroes margins/padding, so an <ol>
-     inside an answer loses its indent and numbers entirely — these restore it
-     without touching the shared .ms-faq-a-inner type. */
-  .ms-faq-a-inner .ms-faq-p { margin: 0 0 14px; }
+  /* FAQ answer bodies. The page reset zeroes margins/padding, so lists inside
+     an answer lose their indent entirely — these rebuild the presentation
+     rather than restoring browser defaults. */
+  .ms-faq-a-inner .ms-faq-p { margin: 0 0 18px; }
   .ms-faq-a-inner .ms-faq-p:last-child { margin-bottom: 0; }
-  .ms-faq-steps {
-    margin: 0 0 14px; padding-left: 22px;
-    list-style: decimal; display: flex; flex-direction: column; gap: 8px;
+
+  /* Process rail. A bare <ol> was the one element on the page not speaking its
+     own language, so the steps use the vocabulary already here: Silkscreen
+     numerals in brand blue, 2px tiles, hairline rules — the same treatment as
+     the .value-num cards. The connector runs between tiles and stops at the
+     last one, so the list reads as a sequence rather than five loose points. */
+  .faq-steps { list-style: none; margin: 0 0 22px; padding: 0; }
+  .faq-steps li {
+    position: relative; display: grid; grid-template-columns: 30px 1fr;
+    gap: 16px; padding-bottom: 20px;
   }
-  .ms-faq-steps li { padding-left: 4px; }
-  .ms-faq-steps::marker, .ms-faq-steps li::marker { color: rgba(255,255,255,0.4); }
+  .faq-steps li:last-child { padding-bottom: 0; }
+  /* connector: starts below the tile, runs to the next one */
+  .faq-steps li:not(:last-child)::before {
+    content: ""; position: absolute; left: 14px; top: 32px; bottom: -2px;
+    width: 1px; background: rgba(255,255,255,0.11);
+  }
+  .faq-step-n {
+    width: 30px; height: 30px; border-radius: 2px; box-sizing: border-box;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-family: 'Silkscreen', monospace; font-size: 10px; letter-spacing: 0.5px;
+    color: #1488FC; background: rgba(20,136,252,0.07);
+    border: 1px solid rgba(20,136,252,0.28);
+    position: relative; z-index: 1;
+  }
+  .faq-step-t { padding-top: 5px; }
 
   /* ─── FOOTER ──────────────────────────────────────────────────────────── */
   .footer-image-section { width: 100%; background: #000; }
@@ -949,7 +969,7 @@ html { scroll-behavior: smooth; }
           What does the interview process look like?
           <span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
         </button>
-        <div class="ms-faq-a"><div class="ms-faq-a-inner"><p class="ms-faq-p">Our interviewing process is intended to be efficient and relevant. We want to understand how you think and solve problems.</p><ol class="ms-faq-steps"><li>An initial recruiter conversation to better understand your experience and where that fits into what we are building</li><li>A call with the hiring manager to better understand your previous and anticipated impact</li><li>When applicable, you might do a practical exercise or portfolio walkthrough that reflects the actual job</li><li>A short set of team conversations to evaluate your skills (usually two to four chats)</li><li>A chance to speak with our CEO or CTO to address any residual questions you have about how you can help us build</li></ol><p class="ms-faq-p">Interviews are usually 30&ndash;60 minutes long, depending on focus. Most loops finish within two to three weeks. The exact steps depend on the role.</p></div></div>
+        <div class="ms-faq-a"><div class="ms-faq-a-inner"><p class="ms-faq-p">Our interviewing process is intended to be efficient and relevant. We want to understand how you think and solve problems.</p><ol class="faq-steps"><li><span class="faq-step-n">01</span><span class="faq-step-t">An initial recruiter conversation to better understand your experience and where that fits into what we are building</span></li><li><span class="faq-step-n">02</span><span class="faq-step-t">A call with the hiring manager to better understand your previous and anticipated impact</span></li><li><span class="faq-step-n">03</span><span class="faq-step-t">When applicable, you might do a practical exercise or portfolio walkthrough that reflects the actual job</span></li><li><span class="faq-step-n">04</span><span class="faq-step-t">A short set of team conversations to evaluate your skills (usually two to four chats)</span></li><li><span class="faq-step-n">05</span><span class="faq-step-t">A chance to speak with our CEO or CTO to address any residual questions you have about how you can help us build</span></li></ol><p class="ms-faq-p">Interviews are usually 30&ndash;60 minutes long, depending on focus. Most loops finish within two to three weeks. The exact steps depend on the role.</p></div></div>
       </div>
       <div class="ms-faq-item">
         <button class="ms-faq-q">
