@@ -401,7 +401,7 @@ html { scroll-behavior: smooth; }
      person. Photo sits above via order:-1 — markup keeps the quote first so
      it still reads correctly without CSS and to screen readers. */
   .testi-section { padding: clamp(24px, 4vh, 48px) 0 clamp(80px, 12vh, 140px); }
-  .testi-stack { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; align-items: start; }
+  .testi-stack { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: start; }
   .testi-panel {
     position: relative; overflow: hidden;
     background: #0d0d0d; border: 1px solid rgba(255,255,255,0.07); border-radius: 2px;
@@ -859,6 +859,21 @@ html { scroll-behavior: smooth; }
         </div>
       </article>
 
+      <article class="testi-panel">
+        <canvas class="testi-pixels" id="testi-pixels-3"></canvas>
+        <div class="testi-content">
+          <p class="section-eyebrow testi-eyebrow">Sales</p>
+          <p class="testi-quote">&ldquo;What I love about Bolt is that everyone&rsquo;s genuinely in it together. From eng to product to support, we jump on problems as one team. Things move fast, feedback is honest and direct, and people actually listen. It&rsquo;s rare to feel this looped in and this cared for.&rdquo;</p>
+          <div class="testi-attr">
+            <span class="testi-name">Joe K.</span>
+            <span class="testi-role">Sales Engineer, Bolt.new</span>
+          </div>
+        </div>
+        <div class="testi-photo">
+          <img src="images/careers/team/joe-k.jpg" alt="Joe K., Sales Engineer" loading="lazy" onerror="this.closest('.testi-photo').classList.add('is-empty'); this.remove();">
+        </div>
+      </article>
+
     </div>
   </div>
 </section>
@@ -1066,27 +1081,27 @@ makePixelCanvas('hero-pixel-canvas', 9, 3, function(c, r, t) {
   return Math.max(0, wave) * 0.55 * fade;
 }, 1.0, '20,136,252');
 
-/* ── FAQ section pixel field — elliptical, centred on the question list.
-      Was anchored at cy = H * 1.22 (BELOW the section) with a broad radial
-      fade, so the densest part of the field landed in the empty padding under
-      the last question and it spread the full 1713px section width. Measured:
-      the list occupies 0.36-0.86 of section height, so the ellipse is sized to
-      that band and to roughly the content column, and dies out either side. ── */
-makePixelCanvas('faq-pixel-canvas', 9, 2, function(c, r, t, p) {
-  const el = document.getElementById('faq-pixel-canvas');
-  const W = el ? el.width : 1200, H = el ? el.height : 800;
-  const px = c * 9, py = r * 9;
-  const cx = W / 2, cy = H * 0.60;
-  const nx = (px - cx) / (W * 0.40);   /* horizontal reach ~ the content column */
-  const ny = (py - cy) / (H * 0.38);   /* vertical reach ~ the question list    */
-  const dist = Math.sqrt(nx * nx + ny * ny);
-  const fade = Math.max(0, 1 - dist);
-  if (fade <= 0) return 0;
-  const breathe = 0.62 + Math.sin(t * 0.0006 + p) * 0.18;
-  const d = Math.sqrt(Math.pow(px - cx, 2) + Math.pow(py - cy, 2));
-  const ripple = Math.sin(d / 46 - t * 0.0011) * 0.5 + 0.5;
-  return Math.pow(fade, 1.4) * breathe * ripple * 0.5;
-}, 1.0, '20,136,252');
+/* ─── FAQ SECTION-LEVEL PIXEL CANVAS (breathing brand-blue wave) ───────────
+   Canonical implementation, verbatim from platform/referral (and the other
+   marketing FAQs). The cy = H * 1.22 anchor is the point of it: the field's
+   centre sits BELOW the section, so only the top of the arc is visible and it
+   reads as a low dome under the last question. An earlier pass here mistook
+   that for a mispositioned field and re-centred it at 0.60H, which spread it
+   across the questions — the size was the problem, not the anchor. ───────── */
+makePixelCanvas('faq-pixel-canvas', 9, 2,
+  function(c, r, t, p) {
+    var el = document.getElementById('faq-pixel-canvas');
+    if (!el) return 0;
+    var H = el.height, W = el.width;
+    var px = c * 9, py = r * 9;
+    var cx = W / 2, cy = H * 1.22;
+    var dx = px - cx, dy = py - cy;
+    var dist = Math.sqrt(dx*dx + dy*dy) / (Math.max(W, H) * 0.9);
+    var breath = Math.sin(t * 0.0006) * 0.5 + 0.5;
+    var ripple = Math.sin(dist * 10 - t * 0.0012) * 0.5 + 0.5;
+    var fade = Math.max(0, 1 - dist * 1.4);
+    return fade * (0.08 + breath * 0.06 + ripple * 0.12);
+  }, 1.0, '20,136,252');
 
 </script>
 
@@ -1122,7 +1137,7 @@ makePixelCanvas('faq-pixel-canvas', 9, 2, function(c, r, t, p) {
 })();
 
 /* ── Testimonial panel pixel fields (microsoft .success-pull-quote treatment) ── */
-['testi-pixels-1', 'testi-pixels-2'].forEach(function (id, i) {
+['testi-pixels-1', 'testi-pixels-2', 'testi-pixels-3'].forEach(function (id, i) {
   makePixelCanvas(id, 9, 2, function (c, r, t, p) {
     var el = document.getElementById(id);
     var W = el ? el.width : 900, H = el ? el.height : 460;
