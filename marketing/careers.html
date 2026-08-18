@@ -310,23 +310,44 @@ html { scroll-behavior: smooth; }
   }
   .film-video { display: block; width: 100%; aspect-ratio: 16/9; background: #050505; }
 
-  /* ─── TEAM GALLERY ────────────────────────────────────────────────────── */
-  /* Deliberately quiet: a tight 5x2 grid of equal 3:2 tiles, no captions, no
-     lightbox. It's texture showing who the team is, not a feature to click
-     through. Tiles rest slightly dimmed and come up to full colour on hover so
-     the block reads as one surface rather than ten competing photos. */
-  .teamshot-section { padding: clamp(24px, 4vh, 48px) 0 clamp(56px, 8vh, 100px); }
-  .teamshot-frame { position: relative; padding: clamp(18px, 2.6vw, 40px); }
+  /* ─── TEAM GALLERY (floating stagger) ─────────────────────────────────── */
+  /* Chose a staggered grid over a slider: the film directly above already
+     autoplays and six pixel canvases are animating, so another moving rail
+     competes; and a rail would hide 6 of 10 photos behind interaction nobody
+     performs on a careers page. Rhythm alternates 2 / 3 / 2 / 3 across a 6-col
+     grid with per-item vertical offsets, so ~2-3 read at a time and the block
+     floats on the page instead of sitting in a frame. */
+  .teamshot-section { position: relative; padding: clamp(24px, 4vh, 48px) 0 clamp(56px, 8vh, 100px); overflow: hidden; }
   #teamshot-pixels { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
   @media (prefers-reduced-motion: reduce) { #teamshot-pixels { display: none; } }
+
   .gallery {
     position: relative; z-index: 1;
-    display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
+    display: grid; grid-template-columns: repeat(12, 1fr);
+    column-gap: 24px; row-gap: 16px; align-items: start;
   }
+  /* 3 per row on a 12-col grid with unequal splits (5-4-3 then 3-5-4), so no
+     two tiles share a width and no two rows share a rhythm. Spans sum to 12,
+     so auto-flow wraps by itself. Three-up keeps the block near one viewport;
+     at 2-up the tiles ran ~790px wide and the section hit 1520px tall for six
+     photos, which is more page than ambient texture should take. */
+  .gallery-item:nth-child(1) { grid-column: span 5; }
+  .gallery-item:nth-child(2) { grid-column: span 4; }
+  .gallery-item:nth-child(3) { grid-column: span 3; }
+  .gallery-item:nth-child(4) { grid-column: span 3; }
+  .gallery-item:nth-child(5) { grid-column: span 5; }
+  .gallery-item:nth-child(6) { grid-column: span 4; }
+
   .gallery-item { margin: 0; border-radius: 2px; overflow: hidden; background: #0a0a0a; line-height: 0; }
+  /* offsets break the shared baseline so rows don't read as a table */
+  .gallery-item:nth-child(2) { margin-top: 40px; }
+  .gallery-item:nth-child(3) { margin-top: 14px; }
+  .gallery-item:nth-child(4) { margin-top: 30px; }
+  .gallery-item:nth-child(6) { margin-top: 46px; }
+
   .gallery-item img {
     display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover;
-    opacity: 0.82; transition: opacity 0.35s ease, transform 0.5s cubic-bezier(0.22,1,0.36,1);
+    opacity: 0.85; transition: opacity 0.35s ease, transform 0.5s cubic-bezier(0.22,1,0.36,1);
   }
   .gallery-item:hover img { opacity: 1; transform: scale(1.03); }
 
@@ -540,7 +561,10 @@ html { scroll-behavior: smooth; }
     .value-card:nth-child(4) { grid-column: 1 / span 2; }
     .value-card:nth-child(5) { grid-column: 3 / span 2; }
     .perks-grid { grid-template-columns: repeat(2, 1fr); }
-    .gallery { grid-template-columns: repeat(3, 1fr); }
+    .gallery { column-gap: 18px; row-gap: 14px; }
+    .gallery-item:nth-child(n) { grid-column: span 6; }
+    .gallery-item:nth-child(2n) { margin-top: 32px; }
+    .gallery-item:nth-child(2n+1) { margin-top: 0; }
     .testi-content { padding: 26px 26px 28px; gap: 18px; }
   }
   @media (max-width: 768px) {
@@ -568,7 +592,8 @@ html { scroll-behavior: smooth; }
     .section-header { margin-bottom: 32px; }
     .values-grid { grid-template-columns: 1fr; }
     .value-card, .value-card:nth-child(4), .value-card:nth-child(5) { grid-column: auto; }
-    .gallery { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+    .gallery { grid-template-columns: 1fr; column-gap: 0; row-gap: 12px; }
+    .gallery-item:nth-child(n) { grid-column: 1 / -1; margin-top: 0; }
     .testi-stack { grid-template-columns: 1fr; }
     .testi-content { padding: 26px 22px 28px; gap: 18px; }
     .testi-photo { aspect-ratio: 16 / 10; }
@@ -666,21 +691,15 @@ html { scroll-behavior: smooth; }
 <!-- Sits between the values and the testimonials: the values say what we're
      like, this shows who "we" is, then the quotes are individual voices. -->
 <section class="teamshot-section">
+  <canvas id="teamshot-pixels" aria-hidden="true"></canvas>
   <div class="section-inner">
-    <div class="teamshot-frame">
-      <canvas id="teamshot-pixels" aria-hidden="true"></canvas>
-      <div class="gallery">
-        <figure class="gallery-item"><img src="images/careers/gallery/team-01.webp" alt="Team gathered for a talk in the office" width="900" height="600" loading="lazy" decoding="async"></figure>
-        <figure class="gallery-item"><img src="images/careers/gallery/team-02.webp" alt="Three teammates working from the office couches" width="900" height="600" loading="lazy" decoding="async"></figure>
-        <figure class="gallery-item"><img src="images/careers/gallery/team-03.webp" alt="Two teammates talking at an offsite in the park" width="900" height="600" loading="lazy" decoding="async"></figure>
-        <figure class="gallery-item"><img src="images/careers/gallery/team-04.webp" alt="Teammates catching up over coffee in the office kitchen" width="900" height="600" loading="lazy" decoding="async"></figure>
-        <figure class="gallery-item"><img src="images/careers/gallery/team-05.webp" alt="The 1160 Battery Street office entrance" width="900" height="600" loading="lazy" decoding="async"></figure>
-        <figure class="gallery-item"><img src="images/careers/gallery/team-06.webp" alt="High fives at a team offsite" width="900" height="600" loading="lazy" decoding="async"></figure>
-        <figure class="gallery-item"><img src="images/careers/gallery/team-07.webp" alt="Teammates laughing during a work session" width="900" height="600" loading="lazy" decoding="async"></figure>
-        <figure class="gallery-item"><img src="images/careers/gallery/team-08.webp" alt="A teammate playing violin at an offsite" width="900" height="600" loading="lazy" decoding="async"></figure>
-        <figure class="gallery-item"><img src="images/careers/gallery/team-09.webp" alt="A teammate at their desk in the office" width="900" height="600" loading="lazy" decoding="async"></figure>
-        <figure class="gallery-item"><img src="images/careers/gallery/team-10.webp" alt="Teammates watching a game at an offsite" width="900" height="600" loading="lazy" decoding="async"></figure>
-      </div>
+    <div class="gallery">
+      <figure class="gallery-item"><img src="images/careers/gallery/team-01.webp" alt="Team gathered for a talk in the office" width="900" height="600" loading="lazy" decoding="async"></figure>
+      <figure class="gallery-item"><img src="images/careers/gallery/team-02.webp" alt="Three teammates working from the office couches" width="900" height="600" loading="lazy" decoding="async"></figure>
+      <figure class="gallery-item"><img src="images/careers/gallery/team-04.webp" alt="Teammates catching up over coffee in the office kitchen" width="900" height="600" loading="lazy" decoding="async"></figure>
+      <figure class="gallery-item"><img src="images/careers/gallery/team-06.webp" alt="High fives at a team offsite" width="900" height="600" loading="lazy" decoding="async"></figure>
+      <figure class="gallery-item"><img src="images/careers/gallery/team-08.webp" alt="A teammate playing violin at an offsite" width="900" height="600" loading="lazy" decoding="async"></figure>
+      <figure class="gallery-item"><img src="images/careers/gallery/team-09.webp" alt="A teammate at their desk in the office" width="900" height="600" loading="lazy" decoding="async"></figure>
     </div>
   </div>
 </section>
@@ -993,34 +1012,24 @@ makePixelCanvas('faq-pixel-canvas', 9, 2, function(c, r, t, p) {
 </script>
 
 <script>
-/* ── Team-photo pixel frame — dots occupy only the band around the image,
-      densest against its edge and fading outward. padCache is hoisted so the
-      per-dot wave never calls getComputedStyle. ── */
+/* ── Team-gallery pixel field — ambient wash the photos float on. Was an
+      edge-band treatment that measured a .teamshot-frame padding; the frame is
+      gone now, so it paints across the section and fades out top and bottom
+      instead of ringing a single image. ── */
 (function () {
   if (!document.getElementById('teamshot-pixels')) return;
-  var pad = 32;
-  function refreshPad() {
-    var f = document.querySelector('.teamshot-frame');
-    if (f) pad = parseFloat(getComputedStyle(f).paddingLeft) || 32;
-  }
-  refreshPad();
-  window.addEventListener('resize', refreshPad);
-
-  makePixelCanvas('teamshot-pixels', 7, 2, function (c, r, t, p) {
+  makePixelCanvas('teamshot-pixels', 8, 2, function (c, r, t, p) {
     var el = document.getElementById('teamshot-pixels');
     if (!el) return 0;
-    var W = el.width, H = el.height, px = c * 7, py = r * 7;
-    /* how far this dot sits OUTSIDE the photo rect (0 = over the photo) */
-    var dx = Math.max(pad - px, px - (W - pad), 0);
-    var dy = Math.max(pad - py, py - (H - pad), 0);
-    var d = Math.max(dx, dy);
-    if (d <= 0) return 0;
-    var fade = Math.max(0, 1 - d / pad);
-    var wave = Math.sin((px * 0.5 + py * 0.7) / 42 - t * 0.0016);
-    var twinkle = (Math.sin(p * 53.7 + t * 0.004) * 0.5 + 0.5) * 0.22;
-    return (0.18 + Math.max(0, wave) * 0.5 + twinkle) * Math.pow(fade, 1.25);
-    /* deeper indigo than the brand #1488FC used elsewhere — the azure read
-       too light against a full-bleed grayscale photo */
+    var W = el.width, H = el.height, px = c * 8, py = r * 8;
+    /* fade in from the top edge and out at the bottom so the field has no
+       hard boundary against the sections above and below */
+    var vFade = Math.min(1, py / (H * 0.18)) * Math.max(0, 1 - Math.max(0, py - H * 0.6) / (H * 0.4));
+    if (vFade <= 0) return 0;
+    var wave = Math.sin((px * 0.45 + py * 0.8) / 60 - t * 0.0012);
+    var twinkle = (Math.sin(p * 53.7 + t * 0.004) * 0.5 + 0.5) * 0.14;
+    /* deeper indigo than the brand #1488FC used elsewhere on the page */
+    return (0.10 + Math.max(0, wave) * 0.30 + twinkle) * vFade * 0.75;
   }, 1.0, '38,72,214');
 })();
 
