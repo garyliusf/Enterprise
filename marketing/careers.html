@@ -324,66 +324,52 @@ html { scroll-behavior: smooth; }
   @media (prefers-reduced-motion: reduce) { #teamshot-pixels { display: none; } }
   .teamshot img { display: block; width: 100%; height: auto; }
 
-  /* ─── TESTIMONIALS (split panel) ──────────────────────────────────────── */
-  /* microsoft.html's .success-pull-quote treatment: copy left over a pixel
-     field, full-bleed grayscale portrait right. Panels alternate sides. */
+  /* ─── TESTIMONIALS (vertical cards) ───────────────────────────────────── */
+  /* Portrait card: grayscale photo on top, copy beneath. Two per row, so the
+     set grows sideways then wraps instead of adding a full-width band per
+     person. Photo sits above via order:-1 — markup keeps the quote first so
+     it still reads correctly without CSS and to screen readers. */
   .testi-section { padding: clamp(24px, 4vh, 48px) 0 clamp(80px, 12vh, 140px); }
-  .testi-stack { display: flex; flex-direction: column; gap: 20px; }
+  .testi-stack { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; align-items: start; }
   .testi-panel {
     position: relative; overflow: hidden;
     background: #0d0d0d; border: 1px solid rgba(255,255,255,0.07); border-radius: 2px;
-    /* Compact: these stack, so each panel has to stay cheap vertically as the
-       set grows past two. Photo column is a fixed slot rather than a ratio so
-       every panel crops its portrait identically. */
-    display: grid; grid-template-columns: 1fr minmax(220px, 290px); min-height: 300px;
+    display: flex; flex-direction: column;
   }
   .testi-panel canvas.testi-pixels {
     position: absolute; inset: 0; width: 100%; height: 100%;
     pointer-events: none; z-index: 0; opacity: 0.65;
   }
-  .testi-content {
-    padding: 34px 36px; display: flex; flex-direction: column; justify-content: space-between;
-    gap: 26px; position: relative; z-index: 2;
+  .testi-photo { position: relative; overflow: hidden; background: #0a0a0a; order: -1; aspect-ratio: 3 / 2; }
+  .testi-photo img {
+    width: 100%; height: 100%; object-fit: cover; object-position: center 22%;
+    filter: grayscale(100%) contrast(1.05); display: block;
   }
-  /* Panel label, not a section eyebrow: it reuses the shared .section-eyebrow
-     component (Silkscreen / 2px / #1488FC) and overrides only the size, rather
-     than restating the token values and becoming another alias of it. */
-  /* .testi-panel prefix is required, not cosmetic: shared-components.css
-     loads at end of body and its 0-1-0 .section-eyebrow rule would
-     otherwise beat a bare .testi-eyebrow and force this back to 16px. */
+  /* scrim fades the photo's lower edge into the copy below it */
+  .testi-photo::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(to bottom, transparent 55%, rgba(13,13,13,0.85) 100%);
+  }
+  /* Portrait not on disk yet: drop the photo and let the copy stand alone
+     rather than leaving a dead block. Self-heals when the file exists. */
+  .testi-photo.is-empty { display: none; }
+  .testi-content {
+    padding: 30px 32px 32px; display: flex; flex-direction: column;
+    gap: 20px; position: relative; z-index: 2; flex: 1;
+  }
+  /* .testi-panel prefix is required, not cosmetic: shared-components.css loads
+     at end of body and its 0-1-0 .section-eyebrow rule would otherwise beat a
+     bare .testi-eyebrow and force this back to 16px. */
   .testi-panel .testi-eyebrow { font-size: 13px; margin: 0; }
   .testi-quote {
     font-family: 'Cormorant Garamond', Georgia, serif;
-    font-size: clamp(18px, 1.55vw, 21px); font-weight: 300; color: #fff;
+    font-size: clamp(18px, 1.5vw, 20px); font-weight: 300; color: #fff;
     line-height: 1.5; font-style: normal; margin: 0;
   }
-  .testi-attr { display: flex; flex-direction: column; gap: 3px; }
+  .testi-attr { display: flex; flex-direction: column; gap: 3px; margin-top: auto; padding-top: 8px; }
   /* documented greys: #ABABAB body text, 0.5 for the secondary line */
   .testi-name { font-size: 14px; font-weight: 500; color: #ABABAB; }
   .testi-role { font-size: 13px; color: rgba(255,255,255,0.5); }
-  .testi-photo { position: relative; overflow: hidden; background: #0a0a0a; }
-  /* Portrait not on disk yet: drop the photo column entirely and let the copy
-     run full width, rather than leaving a dead panel half. Self-heals the
-     moment the file exists — no code change needed. */
-  .testi-photo.is-empty { display: none; }
-  .testi-panel:has(.testi-photo.is-empty) { grid-template-columns: 1fr; min-height: 0; }
-  .testi-panel:has(.testi-photo.is-empty) .testi-content { grid-column: 1; }
-  .testi-photo img {
-    width: 100%; height: 100%; object-fit: cover; object-position: center top;
-    filter: grayscale(100%) contrast(1.05); display: block;
-  }
-  /* scrim ties the photo edge into the copy panel */
-  .testi-photo::after {
-    content: ''; position: absolute; inset: 0;
-    background: linear-gradient(to right, rgba(13,13,13,0.5) 0%, transparent 40%);
-  }
-  /* second panel mirrors: photo left, copy right */
-  .testi-panel--flip .testi-content { grid-column: 2; }
-  .testi-panel--flip .testi-photo { grid-column: 1; grid-row: 1; }
-  .testi-panel--flip { grid-template-columns: minmax(220px, 290px) 1fr; }
-  .testi-panel--flip .testi-photo::after {
-    background: linear-gradient(to left, rgba(13,13,13,0.5) 0%, transparent 40%);
-  }
 
   /* ─── PERKS + COMP ────────────────────────────────────────────────────── */
   .perks-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 24px; }
@@ -548,8 +534,7 @@ html { scroll-behavior: smooth; }
     .value-card:nth-child(4) { grid-column: 1 / span 2; }
     .value-card:nth-child(5) { grid-column: 3 / span 2; }
     .perks-grid { grid-template-columns: repeat(2, 1fr); }
-    .testi-panel, .testi-panel--flip { grid-template-columns: 1fr minmax(190px, 240px); min-height: 280px; }
-    .testi-content { padding: 28px 28px; gap: 22px; }
+    .testi-content { padding: 26px 26px 28px; gap: 18px; }
   }
   @media (max-width: 768px) {
     /* 100dvh made the hero much taller than its content (H1 + sub + one CTA +
@@ -576,11 +561,9 @@ html { scroll-behavior: smooth; }
     .section-header { margin-bottom: 32px; }
     .values-grid { grid-template-columns: 1fr; }
     .value-card, .value-card:nth-child(4), .value-card:nth-child(5) { grid-column: auto; }
-    .testi-panel, .testi-panel--flip { grid-template-columns: 1fr; min-height: 0; }
-    .testi-panel--flip .testi-content, .testi-panel--flip .testi-photo { grid-column: 1; grid-row: auto; }
-    .testi-content { padding: 28px 24px 30px; gap: 26px; }
-    .testi-photo { aspect-ratio: 4/3; order: -1; }
-    .testi-photo::after, .testi-panel--flip .testi-photo::after { background: linear-gradient(to bottom, transparent 55%, rgba(13,13,13,0.75) 100%); }
+    .testi-stack { grid-template-columns: 1fr; }
+    .testi-content { padding: 26px 22px 28px; gap: 18px; }
+    .testi-photo { aspect-ratio: 16 / 10; }
     .testi-panel .testi-eyebrow { font-size: 12px; }
     .perks-grid { grid-template-columns: 1fr; }
     .roles-controls { flex-direction: column; align-items: stretch; gap: 14px; }
@@ -708,7 +691,7 @@ html { scroll-behavior: smooth; }
         </div>
       </article>
 
-      <article class="testi-panel testi-panel--flip">
+      <article class="testi-panel">
         <canvas class="testi-pixels" id="testi-pixels-2"></canvas>
         <div class="testi-content">
           <p class="section-eyebrow testi-eyebrow">People Ops</p>
