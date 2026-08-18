@@ -336,7 +336,9 @@ html { scroll-behavior: smooth; }
   }
   .gallery-item { margin: 0; border-radius: 2px; overflow: hidden; background: #0a0a0a; line-height: 0; }
   .gallery-item img {
-    display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover;
+    /* 4:3 rather than the source 3:2 — taller, boxier tiles. object-fit
+       cover crops the sides of the 900x600 originals. */
+    display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover;
     opacity: 0.85; transition: opacity 0.35s ease, transform 0.5s cubic-bezier(0.22,1,0.36,1);
   }
   .gallery-item:hover img { opacity: 1; transform: scale(1.03); }
@@ -726,9 +728,31 @@ html { scroll-behavior: smooth; }
     /* Title and location share row 1; the CTA spans row 2 full-width.
        Note this is a row action inside a list card, not a standalone hero CTA
        — the "never full-bleed" min-width standard governs those, not this. */
-    .role-row { grid-template-columns: 1fr auto; gap: 28px 18px; padding: 28px 18px; align-items: center; }
+    .role-row { grid-template-columns: 1fr auto; gap: 16px 18px; padding: 22px 18px; align-items: center; }
     .role-loc { justify-self: end; font-size: 14px; align-self: start; padding-top: 2px; }
-    .role-apply { grid-column: 1 / -1; justify-self: stretch; width: 100%; min-width: 0; }
+    /* A 52px full-width button per row ate the list on phones — eleven of them
+       is more chrome than content. Strip it back to a blue text link with an
+       arrow. The markup stays the shared ghost-button structure (the whole row
+       is still the link), so only the presentation changes: border, fill,
+       fixed height and the injected pixel-fill canvas all come off. */
+    /* .role-row prefix is required, not cosmetic: shared-components.css loads
+       at end of body, so its 0-1-0 .hero-btn-ghost rules (52px height, border,
+       0.8 white) beat a bare .role-apply and the button chrome stayed on. */
+    .role-row .role-apply {
+      grid-column: 1 / -1; justify-self: start;
+      width: auto; min-width: 0; height: auto; padding: 0;
+      border: none; background: none; overflow: visible;
+      color: #1488FC; font-size: 15px; font-weight: 500;
+      display: inline-flex; align-items: center; gap: 7px;
+    }
+    .role-row .role-apply .btn-bg-hover,
+    .role-row .role-apply .btn-pixel-canvas { display: none; }
+    .role-row .role-apply .btn-text-wrap { height: auto; overflow: visible; }
+    /* the two-span slide-up is a desktop hover affordance; there is no hover on
+       touch, so show one label only */
+    .role-row .role-apply .btn-text-inner { transform: none; }
+    .role-row .role-apply .btn-text-inner span:nth-child(2) { display: none; }
+    .role-row .role-apply::after { content: "\2192"; font-size: 16px; line-height: 1; }
     .bolt-image-wrap { width: 100vw !important; margin-left: 0 !important; height: 42vw !important; max-height: 42vw !important; }
   }
 </style>
@@ -762,8 +786,8 @@ html { scroll-behavior: smooth; }
          than in markup, so the file is only fetched once the section is
          actually scrolled to, not on page load. -->
     <div class="film-card">
-      <video class="film-video" id="film-video" muted loop playsinline controls
-             preload="none" poster="careers-film-poster.jpg"
+      <video class="film-video" id="film-video" muted loop playsinline autoplay
+             controls preload="none" poster="careers-film-poster.jpg"
              data-src="careers-film.mp4"></video>
     </div>
   </div>
@@ -1378,14 +1402,34 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     v.addEventListener(evt, function (e) { if (e.isTrusted) userDriven = true; });
   });
 
+  /* iOS will not start a video that has no decodable data yet. With
+     preload="none" the element is empty until src is attached, so calling
+     play() in the same tick always rejected there and the silent catch hid it
+     — you got the placeholder instead of the film. Attach, load(), then try to
+     play, and try again once the browser says it can. */
+  function attempt() {
+    v.muted = true;                       // property, not just the attribute
+    var p = v.play();
+    if (p && p.catch) p.catch(function () { /* blocked — poster stands in */ });
+  }
+  function start() {
+    if (!v.src) {
+      v.muted = true;
+      v.src = v.dataset.src;
+      v.load();
+      v.addEventListener('canplay', attempt, { once: true });
+    }
+    attempt();
+  }
+
   var io = new IntersectionObserver(function (entries) {
     var e = entries[0];
     if (e.isIntersecting) {
-      if (!v.src) { v.muted = true; v.src = v.dataset.src; }
-      if (!userDriven || v.paused === false) {
-        var p = v.play();
-        if (p && p.catch) p.catch(function () { /* blocked — poster stands in */ });
-      }
+      /* Skip only on metered or genuinely slow connections — the file is
+         ~16MB and autoplaying it over 2G is not a trade worth making. */
+      var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      if (conn && (conn.saveData || /(^|-)2g$/.test(conn.effectiveType || ''))) return;
+      if (!userDriven || v.paused === false) start();
     } else if (!userDriven) {
       v.pause();
     }
