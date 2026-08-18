@@ -298,7 +298,6 @@ function css(t){
     h1 b,h2 b,h3 b,h4 b{font-weight:inherit !important}
     ul,ol{margin:-8px 0 16px !important;padding-left:24px !important}
     li{margin:0 0 8px !important}
-    br + br{display:none !important}
     td:has(p > br:only-child) p:not([style]):nth-last-of-type(2){margin:0 0 2px !important}
     li p:not([style]),li p{margin:0 !important}
     td[style*="padding: 30px 0"],td[style*="padding: 40px 0"]{padding:8px 0 24px !important}
@@ -423,6 +422,10 @@ function docFor(){
   // the min-width floor + max-content sizing own the box
   doc = doc.replace(/(<a[^>]+style=")([^"]*1389fd[^"]*)(")/gi,
     (m, p1, st, p3) => p1 + st.replace(/width:\s*[^;"]+;?/gi, '') + p3);
+
+  // collapse true double-breaks at the HTML level (CSS br+br skips text nodes
+  // and was eating every break in the address column)
+  doc = doc.replace(/<br\s*\/?>\s*<br\s*\/?>/gi, '<br>');
 
   if (t.fStack === 'column') doc = doc.replace(
     /StackBlitz, Inc\., 2443 Fillmore Street #380-16814, San Francisco, CA 94115, United States\.?/g,
