@@ -34,6 +34,17 @@ SOCIALS = json.dumps([
 
 FOOTLOGOS = json.dumps({"grey": _tinted_logo("#9E9C99"), "black": _tinted_logo("#161616")})
 
+PROPOSED = json.dumps({
+    "pageBg":"#F2F1EF","pagePad":36,"cardBg":"#ffffff","cardRadius":6,"cardPad":36,
+    "hFont":"Inter","hSize":24,"hWeight":700,"bFont":"Inter","bSize":16,"bLh":160,
+    "linkCol":"#1488FC","btnRadius":8,"btnPy":16,"btnPx":28,"btnWeight":600,
+    "btnWidth":"hug","btnMinW":220,"bannerPos":"inside","footLogo":"grey","footLogoW":94,
+    "socials":"show","fMaxW":420,"fStack":"column","footerGap":32})
+
+def _banner_uri():
+    f = os.path.join(os.path.dirname(os.path.abspath(__file__)), "email_banner.svg")
+    return "data:image/svg+xml;base64," + base64.b64encode(open(f,"rb").read()).decode()
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 src = open(os.path.join(HERE, "index.html"), encoding="utf-8").read()
 DATA = re.search(r"const EMAILS = (\[.*?\]);\n", src, re.S).group(1)
@@ -160,6 +171,8 @@ dialog .actions{border-top:1px solid var(--line);grid-auto-flow:column}
 <script>
 const EMAILS = __DATA__;
 const FOOT_LOGOS = __FOOTLOGOS__;
+const PROPOSED = __PROPOSED__;
+const BANNER_DEFAULT = "__BANNERURI__";
 const SOCIALS = __SOCIALS__;
 
 /* Tokens. `now` = what the emails render as today, so "Current" is honest.
@@ -201,6 +214,7 @@ const SPEC = [
   ]},
   {group:'Images', keys:[
     {k:'headerBanner', label:'Banner', type:'image', now:''},
+    {k:'bannerPos', label:'Banner pos', type:'select', opts:['inside','above'], now:'above'},
     {k:'logoSrc',   label:'Header logo', type:'image', now:''},
     {k:'footerImg', label:'Footer image',type:'image', now:''},
     {k:'footerImgW',label:'Footer width',type:'range', min:60, max:520, step:10, unit:'px', now:180},
@@ -219,6 +233,7 @@ const SPEC = [
   ]},
 ];
 const FONTS = {
+  'Inter':'Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif',
   'sans-serif':'sans-serif',
   'System UI':'-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif',
   'Helvetica':'Helvetica,Arial,sans-serif',
@@ -231,6 +246,9 @@ const FONTS = {
 const NOW = {}; SPEC.forEach(g=>g.keys.forEach(d=>NOW[d.k]=d.now));
 let T = {...NOW};
 let cur = EMAILS[0], vi = 0, vp = 640, mode = 'after', filter = '';
+Object.assign(T, PROPOSED);                       // shipped default = the proposed design
+T.headerBanner = BANNER_DEFAULT;
+try{ const b = localStorage.getItem('emailBanner'); if (b) T.headerBanner = b; }catch(e){}
 try{ Object.assign(T, JSON.parse(localStorage.getItem('emailTokens')||'{}')); }catch(e){}
 function saveT(){ try{
   const {logoSrc, footerImg, headerBanner, ...rest} = T;
@@ -255,36 +273,64 @@ function css(t){
     table[align="center"]:not([width]){width:100% !important}
     td[style*="background-color: #ffffff"],td[bgcolor="#ffffff"]{background-color:${t.cardBg} !important}
     table[style*="background:#ffffff"]{background:${t.cardBg} !important}
-    td[style*="border-radius: 6px 6px 0px 0px"]{border-radius:${t.cardRadius}px ${t.cardRadius}px 0 0 !important}
+    td[style*="border-radius: 6px 6px 0px 0px"]{border-radius:${
+      t.headerBanner && t.bannerPos==='inside' ? '0' : t.cardRadius+'px '+t.cardRadius+'px 0 0'} !important}
     td[style*="padding: 0 10px"]{padding:6px ${t.cardPad}px !important}
+    td[align="center"][valign="top"]{padding-top:14px !important}
+    [style*="max-width: 600px"][style*="padding: 0 20px"]{padding-left:0 !important;padding-right:0 !important}
+    td[style*="border-radius: 0px 0px 6px 6px"]{border-radius:0 0 ${t.cardRadius}px ${t.cardRadius}px !important;
+       padding-bottom:24px !important}
+    td[style*="border-radius: 10px 10px 0px 0px"]{border-radius:${t.cardRadius}px ${t.cardRadius}px 0 0 !important;
+       padding:20px ${t.cardPad}px 0 !important}
+    td[style*="border-radius: 0px 0px 10px 10px"]{border-radius:0 0 ${t.cardRadius}px ${t.cardRadius}px !important;
+       padding:6px ${t.cardPad}px 24px !important}
     img{width:${t.logoW}px !important;height:auto !important}
     img[data-banner]{width:100% !important}
     img[data-footlogo]{width:${t.footLogoW}px !important}
     img[data-social]{width:18px !important;height:18px !important}
-    ${t.headerBanner ? 'td[style*="font-size: 0px"] img{display:none}' : ''}
-    h1{font-family:${f(t.hFont)} !important;font-size:${t.hSize}px !important;
-       font-weight:${t.hWeight} !important;color:${t.hColor} !important;
-       line-height:${t.hLh/100} !important;letter-spacing:${t.hTrack/100}em !important;margin:0 0 4px !important}
-    h1 b{font-weight:inherit !important}
+    ${t.headerBanner ? 'td[style*="font-size: 0px"]{display:none !important}' : ''}
+    h1,h2,h3,h4{font-family:${f(t.hFont)} !important;font-weight:${t.hWeight} !important;
+       color:${t.hColor} !important;line-height:${t.hLh/100} !important;
+       letter-spacing:${t.hTrack/100}em !important;text-align:left !important}
+    h1,h2{font-size:${t.hSize}px !important;margin:0 0 12px !important}
+    h3{font-size:${Math.round(t.hSize*0.72)}px !important;margin:0 0 6px !important}
+    h4{font-size:${t.bSize}px !important;margin:0 0 6px !important}
+    h1 b,h2 b,h3 b,h4 b{font-weight:inherit !important}
+    ul,ol{margin:-8px 0 16px !important;padding-left:24px !important}
+    li{margin:0 0 8px !important}
+    br + br{display:none !important}
+    td:has(p > br:only-child) p:not([style]):nth-last-of-type(2){margin:0 0 2px !important}
+    li p:not([style]),li p{margin:0 !important}
+    td[style*="padding: 30px 0"],td[style*="padding: 40px 0"]{padding:8px 0 24px !important}
+    td[style*="padding: 30px 0 0"]{padding:0 0 16px !important}
+    td[style*="padding: 30px 0 0"]{padding:0 0 16px !important}
+    h1,p:not([style]),ul,li{text-align:left !important}
+    td[align="center"]{text-align:left !important;font-family:${f(t.bFont)} !important;
+       font-size:${t.bSize}px !important;line-height:${t.bLh/100} !important}
     p:not([style]),li{font-family:${f(t.bFont)} !important;font-size:${t.bSize}px !important;
        color:${t.bColor} !important;line-height:${t.bLh/100} !important}
+    p:not([style]){margin:0 0 16px !important}
+    p:not([style]):has(> br:only-child){margin:0 !important;height:16px !important;
+       font-size:0 !important;line-height:0 !important}
     p[style*="#999999"],p[style*="#666666"]{font-size:${t.fSize}px !important;
        line-height:1.6 !important;
        color:${t.fColor} !important;font-family:${f(t.bFont)} !important;
        max-width:${Math.min(t.fMaxW, t.containerW)}px !important;box-sizing:border-box !important;
-       margin-left:auto !important;margin-right:auto !important;text-align:center !important;
+       margin:0 auto 14px !important;text-align:center !important;
        padding-left:${t.cardPad}px !important;padding-right:${t.cardPad}px !important}
-    a:not([style]){color:${t.linkCol} !important}
+    a:not([style]){color:${t.linkCol} !important;text-decoration:none !important;
+       font-weight:600 !important}
     ${t.btnWidth==='hug'
       ? 'td[style*="1389fd"],span[style*="1389fd"]{background:transparent !important;border-radius:0 !important}'
-        + 'td:has(a[style*="1389fd"]),td:has(a[data-btn]){text-align:center !important}'
+        + 'td:has(a[style*="1389fd"]),td:has(a[data-btn]){text-align:left !important}'
       : 'span[style*="1389fd"],td[style*="1389fd"]{background:'+t.btnBg+' !important;border-radius:'+t.btnRadius+'px !important}'}
     a[style*="1389fd"],a[data-btn]{background:${t.btnBg} !important;color:${t.btnFg} !important;
+       white-space:nowrap !important;line-height:1.25 !important;
        border-radius:${t.btnRadius}px !important;padding:${t.btnPy}px ${t.btnPx}px !important;
        font-family:${f(t.bFont)} !important;font-size:${t.btnSize}px !important;
        font-weight:${t.btnWeight} !important;text-align:center !important;
        ${t.btnWidth==='hug'
-         ? 'display:inline-block !important;width:auto !important;min-width:'+t.btnMinW+'px !important;box-sizing:border-box !important;'
+         ? 'display:inline-block !important;width:max-content !important;min-width:'+t.btnMinW+'px !important;box-sizing:border-box !important;'
          : t.btnWidth==='mixed' ? '' : 'display:'+(t.btnWidth==='full'?'block':'inline-block')+' !important;'}}`;
 }
 const V = () => cur.variations[vi] || cur.variations[0];
@@ -334,16 +380,35 @@ function docFor(){
   const t = T;
   let doc = v.html;
 
+  // stock-layout emails (elevated_permission) have no card scaffolding at all —
+  // wrap them in the standard structure, emitting the exact style strings the
+  // token rules already target, so the whole system lights up
+  if (!/max-width:\s*600px/i.test(doc)){
+    doc = doc.replace(/<body([^>]*)>([\s\S]*?)<\/body>/i, (m, attrs, inner) =>
+      `<body${attrs}><table width="100%" cellpadding="0" cellspacing="0"><tbody><tr><td align="center">` +
+      `<table align="center" cellpadding="0" cellspacing="0" style="background-color: transparent; max-width: 600px;"><tbody>` +
+      `<tr><td style="border-radius: 6px 6px 0px 0px; background-color: #ffffff; padding: 0 10px;"></td></tr>` +
+      `<tr><td align="left" style="background-color: #ffffff;padding: 0 10px;">${inner}</td></tr>` +
+      `<tr><td style="background-color: #ffffff; border-radius: 0px 0px 6px 6px; padding: 0 10px;"></td></tr>` +
+      `</tbody></table></td></tr></tbody></table></body>`);
+  }
+
   // swap the header logo (first data: image in the doc — that's the brand mark)
   if (t.logoSrc) doc = doc.replace(/(<img[^>]+src=")(data:image\/[^"]+)(")/, '$1'+t.logoSrc+'$3');
 
-  // full-width banner above the card; the in-card logo hides via css() so it
-  // doesn't appear twice
-  if (t.headerBanner) doc = doc.replace(/(<body[^>]*>)/i,
-    `$1<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">` +
-    `<table width="100%" cellpadding="0" cellspacing="0" style="max-width:${t.containerW}px;">` +
-    `<tr><td><img data-banner src="${t.headerBanner}" style="width:100%;display:block;"></td></tr>` +
-    `</table></td></tr></table>`);
+  // banner: 'inside' = first row of the card, rounded top (Cosmos-style);
+  // 'above' = separate strip on the page. In-card logo hides via css() either way.
+  if (t.headerBanner && t.bannerPos === 'inside'){
+    doc = doc.replace(/(<table[^>]*max-width:\s*600px[^>]*>\s*(?:<tbody>)?)/i,
+      `$1<tr><td style="padding:0;line-height:0;"><img data-banner src="${t.headerBanner}" ` +
+      `style="width:100%;display:block;border-radius:${t.cardRadius}px ${t.cardRadius}px 0 0;"></td></tr>`);
+  } else if (t.headerBanner){
+    doc = doc.replace(/(<body[^>]*>)/i,
+      `$1<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">` +
+      `<table width="100%" cellpadding="0" cellspacing="0" style="max-width:${t.containerW}px;">` +
+      `<tr><td><img data-banner src="${t.headerBanner}" style="width:100%;display:block;"></td></tr>` +
+      `</table></td></tr></table>`);
+  }
 
   // append a footer image block below the card
   if (t.footerImg) doc = doc.replace(/<\/body>/i,
@@ -351,6 +416,13 @@ function docFor(){
        <td align="center" style="padding:${t.footerImgPad}px 0;">
          <img src="${t.footerImg}" style="width:${t.footerImgW}px;max-width:90%;height:auto;display:block;" alt="">
        </td></tr></table></body>`);
+
+  doc = doc.replace(/The Bolt Team/g, '<span style="font-weight:600;">The Bolt Team ⚡</span>');
+
+  // some templates hard-code width: on the button anchor itself — strip it so
+  // the min-width floor + max-content sizing own the box
+  doc = doc.replace(/(<a[^>]+style=")([^"]*1389fd[^"]*)(")/gi,
+    (m, p1, st, p3) => p1 + st.replace(/width:\s*[^;"]+;?/gi, '') + p3);
 
   if (t.fStack === 'column') doc = doc.replace(
     /StackBlitz, Inc\., 2443 Fillmore Street #380-16814, San Francisco, CA 94115, United States\.?/g,
@@ -369,7 +441,7 @@ function docFor(){
   if (t.socials === 'show') doc = doc.replace(
     /(<tr>\s*<td[^>]*>\s*<p style="[^"]*(?:#999999|#666666))/i,
     `<tr><td><div style="max-width:${t.containerW}px;margin:0 auto;box-sizing:border-box;` +
-    `padding:14px ${t.cardPad}px 18px;text-align:center;">` +
+    `padding:14px ${t.cardPad}px 14px;text-align:center;">` +
     SOCIALS.map(so => `<a href="${so.href}" style="text-decoration:none;display:inline-block;` +
     `margin:0 16px;"><img data-social src="${so.uri}" width="18" height="18" ` +
     `style="display:inline-block;"></a>`).join('') +
@@ -526,6 +598,31 @@ values drives every email — which needs the button/heading/body markup to live
 in shared partials first. The Devise emails already work this way
 (_call_to_action); it's just not wired to the other 32.
 
+TARGET ARCHITECTURE — ONE TEMPLATE FOR ALL 38
+Verified against every captured email: the complete content vocabulary is
+title / paragraph / bold subhead / bullet list / link / one button. Therefore:
+  1 layout   — banner, card, footer, all plumbing (ghost tables, bgcolor,
+               chrome-owned 24px top gap, dark-mode metas)
+  ~6 partials — _title, _paragraph, _button (bulletproof td), _list, _subhead,
+               footer pieces. Devise already uses this pattern; promote it.
+  34 bodies  — copy + ERB conditionals only, zero styling (see compensation
+               layer below for why bodies must own no spacing)
+  1 HubSpot coded template mirroring the layout; CX edits copy modules only.
+Rule of ownership: containers own spacing, components own none.
+Regression: re-render all 38, diff against the captured previews in this kit.
+
+WHY CONSOLIDATION FIRST — THE COMPENSATION LAYER
+Many rules above exist ONLY to sand down per-template inconsistencies, not to
+express design: h1/h2 flattening (templates use either tag for the same title),
+td[align=center] text rules (some copy is raw td text, not paragraphs),
+the 30px/40px spacer-cell normalizations (hand-set spacing per template),
+li p margin reset (some bullets wrap paragraphs), the inner 20px wrapper strip
+(one email family adds its own container), the two logo-cell variants, and
+hard-coded width: on some button anchors (stripped at render so min-width can
+float — partials must never fix a button's width inline).
+With shared partials, every one of these rules becomes unnecessary — that list
+is the measure of how inconsistent the templates currently are.
+
 TWO IMPLEMENTATION TRACKS
   1. Rails (stackblitz/stackblitz) — the 34 live transactional emails.
      Shared partials + one brand-parameterised layout. Engineering work.
@@ -567,5 +664,5 @@ drawCtl(); draw();
 
 out = os.path.join(HERE, "editor.html")
 with open(out, "w", encoding="utf-8") as f:
-    f.write(SHELL.replace("__DATA__", DATA).replace("__FOOTLOGOS__", FOOTLOGOS).replace("__SOCIALS__", SOCIALS))
+    f.write(SHELL.replace("__DATA__", DATA).replace("__FOOTLOGOS__", FOOTLOGOS).replace("__SOCIALS__", SOCIALS).replace("__PROPOSED__", PROPOSED).replace("__BANNERURI__", _banner_uri()))
 print(f"editor -> {out} ({os.path.getsize(out)//1024} KB)")
