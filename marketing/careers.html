@@ -825,6 +825,10 @@ html { scroll-behavior: smooth; }
   </div>
 </section>
 
+<div class="section-divider" aria-hidden="true">
+  <canvas id="section-divider-canvas-2"></canvas>
+</div>
+
 <!-- ─── SECTION 6: TESTIMONIALS ─────────────────────────────────────────────── -->
 <section class="section testi-section">
   <div class="section-inner">
@@ -1159,15 +1163,20 @@ makePixelCanvas('faq-pixel-canvas', 9, 2,
       (Restored: an earlier range-delete of the hero-video block took this
       with it, leaving the divider markup painting nothing.) ── */
 if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-  makePixelCanvas('section-divider-canvas', 11, 2,
-    function (c, r, t, p) {
-      var px = c * 11, py = r * 11;
-      var phase = (px * 0.012 + py * 0.018) - t * 0.0018 + 1.0;
-      var band = Math.sin(phase) * 0.5 + 0.5;
-      var highlight = Math.pow(band, 3) * 0.32;
-      var twinkle = (Math.sin(p * 53.7 + t * 0.004) * 0.5 + 0.5) * 0.07;
-      return 0.06 + highlight + twinkle;
-    }, 1.0, '170,185,210');
+  /* Two instances. The +1.0 / +2.6 phase offsets are the same values
+     solutions.html uses, so the two bands travel out of step rather than
+     pulsing together. */
+  [['section-divider-canvas', 1.0], ['section-divider-canvas-2', 2.6]].forEach(function (cfg) {
+    makePixelCanvas(cfg[0], 11, 2,
+      function (c, r, t, p) {
+        var px = c * 11, py = r * 11;
+        var phase = (px * 0.012 + py * 0.018) - t * 0.0018 + cfg[1];
+        var band = Math.sin(phase) * 0.5 + 0.5;
+        var highlight = Math.pow(band, 3) * 0.32;
+        var twinkle = (Math.sin(p * 53.7 + t * 0.004) * 0.5 + 0.5) * 0.07;
+        return 0.06 + highlight + twinkle;
+      }, 1.0, '170,185,210');
+  });
 }
 </script>
 
