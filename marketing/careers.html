@@ -308,7 +308,8 @@ html { scroll-behavior: smooth; }
     border: 1px solid rgba(255,255,255,0.10); border-radius: 2px;
     overflow: hidden; background: #050505;
   }
-  .film-video { display: block; width: 100%; aspect-ratio: 16/9; background: #050505; }
+  .film-card { cursor: pointer; }
+  .film-card .hero-video-area { border-radius: 2px; }
 
   /* ─── TEAM GALLERY (floating stagger) ─────────────────────────────────── */
   /* Chose a staggered grid over a slider: the film directly above already
@@ -800,13 +801,32 @@ html { scroll-behavior: smooth; }
          unmute or scrub. src is attached by an IntersectionObserver rather
          than in markup, so the file is only fetched once the section is
          actually scrolled to, not on page load. -->
-    <div class="film-card">
-      <video class="film-video" id="film-video" muted loop playsinline autoplay
-             controls preload="none" poster="careers-film-poster.jpg"
-             data-src="careers-film.mp4"></video>
+    <div class="film-card hero-video-card" id="film-card" role="button" tabindex="0"
+         aria-label="Play the team film">
+      <div class="hero-video-area">
+        <img src="careers-film-poster.jpg" alt="" aria-hidden="true"
+             style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;z-index:1;">
+        <div class="hero-video-overlay"></div>
+        <div class="hero-play-btn" id="film-play-btn">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+      </div>
     </div>
   </div>
 </section>
+
+<!-- Play opens the film here. Same card + modal pattern as
+     solutions/ai-for-real-estate; that page embeds YouTube, ours is a
+     self-hosted mp4, so it uses its own IDs and handler rather than the shared
+     module (which only builds YouTube/Tella iframes off #hero-video-card). -->
+<div class="video-modal" id="film-modal" role="dialog" aria-modal="true" aria-label="Team film"
+     style="--video-poster:url('careers-film-poster.jpg')">
+  <div class="video-modal-inner">
+    <button class="video-modal-close" id="film-modal-close" aria-label="Close video">&times;</button>
+    <video id="film-modal-video" controls playsinline preload="none"
+           poster="careers-film-poster.jpg" src="careers-film.mp4"></video>
+  </div>
+</div>
 
 <!-- ─── SECTION 3: VALUES ─────────────────────────────────────────────────── -->
 <section class="section" id="values" style="padding-top:clamp(24px, 4vh, 48px);">
@@ -1399,71 +1419,63 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
 })();
 
 /* ============================================================================
-   FILM PLAYER — autoplays when scrolled into view, pauses when it leaves.
+   FILM PLAYER — poster card opens a modal, mirroring the video card on
+   solutions/ai-for-real-estate.
 
-   The clip is 26MB (it carries audio, unlike the hero loop), so the src is
-   attached on first intersection rather than in markup: someone who never
-   scrolls this far never downloads it. Muted + loop is what makes autoplay
-   permissible; controls stay on so a viewer can unmute or scrub. If the
-   viewer takes manual control we stop auto-pausing on scroll, so we never
-   yank playback out from under them.
+   Deliberately click-to-play rather than autoplay. The previous inline version
+   tried to autoplay muted on scroll; on iOS that is a coin flip (Low Power
+   Mode blocks it outright, and preload="none" means there is nothing decodable
+   when play() is called), and it silently showed a placeholder instead. A tap
+   is a user gesture, which always satisfies the autoplay policy — and it means
+   the ~16MB file is only fetched by people who actually asked for it.
+
+   Own IDs and handler because the shared module in shared-components.js binds
+   to #hero-video-card and only builds YouTube/Tella iframes; this is a
+   self-hosted mp4.
    ========================================================================== */
 (function () {
-  var v = document.getElementById('film-video');
-  if (!v || typeof IntersectionObserver === 'undefined') return;
+  var card  = document.getElementById('film-card');
+  var modal = document.getElementById('film-modal');
+  var video = document.getElementById('film-modal-video');
+  var close = document.getElementById('film-modal-close');
+  var btn   = document.getElementById('film-play-btn');
+  if (!card || !modal || !video) return;
 
-  var userDriven = false;
-  var visible = false;
-  /* Intent has to come from a real interaction, NOT from media events:
-     e.isTrusted is true for any event the browser dispatches, including the
-     'play' event our own v.play() causes. Keying off that latched userDriven
-     on the very first autoplay and permanently disabled the scroll-away pause
-     — the film kept playing thousands of pixels off-screen. pointerdown and
-     keydown on the element fire for the native controls and nothing else. */
-  ['pointerdown', 'keydown'].forEach(function (evt) {
-    v.addEventListener(evt, function () { userDriven = true; });
+  var lastFocus = null;
+
+  function open() {
+    lastFocus = document.activeElement;
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    var p = video.play();
+    if (p && p.catch) p.catch(function () { /* user can hit the native control */ });
+    if (close) close.focus();
+    /* the shared play-button press animation */
+    if (btn) {
+      btn.classList.add('clicked');
+      setTimeout(function () {
+        btn.classList.remove('clicked');
+        btn.classList.add('returning');
+        setTimeout(function () { btn.classList.remove('returning'); }, 400);
+      }, 550);
+    }
+  }
+  function shut() {
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+    video.pause();
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  card.addEventListener('click', open);
+  card.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
   });
-
-  /* iOS will not start a video that has no decodable data yet. With
-     preload="none" the element is empty until src is attached, so calling
-     play() in the same tick always rejected there and the silent catch hid it
-     — you got the placeholder instead of the film. Attach, load(), then try to
-     play, and try again once the browser says it can. */
-  /* Re-check at call time, not just at schedule time. The canplay retry can
-     fire long after it was queued — by then the viewer may have scrolled the
-     film out of view or hit pause, and playing anyway would restart it
-     off-screen or override them. */
-  function attempt() {
-    if (!visible || userDriven) return;
-    v.muted = true;                       // property, not just the attribute
-    var p = v.play();
-    if (p && p.catch) p.catch(function () { /* blocked — poster stands in */ });
-  }
-  function start() {
-    if (!v.src) {
-      v.muted = true;
-      v.src = v.dataset.src;
-      v.load();
-      v.addEventListener('canplay', attempt, { once: true });
-    }
-    attempt();
-  }
-
-  var io = new IntersectionObserver(function (entries) {
-    var e = entries[0];
-    visible = e.isIntersecting;
-    if (visible) {
-      /* Skip only on metered or genuinely slow connections — the file is
-         ~16MB and autoplaying it over 2G is not a trade worth making. */
-      var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-      if (conn && (conn.saveData || /(^|-)2g$/.test(conn.effectiveType || ''))) return;
-      if (!userDriven) start();
-    } else if (!userDriven) {
-      v.pause();
-    }
-  }, { threshold: 0.25 });
-
-  io.observe(v);
+  if (close) close.addEventListener('click', shut);
+  modal.addEventListener('click', function (e) { if (e.target === modal) shut(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && modal.classList.contains('open')) shut();
+  });
 })();
 
 /* ============================================================================
