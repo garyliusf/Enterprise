@@ -433,7 +433,8 @@ function docFor(){
          <img src="${t.footerImg}" style="width:${t.footerImgW}px;max-width:90%;height:auto;display:block;" alt="">
        </td></tr></table></body>`);
 
-  doc = doc.replace(/The Bolt Team/g, '<span style="font-weight:600;">The Bolt Team ⚡</span>');
+  // case-insensitive so CX's "the Bolt team" normalizes to the same signature
+  doc = doc.replace(/[Tt]he Bolt [Tt]eam/g, '<span style="font-weight:600;">The Bolt Team ⚡</span>');
 
   // some templates hard-code width: on the button anchor itself — strip it so
   // the min-width floor + max-content sizing own the box

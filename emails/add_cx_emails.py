@@ -15,14 +15,43 @@ import re, json, os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
+# Standard card scaffolding — the SAME style strings the Rails bolt-layout
+# emails carry, so every editor token rule (card pad via "padding: 0 10px",
+# radius rows, page bg, footer injections) reaches the CX emails identically.
+# {pre} = full-bleed rows above the card content (cx2's own banner).
 WRAP = """<!DOCTYPE html><html><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><style>
 html{{font-family:Arial,Helvetica,sans-serif}}
 </style></head><body style="margin:0;background:#ffffff;">
 <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td align="center">
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;background:#ffffff;">
+<table align="center" cellpadding="0" cellspacing="0" border="0" style="background-color: transparent; max-width: 600px;"><tbody>
+{pre}
+<tr><td style="border-radius: 6px 6px 0px 0px; background-color: #ffffff; padding: 0 10px;"></td></tr>
+<tr><td align="left" style="background-color: #ffffff;padding: 0 10px;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0">
 {body}
-</table></td></tr></table></body></html>"""
+</table>
+</td></tr>
+<tr><td style="background-color: #ffffff; border-radius: 0px 0px 6px 6px; padding: 0 10px;"></td></tr>
+</tbody></table>
+{footer}
+</td></tr></table></body></html>"""
+
+# Shared footer, outside the card — first row's <td><p style #666666> is the
+# anchor the editor's gap/wordmark/socials injections and stacking rules key on.
+FOOTER = (
+    '<table align="center" cellpadding="0" cellspacing="0" border="0" style="background-color: transparent; max-width: 600px;"><tbody>'
+    '<tr><td align="center" style="padding:18px 10px 6px;">'
+    '<p style="margin:0;font-size:13px;color:#666666;line-height:1.6;">'
+    'You are receiving this email because you opted in to product updates from Bolt.new. '
+    '<a href="#" style="color:#3aa6b9;">Unsubscribe</a> &nbsp; '
+    '<a href="#" style="color:#3aa6b9;">Manage preferences</a></p></td></tr>'
+    '<tr><td align="center" style="padding:0 10px 40px;">'
+    '<p style="margin:0;font-size:13px;color:#666666;line-height:1.6;">'
+    'StackBlitz, Inc., 2443 Fillmore Street #380-16814, San Francisco, CA 94115, United States'
+    '</p></td></tr>'
+    '</tbody></table>'
+)
 
 def para(text, size=17, color="#2f2f2f", lh=1.6, pad="0 0 22px"):
     return (f'<tr><td align="left" style="padding:{pad};">'
@@ -31,7 +60,7 @@ def para(text, size=17, color="#2f2f2f", lh=1.6, pad="0 0 22px"):
 
 # ---------------------------------------------------------------- CX email 1
 cx1_body = "".join([
-    '<tr><td style="height:32px;"></td></tr>',
+    '<tr><td style="height:26px;"></td></tr>',
     para("Noticed your team just got bigger on Bolt, love to see it!"),
     para("What are you all working on? Happy to point you toward anything that might "
          "help get up to speed faster."),
@@ -50,16 +79,7 @@ cx1_body = "".join([
     '<p style="margin:0;font-size:15px;color:#2f2f2f;line-height:1.6;">Monika Rozanska<br>'
     'Head of Customer Experience, <a href="https://bolt.new" style="color:#3aa6b9;">Bolt.new</a>'
     '</p></td></tr>',
-    '<tr><td style="height:56px;"></td></tr>',
-    # footer
-    '<tr><td align="center" style="padding:0 0 8px;">'
-    '<p style="margin:0;font-size:13px;color:#666666;line-height:1.6;">'
-    'StackBlitz, Inc., 2443 Fillmore Street #380-16814, San Francisco, CA 94115, United States'
-    '</p></td></tr>',
-    '<tr><td align="center" style="padding:0 0 40px;">'
-    '<p style="margin:0;font-size:13px;color:#666666;line-height:1.6;">'
-    '<a href="#" style="color:#3aa6b9;">Unsubscribe</a> &nbsp; '
-    '<a href="#" style="color:#3aa6b9;">Manage preferences</a></p></td></tr>',
+    '<tr><td style="height:26px;"></td></tr>',
 ])
 
 # ---------------------------------------------------------------- CX email 2
@@ -82,16 +102,20 @@ bullets = ["Connect the Stripe MCP to a Bolt app",
            "Think through common payment edge cases like failed or cancelled payments "
            "and confirmation"]
 
-cx2_body = "".join([
-    # black banner — approximated with a gradient; the real asset is an image.
-    # data-cxbanner lets the editor hide it when the shared banner is injected.
+# black banner — approximated with a gradient; the real asset is an image.
+# data-cxbanner lets the editor hide it when the shared banner is injected.
+# Lives in {pre} (its own card-table row) so it spans full-bleed above the card.
+cx2_pre = (
     '<tr><td align="left" data-cxbanner="1" style="background:#000000;padding:0;">'
     '<div style="background:linear-gradient(105deg,#000 0%,#000 55%,#0a1a3a 74%,'
     '#1b6fd6 88%,#8fd4ff 96%,#000 100%);padding:34px 30px 40px;">'
     '<span style="font-family:Arial,Helvetica,sans-serif;font-size:34px;font-weight:800;'
     'font-style:italic;color:#ffffff;letter-spacing:-1px;">bolt</span>'
     '<span style="font-family:Arial,Helvetica,sans-serif;font-size:19px;font-weight:400;'
-    'color:#ffffff;">.new</span></div></td></tr>',
+    'color:#ffffff;">.new</span></div></td></tr>'
+)
+
+cx2_body = "".join([
     '<tr><td style="height:26px;"></td></tr>',
     para("Hi,", size=16),
     para("An app that can't take payments is a project, an app that can is a business. The "
@@ -135,7 +159,7 @@ cx2_body = "".join([
     'Plan at $29/month in test mode, then add a checkout flow for it to my app with success '
     'and cancel pages."</i></p></td></tr>',
     rule(),
-    '<tr><td align="left" style="padding:0 0 40px;">'
+    '<tr><td align="left" style="padding:0 0 22px;">'
     '<p style="margin:0;font-size:16px;color:#2f2f2f;line-height:1.6;">Keep building,<br>'
     'Monika &amp; the Bolt team</p></td></tr>',
 ])
@@ -147,7 +171,7 @@ CX = [
             "label": "Default",
             "subject": "Noticed your team just got bigger on Bolt",
             "from": '"Monika Rozanska" <monika@bolt.new>', "to": "you@example.com",
-            "html": WRAP.format(body=cx1_body), "text": "",
+            "html": WRAP.format(pre="", body=cx1_body, footer=FOOTER), "text": "",
             "path": "HubSpot — not in the Rails app; edited manually there",
         }],
     },
@@ -157,7 +181,7 @@ CX = [
             "label": "Default",
             "subject": "This week: take payments with the Stripe MCP",
             "from": '"Bolt.new" <hello@bolt.new>', "to": "you@example.com",
-            "html": WRAP.format(body=cx2_body), "text": "",
+            "html": WRAP.format(pre=cx2_pre, body=cx2_body, footer=FOOTER), "text": "",
             "path": "HubSpot — not in the Rails app; edited manually there",
         }],
     },
