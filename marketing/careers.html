@@ -317,7 +317,10 @@ html { scroll-behavior: smooth; }
      performs on a careers page. Rhythm alternates 2 / 3 / 2 / 3 across a 6-col
      grid with per-item vertical offsets, so ~2-3 read at a time and the block
      floats on the page instead of sitting in a frame. */
-  .teamshot-section { position: relative; padding: clamp(24px, 4vh, 48px) 0 clamp(56px, 8vh, 100px); overflow: hidden; }
+  /* Bottom pad matches the values section's bottom pad above (same clamp), so
+     the seams either side of the gallery stay equal at every viewport height.
+     At 8vh the gap below measured 142px against 176px above. */
+  .teamshot-section { position: relative; padding: clamp(24px, 4vh, 48px) 0 clamp(80px, 12vh, 140px); overflow: hidden; }
   /* padded frame gives the pixel border a band to occupy around the grid */
   .teamshot-frame { position: relative; padding: clamp(18px, 2.6vw, 40px); }
   #teamshot-pixels { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
@@ -345,9 +348,28 @@ html { scroll-behavior: smooth; }
     position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.94);
     display: flex; align-items: center; justify-content: center; gap: clamp(8px, 2vw, 28px);
     padding: clamp(16px, 4vw, 48px);
+    /* Closed state is visibility, not display: display can't be transitioned.
+       The 0s visibility transition is DELAYED by the fade duration on close so
+       the element stays hittable/visible while it fades, then snaps out of the
+       a11y tree and pointer flow. On open the delay is 0 so it appears at once. */
+    opacity: 0; visibility: hidden;
+    transition: opacity 0.26s ease, visibility 0s linear 0.26s;
   }
-  .lightbox[hidden] { display: none; }
-  .lightbox-stage { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 14px; min-width: 0; }
+  .lightbox.is-open { opacity: 1; visibility: visible; transition: opacity 0.26s ease, visibility 0s; }
+  .lightbox-stage {
+    margin: 0; display: flex; flex-direction: column; align-items: center; gap: 14px; min-width: 0;
+    /* the stage lifts and settles rather than the whole overlay scaling, so the
+       backdrop fade stays flat and only the photo moves */
+    opacity: 0; transform: scale(0.975) translateY(8px);
+    transition: opacity 0.26s ease, transform 0.36s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .lightbox.is-open .lightbox-stage { opacity: 1; transform: none; }
+  .lightbox-btn { opacity: 0; transition: opacity 0.3s ease 0.06s, background 0.25s ease, border-color 0.25s ease; }
+  .lightbox.is-open .lightbox-btn { opacity: 1; }
+  @media (prefers-reduced-motion: reduce) {
+    .lightbox, .lightbox-stage, .lightbox-btn { transition-duration: 0.01s; }
+    .lightbox-stage { transform: none; }
+  }
   .lightbox-stage img {
     display: block; max-width: min(1100px, 100%); max-height: 78vh;
     width: auto; height: auto; border-radius: 2px;
@@ -719,7 +741,7 @@ html { scroll-behavior: smooth; }
         <figure class="gallery-item" role="button" tabindex="0"><img src="images/careers/gallery/team-04.webp" alt="Teammates catching up over coffee in the office kitchen" width="900" height="600" loading="lazy" decoding="async"></figure>
         <figure class="gallery-item" role="button" tabindex="0"><img src="images/careers/gallery/team-05.webp" alt="The 1160 Battery Street office entrance" width="900" height="600" loading="lazy" decoding="async"></figure>
         <figure class="gallery-item" role="button" tabindex="0"><img src="images/careers/gallery/team-06.webp" alt="High fives at a team offsite" width="900" height="600" loading="lazy" decoding="async"></figure>
-        <figure class="gallery-item" role="button" tabindex="0"><img src="images/careers/gallery/team-07.webp" alt="Teammates laughing during a work session" width="900" height="600" loading="lazy" decoding="async"></figure>
+        <figure class="gallery-item" role="button" tabindex="0"><img src="images/careers/gallery/team-07.webp" alt="Three teammates laughing around a laptop in a meeting room" width="900" height="600" loading="lazy" decoding="async"></figure>
         <figure class="gallery-item" role="button" tabindex="0"><img src="images/careers/gallery/team-08.webp" alt="A teammate playing violin at an offsite" width="900" height="600" loading="lazy" decoding="async"></figure>
         <figure class="gallery-item" role="button" tabindex="0"><img src="images/careers/gallery/team-09.webp" alt="A teammate at their desk in the office" width="900" height="600" loading="lazy" decoding="async"></figure>
         <figure class="gallery-item" role="button" tabindex="0"><img src="images/careers/gallery/team-10.webp" alt="Teammates watching a game at an offsite" width="900" height="600" loading="lazy" decoding="async"></figure>
@@ -730,7 +752,7 @@ html { scroll-behavior: smooth; }
 
 <!-- Lightbox for the team gallery. Markup lives outside the section so its
      fixed positioning isn't affected by the section's overflow:hidden. -->
-<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Team photos" hidden>
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Team photos">
   <button class="lightbox-btn lightbox-close" id="lightbox-close" aria-label="Close">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
   </button>
@@ -1163,13 +1185,13 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   function open(i, from) {
     opener = from || null;
     show(i);
-    box.hidden = false;
+    box.classList.add('is-open');
     document.body.style.overflow = 'hidden';
     var close = document.getElementById('lightbox-close');
     if (close) close.focus();
   }
   function close() {
-    box.hidden = true;
+    box.classList.remove('is-open');
     document.body.style.overflow = '';
     if (opener) opener.focus();
   }
@@ -1193,7 +1215,7 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   box.addEventListener('click', function (e) { if (e.target === box) close(); });
 
   document.addEventListener('keydown', function (e) {
-    if (box.hidden) return;
+    if (!box.classList.contains('is-open')) return;
     if (e.key === 'Escape') close();
     else if (e.key === 'ArrowLeft') show(at - 1);
     else if (e.key === 'ArrowRight') show(at + 1);
