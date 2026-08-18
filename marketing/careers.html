@@ -318,6 +318,8 @@ html { scroll-behavior: smooth; }
      grid with per-item vertical offsets, so ~2-3 read at a time and the block
      floats on the page instead of sitting in a frame. */
   .teamshot-section { position: relative; padding: clamp(24px, 4vh, 48px) 0 clamp(56px, 8vh, 100px); overflow: hidden; }
+  /* padded frame gives the pixel border a band to occupy around the grid */
+  .teamshot-frame { position: relative; padding: clamp(18px, 2.6vw, 40px); }
   #teamshot-pixels { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
   @media (prefers-reduced-motion: reduce) { #teamshot-pixels { display: none; } }
 
@@ -335,6 +337,41 @@ html { scroll-behavior: smooth; }
     opacity: 0.85; transition: opacity 0.35s ease, transform 0.5s cubic-bezier(0.22,1,0.36,1);
   }
   .gallery-item:hover img { opacity: 1; transform: scale(1.03); }
+
+  /* ─── GALLERY LIGHTBOX ────────────────────────────────────────────────── */
+  .gallery-item { cursor: pointer; }
+  .gallery-item:focus-visible { outline: 2px solid #1488FC; outline-offset: 3px; }
+  .lightbox {
+    position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.94);
+    display: flex; align-items: center; justify-content: center; gap: clamp(8px, 2vw, 28px);
+    padding: clamp(16px, 4vw, 48px);
+  }
+  .lightbox[hidden] { display: none; }
+  .lightbox-stage { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 14px; min-width: 0; }
+  .lightbox-stage img {
+    display: block; max-width: min(1100px, 100%); max-height: 78vh;
+    width: auto; height: auto; border-radius: 2px;
+  }
+  .lightbox-count {
+    font-family: 'Silkscreen', monospace; font-size: 11px; letter-spacing: 2px;
+    color: rgba(255,255,255,0.45);
+  }
+  .lightbox-btn {
+    flex-shrink: 0; width: 44px; height: 44px; border-radius: 2px; cursor: pointer;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14);
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    transition: background 0.25s ease, border-color 0.25s ease;
+  }
+  .lightbox-btn:hover { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.3); }
+  .lightbox-btn svg { width: 20px; height: 20px; }
+  .lightbox-close { position: absolute; top: clamp(16px, 3vw, 32px); right: clamp(16px, 3vw, 32px); }
+  @media (max-width: 768px) {
+    /* arrows move below the image so the photo gets the full width */
+    .lightbox { flex-wrap: wrap; }
+    .lightbox-stage { order: 1; flex: 1 0 100%; }
+    .lightbox-prev { order: 2; } .lightbox-next { order: 3; }
+    .lightbox-stage img { max-height: 62vh; }
+  }
 
   /* ─── TESTIMONIALS (vertical cards) ───────────────────────────────────── */
   /* Portrait card: grayscale photo on top, copy beneath. Two per row, so the
@@ -672,22 +709,42 @@ html { scroll-behavior: smooth; }
 <!-- Sits between the values and the testimonials: the values say what we're
      like, this shows who "we" is, then the quotes are individual voices. -->
 <section class="teamshot-section">
-  <canvas id="teamshot-pixels" aria-hidden="true"></canvas>
   <div class="section-inner">
-    <div class="gallery">
-      <figure class="gallery-item"><img src="images/careers/gallery/team-01.webp" alt="Team gathered for a talk in the office" width="900" height="600" loading="lazy" decoding="async"></figure>
-      <figure class="gallery-item"><img src="images/careers/gallery/team-02.webp" alt="Three teammates working from the office couches" width="900" height="600" loading="lazy" decoding="async"></figure>
-      <figure class="gallery-item"><img src="images/careers/gallery/team-03.webp" alt="Two teammates talking at an offsite in the park" width="900" height="600" loading="lazy" decoding="async"></figure>
-      <figure class="gallery-item"><img src="images/careers/gallery/team-04.webp" alt="Teammates catching up over coffee in the office kitchen" width="900" height="600" loading="lazy" decoding="async"></figure>
-      <figure class="gallery-item"><img src="images/careers/gallery/team-05.webp" alt="The 1160 Battery Street office entrance" width="900" height="600" loading="lazy" decoding="async"></figure>
-      <figure class="gallery-item"><img src="images/careers/gallery/team-06.webp" alt="High fives at a team offsite" width="900" height="600" loading="lazy" decoding="async"></figure>
-      <figure class="gallery-item"><img src="images/careers/gallery/team-07.webp" alt="Teammates laughing during a work session" width="900" height="600" loading="lazy" decoding="async"></figure>
-      <figure class="gallery-item"><img src="images/careers/gallery/team-08.webp" alt="A teammate playing violin at an offsite" width="900" height="600" loading="lazy" decoding="async"></figure>
-      <figure class="gallery-item"><img src="images/careers/gallery/team-09.webp" alt="A teammate at their desk in the office" width="900" height="600" loading="lazy" decoding="async"></figure>
-      <figure class="gallery-item"><img src="images/careers/gallery/team-10.webp" alt="Teammates watching a game at an offsite" width="900" height="600" loading="lazy" decoding="async"></figure>
+    <div class="teamshot-frame">
+      <canvas id="teamshot-pixels" aria-hidden="true"></canvas>
+      <div class="gallery">
+        <figure class="gallery-item" role="button" tabindex="0"><img src="images/careers/gallery/team-01.webp" alt="Team gathered for a talk in the office" width="900" height="600" loading="lazy" decoding="async"></figure>
+        <figure class="gallery-item" role="button" tabindex="0"><img src="images/careers/gallery/team-02.webp" alt="Three teammates working from the office couches" width="900" height="600" loading="lazy" decoding="async"></figure>
+        <figure class="gallery-item" role="button" tabindex="0"><img src="images/careers/gallery/team-03.webp" alt="Two teammates talking at an offsite in the park" width="900" height="600" loading="lazy" decoding="async"></figure>
+        <figure class="gallery-item" role="button" tabindex="0"><img src="images/careers/gallery/team-04.webp" alt="Teammates catching up over coffee in the office kitchen" width="900" height="600" loading="lazy" decoding="async"></figure>
+        <figure class="gallery-item" role="button" tabindex="0"><img src="images/careers/gallery/team-05.webp" alt="The 1160 Battery Street office entrance" width="900" height="600" loading="lazy" decoding="async"></figure>
+        <figure class="gallery-item" role="button" tabindex="0"><img src="images/careers/gallery/team-06.webp" alt="High fives at a team offsite" width="900" height="600" loading="lazy" decoding="async"></figure>
+        <figure class="gallery-item" role="button" tabindex="0"><img src="images/careers/gallery/team-07.webp" alt="Teammates laughing during a work session" width="900" height="600" loading="lazy" decoding="async"></figure>
+        <figure class="gallery-item" role="button" tabindex="0"><img src="images/careers/gallery/team-08.webp" alt="A teammate playing violin at an offsite" width="900" height="600" loading="lazy" decoding="async"></figure>
+        <figure class="gallery-item" role="button" tabindex="0"><img src="images/careers/gallery/team-09.webp" alt="A teammate at their desk in the office" width="900" height="600" loading="lazy" decoding="async"></figure>
+        <figure class="gallery-item" role="button" tabindex="0"><img src="images/careers/gallery/team-10.webp" alt="Teammates watching a game at an offsite" width="900" height="600" loading="lazy" decoding="async"></figure>
+      </div>
     </div>
   </div>
 </section>
+
+<!-- Lightbox for the team gallery. Markup lives outside the section so its
+     fixed positioning isn't affected by the section's overflow:hidden. -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Team photos" hidden>
+  <button class="lightbox-btn lightbox-close" id="lightbox-close" aria-label="Close">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+  </button>
+  <button class="lightbox-btn lightbox-prev" id="lightbox-prev" aria-label="Previous photo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+  </button>
+  <figure class="lightbox-stage">
+    <img id="lightbox-img" alt="">
+    <figcaption class="lightbox-count"><span id="lightbox-i">1</span> / <span id="lightbox-n">10</span></figcaption>
+  </figure>
+  <button class="lightbox-btn lightbox-next" id="lightbox-next" aria-label="Next photo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+  </button>
+</div>
 
 <!-- ─── SECTION 5: PERKS ────────────────────────────────────────────────────── -->
 <section class="section" style="padding-top:clamp(24px, 4vh, 48px);">
@@ -997,24 +1054,33 @@ makePixelCanvas('faq-pixel-canvas', 9, 2, function(c, r, t, p) {
 </script>
 
 <script>
-/* ── Team-gallery pixel field — ambient wash the photos float on. Was an
-      edge-band treatment that measured a .teamshot-frame padding; the frame is
-      gone now, so it paints across the section and fades out top and bottom
-      instead of ringing a single image. ── */
+/* ── Team-gallery pixel border — dots occupy only the band around the grid,
+      densest against its edge and fading outward. padCache is hoisted so the
+      per-dot wave never calls getComputedStyle (it runs per dot per frame). ── */
 (function () {
   if (!document.getElementById('teamshot-pixels')) return;
-  makePixelCanvas('teamshot-pixels', 8, 2, function (c, r, t, p) {
+  var pad = 32;
+  function refreshPad() {
+    var f = document.querySelector('.teamshot-frame');
+    if (f) pad = parseFloat(getComputedStyle(f).paddingLeft) || 32;
+  }
+  refreshPad();
+  window.addEventListener('resize', refreshPad);
+
+  makePixelCanvas('teamshot-pixels', 7, 2, function (c, r, t, p) {
     var el = document.getElementById('teamshot-pixels');
     if (!el) return 0;
-    var W = el.width, H = el.height, px = c * 8, py = r * 8;
-    /* fade in from the top edge and out at the bottom so the field has no
-       hard boundary against the sections above and below */
-    var vFade = Math.min(1, py / (H * 0.18)) * Math.max(0, 1 - Math.max(0, py - H * 0.6) / (H * 0.4));
-    if (vFade <= 0) return 0;
-    var wave = Math.sin((px * 0.45 + py * 0.8) / 60 - t * 0.0012);
-    var twinkle = (Math.sin(p * 53.7 + t * 0.004) * 0.5 + 0.5) * 0.14;
+    var W = el.width, H = el.height, px = c * 7, py = r * 7;
+    /* how far this dot sits OUTSIDE the grid rect (0 = over the photos) */
+    var dx = Math.max(pad - px, px - (W - pad), 0);
+    var dy = Math.max(pad - py, py - (H - pad), 0);
+    var d = Math.max(dx, dy);
+    if (d <= 0) return 0;
+    var fade = Math.max(0, 1 - d / pad);
+    var wave = Math.sin((px * 0.5 + py * 0.7) / 42 - t * 0.0016);
+    var twinkle = (Math.sin(p * 53.7 + t * 0.004) * 0.5 + 0.5) * 0.22;
+    return (0.18 + Math.max(0, wave) * 0.5 + twinkle) * Math.pow(fade, 1.25);
     /* deeper indigo than the brand #1488FC used elsewhere on the page */
-    return (0.10 + Math.max(0, wave) * 0.30 + twinkle) * vFade * 0.75;
   }, 1.0, '38,72,214');
 })();
 
@@ -1065,6 +1131,72 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       document.querySelectorAll('.ms-faq-item.is-open').forEach(function (o) { o.classList.remove('is-open'); });
       if (!isOpen) item.classList.add('is-open');
     });
+  });
+})();
+
+/* ============================================================================
+   GALLERY LIGHTBOX — click/Enter a tile to open, arrows or buttons to move
+   through the set, Escape or backdrop to close. Wraps at both ends. Focus is
+   returned to the tile that opened it so keyboard users don't lose their place.
+   ========================================================================== */
+(function () {
+  var tiles = [].slice.call(document.querySelectorAll('.gallery-item'));
+  var box   = document.getElementById('lightbox');
+  var img   = document.getElementById('lightbox-img');
+  var idxEl = document.getElementById('lightbox-i');
+  var nEl   = document.getElementById('lightbox-n');
+  if (!tiles.length || !box || !img) return;
+
+  var shots = tiles.map(function (t) {
+    var i = t.querySelector('img');
+    return { src: i.getAttribute('src'), alt: i.getAttribute('alt') || '' };
+  });
+  var at = 0, opener = null;
+  if (nEl) nEl.textContent = String(shots.length);
+
+  function show(i) {
+    at = (i + shots.length) % shots.length;   /* wrap both directions */
+    img.src = shots[at].src;
+    img.alt = shots[at].alt;
+    if (idxEl) idxEl.textContent = String(at + 1);
+  }
+  function open(i, from) {
+    opener = from || null;
+    show(i);
+    box.hidden = false;
+    document.body.style.overflow = 'hidden';
+    var close = document.getElementById('lightbox-close');
+    if (close) close.focus();
+  }
+  function close() {
+    box.hidden = true;
+    document.body.style.overflow = '';
+    if (opener) opener.focus();
+  }
+
+  tiles.forEach(function (t, i) {
+    t.setAttribute('aria-label', 'View photo ' + (i + 1) + ' of ' + shots.length);
+    t.addEventListener('click', function () { open(i, t); });
+    t.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(i, t); }
+    });
+  });
+
+  var prev = document.getElementById('lightbox-prev');
+  var next = document.getElementById('lightbox-next');
+  if (prev) prev.addEventListener('click', function () { show(at - 1); });
+  if (next) next.addEventListener('click', function () { show(at + 1); });
+  var closeBtn = document.getElementById('lightbox-close');
+  if (closeBtn) closeBtn.addEventListener('click', close);
+
+  /* backdrop only — clicks on the image or the controls must not close */
+  box.addEventListener('click', function (e) { if (e.target === box) close(); });
+
+  document.addEventListener('keydown', function (e) {
+    if (box.hidden) return;
+    if (e.key === 'Escape') close();
+    else if (e.key === 'ArrowLeft') show(at - 1);
+    else if (e.key === 'ArrowRight') show(at + 1);
   });
 })();
 
