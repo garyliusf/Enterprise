@@ -604,36 +604,65 @@ html { scroll-behavior: smooth; }
   .ms-faq-a-inner .ms-faq-p { margin: 0 0 18px; }
   .ms-faq-a-inner .ms-faq-p:last-child { margin-bottom: 0; }
 
-  /* Process rail. A bare <ol> was the one element on the page not speaking its
-     own language, so the steps use the vocabulary already here: Silkscreen
-     numerals in brand blue, 2px tiles, hairline rules — the same treatment as
-     the .value-num cards. The connector runs between tiles and stops at the
-     last one, so the list reads as a sequence rather than five loose points. */
-  .faq-steps { list-style: none; margin: 0 0 22px; padding: 0; }
+  /* Process rail — the canonical how-it-works node treatment (.how-step-node
+     from security-agent.html): 40px circle, 1px brand-blue ring on black, a
+     Silkscreen 10px numeral. Vertical rather than the component's horizontal
+     3-up, because five steps of sentence-length copy can't run across a row
+     inside an FAQ answer.
+     Progressive like the original too: opening the item draws the rail down
+     and pops the nodes in sequence, driven off the accordion's .is-open. */
+  .faq-steps { list-style: none; margin: 0 0 22px; padding: 0; position: relative; }
+  /* static track + the fill that draws over it */
+  .faq-steps::before, .faq-steps::after {
+    content: ""; position: absolute; left: 20px; transform: translateX(-50%);
+    top: 20px; bottom: 20px; width: 1px;
+  }
+  .faq-steps::before { background: rgba(255,255,255,0.07); }
+  .faq-steps::after {
+    background: linear-gradient(180deg, rgba(20,136,252,0.25), rgba(20,136,252,0.8) 20%, rgba(20,136,252,0.8) 80%, rgba(20,136,252,0.25));
+    /* Resting state is DRAWN, not empty: the animation is an enhancement, so
+       if it never fires (no .is-open, reduced motion, JS off) the rail is
+       still there rather than invisible. */
+    transform: translateX(-50%) scaleY(1); transform-origin: top center;
+  }
+  .ms-faq-item.is-open .faq-steps::after {
+    animation: faqRailDraw 1.4s cubic-bezier(0.4, 0, 0.2, 1) 0.1s both;
+  }
+  @keyframes faqRailDraw {
+    from { transform: translateX(-50%) scaleY(0); }
+    to   { transform: translateX(-50%) scaleY(1); }
+  }
+
   .faq-steps li {
-    position: relative; display: grid; grid-template-columns: 30px 1fr;
-    gap: 16px; padding-bottom: 20px;
+    position: relative; display: grid; grid-template-columns: 40px 1fr;
+    gap: 18px; padding-bottom: 22px;
   }
   .faq-steps li:last-child { padding-bottom: 0; }
-  /* Connector sits on the tile's centre line: the tile is 30px wide in a 30px
-     column, so centre is 15px — translateX(-50%) keeps the 1px rule exactly
-     centred instead of landing half a pixel to the left. */
-  .faq-steps li:not(:last-child)::before {
-    content: ""; position: absolute; left: 15px; transform: translateX(-50%);
-    top: 34px; bottom: -2px; width: 1px; background: rgba(255,255,255,0.11);
-  }
+
+  /* .how-step-node, verbatim values */
   .faq-step-n {
-    width: 30px; height: 30px; border-radius: 2px; box-sizing: border-box;
-    display: inline-flex; align-items: center; justify-content: center;
-    font-family: 'Silkscreen', monospace; font-size: 10px; letter-spacing: 0.5px;
-    color: #1488FC; background: rgba(20,136,252,0.07);
-    border: 1px solid rgba(20,136,252,0.28);
-    position: relative; z-index: 1;
+    width: 40px; height: 40px; border-radius: 50%; box-sizing: border-box;
+    border: 1px solid rgba(20,136,252,0.5); background: #000;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Silkscreen', monospace; font-size: 10px; color: #1488FC;
+    position: relative; z-index: 1; flex-shrink: 0;
+    /* visible at rest — nodePop animates FROM scale(0), so a node is never
+       left invisible if the animation doesn't run */
   }
-  /* Optically centre the FIRST line of the step against the 30px tile: the
-     line box is 1.7em tall, so the offset is half the difference. 5px was a
-     guess and sat the text ~3px low. */
-  .faq-step-t { padding-top: calc((30px - 1.7em) / 2); }
+  .ms-faq-item.is-open .faq-steps li:nth-child(1) .faq-step-n { animation: nodePop 0.45s cubic-bezier(0.34,1.56,0.64,1) 0.15s both; }
+  .ms-faq-item.is-open .faq-steps li:nth-child(2) .faq-step-n { animation: nodePop 0.45s cubic-bezier(0.34,1.56,0.64,1) 0.40s both; }
+  .ms-faq-item.is-open .faq-steps li:nth-child(3) .faq-step-n { animation: nodePop 0.45s cubic-bezier(0.34,1.56,0.64,1) 0.65s both; }
+  .ms-faq-item.is-open .faq-steps li:nth-child(4) .faq-step-n { animation: nodePop 0.45s cubic-bezier(0.34,1.56,0.64,1) 0.90s both; }
+  .ms-faq-item.is-open .faq-steps li:nth-child(5) .faq-step-n { animation: nodePop 0.45s cubic-bezier(0.34,1.56,0.64,1) 1.15s both; }
+  @keyframes nodePop { from { transform: scale(0); } to { transform: scale(1); } }
+
+  /* Optically centre the FIRST line of the step against the 40px node. */
+  .faq-step-t { padding-top: calc((40px - 1.7em) / 2); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ms-faq-item.is-open .faq-steps li .faq-step-n,
+    .ms-faq-item.is-open .faq-steps::after { animation: none; }
+  }
 
   /* ─── FOOTER ──────────────────────────────────────────────────────────── */
   .footer-image-section { width: 100%; background: #000; }
