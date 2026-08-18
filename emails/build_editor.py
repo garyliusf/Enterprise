@@ -289,6 +289,7 @@ function css(t){
     img[data-footlogo]{width:${t.footLogoW}px !important}
     img[data-social]{width:18px !important;height:18px !important}
     ${t.headerBanner ? 'td[style*="font-size: 0px"]{display:none !important}' : ''}
+    ${t.headerBanner ? '[data-cxbanner]{display:none !important}' : ''}
     h1,h2,h3,h4{font-family:${f(t.hFont)} !important;font-weight:${t.hWeight} !important;
        color:${t.hColor} !important;line-height:${t.hLh/100} !important;
        letter-spacing:${t.hTrack/100}em !important;text-align:left !important}
@@ -319,6 +320,22 @@ function css(t){
        padding-left:${t.cardPad}px !important;padding-right:${t.cardPad}px !important}
     a:not([style]){color:${t.linkCol} !important;text-decoration:none !important;
        font-weight:600 !important}
+    /* CX (HubSpot) normalization — their markup is inline-styled with its own
+       palette, so the Rails-shaped rules above never catch it:
+         a 4a9eeb/3aa6b9      HubSpot link colours -> token link
+         p #2f2f2f            body copy            -> token body
+         p color:#111 + 700   section subheads     -> subhead type
+         u                    underlined lead-ins  -> bold, no underline
+         td 22px / 10-30px    paragraph & CTA rows -> 16px rhythm / 8-24 button */
+    a[style*="4a9eeb"],a[style*="3aa6b9"]{color:${t.linkCol} !important;
+       font-weight:600 !important;text-decoration:none !important}
+    p[style*="#2f2f2f"]{font-family:${f(t.bFont)} !important;font-size:${t.bSize}px !important;
+       color:${t.bColor} !important;line-height:${t.bLh/100} !important}
+    p[style*="color:#111"]{font-family:${f(t.hFont)} !important;font-size:17px !important;
+       color:${t.hColor} !important}
+    u{text-decoration:none !important;font-weight:700 !important}
+    td[style*="0 0 22px"]{padding:0 0 16px !important}
+    td[style*="10px 0 30px"]{padding:8px 0 24px !important}
     ${t.btnWidth==='hug'
       ? 'td[style*="1389fd"],span[style*="1389fd"]{background:transparent !important;border-radius:0 !important}'
         + 'td:has(a[style*="1389fd"]),td:has(a[data-btn]){text-align:left !important}'

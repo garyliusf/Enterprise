@@ -83,8 +83,9 @@ bullets = ["Connect the Stripe MCP to a Bolt app",
            "and confirmation"]
 
 cx2_body = "".join([
-    # black banner — approximated with a gradient; the real asset is an image
-    '<tr><td align="left" style="background:#000000;padding:0;">'
+    # black banner — approximated with a gradient; the real asset is an image.
+    # data-cxbanner lets the editor hide it when the shared banner is injected.
+    '<tr><td align="left" data-cxbanner="1" style="background:#000000;padding:0;">'
     '<div style="background:linear-gradient(105deg,#000 0%,#000 55%,#0a1a3a 74%,'
     '#1b6fd6 88%,#8fd4ff 96%,#000 100%);padding:34px 30px 40px;">'
     '<span style="font-family:Arial,Helvetica,sans-serif;font-size:34px;font-weight:800;'
