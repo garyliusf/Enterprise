@@ -735,7 +735,13 @@ video.detail-photo{ object-fit:cover; width:100%;
   .hero-btns .btn{ width:100%; max-width:320px; }
   .hero-name{ font-size:15px; letter-spacing:.14em; }
   .hero-inner .label{ font-size:13px; }
-  .contact-list .k{ width:84px; }
+  /* the email is the longest string on the page — let the row wrap and
+     shrink rather than forcing horizontal scroll on phones */
+  .contact-list a, .contact-list > li > span{
+    flex-wrap:wrap; gap:2px 14px; font-size:17px; padding:16px 0;
+    overflow-wrap:anywhere;
+  }
+  .contact-list .k{ width:100%; }
   .pull{ padding-left:22px; margin:32px 0; }
   .foot{ min-height:clamp(520px,78vh,720px); padding:110px 0 44px; }
 }
@@ -969,7 +975,7 @@ video.detail-photo{ object-fit:cover; width:100%;
 <section class="band" id="breathwork">
   <div class="wrap detail">
     <div class="rv">
-      <video class="detail-photo" autoplay muted loop playsinline preload="metadata"
+      <video class="detail-photo" autoplay muted loop playsinline preload="auto"
              poster="assets/breathwork-reel-poster.jpg" src="assets/breathwork-reel.mp4"></video>    </div>
     <div class="detail-body rv rv-d1 readmore">
       <span class="label">breathwork</span>
@@ -1042,10 +1048,11 @@ video.detail-photo{ object-fit:cover; width:100%;
 <section class="band band--deep" style="padding-bottom: clamp(32px,4vh,52px)">
   <div class="wrap">
     <div class="creds rv">
-      <div class="cred">
+      <a class="cred cred--link" href="https://www.linkedin.com/in/mich%C3%A8le-anne-barocchi-b8205139/" target="_blank" rel="noopener">
         <div class="cred-k">PhD &amp; MPH</div>
         <div class="cred-v">Infectious Diseases &amp; Immunity, UC Berkeley</div>
-      </div>
+        <span class="cred-out" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M3 10 10 3M4.6 3H10v5.4" stroke="currentColor" stroke-width="1.1"/></svg></span>
+      </a>
       <a class="cred cred--link" href="https://pubmed.ncbi.nlm.nih.gov/?term=Barocchi%20MA%5BAuthor%5D" target="_blank" rel="noopener">
         <div class="cred-k">45+</div>
         <div class="cred-v">Peer-reviewed scientific papers; fifteen years at Novartis</div>
@@ -1342,6 +1349,26 @@ video.detail-photo{ object-fit:cover; width:100%;
       }, 1400);
     }, 2500);
   }
+
+  /* iOS autoplay: the attributes alone aren't always enough. Safari wants
+     muted set as a property, and it silently rejects the initial play()
+     if the video hasn't buffered — so retry on canplay and on the first
+     user gesture. If it still won't play (Low Power Mode blocks autoplay
+     outright) the poster frame stands in. */
+  document.querySelectorAll('video[autoplay]').forEach(function(v){
+    v.muted = true;
+    v.playsInline = true;
+    v.setAttribute('webkit-playsinline', '');
+    var tryPlay = function(){
+      var p = v.play();
+      if (p && p.catch) p.catch(function(){});
+    };
+    tryPlay();
+    v.addEventListener('canplay', tryPlay, { once:true });
+    ['touchstart','pointerdown','scroll'].forEach(function(ev){
+      window.addEventListener(ev, tryPlay, { once:true, passive:true });
+    });
+  });
 
   document.getElementById('yr').textContent = new Date().getFullYear();
 
