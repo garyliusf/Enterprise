@@ -1206,13 +1206,34 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
    (Restored: lost to a range-delete when the hero-video block was removed.)
    ========================================================================== */
 (function () {
-  document.querySelectorAll('.ms-faq-item').forEach(function (item) {
+  var items = [].slice.call(document.querySelectorAll('.ms-faq-item'));
+
+  /* The class alone is a purely visual state — screen readers get no
+     announcement from it. Wire aria-expanded on the button and point it at the
+     answer panel so the open/closed state is actually conveyed. */
+  function setState(item, open) {
+    item.classList.toggle('is-open', open);
     var btn = item.querySelector('.ms-faq-q');
+    var panel = item.querySelector('.ms-faq-a');
+    if (btn) btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (panel) panel.setAttribute('aria-hidden', open ? 'false' : 'true');
+  }
+
+  items.forEach(function (item, i) {
+    var btn = item.querySelector('.ms-faq-q');
+    var panel = item.querySelector('.ms-faq-a');
     if (!btn) return;
+    if (panel) {
+      if (!panel.id) panel.id = 'faq-panel-' + (i + 1);
+      btn.setAttribute('aria-controls', panel.id);
+      panel.setAttribute('role', 'region');
+      panel.setAttribute('aria-labelledby', btn.id || (btn.id = 'faq-q-' + (i + 1)));
+    }
+    setState(item, item.classList.contains('is-open'));
     btn.addEventListener('click', function () {
-      var isOpen = item.classList.contains('is-open');
-      document.querySelectorAll('.ms-faq-item.is-open').forEach(function (o) { o.classList.remove('is-open'); });
-      if (!isOpen) item.classList.add('is-open');
+      var willOpen = !item.classList.contains('is-open');
+      items.forEach(function (o) { setState(o, false); });
+      setState(item, willOpen);
     });
   });
 })();
@@ -1277,9 +1298,26 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
 
   document.addEventListener('keydown', function (e) {
     if (!box.classList.contains('is-open')) return;
-    if (e.key === 'Escape') close();
-    else if (e.key === 'ArrowLeft') show(at - 1);
-    else if (e.key === 'ArrowRight') show(at + 1);
+    if (e.key === 'Escape') { close(); return; }
+    if (e.key === 'ArrowLeft')  { show(at - 1); return; }
+    if (e.key === 'ArrowRight') { show(at + 1); return; }
+
+    /* Focus trap. The overlay is aria-modal, so focus must not reach the page
+       behind it — without this, Tab walks onto controls the user can't see. */
+    if (e.key !== 'Tab') return;
+    var focusable = [].slice.call(
+      box.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+    ).filter(function (el) {
+      return !el.disabled && el.getClientRects().length;
+    });
+    if (!focusable.length) { e.preventDefault(); return; }
+    var first = focusable[0], last = focusable[focusable.length - 1];
+    var active = document.activeElement;
+    if (e.shiftKey && (active === first || !box.contains(active))) {
+      e.preventDefault(); last.focus();
+    } else if (!e.shiftKey && (active === last || !box.contains(active))) {
+      e.preventDefault(); first.focus();
+    }
   });
 })();
 
@@ -1456,8 +1494,28 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     document.body.appendChild(s);
   }
 
+  /* Greenhouse returns a job under EVERY department it belongs to, so the
+     flattened arrays double-count cross-listed openings. Dedupe by job id for
+     any count, and render each opening only under the first department it
+     appears in so it never shows twice in the list. */
   function allJobs() {
-    return departments.reduce(function (acc, d) { return acc.concat(d.jobs); }, []);
+    var seen = Object.create(null);
+    return departments.reduce(function (acc, d) {
+      d.jobs.forEach(function (j) {
+        if (seen[j.id]) return;
+        seen[j.id] = true;
+        acc.push(j);
+      });
+      return acc;
+    }, []);
+  }
+  /* jobs for a department, minus any already rendered under an earlier one */
+  function ownJobs(dept, claimed) {
+    return dept.jobs.filter(function (j) {
+      if (claimed[j.id]) return false;
+      claimed[j.id] = true;
+      return true;
+    });
   }
 
   /* Location filter only — department is excluded here on purpose, so each
@@ -1487,8 +1545,9 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     var html = '';
     var total = allJobs().filter(passesTextAndLoc).length;
     html += '<button class="role-pill' + (activeDept === '' ? ' is-active' : '') + '" data-dept="">All Teams<span class="role-pill-count">' + total + '</span></button>';
+    var pillClaimed = Object.create(null);
     departments.forEach(function (d) {
-      var n = d.jobs.filter(passesTextAndLoc).length;
+      var n = ownJobs(d, pillClaimed).filter(passesTextAndLoc).length;
       if (!n) return;
       html += '<button class="role-pill' + (activeDept === d.name ? ' is-active' : '') + '" data-dept="' + esc(d.name) + '">' + esc(d.name) + '<span class="role-pill-count">' + n + '</span></button>';
     });
@@ -1519,9 +1578,11 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     var html = '';
     var shown = 0;
 
+    var claimed = Object.create(null);
     departments.forEach(function (d) {
+      var own = ownJobs(d, claimed);
       if (activeDept && d.name !== activeDept) return;
-      var jobs = d.jobs.filter(passesTextAndLoc);
+      var jobs = own.filter(passesTextAndLoc);
       if (!jobs.length) return;
       shown += jobs.length;
 
