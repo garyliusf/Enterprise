@@ -848,9 +848,9 @@ html { scroll-behavior: smooth; }
                 title="" aria-hidden="true" frameborder="0" allow="autoplay; encrypted-media"
                 style="position:absolute;top:50%;left:50%;width:100%;height:100%;transform:translate(-50%,-50%) scale(1.08);transform-origin:center;pointer-events:none;border:0;display:block;z-index:1;"></iframe>
         <div class="hero-video-overlay"></div>
-        <div class="hero-play-btn" id="hero-play-btn">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
-        </div>
+        <!-- No centre play button: the ambient loop plays on its own and the
+             whole card is the click target (shared module guards the missing
+             #hero-play-btn). -->
       </div>
     </div>
   </div>
@@ -1469,19 +1469,27 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
      up paused. The reference page nudges it over postMessage, which needs
      enablejsapi=1 on the iframe; without both, the card just sits on its
      poster. */
+  function post(msg) {
+    try { frame.contentWindow.postMessage(JSON.stringify(msg), '*'); } catch (e) {}
+  }
   function send(func, args) {
-    try {
-      frame.contentWindow.postMessage(
-        JSON.stringify({ event: 'command', func: func, args: args || [] }), '*');
-    } catch (e) {}
+    post({ event: 'command', func: func, args: args || [] });
+  }
+  /* The widget API only starts emitting events after a plain
+     {event:'listening'} message — NOT a command (an earlier version sent
+     {event:'command', func:'listening'}, which the player ignores, so
+     onStateChange never arrived and the poster never faded even while the
+     loop was playing behind it). */
+  function handshake() {
+    post({ event: 'listening', id: 'film-preview-iframe', channel: 'widget' });
+    send('addEventListener', ['onStateChange']);
   }
   function nudge() { send('mute'); send('playVideo'); }
 
   /* Reveal the loop ONLY once the player reports it is actually playing.
-     A blind timer was worse than no fade: when autoplay doesn't start (as it
-     currently doesn't for this unlisted upload) the poster disappeared and
-     left a black card. Now a stalled player just keeps its poster, which is a
-     legitimate-looking state. */
+     A blind timer was worse than no fade: when autoplay doesn't start, the
+     poster disappeared and left a black card. Now a stalled player just keeps
+     its poster, which is a legitimate-looking state. */
   function reveal() {
     if (!cover || cover.dataset.done) return;
     cover.dataset.done = '1';
@@ -1494,17 +1502,43 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     })())) return;
     var d;
     try { d = JSON.parse(e.data); } catch (_) { return; }
-    if (d && d.event === 'onStateChange' && d.info === 1) reveal();  // 1 = PLAYING
+    if (!d) return;
+    /* Playing arrives as onStateChange (info 1) once subscribed, but also as
+       infoDelivery {playerState:1} — accept either. */
+    if (d.event === 'onStateChange' && d.info === 1) reveal();
+    if (d.event === 'infoDelivery' && d.info && d.info.playerState === 1) reveal();
   });
 
-  frame.addEventListener('load', function () {
-    send('listening');            // required before the player emits events
+  /* Nudge when the card is IN VIEW, not just when the iframe loads. The card
+     sits below the 100vh hero, and YouTube defers offscreen autoplay — a
+     fixed burst of nudges right after load expires before the user has
+     scrolled down, leaving a player that never starts. */
+  var kicked = false;
+  function kick() {
+    if (kicked) return;
+    kicked = true;
+    handshake();
     nudge();
     var tries = 0;
     var t = setInterval(function () {
+      if (cover && cover.dataset.done) return clearInterval(t);
+      handshake();
       nudge();
-      if (++tries >= 6) clearInterval(t);
-    }, 1500);
+      if (++tries >= 8) clearInterval(t);
+    }, 1200);
+  }
+  frame.addEventListener('load', function () {
+    handshake();
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (entries) {
+        for (var i = 0; i < entries.length; i++) {
+          if (entries[i].isIntersecting) { kick(); io.disconnect(); break; }
+        }
+      }, { threshold: 0.35 });
+      io.observe(frame);
+    } else {
+      kick();
+    }
   });
 })();
 
