@@ -712,7 +712,7 @@ html { scroll-behavior: smooth; }
      inside an FAQ answer.
      Progressive like the original too: opening the item draws the rail down
      and pops the nodes in sequence, driven off the accordion's .is-open. */
-  .faq-steps { list-style: none; margin: 0 0 22px; padding: 0; position: relative; }
+  .faq-steps { list-style: none; margin: 16px 0 22px; padding: 0; position: relative; }
   /* static track + the fill that draws over it */
   .faq-steps::before, .faq-steps::after {
     content: ""; position: absolute; left: 20px; transform: translateX(-50%);
@@ -764,8 +764,21 @@ html { scroll-behavior: smooth; }
   /* Optically centre the FIRST line of the step against the 40px node. */
   .faq-step-t { padding-top: calc((40px - 1.7em) / 2); color: #fff; }
 
+  /* Each row's text reveals just behind its node — howStepIn verbatim from the
+     horizontal how-it-works timeline (solutions/_template), each text trailing
+     its nodePop by the same 0.13s the horizontal version uses. Visible at
+     rest for the same reason as the nodes: `both` only hides it while .is-open
+     drives the animation. */
+  @keyframes howStepIn { from { opacity:0; transform:translateY(14px); filter:blur(10px); } to { opacity:1; transform:translateY(0); filter:blur(0); } }
+  .ms-faq-item.is-open .faq-steps li:nth-child(1) .faq-step-t { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 0.28s both; }
+  .ms-faq-item.is-open .faq-steps li:nth-child(2) .faq-step-t { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 0.53s both; }
+  .ms-faq-item.is-open .faq-steps li:nth-child(3) .faq-step-t { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 0.78s both; }
+  .ms-faq-item.is-open .faq-steps li:nth-child(4) .faq-step-t { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 1.03s both; }
+  .ms-faq-item.is-open .faq-steps li:nth-child(5) .faq-step-t { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 1.28s both; }
+
   @media (prefers-reduced-motion: reduce) {
     .ms-faq-item.is-open .faq-steps li .faq-step-n,
+    .ms-faq-item.is-open .faq-steps li .faq-step-t,
     .ms-faq-item.is-open .faq-steps::after { animation: none; }
   }
 
