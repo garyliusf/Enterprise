@@ -343,6 +343,7 @@ function css(t){
     table[width="70%"]{width:100% !important}
     td[style*="border-top:1px solid #111"]{border-top:1px solid #EAEAEA !important}
     @media (max-width:480px){
+      body{padding:16px 0 !important}
       /* card side padding goes proportional (35/600 = 5.8%) so body text
          stays aligned with the banner wordmark as the banner scales down */
       td[style*="padding: 0 10px"]{padding:6px 5.8% !important}
