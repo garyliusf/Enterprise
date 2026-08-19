@@ -441,8 +441,9 @@ html { scroll-behavior: smooth; }
      it still reads correctly without CSS and to screen readers. */
   .testi-section { padding: clamp(24px, 4vh, 48px) 0 clamp(80px, 12vh, 140px); }
   /* Four testimonials now — a scroll-snap slider instead of the old 3-col
-     grid. ~3 cards + a visible sliver of the 4th fit the row; the sliver and
-     the right-edge fade below are the overflow cues, the arrows the control.
+     grid. ~3 cards + a visible sliver of the 4th fit the row; the sliver is
+     the overflow cue, the arrows the control (a right-edge fade was tried
+     and removed — Gary, 2026-08-19).
      stretch, not start: `start` sized each card to its own quote, so a longer
      one made a taller card and the attributions sat at different heights.
      Stretching equalises the row; .testi-content's flex:1 plus .testi-attr's
@@ -459,16 +460,6 @@ html { scroll-behavior: smooth; }
   }
   .testi-stack::-webkit-scrollbar { display: none; }
   .testi-stack .testi-panel { flex: 0 0 calc((100% - 60px) / 3.35); scroll-snap-align: start; }
-  /* Soft fade at the right edge while there's still content off-screen; the
-     page is #000 so the gradient dissolves the last card into the background.
-     JS drops it (is-end) once the slider is scrolled all the way. */
-  .testi-slider::after {
-    content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 90px;
-    background: linear-gradient(to right, rgba(0,0,0,0), #000);
-    pointer-events: none; z-index: 3;
-    opacity: 1; transition: opacity 0.3s ease;
-  }
-  .testi-slider.is-end::after { opacity: 0; }
   /* prev/next — ghost-button DNA (0.22 border → 0.4 + white on hover) */
   .testi-nav { display: flex; gap: 8px; justify-content: flex-end; margin-top: 18px; }
   .testi-arrow {
@@ -518,7 +509,8 @@ html { scroll-behavior: smooth; }
   .testi-panel .testi-eyebrow { font-size: 13px; margin: 0; color: rgba(255,255,255,0.4); }
   .testi-quote {
     font-family: 'Cormorant Garamond', Georgia, serif;
-    font-size: clamp(18px, 1.5vw, 20px); font-weight: 300; color: #fff;
+    /* #EDDCC6 = the success pull-quote warm beige (CLAUDE.md token) */
+    font-size: clamp(16px, 1.5vw, 18px); font-weight: 300; color: #EDDCC6;
     line-height: 1.5; font-style: normal; margin: 0;
   }
   .testi-attr { display: flex; flex-direction: column; gap: 3px; margin-top: auto; padding-top: 8px; }
@@ -798,11 +790,10 @@ html { scroll-behavior: smooth; }
     .values-grid { grid-template-columns: 1fr; }
     .value-card, .value-card:nth-child(4), .value-card:nth-child(5) { grid-column: auto; }
     .gallery { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-    /* one card + a sliver — the peek plus edge fade replaces the old stacked
-       column, and the snap points make it a natural swipe on touch */
+    /* one card + a sliver — the peek replaces the old stacked column, and
+       the snap points make it a natural swipe on touch */
     .testi-stack { scroll-snap-type: x mandatory; }
     .testi-stack .testi-panel { flex-basis: 85%; }
-    .testi-slider::after { width: 56px; }
     .testi-content { padding: 26px 22px 28px; gap: 18px; }
     .testi-photo { aspect-ratio: 16 / 10; }
     .testi-panel .testi-eyebrow { font-size: 12px; }
@@ -1049,32 +1040,17 @@ html { scroll-behavior: smooth; }
     <div class="testi-stack">
 
       <article class="testi-panel">
-        <canvas class="testi-pixels" id="testi-pixels-1"></canvas>
+        <canvas class="testi-pixels" id="testi-pixels-4"></canvas>
         <div class="testi-content">
-          <p class="section-eyebrow testi-eyebrow">Customer Experience</p>
-          <p class="testi-quote">&ldquo;I&rsquo;ve never worked for a company that is as collaborative as this one. At Bolt, regardless of your role in the company, you are empowered to provide feedback and suggest improvements to the product. Working at Bolt really makes you feel like you&rsquo;re contributing to something great.&rdquo;</p>
+          <p class="section-eyebrow testi-eyebrow">Engineering</p>
+          <p class="testi-quote">&ldquo;The culture at Bolt is genuinely exceptional. Engineers here aren&rsquo;t just handed specs to execute. You get the reasoning behind every goal, the space to disagree, and the trust to help shape how the team works. Things move fast, but no one uses that as an excuse to skip the details.&rdquo;</p>
           <div class="testi-attr">
-            <span class="testi-name">Charles W.</span>
-            <span class="testi-role">Senior Customer Experience Engineer, Bolt.new</span>
+            <span class="testi-name">Liya</span>
+            <span class="testi-role">Senior Frontend Engineer, Bolt.new</span>
           </div>
         </div>
         <div class="testi-photo">
-          <img src="images/careers/team/charles-w.jpg" alt="Charles W., Senior Customer Experience Engineer" loading="lazy" onerror="this.closest('.testi-photo').classList.add('is-empty'); this.remove();">
-        </div>
-      </article>
-
-      <article class="testi-panel">
-        <canvas class="testi-pixels" id="testi-pixels-2"></canvas>
-        <div class="testi-content">
-          <p class="section-eyebrow testi-eyebrow">People Ops</p>
-          <p class="testi-quote">&ldquo;What sold me on Bolt was the opportunity to help build something special, but what&rsquo;s kept me here is the people. I&rsquo;ve watched teammates jump in wherever they&rsquo;re needed and leadership move fast without losing sight of the people behind the work. It&rsquo;s rare to find a team this driven and this genuine.&rdquo;</p>
-          <div class="testi-attr">
-            <span class="testi-name">Brianna L.</span>
-            <span class="testi-role">People Ops Generalist, Bolt.new</span>
-          </div>
-        </div>
-        <div class="testi-photo">
-          <img src="images/careers/team/brianna-l.jpg" alt="Brianna L., People Ops Generalist" loading="lazy" onerror="this.closest('.testi-photo').classList.add('is-empty'); this.remove();">
+          <img src="images/careers/team/liya.jpg" alt="Liya, Senior Frontend Engineer" loading="lazy" onerror="this.closest('.testi-photo').classList.add('is-empty'); this.remove();">
         </div>
       </article>
 
@@ -1094,17 +1070,32 @@ html { scroll-behavior: smooth; }
       </article>
 
       <article class="testi-panel">
-        <canvas class="testi-pixels" id="testi-pixels-4"></canvas>
+        <canvas class="testi-pixels" id="testi-pixels-2"></canvas>
         <div class="testi-content">
-          <p class="section-eyebrow testi-eyebrow">Engineering</p>
-          <p class="testi-quote">&ldquo;The culture at Bolt is genuinely exceptional. Engineers here aren&rsquo;t just handed specs to execute. You get the reasoning behind every goal, the space to disagree, and the trust to help shape how the team works. Things move fast, but no one uses that as an excuse to skip the details.&rdquo;</p>
+          <p class="section-eyebrow testi-eyebrow">People Ops</p>
+          <p class="testi-quote">&ldquo;What sold me on Bolt was the opportunity to help build something special, but what&rsquo;s kept me here is the people. I&rsquo;ve watched teammates jump in wherever they&rsquo;re needed and leadership move fast without losing sight of the people behind the work. It&rsquo;s rare to find a team this driven and this genuine.&rdquo;</p>
           <div class="testi-attr">
-            <span class="testi-name">Liya</span>
-            <span class="testi-role">Senior Frontend Engineer, Bolt.new</span>
+            <span class="testi-name">Brianna L.</span>
+            <span class="testi-role">People Ops Generalist, Bolt.new</span>
           </div>
         </div>
         <div class="testi-photo">
-          <img src="images/careers/team/liya.jpg" alt="Liya, Senior Frontend Engineer" loading="lazy" onerror="this.closest('.testi-photo').classList.add('is-empty'); this.remove();">
+          <img src="images/careers/team/brianna-l.jpg" alt="Brianna L., People Ops Generalist" loading="lazy" onerror="this.closest('.testi-photo').classList.add('is-empty'); this.remove();">
+        </div>
+      </article>
+
+      <article class="testi-panel">
+        <canvas class="testi-pixels" id="testi-pixels-1"></canvas>
+        <div class="testi-content">
+          <p class="section-eyebrow testi-eyebrow">Customer Experience</p>
+          <p class="testi-quote">&ldquo;I&rsquo;ve never worked for a company that is as collaborative as this one. At Bolt, regardless of your role in the company, you are empowered to provide feedback and suggest improvements to the product. Working at Bolt really makes you feel like you&rsquo;re contributing to something great.&rdquo;</p>
+          <div class="testi-attr">
+            <span class="testi-name">Charles W.</span>
+            <span class="testi-role">Senior Customer Experience Engineer, Bolt.new</span>
+          </div>
+        </div>
+        <div class="testi-photo">
+          <img src="images/careers/team/charles-w.jpg" alt="Charles W., Senior Customer Experience Engineer" loading="lazy" onerror="this.closest('.testi-photo').classList.add('is-empty'); this.remove();">
         </div>
       </article>
 
@@ -1380,10 +1371,9 @@ makePixelCanvas('faq-pixel-canvas', 9, 2,
   }, 1.0, '20,136,252');
 });
 
-/* ── Testimonial slider — scroll-snap does the motion; this wires the arrows,
-      disables them at the ends, and drops the right-edge fade (is-end) once
-      the last card is fully in view. If everything fits (very wide screens),
-      both arrows disable and the fade never shows. ── */
+/* ── Testimonial slider — scroll-snap does the motion; this wires the arrows
+      and disables them at the ends. If everything fits (very wide screens),
+      both arrows disable. ── */
 (function () {
   var slider = document.querySelector('.testi-slider');
   var stack = slider ? slider.querySelector('.testi-stack') : null;
@@ -1399,7 +1389,6 @@ makePixelCanvas('faq-pixel-canvas', 9, 2,
     var max = stack.scrollWidth - stack.clientWidth - 1;
     if (prev) prev.disabled = stack.scrollLeft <= 0;
     if (next) next.disabled = stack.scrollLeft >= max;
-    slider.classList.toggle('is-end', stack.scrollLeft >= max);
   }
   /* Hand-rolled glide: scrollBy/scrollTo with behavior:'smooth' silently
      no-op on this element in Chrome (instant scrolls work fine), so the
