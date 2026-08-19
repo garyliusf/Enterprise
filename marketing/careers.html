@@ -243,6 +243,24 @@ html { scroll-behavior: smooth; }
     font-size: 66px; font-weight: 500; color: #fff; line-height: 1.1;
     letter-spacing: normal; margin: 0; max-width: 900px;
   }
+  /* Keyword shimmer — canonical .hero-h1-kw from marketing/templates/index.html
+     (white -> #1488FC -> #7FDDC1 -> white on a 2.9s sweep). Two phrases carry
+     it; the second is delayed half a cycle so the sweep reads as passing
+     through "Come build" and then catching "builds with", rather than both
+     lighting at once. */
+  .hero-h1-kw {
+    background: linear-gradient(105deg, #fff 0%, #fff 34%, #1488FC 45%, #7FDDC1 55%, #fff 66%, #fff 100%);
+    background-size: 220% 100%;
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent; color: transparent;
+    animation: kwShimmer 2.9s cubic-bezier(0.45,0,0.25,1) infinite;
+  }
+  .hero-h1-kw--follow { animation-delay: 1.45s; }
+  @keyframes kwShimmer { 0% { background-position: 120% 50%; } 83%, 100% { background-position: -20% 50%; } }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-h1-kw { animation: none; -webkit-text-fill-color: #fff; color: #fff; }
+  }
+
   .hero-subtitle {
     font-size: clamp(16px, 1.4vw, 20px); font-weight: 400; color: #ABABAB;
     line-height: 1.4; margin: 0; max-width: 620px;
@@ -792,7 +810,7 @@ html { scroll-behavior: smooth; }
   <canvas id="hero-pixel-canvas"></canvas>
 
   <div class="hero-inner">
-    <h1 class="hero-h1">Come build the thing everyone else builds with.</h1>
+    <h1 class="hero-h1"><span class="hero-h1-kw">Come build</span> the thing everyone else <span class="hero-h1-kw hero-h1-kw--follow">builds with</span>.</h1>
     <p class="hero-subtitle">Bolt turns a prompt into a real, deployable app &mdash; no setup, no scaffolding. We&rsquo;re a small team, the hard problems are still open, and there&rsquo;s room for you to own one.</p>
     <div class="hero-btn-group">
       <a href="#open-roles" class="hero-btn-primary">
