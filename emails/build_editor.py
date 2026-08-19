@@ -276,7 +276,7 @@ function css(t){
     td[style*="border-radius: 6px 6px 0px 0px"]{border-radius:${
       t.headerBanner && t.bannerPos==='inside' ? '0' : t.cardRadius+'px '+t.cardRadius+'px 0 0'} !important}
     td[style*="padding: 0 10px"]{padding:6px ${t.cardPad}px !important}
-    td[align="center"][valign="top"]:not([width]){padding-top:4px !important}
+    td[align="center"][valign="top"]:not([width]){padding-top:8px !important}
     [style*="max-width: 600px"][style*="padding: 0 20px"]{padding-left:0 !important;padding-right:0 !important}
     td[style*="border-radius: 0px 0px 6px 6px"]{border-radius:0 0 ${t.cardRadius}px ${t.cardRadius}px !important;
        padding-bottom:24px !important}
