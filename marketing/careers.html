@@ -245,7 +245,7 @@ html { scroll-behavior: smooth; }
   }
   /* Keyword shimmer — canonical .hero-h1-kw from marketing/templates/index.html
      (white -> #1488FC -> #7FDDC1 -> white on a 2.9s sweep). Two phrases carry
-     it; the second is delayed half a cycle so the sweep reads as passing
+     it; the second trails the first by 0.5s so the sweep reads as passing
      through "Come build" and then catching "builds with", rather than both
      lighting at once. */
   .hero-h1-kw {
@@ -255,7 +255,7 @@ html { scroll-behavior: smooth; }
     -webkit-text-fill-color: transparent; color: transparent;
     animation: kwShimmer 2.9s cubic-bezier(0.45,0,0.25,1) infinite;
   }
-  .hero-h1-kw--follow { animation-delay: 1.45s; }
+  .hero-h1-kw--follow { animation-delay: 0.5s; }
   @keyframes kwShimmer { 0% { background-position: 120% 50%; } 83%, 100% { background-position: -20% 50%; } }
   @media (prefers-reduced-motion: reduce) {
     .hero-h1-kw { animation: none; -webkit-text-fill-color: #fff; color: #fff; }
@@ -844,7 +844,7 @@ html { scroll-behavior: smooth; }
              entirely. The iframe is subject to neither, which is exactly why
              solutions/ai-for-real-estate does it this way. -->
         <iframe id="film-preview-iframe"
-                src="https://www.youtube-nocookie.com/embed/iIrbX4FB3-g?autoplay=1&amp;mute=1&amp;controls=0&amp;loop=1&amp;playlist=iIrbX4FB3-g&amp;modestbranding=1&amp;rel=0&amp;iv_load_policy=3&amp;disablekb=1&amp;playsinline=1&amp;showinfo=0&amp;start=4"
+                src="https://www.youtube-nocookie.com/embed/iIrbX4FB3-g?autoplay=1&amp;mute=1&amp;controls=0&amp;loop=1&amp;playlist=iIrbX4FB3-g&amp;modestbranding=1&amp;rel=0&amp;iv_load_policy=3&amp;disablekb=1&amp;playsinline=1&amp;showinfo=0&amp;enablejsapi=1&amp;start=4"
                 title="" aria-hidden="true" frameborder="0" allow="autoplay; encrypted-media"
                 style="position:absolute;top:50%;left:50%;width:100%;height:100%;transform:translate(-50%,-50%) scale(1.08);transform-origin:center;pointer-events:none;border:0;display:block;z-index:1;"></iframe>
         <div class="hero-video-overlay"></div>
@@ -1463,11 +1463,49 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
 (function () {
   var cover = document.getElementById('film-preview-cover');
   var frame = document.getElementById('film-preview-iframe');
-  if (!cover || !frame) return;
-  setTimeout(function () {
+  if (!frame) return;
+
+  /* autoplay=1 in the src is not sufficient on its own — the player can come
+     up paused. The reference page nudges it over postMessage, which needs
+     enablejsapi=1 on the iframe; without both, the card just sits on its
+     poster. */
+  function send(func, args) {
+    try {
+      frame.contentWindow.postMessage(
+        JSON.stringify({ event: 'command', func: func, args: args || [] }), '*');
+    } catch (e) {}
+  }
+  function nudge() { send('mute'); send('playVideo'); }
+
+  /* Reveal the loop ONLY once the player reports it is actually playing.
+     A blind timer was worse than no fade: when autoplay doesn't start (as it
+     currently doesn't for this unlisted upload) the poster disappeared and
+     left a black card. Now a stalled player just keeps its poster, which is a
+     legitimate-looking state. */
+  function reveal() {
+    if (!cover || cover.dataset.done) return;
+    cover.dataset.done = '1';
     cover.style.opacity = '0';
     setTimeout(function () { cover.style.display = 'none'; }, 700);
-  }, 4500);
+  }
+  window.addEventListener('message', function (e) {
+    if (!/(^|\.)youtube(-nocookie)?\.com$/.test((function () {
+      try { return new URL(e.origin).hostname; } catch (_) { return ''; }
+    })())) return;
+    var d;
+    try { d = JSON.parse(e.data); } catch (_) { return; }
+    if (d && d.event === 'onStateChange' && d.info === 1) reveal();  // 1 = PLAYING
+  });
+
+  frame.addEventListener('load', function () {
+    send('listening');            // required before the player emits events
+    nudge();
+    var tries = 0;
+    var t = setInterval(function () {
+      nudge();
+      if (++tries >= 6) clearInterval(t);
+    }, 1500);
+  });
 })();
 
 /* ============================================================================
