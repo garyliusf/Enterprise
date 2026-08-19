@@ -441,9 +441,9 @@ html { scroll-behavior: smooth; }
      it still reads correctly without CSS and to screen readers. */
   .testi-section { padding: clamp(24px, 4vh, 48px) 0 clamp(80px, 12vh, 140px); }
   /* Four testimonials now — a scroll-snap slider instead of the old 3-col
-     grid. ~3 cards + a visible sliver of the 4th fit the row; the sliver is
-     the overflow cue, the arrows the control (a right-edge fade was tried
-     and removed — Gary, 2026-08-19).
+     grid. ~3 cards + a visible sliver of the 4th fit the row; the sliver, a
+     subtle right-edge fade, and the arrows carry the overflow cue
+     (a heavier full-black 90px fade was tried and rejected).
      stretch, not start: `start` sized each card to its own quote, so a longer
      one made a taller card and the attributions sat at different heights.
      Stretching equalises the row; .testi-content's flex:1 plus .testi-attr's
@@ -460,6 +460,16 @@ html { scroll-behavior: smooth; }
   }
   .testi-stack::-webkit-scrollbar { display: none; }
   .testi-stack .testi-panel { flex: 0 0 calc((100% - 60px) / 3.35); scroll-snap-align: start; }
+  /* Subtle right-edge fade while content remains off-screen — narrow and
+     stopping at 75% black so the sliver stays readable underneath. JS drops
+     it (is-end) once the slider is scrolled all the way. */
+  .testi-slider::after {
+    content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 64px;
+    background: linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,0.75));
+    pointer-events: none; z-index: 3;
+    opacity: 1; transition: opacity 0.3s ease;
+  }
+  .testi-slider.is-end::after { opacity: 0; }
   /* prev/next — ghost-button DNA (0.22 border → 0.4 + white on hover) */
   .testi-nav { display: flex; gap: 8px; justify-content: flex-end; margin-top: 18px; }
   .testi-arrow {
@@ -794,6 +804,7 @@ html { scroll-behavior: smooth; }
        the snap points make it a natural swipe on touch */
     .testi-stack { scroll-snap-type: x mandatory; }
     .testi-stack .testi-panel { flex-basis: 85%; }
+    .testi-slider::after { width: 44px; }
     .testi-content { padding: 26px 22px 28px; gap: 18px; }
     .testi-photo { aspect-ratio: 16 / 10; }
     .testi-panel .testi-eyebrow { font-size: 12px; }
@@ -1389,6 +1400,7 @@ makePixelCanvas('faq-pixel-canvas', 9, 2,
     var max = stack.scrollWidth - stack.clientWidth - 1;
     if (prev) prev.disabled = stack.scrollLeft <= 0;
     if (next) next.disabled = stack.scrollLeft >= max;
+    slider.classList.toggle('is-end', stack.scrollLeft >= max);
   }
   /* Hand-rolled glide: scrollBy/scrollTo with behavior:'smooth' silently
      no-op on this element in Chrome (instant scrolls work fine), so the
