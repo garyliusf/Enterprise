@@ -243,20 +243,25 @@ html { scroll-behavior: smooth; }
     font-size: 66px; font-weight: 500; color: #fff; line-height: 1.1;
     letter-spacing: normal; margin: 0; max-width: 900px;
   }
-  /* Keyword shimmer — canonical .hero-h1-kw from marketing/templates/index.html
-     (white -> #1488FC -> #7FDDC1 -> white on a 2.9s sweep). Two phrases carry
-     it; the second trails the first by 0.6s so the sweep reads as passing
-     through "Come build" and then catching "builds with", rather than both
-     lighting at once. */
+  /* Keyword shimmer — .hero-h1-kw gradient from marketing/templates/index.html
+     (white -> #1488FC -> #7FDDC1 -> white). The sweep is compressed to the
+     first 28% of the 2.9s cycle (~0.8s) so each phrase flashes briefly instead
+     of glowing for most of the cycle — the colored band is ~70% of the element
+     wide, so with the original 83% sweep both phrases sat lit simultaneously
+     and the follow delay was invisible. The second phrase trails by 0.6s:
+     "Come build" flashes, then "builds with" catches it, then a quiet beat
+     before the loop repeats. The static background-position parks the band
+     past the text so the follow phrase rests white during its pre-delay. */
   .hero-h1-kw {
     background: linear-gradient(105deg, #fff 0%, #fff 34%, #1488FC 45%, #7FDDC1 55%, #fff 66%, #fff 100%);
     background-size: 220% 100%;
+    background-position: -20% 50%;
     -webkit-background-clip: text; background-clip: text;
     -webkit-text-fill-color: transparent; color: transparent;
     animation: kwShimmer 2.9s cubic-bezier(0.45,0,0.25,1) infinite;
   }
   .hero-h1-kw--follow { animation-delay: 0.6s; }
-  @keyframes kwShimmer { 0% { background-position: 120% 50%; } 83%, 100% { background-position: -20% 50%; } }
+  @keyframes kwShimmer { 0% { background-position: 120% 50%; } 28%, 100% { background-position: -20% 50%; } }
   @media (prefers-reduced-motion: reduce) {
     .hero-h1-kw { animation: none; -webkit-text-fill-color: #fff; color: #fff; }
   }
@@ -405,11 +410,20 @@ html { scroll-behavior: smooth; }
   @media (prefers-reduced-motion: reduce) {
     .lightbox, .lightbox-stage, .lightbox-btn { transition-duration: 0.01s; }
     .lightbox-stage { transform: none; }
+    .lightbox-stage img { animation-duration: 0.01s !important; }
   }
   .lightbox-stage img {
     display: block; max-width: min(1100px, 100%); max-height: 78vh;
     width: auto; height: auto; border-radius: 2px;
   }
+  /* Stepping between photos: the incoming shot drifts in from the side you're
+     heading toward (opening the lightbox doesn't animate — the stage itself
+     already scales in). JS re-adds the class per click; the reflow it forces
+     restarts the animation when the direction repeats. */
+  .lightbox-stage img.lb-anim-next { animation: lbInNext 0.32s cubic-bezier(0.25,0.46,0.45,0.94); }
+  .lightbox-stage img.lb-anim-prev { animation: lbInPrev 0.32s cubic-bezier(0.25,0.46,0.45,0.94); }
+  @keyframes lbInNext { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
+  @keyframes lbInPrev { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: none; } }
   .lightbox-count {
     font-family: 'Silkscreen', monospace; font-size: 11px; letter-spacing: 2px;
     color: rgba(255,255,255,0.45);
@@ -1542,11 +1556,16 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   var at = 0, opener = null;
   if (nEl) nEl.textContent = String(shots.length);
 
-  function show(i) {
+  function show(i, dir) {
     at = (i + shots.length) % shots.length;   /* wrap both directions */
     img.src = shots[at].src;
     img.alt = shots[at].alt;
     if (idxEl) idxEl.textContent = String(at + 1);
+    img.classList.remove('lb-anim-next', 'lb-anim-prev');
+    if (dir) {
+      void img.offsetWidth;   /* restart the animation when the direction repeats */
+      img.classList.add(dir > 0 ? 'lb-anim-next' : 'lb-anim-prev');
+    }
   }
   function open(i, from) {
     opener = from || null;
@@ -1572,8 +1591,8 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
 
   var prev = document.getElementById('lightbox-prev');
   var next = document.getElementById('lightbox-next');
-  if (prev) prev.addEventListener('click', function () { show(at - 1); });
-  if (next) next.addEventListener('click', function () { show(at + 1); });
+  if (prev) prev.addEventListener('click', function () { show(at - 1, -1); });
+  if (next) next.addEventListener('click', function () { show(at + 1, 1); });
   var closeBtn = document.getElementById('lightbox-close');
   if (closeBtn) closeBtn.addEventListener('click', close);
 
@@ -1583,8 +1602,8 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   document.addEventListener('keydown', function (e) {
     if (!box.classList.contains('is-open')) return;
     if (e.key === 'Escape') { close(); return; }
-    if (e.key === 'ArrowLeft')  { show(at - 1); return; }
-    if (e.key === 'ArrowRight') { show(at + 1); return; }
+    if (e.key === 'ArrowLeft')  { show(at - 1, -1); return; }
+    if (e.key === 'ArrowRight') { show(at + 1, 1); return; }
 
     /* Focus trap. The overlay is aria-modal, so focus must not reach the page
        behind it — without this, Tab walks onto controls the user can't see. */
