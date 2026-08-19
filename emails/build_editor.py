@@ -36,7 +36,7 @@ FOOTLOGOS = json.dumps({"grey": _tinted_logo("#9E9C99"), "black": _tinted_logo("
 
 PROPOSED = json.dumps({
     "pageBg":"#F2F1EF","pagePad":36,"cardBg":"#ffffff","cardRadius":6,"cardPad":36,
-    "hFont":"Inter","hSize":24,"hWeight":700,"bFont":"Inter","bSize":16,"bLh":160,
+    "hFont":"Inter","hSize":26,"hWeight":600,"bFont":"Inter","bSize":16,"bLh":160,
     "linkCol":"#1488FC","btnRadius":8,"btnPy":16,"btnPx":28,"btnWeight":600,
     "btnWidth":"hug","btnMinW":220,"bannerPos":"inside","footLogo":"grey","footLogoW":94,
     "socials":"show","fMaxW":420,"fStack":"column","footerGap":32})
@@ -276,12 +276,15 @@ function css(t){
     td[style*="border-radius: 6px 6px 0px 0px"]{border-radius:${
       t.headerBanner && t.bannerPos==='inside' ? '0' : t.cardRadius+'px '+t.cardRadius+'px 0 0'} !important}
     td[style*="padding: 0 10px"]{padding:6px ${t.cardPad}px !important}
-    td[align="center"][valign="top"]{padding-top:14px !important}
+    td[align="center"][valign="top"]:not([width]){padding-top:4px !important}
     [style*="max-width: 600px"][style*="padding: 0 20px"]{padding-left:0 !important;padding-right:0 !important}
     td[style*="border-radius: 0px 0px 6px 6px"]{border-radius:0 0 ${t.cardRadius}px ${t.cardRadius}px !important;
        padding-bottom:24px !important}
-    td[style*="border-radius: 10px 10px 0px 0px"]{border-radius:${t.cardRadius}px ${t.cardRadius}px 0 0 !important;
+    td[style*="border-radius: 10px 10px 0px 0px"]{border-radius:${
+      t.headerBanner && t.bannerPos==='inside' ? '0' : t.cardRadius+'px '+t.cardRadius+'px 0 0'} !important;
        padding:20px ${t.cardPad}px 0 !important}
+    ${t.headerBanner && t.bannerPos==='inside'
+      ? 'tr:has(> td:only-child:empty:not([style])){display:none !important}' : ''}
     td[style*="border-radius: 0px 0px 10px 10px"]{border-radius:0 0 ${t.cardRadius}px ${t.cardRadius}px !important;
        padding:6px ${t.cardPad}px 24px !important}
     img{width:${t.logoW}px !important;height:auto !important}
@@ -294,7 +297,7 @@ function css(t){
        color:${t.hColor} !important;line-height:${t.hLh/100} !important;
        letter-spacing:${t.hTrack/100}em !important;text-align:left !important}
     h1,h2{font-size:${t.hSize}px !important;margin:0 0 12px !important}
-    h3{font-size:${Math.round(t.hSize*0.72)}px !important;margin:0 0 6px !important}
+    h3{font-size:${Math.round(t.hSize*0.66)}px !important;margin:0 0 6px !important}
     h4{font-size:${t.bSize}px !important;margin:0 0 6px !important}
     h1 b,h2 b,h3 b,h4 b{font-weight:inherit !important}
     ul,ol{margin:-8px 0 16px !important;padding-left:24px !important}
@@ -332,8 +335,9 @@ function css(t){
     p[style*="#2f2f2f"]{font-family:${f(t.bFont)} !important;font-size:${t.bSize}px !important;
        color:${t.bColor} !important;line-height:${t.bLh/100} !important}
     p[style*="color:#111"]{font-family:${f(t.hFont)} !important;font-size:17px !important;
-       color:${t.hColor} !important}
-    u{text-decoration:none !important;font-weight:700 !important}
+       color:${t.hColor} !important;font-weight:${t.hWeight} !important}
+    u{text-decoration:none !important;font-weight:${t.hWeight} !important}
+    b,strong{font-weight:600 !important}
     td[style*="0 0 22px"]{padding:0 0 16px !important}
     td[style*="10px 0 30px"]{padding:8px 0 24px !important}
     table[width="70%"]{width:100% !important}
@@ -342,7 +346,13 @@ function css(t){
       /* card side padding goes proportional (35/600 = 5.8%) so body text
          stays aligned with the banner wordmark as the banner scales down */
       td[style*="padding: 0 10px"]{padding:6px 5.8% !important}
-      td[style*="border-radius: 10px 10px 0px 0px"]{padding:20px 5.8% 0 !important}
+      /* tighter banner->first-line gap on mobile: kill the rounding strip's
+         vertical pad, the content cell's 14px top pad, and CX's 26px spacer */
+      td[style*="border-radius: 6px 6px 0px 0px"]{padding:0 5.8% !important}
+      td[align="center"][valign="top"]{padding-top:0 !important}
+      td[style*="height:26px"]{height:12px !important}
+      td[style*="border-radius: 10px 10px 0px 0px"]{padding:8px 5.8% 0 !important}
+      h1,h2{font-size:${t.hSize - 4}px !important}
       td[style*="border-radius: 0px 0px 10px 10px"]{padding:6px 5.8% 24px !important}
       p[style*="#999999"],p[style*="#666666"]{padding-left:5.8% !important;
          padding-right:5.8% !important}
@@ -446,6 +456,10 @@ function docFor(){
 
   // case-insensitive so CX's "the Bolt team" normalizes to the same signature
   doc = doc.replace(/[Tt]he Bolt [Tt]eam/g, '<span style="font-weight:600;">The Bolt Team ⚡</span>');
+  // StackBlitz sends get the same treatment with a BLUE bolt (hue-rotated ⚡ —
+  // preview only; real sends need an inline image, CSS filters die in Gmail)
+  doc = doc.replace(/The StackBlitz Team/g, '<span style="font-weight:600;">The StackBlitz Team ' +
+    '<span style="display:inline-block;filter:hue-rotate(170deg) saturate(1.6);">⚡</span></span>');
 
   // some templates hard-code width: on the button anchor itself — strip it so
   // the min-width floor + max-content sizing own the box
