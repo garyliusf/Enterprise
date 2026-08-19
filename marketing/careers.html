@@ -2007,6 +2007,27 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     out.innerHTML = html;
     buildPills();
     pixelizeCTAs();
+    wireRowHover();
+  }
+
+  /* The whole row is the link, but the pixel-fill hover only listens on the
+     button itself — so hovering the title/location left the Apply button
+     inert (the .btn-pixelized class also disables the CSS-only hover, so
+     border-color was the only cue). Forward the row's hover to the button
+     with synthetic events; the extra button mouseleave guard re-asserts the
+     fill when the pointer slides off the button but is still inside the row
+     (the button's own real mouseleave would otherwise retract it). */
+  function wireRowHover() {
+    document.querySelectorAll('.role-row').forEach(function (row) {
+      if (row.__hoverWired) return;
+      row.__hoverWired = true;
+      var btn = row.querySelector('.role-apply');
+      if (!btn) return;
+      var enter = function () { btn.dispatchEvent(new Event('mouseenter')); };
+      row.addEventListener('mouseenter', enter);
+      row.addEventListener('mouseleave', function () { btn.dispatchEvent(new Event('mouseleave')); });
+      btn.addEventListener('mouseleave', function () { if (row.matches(':hover')) enter(); });
+    });
   }
 
   fetch(API, { headers: { 'Accept': 'application/json' } })
