@@ -440,11 +440,47 @@ html { scroll-behavior: smooth; }
      person. Photo sits above via order:-1 — markup keeps the quote first so
      it still reads correctly without CSS and to screen readers. */
   .testi-section { padding: clamp(24px, 4vh, 48px) 0 clamp(80px, 12vh, 140px); }
-  /* stretch, not start: `start` sized each card to its own quote, so a longer
-     one made a taller card and the attributions sat at three different heights.
+  /* Four testimonials now — a scroll-snap slider instead of the old 3-col
+     grid. ~3 cards + a visible sliver of the 4th fit the row; the sliver and
+     the right-edge fade below are the overflow cues, the arrows the control.
+     stretch, not start: `start` sized each card to its own quote, so a longer
+     one made a taller card and the attributions sat at different heights.
      Stretching equalises the row; .testi-content's flex:1 plus .testi-attr's
      margin-top:auto then pins every name to the same baseline. */
-  .testi-stack { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: stretch; }
+  .testi-slider { position: relative; }
+  /* No snap on desktop: with only a sliver of the 4th card overflowing, the
+     nearest mandatory snap point is past the scroll range and Chrome bounces
+     every scroll back to 0. Mobile (85% cards, real snap points) re-enables
+     it below. */
+  .testi-stack {
+    display: flex; gap: 20px; align-items: stretch;
+    overflow-x: auto;
+    scrollbar-width: none; -ms-overflow-style: none;
+  }
+  .testi-stack::-webkit-scrollbar { display: none; }
+  .testi-stack .testi-panel { flex: 0 0 calc((100% - 60px) / 3.35); scroll-snap-align: start; }
+  /* Soft fade at the right edge while there's still content off-screen; the
+     page is #000 so the gradient dissolves the last card into the background.
+     JS drops it (is-end) once the slider is scrolled all the way. */
+  .testi-slider::after {
+    content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 90px;
+    background: linear-gradient(to right, rgba(0,0,0,0), #000);
+    pointer-events: none; z-index: 3;
+    opacity: 1; transition: opacity 0.3s ease;
+  }
+  .testi-slider.is-end::after { opacity: 0; }
+  /* prev/next — ghost-button DNA (0.22 border → 0.4 + white on hover) */
+  .testi-nav { display: flex; gap: 8px; justify-content: flex-end; margin-top: 18px; }
+  .testi-arrow {
+    width: 38px; height: 38px; border-radius: 2px;
+    border: 1px solid rgba(255,255,255,0.22); background: transparent;
+    color: rgba(255,255,255,0.8); display: flex; align-items: center; justify-content: center;
+    cursor: pointer; padding: 0;
+    transition: border-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+  }
+  .testi-arrow:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
+  .testi-arrow[disabled] { opacity: 0.35; cursor: default; pointer-events: none; }
+  .testi-arrow svg { width: 16px; height: 16px; display: block; }
   .testi-panel {
     position: relative; overflow: hidden;
     background: #0d0d0d; border: 1px solid rgba(255,255,255,0.07); border-radius: 2px;
@@ -733,6 +769,8 @@ html { scroll-behavior: smooth; }
     .perks-grid { grid-template-columns: repeat(2, 1fr); }
     .gallery { grid-template-columns: repeat(3, 1fr); gap: 10px; }
     .testi-content { padding: 26px 26px 28px; gap: 18px; }
+    /* two cards + a sliver on tablet */
+    .testi-stack .testi-panel { flex-basis: calc((100% - 20px) / 2.25); }
   }
   @media (max-width: 768px) {
     /* 100dvh made the hero much taller than its content (H1 + sub + one CTA +
@@ -760,7 +798,11 @@ html { scroll-behavior: smooth; }
     .values-grid { grid-template-columns: 1fr; }
     .value-card, .value-card:nth-child(4), .value-card:nth-child(5) { grid-column: auto; }
     .gallery { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-    .testi-stack { grid-template-columns: 1fr; }
+    /* one card + a sliver — the peek plus edge fade replaces the old stacked
+       column, and the snap points make it a natural swipe on touch */
+    .testi-stack { scroll-snap-type: x mandatory; }
+    .testi-stack .testi-panel { flex-basis: 85%; }
+    .testi-slider::after { width: 56px; }
     .testi-content { padding: 26px 22px 28px; gap: 18px; }
     .testi-photo { aspect-ratio: 16 / 10; }
     .testi-panel .testi-eyebrow { font-size: 12px; }
@@ -838,15 +880,16 @@ html { scroll-behavior: smooth; }
       <div class="hero-video-area">
         <img class="film-poster-img" id="film-preview-cover" src="careers-film-poster.jpg" alt="" aria-hidden="true"
              style="z-index:2;">
-        <!-- Ambient loop. A YouTube iframe rather than a <video>: Chrome kept
-             pausing the muted inline element within a second (browser-initiated,
-             no pause() call), and iOS blocks muted autoplay under Low Power Mode
-             entirely. The iframe is subject to neither, which is exactly why
+        <!-- The ambient-loop YouTube iframe is built by JS when the card
+             approaches the viewport — NOT in markup. A parse-time iframe
+             intermittently bootstraps into YouTube's error-153 state (answers
+             the widget handshake but never loads a video); a JS-inserted one
+             bootstraps reliably, and it also means visitors who never scroll
+             here never load the third-party player at all. A YouTube iframe
+             rather than a <video>: Chrome kept pausing the muted inline
+             element within a second, and iOS blocks muted autoplay under Low
+             Power Mode; the iframe is subject to neither, which is why
              solutions/ai-for-real-estate does it this way. -->
-        <iframe id="film-preview-iframe"
-                src="https://www.youtube-nocookie.com/embed/iIrbX4FB3-g?autoplay=1&amp;mute=1&amp;controls=0&amp;loop=1&amp;playlist=iIrbX4FB3-g&amp;modestbranding=1&amp;rel=0&amp;iv_load_policy=3&amp;disablekb=1&amp;playsinline=1&amp;showinfo=0&amp;enablejsapi=1&amp;start=4"
-                title="" aria-hidden="true" frameborder="0" allow="autoplay; encrypted-media"
-                style="position:absolute;top:50%;left:50%;width:100%;height:100%;transform:translate(-50%,-50%) scale(1.08);transform-origin:center;pointer-events:none;border:0;display:block;z-index:1;"></iframe>
         <div class="hero-video-overlay"></div>
         <!-- No centre play button: the ambient loop plays on its own and the
              whole card is the click target (shared module guards the missing
@@ -1002,6 +1045,7 @@ html { scroll-behavior: smooth; }
     <div class="section-header section-header--center">
       <div class="reveal-h"><h2 class="sc-section-h2">Hear it from our team</h2></div>
     </div>
+    <div class="testi-slider">
     <div class="testi-stack">
 
       <article class="testi-panel">
@@ -1049,6 +1093,30 @@ html { scroll-behavior: smooth; }
         </div>
       </article>
 
+      <article class="testi-panel">
+        <canvas class="testi-pixels" id="testi-pixels-4"></canvas>
+        <div class="testi-content">
+          <p class="section-eyebrow testi-eyebrow">Engineering</p>
+          <p class="testi-quote">&ldquo;The culture at Bolt is genuinely exceptional. Engineers here aren&rsquo;t just handed specs to execute. You get the reasoning behind every goal, the space to disagree, and the trust to help shape how the team works. Things move fast, but no one uses that as an excuse to skip the details.&rdquo;</p>
+          <div class="testi-attr">
+            <span class="testi-name">Liya</span>
+            <span class="testi-role">Senior Frontend Engineer, Bolt.new</span>
+          </div>
+        </div>
+        <div class="testi-photo">
+          <img src="images/careers/team/liya.jpg" alt="Liya, Senior Frontend Engineer" loading="lazy" onerror="this.closest('.testi-photo').classList.add('is-empty'); this.remove();">
+        </div>
+      </article>
+
+    </div>
+    </div>
+    <div class="testi-nav">
+      <button class="testi-arrow" id="testi-prev" type="button" aria-label="Previous testimonials">
+        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="testi-arrow" id="testi-next" type="button" aria-label="Next testimonials">
+        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
     </div>
   </div>
 </section>
@@ -1298,7 +1366,7 @@ makePixelCanvas('faq-pixel-canvas', 9, 2,
 })();
 
 /* ── Testimonial panel pixel fields (microsoft .success-pull-quote treatment) ── */
-['testi-pixels-1', 'testi-pixels-2', 'testi-pixels-3'].forEach(function (id, i) {
+['testi-pixels-1', 'testi-pixels-2', 'testi-pixels-3', 'testi-pixels-4'].forEach(function (id, i) {
   makePixelCanvas(id, 9, 2, function (c, r, t, p) {
     var el = document.getElementById(id);
     var W = el ? el.width : 900, H = el ? el.height : 460;
@@ -1311,6 +1379,54 @@ makePixelCanvas('faq-pixel-canvas', 9, 2,
     return (0.05 + Math.max(0, wave) * 0.30 + twinkle) * fade;
   }, 1.0, '20,136,252');
 });
+
+/* ── Testimonial slider — scroll-snap does the motion; this wires the arrows,
+      disables them at the ends, and drops the right-edge fade (is-end) once
+      the last card is fully in view. If everything fits (very wide screens),
+      both arrows disable and the fade never shows. ── */
+(function () {
+  var slider = document.querySelector('.testi-slider');
+  var stack = slider ? slider.querySelector('.testi-stack') : null;
+  if (!stack) return;
+  var prev = document.getElementById('testi-prev');
+  var next = document.getElementById('testi-next');
+
+  function step() {
+    var card = stack.querySelector('.testi-panel');
+    return card ? card.getBoundingClientRect().width + 20 : 340;
+  }
+  function update() {
+    var max = stack.scrollWidth - stack.clientWidth - 1;
+    if (prev) prev.disabled = stack.scrollLeft <= 0;
+    if (next) next.disabled = stack.scrollLeft >= max;
+    slider.classList.toggle('is-end', stack.scrollLeft >= max);
+  }
+  /* Hand-rolled glide: scrollBy/scrollTo with behavior:'smooth' silently
+     no-op on this element in Chrome (instant scrolls work fine), so the
+     easing is driven by rAF directly. */
+  var gliding = null;
+  function glide(delta) {
+    var from = stack.scrollLeft;
+    var to = Math.max(0, Math.min(stack.scrollWidth - stack.clientWidth, from + delta));
+    if (to === from) return;
+    if (gliding) cancelAnimationFrame(gliding);
+    var t0 = null;
+    var DUR = 380;
+    function ease(t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
+    function frameStep(ts) {
+      if (t0 === null) t0 = ts;
+      var p = Math.min(1, (ts - t0) / DUR);
+      stack.scrollLeft = from + (to - from) * ease(p);
+      gliding = p < 1 ? requestAnimationFrame(frameStep) : null;
+    }
+    gliding = requestAnimationFrame(frameStep);
+  }
+  if (prev) prev.addEventListener('click', function () { glide(-step()); });
+  if (next) next.addEventListener('click', function () { glide(step()); });
+  stack.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
+  update();
+})();
 
 /* ── Section divider — verbatim solutions/security-agent traveling shimmer.
       (Restored: an earlier range-delete of the hero-video block took this
@@ -1456,23 +1572,41 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   });
 })();
 
-/* ── Film preview cover — fade the poster out once the YouTube iframe is past
-      its own branded chrome, so there's no black frame while it loads. Same
-      handoff as solutions/ai-for-real-estate. ── */
-(function () {
-  var cover = document.getElementById('film-preview-cover');
-  var frame = document.getElementById('film-preview-iframe');
-  if (!frame) return;
+/* ── Film ambient preview — a muted YouTube loop built by JS behind the
+      poster; the poster fades only once the player reports it is actually
+      playing, so there's never a black frame. Same handoff as
+      solutions/ai-for-real-estate, with two hardenings learned here:
 
-  /* autoplay=1 in the src is not sufficient on its own — the player can come
-     up paused. The reference page nudges it over postMessage, which needs
-     enablejsapi=1 on the iframe; without both, the card just sits on its
-     poster. */
+      1. The iframe is INSERTED BY JS when the card nears the viewport, never
+         written in markup. A parse-time iframe intermittently bootstraps into
+         YouTube's error-153 "configuration error" state — it answers the
+         widget handshake but has no video and ignores playVideo — while a
+         dynamically-inserted iframe bootstraps reliably. This also means the
+         third-party player is only fetched by visitors who scroll here.
+      2. If a full nudge burst passes with the card in view and the player
+         never reports a single playerState, that embed is dead — tear it out
+         and insert a fresh one (invisible behind the poster). Capped so a
+         genuinely unavailable video doesn't loop forever. ── */
+(function () {
+  var area = document.querySelector('.film-card .hero-video-area');
+  var cover = document.getElementById('film-preview-cover');
+  if (!area || !cover) return;
+
+  var SRC = 'https://www.youtube-nocookie.com/embed/iIrbX4FB3-g?autoplay=1&mute=1&controls=0&loop=1&playlist=iIrbX4FB3-g&modestbranding=1&rel=0&iv_load_policy=3&disablekb=1&playsinline=1&showinfo=0&enablejsapi=1&start=4';
+  var frame = null;
+  var loaded = false;
+  var burst = null;
+  var boots = 0;
+  var sawState = false;
+  var inView = false;
+
   function post(msg) {
+    if (!frame) return;
     try { frame.contentWindow.postMessage(JSON.stringify(msg), '*'); } catch (e) {}
   }
+  /* Commands carry id+channel like the official widget client's do. */
   function send(func, args) {
-    post({ event: 'command', func: func, args: args || [] });
+    post({ event: 'command', func: func, args: args || [], id: 'film-preview-iframe', channel: 'widget' });
   }
   /* The widget API only starts emitting events after a plain
      {event:'listening'} message — NOT a command (an earlier version sent
@@ -1490,7 +1624,7 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
      poster disappeared and left a black card. Now a stalled player just keeps
      its poster, which is a legitimate-looking state. */
   function reveal() {
-    if (!cover || cover.dataset.done) return;
+    if (cover.dataset.done) return;
     cover.dataset.done = '1';
     cover.style.opacity = '0';
     setTimeout(function () { cover.style.display = 'none'; }, 700);
@@ -1503,42 +1637,78 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     try { d = JSON.parse(e.data); } catch (_) { return; }
     if (!d) return;
     /* Playing arrives as onStateChange (info 1) once subscribed, but also as
-       infoDelivery {playerState:1} — accept either. */
-    if (d.event === 'onStateChange' && d.info === 1) reveal();
-    if (d.event === 'infoDelivery' && d.info && d.info.playerState === 1) reveal();
+       infoDelivery {playerState:1} — accept either. Any playerState at all
+       marks the embed healthy (sawState). */
+    if (d.event === 'onStateChange' && typeof d.info === 'number') {
+      sawState = true;
+      if (d.info === 1) reveal();
+    }
+    if (d.event === 'infoDelivery' && d.info && d.info.playerState !== undefined) {
+      sawState = true;
+      if (d.info.playerState === 1) reveal();
+    }
   });
 
-  /* Nudge when the card is IN VIEW, not just when the iframe loads. The card
-     sits below the 100vh hero, and YouTube defers offscreen autoplay — a
-     fixed burst of nudges right after load expires before the user has
-     scrolled down, leaving a player that never starts. */
-  var kicked = false;
+  function boot() {
+    if (frame || boots >= 3 || cover.dataset.done) return;
+    boots++;
+    loaded = false;
+    sawState = false;
+    frame = document.createElement('iframe');
+    frame.id = 'film-preview-iframe';
+    frame.title = '';
+    frame.setAttribute('aria-hidden', 'true');
+    frame.setAttribute('frameborder', '0');
+    frame.allow = 'autoplay; encrypted-media';
+    frame.style.cssText = 'position:absolute;top:50%;left:50%;width:100%;height:100%;transform:translate(-50%,-50%) scale(1.08);transform-origin:center;pointer-events:none;border:0;display:block;z-index:1;';
+    frame.addEventListener('load', function () {
+      loaded = true;
+      handshake();
+      if (inView) kick();
+    });
+    frame.src = SRC;
+    area.insertBefore(frame, area.firstChild);
+  }
+  function reboot() {
+    if (frame) { frame.parentNode && frame.parentNode.removeChild(frame); frame = null; }
+    boot();
+  }
+
+  /* Nudge while the card is IN VIEW. The card sits below the 100vh hero and
+     YouTube defers offscreen autoplay, so a burst tied only to iframe load
+     would expire before the user scrolls down. The observer stays connected
+     until the loop has actually revealed: a burst that expires early gets a
+     fresh one on the next re-entry instead of latching off until reload. */
   function kick() {
-    if (kicked) return;
-    kicked = true;
+    if (cover.dataset.done || !loaded) return;
+    if (burst) return;                    /* a burst is already running */
     handshake();
     nudge();
     var tries = 0;
-    var t = setInterval(function () {
-      if (cover && cover.dataset.done) return clearInterval(t);
+    burst = setInterval(function () {
+      if (cover.dataset.done) { clearInterval(burst); burst = null; return; }
       handshake();
       nudge();
-      if (++tries >= 8) clearInterval(t);
+      if (++tries >= 8) {
+        clearInterval(burst); burst = null;
+        if (!sawState && inView) reboot();   /* dead embed — fresh bootstrap */
+      }
     }, 1200);
   }
-  frame.addEventListener('load', function () {
-    handshake();
-    if ('IntersectionObserver' in window) {
-      var io = new IntersectionObserver(function (entries) {
-        for (var i = 0; i < entries.length; i++) {
-          if (entries[i].isIntersecting) { kick(); io.disconnect(); break; }
-        }
-      }, { threshold: 0.35 });
-      io.observe(frame);
-    } else {
+
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      for (var i = 0; i < entries.length; i++) inView = entries[i].isIntersecting;
+      if (!inView) return;
+      if (cover.dataset.done) { io.disconnect(); return; }
+      boot();
       kick();
-    }
-  });
+    }, { threshold: 0.35, rootMargin: '160px 0px' });
+    io.observe(area);
+  } else {
+    inView = true;
+    boot();
+  }
 })();
 
 /* ============================================================================

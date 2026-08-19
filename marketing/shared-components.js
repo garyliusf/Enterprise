@@ -114,6 +114,17 @@
     }
   });
 
+  /* Cards marked role="button" tabindex="0" must activate like a native
+     button: Enter and Space open the modal (Space would otherwise scroll the
+     page). Guard on e.target so keys typed into strip form fields pass
+     through untouched. */
+  card.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter' && e.key !== ' ' && e.key !== 'Spacebar') return;
+    if (e.target !== card) return;
+    e.preventDefault();
+    card.click();
+  });
+
   function closeModal() {
     modal.classList.remove('open');
     if (modalVideo) modalVideo.innerHTML = '';
