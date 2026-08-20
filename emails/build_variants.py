@@ -20,7 +20,7 @@ VARIANTS = {
     "A": {"custom": True},   # the DARK design (the ship)
     "B": {"custom": True},   # the light twin of the dark design
     "C": {"custom": True},   # Robinhood-style promo, same content as A/B
-    "D": {"custom": True},   # KLAFS-style luxury editorial: centered, tracked caps, underlined links
+    "D": {"custom": True},   # Apollo-style card stack, same content as A/B
 }
 
 # ---- pull data + pipeline out of the existing tools ----
@@ -615,11 +615,102 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
   </td></tr>
 </table></td></tr></table></body></html>'''
 
+
+# ---- Variant D (v2): Apollo-style card stack — warm page, rounded white cards,
+#      inset feature card, tinted highlight, outlined events card. A/B content.
+def _ap_event(img, title, date, last=False):
+    return f'''<img src="{img}" width="472" style="width:100%;border-radius:10px;display:block;margin:0 0 10px;" alt="">
+      <div style="font-size:17px;font-weight:600;color:#111;line-height:1.4;margin:0 0 5px;">{title}</div>
+      <div style="font-size:14px;font-weight:500;color:#777;margin:0 0 10px;">{date}</div>
+      <p style="margin:0 0 {'0' if last else '28px'};"><a href="#" style="font-size:15px;color:#1488FC;font-weight:600;text-decoration:none;">RSVP <span style="letter-spacing:1px;">&rarr;</span></a></p>'''
+
+_AP_BTN = ('<table cellpadding="0" cellspacing="0" style="margin:24px 0 0;"><tr>'
+           '<td style="background:#1389fd;border-radius:8px;"><a href="#" style="display:inline-block;min-width:220px;'
+           'box-sizing:border-box;padding:16px 28px;font-family:{_F};font-size:16px;font-weight:600;line-height:1.25;'
+           'color:#FFFFFF;text-decoration:none;text-align:center;">LABEL</a></td></tr></table>')
+
+def _ap_li(text, last=False):
+    return f'<li style="margin:0 0 {"0" if last else "8px"};font-size:15px;line-height:1.6;color:#26251f;">{text}</li>'
+
+VARIANT_AP = f'''<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  body {{ margin:0; }}
+  @media (max-width:480px) {{
+    .wrap {{ width:100% !important; }}
+    .card {{ padding-left:22px !important; padding-right:22px !important; }}
+  }}
+</style></head>
+<body style="margin:0;background:#F0EFEA;">
+<table width="100%" cellpadding="0" cellspacing="0" bgcolor="#F0EFEA"><tr><td align="center" style="padding:24px 12px;">
+<table class="wrap" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;">
+
+  <tr><td style="padding:6px 4px 18px;"><img src="{LOGO_BLACK}" width="84" style="width:84px;display:block;" alt="Bolt"></td></tr>
+
+  <tr><td style="padding:0;line-height:0;"><img src="va/nexal-dashboard.jpg" width="600" style="width:100%;border-radius:16px;display:block;" alt=""></td></tr>
+  <tr><td style="height:14px;"></td></tr>
+
+  <tr><td bgcolor="#ffffff" class="card" style="background:#ffffff;border-radius:16px;padding:32px 32px 32px;font-family:{_F};">
+    <h1 style="margin:0 0 14px;font-size:26px;font-weight:500;color:#111;line-height:1.3;">Take payments with the Stripe MCP</h1>
+    <p style="margin:0 0 14px;font-size:15px;line-height:1.65;color:#26251f;">An app that can&rsquo;t take payments is a project, an app that can is a business. The purchase flow is the single feature standing between you and your first paying customer.</p>
+    <p style="margin:0 0 24px;font-size:15px;line-height:1.65;color:#26251f;">In this week&rsquo;s workshop, we&rsquo;ll connect and configure payments with the Stripe MCP so your app can start earning, without the usual setup headaches.</p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#EFEEE9;border-radius:12px;"><tr><td style="padding:26px 26px;font-family:{_F};">
+      <h2 style="margin:0 0 14px;font-size:20px;font-weight:500;color:#111;">You&rsquo;ll learn how to:</h2>
+      <ul style="margin:0;padding:0 0 0 20px;">
+        {_ap_li("Connect the Stripe MCP to a Bolt app")}
+        {_ap_li("Configure products and pricing through Stripe")}
+        {_ap_li("Set up and test a Stripe Checkout flow in test mode")}
+        {_ap_li("Handle API keys and environment variables securely")}
+        {_ap_li("Return customers to the right success or cancel flow after payment")}
+        {_ap_li("Think through common payment edge cases like failed or cancelled payments", last=True)}
+      </ul>
+      {_AP_BTN.replace("LABEL", "Register Now")}
+    </td></tr></table>
+  </td></tr>
+  <tr><td style="height:14px;"></td></tr>
+
+  <tr><td class="card" style="border:1.5px solid #111;border-radius:16px;padding:28px 32px;font-family:{_F};">
+    <h2 style="margin:0 0 18px;font-size:22px;font-weight:500;color:#111;">Coming up next:</h2>
+    {_ap_event("va/build-with-voice.jpg", "Your Users Have Questions: Answer Them Automatically Inside Your App", "Thursday, August 20")}
+    {_ap_event("va/maker-photo.jpg", "Office Hours: Bring your projects, questions, or blockers for live help", "Tuesday, August 25")}
+    {_ap_event("va/bolt-templates.jpg", "Launch and Grow: Market Your App and Find Your First Users", "Thursday, August 27", last=True)}
+  </td></tr>
+  <tr><td style="height:14px;"></td></tr>
+
+  <tr><td bgcolor="#E8F1FE" class="card" style="background:#E8F1FE;border-radius:16px;padding:28px 32px;font-family:{_F};">
+    <h2 style="margin:0 0 8px;font-size:20px;font-weight:500;color:#111;">Tip of the week</h2>
+    <p style="margin:0 0 8px;font-size:15px;font-weight:600;color:#111;line-height:1.5;">Let the Bolt agent work in your other tools for you</p>
+    <p style="margin:0 0 16px;font-size:15px;line-height:1.65;color:#26251f;">Once you connect a service like Stripe, the Bolt agent can interact with it directly on your behalf &mdash; describe what you want and it creates it in Stripe and wires it into your app.</p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:10px;"><tr><td style="padding:14px 16px;font-family:{_F};font-size:14px;line-height:1.6;color:#26251f;">
+      <span style="font-weight:600;">Try this prompt:</span> <i>"Using the Stripe connector, create a new product called Pro Plan at $29/month in test mode, then add a checkout flow for it to my app with success and cancel pages."</i>
+    </td></tr></table>
+    {_AP_BTN.replace("LABEL", "Start Building")}
+  </td></tr>
+
+  <tr><td style="padding:26px 8px 8px;font-family:{_F};">
+    <table cellpadding="0" cellspacing="0"><tr>
+      <td style="padding:0 12px 0 0;"><img src="{LOGO_BLACK}" width="58" style="width:58px;display:block;" alt="Bolt"></td>
+      <td style="font-family:{_F};font-size:14px;color:#26251f;">Keep building,<br><span style="font-weight:600;">Monika &amp; The Bolt Team &#9889;</span></td>
+    </tr></table>
+  </td></tr>
+
+  <tr><td align="center" style="padding:22px 8px 0;">
+    {"".join(f'<a href="{s["href"]}" style="text-decoration:none;display:inline-block;margin:0 7px;"><img src="{s["uri"]}" width="16" height="16" style="display:inline-block;"></a>' for s in _SOC_DARK)}
+  </td></tr>
+  <tr><td align="center" style="padding:18px 8px 6px;font-family:{_F};font-size:12px;">
+    <a href="#" style="color:#26251f;">Manage preferences</a>&nbsp;&nbsp;&nbsp;<a href="#" style="color:#26251f;">Unsubscribe</a>
+  </td></tr>
+  <tr><td align="center" style="padding:6px 8px 18px;font-family:{_F};font-size:12px;line-height:1.7;color:#8a8880;">
+    StackBlitz, Inc. &middot; 2443 Fillmore Street #380-16814 &middot; San Francisco, CA 94115, USA
+  </td></tr>
+  <tr><td align="center" style="padding:2px 8px 12px;"><img src="{LOGO_BLACK}" width="96" style="width:96px;display:block;margin:0 auto;" alt="Bolt"></td></tr>
+</table></td></tr></table></body></html>'''
+
 CUSTOM_DOCS = {
     "A": {"light": B_LIGHT, "dark": VARIANT_B},  # A = the DARK design (the ship)
     "B": {"light": B_LIGHT, "dark": VARIANT_B},
     "C": {"light": VARIANT_E, "dark": VARIANT_E},  # Robinhood promo, A/B content (Surface editorial retired)
-    "D": {"light": VARIANT_D, "dark": D_DARK},
+    "D": {"light": VARIANT_AP, "dark": VARIANT_AP},  # Apollo-style card stack, A/B content (KLAFS retired)
 }
 
 SHELL = r"""<!doctype html><html lang="en"><head><meta charset="utf-8">
