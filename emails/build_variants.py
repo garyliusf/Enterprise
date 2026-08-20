@@ -67,6 +67,7 @@ def _recolor(uri, colour):
     return "data:image/svg+xml;base64," + _b64.b64encode(svg.encode()).decode()
 LOGO_BLACK = _foot["black"]
 LOGO_WHITE = _recolor(_foot["grey"], "#ffffff")
+LOGO_GREY = _foot["grey"]
 _socials = json.loads(SOCIALS)
 
 _F = "Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif"
@@ -183,7 +184,7 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
 <table width="100%" cellpadding="0" cellspacing="0" bgcolor="#F2F1EF"><tr><td align="center" style="padding:28px 12px;">
 <table class="wrap" width="600" cellpadding="0" cellspacing="0" bgcolor="#000000" style="width:600px;max-width:600px;background:#000000;border-radius:12px;overflow:hidden;">
 
-  <tr><td align="center" style="padding:34px 40px 26px;"><img src="{LOGO_WHITE}" width="96" style="width:96px;display:block;" alt="Bolt"></td></tr>
+  <tr><td align="center" style="padding:30px 40px 24px;"><img src="va/bolt-chip.png" width="141" style="width:141px;display:block;" alt="Bolt"></td></tr>
 
   <tr><td class="px" style="padding:0 40px;"><img src="va/nexal-dashboard.jpg" width="520" style="width:100%;border-radius:8px;display:block;" alt=""></td></tr>
 
@@ -226,7 +227,7 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
 
   <tr><td align="center" style="padding:10px 40px 6px;font-family:{_F};font-size:12px;line-height:1.7;color:#8a8a8a;">
     Keep building,<br><span style="font-weight:600;color:#ffffff;">Monika &amp; The Bolt Team &#9889;</span></td></tr>
-  <tr><td align="center" style="padding:40px 40px 0;"><img src="{LOGO_WHITE}" width="88" style="width:88px;display:block;" alt="Bolt"></td></tr>
+  <tr><td align="center" style="padding:40px 40px 0;"><img src="{LOGO_GREY}" width="88" style="width:88px;display:block;" alt="Bolt"></td></tr>
   <tr><td align="center" style="padding:26px 40px 0;">
     {"".join(f'<a href="{s["href"]}" style="text-decoration:none;display:inline-block;margin:0 10px;"><img src="{s["uri"]}" width="16" height="16" style="display:inline-block;"></a>' for s in _SOC_WHITE)}
   </td></tr>
@@ -537,9 +538,11 @@ select{font:12px inherit;padding:6px 8px;border:1px solid var(--line);border-rad
   <div class="seg" id="vp"><button data-w="640" class="on">Desktop</button><button data-w="375">Mobile</button></div>
   <span class="lbl">Mode</span>
   <div class="seg" id="theme"><button data-m="light" class="on">Light</button><button data-m="dark">Dark</button></div>
+  <span class="lbl">Client</span>
+  <div class="seg" id="client"><button data-c="none" class="on">None</button><button data-c="gmail">Gmail dark</button><button data-c="outlook">Outlook dark</button></div>
   <span class="lbl">Variant</span>
   <div class="seg" id="vars"></div>
-  <span class="hint">Variants are token overrides in build_variants.py — edit VARIANTS there.</span>
+  <span class="hint">Client = simulated Gmail/Outlook dark transforms (approximate — images never repaint).</span>
 </header>
 <div class="stage" id="stage"></div>
 
@@ -559,6 +562,50 @@ let cur = EMAILS.find(e => e.id === 'cx__email_2') || EMAILS[0], vi = 0, T = {};
 let mode = 'after', vp = 640, sel = 'A', theme = 'light';
 const V = () => cur.variations[vi] || cur.variations[0];
 const PICK = '';
+let client = 'none';
+
+/* Client dark-mode simulation — APPROXIMATE. Gmail: one-way (light bgs -> dark,
+   dark text -> light, images/saturated colors mostly kept). Outlook: harsher
+   two-way inversion of neutrals (dark canvases flip light — the logo trap). */
+const SIM = `<script>(function(){
+  var MODE='__CLIENT__';
+  function hsl(r,g,b){r/=255;g/=255;b/=255;var mx=Math.max(r,g,b),mn=Math.min(r,g,b),h=0,s=0,l=(mx+mn)/2;
+    if(mx!==mn){var d=mx-mn;s=l>0.5?d/(2-mx-mn):d/(mx+mn);
+      h=mx===r?((g-b)/d+(g<b?6:0)):mx===g?((b-r)/d+2):((r-g)/d+4);h/=6;}return [h,s,l];}
+  function rgb(h,s,l){function f(p,q,t){if(t<0)t+=1;if(t>1)t-=1;
+      if(t<1/6)return p+(q-p)*6*t;if(t<1/2)return q;if(t<2/3)return p+(q-p)*(2/3-t)*6;return p;}
+    if(s===0){var v=Math.round(l*255);return [v,v,v];}
+    var q=l<0.5?l*(1+s):l+s-l*s,p=2*l-q;
+    return [Math.round(f(p,q,h+1/3)*255),Math.round(f(p,q,h)*255),Math.round(f(p,q,h-1/3)*255)];}
+  function map(c,kind){
+    var m=c.match(/rgba?\\(([^)]+)\\)/); if(!m) return null;
+    var p=m[1].split(',').map(parseFloat); if(p.length>3&&p[3]===0) return null;
+    var v=hsl(p[0],p[1],p[2]),h=v[0],s=v[1],l=v[2],neutral=s<0.28;
+    if(MODE==='gmail'){
+      if(kind==='bg'){ if(neutral){ if(l>0.6) l=0.12+(1-l)*0.08; else if(l>0.35) l=l*0.45; }
+        else if(l>0.75) l=0.25; }
+      else { if(neutral){ if(l<0.4) l=0.87-l*0.15; } else if(l<0.35) l=Math.min(0.7,l+0.35); }
+      s=s*0.92;
+    } else {
+      if(neutral){ l=1-l; if(kind==='bg'){ if(l>0.92) l=0.94; if(l<0.1) l=0.13; } }
+      else { if(kind==='bg'&&l>0.75) l=0.3; else if(kind==='bg'&&l<0.15) l=0.85;
+             else if(kind!=='bg'&&l<0.3) l=0.82; else if(kind!=='bg'&&l>0.85) l=0.15; }
+    }
+    var o=rgb(h,s,l); return 'rgb('+o[0]+','+o[1]+','+o[2]+')';
+  }
+  var els=[document.documentElement,document.body].concat([].slice.call(document.querySelectorAll('body *')));
+  els.forEach(function(el){ if(!el||el.tagName==='IMG') return;
+    var cs=getComputedStyle(el);
+    var bg=map(cs.backgroundColor,'bg'); if(bg) el.style.setProperty('background-color',bg,'important');
+    var tc=map(cs.color,'text'); if(tc) el.style.setProperty('color',tc,'important');
+    ['Top','Right','Bottom','Left'].forEach(function(side){
+      if(parseFloat(cs['border'+side+'Width'])>0){
+        var bc=map(cs['border'+side+'Color'],'text');
+        if(bc) el.style.setProperty('border-'+side.toLowerCase()+'-color',bc,'important');
+      }});
+  });
+})();<\/script>`;
+
 
 /* ---- extracted verbatim from build_editor.py (single source of truth) ---- */
 __FONTS__
@@ -573,10 +620,11 @@ function renderFrame(letter, scale){
   let doc;
   if (VARIANTS[letter] && VARIANTS[letter].custom) { doc = CUSTOM_DOCS[letter][theme]; }
   else { T = Object.assign(tokensFor(letter), theme === 'dark' ? DARK_TOKENS : {}); doc = docFor(); }
+  if (doc && client !== 'none') doc = doc.replace(/<\/body>/i, SIM.replace('__CLIENT__', client) + '</body>');
   const cell = document.createElement('div'); cell.className = 'cell';
   const tag = document.createElement('div'); tag.className = 'tag'; tag.textContent = letter;
   const wrap = document.createElement('div'); wrap.className = 'frame';
-  const f = document.createElement('iframe'); f.setAttribute('sandbox','');
+  const f = document.createElement('iframe'); f.setAttribute('sandbox', client === 'none' ? '' : 'allow-scripts');
   f.width = vp; f.style.width = vp + 'px';
   const h = Math.max(420, innerHeight - 190);
   f.style.height = (scale ? h / scale : h) + 'px';
@@ -599,6 +647,7 @@ function draw(){
   document.querySelectorAll('#vars button').forEach(b=>b.classList.toggle('on', b.textContent===sel));
   document.querySelectorAll('#vp button').forEach(b=>b.classList.toggle('on', +b.dataset.w===vp));
   document.querySelectorAll('#theme button').forEach(b=>b.classList.toggle('on', b.dataset.m===theme));
+  document.querySelectorAll('#client button').forEach(b=>b.classList.toggle('on', b.dataset.c===client));
 }
 const es = document.getElementById('email');
 let g = null;
@@ -616,6 +665,7 @@ const vb = document.getElementById('vars');
 });
 document.getElementById('vp').onclick = e => { if (e.target.dataset.w){ vp = +e.target.dataset.w; draw(); } };
 document.getElementById('theme').onclick = e => { if (e.target.dataset.m){ theme = e.target.dataset.m; draw(); } };
+document.getElementById('client').onclick = e => { if (e.target.dataset.c){ client = e.target.dataset.c; draw(); } };
 addEventListener('resize', () => draw());
 draw();
 </script></body></html>"""
