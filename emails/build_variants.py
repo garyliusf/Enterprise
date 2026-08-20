@@ -556,14 +556,14 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
 <table width="100%" cellpadding="0" cellspacing="0" bgcolor="#F2F1EF"><tr><td align="center" style="padding:28px 12px;">
 <table class="wrap" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;">
 
-  <tr><td bgcolor="#0B0D10" style="background:#0B0D10;border-radius:12px 12px 0 0;padding:34px 36px 0;" align="center">
+  <tr><td bgcolor="#000000" style="background:#000000;border-radius:12px 12px 0 0;padding:34px 36px 0;" align="center">
     <img src="{LOGO_WHITE}" width="92" style="width:92px;display:block;margin:0 auto 26px;" alt="Bolt">
     <div class="disp" style="font-family:{_SER};font-size:33px;font-weight:500;line-height:1.25;color:#ffffff;letter-spacing:0.2px;">Take payments with<br>the Stripe MCP</div>
     <div style="font-family:{_F};font-size:16px;color:#C9CDD3;margin:14px 0 22px;">This week on Bolt &mdash; live with the team.</div>
     {_e_pill("Register now", "#1488FC", "#ffffff")}
     <div style="height:30px;"></div>
   </td></tr>
-  <tr><td bgcolor="#0B0D10" style="background:#0B0D10;padding:0;line-height:0;"><img src="va/nexal-dashboard.jpg" width="600" style="width:100%;display:block;" alt=""></td></tr>
+  <tr><td bgcolor="#000000" style="background:#000000;padding:0;line-height:0;"><img src="va/nexal-dashboard.jpg" width="600" style="width:100%;display:block;" alt=""></td></tr>
 
   <tr><td bgcolor="#ffffff" class="px" style="background:#ffffff;padding:34px 36px 36px;font-family:{_F};">
     <p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:#000000;">An app that can&rsquo;t take payments is a project, an app that can is a business. The purchase flow is the single feature standing between you and your first paying customer.</p>
