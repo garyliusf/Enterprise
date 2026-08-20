@@ -17,9 +17,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 # (e.g. "B": {"btnRadius": 0}) or {"custom": True} with a full template in
 # CUSTOM_DOCS below (built in python, CX email 2 content).
 VARIANTS = {
-    "A": {"custom": True},   # the DARK design (the ship)
+    "A": {"custom": True},   # Robinhood promo — the working design
     "B": {"custom": True},   # the light twin of the dark design
-    "C": {"custom": True},   # Robinhood-style promo, same content as A/B
+    "C": {"custom": True},   # Musicbed dark (parked)
     "D": {"custom": True},   # Apollo-style card stack, same content as A/B
 }
 
@@ -785,9 +785,9 @@ _KD = """
 VARIANT_AP = VARIANT_AP.replace('</style></head>', _KD + '</style></head>', 1)
 
 CUSTOM_DOCS = {
-    "A": {"light": B_LIGHT, "dark": VARIANT_B},  # A = the DARK design (the ship)
+    "A": {"light": VARIANT_E, "dark": VARIANT_E},  # A = Robinhood promo (the working design)
     "B": {"light": B_LIGHT, "dark": VARIANT_B},
-    "C": {"light": VARIANT_E, "dark": VARIANT_E},  # Robinhood promo, A/B content (Surface editorial retired)
+    "C": {"light": VARIANT_B, "dark": VARIANT_B},  # Musicbed dark (former ship candidate)
     "D": {"light": VARIANT_AP, "dark": VARIANT_AP},  # Apollo-style card stack, A/B content (KLAFS retired)
 }
 
