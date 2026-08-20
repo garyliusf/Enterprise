@@ -162,13 +162,14 @@ _SOC_WHITE = [dict(s, uri=_recolor(s["uri"], "#ffffff")) for s in _socials]
 def _b_event(img, title, date):
     return f'''<tr><td style="padding:0 40px 8px;"><img src="{img}" width="520" style="width:100%;border-radius:8px;display:block;" alt=""></td></tr>
     <tr><td style="padding:10px 40px 2px;font-family:{_F};font-size:18px;font-weight:600;color:#ffffff;line-height:1.4;">{title}</td></tr>
-    <tr><td style="padding:0 40px 28px;font-family:{_F};font-size:14px;color:#ABABAB;">{date} &nbsp;&middot;&nbsp; <a href="#" style="color:#4DA6FF;font-weight:600;text-decoration:none;">RSVP</a></td></tr>'''
+    <tr><td style="padding:0 40px 34px;font-family:{_F};font-size:14px;color:#ABABAB;">{date} &nbsp;&middot;&nbsp; <a href="#" style="color:#4DA6FF;font-weight:600;text-decoration:none;">RSVP</a></td></tr>'''
 
 def _b_ghost(label):
-    return f'''<tr><td style="padding:4px 40px 36px;">
-      <table width="100%" cellpadding="0" cellspacing="0"><tr>
-        <td align="center" style="border:1px solid rgba(255,255,255,0.4);border-radius:8px;">
-          <a href="#" style="display:block;padding:16px 28px;font-family:{_F};font-size:16px;font-weight:600;color:#ffffff;text-decoration:none;text-align:center;">{label}</a>
+    # standard blue button (token spec): #1389fd, radius 8, 16/600, hug min-220
+    return f'''<tr><td style="padding:8px 40px 44px;">
+      <table cellpadding="0" cellspacing="0"><tr>
+        <td class="gbtn" style="background:#1389fd;border-radius:8px;">
+          <a href="#" style="display:inline-block;min-width:220px;box-sizing:border-box;padding:16px 28px;font-family:{_F};font-size:16px;font-weight:600;line-height:1.25;color:#ffffff;text-decoration:none;text-align:center;">{label}</a>
         </td></tr></table></td></tr>'''
 
 VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
@@ -197,7 +198,7 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
   </td></tr>
   {_b_ghost("Register Now")}
 
-  <tr><td class="px" style="padding:6px 40px 8px;font-family:{_F};">
+  <tr><td class="px" style="padding:28px 40px 8px;font-family:{_F};">
     <h2 style="margin:0 0 14px;font-size:24px;font-weight:700;color:#ffffff;letter-spacing:-0.3px;">You\'ll learn how to:</h2>
     <ul style="margin:0 0 30px;padding:0 0 0 22px;">
       <li style="margin:0 0 8px;font-size:15px;line-height:1.6;color:#ABABAB;">Connect the Stripe MCP to a Bolt app</li>
@@ -209,14 +210,14 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
     </ul>
   </td></tr>
 
-  <tr><td class="px" style="padding:0 40px 18px;font-family:{_F};">
+  <tr><td class="px" style="padding:20px 40px 18px;font-family:{_F};">
     <h2 style="margin:0 0 22px;font-size:24px;font-weight:700;color:#ffffff;letter-spacing:-0.3px;">Coming up next:</h2>
   </td></tr>
   {_b_event("va/build-with-voice.jpg", "Your Users Have Questions: Answer Them Automatically Inside Your App", "Thursday, August 20")}
   {_b_event("va/soulpress-app.jpg", "Office Hours: Bring your projects, questions, or blockers for live help", "Tuesday, August 25")}
   {_b_event("va/bolt-templates.jpg", "Launch and Grow: Market Your App and Find Your First Users", "Thursday, August 27")}
 
-  <tr><td class="px" style="padding:8px 40px 8px;font-family:{_F};">
+  <tr><td class="px" style="padding:32px 40px 8px;font-family:{_F};">
     <h2 style="margin:0 0 12px;font-size:24px;font-weight:700;color:#ffffff;letter-spacing:-0.3px;">Tip of the week</h2>
     <p style="margin:0 0 8px;font-size:16px;font-weight:600;color:#ffffff;line-height:1.5;">Let the Bolt agent work in your other tools for you</p>
     <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#ABABAB;">Once you connect a service like Stripe, the Bolt agent can interact with it directly on your behalf &mdash; describe what you want and it creates it in Stripe and wires it into your app.</p>
@@ -226,7 +227,7 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
   </td></tr>
   {_b_ghost("Start Building")}
 
-  <tr><td align="center" style="padding:10px 40px 6px;font-family:{_F};font-size:12px;line-height:1.7;color:#8a8a8a;">
+  <tr><td align="center" style="padding:18px 40px 6px;font-family:{_F};font-size:12px;line-height:1.7;color:#8a8a8a;">
     Keep building,<br><span style="font-weight:600;color:#ffffff;">Monika &amp; The Bolt Team &#9889;</span></td></tr>
   <tr><td align="center" style="padding:40px 40px 0;"><img src="{LOGO_GREY}" width="88" style="width:88px;display:block;" alt="Bolt"></td></tr>
   <tr><td align="center" style="padding:26px 40px 0;">
@@ -301,7 +302,7 @@ VARIANT_C = f'''<!doctype html><html><head><meta charset="utf-8">
       <li style="margin:0;font-size:15px;line-height:1.65;color:#3c3c3c;">Think through failed or cancelled payments and confirmation</li>
     </ul>
     <table cellpadding="0" cellspacing="0" style="margin:0 0 10px;"><tr>
-      <td bgcolor="#000000" style="background:#000000;"><a href="#" style="display:inline-block;min-width:220px;box-sizing:border-box;padding:16px 28px;font-family:{_M};font-size:13px;font-weight:700;letter-spacing:2px;color:#ffffff;text-align:center;text-decoration:none;">REGISTER HERE</a></td>
+      <td bgcolor="#1389fd" style="background:#1389fd;border-radius:8px;"><a href="#" style="display:inline-block;min-width:220px;box-sizing:border-box;padding:16px 28px;font-family:{_F};font-size:16px;font-weight:600;line-height:1.25;color:#ffffff;text-decoration:none;text-align:center;">Register here</a></td>
     </tr></table>
   </td></tr>
 
@@ -438,7 +439,7 @@ _OGS = """
   [data-ogsc] .c-head { color:#ffffff !important; }
   [data-ogsc] .c-body { color:#ABABAB !important; }
   [data-ogsc] .c-fine { color:#8a8a8a !important; }
-  [data-ogsb] .gbtn { background-color:transparent !important; border-color:rgba(255,255,255,0.4) !important; }
+  [data-ogsb] .gbtn { background-color:#1389fd !important; }
   [data-ogsb] .pbox { background-color:#111111 !important; border-color:#2b2b2b !important; }
 """
 VARIANT_B = VARIANT_B.replace('</style></head>', _OGS + '</style></head>', 1)
@@ -472,11 +473,9 @@ A_DARK = _swap_socials(A_DARK, _socials, _SOC_WHITE)
 B_LIGHT = _swap(VARIANT_B, [
     ('bgcolor="#000000"', 'bgcolor="#FFFFFF"'),
     ('background-color:#000000 !important', 'background-color:#FFFFFF !important'),
-    ('border-color:rgba(255,255,255,0.4) !important', 'border-color:rgba(0,0,0,0.35) !important'),
     ('background-color:#111111 !important', 'background-color:#F5F4F2 !important'),
     ('border-color:#2b2b2b !important', 'border-color:#E2E0DC !important'),
     ('background:#000000;border-radius:12px', 'background:#FFFFFF;border-radius:12px'),
-    ('border:1px solid rgba(255,255,255,0.4)', 'border:1px solid rgba(0,0,0,0.35)'),
     ('background:#111111;border:1px solid #2b2b2b', 'background:#F5F4F2;border:1px solid #E2E0DC'),
     ('color:#ffffff', 'color:#000000'),
     ('color:#ABABAB', 'color:#444444'),
@@ -488,9 +487,6 @@ B_LIGHT = _swap_socials(B_LIGHT, _SOC_WHITE, _SOC_DARK)
 C_DARK = _swap(VARIANT_C, [
     ('bgcolor="#ffffff" style="width:600px;max-width:600px;background:#ffffff;"',
      'bgcolor="#0E0E0E" style="width:600px;max-width:600px;background:#0E0E0E;"'),
-    ('<td bgcolor="#000000" style="background:#000000;"><a href="#" style="display:inline-block;min-width:220px',
-     '<td bgcolor="#FFFFFF" style="background:#FFFFFF;"><a href="#" style="display:inline-block;min-width:220px'),
-    ('letter-spacing:2px;color:#ffffff;text-align:center', 'letter-spacing:2px;color:#000000;text-align:center'),
     ('border:1px solid #000;', 'border:1px solid #FFFFFF;'),
     ('bgcolor="#F4F4F2" align="center" style="background:#F4F4F2;', 'bgcolor="#161616" align="center" style="background:#161616;'),
     ('border:1px solid #c9c9c9', 'border:1px solid #555555'),
@@ -528,8 +524,9 @@ DARK_TOKENS = json.dumps({
 _SER = _F  # brand rule (Gary): Inter everywhere
 
 def _e_pill(label, bg, fg):
+    # standard blue button (token spec) — bg/fg params kept for signature stability
     return f'''<table cellpadding="0" cellspacing="0" align="center" style="margin:0 auto;"><tr>
-      <td style="background:{bg};border-radius:999px;"><a href="#" style="display:inline-block;padding:14px 34px;font-family:{_F};font-size:15px;font-weight:600;color:{fg};text-decoration:none;">{label}</a></td>
+      <td style="background:#1389fd;border-radius:8px;"><a href="#" style="display:inline-block;min-width:220px;box-sizing:border-box;padding:16px 28px;font-family:{_F};font-size:16px;font-weight:600;line-height:1.25;color:#ffffff;text-decoration:none;text-align:center;">{label}</a></td>
     </tr></table>'''
 
 VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
@@ -565,7 +562,7 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
     </ul>
     <p style="margin:0 0 24px;font-size:15px;line-height:1.7;color:#000000;">Join us Thursday &mdash; save your seat before the session fills.</p>
     <table cellpadding="0" cellspacing="0"><tr>
-      <td style="background:#000000;border-radius:999px;"><a href="#" style="display:inline-block;padding:13px 30px;font-family:{_F};font-size:14px;font-weight:600;color:#ffffff;text-decoration:none;">Register now</a></td>
+      <td style="background:#1389fd;border-radius:8px;"><a href="#" style="display:inline-block;min-width:220px;box-sizing:border-box;padding:16px 28px;font-family:{_F};font-size:16px;font-weight:600;line-height:1.25;color:#ffffff;text-decoration:none;text-align:center;">Register now</a></td>
     </tr></table>
     <p style="margin:22px 0 0;font-size:13px;line-height:1.6;color:#000000;">Can&rsquo;t make it live? <a href="#" style="color:#000000;font-weight:600;">Watch previous workshops</a>.</p>
   </td></tr>
@@ -593,7 +590,6 @@ E_DARK = _swap(VARIANT_E, [
     ('color:#000000;">Here&rsquo;s how it works:', 'color:#E6E8EB;">Here&rsquo;s how it works:'),
     ('color:#000000;"><b>', 'color:#E6E8EB;"><b>'),
     ('color:#000000;">Join us Thursday', 'color:#E6E8EB;">Join us Thursday'),
-    ('background:#000000;border-radius:999px;', 'background:#1488FC;border-radius:999px;'),
     ('color:#000000;">Can&rsquo;t make it live?', 'color:#9aa0a6;">Can&rsquo;t make it live?'),
     ('color:#000000;font-weight:600;">Watch previous workshops', 'color:#ffffff;font-weight:600;">Watch previous workshops'),
 ])
