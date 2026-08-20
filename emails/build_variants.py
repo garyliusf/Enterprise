@@ -669,7 +669,7 @@ VARIANT_AP = f'''<!doctype html><html><head><meta charset="utf-8">
   </td></tr>
   <tr><td style="height:14px;"></td></tr>
 
-  <tr><td class="card" style="border:1.5px solid #111;border-radius:10px;padding:28px 32px;font-family:{_F};">
+  <tr><td class="card" style="border:1px solid #D9D7D1;border-radius:10px;padding:28px 32px;font-family:{_F};">
     <h2 style="margin:0 0 18px;font-size:22px;font-weight:500;color:#111;">Coming up next:</h2>
     {_ap_event("va/build-with-voice.jpg", "Your Users Have Questions: Answer Them Automatically Inside Your App", "Thursday, August 20")}
     {_ap_event("va/maker-photo.jpg", "Office Hours: Bring your projects, questions, or blockers for live help", "Tuesday, August 25")}
