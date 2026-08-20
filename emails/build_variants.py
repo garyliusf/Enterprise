@@ -203,7 +203,7 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
   </td></tr>
   {_b_ghost("Register Now")}
 
-  <tr><td class="px band" bgcolor="#000001" style="background:#000001;padding:28px 40px 10px;font-family:{_F};">
+  <tr><td class="px band" bgcolor="#000001" style="background:#000001;padding:32px 40px 10px;font-family:{_F};">
     <h2 style="margin:0 0 14px;font-size:24px;font-weight:500;color:#ffffff;letter-spacing:-0.3px;">You\'ll learn how to:</h2>
     <ul style="margin:0 0 30px;padding:0 0 0 22px;">
       <li style="margin:0 0 8px;font-size:15px;line-height:1.6;color:#ABABAB;">Connect the Stripe MCP to a Bolt app</li>
@@ -481,9 +481,9 @@ A_DARK = _swap_socials(A_DARK, _socials, _SOC_WHITE)
 # B light: white canvas, black type, dark ghost outlines
 B_LIGHT = _swap(VARIANT_B, [
     ('bgcolor="#000000"', 'bgcolor="#FFFFFF"'),
-    ('background:#000001;', 'background:#EDEEF0;'),
-    ('bgcolor="#000001"', 'bgcolor="#EDEEF0"'),
-    ('background-color:#000001 !important', 'background-color:#EDEEF0 !important'),
+    ('background:#000001;', 'background:#EAECEF;'),
+    ('bgcolor="#000001"', 'bgcolor="#EAECEF"'),
+    ('background-color:#000001 !important', 'background-color:#EAECEF !important'),
     ('border-top:1px solid #232323', 'border-top:1px solid #E7E5E2'),
     ('background-color:#000000 !important', 'background-color:#FFFFFF !important'),
     ('background-color:#111111 !important', 'background-color:#FFFFFF !important'),
