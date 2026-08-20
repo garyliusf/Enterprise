@@ -215,7 +215,7 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
     </ul>
   </td></tr>
 
-  <tr><td class="px" style="padding:20px 40px 16px;font-family:{_F};">
+  <tr><td class="px" style="padding:32px 40px 16px;font-family:{_F};">
     <h2 style="margin:0;font-size:24px;font-weight:500;color:#ffffff;letter-spacing:-0.3px;">Coming up next:</h2>
   </td></tr>
   {_b_event("va/build-with-voice.jpg", "Your Users Have Questions: Answer Them Automatically Inside Your App", "Thursday, August 20")}
