@@ -226,10 +226,11 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
 
   <tr><td align="center" style="padding:10px 40px 6px;font-family:{_F};font-size:12px;line-height:1.7;color:#8a8a8a;">
     Keep building,<br><span style="font-weight:600;color:#ffffff;">Monika &amp; The Bolt Team &#9889;</span></td></tr>
-  <tr><td align="center" style="padding:22px 40px 0;">
+  <tr><td align="center" style="padding:40px 40px 0;"><img src="{LOGO_WHITE}" width="88" style="width:88px;display:block;" alt="Bolt"></td></tr>
+  <tr><td align="center" style="padding:26px 40px 0;">
     {"".join(f'<a href="{s["href"]}" style="text-decoration:none;display:inline-block;margin:0 10px;"><img src="{s["uri"]}" width="16" height="16" style="display:inline-block;"></a>' for s in _SOC_WHITE)}
   </td></tr>
-  <tr><td align="center" style="padding:18px 40px 36px;font-family:{_F};font-size:12px;line-height:1.8;color:#8a8a8a;">
+  <tr><td align="center" style="padding:26px 40px 44px;font-family:{_F};font-size:12px;line-height:1.8;color:#8a8a8a;">
     StackBlitz, Inc. | 2443 Fillmore Street #380-16814, San Francisco, CA 94115<br>
     <a href="#" style="color:#8a8a8a;">Unsubscribe or Manage Preferences</a></td></tr>
 </table></td></tr></table></body></html>'''
@@ -329,7 +330,7 @@ VARIANT_C = f'''<!doctype html><html><head><meta charset="utf-8">
     <a href="#" style="color:#666;">Unsubscribe</a> &middot; <a href="#" style="color:#666;">Manage Preferences</a><br>
     StackBlitz, Inc. &middot; 2443 Fillmore Street #380-16814 &middot; San Francisco, CA 94115
   </td></tr>
-  <tr><td bgcolor="#000000" style="background:#000000;padding:16px 32px;"><img src="{LOGO_WHITE}" width="72" style="width:72px;display:block;" alt="Bolt"></td></tr>
+  <tr><td bgcolor="#000000" style="background:#000000;padding:28px 32px;"><img src="{LOGO_WHITE}" width="80" style="width:72px;display:block;" alt="Bolt"></td></tr>
 </table></td></tr></table></body></html>'''
 
 
