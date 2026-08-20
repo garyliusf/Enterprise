@@ -199,7 +199,7 @@ TIP_CARD = _b_callout(
     "TIP OF THE WEEK",
     "Let the Bolt agent work in your other tools for you",
     '<p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#ABABAB;">Once you connect a service like Stripe, the Bolt agent can interact with it directly on your behalf &mdash; describe what you want and it creates it in Stripe and wires it into your app.</p>',
-    inset=f'''<table width="100%" cellpadding="0" cellspacing="0" style="background:#111111;border:1px solid #2b2b2b;border-radius:8px;"><tr><td style="padding:14px 16px;font-family:{_F};font-size:14px;line-height:1.6;color:#ABABAB;">
+    inset=f'''<table width="100%" cellpadding="0" cellspacing="0" style="background:#111111;border:1px solid #2b2b2b;border-left:3px solid #1488FC;background-image:linear-gradient(180deg,rgba(77,166,255,0.30),rgba(20,136,252,0) 70%);background-size:12px 100%;background-repeat:no-repeat;background-position:left top;border-radius:8px;"><tr><td style="padding:14px 16px;font-family:{_F};font-size:14px;line-height:1.6;color:#ABABAB;">
       <span style="font-weight:600;color:#ffffff;">Try this prompt:</span> <i>"Using the Stripe connector, create a new product called Pro Plan at $29/month in test mode, then add a checkout flow for it to my app with success and cancel pages."</i>
     </td></tr></table>''',
     cta="Start Building")
@@ -252,7 +252,7 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
 
   <tr><td class="px band" bgcolor="#000001" style="background:#000001;padding:0 40px 40px;font-family:{_F};">
     {TIP_CARD}
-    <p style="margin:28px 0 0;font-size:16px;line-height:1.6;color:#ABABAB;">Keep building,<br><span style="font-weight:600;color:#ffffff;">Monika &amp; The Bolt Team &#9889;</span></p>
+    <p style="margin:28px 0 0;font-size:16px;line-height:1.6;color:#ABABAB;text-align:center;">Keep building,<br><span style="font-weight:600;color:#ffffff;">Monika &amp; The Bolt Team &#9889;</span></p>
   </td></tr>
 
   <tr><td style="padding:8px 40px 8px;"><div style="border-top:1px solid #232323;font-size:0;line-height:0;">&nbsp;</div></td></tr>
@@ -471,7 +471,8 @@ _OGS = """
   [data-ogsb] .bdg { background-color:#1488FC !important; }
   [data-ogsb] .gbtn { background-color:#1389fd !important; }
   [data-ogsc] .gbtn a { color:#FFFFFF !important; }
-  [data-ogsb] .pbox { background-color:#111111 !important; border-color:#2b2b2b !important; }
+  [data-ogsb] .pbox { background-color:#111111 !important; }
+  [data-ogsc] .pbox { border-color:#2b2b2b !important; border-left-color:#1488FC !important; }
   [data-ogsc] span, [data-ogsc] i, [data-ogsc] b { color:inherit !important; }
 """
 VARIANT_B = VARIANT_B.replace('</style></head>', _OGS + '</style></head>', 1)
@@ -515,7 +516,8 @@ B_LIGHT = _swap(VARIANT_B, [
     ('background-color:#111111 !important', 'background-color:#FFFFFF !important'),
     ('border-color:#2b2b2b !important', 'border-color:#E2E0DC !important'),
     ('background:#000000;border-radius:12px', 'background:#FFFFFF;border-radius:12px'),
-    ('background:#111111;border:1px solid #2b2b2b', 'background:#FFFFFF;border:1px solid #E2E0DC'),
+    ('background:#111111;border:1px solid #2b2b2b;border-left:3px solid #1488FC;', 'background:#FFFFFF;border:1px solid #E2E0DC;border-left:3px solid #1488FC;'),
+    ('rgba(77,166,255,0.30)', 'rgba(20,136,252,0.14)'),
     ('color:#ffffff', 'color:#000000'),
     ('color:#ABABAB', 'color:#444444'),
 ])
@@ -625,7 +627,7 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
     <table cellpadding="0" cellspacing="0" style="margin:24px 0 0;"><tr>
       <td style="background:#1389fd;border-radius:8px;"><a href="#" style="display:inline-block;min-width:220px;box-sizing:border-box;padding:16px 28px;font-family:{_F};font-size:16px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;">Start Building</a></td>
     </tr></table>
-    <p style="margin:32px 0 0;font-size:16px;line-height:1.6;color:#000000;">Keep building,<br><span style="font-weight:600;">Monika &amp; The Bolt Team &#9889;</span></p>
+    <p style="margin:32px 0 0;font-size:16px;line-height:1.6;color:#000000;text-align:center;">Keep building,<br><span style="font-weight:600;">Monika &amp; The Bolt Team &#9889;</span></p>
   </td></tr>
 
   <tr><td bgcolor="#000000" class="px" style="background:#000000;padding:30px 36px 0;font-family:{_F};">
@@ -651,7 +653,7 @@ VARIANT_E = VARIANT_E.replace('<tr><td bgcolor="#000000" style="background:#0000
 VARIANT_E = VARIANT_E.replace('<tr><td bgcolor="#000000" style="background:#000000;padding:0;line-height:0;">', '<tr><td class="k-dark" bgcolor="#000000" style="background:#000000;padding:0;line-height:0;">')
 VARIANT_E = VARIANT_E.replace('<tr><td bgcolor="#000000" class="px"', '<tr><td bgcolor="#000000" class="px k-dark"')
 VARIANT_E = VARIANT_E.replace('<tr><td bgcolor="#ffffff" class="px"', '<tr><td bgcolor="#ffffff" class="px k-light"')
-VARIANT_E = VARIANT_E.replace('style="background:#F2F1EF;border:1px solid #E2E0DC;border-radius:8px;">', 'class="k-tint" style="background:#F2F1EF;border:1px solid #E2E0DC;border-radius:8px;">', 1)
+VARIANT_E = VARIANT_E.replace('style="background:#F2F1EF;border:1px solid #E2E0DC;border-radius:8px;">', 'class="k-tint" style="background:#F2F1EF;border:1px solid #E2E0DC;border-left:3px solid #1488FC;background-image:linear-gradient(180deg,rgba(20,136,252,0.14),rgba(20,136,252,0) 70%);background-size:12px 100%;background-repeat:no-repeat;background-position:left top;border-radius:8px;">', 1)
 VARIANT_E = VARIANT_E.replace('<td style="background:#1389fd;border-radius:8px;">', '<td class="k-btn" style="background:#1389fd;border-radius:8px;">')
 _K = """
   /* modern-Outlook dark-mode overrides (data-ogsc/-ogsb) */
@@ -737,7 +739,7 @@ VARIANT_AP = f'''<!doctype html><html><head><meta charset="utf-8">
       <span style="font-weight:600;">Try this prompt:</span> <i>"Using the Stripe connector, create a new product called Pro Plan at $29/month in test mode, then add a checkout flow for it to my app with success and cancel pages."</i>
     </td></tr></table>
     {_AP_BTN.replace("LABEL", "Start Building")}
-    <p style="margin:28px 0 0;font-size:15px;line-height:1.6;color:#26251f;">Keep building,<br><span style="font-weight:600;">Monika &amp; The Bolt Team &#9889;</span></p>
+    <p style="margin:28px 0 0;font-size:15px;line-height:1.6;color:#26251f;text-align:center;">Keep building,<br><span style="font-weight:600;">Monika &amp; The Bolt Team &#9889;</span></p>
   </td></tr>
 
   <tr><td align="center" style="padding:30px 8px 0;"><img src="{LOGO_GREY}" width="84" style="width:84px;display:block;margin:0 auto;" alt="Bolt"></td></tr>
@@ -758,6 +760,7 @@ for _col, _cls in [('#111;','d-ink'), ('#26251f','d-body'), ('#777;','d-date'), 
     VARIANT_AP = re.sub(r'<(p|li|div|span|a|td|h1|h2)( (?![^>]*class=)[^>]*?color:' + _col + ')', r'<\1 class="' + _cls + r'"\2', VARIANT_AP)
 VARIANT_AP = VARIANT_AP.replace('<td style="background:#1389fd;border-radius:8px;">', '<td class="d-btn" style="background:#1389fd;border-radius:8px;">')
 VARIANT_AP = VARIANT_AP.replace('<table width="100%" cellpadding="0" cellspacing="0" style="background:#E8E9EB;border-radius:8px;">', '<table width="100%" cellpadding="0" cellspacing="0" class="d-inset" style="background:#E8E9EB;border-radius:8px;">')
+VARIANT_AP = VARIANT_AP.replace('class="d-inset" style="background:#E8E9EB;border-radius:8px;"><tr><td style="padding:14px 16px;', 'class="d-inset" style="background:#E8E9EB;border-left:3px solid #1488FC;background-image:linear-gradient(180deg,rgba(20,136,252,0.14),rgba(20,136,252,0) 70%);background-size:12px 100%;background-repeat:no-repeat;background-position:left top;border-radius:8px;"><tr><td style="padding:14px 16px;')
 VARIANT_AP = VARIANT_AP.replace('<tr><td class="card" style="border:1px solid #D9D7D1;', '<tr><td class="card d-outline" style="border:1px solid #D9D7D1;')
 VARIANT_AP = VARIANT_AP.replace('<table width="100%" cellpadding="0" cellspacing="0" bgcolor="#EFEFED">', '<table class="d-page" width="100%" cellpadding="0" cellspacing="0" bgcolor="#EFEFED">')
 _KD = """
