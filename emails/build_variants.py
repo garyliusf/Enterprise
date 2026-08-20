@@ -21,7 +21,7 @@ VARIANTS = {
     "B": {"custom": True},   # Musicbed-style dark layout, wordmark inside
     "C": {"custom": True},   # Surface-style editorial: mono uppercase, photo-led, b/w
     "D": {"custom": True},   # KLAFS-style luxury editorial: centered, tracked caps, underlined links
-    "E": {},
+    "E": {"custom": True},   # Robinhood-style promo: dark hero, serif display, pill CTAs, giant blue wordmark
 }
 
 # ---- pull data + pipeline out of the existing tools ----
@@ -68,6 +68,7 @@ def _recolor(uri, colour):
 LOGO_BLACK = _foot["black"]
 LOGO_WHITE = _recolor(_foot["grey"], "#ffffff")
 LOGO_GREY = _foot["grey"]
+LOGO_BLUE = _recolor(_foot["grey"], "#1488FC")
 _socials = json.loads(SOCIALS)
 
 _F = "Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif"
@@ -480,7 +481,7 @@ B_LIGHT = _swap(VARIANT_B, [
     ('color:#ffffff', 'color:#000000'),
     ('color:#ABABAB', 'color:#444444'),
 ])
-B_LIGHT = B_LIGHT.replace(LOGO_WHITE, LOGO_BLACK)
+B_LIGHT = B_LIGHT.replace(LOGO_WHITE, LOGO_BLUE)
 B_LIGHT = _swap_socials(B_LIGHT, _SOC_WHITE, _SOC_DARK)
 
 # C dark: black canvas, white mono, inverted button, band #161616
@@ -521,11 +522,87 @@ DARK_TOKENS = json.dumps({
     "bColor": "#D9D9D9", "fColor": "#8a8a8a", "linkCol": "#4DA6FF",
 })
 
+
+# ---- Variant E: Robinhood-style promo — dark hero, serif display, pill CTAs,
+#      white how-it-works section, black legal footer + giant blue wordmark ----
+_SER = "Georgia,'Times New Roman',serif"
+
+def _e_pill(label, bg, fg):
+    return f'''<table cellpadding="0" cellspacing="0" align="center" style="margin:0 auto;"><tr>
+      <td style="background:{bg};border-radius:999px;"><a href="#" style="display:inline-block;padding:14px 34px;font-family:{_F};font-size:15px;font-weight:600;color:{fg};text-decoration:none;">{label}</a></td>
+    </tr></table>'''
+
+VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  body {{ margin:0; }}
+  @media (max-width:480px) {{
+    .wrap {{ width:100% !important; }}
+    .px {{ padding-left:22px !important; padding-right:22px !important; }}
+    .disp {{ font-size:27px !important; }}
+  }}
+</style></head>
+<body style="margin:0;background:#F2F1EF;">
+<table width="100%" cellpadding="0" cellspacing="0" bgcolor="#F2F1EF"><tr><td align="center" style="padding:28px 12px;">
+<table class="wrap" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;">
+
+  <tr><td bgcolor="#0B0D10" style="background:#0B0D10;border-radius:12px 12px 0 0;padding:34px 36px 0;" align="center">
+    <img src="{LOGO_WHITE}" width="92" style="width:92px;display:block;margin:0 auto 26px;" alt="Bolt">
+    <div class="disp" style="font-family:{_SER};font-size:33px;line-height:1.25;color:#ffffff;letter-spacing:0.2px;">This week&rsquo;s workshop:<br>Take payments, get paid</div>
+    <div style="font-family:{_F};font-size:16px;color:#C9CDD3;margin:14px 0 22px;">Connect Stripe to your Bolt app, live with the team.</div>
+    {_e_pill("Register now", "#1488FC", "#ffffff")}
+    <div style="height:30px;"></div>
+  </td></tr>
+  <tr><td bgcolor="#0B0D10" style="background:#0B0D10;padding:0;line-height:0;"><img src="va/nexal-dashboard.jpg" width="600" style="width:100%;display:block;" alt=""></td></tr>
+
+  <tr><td bgcolor="#ffffff" class="px" style="background:#ffffff;padding:34px 36px 36px;font-family:{_F};">
+    <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#000000;">You&rsquo;re one workshop away from your first paying customer. An app that can&rsquo;t take payments is a project &mdash; an app that can is a business, and this week we build the missing piece together.</p>
+    <p style="margin:0 0 12px;font-size:15px;line-height:1.7;color:#000000;">Here&rsquo;s how it works:</p>
+    <ul style="margin:0 0 20px;padding:0 0 0 22px;">
+      <li style="margin:0 0 10px;font-size:15px;line-height:1.7;color:#000000;"><b>Connect the Stripe MCP</b>: wire Stripe into your Bolt app and configure products and pricing without leaving your build.</li>
+      <li style="margin:0 0 10px;font-size:15px;line-height:1.7;color:#000000;"><b>Test the full checkout</b>: run a real Checkout flow in test mode, handle API keys securely, and route success and cancel states.</li>
+      <li style="margin:0;font-size:15px;line-height:1.7;color:#000000;"><b>Ship with confidence</b>: cover the edge cases &mdash; failed payments, cancellations, confirmation.</li>
+    </ul>
+    <p style="margin:0 0 24px;font-size:15px;line-height:1.7;color:#000000;">Join us Thursday &mdash; save your seat before the session fills.</p>
+    <table cellpadding="0" cellspacing="0"><tr>
+      <td style="background:#000000;border-radius:999px;"><a href="#" style="display:inline-block;padding:13px 30px;font-family:{_F};font-size:14px;font-weight:600;color:#ffffff;text-decoration:none;">Register now</a></td>
+    </tr></table>
+    <p style="margin:22px 0 0;font-size:13px;line-height:1.6;color:#000000;">Can&rsquo;t make it live? <a href="#" style="color:#000000;font-weight:600;">Watch previous workshops</a>.</p>
+  </td></tr>
+
+  <tr><td bgcolor="#000000" class="px" style="background:#000000;padding:30px 36px 0;font-family:{_F};">
+    <p style="margin:0 0 22px;font-size:13px;font-style:italic;color:#C9CDD3;">This email is sent to you from the Bolt team.</p>
+    <p style="margin:0 0 9px;"><a href="#" style="font-size:13px;color:#ffffff;">Home</a></p>
+    <p style="margin:0 0 9px;"><a href="#" style="font-size:13px;color:#ffffff;">Help Center</a></p>
+    <p style="margin:0 0 9px;"><a href="#" style="font-size:13px;color:#ffffff;">Discord</a></p>
+    <p style="margin:0 0 20px;"><a href="#" style="font-size:13px;color:#ffffff;">Privacy Policy</a></p>
+    <div style="margin:0 0 24px;">{"".join(f'<a href="{s["href"]}" style="text-decoration:none;display:inline-block;margin:0 14px 0 0;"><img src="{s["uri"]}" width="15" height="15" style="display:inline-block;"></a>' for s in _SOC_WHITE)}</div>
+    <p style="margin:0 0 14px;font-size:12px;line-height:1.7;color:#8a8f96;">You are receiving this email because you opted in to product updates from Bolt.new. Workshops are free for all Bolt users; recordings are shared afterward on our YouTube channel.</p>
+    <p style="margin:0 0 14px;font-size:12px;line-height:1.7;color:#8a8f96;">StackBlitz, Inc. &middot; 2443 Fillmore Street #380-16814 &middot; San Francisco, CA 94115 &middot; United States</p>
+    <p style="margin:0 0 18px;font-size:12px;line-height:1.7;color:#8a8f96;">&copy; 2026 Bolt.new</p>
+    <p style="margin:0 0 26px;"><a href="#" style="font-size:12px;color:#C9CDD3;">Unsubscribe</a>&nbsp;&nbsp;<a href="#" style="font-size:12px;color:#C9CDD3;">Subscription settings</a></p>
+  </td></tr>
+  <tr><td bgcolor="#000000" style="background:#000000;padding:0 0 8px;line-height:0;" align="center">
+    <img src="{LOGO_BLUE}" width="600" style="width:100%;display:block;" alt="Bolt"></td></tr>
+</table></td></tr></table></body></html>'''
+
+# E dark twin: the white how-it-works section joins the dark canvas
+E_DARK = _swap(VARIANT_E, [
+    ('bgcolor="#ffffff" class="px" style="background:#ffffff;', 'bgcolor="#101215" class="px" style="background:#101215;'),
+    ('color:#000000;">You&rsquo;re one workshop away', 'color:#E6E8EB;">You&rsquo;re one workshop away'),
+    ('color:#000000;">Here&rsquo;s how it works:', 'color:#E6E8EB;">Here&rsquo;s how it works:'),
+    ('color:#000000;"><b>', 'color:#E6E8EB;"><b>'),
+    ('color:#000000;">Join us Thursday', 'color:#E6E8EB;">Join us Thursday'),
+    ('background:#000000;border-radius:999px;', 'background:#1488FC;border-radius:999px;'),
+    ('color:#000000;">Can&rsquo;t make it live?', 'color:#9aa0a6;">Can&rsquo;t make it live?'),
+    ('color:#000000;font-weight:600;">Watch previous workshops', 'color:#ffffff;font-weight:600;">Watch previous workshops'),
+])
 CUSTOM_DOCS = {
     "A": {"light": VARIANT_A, "dark": A_DARK},
     "B": {"light": B_LIGHT, "dark": VARIANT_B},
     "C": {"light": VARIANT_C, "dark": C_DARK},
     "D": {"light": VARIANT_D, "dark": D_DARK},
+    "E": {"light": VARIANT_E, "dark": E_DARK},
 }
 
 SHELL = r"""<!doctype html><html lang="en"><head><meta charset="utf-8">
@@ -567,7 +644,9 @@ select{font:12px inherit;padding:6px 8px;border:1px solid var(--line);border-rad
   <span class="lbl">Mode</span>
   <div class="seg" id="theme"><button data-m="light" class="on">Light</button><button data-m="dark">Dark</button></div>
   <span class="lbl">Client</span>
-  <div class="seg" id="client"><button data-c="none" class="on">None</button><button data-c="gmail">Gmail dark</button><button data-c="outlook">Outlook dark</button></div>
+  <div class="seg" id="client"><button data-c="none" class="on">As designed</button><button data-c="gmail">Gmail dark</button><button data-c="outlook">Outlook dark</button></div>
+  <span class="lbl">Fonts</span>
+  <div class="seg" id="fonts"><button data-f="inter" class="on">Inter</button><button data-f="websafe">Web-safe</button></div>
   <span class="lbl">Variant</span>
   <div class="seg" id="vars"></div>
   <span class="hint">Client = simulated Gmail/Outlook dark transforms (approximate — images never repaint).</span>
@@ -590,7 +669,7 @@ let cur = EMAILS.find(e => e.id === 'cx__email_2') || EMAILS[0], vi = 0, T = {};
 let mode = 'after', vp = 640, sel = 'A', theme = 'light';
 const V = () => cur.variations[vi] || cur.variations[0];
 const PICK = '';
-let client = 'none';
+let client = 'none', fonts = 'inter';
 
 /* Client dark-mode simulation — APPROXIMATE. Gmail: one-way (light bgs -> dark,
    dark text -> light, images/saturated colors mostly kept). Outlook: harsher
@@ -653,6 +732,7 @@ function renderFrame(letter, scale){
   let doc;
   if (VARIANTS[letter] && VARIANTS[letter].custom) { doc = CUSTOM_DOCS[letter][theme]; }
   else { T = Object.assign(tokensFor(letter), theme === 'dark' ? DARK_TOKENS : {}); doc = docFor(); }
+  if (doc && fonts === 'websafe') doc = doc.replace(/Inter,|-apple-system,|BlinkMacSystemFont,/g, '');
   if (doc && client !== 'none') doc = doc.replace(/<\/body>/i, SIM.replace('__CLIENT__', client) + '</body>');
   const cell = document.createElement('div'); cell.className = 'cell';
   const tag = document.createElement('div'); tag.className = 'tag'; tag.textContent = letter;
@@ -681,6 +761,7 @@ function draw(){
   document.querySelectorAll('#vp button').forEach(b=>b.classList.toggle('on', +b.dataset.w===vp));
   document.querySelectorAll('#theme button').forEach(b=>b.classList.toggle('on', b.dataset.m===theme));
   document.querySelectorAll('#client button').forEach(b=>b.classList.toggle('on', b.dataset.c===client));
+  document.querySelectorAll('#fonts button').forEach(b=>b.classList.toggle('on', b.dataset.f===fonts));
 }
 const es = document.getElementById('email');
 let g = null;
@@ -699,6 +780,7 @@ const vb = document.getElementById('vars');
 document.getElementById('vp').onclick = e => { if (e.target.dataset.w){ vp = +e.target.dataset.w; draw(); } };
 document.getElementById('theme').onclick = e => { if (e.target.dataset.m){ theme = e.target.dataset.m; draw(); } };
 document.getElementById('client').onclick = e => { if (e.target.dataset.c){ client = e.target.dataset.c; draw(); } };
+document.getElementById('fonts').onclick = e => { if (e.target.dataset.f){ fonts = e.target.dataset.f; draw(); } };
 addEventListener('resize', () => draw());
 draw();
 </script></body></html>"""
