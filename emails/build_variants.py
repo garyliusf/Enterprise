@@ -480,9 +480,9 @@ A_DARK = _swap_socials(A_DARK, _socials, _SOC_WHITE)
 # B light: white canvas, black type, dark ghost outlines
 B_LIGHT = _swap(VARIANT_B, [
     ('bgcolor="#000000"', 'bgcolor="#FFFFFF"'),
-    ('background:#000001;', 'background:#EAF1FB;'),
-    ('bgcolor="#000001"', 'bgcolor="#EAF1FB"'),
-    ('background-color:#000001 !important', 'background-color:#EAF1FB !important'),
+    ('background:#000001;', 'background:#DEEAFA;'),
+    ('bgcolor="#000001"', 'bgcolor="#DEEAFA"'),
+    ('background-color:#000001 !important', 'background-color:#DEEAFA !important'),
     ('border-top:1px solid #232323', 'border-top:1px solid transparent'),
     ('background-color:#000000 !important', 'background-color:#FFFFFF !important'),
     ('background-color:#111111 !important', 'background-color:#FFFFFF !important'),
