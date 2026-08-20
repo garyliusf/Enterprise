@@ -580,6 +580,8 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
     .disp {{ font-size:27px !important; }}
     .cu {{ margin-bottom:6px !important; }}
     .evt {{ font-size:19px !important; line-height:1.3 !important; }}
+    .tc-i {{ padding:20px 16px !important; }}
+    .pbx-t {{ padding:14px 14px 10px !important; }}
   }}
 </style></head>
 <body style="margin:0;background:#F2F1EF;">
@@ -626,7 +628,7 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
     <div class="evt k-ink" style="font-size:21px;font-weight:600;color:#000000;line-height:1.4;margin:0 0 6px;">Launch and Grow: Market Your App and Find Your First Users</div>
     <div style="font-size:15px;font-weight:500;color:#666666;margin:0 0 12px;">Thursday, August 27</div>
     <p style="margin:0 0 0;"><a href="#" style="font-size:16px;color:#1488FC;font-weight:600;text-decoration:none;">RSVP <span style="letter-spacing:1px;">&rarr;</span></a></p>
-    <table width="100%" cellpadding="0" cellspacing="0" class="tipcard" style="background:#FFFFFF;border:1px solid #E2E0DC;border-radius:10px;margin:36px 0 0;"><tr><td style="padding:26px 28px;font-family:{_F};">
+    <table width="100%" cellpadding="0" cellspacing="0" class="tipcard" style="background:#FFFFFF;border:1px solid #E2E0DC;border-radius:10px;margin:36px 0 0;"><tr><td class="tc-i" style="padding:26px 28px;font-family:{_F};">
       <div style="margin:0 0 14px;">{_b_badge("TIP OF THE WEEK")}</div>
       <div style="font-size:21px;font-weight:600;color:#000000;line-height:1.4;margin:0 0 8px;">Let the Bolt agent work in your other tools for you</div>
       <p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:#000000;">Once you connect a service like Stripe, the Bolt agent can interact with it directly on your behalf &mdash; describe what you want and it creates it in Stripe and wires it into your app.</p>
