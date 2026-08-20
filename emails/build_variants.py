@@ -168,7 +168,7 @@ def _b_event(img, title, date):
 def _b_ghost(label, band=False):
     # standard blue button (token spec): #1389fd, radius 8, 16/600, hug min-220
     # band: light-mode section tint; #000001 renders as black in dark mode
-    td = ('<td class="band" bgcolor="#000001" style="background:#000001;padding:8px 40px 44px;">'
+    td = ('<td class="band" bgcolor="#000001" style="background:#000001;padding:8px 40px 8px;">'
           if band else '<td style="padding:8px 40px 44px;">')
     return f'''<tr>{td}
       <table cellpadding="0" cellspacing="0"><tr>
@@ -232,7 +232,7 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
   </td></tr>
   {_b_ghost("Start Building", band=True)}
 
-  <tr><td style="padding:28px 40px 34px;font-family:{_F};font-size:16px;line-height:1.6;color:#ABABAB;">
+  <tr><td class="band" bgcolor="#000001" style="background:#000001;padding:24px 40px 40px;font-family:{_F};font-size:16px;line-height:1.6;color:#ABABAB;">
     Keep building,<br><span style="font-weight:600;color:#ffffff;">Monika &amp; The Bolt Team &#9889;</span></td></tr>
 
   <tr><td style="padding:8px 40px 8px;"><div style="border-top:1px solid #232323;font-size:0;line-height:0;">&nbsp;</div></td></tr>
