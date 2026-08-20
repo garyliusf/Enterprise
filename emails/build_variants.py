@@ -625,15 +625,17 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
     <div style="font-size:21px;font-weight:600;color:#000000;line-height:1.4;margin:0 0 6px;">Launch and Grow: Market Your App and Find Your First Users</div>
     <div style="font-size:15px;font-weight:500;color:#666666;margin:0 0 12px;">Thursday, August 27</div>
     <p style="margin:0 0 0;"><a href="#" style="font-size:16px;color:#1488FC;font-weight:600;text-decoration:none;">RSVP <span style="letter-spacing:1px;">&rarr;</span></a></p>
-    <h2 style="margin:36px 0 12px;font-size:24px;font-weight:500;color:#000000;letter-spacing:-0.3px;">Tip of the week</h2>
-    <p style="margin:0 0 8px;font-size:16px;font-weight:600;color:#000000;line-height:1.5;">Let the Bolt agent work in your other tools for you</p>
-    <p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:#000000;">Once you connect a service like Stripe, the Bolt agent can interact with it directly on your behalf &mdash; describe what you want and it creates it in Stripe and wires it into your app.</p>
-    <table width="100%" cellpadding="0" cellspacing="0" style="background:#F2F1EF;border:1px solid #E2E0DC;border-radius:8px;"><tr><td style="padding:14px 16px;font-family:{_F};font-size:14px;line-height:1.6;color:#000000;">
+    <table width="100%" cellpadding="0" cellspacing="0" class="tipcard" style="background:#FFFFFF;border:1px solid #E2E0DC;border-radius:10px;margin:36px 0 0;"><tr><td style="padding:26px 28px;font-family:{_F};">
+      <div style="margin:0 0 14px;">{_b_badge("TIP OF THE WEEK")}</div>
+      <div style="font-size:21px;font-weight:600;color:#000000;line-height:1.4;margin:0 0 8px;">Let the Bolt agent work in your other tools for you</div>
+      <p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:#000000;">Once you connect a service like Stripe, the Bolt agent can interact with it directly on your behalf &mdash; describe what you want and it creates it in Stripe and wires it into your app.</p>
+      <table width="100%" cellpadding="0" cellspacing="0" style="background:#F2F1EF;border:1px solid #E2E0DC;border-radius:8px;"><tr><td style="padding:14px 16px;font-family:{_F};font-size:14px;line-height:1.6;color:#000000;">
       <span style="font-weight:600;">Try this prompt:</span> <i>"Using the Stripe connector, create a new product called Pro Plan at $29/month in test mode, then add a checkout flow for it to my app with success and cancel pages."</i>
     </td></tr></table>
-    <table cellpadding="0" cellspacing="0" style="margin:24px 0 0;"><tr>
+      <table cellpadding="0" cellspacing="0" style="margin:24px 0 0;"><tr>
       <td style="background:#1389fd;border-radius:8px;"><a href="#" style="display:inline-block;min-width:220px;box-sizing:border-box;padding:16px 28px;font-family:{_F};font-size:16px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;">Start Building</a></td>
     </tr></table>
+    </td></tr></table>
     <p style="margin:32px 0 0;font-size:16px;line-height:1.6;color:#000000;">Keep building,<br><span style="font-weight:600;">Monika &amp; The Bolt Team &#9889;</span></p>
   </td></tr>
 
@@ -668,6 +670,8 @@ _K = """
   [data-ogsb] .k-dark { background-color:#000000 !important; }
   [data-ogsb] .k-light { background-color:#ffffff !important; }
   [data-ogsb] .k-tint { background-color:#F2F1EF !important; }
+  [data-ogsb] .tipcard { background-color:#FFFFFF !important; }
+  [data-ogsb] .bdg { background-color:#1488FC !important; }
   [data-ogsb] .k-tint-w { background-color:#E2E0DC !important; }
   [data-ogsb] .k-btn { background-color:#1389fd !important; }
   [data-ogsc] .k-w, [data-ogsc] .k-btn a, [data-ogsc] .disp { color:#ffffff !important; }
