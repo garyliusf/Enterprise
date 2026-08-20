@@ -199,9 +199,10 @@ TIP_CARD = _b_callout(
     "TIP OF THE WEEK",
     "Let the Bolt agent work in your other tools for you",
     '<p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#ABABAB;">Once you connect a service like Stripe, the Bolt agent can interact with it directly on your behalf &mdash; describe what you want and it creates it in Stripe and wires it into your app.</p>',
-    inset=f'''<table width="100%" cellpadding="0" cellspacing="0" style="background:#111111;border:1px solid #2b2b2b;border-left:3px solid #1488FC;background-image:linear-gradient(180deg,rgba(77,166,255,0.30),rgba(20,136,252,0) 70%);background-size:12px 100%;background-repeat:no-repeat;background-position:left top;border-radius:8px;"><tr><td style="padding:14px 16px;font-family:{_F};font-size:14px;line-height:1.6;color:#ABABAB;">
+    inset=f'''<table width="100%" cellpadding="0" cellspacing="0" class="pbox-w" style="background-color:#2b2b2b;background-image:linear-gradient(135deg,#4DA6FF 0%,#1488FC 22%,#2b2b2b 58%);border-radius:9px;"><tr><td style="padding:1px;">
+      <table width="100%" cellpadding="0" cellspacing="0" class="pbox" style="background:#111111;border-radius:8px;"><tr><td style="padding:14px 16px;font-family:{_F};font-size:14px;line-height:1.6;color:#ABABAB;">
       <span style="font-weight:600;color:#ffffff;">Try this prompt:</span> <i>"Using the Stripe connector, create a new product called Pro Plan at $29/month in test mode, then add a checkout flow for it to my app with success and cancel pages."</i>
-    </td></tr></table>''',
+    </td></tr></table></td></tr></table>''',
     cta="Start Building")
 
 VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
@@ -472,7 +473,7 @@ _OGS = """
   [data-ogsb] .gbtn { background-color:#1389fd !important; }
   [data-ogsc] .gbtn a { color:#FFFFFF !important; }
   [data-ogsb] .pbox { background-color:#111111 !important; }
-  [data-ogsc] .pbox { border-color:#2b2b2b !important; border-left-color:#1488FC !important; }
+  [data-ogsb] .pbox-w { background-color:#2b2b2b !important; }
   [data-ogsc] span, [data-ogsc] i, [data-ogsc] b { color:inherit !important; }
 """
 VARIANT_B = VARIANT_B.replace('</style></head>', _OGS + '</style></head>', 1)
@@ -514,10 +515,10 @@ B_LIGHT = _swap(VARIANT_B, [
     ('border-top:1px solid #232323', 'border-top:1px solid transparent'),
     ('background-color:#000000 !important', 'background-color:#FFFFFF !important'),
     ('background-color:#111111 !important', 'background-color:#FFFFFF !important'),
-    ('border-color:#2b2b2b !important', 'border-color:#E2E0DC !important'),
     ('background:#000000;border-radius:12px', 'background:#FFFFFF;border-radius:12px'),
-    ('background:#111111;border:1px solid #2b2b2b;border-left:3px solid #1488FC;', 'background:#FFFFFF;border:1px solid #E2E0DC;border-left:3px solid #1488FC;'),
-    ('rgba(77,166,255,0.30)', 'rgba(20,136,252,0.14)'),
+    ('background-color:#2b2b2b;background-image:linear-gradient(135deg,#4DA6FF 0%,#1488FC 22%,#2b2b2b 58%);', 'background-color:#E2E0DC;background-image:linear-gradient(135deg,#4DA6FF 0%,#1488FC 22%,#E2E0DC 58%);'),
+    ('background-color:#2b2b2b !important', 'background-color:#E2E0DC !important'),
+    ('background:#111111;border-radius:8px;', 'background:#FFFFFF;border-radius:8px;'),
     ('color:#ffffff', 'color:#000000'),
     ('color:#ABABAB', 'color:#444444'),
 ])
@@ -653,13 +654,15 @@ VARIANT_E = VARIANT_E.replace('<tr><td bgcolor="#000000" style="background:#0000
 VARIANT_E = VARIANT_E.replace('<tr><td bgcolor="#000000" style="background:#000000;padding:0;line-height:0;">', '<tr><td class="k-dark" bgcolor="#000000" style="background:#000000;padding:0;line-height:0;">')
 VARIANT_E = VARIANT_E.replace('<tr><td bgcolor="#000000" class="px"', '<tr><td bgcolor="#000000" class="px k-dark"')
 VARIANT_E = VARIANT_E.replace('<tr><td bgcolor="#ffffff" class="px"', '<tr><td bgcolor="#ffffff" class="px k-light"')
-VARIANT_E = VARIANT_E.replace('style="background:#F2F1EF;border:1px solid #E2E0DC;border-radius:8px;">', 'class="k-tint" style="background:#F2F1EF;border:1px solid #E2E0DC;border-left:3px solid #1488FC;background-image:linear-gradient(180deg,rgba(20,136,252,0.14),rgba(20,136,252,0) 70%);background-size:12px 100%;background-repeat:no-repeat;background-position:left top;border-radius:8px;">', 1)
+VARIANT_E = VARIANT_E.replace('<table width="100%" cellpadding="0" cellspacing="0" style="background:#F2F1EF;border:1px solid #E2E0DC;border-radius:8px;">', '<table width="100%" cellpadding="0" cellspacing="0" class="k-tint-w" style="background-color:#E2E0DC;background-image:linear-gradient(135deg,#4DA6FF 0%,#1488FC 22%,#E2E0DC 58%);border-radius:9px;"><tr><td style="padding:1px;"><table width="100%" cellpadding="0" cellspacing="0" class="k-tint" style="background:#F2F1EF;border-radius:8px;">', 1)
+VARIANT_E = VARIANT_E.replace('cancel pages."</i>\n    </td></tr></table>', 'cancel pages."</i>\n    </td></tr></table></td></tr></table>', 1)
 VARIANT_E = VARIANT_E.replace('<td style="background:#1389fd;border-radius:8px;">', '<td class="k-btn" style="background:#1389fd;border-radius:8px;">')
 _K = """
   /* modern-Outlook dark-mode overrides (data-ogsc/-ogsb) */
   [data-ogsb] .k-dark { background-color:#000000 !important; }
   [data-ogsb] .k-light { background-color:#ffffff !important; }
   [data-ogsb] .k-tint { background-color:#F2F1EF !important; }
+  [data-ogsb] .k-tint-w { background-color:#E2E0DC !important; }
   [data-ogsb] .k-btn { background-color:#1389fd !important; }
   [data-ogsc] .k-w, [data-ogsc] .k-btn a, [data-ogsc] .disp { color:#ffffff !important; }
   [data-ogsc] .k-sub { color:#C9CDD3 !important; }
@@ -760,7 +763,8 @@ for _col, _cls in [('#111;','d-ink'), ('#26251f','d-body'), ('#777;','d-date'), 
     VARIANT_AP = re.sub(r'<(p|li|div|span|a|td|h1|h2)( (?![^>]*class=)[^>]*?color:' + _col + ')', r'<\1 class="' + _cls + r'"\2', VARIANT_AP)
 VARIANT_AP = VARIANT_AP.replace('<td style="background:#1389fd;border-radius:8px;">', '<td class="d-btn" style="background:#1389fd;border-radius:8px;">')
 VARIANT_AP = VARIANT_AP.replace('<table width="100%" cellpadding="0" cellspacing="0" style="background:#E8E9EB;border-radius:8px;">', '<table width="100%" cellpadding="0" cellspacing="0" class="d-inset" style="background:#E8E9EB;border-radius:8px;">')
-VARIANT_AP = VARIANT_AP.replace('class="d-inset" style="background:#E8E9EB;border-radius:8px;"><tr><td style="padding:14px 16px;', 'class="d-inset" style="background:#E8E9EB;border-left:3px solid #1488FC;background-image:linear-gradient(180deg,rgba(20,136,252,0.14),rgba(20,136,252,0) 70%);background-size:12px 100%;background-repeat:no-repeat;background-position:left top;border-radius:8px;"><tr><td style="padding:14px 16px;')
+VARIANT_AP = VARIANT_AP.replace('<table width="100%" cellpadding="0" cellspacing="0" class="d-inset" style="background:#E8E9EB;border-radius:8px;"><tr><td style="padding:14px 16px;', '<table width="100%" cellpadding="0" cellspacing="0" class="d-inset-w" style="background-color:#DDDFE3;background-image:linear-gradient(135deg,#4DA6FF 0%,#1488FC 22%,#DDDFE3 58%);border-radius:9px;"><tr><td style="padding:1px;"><table width="100%" cellpadding="0" cellspacing="0" class="d-inset" style="background:#E8E9EB;border-radius:8px;"><tr><td style="padding:14px 16px;')
+VARIANT_AP = VARIANT_AP.replace('cancel pages."</i>\n    </td></tr></table>', 'cancel pages."</i>\n    </td></tr></table></td></tr></table>', 1)
 VARIANT_AP = VARIANT_AP.replace('<tr><td class="card" style="border:1px solid #D9D7D1;', '<tr><td class="card d-outline" style="border:1px solid #D9D7D1;')
 VARIANT_AP = VARIANT_AP.replace('<table width="100%" cellpadding="0" cellspacing="0" bgcolor="#EFEFED">', '<table class="d-page" width="100%" cellpadding="0" cellspacing="0" bgcolor="#EFEFED">')
 _KD = """
@@ -768,6 +772,7 @@ _KD = """
   body[data-ogsb], [data-ogsb] .d-page { background-color:#EFEFED !important; }
   [data-ogsb] .card { background-color:#ffffff !important; }
   [data-ogsb] .d-inset { background-color:#E8E9EB !important; }
+  [data-ogsb] .d-inset-w { background-color:#DDDFE3 !important; }
   [data-ogsb] .d-btn { background-color:#1389fd !important; }
   [data-ogsc] .d-btn a { color:#FFFFFF !important; }
   [data-ogsc] .d-ink { color:#111111 !important; }
