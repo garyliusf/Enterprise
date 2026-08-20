@@ -19,9 +19,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 VARIANTS = {
     "A": {"custom": True},   # the DARK design (the ship)
     "B": {"custom": True},   # the light twin of the dark design
-    "C": {"custom": True},   # Surface-style editorial: mono uppercase, photo-led, b/w
+    "C": {"custom": True},   # Robinhood-style promo, same content as A/B
     "D": {"custom": True},   # KLAFS-style luxury editorial: centered, tracked caps, underlined links
-    "E": {"custom": True},   # Robinhood-style promo: dark hero, serif display, pill CTAs, giant blue wordmark
 }
 
 # ---- pull data + pipeline out of the existing tools ----
@@ -558,26 +557,48 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
 
   <tr><td bgcolor="#0B0D10" style="background:#0B0D10;border-radius:12px 12px 0 0;padding:34px 36px 0;" align="center">
     <img src="{LOGO_WHITE}" width="92" style="width:92px;display:block;margin:0 auto 26px;" alt="Bolt">
-    <div class="disp" style="font-family:{_SER};font-size:33px;font-weight:500;line-height:1.25;color:#ffffff;letter-spacing:0.2px;">This week&rsquo;s workshop:<br>Take payments, get paid</div>
-    <div style="font-family:{_F};font-size:16px;color:#C9CDD3;margin:14px 0 22px;">Connect Stripe to your Bolt app, live with the team.</div>
+    <div class="disp" style="font-family:{_SER};font-size:33px;font-weight:500;line-height:1.25;color:#ffffff;letter-spacing:0.2px;">Take payments with<br>the Stripe MCP</div>
+    <div style="font-family:{_F};font-size:16px;color:#C9CDD3;margin:14px 0 22px;">This week on Bolt &mdash; live with the team.</div>
     {_e_pill("Register now", "#1488FC", "#ffffff")}
     <div style="height:30px;"></div>
   </td></tr>
   <tr><td bgcolor="#0B0D10" style="background:#0B0D10;padding:0;line-height:0;"><img src="va/nexal-dashboard.jpg" width="600" style="width:100%;display:block;" alt=""></td></tr>
 
   <tr><td bgcolor="#ffffff" class="px" style="background:#ffffff;padding:34px 36px 36px;font-family:{_F};">
-    <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#000000;">You&rsquo;re one workshop away from your first paying customer. An app that can&rsquo;t take payments is a project &mdash; an app that can is a business, and this week we build the missing piece together.</p>
-    <p style="margin:0 0 12px;font-size:15px;line-height:1.7;color:#000000;">Here&rsquo;s how it works:</p>
-    <ul style="margin:0 0 20px;padding:0 0 0 22px;">
-      <li style="margin:0 0 10px;font-size:15px;line-height:1.7;color:#000000;"><b>Connect the Stripe MCP</b>: wire Stripe into your Bolt app and configure products and pricing without leaving your build.</li>
-      <li style="margin:0 0 10px;font-size:15px;line-height:1.7;color:#000000;"><b>Test the full checkout</b>: run a real Checkout flow in test mode, handle API keys securely, and route success and cancel states.</li>
-      <li style="margin:0;font-size:15px;line-height:1.7;color:#000000;"><b>Ship with confidence</b>: cover the edge cases &mdash; failed payments, cancellations, confirmation.</li>
+    <p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:#000000;">An app that can&rsquo;t take payments is a project, an app that can is a business. The purchase flow is the single feature standing between you and your first paying customer.</p>
+    <p style="margin:0 0 28px;font-size:16px;line-height:1.6;color:#000000;">In this week&rsquo;s workshop, we&rsquo;ll connect and configure payments with the Stripe MCP so your app can start earning, without the usual setup headaches.</p>
+    <h2 style="margin:0 0 14px;font-size:24px;font-weight:500;color:#000000;letter-spacing:-0.3px;">You&rsquo;ll learn how to:</h2>
+    <ul style="margin:0 0 32px;padding:0 0 0 22px;">
+      <li style="margin:0 0 8px;font-size:16px;line-height:1.6;color:#000000;">Connect the Stripe MCP to a Bolt app</li>
+      <li style="margin:0 0 8px;font-size:16px;line-height:1.6;color:#000000;">Configure products and pricing through Stripe</li>
+      <li style="margin:0 0 8px;font-size:16px;line-height:1.6;color:#000000;">Set up and test a Stripe Checkout flow in test mode</li>
+      <li style="margin:0 0 8px;font-size:16px;line-height:1.6;color:#000000;">Handle API keys and environment variables securely</li>
+      <li style="margin:0 0 8px;font-size:16px;line-height:1.6;color:#000000;">Return customers to the right success or cancel flow after payment</li>
+      <li style="margin:0 0 0;font-size:16px;line-height:1.6;color:#000000;">Think through common payment edge cases like failed or cancelled payments</li>
     </ul>
-    <p style="margin:0 0 24px;font-size:15px;line-height:1.7;color:#000000;">Join us Thursday &mdash; save your seat before the session fills.</p>
-    <table cellpadding="0" cellspacing="0"><tr>
-      <td style="background:#1389fd;border-radius:8px;"><a href="#" style="display:inline-block;min-width:220px;box-sizing:border-box;padding:16px 28px;font-family:{_F};font-size:16px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;">Register now</a></td>
+    <h2 style="margin:0 0 16px;font-size:24px;font-weight:500;color:#000000;letter-spacing:-0.3px;">Coming up next:</h2>
+    <img src="va/build-with-voice.jpg" width="528" style="width:100%;border-radius:8px;display:block;margin:0 0 10px;" alt="">
+    <div style="font-size:19px;font-weight:600;color:#000000;line-height:1.4;margin:0 0 6px;">Your Users Have Questions: Answer Them Automatically Inside Your App</div>
+    <div style="font-size:15px;font-weight:500;color:#666666;margin:0 0 12px;">Thursday, August 20</div>
+    <p style="margin:0 0 36px;"><a href="#" style="font-size:16px;color:#1488FC;font-weight:600;text-decoration:none;">RSVP <span style="letter-spacing:1px;">&rarr;</span></a></p>
+    <img src="va/maker-photo.jpg" width="528" style="width:100%;border-radius:8px;display:block;margin:0 0 10px;" alt="">
+    <div style="font-size:19px;font-weight:600;color:#000000;line-height:1.4;margin:0 0 6px;">Office Hours: Bring your projects, questions, or blockers for live help</div>
+    <div style="font-size:15px;font-weight:500;color:#666666;margin:0 0 12px;">Tuesday, August 25</div>
+    <p style="margin:0 0 36px;"><a href="#" style="font-size:16px;color:#1488FC;font-weight:600;text-decoration:none;">RSVP <span style="letter-spacing:1px;">&rarr;</span></a></p>
+    <img src="va/bolt-templates.jpg" width="528" style="width:100%;border-radius:8px;display:block;margin:0 0 10px;" alt="">
+    <div style="font-size:19px;font-weight:600;color:#000000;line-height:1.4;margin:0 0 6px;">Launch and Grow: Market Your App and Find Your First Users</div>
+    <div style="font-size:15px;font-weight:500;color:#666666;margin:0 0 12px;">Thursday, August 27</div>
+    <p style="margin:0 0 0;"><a href="#" style="font-size:16px;color:#1488FC;font-weight:600;text-decoration:none;">RSVP <span style="letter-spacing:1px;">&rarr;</span></a></p>
+    <h2 style="margin:36px 0 12px;font-size:24px;font-weight:500;color:#000000;letter-spacing:-0.3px;">Tip of the week</h2>
+    <p style="margin:0 0 8px;font-size:16px;font-weight:600;color:#000000;line-height:1.5;">Let the Bolt agent work in your other tools for you</p>
+    <p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:#000000;">Once you connect a service like Stripe, the Bolt agent can interact with it directly on your behalf &mdash; describe what you want and it creates it in Stripe and wires it into your app.</p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#F2F1EF;border:1px solid #E2E0DC;border-radius:8px;"><tr><td style="padding:14px 16px;font-family:{_F};font-size:14px;line-height:1.6;color:#000000;">
+      <span style="font-weight:600;">Try this prompt:</span> <i>"Using the Stripe connector, create a new product called Pro Plan at $29/month in test mode, then add a checkout flow for it to my app with success and cancel pages."</i>
+    </td></tr></table>
+    <table cellpadding="0" cellspacing="0" style="margin:24px 0 0;"><tr>
+      <td style="background:#1389fd;border-radius:8px;"><a href="#" style="display:inline-block;min-width:220px;box-sizing:border-box;padding:16px 28px;font-family:{_F};font-size:16px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;">Start Building</a></td>
     </tr></table>
-    <p style="margin:22px 0 0;font-size:13px;line-height:1.6;color:#000000;">Can&rsquo;t make it live? <a href="#" style="color:#000000;font-weight:600;">Watch previous workshops</a>.</p>
+    <p style="margin:32px 0 0;font-size:16px;line-height:1.6;color:#000000;">Keep building,<br><span style="font-weight:600;">Monika &amp; The Bolt Team &#9889;</span></p>
   </td></tr>
 
   <tr><td bgcolor="#000000" class="px" style="background:#000000;padding:30px 36px 0;font-family:{_F};">
@@ -594,22 +615,11 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
   </td></tr>
 </table></td></tr></table></body></html>'''
 
-# E dark twin: the white how-it-works section joins the dark canvas
-E_DARK = _swap(VARIANT_E, [
-    ('bgcolor="#ffffff" class="px" style="background:#ffffff;', 'bgcolor="#101215" class="px" style="background:#101215;'),
-    ('color:#000000;">You&rsquo;re one workshop away', 'color:#E6E8EB;">You&rsquo;re one workshop away'),
-    ('color:#000000;">Here&rsquo;s how it works:', 'color:#E6E8EB;">Here&rsquo;s how it works:'),
-    ('color:#000000;"><b>', 'color:#E6E8EB;"><b>'),
-    ('color:#000000;">Join us Thursday', 'color:#E6E8EB;">Join us Thursday'),
-    ('color:#000000;">Can&rsquo;t make it live?', 'color:#9aa0a6;">Can&rsquo;t make it live?'),
-    ('color:#000000;font-weight:600;">Watch previous workshops', 'color:#ffffff;font-weight:600;">Watch previous workshops'),
-])
 CUSTOM_DOCS = {
     "A": {"light": B_LIGHT, "dark": VARIANT_B},  # A = the DARK design (the ship)
     "B": {"light": B_LIGHT, "dark": VARIANT_B},
-    "C": {"light": VARIANT_C, "dark": C_DARK},
+    "C": {"light": VARIANT_E, "dark": VARIANT_E},  # Robinhood promo, A/B content (Surface editorial retired)
     "D": {"light": VARIANT_D, "dark": D_DARK},
-    "E": {"light": VARIANT_E, "dark": E_DARK},
 }
 
 SHELL = r"""<!doctype html><html lang="en"><head><meta charset="utf-8">
