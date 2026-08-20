@@ -17,7 +17,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 # (e.g. "B": {"btnRadius": 0}) or {"custom": True} with a full template in
 # CUSTOM_DOCS below (built in python, CX email 2 content).
 VARIANTS = {
-    "A": {"custom": True},   # Claude-newsletter layout, brand colors
+    "A": {"custom": True},   # B-light (the light twin of the chosen direction)
     "B": {"custom": True},   # Musicbed-style dark layout, wordmark inside
     "C": {"custom": True},   # Surface-style editorial: mono uppercase, photo-led, b/w
     "D": {"custom": True},   # KLAFS-style luxury editorial: centered, tracked caps, underlined links
@@ -594,7 +594,7 @@ E_DARK = _swap(VARIANT_E, [
     ('color:#000000;font-weight:600;">Watch previous workshops', 'color:#ffffff;font-weight:600;">Watch previous workshops'),
 ])
 CUSTOM_DOCS = {
-    "A": {"light": VARIANT_A, "dark": A_DARK},
+    "A": {"light": B_LIGHT, "dark": B_LIGHT},  # A = the light version of B (Gary) — Claude-newsletter layout retired
     "B": {"light": B_LIGHT, "dark": VARIANT_B},
     "C": {"light": VARIANT_C, "dark": C_DARK},
     "D": {"light": VARIANT_D, "dark": D_DARK},
