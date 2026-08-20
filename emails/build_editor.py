@@ -268,7 +268,7 @@ $('#count').textContent = EMAILS.length + ' emails · ' + EMAILS.reduce((n,e)=>n
 function css(t){
   const f = n => FONTS[n] || n;
   return `
-    body{background:${t.pageBg} !important;padding:${t.pagePad}px 0 !important}
+    body{background:${t.pageBg} !important;margin:0 !important;padding:${t.pagePad}px 0 !important}
     table[style*="600px"]{width:100% !important;max-width:${t.containerW}px !important}
     table[align="center"]:not([width]){width:100% !important}
     td[style*="background-color: #ffffff"],td[bgcolor="#ffffff"]{background-color:${t.cardBg} !important}
@@ -343,7 +343,7 @@ function css(t){
     table[width="70%"]{width:100% !important}
     td[style*="border-top:1px solid #111"]{border-top:1px solid #EAEAEA !important}
     @media (max-width:480px){
-      body{padding:16px 0 !important}
+      body{padding:16px 12px !important}
       /* card side padding goes proportional (35/600 = 5.8%) so body text
          stays aligned with the banner wordmark as the banner scales down */
       td[style*="padding: 0 10px"]{padding:6px 5.8% !important}
