@@ -567,7 +567,7 @@ _SER = _F  # brand rule (Gary): Inter everywhere
 def _e_pill(label, bg, fg):
     # standard blue button (token spec) — bg/fg params kept for signature stability
     return f'''<table class="btn-t" cellpadding="0" cellspacing="0" align="center" style="margin:0 auto;"><tr>
-      <td style="background:#1389fd;border-radius:2px;"><a href="#" style="display:inline-block;min-width:180px;box-sizing:border-box;padding:15px 28px;font-family:{_F};font-size:15px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;">{label}</a></td>
+      <td style="background:#1389fd;border-radius:2px;"><a href="#" style="display:inline-block;min-width:180px;box-sizing:border-box;padding:15px 28px;font-family:{_F};font-size:15px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;white-space:nowrap;">{label}</a></td>
     </tr></table>'''
 
 VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
@@ -583,7 +583,6 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
     .tc-i {{ padding:20px 16px !important; }}
     .pbx-t {{ padding:14px 14px 10px !important; }}
     .hero-pad {{ padding-left:16px !important; padding-right:16px !important; }}
-    .btn-t a {{ min-width:0 !important; }}
   }}
 </style></head>
 <body style="margin:0;background:#F2F1EF;">
@@ -648,8 +647,8 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
         </tr></table>
       </td></tr></table>
       </td></tr></table>
-      <table class="btn-t" width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0 0;"><tr>
-      <td style="background:#1389fd;border-radius:2px;" width="1"><a href="#" style="display:inline-block;min-width:180px;box-sizing:border-box;padding:15px 28px;font-family:{_F};font-size:15px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;">Start Building</a></td><td></td>
+      <table class="btn-t" cellpadding="0" cellspacing="0" style="margin:24px 0 0;"><tr>
+      <td style="background:#1389fd;border-radius:2px;"><a href="#" style="display:inline-block;min-width:180px;box-sizing:border-box;padding:15px 28px;font-family:{_F};font-size:15px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;white-space:nowrap;">Start Building</a></td>
     </tr></table>
     </td></tr></table>
   </td></tr>
