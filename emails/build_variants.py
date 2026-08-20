@@ -183,7 +183,8 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
   @media (max-width:480px) {{
     .wrap {{ width:100% !important; }}
     td[style*="padding:0 40px"], td[style*="padding: 0 40px"], .px {{ padding-left:20px !important; padding-right:20px !important; }}
-    .h1 {{ font-size:28px !important; }}
+    .h1 {{ font-size:24px !important; line-height:1.3 !important; }}
+    h2 {{ font-size:20px !important; }}
   }}
 </style></head>
 <body style="margin:0;background:#F2F1EF;">
