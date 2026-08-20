@@ -685,16 +685,11 @@ VARIANT_AP = f'''<!doctype html><html><head><meta charset="utf-8">
       <span style="font-weight:600;">Try this prompt:</span> <i>"Using the Stripe connector, create a new product called Pro Plan at $29/month in test mode, then add a checkout flow for it to my app with success and cancel pages."</i>
     </td></tr></table>
     {_AP_BTN.replace("LABEL", "Start Building")}
+    <p style="margin:28px 0 0;font-size:15px;line-height:1.6;color:#26251f;">Keep building,<br><span style="font-weight:600;">Monika &amp; The Bolt Team &#9889;</span></p>
   </td></tr>
 
-  <tr><td style="padding:26px 8px 8px;font-family:{_F};">
-    <table cellpadding="0" cellspacing="0"><tr>
-      <td style="padding:0 12px 0 0;"><img src="{LOGO_BLACK}" width="58" style="width:58px;display:block;" alt="Bolt"></td>
-      <td style="font-family:{_F};font-size:14px;color:#26251f;">Keep building,<br><span style="font-weight:600;">Monika &amp; The Bolt Team &#9889;</span></td>
-    </tr></table>
-  </td></tr>
-
-  <tr><td align="center" style="padding:22px 8px 0;">
+  <tr><td align="center" style="padding:30px 8px 0;"><img src="{LOGO_BLACK}" width="84" style="width:84px;display:block;margin:0 auto;" alt="Bolt"></td></tr>
+  <tr><td align="center" style="padding:18px 8px 0;">
     {"".join(f'<a href="{s["href"]}" style="text-decoration:none;display:inline-block;margin:0 7px;"><img src="{s["uri"]}" width="16" height="16" style="display:inline-block;"></a>' for s in _SOC_DARK)}
   </td></tr>
   <tr><td align="center" style="padding:18px 8px 6px;font-family:{_F};font-size:12px;">
@@ -703,7 +698,6 @@ VARIANT_AP = f'''<!doctype html><html><head><meta charset="utf-8">
   <tr><td align="center" style="padding:6px 8px 18px;font-family:{_F};font-size:12px;line-height:1.7;color:#8a8880;">
     StackBlitz, Inc. &middot; 2443 Fillmore Street #380-16814 &middot; San Francisco, CA 94115, USA
   </td></tr>
-  <tr><td align="center" style="padding:2px 8px 12px;"><img src="{LOGO_BLACK}" width="96" style="width:96px;display:block;margin:0 auto;" alt="Bolt"></td></tr>
 </table></td></tr></table></body></html>'''
 
 CUSTOM_DOCS = {
