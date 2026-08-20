@@ -240,7 +240,7 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
 
 # ---- Variant C: Microsoft-Surface-style editorial — mono uppercase, photo-led ----
 _SOC_DARK = [dict(s, uri=_recolor(s["uri"], "#161616")) for s in _socials]
-_M = "'Courier New',Courier,monospace"
+_M = _F  # brand rule (Gary): Inter everywhere — no mono/serif borrowings
 
 def _c_h2(text):
     return f'''<tr><td class="px" style="padding:36px 32px 12px;font-family:{_M};font-size:21px;font-weight:700;letter-spacing:1px;color:#000000;">{text}</td></tr>'''
@@ -525,7 +525,7 @@ DARK_TOKENS = json.dumps({
 
 # ---- Variant E: Robinhood-style promo — dark hero, serif display, pill CTAs,
 #      white how-it-works section, black legal footer + giant blue wordmark ----
-_SER = "Georgia,'Times New Roman',serif"
+_SER = _F  # brand rule (Gary): Inter everywhere
 
 def _e_pill(label, bg, fg):
     return f'''<table cellpadding="0" cellspacing="0" align="center" style="margin:0 auto;"><tr>
