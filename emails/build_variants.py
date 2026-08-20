@@ -672,7 +672,7 @@ VARIANT_AP = f'''<!doctype html><html><head><meta charset="utf-8">
 <table width="100%" cellpadding="0" cellspacing="0" bgcolor="#EFEFED"><tr><td align="center" style="padding:24px 12px;">
 <table class="wrap" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;">
 
-  <tr><td style="padding:6px 4px 18px;"><img src="{LOGO_GREY}" width="84" style="width:84px;display:block;" alt="Bolt"></td></tr>
+  <tr><td align="center" style="padding:6px 4px 18px;"><img src="{LOGO_GREY}" width="84" style="width:84px;display:block;margin:0 auto;" alt="Bolt"></td></tr>
 
   <tr><td style="padding:0;line-height:0;"><img src="va/nexal-dashboard.jpg" width="600" style="width:100%;border-radius:10px;display:block;" alt=""></td></tr>
   <tr><td style="height:14px;"></td></tr>
