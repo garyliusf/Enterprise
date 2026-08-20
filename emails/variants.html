@@ -34,8 +34,6 @@ select{font:12px inherit;padding:6px 8px;border:1px solid var(--line);border-rad
   <select id="email"></select>
   <span class="lbl">View</span>
   <div class="seg" id="vp"><button data-w="640" class="on">Desktop</button><button data-w="375">Mobile</button></div>
-  <span class="lbl">Final Design Style</span>
-  <div class="seg" id="theme"><button data-m="light" class="on">Light</button><button data-m="dark">Dark</button></div>
   <span class="lbl">Client</span>
   <div class="seg" id="client"><button data-c="none" class="on">As designed</button><button data-c="gmail">Gmail dark</button><button data-c="outlook">Outlook dark</button></div>
   <span class="lbl">Fonts</span>
@@ -64,7 +62,7 @@ const DARK_TOKENS = {"pageBg": "#0A0A0A", "cardBg": "#161616", "hColor": "#fffff
 
 /* globals the extracted editor pipeline expects */
 let cur = EMAILS.find(e => e.id === 'cx__email_2') || EMAILS[0], vi = 0, T = {};
-let mode = 'after', vp = 640, sel = 'A', theme = 'light';
+let mode = 'after', vp = 640, sel = 'A';
 const V = () => cur.variations[vi] || cur.variations[0];
 const PICK = '';
 let client = 'none', fonts = 'inter';
@@ -335,8 +333,9 @@ function tokensFor(letter){
 }
 function renderFrame(letter, scale){
   let doc;
-  if (VARIANTS[letter] && VARIANTS[letter].custom) { doc = CUSTOM_DOCS[letter][theme]; }
-  else { T = Object.assign(tokensFor(letter), theme === 'dark' ? DARK_TOKENS : {}); doc = docFor(); }
+  // settled designs: B ships dark; every other slot shows its light design
+  if (VARIANTS[letter] && VARIANTS[letter].custom) { doc = CUSTOM_DOCS[letter][letter === 'B' ? 'dark' : 'light']; }
+  else { T = tokensFor(letter); doc = docFor(); }
   if (doc && fonts === 'websafe') doc = doc.replace(/Inter,|-apple-system,|BlinkMacSystemFont,/g, '');
   if (doc && client !== 'none') doc = doc.replace(/<\/body>/i, SIM.replace('__CLIENT__', client) + '</body>');
   const cell = document.createElement('div'); cell.className = 'cell';
@@ -364,7 +363,6 @@ function draw(){
   }
   document.querySelectorAll('#vars button').forEach(b=>b.classList.toggle('on', b.textContent===sel));
   document.querySelectorAll('#vp button').forEach(b=>b.classList.toggle('on', +b.dataset.w===vp));
-  document.querySelectorAll('#theme button').forEach(b=>b.classList.toggle('on', b.dataset.m===theme));
   document.querySelectorAll('#client button').forEach(b=>b.classList.toggle('on', b.dataset.c===client));
   document.querySelectorAll('#fonts button').forEach(b=>b.classList.toggle('on', b.dataset.f===fonts));
 }
@@ -383,7 +381,6 @@ const vb = document.getElementById('vars');
   b.onclick = () => { sel = k; draw(); }; vb.appendChild(b);
 });
 document.getElementById('vp').onclick = e => { if (e.target.dataset.w){ vp = +e.target.dataset.w; draw(); } };
-document.getElementById('theme').onclick = e => { if (e.target.dataset.m){ theme = e.target.dataset.m; draw(); } };
 document.getElementById('client').onclick = e => { if (e.target.dataset.c){ client = e.target.dataset.c; draw(); } };
 document.getElementById('fonts').onclick = e => { if (e.target.dataset.f){ fonts = e.target.dataset.f; draw(); } };
 addEventListener('resize', () => draw());
