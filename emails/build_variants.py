@@ -633,7 +633,7 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
       <div style="margin:0 0 14px;">{_b_badge("TIP OF THE WEEK")}</div>
       <div style="font-size:21px;font-weight:600;color:#000000;line-height:1.4;margin:0 0 8px;">Let the Bolt agent work in your other tools for you</div>
       <p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:#000000;">Once you connect a service like Stripe, the Bolt agent can interact with it directly on your behalf &mdash; describe what you want and it creates it in Stripe and wires it into your app.</p>
-      <div style="margin:0 0 8px;font-size:13px;font-weight:600;color:#666666;">Try this prompt:</div>
+      <div style="margin:24px 0 8px;font-size:13px;font-weight:600;color:#666666;">Try this prompt:</div>
       <table width="100%" cellpadding="0" cellspacing="0" class="pbx-w" style="background-color:#2b2b2b;background-image:linear-gradient(135deg,#4DA6FF 0%,#1488FC 22%,#2b2b2b 58%);border-radius:15px;"><tr><td style="padding:1px;">
       <table width="100%" cellpadding="0" cellspacing="0" class="pbx" style="background:#17181B;border-radius:14px;"><tr><td class="pbx-t" style="padding:16px 18px 14px;font-family:{_F};font-size:15px;line-height:1.55;color:#E8E8EA;">
         Using the Stripe connector, create a new product called Pro Plan at $29/month in test mode, then add a checkout flow for it to my app with success and cancel pages.
