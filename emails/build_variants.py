@@ -579,6 +579,7 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
     .px {{ padding-left:22px !important; padding-right:22px !important; }}
     .disp {{ font-size:27px !important; }}
     .cu {{ margin-bottom:6px !important; }}
+    .evt {{ font-size:19px !important; line-height:1.3 !important; }}
   }}
 </style></head>
 <body style="margin:0;background:#F2F1EF;">
@@ -610,19 +611,19 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
   </td></tr>
   <tr><td bgcolor="#ffffff" class="k-light" style="background:#ffffff;padding:0;line-height:0;"><img src="va/build-with-voice.jpg" width="600" style="width:100%;display:block;" alt=""></td></tr>
   <tr><td bgcolor="#ffffff" class="px k-light" style="background:#ffffff;padding:16px 36px 8px;font-family:{_F};">
-    <div style="font-size:21px;font-weight:600;color:#000000;line-height:1.4;margin:0 0 6px;">Your Users Have Questions: Answer Them Automatically Inside Your App</div>
+    <div class="evt k-ink" style="font-size:21px;font-weight:600;color:#000000;line-height:1.4;margin:0 0 6px;">Your Users Have Questions: Answer Them Automatically Inside Your App</div>
     <div style="font-size:15px;font-weight:500;color:#666666;margin:0 0 12px;">Thursday, August 20</div>
     <p style="margin:0 0 36px;"><a href="#" style="font-size:16px;color:#1488FC;font-weight:600;text-decoration:none;">RSVP <span style="letter-spacing:1px;">&rarr;</span></a></p>
   </td></tr>
   <tr><td bgcolor="#ffffff" class="k-light" style="background:#ffffff;padding:0;line-height:0;"><img src="va/maker-photo.jpg" width="600" style="width:100%;display:block;" alt=""></td></tr>
   <tr><td bgcolor="#ffffff" class="px k-light" style="background:#ffffff;padding:16px 36px 8px;font-family:{_F};">
-    <div style="font-size:21px;font-weight:600;color:#000000;line-height:1.4;margin:0 0 6px;">Office Hours: Bring your projects, questions, or blockers for live help</div>
+    <div class="evt k-ink" style="font-size:21px;font-weight:600;color:#000000;line-height:1.4;margin:0 0 6px;">Office Hours: Bring your projects, questions, or blockers for live help</div>
     <div style="font-size:15px;font-weight:500;color:#666666;margin:0 0 12px;">Tuesday, August 25</div>
     <p style="margin:0 0 36px;"><a href="#" style="font-size:16px;color:#1488FC;font-weight:600;text-decoration:none;">RSVP <span style="letter-spacing:1px;">&rarr;</span></a></p>
   </td></tr>
   <tr><td bgcolor="#ffffff" class="k-light" style="background:#ffffff;padding:0;line-height:0;"><img src="va/bolt-templates.jpg" width="600" style="width:100%;display:block;" alt=""></td></tr>
   <tr><td bgcolor="#ffffff" class="px k-light" style="background:#ffffff;padding:16px 36px 36px;font-family:{_F};">
-    <div style="font-size:21px;font-weight:600;color:#000000;line-height:1.4;margin:0 0 6px;">Launch and Grow: Market Your App and Find Your First Users</div>
+    <div class="evt k-ink" style="font-size:21px;font-weight:600;color:#000000;line-height:1.4;margin:0 0 6px;">Launch and Grow: Market Your App and Find Your First Users</div>
     <div style="font-size:15px;font-weight:500;color:#666666;margin:0 0 12px;">Thursday, August 27</div>
     <p style="margin:0 0 0;"><a href="#" style="font-size:16px;color:#1488FC;font-weight:600;text-decoration:none;">RSVP <span style="letter-spacing:1px;">&rarr;</span></a></p>
     <table width="100%" cellpadding="0" cellspacing="0" class="tipcard" style="background:#FFFFFF;border:1px solid #E2E0DC;border-radius:10px;margin:36px 0 0;"><tr><td style="padding:26px 28px;font-family:{_F};">
