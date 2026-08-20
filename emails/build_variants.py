@@ -183,7 +183,7 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
   @media (max-width:480px) {{
     .wrap {{ width:100% !important; }}
     td[style*="40px"], .px {{ padding-left:20px !important; padding-right:20px !important; }}
-    .h1 {{ font-size:24px !important; line-height:1.3 !important; }}
+    h1 {{ font-size:24px !important; line-height:1.3 !important; }}
     h2 {{ font-size:20px !important; }}
   }}
 </style></head>
@@ -232,7 +232,7 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
   </td></tr>
   {_b_ghost("Start Building", band=True)}
 
-  <tr><td style="padding:28px 40px 14px;font-family:{_F};font-size:16px;line-height:1.6;color:#ABABAB;">
+  <tr><td style="padding:28px 40px 34px;font-family:{_F};font-size:16px;line-height:1.6;color:#ABABAB;">
     Keep building,<br><span style="font-weight:600;color:#ffffff;">Monika &amp; The Bolt Team &#9889;</span></td></tr>
 
   <tr><td style="padding:8px 40px 8px;"><div style="border-top:1px solid #232323;font-size:0;line-height:0;">&nbsp;</div></td></tr>
@@ -432,9 +432,9 @@ VARIANT_D = f'''<!doctype html><html><head><meta charset="utf-8">
 # ---- variant B: Outlook dark-mode armor (classic Outlook out of scope) ----
 # Modern Outlook stamps recolored elements with data-ogsc/-ogsb; these
 # overrides re-assert B's colors after its transform. Inert everywhere else.
-VARIANT_B = re.sub(r'<(p|li|div|span|a|td|h1|h2)( [^>]*?color:#ffffff)', r'<\1 class="c-head"\2', VARIANT_B)
-VARIANT_B = re.sub(r'<(p|li|div|span|a|td|h1|h2)( [^>]*?color:#ABABAB)', r'<\1 class="c-body"\2', VARIANT_B)
-VARIANT_B = re.sub(r'<(p|li|div|span|a|td|h1|h2)( [^>]*?color:#8a8a8a)', r'<\1 class="c-fine"\2', VARIANT_B)
+VARIANT_B = re.sub(r'<(p|li|div|span|a|td|h1|h2)( (?![^>]*class=)[^>]*?color:#ffffff)', r'<\1 class="c-head"\2', VARIANT_B)
+VARIANT_B = re.sub(r'<(p|li|div|span|a|td|h1|h2)( (?![^>]*class=)[^>]*?color:#ABABAB)', r'<\1 class="c-body"\2', VARIANT_B)
+VARIANT_B = re.sub(r'<(p|li|div|span|a|td|h1|h2)( (?![^>]*class=)[^>]*?color:#8a8a8a)', r'<\1 class="c-fine"\2', VARIANT_B)
 VARIANT_B = VARIANT_B.replace('<td align="center" style="border:1px solid rgba(255,255,255,0.4);',
                               '<td align="center" class="gbtn" style="border:1px solid rgba(255,255,255,0.4);')
 VARIANT_B = VARIANT_B.replace('<table width="100%" cellpadding="0" cellspacing="0" style="background:#111111;border:1px solid #2b2b2b;',
