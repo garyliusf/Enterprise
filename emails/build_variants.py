@@ -193,7 +193,7 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
 
   <tr><td class="px" style="padding:30px 40px 0;font-family:{_F};">
     <div style="font-size:16px;font-weight:600;color:#ffffff;margin:0 0 6px;">This week on Bolt</div>
-    <h1 class="h1" style="margin:0 0 18px;font-size:34px;font-weight:700;color:#ffffff;line-height:1.15;letter-spacing:-0.5px;">Take payments with the Stripe&nbsp;MCP</h1>
+    <h1 class="h1" style="margin:0 0 18px;font-size:34px;font-weight:500;color:#ffffff;line-height:1.3;letter-spacing:-0.5px;">Take payments with the Stripe&nbsp;MCP</h1>
     <p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:#ABABAB;">An app that can\'t take payments is a project, an app that can is a business. The purchase flow is the single feature standing between you and your first paying customer.</p>
     <p style="margin:0 0 24px;font-size:16px;line-height:1.6;color:#ABABAB;">In this week\'s workshop, we\'ll connect and configure payments with the Stripe MCP so your app can start earning, without the usual setup headaches.</p>
   </td></tr>
