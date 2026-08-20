@@ -244,7 +244,7 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
   {_b_event("va/maker-photo.jpg", "Office Hours: Bring your projects, questions, or blockers for live help", "Tuesday, August 25")}
   {_b_event("va/bolt-templates.jpg", "Launch and Grow: Market Your App and Find Your First Users", "Thursday, August 27")}
 
-  <tr><td class="px band" bgcolor="#000001" style="background:#000001;padding:32px 40px 40px;font-family:{_F};">
+  <tr><td class="px band" bgcolor="#000001" style="background:#000001;padding:0 40px 40px;font-family:{_F};">
     {TIP_CARD}
     <p style="margin:28px 0 0;font-size:16px;line-height:1.6;color:#ABABAB;">Keep building,<br><span style="font-weight:600;color:#ffffff;">Monika &amp; The Bolt Team &#9889;</span></p>
   </td></tr>
