@@ -567,7 +567,7 @@ _SER = _F  # brand rule (Gary): Inter everywhere
 def _e_pill(label, bg, fg):
     # standard blue button (token spec) — bg/fg params kept for signature stability
     return f'''<table class="btn-t" cellpadding="0" cellspacing="0" align="center" style="margin:0 auto;"><tr>
-      <td style="background:#1389fd;border-radius:2px;"><a href="#" style="display:inline-block;min-width:187px;box-sizing:border-box;padding:14px 24px;font-family:{_F};font-size:15px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;">{label}</a></td>
+      <td style="background:#1389fd;border-radius:2px;"><a href="#" style="display:inline-block;min-width:150px;box-sizing:border-box;padding:13px 22px;font-family:{_F};font-size:13px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;">{label}</a></td>
     </tr></table>'''
 
 VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
@@ -583,9 +583,7 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
     .tc-i {{ padding:20px 16px !important; }}
     .pbx-t {{ padding:14px 14px 10px !important; }}
     .hero-pad {{ padding-left:16px !important; padding-right:16px !important; }}
-    .btn-t {{ width:100% !important; }}
-    .btn-t td {{ width:100% !important; display:block !important; }}
-    .btn-t a {{ display:block !important; min-width:0 !important; }}
+    .btn-t a {{ min-width:0 !important; }}
   }}
 </style></head>
 <body style="margin:0;background:#F2F1EF;">
@@ -638,7 +636,7 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
       <p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:#000000;">Once you connect a service like Stripe, the Bolt agent can interact with it directly on your behalf &mdash; describe what you want and it creates it in Stripe and wires it into your app.</p>
       <div style="margin:24px 0 8px;font-size:13px;font-weight:600;color:#666666;">Try this prompt:</div>
       <table width="100%" cellpadding="0" cellspacing="0" class="pbx-w" style="background-color:#2b2b2b;background-image:linear-gradient(135deg,#5FB2FF 0%,#1488FC 32%,#2b2b2b 72%);border-radius:11px;"><tr><td style="padding:1px;">
-      <table width="100%" cellpadding="0" cellspacing="0" class="pbx" style="background:#17181B;border-radius:10px;"><tr><td class="pbx-t" style="padding:16px 18px 14px;font-family:{_F};font-size:15px;line-height:1.55;color:#E8E8EA;">
+      <table width="100%" cellpadding="0" cellspacing="0" class="pbx" style="background:#17181B;border-radius:10px;"><tr><td class="pbx-t" style="padding:16px 18px 14px;font-family:{_F};font-size:13px;line-height:1.55;color:#E8E8EA;">
         Using the Stripe connector, create a new product called Pro Plan at $29/month in test mode, then add a checkout flow for it to my app with success and cancel pages.
       </td></tr>
       <tr><td style="padding:0 12px 12px;">
