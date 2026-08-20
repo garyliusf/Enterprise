@@ -200,7 +200,7 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
   {_b_ghost("Register Now")}
 
   <tr><td class="px" style="padding:28px 40px 8px;font-family:{_F};">
-    <h2 style="margin:0 0 14px;font-size:24px;font-weight:700;color:#ffffff;letter-spacing:-0.3px;">You\'ll learn how to:</h2>
+    <h2 style="margin:0 0 14px;font-size:24px;font-weight:500;color:#ffffff;letter-spacing:-0.3px;">You\'ll learn how to:</h2>
     <ul style="margin:0 0 30px;padding:0 0 0 22px;">
       <li style="margin:0 0 8px;font-size:15px;line-height:1.6;color:#ABABAB;">Connect the Stripe MCP to a Bolt app</li>
       <li style="margin:0 0 8px;font-size:15px;line-height:1.6;color:#ABABAB;">Configure products and pricing through Stripe</li>
@@ -212,14 +212,14 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
   </td></tr>
 
   <tr><td class="px" style="padding:20px 40px 16px;font-family:{_F};">
-    <h2 style="margin:0;font-size:24px;font-weight:700;color:#ffffff;letter-spacing:-0.3px;">Coming up next:</h2>
+    <h2 style="margin:0;font-size:24px;font-weight:500;color:#ffffff;letter-spacing:-0.3px;">Coming up next:</h2>
   </td></tr>
   {_b_event("va/build-with-voice.jpg", "Your Users Have Questions: Answer Them Automatically Inside Your App", "Thursday, August 20")}
   {_b_event("va/soulpress-app.jpg", "Office Hours: Bring your projects, questions, or blockers for live help", "Tuesday, August 25")}
   {_b_event("va/bolt-templates.jpg", "Launch and Grow: Market Your App and Find Your First Users", "Thursday, August 27")}
 
   <tr><td class="px" style="padding:32px 40px 8px;font-family:{_F};">
-    <h2 style="margin:0 0 12px;font-size:24px;font-weight:700;color:#ffffff;letter-spacing:-0.3px;">Tip of the week</h2>
+    <h2 style="margin:0 0 12px;font-size:24px;font-weight:500;color:#ffffff;letter-spacing:-0.3px;">Tip of the week</h2>
     <p style="margin:0 0 8px;font-size:16px;font-weight:600;color:#ffffff;line-height:1.5;">Let the Bolt agent work in your other tools for you</p>
     <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#ABABAB;">Once you connect a service like Stripe, the Bolt agent can interact with it directly on your behalf &mdash; describe what you want and it creates it in Stripe and wires it into your app.</p>
     <table width="100%" cellpadding="0" cellspacing="0" style="background:#111111;border:1px solid #2b2b2b;border-radius:8px;"><tr><td style="padding:14px 16px;font-family:{_F};font-size:14px;line-height:1.6;color:#ABABAB;">
