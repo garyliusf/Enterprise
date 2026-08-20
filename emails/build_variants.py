@@ -192,7 +192,7 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
 
   <tr><td align="center" style="padding:34px 40px 26px;"><img src="{LOGO_WHITE}" width="96" style="width:96px;display:block;" alt="Bolt"></td></tr>
 
-  <tr><td class="px" style="padding:0 40px;"><img src="va/nexal-dashboard.jpg" width="520" style="width:100%;border-radius:8px;display:block;" alt=""></td></tr>
+  <tr><td class="px" style="padding:0 40px;"><img src="va/build-with-voice.jpg" width="520" style="width:100%;border-radius:8px;display:block;" alt=""></td></tr>
 
   <tr><td class="px" style="padding:30px 40px 0;font-family:{_F};">
     <div style="font-size:16px;font-weight:600;color:#ffffff;margin:0 0 6px;">This week on Bolt</div>
