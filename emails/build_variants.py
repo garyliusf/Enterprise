@@ -581,7 +581,7 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
   </td></tr>
 
   <tr><td bgcolor="#000000" class="px" style="background:#000000;padding:30px 36px 0;font-family:{_F};">
-    <p style="margin:0 0 22px;font-size:13px;font-style:italic;color:#C9CDD3;">This email is sent to you from the Bolt team.</p>
+    <img src="{LOGO_WHITE}" width="92" style="width:92px;display:block;margin:0 0 24px;" alt="Bolt">
     <p style="margin:0 0 9px;"><a href="#" style="font-size:13px;color:#ffffff;">Home</a></p>
     <p style="margin:0 0 9px;"><a href="#" style="font-size:13px;color:#ffffff;">Help Center</a></p>
     <p style="margin:0 0 9px;"><a href="#" style="font-size:13px;color:#ffffff;">Discord</a></p>
@@ -592,8 +592,6 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
     <p style="margin:0 0 18px;font-size:12px;line-height:1.7;color:#8a8f96;">&copy; 2026 Bolt.new</p>
     <p style="margin:0 0 26px;"><a href="#" style="font-size:12px;color:#C9CDD3;">Unsubscribe</a>&nbsp;&nbsp;<a href="#" style="font-size:12px;color:#C9CDD3;">Subscription settings</a></p>
   </td></tr>
-  <tr><td bgcolor="#000000" style="background:#000000;padding:0 0 8px;line-height:0;" align="center">
-    <img src="{LOGO_WHITE}" width="600" style="width:100%;display:block;" alt="Bolt"></td></tr>
 </table></td></tr></table></body></html>'''
 
 # E dark twin: the white how-it-works section joins the dark canvas
