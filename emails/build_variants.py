@@ -667,11 +667,11 @@ VARIANT_AP = f'''<!doctype html><html><head><meta charset="utf-8">
     .card {{ padding-left:22px !important; padding-right:22px !important; }}
   }}
 </style></head>
-<body style="margin:0;background:#F0EFEA;">
-<table width="100%" cellpadding="0" cellspacing="0" bgcolor="#F0EFEA"><tr><td align="center" style="padding:24px 12px;">
+<body style="margin:0;background:#EFEFED;">
+<table width="100%" cellpadding="0" cellspacing="0" bgcolor="#EFEFED"><tr><td align="center" style="padding:24px 12px;">
 <table class="wrap" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;">
 
-  <tr><td style="padding:6px 4px 18px;"><img src="{LOGO_BLACK}" width="84" style="width:84px;display:block;" alt="Bolt"></td></tr>
+  <tr><td style="padding:6px 4px 18px;"><img src="{LOGO_GREY}" width="84" style="width:84px;display:block;" alt="Bolt"></td></tr>
 
   <tr><td style="padding:0;line-height:0;"><img src="va/nexal-dashboard.jpg" width="600" style="width:100%;border-radius:10px;display:block;" alt=""></td></tr>
   <tr><td style="height:14px;"></td></tr>
@@ -714,9 +714,9 @@ VARIANT_AP = f'''<!doctype html><html><head><meta charset="utf-8">
     <p style="margin:28px 0 0;font-size:15px;line-height:1.6;color:#26251f;">Keep building,<br><span style="font-weight:600;">Monika &amp; The Bolt Team &#9889;</span></p>
   </td></tr>
 
-  <tr><td align="center" style="padding:30px 8px 0;"><img src="{LOGO_BLACK}" width="84" style="width:84px;display:block;margin:0 auto;" alt="Bolt"></td></tr>
+  <tr><td align="center" style="padding:30px 8px 0;"><img src="{LOGO_GREY}" width="84" style="width:84px;display:block;margin:0 auto;" alt="Bolt"></td></tr>
   <tr><td align="center" style="padding:18px 8px 0;">
-    {"".join(f'<a href="{s["href"]}" style="text-decoration:none;display:inline-block;margin:0 7px;"><img src="{s["uri"]}" width="16" height="16" style="display:inline-block;"></a>' for s in _SOC_DARK)}
+    {"".join(f'<a href="{s["href"]}" style="text-decoration:none;display:inline-block;margin:0 7px;"><img src="{s["uri"]}" width="16" height="16" style="display:inline-block;"></a>' for s in _socials)}
   </td></tr>
   <tr><td align="center" style="padding:18px 8px 6px;font-family:{_F};font-size:12px;">
     <a href="#" style="color:#26251f;">Manage preferences</a>&nbsp;&nbsp;&nbsp;<a href="#" style="color:#26251f;">Unsubscribe</a>
@@ -725,6 +725,30 @@ VARIANT_AP = f'''<!doctype html><html><head><meta charset="utf-8">
     StackBlitz, Inc. &middot; 2443 Fillmore Street #380-16814 &middot; San Francisco, CA 94115, USA
   </td></tr>
 </table></td></tr></table></body></html>'''
+
+
+# ---- D armor: modern-Outlook dark overrides ----
+for _col, _cls in [('#111;','d-ink'), ('#26251f','d-body'), ('#777;','d-date'), ('#8a8880','d-fine')]:
+    VARIANT_AP = re.sub(r'<(p|li|div|span|a|td|h1|h2)( (?![^>]*class=)[^>]*?color:' + _col + ')', r'<\1 class="' + _cls + r'"\2', VARIANT_AP)
+VARIANT_AP = VARIANT_AP.replace('<td style="background:#1389fd;border-radius:8px;">', '<td class="d-btn" style="background:#1389fd;border-radius:8px;">')
+VARIANT_AP = VARIANT_AP.replace('<table width="100%" cellpadding="0" cellspacing="0" style="background:#EFEEE9;border-radius:8px;">', '<table width="100%" cellpadding="0" cellspacing="0" class="d-inset" style="background:#EFEEE9;border-radius:8px;">')
+VARIANT_AP = VARIANT_AP.replace('<tr><td class="card" style="border:1px solid #D9D7D1;', '<tr><td class="card d-outline" style="border:1px solid #D9D7D1;')
+VARIANT_AP = VARIANT_AP.replace('<table width="100%" cellpadding="0" cellspacing="0" bgcolor="#EFEFED">', '<table class="d-page" width="100%" cellpadding="0" cellspacing="0" bgcolor="#EFEFED">')
+_KD = """
+  /* modern-Outlook dark-mode overrides (data-ogsc/-ogsb) */
+  [data-ogsb] body, [data-ogsb] .d-page { background-color:#EFEFED !important; }
+  [data-ogsb] .card { background-color:#ffffff !important; }
+  [data-ogsb] .d-inset { background-color:#EFEEE9 !important; }
+  [data-ogsb] .d-btn { background-color:#1389fd !important; }
+  [data-ogsc] .d-btn a { color:#FFFFFF !important; }
+  [data-ogsc] .d-ink { color:#111111 !important; }
+  [data-ogsc] .d-body { color:#26251f !important; }
+  [data-ogsc] .d-date { color:#777777 !important; }
+  [data-ogsc] .d-fine { color:#8a8880 !important; }
+  [data-ogsc] .d-outline { border-color:#D9D7D1 !important; }
+  [data-ogsc] span { color:inherit !important; }
+"""
+VARIANT_AP = VARIANT_AP.replace('</style></head>', _KD + '</style></head>', 1)
 
 CUSTOM_DOCS = {
     "A": {"light": B_LIGHT, "dark": VARIANT_B},  # A = the DARK design (the ship)
