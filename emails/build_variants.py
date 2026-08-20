@@ -217,7 +217,7 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
   <tr><td class="px" style="padding:32px 40px 16px;font-family:{_F};">
     <h2 style="margin:0;font-size:24px;font-weight:500;color:#ffffff;letter-spacing:-0.3px;">Coming up next:</h2>
   </td></tr>
-  {_b_event("va/build-with-voice.jpg", "Your Users Have Questions: Answer Them Automatically Inside Your App", "Thursday, August 20")}
+  {_b_event("va/nexal-dashboard.jpg", "Your Users Have Questions: Answer Them Automatically Inside Your App", "Thursday, August 20")}
   {_b_event("va/maker-photo.jpg", "Office Hours: Bring your projects, questions, or blockers for live help", "Tuesday, August 25")}
   {_b_event("va/bolt-templates.jpg", "Launch and Grow: Market Your App and Find Your First Users", "Thursday, August 27")}
 
