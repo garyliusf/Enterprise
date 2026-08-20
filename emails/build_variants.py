@@ -170,7 +170,7 @@ def _b_ghost(label):
     return f'''<tr><td style="padding:8px 40px 44px;">
       <table cellpadding="0" cellspacing="0"><tr>
         <td class="gbtn" style="background:#1389fd;border-radius:8px;">
-          <a href="#" style="display:inline-block;min-width:220px;box-sizing:border-box;padding:16px 28px;font-family:{_F};font-size:16px;font-weight:600;line-height:1.25;color:#ffffff;text-decoration:none;text-align:center;">{label}</a>
+          <a href="#" style="display:inline-block;min-width:220px;box-sizing:border-box;padding:16px 28px;font-family:{_F};font-size:16px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;">{label}</a>
         </td></tr></table></td></tr>'''
 
 VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
@@ -303,7 +303,7 @@ VARIANT_C = f'''<!doctype html><html><head><meta charset="utf-8">
       <li style="margin:0;font-size:15px;line-height:1.65;color:#3c3c3c;">Think through failed or cancelled payments and confirmation</li>
     </ul>
     <table cellpadding="0" cellspacing="0" style="margin:0 0 10px;"><tr>
-      <td bgcolor="#1389fd" style="background:#1389fd;border-radius:8px;"><a href="#" style="display:inline-block;min-width:220px;box-sizing:border-box;padding:16px 28px;font-family:{_F};font-size:16px;font-weight:600;line-height:1.25;color:#ffffff;text-decoration:none;text-align:center;">Register here</a></td>
+      <td bgcolor="#1389fd" style="background:#1389fd;border-radius:8px;"><a href="#" style="display:inline-block;min-width:220px;box-sizing:border-box;padding:16px 28px;font-family:{_F};font-size:16px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;">Register here</a></td>
     </tr></table>
   </td></tr>
 
@@ -441,6 +441,7 @@ _OGS = """
   [data-ogsc] .c-body { color:#ABABAB !important; }
   [data-ogsc] .c-fine { color:#8a8a8a !important; }
   [data-ogsb] .gbtn { background-color:#1389fd !important; }
+  [data-ogsc] .gbtn a { color:#FFFFFF !important; }
   [data-ogsb] .pbox { background-color:#111111 !important; border-color:#2b2b2b !important; }
 """
 VARIANT_B = VARIANT_B.replace('</style></head>', _OGS + '</style></head>', 1)
@@ -527,7 +528,7 @@ _SER = _F  # brand rule (Gary): Inter everywhere
 def _e_pill(label, bg, fg):
     # standard blue button (token spec) — bg/fg params kept for signature stability
     return f'''<table cellpadding="0" cellspacing="0" align="center" style="margin:0 auto;"><tr>
-      <td style="background:#1389fd;border-radius:8px;"><a href="#" style="display:inline-block;min-width:220px;box-sizing:border-box;padding:16px 28px;font-family:{_F};font-size:16px;font-weight:600;line-height:1.25;color:#ffffff;text-decoration:none;text-align:center;">{label}</a></td>
+      <td style="background:#1389fd;border-radius:8px;"><a href="#" style="display:inline-block;min-width:220px;box-sizing:border-box;padding:16px 28px;font-family:{_F};font-size:16px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;">{label}</a></td>
     </tr></table>'''
 
 VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
@@ -563,7 +564,7 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
     </ul>
     <p style="margin:0 0 24px;font-size:15px;line-height:1.7;color:#000000;">Join us Thursday &mdash; save your seat before the session fills.</p>
     <table cellpadding="0" cellspacing="0"><tr>
-      <td style="background:#1389fd;border-radius:8px;"><a href="#" style="display:inline-block;min-width:220px;box-sizing:border-box;padding:16px 28px;font-family:{_F};font-size:16px;font-weight:600;line-height:1.25;color:#ffffff;text-decoration:none;text-align:center;">Register now</a></td>
+      <td style="background:#1389fd;border-radius:8px;"><a href="#" style="display:inline-block;min-width:220px;box-sizing:border-box;padding:16px 28px;font-family:{_F};font-size:16px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;">Register now</a></td>
     </tr></table>
     <p style="margin:22px 0 0;font-size:13px;line-height:1.6;color:#000000;">Can&rsquo;t make it live? <a href="#" style="color:#000000;font-weight:600;">Watch previous workshops</a>.</p>
   </td></tr>
