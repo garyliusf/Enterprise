@@ -567,7 +567,7 @@ _SER = _F  # brand rule (Gary): Inter everywhere
 def _e_pill(label, bg, fg):
     # standard blue button (token spec) — bg/fg params kept for signature stability
     return f'''<table class="btn-t" cellpadding="0" cellspacing="0" align="center" style="margin:0 auto;"><tr>
-      <td style="background:#1389fd;border-radius:2px;"><a href="#" style="display:inline-block;min-width:150px;box-sizing:border-box;padding:13px 22px;font-family:{_F};font-size:13px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;">{label}</a></td>
+      <td style="background:#1389fd;border-radius:2px;"><a href="#" style="display:inline-block;min-width:180px;box-sizing:border-box;padding:15px 28px;font-family:{_F};font-size:15px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;">{label}</a></td>
     </tr></table>'''
 
 VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
