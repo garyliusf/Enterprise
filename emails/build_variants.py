@@ -417,7 +417,87 @@ VARIANT_D = f'''<!doctype html><html><head><meta charset="utf-8">
   </td></tr>
 </table></td></tr></table></body></html>'''
 
-CUSTOM_DOCS = {"A": VARIANT_A, "B": VARIANT_B, "C": VARIANT_C, "D": VARIANT_D}
+
+# ---- dark/light twins: controlled color transforms per template ----
+def _swap(html, pairs):
+    for old, new in pairs:
+        assert old in html, f"transform anchor missing: {old[:60]}"
+        html = html.replace(old, new)
+    return html
+
+def _swap_socials(html, frm, to):
+    for a, b in zip(frm, to):
+        html = html.replace(a["uri"], b["uri"])
+    return html
+
+# A dark: near-black page, #161616 cards, white text; footer lifts to #141414
+A_DARK = _swap(VARIANT_A, [
+    ('style="background:#0A0A0A;border-radius:12px', 'style="background:#141414;border-radius:12px'),
+    ('background:#F2F1EF;border-radius:8px;', 'background:#0F0F0F;border-radius:8px;'),
+    ('background:#F2F1EF;">', 'background:#0A0A0A;">'),
+    ('bgcolor="#F2F1EF"', 'bgcolor="#0A0A0A"'),
+    ('background:#FFFFFF;border-radius:10px', 'background:#161616;border-radius:10px'),
+    ('color:#000000', 'color:#FFFFFF'),
+])
+A_DARK = A_DARK.replace(LOGO_BLACK, LOGO_WHITE)
+A_DARK = _swap_socials(A_DARK, _socials, _SOC_WHITE)
+
+# B light: white canvas, black type, dark ghost outlines
+B_LIGHT = _swap(VARIANT_B, [
+    ('bgcolor="#000000"', 'bgcolor="#FFFFFF"'),
+    ('background:#000000;border-radius:12px', 'background:#FFFFFF;border-radius:12px'),
+    ('border:1px solid rgba(255,255,255,0.4)', 'border:1px solid rgba(0,0,0,0.35)'),
+    ('background:#111111;border:1px solid #2b2b2b', 'background:#F5F4F2;border:1px solid #E2E0DC'),
+    ('color:#ffffff', 'color:#000000'),
+    ('color:#ABABAB', 'color:#444444'),
+])
+B_LIGHT = B_LIGHT.replace(LOGO_WHITE, LOGO_BLACK)
+B_LIGHT = _swap_socials(B_LIGHT, _SOC_WHITE, _SOC_DARK)
+
+# C dark: black canvas, white mono, inverted button, band #161616
+C_DARK = _swap(VARIANT_C, [
+    ('bgcolor="#ffffff" style="width:600px;max-width:600px;background:#ffffff;"',
+     'bgcolor="#0E0E0E" style="width:600px;max-width:600px;background:#0E0E0E;"'),
+    ('<td bgcolor="#000000" style="background:#000000;"><a href="#" style="display:inline-block;min-width:220px',
+     '<td bgcolor="#FFFFFF" style="background:#FFFFFF;"><a href="#" style="display:inline-block;min-width:220px'),
+    ('letter-spacing:2px;color:#ffffff;text-align:center', 'letter-spacing:2px;color:#000000;text-align:center'),
+    ('border:1px solid #000;', 'border:1px solid #FFFFFF;'),
+    ('bgcolor="#F4F4F2" align="center" style="background:#F4F4F2;', 'bgcolor="#161616" align="center" style="background:#161616;'),
+    ('border:1px solid #c9c9c9', 'border:1px solid #555555'),
+    ('color:#000000', 'color:#FFFFFF'),
+    ('color:#000;', 'color:#ffffff;'),
+    ('color:#3c3c3c', 'color:#C9C9C9'),
+    ('color:#555;', 'color:#9a9a9a;'),
+    ('style="background:#000000;padding:28px 32px;', 'style="background:#000000;border-top:1px solid #2b2b2b;padding:28px 32px;'),
+])
+C_DARK = C_DARK.replace(LOGO_BLACK, LOGO_WHITE)
+C_DARK = _swap_socials(C_DARK, _SOC_DARK, _SOC_WHITE)
+
+# D dark: black canvas, white tracked caps, beige section goes charcoal
+D_DARK = _swap(VARIANT_D, [
+    ('bgcolor="#ffffff" style="width:600px;max-width:600px;background:#ffffff;"',
+     'bgcolor="#0E0E0E" style="width:600px;max-width:600px;background:#0E0E0E;"'),
+    ('bgcolor="#EFEDE8" class="px" style="background:#EFEDE8;', 'bgcolor="#1A1918" class="px" style="background:#1A1918;'),
+    ('border-top:1px solid #e5e5e5', 'border-top:1px solid #262626'),
+    ('color:#000000', 'color:#FFFFFF'),
+    ('color:#000;', 'color:#ffffff;'),
+    ('color:#333;', 'color:#C9C9C9;'),
+    ('color:#777;', 'color:#8f8f8f;'),
+])
+D_DARK = D_DARK.replace(LOGO_BLACK, LOGO_WHITE)
+
+# E dark: token overrides on the proposed baseline
+DARK_TOKENS = json.dumps({
+    "pageBg": "#0A0A0A", "cardBg": "#161616", "hColor": "#ffffff",
+    "bColor": "#D9D9D9", "fColor": "#8a8a8a", "linkCol": "#4DA6FF",
+})
+
+CUSTOM_DOCS = {
+    "A": {"light": VARIANT_A, "dark": A_DARK},
+    "B": {"light": B_LIGHT, "dark": VARIANT_B},
+    "C": {"light": VARIANT_C, "dark": C_DARK},
+    "D": {"light": VARIANT_D, "dark": D_DARK},
+}
 
 SHELL = r"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -455,6 +535,8 @@ select{font:12px inherit;padding:6px 8px;border:1px solid var(--line);border-rad
   <select id="email"></select>
   <span class="lbl">View</span>
   <div class="seg" id="vp"><button data-w="640" class="on">Desktop</button><button data-w="375">Mobile</button></div>
+  <span class="lbl">Mode</span>
+  <div class="seg" id="theme"><button data-m="light" class="on">Light</button><button data-m="dark">Dark</button></div>
   <span class="lbl">Variant</span>
   <div class="seg" id="vars"></div>
   <span class="hint">Variants are token overrides in build_variants.py — edit VARIANTS there.</span>
@@ -470,10 +552,11 @@ const BASE = __BASE__;
 const PROPOSED = __PROPOSED__;
 const VARIANTS = __VARIANTS__;
 const CUSTOM_DOCS = __CUSTOM__;
+const DARK_TOKENS = __DARKTOKENS__;
 
 /* globals the extracted editor pipeline expects */
 let cur = EMAILS.find(e => e.id === 'cx__email_2') || EMAILS[0], vi = 0, T = {};
-let mode = 'after', vp = 640, sel = 'A';
+let mode = 'after', vp = 640, sel = 'A', theme = 'light';
 const V = () => cur.variations[vi] || cur.variations[0];
 const PICK = '';
 
@@ -488,8 +571,8 @@ function tokensFor(letter){
 }
 function renderFrame(letter, scale){
   let doc;
-  if (VARIANTS[letter] && VARIANTS[letter].custom) { doc = CUSTOM_DOCS[letter]; }
-  else { T = tokensFor(letter); doc = docFor(); }
+  if (VARIANTS[letter] && VARIANTS[letter].custom) { doc = CUSTOM_DOCS[letter][theme]; }
+  else { T = Object.assign(tokensFor(letter), theme === 'dark' ? DARK_TOKENS : {}); doc = docFor(); }
   const cell = document.createElement('div'); cell.className = 'cell';
   const tag = document.createElement('div'); tag.className = 'tag'; tag.textContent = letter;
   const wrap = document.createElement('div'); wrap.className = 'frame';
@@ -515,6 +598,7 @@ function draw(){
   }
   document.querySelectorAll('#vars button').forEach(b=>b.classList.toggle('on', b.textContent===sel));
   document.querySelectorAll('#vp button').forEach(b=>b.classList.toggle('on', +b.dataset.w===vp));
+  document.querySelectorAll('#theme button').forEach(b=>b.classList.toggle('on', b.dataset.m===theme));
 }
 const es = document.getElementById('email');
 let g = null;
@@ -531,6 +615,7 @@ const vb = document.getElementById('vars');
   b.onclick = () => { sel = k; draw(); }; vb.appendChild(b);
 });
 document.getElementById('vp').onclick = e => { if (e.target.dataset.w){ vp = +e.target.dataset.w; draw(); } };
+document.getElementById('theme').onclick = e => { if (e.target.dataset.m){ theme = e.target.dataset.m; draw(); } };
 addEventListener('resize', () => draw());
 draw();
 </script></body></html>"""
@@ -545,6 +630,7 @@ html = (SHELL
         .replace("__PROPOSED__", PROPOSED)
         .replace("__VARIANTS__", json.dumps(VARIANTS))
         .replace("__CUSTOM__", json.dumps(CUSTOM_DOCS))
+        .replace("__DARKTOKENS__", DARK_TOKENS)
         .replace("__FONTS__", FONTS_C)
         .replace("__CSS_FN__", CSS_FN)
         .replace("__DOC_FN__", DOC_FN))
