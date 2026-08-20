@@ -247,7 +247,7 @@ _SOC_DARK = [dict(s, uri=_recolor(s["uri"], "#161616")) for s in _socials]
 _M = _F  # brand rule (Gary): Inter everywhere — no mono/serif borrowings
 
 def _c_h2(text):
-    return f'''<tr><td class="px" style="padding:36px 32px 12px;font-family:{_M};font-size:21px;font-weight:700;letter-spacing:1px;color:#000000;">{text}</td></tr>'''
+    return f'''<tr><td class="px" style="padding:36px 32px 12px;font-family:{_M};font-size:21px;font-weight:500;letter-spacing:1px;color:#000000;">{text}</td></tr>'''
 
 def _c_event(date, title):
     return f'''<td width="33%" valign="top" style="padding:0 10px 0 0;font-family:{_M};">
@@ -278,7 +278,7 @@ VARIANT_C = f'''<!doctype html><html><head><meta charset="utf-8">
   <tr><td><img src="va/maker-photo.jpg" width="600" style="width:100%;display:block;" alt=""></td></tr>
 
   <tr><td class="px" style="padding:26px 32px 6px;font-family:{_M};">
-    <div class="disp" style="font-size:30px;font-weight:700;letter-spacing:1px;line-height:1.25;color:#000;">MAKE YOUR APP<br>A BUSINESS.</div>
+    <div class="disp" style="font-size:30px;font-weight:500;letter-spacing:1px;line-height:1.25;color:#000;">MAKE YOUR APP<br>A BUSINESS.</div>
     <div style="font-family:{_F};font-size:14px;color:#555;margin-top:10px;">This week: connect and configure payments with the Stripe MCP.</div>
   </td></tr>
 
@@ -343,7 +343,7 @@ VARIANT_C = f'''<!doctype html><html><head><meta charset="utf-8">
 # ---- Variant D: KLAFS-style luxury editorial — centered, tracked caps, no buttons ----
 def _d_h2(text, dark=False):
     c = "#ffffff" if dark else "#000000"
-    return f'''<div style="font-family:{_F};font-size:17px;font-weight:600;letter-spacing:3px;color:{c};margin:0 0 14px;">{text}</div>'''
+    return f'''<div style="font-family:{_F};font-size:17px;font-weight:500;letter-spacing:3px;color:{c};margin:0 0 14px;">{text}</div>'''
 
 def _d_link(label):
     return f'''<a href="#" style="font-family:{_F};font-size:13px;font-weight:700;letter-spacing:1px;color:#000;text-decoration:underline;text-underline-offset:4px;">{label}</a>'''
@@ -550,7 +550,7 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
 
   <tr><td bgcolor="#0B0D10" style="background:#0B0D10;border-radius:12px 12px 0 0;padding:34px 36px 0;" align="center">
     <img src="{LOGO_WHITE}" width="92" style="width:92px;display:block;margin:0 auto 26px;" alt="Bolt">
-    <div class="disp" style="font-family:{_SER};font-size:33px;line-height:1.25;color:#ffffff;letter-spacing:0.2px;">This week&rsquo;s workshop:<br>Take payments, get paid</div>
+    <div class="disp" style="font-family:{_SER};font-size:33px;font-weight:500;line-height:1.25;color:#ffffff;letter-spacing:0.2px;">This week&rsquo;s workshop:<br>Take payments, get paid</div>
     <div style="font-family:{_F};font-size:16px;color:#C9CDD3;margin:14px 0 22px;">Connect Stripe to your Bolt app, live with the team.</div>
     {_e_pill("Register now", "#1488FC", "#ffffff")}
     <div style="height:30px;"></div>
