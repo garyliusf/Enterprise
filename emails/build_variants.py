@@ -567,7 +567,7 @@ _SER = _F  # brand rule (Gary): Inter everywhere
 def _e_pill(label, bg, fg):
     # standard blue button (token spec) — bg/fg params kept for signature stability
     return f'''<table cellpadding="0" cellspacing="0" align="center" style="margin:0 auto;"><tr>
-      <td style="background:#1389fd;border-radius:8px;"><a href="#" style="display:inline-block;min-width:220px;box-sizing:border-box;padding:16px 28px;font-family:{_F};font-size:16px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;">{label}</a></td>
+      <td style="background:#1389fd;border-radius:8px;"><a href="#" style="display:inline-block;min-width:187px;box-sizing:border-box;padding:14px 24px;font-family:{_F};font-size:15px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;">{label}</a></td>
     </tr></table>'''
 
 VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
@@ -585,7 +585,7 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
 <table class="wrap" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;">
 
   <tr><td bgcolor="#000000" style="background:#000000;border-radius:12px 12px 0 0;padding:34px 36px 0;" align="center">
-    <img src="{LOGO_WHITE}" width="92" style="width:92px;display:block;margin:0 auto 26px;" alt="Bolt">
+    <img src="{LOGO_WHITE}" width="83" style="width:83px;display:block;margin:0 auto 26px;" alt="Bolt">
     <div class="disp" style="font-family:{_SER};font-size:33px;font-weight:500;line-height:1.25;color:#ffffff;letter-spacing:0.2px;">Take payments with<br>the Stripe MCP</div>
     <div style="font-family:{_F};font-size:16px;color:#C9CDD3;margin:14px 0 22px;">This week on Bolt &mdash; live with the team.</div>
     {_e_pill("Register now", "#1488FC", "#ffffff")}
