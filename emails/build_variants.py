@@ -221,18 +221,19 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
   {_b_event("va/maker-photo.jpg", "Office Hours: Bring your projects, questions, or blockers for live help", "Tuesday, August 25")}
   {_b_event("va/bolt-templates.jpg", "Launch and Grow: Market Your App and Find Your First Users", "Thursday, August 27")}
 
-  <tr><td class="px band" bgcolor="#000001" style="background:#000001;padding:32px 40px 24px;font-family:{_F};">
+  <tr><td class="px band" bgcolor="#000001" style="background:#000001;padding:32px 40px 40px;font-family:{_F};">
     <h2 style="margin:0 0 12px;font-size:24px;font-weight:500;color:#ffffff;letter-spacing:-0.3px;">Tip of the week</h2>
     <p style="margin:0 0 8px;font-size:16px;font-weight:600;color:#ffffff;line-height:1.5;">Let the Bolt agent work in your other tools for you</p>
     <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#ABABAB;">Once you connect a service like Stripe, the Bolt agent can interact with it directly on your behalf &mdash; describe what you want and it creates it in Stripe and wires it into your app.</p>
     <table width="100%" cellpadding="0" cellspacing="0" style="background:#111111;border:1px solid #2b2b2b;border-radius:8px;"><tr><td style="padding:14px 16px;font-family:{_F};font-size:14px;line-height:1.6;color:#ABABAB;">
       <span style="font-weight:600;color:#ffffff;">Try this prompt:</span> <i>"Using the Stripe connector, create a new product called Pro Plan at $29/month in test mode, then add a checkout flow for it to my app with success and cancel pages."</i>
     </td></tr></table>
+    <div style="height:32px;font-size:0;line-height:0;">&nbsp;</div>
+    <table cellpadding="0" cellspacing="0"><tr>
+      <td class="gbtn" style="background:#1389fd;border-radius:8px;"><a href="#" style="display:inline-block;min-width:220px;box-sizing:border-box;padding:16px 28px;font-family:{_F};font-size:16px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;">Start Building</a></td>
+    </tr></table>
+    <p style="margin:28px 0 0;font-size:16px;line-height:1.6;color:#ABABAB;">Keep building,<br><span style="font-weight:600;color:#ffffff;">Monika &amp; The Bolt Team &#9889;</span></p>
   </td></tr>
-  {_b_ghost("Start Building", band=True)}
-
-  <tr><td class="band" bgcolor="#000001" style="background:#000001;padding:24px 40px 40px;font-family:{_F};font-size:16px;line-height:1.6;color:#ABABAB;">
-    Keep building,<br><span style="font-weight:600;color:#ffffff;">Monika &amp; The Bolt Team &#9889;</span></td></tr>
 
   <tr><td style="padding:8px 40px 8px;"><div style="border-top:1px solid #232323;font-size:0;line-height:0;">&nbsp;</div></td></tr>
   <tr><td align="center" style="padding:28px 40px 0;"><img src="{LOGO_GREY}" width="88" style="width:88px;display:block;" alt="Bolt"></td></tr>
@@ -480,9 +481,9 @@ A_DARK = _swap_socials(A_DARK, _socials, _SOC_WHITE)
 # B light: white canvas, black type, dark ghost outlines
 B_LIGHT = _swap(VARIANT_B, [
     ('bgcolor="#000000"', 'bgcolor="#FFFFFF"'),
-    ('background:#000001;', 'background:#DEEAFA;'),
-    ('bgcolor="#000001"', 'bgcolor="#DEEAFA"'),
-    ('background-color:#000001 !important', 'background-color:#DEEAFA !important'),
+    ('background:#000001;', 'background-color:#E9F1FC;background-image:linear-gradient(180deg,#FBFDFF 0%,#DEEAFA 100%);'),
+    ('bgcolor="#000001"', 'bgcolor="#E9F1FC"'),
+    ('background-color:#000001 !important', 'background-color:#E9F1FC !important'),
     ('border-top:1px solid #232323', 'border-top:1px solid transparent'),
     ('background-color:#000000 !important', 'background-color:#FFFFFF !important'),
     ('background-color:#111111 !important', 'background-color:#FFFFFF !important'),
@@ -677,7 +678,7 @@ VARIANT_AP = f'''<!doctype html><html><head><meta charset="utf-8">
   </td></tr>
   <tr><td style="height:14px;"></td></tr>
 
-  <tr><td bgcolor="#DEEAFA" class="card" style="background:#DEEAFA;border-radius:10px;padding:28px 32px;font-family:{_F};">
+  <tr><td bgcolor="#E9F1FC" class="card" style="background-color:#E9F1FC;background-image:linear-gradient(180deg,#FBFDFF 0%,#DEEAFA 100%);border-radius:10px;padding:28px 32px;font-family:{_F};">
     <h2 style="margin:0 0 8px;font-size:20px;font-weight:500;color:#111;">Tip of the week</h2>
     <p style="margin:0 0 8px;font-size:15px;font-weight:600;color:#111;line-height:1.5;">Let the Bolt agent work in your other tools for you</p>
     <p style="margin:0 0 16px;font-size:15px;line-height:1.65;color:#26251f;">Once you connect a service like Stripe, the Bolt agent can interact with it directly on your behalf &mdash; describe what you want and it creates it in Stripe and wires it into your app.</p>
