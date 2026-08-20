@@ -736,7 +736,7 @@ VARIANT_AP = VARIANT_AP.replace('<tr><td class="card" style="border:1px solid #D
 VARIANT_AP = VARIANT_AP.replace('<table width="100%" cellpadding="0" cellspacing="0" bgcolor="#EFEFED">', '<table class="d-page" width="100%" cellpadding="0" cellspacing="0" bgcolor="#EFEFED">')
 _KD = """
   /* modern-Outlook dark-mode overrides (data-ogsc/-ogsb) */
-  [data-ogsb] body, [data-ogsb] .d-page { background-color:#EFEFED !important; }
+  body[data-ogsb], [data-ogsb] .d-page { background-color:#EFEFED !important; }
   [data-ogsb] .card { background-color:#ffffff !important; }
   [data-ogsb] .d-inset { background-color:#EFEEE9 !important; }
   [data-ogsb] .d-btn { background-color:#1389fd !important; }
