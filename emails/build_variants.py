@@ -17,8 +17,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 # (e.g. "B": {"btnRadius": 0}) or {"custom": True} with a full template in
 # CUSTOM_DOCS below (built in python, CX email 2 content).
 VARIANTS = {
-    "A": {"custom": True},   # B-light (the light twin of the chosen direction)
-    "B": {"custom": True},   # Musicbed-style dark layout, wordmark inside
+    "A": {"custom": True},   # the DARK design (the ship)
+    "B": {"custom": True},   # the light twin of the dark design
     "C": {"custom": True},   # Surface-style editorial: mono uppercase, photo-led, b/w
     "D": {"custom": True},   # KLAFS-style luxury editorial: centered, tracked caps, underlined links
     "E": {"custom": True},   # Robinhood-style promo: dark hero, serif display, pill CTAs, giant blue wordmark
@@ -606,7 +606,7 @@ E_DARK = _swap(VARIANT_E, [
     ('color:#000000;font-weight:600;">Watch previous workshops', 'color:#ffffff;font-weight:600;">Watch previous workshops'),
 ])
 CUSTOM_DOCS = {
-    "A": {"light": B_LIGHT, "dark": B_LIGHT},  # A = the light version of B (Gary) — Claude-newsletter layout retired
+    "A": {"light": B_LIGHT, "dark": VARIANT_B},  # A = the DARK design (the ship)
     "B": {"light": B_LIGHT, "dark": VARIANT_B},
     "C": {"light": VARIANT_C, "dark": C_DARK},
     "D": {"light": VARIANT_D, "dark": D_DARK},
@@ -737,7 +737,7 @@ function tokensFor(letter){
 function renderFrame(letter, scale){
   let doc;
   // settled designs: B ships dark; every other slot shows its light design
-  if (VARIANTS[letter] && VARIANTS[letter].custom) { doc = CUSTOM_DOCS[letter][letter === 'B' ? 'dark' : 'light']; }
+  if (VARIANTS[letter] && VARIANTS[letter].custom) { doc = CUSTOM_DOCS[letter][letter === 'A' ? 'dark' : 'light']; }
   else { T = tokensFor(letter); doc = docFor(); }
   if (doc && fonts === 'websafe') doc = doc.replace(/Inter,|-apple-system,|BlinkMacSystemFont,/g, '');
   if (doc && client !== 'none') doc = doc.replace(/<\/body>/i, SIM.replace('__CLIENT__', client) + '</body>');
