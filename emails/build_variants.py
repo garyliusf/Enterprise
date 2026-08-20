@@ -481,7 +481,7 @@ B_LIGHT = _swap(VARIANT_B, [
     ('color:#ffffff', 'color:#000000'),
     ('color:#ABABAB', 'color:#444444'),
 ])
-B_LIGHT = B_LIGHT.replace(LOGO_WHITE, LOGO_BLUE)
+B_LIGHT = B_LIGHT.replace(LOGO_WHITE, LOGO_BLACK)
 B_LIGHT = _swap_socials(B_LIGHT, _SOC_WHITE, _SOC_DARK)
 
 # C dark: black canvas, white mono, inverted button, band #161616
