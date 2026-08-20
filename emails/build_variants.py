@@ -578,6 +578,7 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
     .wrap {{ width:100% !important; }}
     .px {{ padding-left:22px !important; padding-right:22px !important; }}
     .disp {{ font-size:27px !important; }}
+    .cu {{ margin-bottom:6px !important; }}
   }}
 </style></head>
 <body style="margin:0;background:#F2F1EF;">
@@ -605,7 +606,7 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
       <li style="margin:0 0 8px;font-size:16px;line-height:1.6;color:#000000;">Return customers to the right success or cancel flow after payment</li>
       <li style="margin:0 0 0;font-size:16px;line-height:1.6;color:#000000;">Think through common payment edge cases like failed or cancelled payments</li>
     </ul>
-    <h2 style="margin:0 0 16px;font-size:24px;font-weight:500;color:#000000;letter-spacing:-0.3px;">Coming up next:</h2>
+    <h2 class="cu k-ink" style="margin:0 0 16px;font-size:24px;font-weight:500;color:#000000;letter-spacing:-0.3px;">Coming up next:</h2>
   </td></tr>
   <tr><td bgcolor="#ffffff" class="k-light" style="background:#ffffff;padding:0;line-height:0;"><img src="va/build-with-voice.jpg" width="600" style="width:100%;display:block;" alt=""></td></tr>
   <tr><td bgcolor="#ffffff" class="px k-light" style="background:#ffffff;padding:16px 36px 8px;font-family:{_F};">
