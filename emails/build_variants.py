@@ -228,6 +228,8 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
   </td></tr>
   {_b_ghost("Start Building")}
 
+  <tr><td style="padding:0 40px 8px;"><div style="border-top:1px solid #232323;font-size:0;line-height:0;">&nbsp;</div></td></tr>
+
   <tr><td align="center" style="padding:18px 40px 6px;font-family:{_F};font-size:12px;line-height:1.7;color:#8a8a8a;">
     Keep building,<br><span style="font-weight:600;color:#ffffff;">Monika &amp; The Bolt Team &#9889;</span></td></tr>
   <tr><td align="center" style="padding:40px 40px 0;"><img src="{LOGO_GREY}" width="88" style="width:88px;display:block;" alt="Bolt"></td></tr>
@@ -474,6 +476,7 @@ A_DARK = _swap_socials(A_DARK, _socials, _SOC_WHITE)
 # B light: white canvas, black type, dark ghost outlines
 B_LIGHT = _swap(VARIANT_B, [
     ('bgcolor="#000000"', 'bgcolor="#FFFFFF"'),
+    ('border-top:1px solid #232323', 'border-top:1px solid #E7E5E2'),
     ('background-color:#000000 !important', 'background-color:#FFFFFF !important'),
     ('background-color:#111111 !important', 'background-color:#F5F4F2 !important'),
     ('border-color:#2b2b2b !important', 'border-color:#E2E0DC !important'),
