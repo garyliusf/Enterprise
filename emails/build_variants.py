@@ -163,7 +163,7 @@ def _b_event(img, title, date):
     return f'''<tr><td style="padding:0 40px 10px;"><img src="{img}" width="520" style="width:100%;border-radius:8px;display:block;" alt=""></td></tr>
     <tr><td style="padding:14px 40px 6px;font-family:{_F};font-size:18px;font-weight:600;color:#ffffff;line-height:1.4;">{title}</td></tr>
     <tr><td style="padding:0 40px 12px;font-family:{_F};font-size:14px;color:#ABABAB;">{date}</td></tr>
-    <tr><td style="padding:0 40px 42px;font-family:{_F};"><a href="#" style="font-size:16px;color:#4DA6FF;font-weight:600;text-decoration:none;">RSVP <span style="letter-spacing:1px;">&rarr;</span></a></td></tr>'''
+    <tr><td style="padding:0 40px 42px;font-family:{_F};"><a href="#" style="font-size:16px;color:#1488FC;font-weight:600;text-decoration:none;">RSVP <span style="letter-spacing:1px;">&rarr;</span></a></td></tr>'''
 
 def _b_ghost(label):
     # standard blue button (token spec): #1389fd, radius 8, 16/600, hug min-220
