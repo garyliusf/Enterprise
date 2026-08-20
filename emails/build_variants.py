@@ -184,7 +184,7 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
 <table width="100%" cellpadding="0" cellspacing="0" bgcolor="#F2F1EF"><tr><td align="center" style="padding:28px 12px;">
 <table class="wrap" width="600" cellpadding="0" cellspacing="0" bgcolor="#000000" style="width:600px;max-width:600px;background:#000000;border-radius:12px;overflow:hidden;">
 
-  <tr><td align="center" style="padding:30px 40px 24px;"><img src="va/bolt-chip.png" width="141" style="width:141px;display:block;" alt="Bolt"></td></tr>
+  <tr><td align="center" style="padding:34px 40px 26px;"><img src="{LOGO_WHITE}" width="96" style="width:96px;display:block;" alt="Bolt"></td></tr>
 
   <tr><td class="px" style="padding:0 40px;"><img src="va/nexal-dashboard.jpg" width="520" style="width:100%;border-radius:8px;display:block;" alt=""></td></tr>
 
