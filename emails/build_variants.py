@@ -19,10 +19,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 VARIANTS = {
     "A": {"custom": True},   # Claude-newsletter layout, brand colors
     "B": {"custom": True},   # Musicbed-style dark layout, wordmark inside
-    "C": {},
-    "D": {},
+    "C": {"custom": True},   # Surface-style editorial: mono uppercase, photo-led, b/w
+    "D": {"custom": True},   # KLAFS-style luxury editorial: centered, tracked caps, underlined links
     "E": {},
-    "F": {},
 }
 
 # ---- pull data + pipeline out of the existing tools ----
@@ -235,7 +234,189 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
     <a href="#" style="color:#8a8a8a;">Unsubscribe or Manage Preferences</a></td></tr>
 </table></td></tr></table></body></html>'''
 
-CUSTOM_DOCS = {"A": VARIANT_A, "B": VARIANT_B}
+
+# ---- Variant C: Microsoft-Surface-style editorial — mono uppercase, photo-led ----
+_SOC_DARK = [dict(s, uri=_recolor(s["uri"], "#161616")) for s in _socials]
+_M = "'Courier New',Courier,monospace"
+
+def _c_h2(text):
+    return f'''<tr><td class="px" style="padding:36px 32px 12px;font-family:{_M};font-size:21px;font-weight:700;letter-spacing:1px;color:#000000;">{text}</td></tr>'''
+
+def _c_event(date, title):
+    return f'''<td width="33%" valign="top" style="padding:0 10px 0 0;font-family:{_M};">
+      <div style="display:inline-block;border:1px solid #c9c9c9;border-radius:999px;padding:3px 9px;font-size:10px;letter-spacing:1px;color:#555;">{date}</div>
+      <div style="font-family:{_F};font-size:13px;font-weight:600;color:#000;line-height:1.45;margin:9px 0 6px;">{title}</div>
+      <a href="#" style="font-family:{_M};font-size:11px;letter-spacing:1px;color:#000;font-weight:700;">RSVP &rarr;</a>
+    </td>'''
+
+VARIANT_C = f'''<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  body {{ margin:0; }}
+  @media (max-width:480px) {{
+    .wrap {{ width:100% !important; }}
+    .px {{ padding-left:20px !important; padding-right:20px !important; }}
+    .disp {{ font-size:24px !important; }}
+    .evcol td {{ display:block; width:100% !important; padding:0 0 18px !important; }}
+  }}
+</style></head>
+<body style="margin:0;background:#F2F1EF;">
+<table width="100%" cellpadding="0" cellspacing="0" bgcolor="#F2F1EF"><tr><td align="center" style="padding:28px 12px;">
+<table class="wrap" width="600" cellpadding="0" cellspacing="0" bgcolor="#ffffff" style="width:600px;max-width:600px;background:#ffffff;">
+
+  <tr><td class="px" style="padding:24px 32px 18px;"><img src="{LOGO_BLACK}" width="76" style="width:76px;display:block;" alt="Bolt"></td></tr>
+
+  <tr><td class="px" style="padding:0 32px 16px;font-family:{_M};font-size:13px;font-weight:700;letter-spacing:2px;color:#000;">THIS WEEK&rsquo;S WORKSHOP: stripe mcp</td></tr>
+
+  <tr><td><img src="va/maker-photo.jpg" width="600" style="width:100%;display:block;" alt=""></td></tr>
+
+  <tr><td class="px" style="padding:26px 32px 6px;font-family:{_M};">
+    <div class="disp" style="font-size:30px;font-weight:700;letter-spacing:1px;line-height:1.25;color:#000;">MAKE YOUR APP<br>A BUSINESS.</div>
+    <div style="font-family:{_F};font-size:14px;color:#555;margin-top:10px;">This week: connect and configure payments with the Stripe MCP.</div>
+  </td></tr>
+
+  {_c_h2("BUILT TO GET PAID.")}
+  <tr><td class="px" style="padding:0 32px;font-family:{_F};">
+    <p style="margin:0 0 14px;font-size:15px;line-height:1.7;color:#3c3c3c;">An app that can&rsquo;t take payments is a project, an app that can is a business. The purchase flow is where some builders stall, and it&rsquo;s the single feature standing between you and your first paying customer.</p>
+    <p style="margin:0 0 22px;font-size:15px;line-height:1.7;color:#3c3c3c;">In this week&rsquo;s workshop, we&rsquo;ll connect and configure payments with the Stripe MCP so your app can start earning, without the usual setup headaches.</p>
+  </td></tr>
+
+  <tr><td class="px" style="padding:0 32px;"><img src="va/soulpress-app.jpg" width="536" style="width:100%;display:block;" alt=""></td></tr>
+  <tr><td class="px" style="padding:22px 32px 6px;font-family:{_F};">
+    <p style="margin:0 0 4px;font-size:16px;font-weight:700;color:#000;line-height:1.5;">&ldquo;Say what you want the checkout to do. The agent creates it in Stripe and wires it into your app.&rdquo;</p>
+    <p style="margin:0 0 10px;font-size:13px;color:#999;">Soul Press Records &mdash; storefront built and monetized on Bolt</p>
+  </td></tr>
+
+  {_c_h2("YOU&rsquo;LL LEARN HOW TO.")}
+  <tr><td class="px" style="padding:0 32px;font-family:{_F};">
+    <ul style="margin:0 0 24px;padding:0 0 0 22px;">
+      <li style="margin:0 0 7px;font-size:15px;line-height:1.65;color:#3c3c3c;">Connect the Stripe MCP to a Bolt app</li>
+      <li style="margin:0 0 7px;font-size:15px;line-height:1.65;color:#3c3c3c;">Configure products and pricing through Stripe</li>
+      <li style="margin:0 0 7px;font-size:15px;line-height:1.65;color:#3c3c3c;">Set up and test a Stripe Checkout flow in test mode</li>
+      <li style="margin:0 0 7px;font-size:15px;line-height:1.65;color:#3c3c3c;">Handle API keys and environment variables securely</li>
+      <li style="margin:0 0 7px;font-size:15px;line-height:1.65;color:#3c3c3c;">Return customers to the right success or cancel flow after payment</li>
+      <li style="margin:0;font-size:15px;line-height:1.65;color:#3c3c3c;">Think through failed or cancelled payments and confirmation</li>
+    </ul>
+    <table cellpadding="0" cellspacing="0" style="margin:0 0 10px;"><tr>
+      <td bgcolor="#000000" style="background:#000000;"><a href="#" style="display:inline-block;min-width:220px;box-sizing:border-box;padding:16px 28px;font-family:{_M};font-size:13px;font-weight:700;letter-spacing:2px;color:#ffffff;text-align:center;text-decoration:none;">REGISTER HERE</a></td>
+    </tr></table>
+  </td></tr>
+
+  {_c_h2("COMING UP NEXT.")}
+  <tr><td class="px" style="padding:4px 32px 8px;">
+    <table width="100%" cellpadding="0" cellspacing="0" class="evcol"><tr>
+      {_c_event("AUG 20", "Your Users Have Questions: Answer Them Automatically")}
+      {_c_event("AUG 25", "Office Hours: Live Help &amp; Feedback on Your Project")}
+      {_c_event("AUG 27", "Launch and Grow: Find Your First Users")}
+    </tr></table>
+  </td></tr>
+
+  {_c_h2("TIP OF THE WEEK.")}
+  <tr><td class="px" style="padding:0 32px 8px;font-family:{_F};">
+    <p style="margin:0 0 12px;font-size:15px;line-height:1.7;color:#3c3c3c;">Once you connect a service like Stripe, the Bolt agent can work in it on your behalf &mdash; describe what you want and it creates it in Stripe and wires it into your app. No new dashboard to learn.</p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #000;"><tr><td style="padding:14px 16px;font-family:{_M};font-size:12px;line-height:1.7;color:#000;">
+      TRY THIS PROMPT: "Using the Stripe connector, create a new product called Pro Plan at $29/month in test mode, then add a checkout flow for it to my app with success and cancel pages."
+    </td></tr></table>
+    <p style="margin:20px 0 28px;font-size:15px;line-height:1.6;color:#3c3c3c;">Keep building,<br><span style="font-weight:600;color:#000;">Monika &amp; The Bolt Team &#9889;</span></p>
+  </td></tr>
+
+  <tr><td bgcolor="#F4F4F2" align="center" style="background:#F4F4F2;padding:22px 32px;">
+    <a href="#" style="font-family:{_M};font-size:13px;font-weight:700;letter-spacing:2px;color:#000;text-decoration:none;">EXPLORE MORE WORKSHOPS &rarr;</a>
+    <div style="margin-top:16px;">{"".join(f'<a href="{s["href"]}" style="text-decoration:none;display:inline-block;margin:0 9px;"><img src="{s["uri"]}" width="15" height="15" style="display:inline-block;"></a>' for s in _SOC_DARK)}</div>
+  </td></tr>
+  <tr><td align="center" style="padding:18px 32px;font-family:{_F};font-size:11px;line-height:1.8;color:#999999;">
+    You are receiving this email because you opted in to product updates from Bolt.new.<br>
+    <a href="#" style="color:#666;">Unsubscribe</a> &middot; <a href="#" style="color:#666;">Manage Preferences</a><br>
+    StackBlitz, Inc. &middot; 2443 Fillmore Street #380-16814 &middot; San Francisco, CA 94115
+  </td></tr>
+  <tr><td bgcolor="#000000" style="background:#000000;padding:16px 32px;"><img src="{LOGO_WHITE}" width="72" style="width:72px;display:block;" alt="Bolt"></td></tr>
+</table></td></tr></table></body></html>'''
+
+
+# ---- Variant D: KLAFS-style luxury editorial — centered, tracked caps, no buttons ----
+def _d_h2(text, dark=False):
+    c = "#ffffff" if dark else "#000000"
+    return f'''<div style="font-family:{_F};font-size:17px;font-weight:600;letter-spacing:3px;color:{c};margin:0 0 14px;">{text}</div>'''
+
+def _d_link(label):
+    return f'''<a href="#" style="font-family:{_F};font-size:13px;font-weight:700;letter-spacing:1px;color:#000;text-decoration:underline;text-underline-offset:4px;">{label}</a>'''
+
+VARIANT_D = f'''<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  body {{ margin:0; }}
+  @media (max-width:480px) {{
+    .wrap {{ width:100% !important; }}
+    .px {{ padding-left:22px !important; padding-right:22px !important; }}
+  }}
+</style></head>
+<body style="margin:0;background:#F2F1EF;">
+<table width="100%" cellpadding="0" cellspacing="0" bgcolor="#F2F1EF"><tr><td align="center" style="padding:28px 12px;">
+<table class="wrap" width="600" cellpadding="0" cellspacing="0" bgcolor="#ffffff" style="width:600px;max-width:600px;background:#ffffff;">
+
+  <tr><td align="center" style="padding:30px 32px 8px;"><img src="{LOGO_BLACK}" width="86" style="width:86px;display:block;" alt="Bolt"></td></tr>
+  <tr><td align="center" class="px" style="padding:14px 32px 6px;font-family:{_F};font-size:15px;font-weight:600;letter-spacing:4px;color:#000;">THIS WEEK&rsquo;S WORKSHOP</td></tr>
+  <tr><td align="center" style="padding:6px 0 26px;">{_d_link("Register Here")}</td></tr>
+
+  <tr><td><img src="va/maker-photo.jpg" width="600" style="width:100%;display:block;" alt=""></td></tr>
+
+  <tr><td class="px" style="padding:34px 32px 6px;font-family:{_F};">
+    {_d_h2("MAKE IT A BUSINESS")}
+    <p style="margin:0 0 14px;font-size:14px;line-height:1.75;color:#333;">An app that can&rsquo;t take payments is a project &mdash; an app that can is a business. In this week&rsquo;s workshop we connect and configure payments with the Stripe MCP so your app can start earning, without the usual setup headaches.</p>
+    <p style="margin:0 0 16px;font-size:14px;line-height:1.75;color:#333;">You&rsquo;ll connect the Stripe MCP to a Bolt app, configure products and pricing, test a full Checkout flow, handle API keys securely, and design for the edge cases &mdash; failed payments, cancellations, confirmation.</p>
+    <p style="margin:0 0 34px;">{_d_link("Save Your Seat")}</p>
+  </td></tr>
+
+  <tr><td class="px" style="padding:0 32px;"><img src="va/soulpress-app.jpg" width="536" style="width:100%;display:block;" alt=""></td></tr>
+  <tr><td class="px" style="padding:14px 32px 0;">
+    <table width="100%" cellpadding="0" cellspacing="0"><tr>
+      <td width="49%" style="padding:0 6px 0 0;"><img src="va/build-with-voice.jpg" width="260" style="width:100%;display:block;" alt=""></td>
+      <td width="49%" style="padding:0 0 0 6px;"><img src="va/bolt-templates.jpg" width="260" style="width:100%;display:block;" alt=""></td>
+    </tr></table>
+  </td></tr>
+  <tr><td class="px" style="padding:26px 32px 6px;font-family:{_F};">
+    {_d_h2("BUILT ON BOLT")}
+    <p style="margin:0 0 14px;font-size:14px;line-height:1.75;color:#333;">Soul Press Records &mdash; a storefront built, launched, and monetized on Bolt. Every workshop works toward an app like this one: real products, real checkout, real customers.</p>
+    <p style="margin:0 0 34px;">{_d_link("View the Example")}</p>
+  </td></tr>
+
+  <tr><td><img src="va/nexal-dashboard.jpg" width="600" style="width:100%;display:block;" alt=""></td></tr>
+
+  <tr><td bgcolor="#EFEDE8" class="px" style="background:#EFEDE8;padding:34px 32px 30px;font-family:{_F};">
+    {_d_h2("COMING UP NEXT")}
+    <p style="margin:0 0 6px;font-size:14px;line-height:1.7;color:#333;font-weight:600;">Your Users Have Questions: Answer Them Automatically</p>
+    <p style="margin:0 0 16px;font-size:13px;color:#777;">Thursday, August 20 &nbsp;&middot;&nbsp; {_d_link("RSVP")}</p>
+    <p style="margin:0 0 6px;font-size:14px;line-height:1.7;color:#333;font-weight:600;">Office Hours: Live Help &amp; Feedback on Your Project</p>
+    <p style="margin:0 0 16px;font-size:13px;color:#777;">Tuesday, August 25 &nbsp;&middot;&nbsp; {_d_link("RSVP")}</p>
+    <p style="margin:0 0 6px;font-size:14px;line-height:1.7;color:#333;font-weight:600;">Launch and Grow: Find Your First Users</p>
+    <p style="margin:0;font-size:13px;color:#777;">Thursday, August 27 &nbsp;&middot;&nbsp; {_d_link("RSVP")}</p>
+  </td></tr>
+
+  <tr><td class="px" style="padding:34px 32px 8px;font-family:{_F};">
+    {_d_h2("TIP OF THE WEEK")}
+    <p style="margin:0 0 12px;font-size:14px;line-height:1.75;color:#333;">Let the Bolt agent work in your other tools for you. Once a service like Stripe is connected, describe what you want &mdash; <i>&ldquo;create a Pro Plan at $29/month in test mode and add a checkout flow&rdquo;</i> &mdash; and the agent creates it in Stripe and wires it into your app.</p>
+    <p style="margin:0 0 30px;">{_d_link("Try It in Bolt")}</p>
+    <p style="margin:0 0 34px;font-size:14px;line-height:1.7;color:#333;">Keep building,<br><span style="font-weight:600;color:#000;">Monika &amp; The Bolt Team &#9889;</span></p>
+  </td></tr>
+
+  <tr><td class="px" style="border-top:1px solid #e5e5e5;padding:18px 32px;font-family:{_F};">
+    <table width="100%" cellpadding="0" cellspacing="0"><tr>
+      <td style="font-size:12px;font-weight:600;letter-spacing:2px;color:#000;">STAY CONNECTED</td>
+      <td align="right">{_d_link("Follow Us")}</td>
+    </tr></table>
+  </td></tr>
+
+  <tr><td bgcolor="#000000" class="px" style="background:#000000;padding:30px 32px;font-family:{_F};">
+    <img src="{LOGO_WHITE}" width="80" style="width:80px;display:block;margin:0 0 22px;" alt="Bolt">
+    <p style="margin:0 0 8px;"><a href="#" style="font-size:12px;font-weight:600;letter-spacing:2px;color:#fff;text-decoration:none;">REGISTER</a></p>
+    <p style="margin:0 0 8px;"><a href="#" style="font-size:12px;font-weight:600;letter-spacing:2px;color:#fff;text-decoration:none;">WATCH PREVIOUS WORKSHOPS</a></p>
+    <p style="margin:0 0 22px;"><a href="#" style="font-size:12px;font-weight:600;letter-spacing:2px;color:#fff;text-decoration:none;">DISCORD</a></p>
+    <p style="margin:0 0 4px;font-size:11px;line-height:1.8;color:#8a8a8a;">You have received this email because you are signed up for updates at bolt.new. If you no longer wish to receive emails from us, <a href="#" style="color:#c9c9c9;">unsubscribe</a> here.</p>
+    <p style="margin:0;font-size:11px;line-height:1.8;color:#8a8a8a;">StackBlitz, Inc. &middot; 2443 Fillmore Street #380-16814 &middot; San Francisco, CA 94115<br>&copy;2026 Bolt.new. All rights reserved.</p>
+  </td></tr>
+</table></td></tr></table></body></html>'''
+
+CUSTOM_DOCS = {"A": VARIANT_A, "B": VARIANT_B, "C": VARIANT_C, "D": VARIANT_D}
 
 SHELL = r"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
