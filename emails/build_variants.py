@@ -221,7 +221,7 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
   {_b_event("va/maker-photo.jpg", "Office Hours: Bring your projects, questions, or blockers for live help", "Tuesday, August 25")}
   {_b_event("va/bolt-templates.jpg", "Launch and Grow: Market Your App and Find Your First Users", "Thursday, August 27")}
 
-  <tr><td class="px band" bgcolor="#000001" style="background:#000001;padding:32px 40px 8px;font-family:{_F};">
+  <tr><td class="px band" bgcolor="#000001" style="background:#000001;padding:32px 40px 24px;font-family:{_F};">
     <h2 style="margin:0 0 12px;font-size:24px;font-weight:500;color:#ffffff;letter-spacing:-0.3px;">Tip of the week</h2>
     <p style="margin:0 0 8px;font-size:16px;font-weight:600;color:#ffffff;line-height:1.5;">Let the Bolt agent work in your other tools for you</p>
     <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#ABABAB;">Once you connect a service like Stripe, the Bolt agent can interact with it directly on your behalf &mdash; describe what you want and it creates it in Stripe and wires it into your app.</p>
