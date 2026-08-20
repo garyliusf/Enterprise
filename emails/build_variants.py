@@ -481,7 +481,7 @@ A_DARK = _swap_socials(A_DARK, _socials, _SOC_WHITE)
 # B light: white canvas, black type, dark ghost outlines
 B_LIGHT = _swap(VARIANT_B, [
     ('bgcolor="#000000"', 'bgcolor="#FFFFFF"'),
-    ('background:#000001;', 'background-color:#E9F1FC;background-image:linear-gradient(180deg,#FBFDFF 0%,#DEEAFA 100%);'),
+    ('background:#000001;', 'background-color:#DEEAFA;'),
     ('bgcolor="#000001"', 'bgcolor="#E9F1FC"'),
     ('background-color:#000001 !important', 'background-color:#E9F1FC !important'),
     ('border-top:1px solid #232323', 'border-top:1px solid transparent'),
@@ -678,7 +678,7 @@ VARIANT_AP = f'''<!doctype html><html><head><meta charset="utf-8">
   </td></tr>
   <tr><td style="height:14px;"></td></tr>
 
-  <tr><td bgcolor="#E9F1FC" class="card" style="background-color:#E9F1FC;background-image:linear-gradient(180deg,#FBFDFF 0%,#DEEAFA 100%);border-radius:10px;padding:28px 32px;font-family:{_F};">
+  <tr><td bgcolor="#E9F1FC" class="card" style="background-color:#DEEAFA;border-radius:10px;padding:28px 32px;font-family:{_F};">
     <h2 style="margin:0 0 8px;font-size:20px;font-weight:500;color:#111;">Tip of the week</h2>
     <p style="margin:0 0 8px;font-size:15px;font-weight:600;color:#111;line-height:1.5;">Let the Bolt agent work in your other tools for you</p>
     <p style="margin:0 0 16px;font-size:15px;line-height:1.65;color:#26251f;">Once you connect a service like Stripe, the Bolt agent can interact with it directly on your behalf &mdash; describe what you want and it creates it in Stripe and wires it into your app.</p>
