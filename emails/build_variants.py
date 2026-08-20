@@ -619,7 +619,7 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
 # ---- Variant D (v2): Apollo-style card stack — warm page, rounded white cards,
 #      inset feature card, tinted highlight, outlined events card. A/B content.
 def _ap_event(img, title, date, last=False):
-    return f'''<img src="{img}" width="472" style="width:100%;border-radius:10px;display:block;margin:0 0 10px;" alt="">
+    return f'''<img src="{img}" width="472" style="width:100%;border-radius:8px;display:block;margin:0 0 10px;" alt="">
       <div style="font-size:17px;font-weight:600;color:#111;line-height:1.4;margin:0 0 5px;">{title}</div>
       <div style="font-size:14px;font-weight:500;color:#777;margin:0 0 10px;">{date}</div>
       <p style="margin:0 0 {'0' if last else '28px'};"><a href="#" style="font-size:15px;color:#1488FC;font-weight:600;text-decoration:none;">RSVP <span style="letter-spacing:1px;">&rarr;</span></a></p>'''
@@ -647,14 +647,14 @@ VARIANT_AP = f'''<!doctype html><html><head><meta charset="utf-8">
 
   <tr><td style="padding:6px 4px 18px;"><img src="{LOGO_BLACK}" width="84" style="width:84px;display:block;" alt="Bolt"></td></tr>
 
-  <tr><td style="padding:0;line-height:0;"><img src="va/nexal-dashboard.jpg" width="600" style="width:100%;border-radius:16px;display:block;" alt=""></td></tr>
+  <tr><td style="padding:0;line-height:0;"><img src="va/nexal-dashboard.jpg" width="600" style="width:100%;border-radius:10px;display:block;" alt=""></td></tr>
   <tr><td style="height:14px;"></td></tr>
 
-  <tr><td bgcolor="#ffffff" class="card" style="background:#ffffff;border-radius:16px;padding:32px 32px 32px;font-family:{_F};">
+  <tr><td bgcolor="#ffffff" class="card" style="background:#ffffff;border-radius:10px;padding:32px 32px 32px;font-family:{_F};">
     <h1 style="margin:0 0 14px;font-size:26px;font-weight:500;color:#111;line-height:1.3;">Take payments with the Stripe MCP</h1>
     <p style="margin:0 0 14px;font-size:15px;line-height:1.65;color:#26251f;">An app that can&rsquo;t take payments is a project, an app that can is a business. The purchase flow is the single feature standing between you and your first paying customer.</p>
     <p style="margin:0 0 24px;font-size:15px;line-height:1.65;color:#26251f;">In this week&rsquo;s workshop, we&rsquo;ll connect and configure payments with the Stripe MCP so your app can start earning, without the usual setup headaches.</p>
-    <table width="100%" cellpadding="0" cellspacing="0" style="background:#EFEEE9;border-radius:12px;"><tr><td style="padding:26px 26px;font-family:{_F};">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#EFEEE9;border-radius:8px;"><tr><td style="padding:26px 26px;font-family:{_F};">
       <h2 style="margin:0 0 14px;font-size:20px;font-weight:500;color:#111;">You&rsquo;ll learn how to:</h2>
       <ul style="margin:0;padding:0 0 0 20px;">
         {_ap_li("Connect the Stripe MCP to a Bolt app")}
@@ -669,7 +669,7 @@ VARIANT_AP = f'''<!doctype html><html><head><meta charset="utf-8">
   </td></tr>
   <tr><td style="height:14px;"></td></tr>
 
-  <tr><td class="card" style="border:1.5px solid #111;border-radius:16px;padding:28px 32px;font-family:{_F};">
+  <tr><td class="card" style="border:1.5px solid #111;border-radius:10px;padding:28px 32px;font-family:{_F};">
     <h2 style="margin:0 0 18px;font-size:22px;font-weight:500;color:#111;">Coming up next:</h2>
     {_ap_event("va/build-with-voice.jpg", "Your Users Have Questions: Answer Them Automatically Inside Your App", "Thursday, August 20")}
     {_ap_event("va/maker-photo.jpg", "Office Hours: Bring your projects, questions, or blockers for live help", "Tuesday, August 25")}
@@ -677,11 +677,11 @@ VARIANT_AP = f'''<!doctype html><html><head><meta charset="utf-8">
   </td></tr>
   <tr><td style="height:14px;"></td></tr>
 
-  <tr><td bgcolor="#E8F1FE" class="card" style="background:#E8F1FE;border-radius:16px;padding:28px 32px;font-family:{_F};">
+  <tr><td bgcolor="#E8F1FE" class="card" style="background:#E8F1FE;border-radius:10px;padding:28px 32px;font-family:{_F};">
     <h2 style="margin:0 0 8px;font-size:20px;font-weight:500;color:#111;">Tip of the week</h2>
     <p style="margin:0 0 8px;font-size:15px;font-weight:600;color:#111;line-height:1.5;">Let the Bolt agent work in your other tools for you</p>
     <p style="margin:0 0 16px;font-size:15px;line-height:1.65;color:#26251f;">Once you connect a service like Stripe, the Bolt agent can interact with it directly on your behalf &mdash; describe what you want and it creates it in Stripe and wires it into your app.</p>
-    <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:10px;"><tr><td style="padding:14px 16px;font-family:{_F};font-size:14px;line-height:1.6;color:#26251f;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;"><tr><td style="padding:14px 16px;font-family:{_F};font-size:14px;line-height:1.6;color:#26251f;">
       <span style="font-weight:600;">Try this prompt:</span> <i>"Using the Stripe connector, create a new product called Pro Plan at $29/month in test mode, then add a checkout flow for it to my app with success and cancel pages."</i>
     </td></tr></table>
     {_AP_BTN.replace("LABEL", "Start Building")}
