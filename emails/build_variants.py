@@ -192,7 +192,7 @@ def _b_callout(eyebrow, title, body, inset='', cta=''):
             '</td></tr></table>') if cta else '')
     return (f'<table width="100%" cellpadding="0" cellspacing="0" class="ann" style="background-color:#0D0E10;background-image:url(va/callout-bg.jpg);background-size:cover;background-position:center;border:1px solid #232323;border-radius:10px;"><tr><td style="padding:26px 28px;font-family:{_F};">'
             f'<div style="margin:0 0 14px;">{_b_badge(eyebrow)}</div>'
-            f'<div style="font-size:19px;font-weight:600;color:#ffffff;line-height:1.4;margin:0 0 8px;">{title}</div>'
+            f'<div style="font-size:24px;font-weight:500;color:#ffffff;line-height:1.35;margin:0 0 10px;">{title}</div>'
             f'{body}{ins}{btn}</td></tr></table>')
 
 TIP_CARD = _b_callout(
