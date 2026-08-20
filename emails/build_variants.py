@@ -493,7 +493,7 @@ B_LIGHT = _swap(VARIANT_B, [
     ('color:#ffffff', 'color:#000000'),
     ('color:#ABABAB', 'color:#444444'),
 ])
-B_LIGHT = B_LIGHT.replace(LOGO_WHITE, LOGO_BLACK)
+B_LIGHT = B_LIGHT.replace(LOGO_WHITE, LOGO_GREY)  # grey = only logo色 that survives Gmail darkening a light email
 B_LIGHT = _swap_socials(B_LIGHT, _SOC_WHITE, _socials)  # grey #9E9C99 icons on light
 
 # C dark: black canvas, white mono, inverted button, band #161616
