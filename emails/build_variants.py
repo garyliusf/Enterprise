@@ -603,10 +603,10 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
 
   <tr><td bgcolor="#000000" class="px" style="background:#000000;padding:30px 36px 0;font-family:{_F};">
     <img src="{LOGO_WHITE}" width="92" style="width:92px;display:block;margin:0 0 24px;" alt="Bolt">
-    <p style="margin:0 0 9px;"><a href="#" style="font-size:13px;color:#ffffff;">Home</a></p>
-    <p style="margin:0 0 9px;"><a href="#" style="font-size:13px;color:#ffffff;">Help Center</a></p>
-    <p style="margin:0 0 9px;"><a href="#" style="font-size:13px;color:#ffffff;">Discord</a></p>
-    <p style="margin:0 0 20px;"><a href="#" style="font-size:13px;color:#ffffff;">Privacy Policy</a></p>
+    <p style="margin:0 0 9px;"><a href="#" style="font-size:13px;color:#ffffff;text-decoration:none;">Home</a></p>
+    <p style="margin:0 0 9px;"><a href="#" style="font-size:13px;color:#ffffff;text-decoration:none;">Help Center</a></p>
+    <p style="margin:0 0 9px;"><a href="#" style="font-size:13px;color:#ffffff;text-decoration:none;">Discord</a></p>
+    <p style="margin:0 0 20px;"><a href="#" style="font-size:13px;color:#ffffff;text-decoration:none;">Privacy Policy</a></p>
     <div style="margin:0 0 24px;">{"".join(f'<a href="{s["href"]}" style="text-decoration:none;display:inline-block;margin:0 14px 0 0;"><img src="{s["uri"]}" width="15" height="15" style="display:inline-block;"></a>' for s in _SOC_WHITE)}</div>
     <p style="margin:0 0 14px;font-size:12px;line-height:1.7;color:#8a8f96;">You are receiving this email because you opted in to product updates from Bolt.new. Workshops are free for all Bolt users; recordings are shared afterward on our YouTube channel.</p>
     <p style="margin:0 0 14px;font-size:12px;line-height:1.7;color:#8a8f96;">StackBlitz, Inc. &middot; 2443 Fillmore Street #380-16814 &middot; San Francisco, CA 94115 &middot; United States</p>
