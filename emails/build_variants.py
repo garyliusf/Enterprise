@@ -450,6 +450,7 @@ _OGS = """
   [data-ogsb] .gbtn { background-color:#1389fd !important; }
   [data-ogsc] .gbtn a { color:#FFFFFF !important; }
   [data-ogsb] .pbox { background-color:#111111 !important; border-color:#2b2b2b !important; }
+  [data-ogsc] span, [data-ogsc] i, [data-ogsc] b { color:inherit !important; }
 """
 VARIANT_B = VARIANT_B.replace('</style></head>', _OGS + '</style></head>', 1)
 
@@ -638,7 +639,7 @@ _K = """
   [data-ogsc] .k-ink { color:#000000 !important; }
   [data-ogsc] .k-fine { color:#8a8f96 !important; }
   [data-ogsc] .k-date { color:#666666 !important; }
-  [data-ogsc] span { color:inherit !important; }
+  [data-ogsc] span, [data-ogsc] i, [data-ogsc] b { color:inherit !important; }
 """
 VARIANT_E = VARIANT_E.replace('</style></head>', _K + '</style></head>', 1)
 
@@ -695,7 +696,7 @@ VARIANT_AP = f'''<!doctype html><html><head><meta charset="utf-8">
   </td></tr>
   <tr><td style="height:14px;"></td></tr>
 
-  <tr><td class="card" style="border:1px solid #D9D7D1;border-radius:10px;padding:28px 32px;font-family:{_F};">
+  <tr><td bgcolor="#ffffff" class="card" style="background:#ffffff;border-radius:10px;padding:28px 32px;font-family:{_F};">
     <h2 style="margin:0 0 18px;font-size:22px;font-weight:500;color:#111;">Coming up next:</h2>
     {_ap_event("va/build-with-voice.jpg", "Your Users Have Questions: Answer Them Automatically Inside Your App", "Thursday, August 20")}
     {_ap_event("va/maker-photo.jpg", "Office Hours: Bring your projects, questions, or blockers for live help", "Tuesday, August 25")}
@@ -746,7 +747,7 @@ _KD = """
   [data-ogsc] .d-date { color:#777777 !important; }
   [data-ogsc] .d-fine { color:#8a8880 !important; }
   [data-ogsc] .d-outline { border-color:#D9D7D1 !important; }
-  [data-ogsc] span { color:inherit !important; }
+  [data-ogsc] span, [data-ogsc] i, [data-ogsc] b { color:inherit !important; }
 """
 VARIANT_AP = VARIANT_AP.replace('</style></head>', _KD + '</style></head>', 1)
 
