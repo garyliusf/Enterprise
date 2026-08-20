@@ -178,9 +178,9 @@ def _b_ghost(label, band=False):
 
 def _b_badge(text):
     # shared eyebrow badge: brand-blue tracked caps in a subtle blue-tinted chip
-    return ('<span class="bdg" style="display:inline-block;background:#1488FC;'
-            f'border-radius:2px;padding:5px 10px;font-family:{_F};font-size:10px;font-weight:700;'
-            f'letter-spacing:2px;color:#FFFFFF;">{text}</span>')
+    return ('<span class="bdg" style="display:inline-block;'
+            f'font-family:{_F};font-size:11px;font-weight:700;'
+            f'letter-spacing:2px;color:#1488FC;">{text}</span>')
 
 def _b_callout(eyebrow, title, body, inset='', cta=''):
     """Reusable announcement card (dark design): blue eyebrow + title + body
@@ -469,7 +469,6 @@ _OGS = """
   [data-ogsc] .c-fine { color:#8a8a8a !important; }
   [data-ogsb] .band { background-color:#000001 !important; }
   [data-ogsb] .ann { background-color:#0D0E10 !important; border-color:#232323 !important; }
-  [data-ogsb] .bdg { background-color:#1488FC !important; }
   [data-ogsb] .gbtn { background-color:#1389fd !important; }
   [data-ogsc] .gbtn a { color:#FFFFFF !important; }
   [data-ogsb] .pbox { background-color:#111111 !important; }
@@ -629,9 +628,19 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
       <div style="margin:0 0 14px;">{_b_badge("TIP OF THE WEEK")}</div>
       <div style="font-size:21px;font-weight:600;color:#000000;line-height:1.4;margin:0 0 8px;">Let the Bolt agent work in your other tools for you</div>
       <p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:#000000;">Once you connect a service like Stripe, the Bolt agent can interact with it directly on your behalf &mdash; describe what you want and it creates it in Stripe and wires it into your app.</p>
-      <table width="100%" cellpadding="0" cellspacing="0" style="background:#F2F1EF;border:1px solid #E2E0DC;border-radius:8px;"><tr><td style="padding:14px 16px;font-family:{_F};font-size:14px;line-height:1.6;color:#000000;">
-      <span style="font-weight:600;">Try this prompt:</span> <i>"Using the Stripe connector, create a new product called Pro Plan at $29/month in test mode, then add a checkout flow for it to my app with success and cancel pages."</i>
-    </td></tr></table>
+      <div style="margin:0 0 8px;font-size:13px;font-weight:600;color:#666666;">Try this prompt:</div>
+      <table width="100%" cellpadding="0" cellspacing="0" class="pbx-w" style="background-color:#2b2b2b;background-image:linear-gradient(135deg,#4DA6FF 0%,#1488FC 22%,#2b2b2b 58%);border-radius:15px;"><tr><td style="padding:1px;">
+      <table width="100%" cellpadding="0" cellspacing="0" class="pbx" style="background:#17181B;border-radius:14px;"><tr><td class="pbx-t" style="padding:16px 18px 14px;font-family:{_F};font-size:15px;line-height:1.55;color:#E8E8EA;">
+        Using the Stripe connector, create a new product called Pro Plan at $29/month in test mode, then add a checkout flow for it to my app with success and cancel pages.
+      </td></tr>
+      <tr><td style="padding:0 12px 12px;">
+        <table width="100%" cellpadding="0" cellspacing="0"><tr>
+          <td align="right">
+            <span class="pbx-a" style="display:inline-block;width:32px;height:32px;background:#1488FC;border-radius:999px;text-align:center;font-family:{_F};font-size:16px;font-weight:700;line-height:32px;color:#FFFFFF;">&#8593;</span>
+          </td>
+        </tr></table>
+      </td></tr></table>
+      </td></tr></table>
       <table cellpadding="0" cellspacing="0" style="margin:24px 0 0;"><tr>
       <td style="background:#1389fd;border-radius:8px;"><a href="#" style="display:inline-block;min-width:220px;box-sizing:border-box;padding:16px 28px;font-family:{_F};font-size:16px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;">Start Building</a></td>
     </tr></table>
@@ -671,7 +680,11 @@ _K = """
   [data-ogsb] .k-light { background-color:#ffffff !important; }
   [data-ogsb] .k-tint { background-color:#F2F1EF !important; }
   [data-ogsb] .tipcard { background-color:#FFFFFF !important; }
-  [data-ogsb] .bdg { background-color:#1488FC !important; }
+  [data-ogsb] .pbx-w { background-color:#2b2b2b !important; }
+  [data-ogsb] .pbx { background-color:#17181B !important; }
+  [data-ogsc] .pbx-t { color:#E8E8EA !important; }
+  [data-ogsb] .pbx-a { background-color:#1488FC !important; }
+  [data-ogsc] .pbx-a { color:#FFFFFF !important; }
   [data-ogsb] .k-tint-w { background-color:#E2E0DC !important; }
   [data-ogsb] .k-btn { background-color:#1389fd !important; }
   [data-ogsc] .k-w, [data-ogsc] .k-btn a, [data-ogsc] .disp { color:#ffffff !important; }
