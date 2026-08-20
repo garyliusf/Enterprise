@@ -419,6 +419,30 @@ VARIANT_D = f'''<!doctype html><html><head><meta charset="utf-8">
 </table></td></tr></table></body></html>'''
 
 
+
+# ---- variant B: Outlook dark-mode armor (classic Outlook out of scope) ----
+# Modern Outlook stamps recolored elements with data-ogsc/-ogsb; these
+# overrides re-assert B's colors after its transform. Inert everywhere else.
+VARIANT_B = re.sub(r'<(p|li|div|span|a|td|h1|h2)( [^>]*?color:#ffffff)', r'<\1 class="c-head"\2', VARIANT_B)
+VARIANT_B = re.sub(r'<(p|li|div|span|a|td|h1|h2)( [^>]*?color:#ABABAB)', r'<\1 class="c-body"\2', VARIANT_B)
+VARIANT_B = re.sub(r'<(p|li|div|span|a|td|h1|h2)( [^>]*?color:#8a8a8a)', r'<\1 class="c-fine"\2', VARIANT_B)
+VARIANT_B = VARIANT_B.replace('<td align="center" style="border:1px solid rgba(255,255,255,0.4);',
+                              '<td align="center" class="gbtn" style="border:1px solid rgba(255,255,255,0.4);')
+VARIANT_B = VARIANT_B.replace('<table width="100%" cellpadding="0" cellspacing="0" style="background:#111111;border:1px solid #2b2b2b;',
+                              '<table width="100%" cellpadding="0" cellspacing="0" class="pbox" style="background:#111111;border:1px solid #2b2b2b;')
+_OGS = """
+  /* Outlook dark-mode overrides (data-ogsc/-ogsb appear only after
+     modern Outlook transforms the email) */
+  [data-ogsb] .wrap { background-color:#000000 !important; }
+  [data-ogsc] .c-head { color:#ffffff !important; }
+  [data-ogsc] .c-body { color:#ABABAB !important; }
+  [data-ogsc] .c-fine { color:#8a8a8a !important; }
+  [data-ogsb] .gbtn { background-color:transparent !important; border-color:rgba(255,255,255,0.4) !important; }
+  [data-ogsb] .pbox { background-color:#111111 !important; border-color:#2b2b2b !important; }
+"""
+VARIANT_B = VARIANT_B.replace('</style></head>', _OGS + '</style></head>', 1)
+
+
 # ---- dark/light twins: controlled color transforms per template ----
 def _swap(html, pairs):
     for old, new in pairs:
@@ -446,6 +470,10 @@ A_DARK = _swap_socials(A_DARK, _socials, _SOC_WHITE)
 # B light: white canvas, black type, dark ghost outlines
 B_LIGHT = _swap(VARIANT_B, [
     ('bgcolor="#000000"', 'bgcolor="#FFFFFF"'),
+    ('background-color:#000000 !important', 'background-color:#FFFFFF !important'),
+    ('border-color:rgba(255,255,255,0.4) !important', 'border-color:rgba(0,0,0,0.35) !important'),
+    ('background-color:#111111 !important', 'background-color:#F5F4F2 !important'),
+    ('border-color:#2b2b2b !important', 'border-color:#E2E0DC !important'),
     ('background:#000000;border-radius:12px', 'background:#FFFFFF;border-radius:12px'),
     ('border:1px solid rgba(255,255,255,0.4)', 'border:1px solid rgba(0,0,0,0.35)'),
     ('background:#111111;border:1px solid #2b2b2b', 'background:#F5F4F2;border:1px solid #E2E0DC'),
@@ -593,15 +621,20 @@ const SIM = `<script>(function(){
     }
     var o=rgb(h,s,l); return 'rgb('+o[0]+','+o[1]+','+o[2]+')';
   }
+  /* modern Outlook stamps transformed elements with data-ogsc/-ogsb and its
+     colors lose to author !important rules — so [data-ogsc] overrides win */
+  var prio = MODE==='outlook' ? '' : 'important';
   var els=[document.documentElement,document.body].concat([].slice.call(document.querySelectorAll('body *')));
   els.forEach(function(el){ if(!el||el.tagName==='IMG') return;
     var cs=getComputedStyle(el);
-    var bg=map(cs.backgroundColor,'bg'); if(bg) el.style.setProperty('background-color',bg,'important');
-    var tc=map(cs.color,'text'); if(tc) el.style.setProperty('color',tc,'important');
+    var bg=map(cs.backgroundColor,'bg'), tc=map(cs.color,'text');
+    if(MODE==='outlook'){ if(bg) el.setAttribute('data-ogsb',''); if(tc) el.setAttribute('data-ogsc',''); }
+    if(bg) el.style.setProperty('background-color',bg,prio);
+    if(tc) el.style.setProperty('color',tc,prio);
     ['Top','Right','Bottom','Left'].forEach(function(side){
       if(parseFloat(cs['border'+side+'Width'])>0){
         var bc=map(cs['border'+side+'Color'],'text');
-        if(bc) el.style.setProperty('border-'+side.toLowerCase()+'-color',bc,'important');
+        if(bc) el.style.setProperty('border-'+side.toLowerCase()+'-color',bc,prio);
       }});
   });
 })();<\/script>`;
