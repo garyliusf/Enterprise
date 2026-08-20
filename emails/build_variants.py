@@ -175,6 +175,29 @@ def _b_ghost(label, band=False):
           <a href="#" style="display:inline-block;min-width:220px;box-sizing:border-box;padding:16px 28px;font-family:{_F};font-size:16px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;">{label}</a>
         </td></tr></table></td></tr>'''
 
+
+def _b_callout(eyebrow, title, body, inset='', cta=''):
+    """Reusable announcement card (dark design): blue eyebrow + title + body
+    + optional inset + optional CTA. Use for tips, feature launches, notices."""
+    ins = ('<div style="height:4px;font-size:0;line-height:0;">&nbsp;</div>' + inset) if inset else ''
+    btn = (('<div style="height:24px;font-size:0;line-height:0;">&nbsp;</div>'
+            '<table cellpadding="0" cellspacing="0"><tr><td class="gbtn" style="background:#1389fd;border-radius:8px;">'
+            f'<a href="#" style="display:inline-block;min-width:220px;box-sizing:border-box;padding:16px 28px;font-family:{_F};font-size:16px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;">{cta}</a>'
+            '</td></tr></table>') if cta else '')
+    return (f'<table width="100%" cellpadding="0" cellspacing="0" class="ann" style="background:#0D0E10;border:1px solid #232323;border-radius:10px;"><tr><td style="padding:26px 28px;font-family:{_F};">'
+            f'<div style="font-size:12px;font-weight:600;letter-spacing:2px;color:#1488FC;margin:0 0 12px;">{eyebrow}</div>'
+            f'<div style="font-size:18px;font-weight:600;color:#ffffff;line-height:1.4;margin:0 0 8px;">{title}</div>'
+            f'{body}{ins}{btn}</td></tr></table>')
+
+TIP_CARD = _b_callout(
+    "TIP OF THE WEEK",
+    "Let the Bolt agent work in your other tools for you",
+    '<p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#ABABAB;">Once you connect a service like Stripe, the Bolt agent can interact with it directly on your behalf &mdash; describe what you want and it creates it in Stripe and wires it into your app.</p>',
+    inset=f'''<table width="100%" cellpadding="0" cellspacing="0" style="background:#111111;border:1px solid #2b2b2b;border-radius:8px;"><tr><td style="padding:14px 16px;font-family:{_F};font-size:14px;line-height:1.6;color:#ABABAB;">
+      <span style="font-weight:600;color:#ffffff;">Try this prompt:</span> <i>"Using the Stripe connector, create a new product called Pro Plan at $29/month in test mode, then add a checkout flow for it to my app with success and cancel pages."</i>
+    </td></tr></table>''',
+    cta="Start Building")
+
 VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
@@ -222,16 +245,7 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
   {_b_event("va/bolt-templates.jpg", "Launch and Grow: Market Your App and Find Your First Users", "Thursday, August 27")}
 
   <tr><td class="px band" bgcolor="#000001" style="background:#000001;padding:32px 40px 40px;font-family:{_F};">
-    <h2 style="margin:0 0 12px;font-size:24px;font-weight:500;color:#ffffff;letter-spacing:-0.3px;">Tip of the week</h2>
-    <p style="margin:0 0 8px;font-size:16px;font-weight:600;color:#ffffff;line-height:1.5;">Let the Bolt agent work in your other tools for you</p>
-    <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#ABABAB;">Once you connect a service like Stripe, the Bolt agent can interact with it directly on your behalf &mdash; describe what you want and it creates it in Stripe and wires it into your app.</p>
-    <table width="100%" cellpadding="0" cellspacing="0" style="background:#111111;border:1px solid #2b2b2b;border-radius:8px;"><tr><td style="padding:14px 16px;font-family:{_F};font-size:14px;line-height:1.6;color:#ABABAB;">
-      <span style="font-weight:600;color:#ffffff;">Try this prompt:</span> <i>"Using the Stripe connector, create a new product called Pro Plan at $29/month in test mode, then add a checkout flow for it to my app with success and cancel pages."</i>
-    </td></tr></table>
-    <div style="height:32px;font-size:0;line-height:0;">&nbsp;</div>
-    <table cellpadding="0" cellspacing="0"><tr>
-      <td class="gbtn" style="background:#1389fd;border-radius:8px;"><a href="#" style="display:inline-block;min-width:220px;box-sizing:border-box;padding:16px 28px;font-family:{_F};font-size:16px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;">Start Building</a></td>
-    </tr></table>
+    {TIP_CARD}
     <p style="margin:28px 0 0;font-size:16px;line-height:1.6;color:#ABABAB;">Keep building,<br><span style="font-weight:600;color:#ffffff;">Monika &amp; The Bolt Team &#9889;</span></p>
   </td></tr>
 
@@ -447,6 +461,7 @@ _OGS = """
   [data-ogsc] .c-body { color:#ABABAB !important; }
   [data-ogsc] .c-fine { color:#8a8a8a !important; }
   [data-ogsb] .band { background-color:#000001 !important; }
+  [data-ogsb] .ann { background-color:#0D0E10 !important; border-color:#232323 !important; }
   [data-ogsb] .gbtn { background-color:#1389fd !important; }
   [data-ogsc] .gbtn a { color:#FFFFFF !important; }
   [data-ogsb] .pbox { background-color:#111111 !important; border-color:#2b2b2b !important; }
@@ -482,6 +497,8 @@ A_DARK = _swap_socials(A_DARK, _socials, _SOC_WHITE)
 # B light: white canvas, black type, dark ghost outlines
 B_LIGHT = _swap(VARIANT_B, [
     ('bgcolor="#000000"', 'bgcolor="#FFFFFF"'),
+    ('background:#0D0E10;border:1px solid #232323;', 'background:#FFFFFF;border:1px solid #E2E0DC;'),
+    ('background-color:#0D0E10 !important; border-color:#232323 !important', 'background-color:#FFFFFF !important; border-color:#E2E0DC !important'),
     ('background:#000001;', 'background-color:#E8E9EB;'),
     ('bgcolor="#000001"', 'bgcolor="#E8E9EB"'),
     ('background-color:#000001 !important', 'background-color:#E8E9EB !important'),
