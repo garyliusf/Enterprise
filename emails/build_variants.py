@@ -161,13 +161,16 @@ _SOC_WHITE = [dict(s, uri=_recolor(s["uri"], "#ffffff")) for s in _socials]
 
 def _b_event(img, title, date):
     return f'''<tr><td style="padding:0 40px 10px;"><img src="{img}" width="520" style="width:100%;border-radius:8px;display:block;" alt=""></td></tr>
-    <tr><td style="padding:14px 40px 6px;font-family:{_F};font-size:18px;font-weight:600;color:#ffffff;line-height:1.4;">{title}</td></tr>
-    <tr><td style="padding:0 40px 12px;font-family:{_F};font-size:14px;color:#ABABAB;">{date}</td></tr>
+    <tr><td style="padding:14px 40px 6px;font-family:{_F};font-size:19px;font-weight:600;color:#ffffff;line-height:1.4;">{title}</td></tr>
+    <tr><td style="padding:0 40px 12px;font-family:{_F};font-size:15px;color:#ABABAB;">{date}</td></tr>
     <tr><td style="padding:0 40px 42px;font-family:{_F};"><a href="#" style="font-size:16px;color:#1488FC;font-weight:600;text-decoration:none;">RSVP <span style="letter-spacing:1px;">&rarr;</span></a></td></tr>'''
 
-def _b_ghost(label):
+def _b_ghost(label, band=False):
     # standard blue button (token spec): #1389fd, radius 8, 16/600, hug min-220
-    return f'''<tr><td style="padding:8px 40px 44px;">
+    # band: light-mode section tint; #000001 renders as black in dark mode
+    td = ('<td class="band" bgcolor="#000001" style="background:#000001;padding:8px 40px 44px;">'
+          if band else '<td style="padding:8px 40px 44px;">')
+    return f'''<tr>{td}
       <table cellpadding="0" cellspacing="0"><tr>
         <td class="gbtn" style="background:#1389fd;border-radius:8px;">
           <a href="#" style="display:inline-block;min-width:220px;box-sizing:border-box;padding:16px 28px;font-family:{_F};font-size:16px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;">{label}</a>
@@ -199,7 +202,7 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
   </td></tr>
   {_b_ghost("Register Now")}
 
-  <tr><td class="px" style="padding:28px 40px 8px;font-family:{_F};">
+  <tr><td class="px band" bgcolor="#000001" style="background:#000001;padding:28px 40px 10px;font-family:{_F};">
     <h2 style="margin:0 0 14px;font-size:24px;font-weight:500;color:#ffffff;letter-spacing:-0.3px;">You\'ll learn how to:</h2>
     <ul style="margin:0 0 30px;padding:0 0 0 22px;">
       <li style="margin:0 0 8px;font-size:15px;line-height:1.6;color:#ABABAB;">Connect the Stripe MCP to a Bolt app</li>
@@ -215,10 +218,10 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
     <h2 style="margin:0;font-size:24px;font-weight:500;color:#ffffff;letter-spacing:-0.3px;">Coming up next:</h2>
   </td></tr>
   {_b_event("va/build-with-voice.jpg", "Your Users Have Questions: Answer Them Automatically Inside Your App", "Thursday, August 20")}
-  {_b_event("va/soulpress-app.jpg", "Office Hours: Bring your projects, questions, or blockers for live help", "Tuesday, August 25")}
+  {_b_event("va/maker-photo.jpg", "Office Hours: Bring your projects, questions, or blockers for live help", "Tuesday, August 25")}
   {_b_event("va/bolt-templates.jpg", "Launch and Grow: Market Your App and Find Your First Users", "Thursday, August 27")}
 
-  <tr><td class="px" style="padding:32px 40px 8px;font-family:{_F};">
+  <tr><td class="px band" bgcolor="#000001" style="background:#000001;padding:32px 40px 8px;font-family:{_F};">
     <h2 style="margin:0 0 12px;font-size:24px;font-weight:500;color:#ffffff;letter-spacing:-0.3px;">Tip of the week</h2>
     <p style="margin:0 0 8px;font-size:16px;font-weight:600;color:#ffffff;line-height:1.5;">Let the Bolt agent work in your other tools for you</p>
     <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#ABABAB;">Once you connect a service like Stripe, the Bolt agent can interact with it directly on your behalf &mdash; describe what you want and it creates it in Stripe and wires it into your app.</p>
@@ -226,12 +229,12 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
       <span style="font-weight:600;color:#ffffff;">Try this prompt:</span> <i>"Using the Stripe connector, create a new product called Pro Plan at $29/month in test mode, then add a checkout flow for it to my app with success and cancel pages."</i>
     </td></tr></table>
   </td></tr>
-  {_b_ghost("Start Building")}
+  {_b_ghost("Start Building", band=True)}
 
-  <tr><td style="padding:0 40px 8px;"><div style="border-top:1px solid #232323;font-size:0;line-height:0;">&nbsp;</div></td></tr>
-
-  <tr><td align="center" style="padding:18px 40px 6px;font-family:{_F};font-size:12px;line-height:1.7;color:#8a8a8a;">
+  <tr><td style="padding:28px 40px 14px;font-family:{_F};font-size:16px;line-height:1.6;color:#ABABAB;">
     Keep building,<br><span style="font-weight:600;color:#ffffff;">Monika &amp; The Bolt Team &#9889;</span></td></tr>
+
+  <tr><td style="padding:8px 40px 8px;"><div style="border-top:1px solid #232323;font-size:0;line-height:0;">&nbsp;</div></td></tr>
   <tr><td align="center" style="padding:40px 40px 0;"><img src="{LOGO_GREY}" width="88" style="width:88px;display:block;" alt="Bolt"></td></tr>
   <tr><td align="center" style="padding:26px 40px 0;">
     {"".join(f'<a href="{s["href"]}" style="text-decoration:none;display:inline-block;margin:0 10px;"><img src="{s["uri"]}" width="16" height="16" style="display:inline-block;"></a>' for s in _SOC_WHITE)}
@@ -442,6 +445,7 @@ _OGS = """
   [data-ogsc] .c-head { color:#ffffff !important; }
   [data-ogsc] .c-body { color:#ABABAB !important; }
   [data-ogsc] .c-fine { color:#8a8a8a !important; }
+  [data-ogsb] .band { background-color:#000001 !important; }
   [data-ogsb] .gbtn { background-color:#1389fd !important; }
   [data-ogsc] .gbtn a { color:#FFFFFF !important; }
   [data-ogsb] .pbox { background-color:#111111 !important; border-color:#2b2b2b !important; }
@@ -476,12 +480,15 @@ A_DARK = _swap_socials(A_DARK, _socials, _SOC_WHITE)
 # B light: white canvas, black type, dark ghost outlines
 B_LIGHT = _swap(VARIANT_B, [
     ('bgcolor="#000000"', 'bgcolor="#FFFFFF"'),
+    ('background:#000001;', 'background:#F5F4F2;'),
+    ('bgcolor="#000001"', 'bgcolor="#F5F4F2"'),
+    ('background-color:#000001 !important', 'background-color:#F5F4F2 !important'),
     ('border-top:1px solid #232323', 'border-top:1px solid #E7E5E2'),
     ('background-color:#000000 !important', 'background-color:#FFFFFF !important'),
-    ('background-color:#111111 !important', 'background-color:#F5F4F2 !important'),
+    ('background-color:#111111 !important', 'background-color:#FFFFFF !important'),
     ('border-color:#2b2b2b !important', 'border-color:#E2E0DC !important'),
     ('background:#000000;border-radius:12px', 'background:#FFFFFF;border-radius:12px'),
-    ('background:#111111;border:1px solid #2b2b2b', 'background:#F5F4F2;border:1px solid #E2E0DC'),
+    ('background:#111111;border:1px solid #2b2b2b', 'background:#FFFFFF;border:1px solid #E2E0DC'),
     ('color:#ffffff', 'color:#000000'),
     ('color:#ABABAB', 'color:#444444'),
 ])
@@ -642,7 +649,7 @@ select{font:12px inherit;padding:6px 8px;border:1px solid var(--line);border-rad
   <select id="email"></select>
   <span class="lbl">View</span>
   <div class="seg" id="vp"><button data-w="640" class="on">Desktop</button><button data-w="375">Mobile</button></div>
-  <span class="lbl">Mode</span>
+  <span class="lbl">Final Design Style</span>
   <div class="seg" id="theme"><button data-m="light" class="on">Light</button><button data-m="dark">Dark</button></div>
   <span class="lbl">Client</span>
   <div class="seg" id="client"><button data-c="none" class="on">As designed</button><button data-c="gmail">Gmail dark</button><button data-c="outlook">Outlook dark</button></div>
