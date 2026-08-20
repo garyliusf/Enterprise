@@ -677,7 +677,7 @@ VARIANT_AP = f'''<!doctype html><html><head><meta charset="utf-8">
   </td></tr>
   <tr><td style="height:14px;"></td></tr>
 
-  <tr><td bgcolor="#E8F1FE" class="card" style="background:#E8F1FE;border-radius:10px;padding:28px 32px;font-family:{_F};">
+  <tr><td bgcolor="#F1F6FD" class="card" style="background:#F1F6FD;border-radius:10px;padding:28px 32px;font-family:{_F};">
     <h2 style="margin:0 0 8px;font-size:20px;font-weight:500;color:#111;">Tip of the week</h2>
     <p style="margin:0 0 8px;font-size:15px;font-weight:600;color:#111;line-height:1.5;">Let the Bolt agent work in your other tools for you</p>
     <p style="margin:0 0 16px;font-size:15px;line-height:1.65;color:#26251f;">Once you connect a service like Stripe, the Bolt agent can interact with it directly on your behalf &mdash; describe what you want and it creates it in Stripe and wires it into your app.</p>
