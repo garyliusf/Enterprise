@@ -634,7 +634,7 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
     <table cellpadding="0" cellspacing="0" style="margin:24px 0 0;"><tr>
       <td style="background:#1389fd;border-radius:8px;"><a href="#" style="display:inline-block;min-width:220px;box-sizing:border-box;padding:16px 28px;font-family:{_F};font-size:16px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;">Start Building</a></td>
     </tr></table>
-    <p style="margin:32px 0 0;font-size:16px;line-height:1.6;color:#000000;text-align:center;">Keep building,<br><span style="font-weight:600;">Monika &amp; The Bolt Team &#9889;</span></p>
+    <p style="margin:32px 0 0;font-size:16px;line-height:1.6;color:#000000;">Keep building,<br><span style="font-weight:600;">Monika &amp; The Bolt Team &#9889;</span></p>
   </td></tr>
 
   <tr><td bgcolor="#000000" class="px" style="background:#000000;padding:30px 36px 0;font-family:{_F};">
