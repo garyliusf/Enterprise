@@ -119,7 +119,7 @@ VARIANT_A = f'''<!doctype html><html><head><meta charset="utf-8">
   <tr><td class="px" style="padding:0 8px;font-family:{_F};">
     <h2 style="margin:0 0 16px;font-size:20px;font-weight:600;color:#000000;">Coming up next</h2>
     {_event("va/build-with-voice.jpg", "Your Users Have Questions: Answer Them Automatically Inside Your App", "Thursday, August 20")}
-    {_event("va/design-system-agents.jpg", "Office Hours: Bring your projects, questions, or blockers for live help and feedback", "Tuesday, August 25")}
+    {_event("va/soulpress-app.jpg", "Office Hours: Bring your projects, questions, or blockers for live help and feedback", "Tuesday, August 25")}
     {_event("va/bolt-templates.jpg", "Launch and Grow: Market Your App and Find Your First Users", "Thursday, August 27")}
     <p style="margin:14px 0 36px;font-size:15px;">
       <a href="#" style="color:#1488FC;font-weight:600;text-decoration:none;">See the full lineup &rarr;</a>
@@ -212,7 +212,7 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
     <h2 style="margin:0 0 22px;font-size:24px;font-weight:700;color:#ffffff;letter-spacing:-0.3px;">Coming up next:</h2>
   </td></tr>
   {_b_event("va/build-with-voice.jpg", "Your Users Have Questions: Answer Them Automatically Inside Your App", "Thursday, August 20")}
-  {_b_event("va/design-system-agents.jpg", "Office Hours: Bring your projects, questions, or blockers for live help", "Tuesday, August 25")}
+  {_b_event("va/soulpress-app.jpg", "Office Hours: Bring your projects, questions, or blockers for live help", "Tuesday, August 25")}
   {_b_event("va/bolt-templates.jpg", "Launch and Grow: Market Your App and Find Your First Users", "Thursday, August 27")}
 
   <tr><td class="px" style="padding:8px 40px 8px;font-family:{_F};">
