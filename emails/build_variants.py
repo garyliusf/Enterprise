@@ -649,7 +649,7 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
       </td></tr></table>
       </td></tr></table>
       <table class="btn-t" width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0 0;"><tr>
-      <td style="background:#1389fd;border-radius:2px;" width="1"><a href="#" style="display:inline-block;min-width:220px;box-sizing:border-box;padding:16px 28px;font-family:{_F};font-size:16px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;">Start Building</a></td><td></td>
+      <td style="background:#1389fd;border-radius:2px;" width="1"><a href="#" style="display:inline-block;min-width:180px;box-sizing:border-box;padding:15px 28px;font-family:{_F};font-size:15px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;">Start Building</a></td><td></td>
     </tr></table>
     </td></tr></table>
   </td></tr>
