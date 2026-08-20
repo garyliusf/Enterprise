@@ -594,7 +594,7 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
   </td></tr>
   <tr><td bgcolor="#000000" style="background:#000000;padding:0;line-height:0;"><img src="va/nexal-dashboard.jpg" width="600" style="width:100%;display:block;" alt=""></td></tr>
 
-  <tr><td bgcolor="#ffffff" class="px" style="background:#ffffff;padding:34px 36px 36px;font-family:{_F};">
+  <tr><td bgcolor="#ffffff" class="px" style="background:#ffffff;padding:34px 36px 8px;font-family:{_F};">
     <p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:#000000;">An app that can&rsquo;t take payments is a project, an app that can is a business. The purchase flow is the single feature standing between you and your first paying customer.</p>
     <p style="margin:0 0 28px;font-size:16px;line-height:1.6;color:#000000;">In this week&rsquo;s workshop, we&rsquo;ll connect and configure payments with the Stripe MCP so your app can start earning, without the usual setup headaches.</p>
     <h2 style="margin:0 0 14px;font-size:24px;font-weight:500;color:#000000;letter-spacing:-0.3px;">You&rsquo;ll learn how to:</h2>
@@ -607,15 +607,21 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
       <li style="margin:0 0 0;font-size:16px;line-height:1.6;color:#000000;">Think through common payment edge cases like failed or cancelled payments</li>
     </ul>
     <h2 style="margin:0 0 16px;font-size:24px;font-weight:500;color:#000000;letter-spacing:-0.3px;">Coming up next:</h2>
-    <img src="va/build-with-voice.jpg" width="528" style="width:100%;border-radius:8px;display:block;margin:0 0 10px;" alt="">
+  </td></tr>
+  <tr><td bgcolor="#ffffff" class="k-light" style="background:#ffffff;padding:0;line-height:0;"><img src="va/build-with-voice.jpg" width="600" style="width:100%;display:block;" alt=""></td></tr>
+  <tr><td bgcolor="#ffffff" class="px k-light" style="background:#ffffff;padding:16px 36px 8px;font-family:{_F};">
     <div style="font-size:19px;font-weight:600;color:#000000;line-height:1.4;margin:0 0 6px;">Your Users Have Questions: Answer Them Automatically Inside Your App</div>
     <div style="font-size:15px;font-weight:500;color:#666666;margin:0 0 12px;">Thursday, August 20</div>
     <p style="margin:0 0 36px;"><a href="#" style="font-size:16px;color:#1488FC;font-weight:600;text-decoration:none;">RSVP <span style="letter-spacing:1px;">&rarr;</span></a></p>
-    <img src="va/maker-photo.jpg" width="528" style="width:100%;border-radius:8px;display:block;margin:0 0 10px;" alt="">
+  </td></tr>
+  <tr><td bgcolor="#ffffff" class="k-light" style="background:#ffffff;padding:0;line-height:0;"><img src="va/maker-photo.jpg" width="600" style="width:100%;display:block;" alt=""></td></tr>
+  <tr><td bgcolor="#ffffff" class="px k-light" style="background:#ffffff;padding:16px 36px 8px;font-family:{_F};">
     <div style="font-size:19px;font-weight:600;color:#000000;line-height:1.4;margin:0 0 6px;">Office Hours: Bring your projects, questions, or blockers for live help</div>
     <div style="font-size:15px;font-weight:500;color:#666666;margin:0 0 12px;">Tuesday, August 25</div>
     <p style="margin:0 0 36px;"><a href="#" style="font-size:16px;color:#1488FC;font-weight:600;text-decoration:none;">RSVP <span style="letter-spacing:1px;">&rarr;</span></a></p>
-    <img src="va/bolt-templates.jpg" width="528" style="width:100%;border-radius:8px;display:block;margin:0 0 10px;" alt="">
+  </td></tr>
+  <tr><td bgcolor="#ffffff" class="k-light" style="background:#ffffff;padding:0;line-height:0;"><img src="va/bolt-templates.jpg" width="600" style="width:100%;display:block;" alt=""></td></tr>
+  <tr><td bgcolor="#ffffff" class="px k-light" style="background:#ffffff;padding:16px 36px 36px;font-family:{_F};">
     <div style="font-size:19px;font-weight:600;color:#000000;line-height:1.4;margin:0 0 6px;">Launch and Grow: Market Your App and Find Your First Users</div>
     <div style="font-size:15px;font-weight:500;color:#666666;margin:0 0 12px;">Thursday, August 27</div>
     <p style="margin:0 0 0;"><a href="#" style="font-size:16px;color:#1488FC;font-weight:600;text-decoration:none;">RSVP <span style="letter-spacing:1px;">&rarr;</span></a></p>
@@ -650,7 +656,7 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
 # ---- C armor: modern-Outlook dark overrides (mirror of B's approach) ----
 for _col, _cls in [('#ffffff','k-w'), ('#C9CDD3','k-sub'), ('#000000','k-ink'), ('#8a8f96','k-fine'), ('#666666','k-date')]:
     VARIANT_E = re.sub(r'<(p|li|div|span|a|td|h1|h2)( (?![^>]*class=)[^>]*?color:' + _col + ')', r'<\1 class="' + _cls + r'"\2', VARIANT_E)
-VARIANT_E = VARIANT_E.replace('<tr><td bgcolor="#000000" style="background:#000000;border-radius:12px 12px 0 0;', '<tr><td class="k-dark" bgcolor="#000000" style="background:#000000;border-radius:12px 12px 0 0;')
+VARIANT_E = VARIANT_E.replace('<tr><td bgcolor="#000000" style="background:#000000;border-radius:12px 12px 0 0;', '<tr><td class="k-dark" bgcolor="#000000" style="background-color:#000000;background-image:url(va/hero-bg.jpg);background-size:cover;background-position:center top;border-radius:12px 12px 0 0;')
 VARIANT_E = VARIANT_E.replace('<tr><td bgcolor="#000000" style="background:#000000;padding:0;line-height:0;">', '<tr><td class="k-dark" bgcolor="#000000" style="background:#000000;padding:0;line-height:0;">')
 VARIANT_E = VARIANT_E.replace('<tr><td bgcolor="#000000" class="px"', '<tr><td bgcolor="#000000" class="px k-dark"')
 VARIANT_E = VARIANT_E.replace('<tr><td bgcolor="#ffffff" class="px"', '<tr><td bgcolor="#ffffff" class="px k-light"')
