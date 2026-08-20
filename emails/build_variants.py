@@ -617,6 +617,31 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
 </table></td></tr></table></body></html>'''
 
 
+
+# ---- C armor: modern-Outlook dark overrides (mirror of B's approach) ----
+for _col, _cls in [('#ffffff','k-w'), ('#C9CDD3','k-sub'), ('#000000','k-ink'), ('#8a8f96','k-fine'), ('#666666','k-date')]:
+    VARIANT_E = re.sub(r'<(p|li|div|span|a|td|h1|h2)( (?![^>]*class=)[^>]*?color:' + _col + ')', r'<\1 class="' + _cls + r'"\2', VARIANT_E)
+VARIANT_E = VARIANT_E.replace('<tr><td bgcolor="#000000" style="background:#000000;border-radius:12px 12px 0 0;', '<tr><td class="k-dark" bgcolor="#000000" style="background:#000000;border-radius:12px 12px 0 0;')
+VARIANT_E = VARIANT_E.replace('<tr><td bgcolor="#000000" style="background:#000000;padding:0;line-height:0;">', '<tr><td class="k-dark" bgcolor="#000000" style="background:#000000;padding:0;line-height:0;">')
+VARIANT_E = VARIANT_E.replace('<tr><td bgcolor="#000000" class="px"', '<tr><td bgcolor="#000000" class="px k-dark"')
+VARIANT_E = VARIANT_E.replace('<tr><td bgcolor="#ffffff" class="px"', '<tr><td bgcolor="#ffffff" class="px k-light"')
+VARIANT_E = VARIANT_E.replace('style="background:#F2F1EF;border:1px solid #E2E0DC;border-radius:8px;">', 'class="k-tint" style="background:#F2F1EF;border:1px solid #E2E0DC;border-radius:8px;">', 1)
+VARIANT_E = VARIANT_E.replace('<td style="background:#1389fd;border-radius:8px;">', '<td class="k-btn" style="background:#1389fd;border-radius:8px;">')
+_K = """
+  /* modern-Outlook dark-mode overrides (data-ogsc/-ogsb) */
+  [data-ogsb] .k-dark { background-color:#000000 !important; }
+  [data-ogsb] .k-light { background-color:#ffffff !important; }
+  [data-ogsb] .k-tint { background-color:#F2F1EF !important; }
+  [data-ogsb] .k-btn { background-color:#1389fd !important; }
+  [data-ogsc] .k-w, [data-ogsc] .k-btn a, [data-ogsc] .disp { color:#ffffff !important; }
+  [data-ogsc] .k-sub { color:#C9CDD3 !important; }
+  [data-ogsc] .k-ink { color:#000000 !important; }
+  [data-ogsc] .k-fine { color:#8a8f96 !important; }
+  [data-ogsc] .k-date { color:#666666 !important; }
+  [data-ogsc] span { color:inherit !important; }
+"""
+VARIANT_E = VARIANT_E.replace('</style></head>', _K + '</style></head>', 1)
+
 # ---- Variant D (v2): Apollo-style card stack — warm page, rounded white cards,
 #      inset feature card, tinted highlight, outlined events card. A/B content.
 def _ap_event(img, title, date, last=False):
@@ -656,7 +681,7 @@ VARIANT_AP = f'''<!doctype html><html><head><meta charset="utf-8">
     <p style="margin:0 0 14px;font-size:15px;line-height:1.65;color:#26251f;">An app that can&rsquo;t take payments is a project, an app that can is a business. The purchase flow is the single feature standing between you and your first paying customer.</p>
     <p style="margin:0 0 24px;font-size:15px;line-height:1.65;color:#26251f;">In this week&rsquo;s workshop, we&rsquo;ll connect and configure payments with the Stripe MCP so your app can start earning, without the usual setup headaches.</p>
     <table width="100%" cellpadding="0" cellspacing="0" style="background:#EFEEE9;border-radius:8px;"><tr><td style="padding:26px 26px;font-family:{_F};">
-      <h2 style="margin:0 0 14px;font-size:20px;font-weight:500;color:#111;">You&rsquo;ll learn how to:</h2>
+      <h2 style="margin:0 0 14px;font-size:22px;font-weight:500;color:#111;">You&rsquo;ll learn how to:</h2>
       <ul style="margin:0;padding:0 0 0 20px;">
         {_ap_li("Connect the Stripe MCP to a Bolt app")}
         {_ap_li("Configure products and pricing through Stripe")}
@@ -679,7 +704,7 @@ VARIANT_AP = f'''<!doctype html><html><head><meta charset="utf-8">
   <tr><td style="height:14px;"></td></tr>
 
   <tr><td bgcolor="#E8E9EB" class="card" style="background-color:#E8E9EB;border-radius:10px;padding:28px 32px;font-family:{_F};">
-    <h2 style="margin:0 0 8px;font-size:20px;font-weight:500;color:#111;">Tip of the week</h2>
+    <h2 style="margin:0 0 8px;font-size:22px;font-weight:500;color:#111;">Tip of the week</h2>
     <p style="margin:0 0 8px;font-size:15px;font-weight:600;color:#111;line-height:1.5;">Let the Bolt agent work in your other tools for you</p>
     <p style="margin:0 0 16px;font-size:15px;line-height:1.65;color:#26251f;">Once you connect a service like Stripe, the Bolt agent can interact with it directly on your behalf &mdash; describe what you want and it creates it in Stripe and wires it into your app.</p>
     <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;"><tr><td style="padding:14px 16px;font-family:{_F};font-size:14px;line-height:1.6;color:#26251f;">
