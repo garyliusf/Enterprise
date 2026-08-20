@@ -176,6 +176,12 @@ def _b_ghost(label, band=False):
         </td></tr></table></td></tr>'''
 
 
+def _b_badge(text):
+    # shared eyebrow badge: brand-blue tracked caps in a subtle blue-tinted chip
+    return ('<span class="bdg" style="display:inline-block;background:#1488FC;'
+            f'border-radius:2px;padding:5px 10px;font-family:{_F};font-size:10px;font-weight:700;'
+            f'letter-spacing:2px;color:#FFFFFF;">{text}</span>')
+
 def _b_callout(eyebrow, title, body, inset='', cta=''):
     """Reusable announcement card (dark design): blue eyebrow + title + body
     + optional inset + optional CTA. Use for tips, feature launches, notices."""
@@ -184,8 +190,8 @@ def _b_callout(eyebrow, title, body, inset='', cta=''):
             '<table cellpadding="0" cellspacing="0"><tr><td class="gbtn" style="background:#1389fd;border-radius:8px;">'
             f'<a href="#" style="display:inline-block;min-width:220px;box-sizing:border-box;padding:16px 28px;font-family:{_F};font-size:16px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;">{cta}</a>'
             '</td></tr></table>') if cta else '')
-    return (f'<table width="100%" cellpadding="0" cellspacing="0" class="ann" style="background:#0D0E10;border:1px solid #232323;border-radius:10px;"><tr><td style="padding:26px 28px;font-family:{_F};">'
-            f'<div style="font-size:12px;font-weight:600;letter-spacing:2px;color:#1488FC;margin:0 0 12px;">{eyebrow}</div>'
+    return (f'<table width="100%" cellpadding="0" cellspacing="0" class="ann" style="background-color:#0D0E10;background-image:url(va/callout-bg.jpg);background-size:cover;background-position:center;border:1px solid #232323;border-radius:10px;"><tr><td style="padding:26px 28px;font-family:{_F};">'
+            f'<div style="margin:0 0 14px;">{_b_badge(eyebrow)}</div>'
             f'<div style="font-size:18px;font-weight:600;color:#ffffff;line-height:1.4;margin:0 0 8px;">{title}</div>'
             f'{body}{ins}{btn}</td></tr></table>')
 
@@ -218,7 +224,7 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
   <tr><td class="px" style="padding:0 40px;"><img src="va/build-with-voice.jpg" width="520" style="width:100%;border-radius:8px;display:block;" alt=""></td></tr>
 
   <tr><td class="px" style="padding:30px 40px 0;font-family:{_F};">
-    <div style="font-size:16px;font-weight:600;color:#ffffff;margin:0 0 6px;">This week on Bolt</div>
+    <div style="margin:0 0 14px;">{_b_badge("THIS WEEK ON BOLT")}</div>
     <h1 class="h1" style="margin:0 0 18px;font-size:34px;font-weight:500;color:#ffffff;line-height:1.3;letter-spacing:-0.5px;">Take payments with the Stripe&nbsp;MCP</h1>
     <p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:#ABABAB;">An app that can\'t take payments is a project, an app that can is a business. The purchase flow is the single feature standing between you and your first paying customer.</p>
     <p style="margin:0 0 24px;font-size:16px;line-height:1.6;color:#ABABAB;">In this week\'s workshop, we\'ll connect and configure payments with the Stripe MCP so your app can start earning, without the usual setup headaches.</p>
@@ -462,6 +468,7 @@ _OGS = """
   [data-ogsc] .c-fine { color:#8a8a8a !important; }
   [data-ogsb] .band { background-color:#000001 !important; }
   [data-ogsb] .ann { background-color:#0D0E10 !important; border-color:#232323 !important; }
+  [data-ogsb] .bdg { background-color:#1488FC !important; }
   [data-ogsb] .gbtn { background-color:#1389fd !important; }
   [data-ogsc] .gbtn a { color:#FFFFFF !important; }
   [data-ogsb] .pbox { background-color:#111111 !important; border-color:#2b2b2b !important; }
@@ -497,7 +504,8 @@ A_DARK = _swap_socials(A_DARK, _socials, _SOC_WHITE)
 # B light: white canvas, black type, dark ghost outlines
 B_LIGHT = _swap(VARIANT_B, [
     ('bgcolor="#000000"', 'bgcolor="#FFFFFF"'),
-    ('background:#0D0E10;border:1px solid #232323;', 'background:#FFFFFF;border:1px solid #E2E0DC;'),
+    ("background-color:#0D0E10;background-image:url(va/callout-bg.jpg);background-size:cover;background-position:center;border:1px solid #232323;", 'background-color:#FFFFFF;border:1px solid #E2E0DC;'),
+    (';padding:0 40px 40px;font-family:', ';padding:32px 40px 40px;font-family:'),
     ('background-color:#0D0E10 !important; border-color:#232323 !important', 'background-color:#FFFFFF !important; border-color:#E2E0DC !important'),
     ('background:#000001;', 'background-color:#E8E9EB;'),
     ('bgcolor="#000001"', 'bgcolor="#E8E9EB"'),
