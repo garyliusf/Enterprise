@@ -484,7 +484,7 @@ B_LIGHT = _swap(VARIANT_B, [
     ('background:#000001;', 'background:#EAECEF;'),
     ('bgcolor="#000001"', 'bgcolor="#EAECEF"'),
     ('background-color:#000001 !important', 'background-color:#EAECEF !important'),
-    ('border-top:1px solid #232323', 'border-top:1px solid #E7E5E2'),
+    ('border-top:1px solid #232323', 'border-top:1px solid transparent'),
     ('background-color:#000000 !important', 'background-color:#FFFFFF !important'),
     ('background-color:#111111 !important', 'background-color:#FFFFFF !important'),
     ('border-color:#2b2b2b !important', 'border-color:#E2E0DC !important'),
