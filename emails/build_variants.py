@@ -681,7 +681,7 @@ VARIANT_AP = f'''<!doctype html><html><head><meta charset="utf-8">
     <h1 style="margin:0 0 14px;font-size:26px;font-weight:500;color:#111;line-height:1.3;">Take payments with the Stripe MCP</h1>
     <p style="margin:0 0 14px;font-size:15px;line-height:1.65;color:#26251f;">An app that can&rsquo;t take payments is a project, an app that can is a business. The purchase flow is the single feature standing between you and your first paying customer.</p>
     <p style="margin:0 0 24px;font-size:15px;line-height:1.65;color:#26251f;">In this week&rsquo;s workshop, we&rsquo;ll connect and configure payments with the Stripe MCP so your app can start earning, without the usual setup headaches.</p>
-    <table width="100%" cellpadding="0" cellspacing="0" style="background:#EFEEE9;border-radius:8px;"><tr><td style="padding:26px 26px;font-family:{_F};">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#E8E9EB;border-radius:8px;"><tr><td style="padding:26px 26px;font-family:{_F};">
       <h2 style="margin:0 0 14px;font-size:22px;font-weight:500;color:#111;">You&rsquo;ll learn how to:</h2>
       <ul style="margin:0;padding:0 0 0 20px;">
         {_ap_li("Connect the Stripe MCP to a Bolt app")}
@@ -708,7 +708,7 @@ VARIANT_AP = f'''<!doctype html><html><head><meta charset="utf-8">
     <h2 style="margin:0 0 8px;font-size:22px;font-weight:500;color:#111;">Tip of the week</h2>
     <p style="margin:0 0 8px;font-size:15px;font-weight:600;color:#111;line-height:1.5;">Let the Bolt agent work in your other tools for you</p>
     <p style="margin:0 0 16px;font-size:15px;line-height:1.65;color:#26251f;">Once you connect a service like Stripe, the Bolt agent can interact with it directly on your behalf &mdash; describe what you want and it creates it in Stripe and wires it into your app.</p>
-    <table width="100%" cellpadding="0" cellspacing="0" style="background:#EFEEE9;border-radius:8px;"><tr><td style="padding:14px 16px;font-family:{_F};font-size:14px;line-height:1.6;color:#26251f;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#E8E9EB;border-radius:8px;"><tr><td style="padding:14px 16px;font-family:{_F};font-size:14px;line-height:1.6;color:#26251f;">
       <span style="font-weight:600;">Try this prompt:</span> <i>"Using the Stripe connector, create a new product called Pro Plan at $29/month in test mode, then add a checkout flow for it to my app with success and cancel pages."</i>
     </td></tr></table>
     {_AP_BTN.replace("LABEL", "Start Building")}
@@ -732,14 +732,14 @@ VARIANT_AP = f'''<!doctype html><html><head><meta charset="utf-8">
 for _col, _cls in [('#111;','d-ink'), ('#26251f','d-body'), ('#777;','d-date'), ('#8a8880','d-fine')]:
     VARIANT_AP = re.sub(r'<(p|li|div|span|a|td|h1|h2)( (?![^>]*class=)[^>]*?color:' + _col + ')', r'<\1 class="' + _cls + r'"\2', VARIANT_AP)
 VARIANT_AP = VARIANT_AP.replace('<td style="background:#1389fd;border-radius:8px;">', '<td class="d-btn" style="background:#1389fd;border-radius:8px;">')
-VARIANT_AP = VARIANT_AP.replace('<table width="100%" cellpadding="0" cellspacing="0" style="background:#EFEEE9;border-radius:8px;">', '<table width="100%" cellpadding="0" cellspacing="0" class="d-inset" style="background:#EFEEE9;border-radius:8px;">')
+VARIANT_AP = VARIANT_AP.replace('<table width="100%" cellpadding="0" cellspacing="0" style="background:#E8E9EB;border-radius:8px;">', '<table width="100%" cellpadding="0" cellspacing="0" class="d-inset" style="background:#E8E9EB;border-radius:8px;">')
 VARIANT_AP = VARIANT_AP.replace('<tr><td class="card" style="border:1px solid #D9D7D1;', '<tr><td class="card d-outline" style="border:1px solid #D9D7D1;')
 VARIANT_AP = VARIANT_AP.replace('<table width="100%" cellpadding="0" cellspacing="0" bgcolor="#EFEFED">', '<table class="d-page" width="100%" cellpadding="0" cellspacing="0" bgcolor="#EFEFED">')
 _KD = """
   /* modern-Outlook dark-mode overrides (data-ogsc/-ogsb) */
   body[data-ogsb], [data-ogsb] .d-page { background-color:#EFEFED !important; }
   [data-ogsb] .card { background-color:#ffffff !important; }
-  [data-ogsb] .d-inset { background-color:#EFEEE9 !important; }
+  [data-ogsb] .d-inset { background-color:#E8E9EB !important; }
   [data-ogsb] .d-btn { background-color:#1389fd !important; }
   [data-ogsc] .d-btn a { color:#FFFFFF !important; }
   [data-ogsc] .d-ink { color:#111111 !important; }
