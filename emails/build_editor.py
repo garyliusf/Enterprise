@@ -39,7 +39,7 @@ PROPOSED = json.dumps({
     "hFont":"Inter","hSize":24,"hWeight":600,"bFont":"Inter","bSize":16,"bLh":160,
     "linkCol":"#1488FC","btnRadius":2,"btnPy":15,"btnPx":28,"btnSize":15,"btnWeight":600,
     "btnWidth":"hug","btnMinW":180,"bannerPos":"inside","footLogo":"grey",
-    "socials":"show","fMaxW":420,"fStack":"column","footerGap":24,"footLogoW":100})
+    "socials":"show","fMaxW":420,"fStack":"column","footerGap":24,"footLogoW":88})
 
 def _banner_uri():
     f = os.path.join(os.path.dirname(os.path.abspath(__file__)), "email_banner.svg")
@@ -356,7 +356,7 @@ function css(t){
       td[style*="border-radius: 10px 10px 0px 0px"]{padding:8px 5.26% 0 !important}
       [data-footrow]{padding-left:5.26% !important;padding-right:5.26% !important}
       [data-footgap]{height:${Math.max(0, t.footerGap - 10)}px !important}
-      img[data-footlogo]{width:71px !important}
+      img[data-footlogo]{width:88px !important}
       [data-footlogo-row]{padding-bottom:16px !important}
       [data-footsoc-row]{padding-bottom:6px !important}
       h1,h2{font-size:${t.hSize - 4}px !important}
