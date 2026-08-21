@@ -60,7 +60,10 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   pointer-events: none;
   z-index: 1;
 }
-#hero-pixel-dots {
+/* class, not #id — both hero variants carry .hero-pixel-canvas. As an id-only
+   rule the split hero's canvas stayed in flow at its default 300x150 and pushed
+   the content 150px down. */
+#hero-pixel-dots, .hero-pixel-canvas {
   position: absolute;
   bottom: 0; left: 0;
   width: 100%; height: 80vh;
@@ -1902,7 +1905,8 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 .split-terminal {
   padding: 22px 20px 26px;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 14px; line-height: 1.9;
+  /* scales with the column so the log lines stop wrapping on mid-size screens */
+  font-size: clamp(12.5px, 1.05vw, 14px); line-height: 1.9;
   min-height: 300px;                 /* holds its height while lines reveal */
 }
 .split-line {
@@ -1928,18 +1932,67 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   .split-live-dot, .split-caret { animation: none; }
 }
 
-@media (max-width: 1024px) {
-  .split-grid { gap: 44px; }
-  .split-terminal { font-size: 13px; min-height: 260px; }
+/* Stack vertically below 1200, not 768: the headline needs ~580px of column to
+   hold three lines, which a half-width column only gets above ~1180px. Under
+   that the two columns squeeze the H1 to 4+ lines and wrap the log rows.
+   Copy always sits above the panel. */
+@media (max-width: 1200px) {
+  .split-grid { grid-template-columns: 1fr; gap: 36px; }
+  .split-section--flip .split-copy { order: 0; }
+  .split-terminal { min-height: 0; }
 }
 @media (max-width: 768px) {
-  /* always copy-first on phones, whichever side the panel takes on desktop */
-  .split-grid { grid-template-columns: 1fr; gap: 32px; }
-  .split-section--flip .split-copy { order: 0; }
+  .split-grid { gap: 32px; }
   .split-copy { gap: 18px; }
   .split-copy .hero-btn-primary { min-width: 260px; max-width: 100%; height: 52px; font-size: 16px; }
-  .split-terminal { padding: 18px 16px 22px; font-size: 12.5px; line-height: 1.8; min-height: 0; }
+  .split-terminal { padding: 18px 16px 22px; line-height: 1.8; min-height: 0; }
   .split-tab { font-size: 12px; padding: 5px 10px; }
+}
+
+/* ─── HERO — split variant (.hero-section--split) ──────────────────────────
+   The .split-* component used as a HERO: same aurora photo + scrim + pixel
+   field as the centered hero, copy left / live panel right. Keep ONE hero per
+   page — this or .hero-section--simple, not both. Heights follow the tall
+   simple-hero rule so the two variants are interchangeable. */
+.hero-section--split { height: auto; min-height: min(80vh, 900px); min-height: min(80dvh, 900px); justify-content: flex-start; }
+/* Content sits high in the hero rather than dead-centre: .hero-content-area
+   stops flexing (flex:1 + align-items:center is what re-centred it) and the
+   section's own top padding sets the drop from the nav. */
+.hero-section--split .hero-content-area { flex: 0 0 auto; align-items: flex-start; padding: 0; }
+.hero-section--split { padding-top: clamp(88px, 11vh, 140px); padding-bottom: clamp(64px, 8vh, 104px); }
+/* copy column gets the wider half: at 66px the headline needs ~580px to hold
+   three lines, and the panel reads fine narrower */
+.hero-section--split .split-grid { grid-template-columns: 1.15fr 0.85fr; }
+.hero-inner--split { max-width: none; width: min(1120px, calc(100vw - 160px)); }
+.hero-section--split .split-copy { gap: 24px; }
+/* hero copy is left-aligned and wraps (the base .hero-h1 is centered + nowrap) */
+.hero-section--split .hero-h1 { text-align: left; white-space: normal; max-width: 620px; }
+.hero-section--split .hero-subtitle { text-align: left; max-width: 520px; }
+.hero-section--split .split-copy .hero-btn-primary { margin-top: 8px; font-size: 16px; min-width: 180px; }
+/* panel sits ON the photo, so it takes a translucent fill instead of #0b0b0e */
+.hero-section--split .split-panel {
+  background: rgba(9,9,12,0.78);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  border-color: rgba(255,255,255,0.13);
+}
+@media (max-width: 1200px) {
+  .hero-section--split .split-grid { grid-template-columns: 1fr; }
+  .hero-section--split .hero-h1 { max-width: none; }
+  /* stacked hero needs room to breathe below the nav */
+  .hero-section--split { padding: 112px 0 72px; }
+}
+@media (max-width: 1024px) {
+  .hero-inner--split { width: min(900px, calc(100vw - 80px)); }
+  .hero-section--split .hero-h1 { font-size: 51px; }
+  .hero-section--split .hero-subtitle { max-width: 640px; }
+}
+@media (max-width: 768px) {
+  .hero-section--split { min-height: min(100dvh, 720px); padding: 92px 0 56px; }
+  .hero-inner--split { width: calc(100vw - 32px); }
+  .hero-section--split .split-copy { gap: 18px; }
+  .hero-section--split .hero-h1 { font-size: clamp(37px, 10.45vw, 51px); line-height: 1.1; max-width: none; }
+  .hero-section--split .hero-subtitle { font-size: 15px; max-width: none; }
+  .hero-section--split .split-copy .hero-btn-primary { min-width: 260px; max-width: 100%; height: 52px; }
 }
 </style>
 </head>
@@ -1948,7 +2001,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 <!-- HERO (simple centered — no video) -->
 <section class="hero-section hero-section--simple">
   <div class="hero-overlay"></div>
-  <canvas id="hero-pixel-dots"></canvas>
+  <canvas id="hero-pixel-dots" class="hero-pixel-canvas"></canvas>
   <div class="hero-pixel-cover"></div>
 
   <div class="hero-content-area">
@@ -1986,49 +2039,54 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   </div>
 </section>
 
-<!-- SPLIT SECTION — copy left / live terminal panel right.
-     Reusable: swap the copy, edit the .split-line rows (--prompt / --ok /
-     --link are the accent variants), or add .split-section--flip to the
-     <section> to move the panel to the left. H2 is static, not .dsa-reveal:
-     first content section after the hero (CLAUDE.md first-section rule). -->
-<section class="section split-section">
-  <div class="section-inner">
-    <div class="split-grid">
+<!-- HERO — SPLIT VARIANT: the .split-* component on the hero's aurora
+     background (copy left, live deploy panel right). Alternative to the
+     centered hero above — shown here for comparison; keep ONE hero per page
+     and delete the other. -->
+<section class="hero-section hero-section--split">
+  <div class="hero-overlay"></div>
+  <canvas id="hero-pixel-dots-split" class="hero-pixel-canvas"></canvas>
+  <div class="hero-pixel-cover"></div>
 
-      <div class="split-copy">
-        <h2 class="sc-section-h2">Ship the app the moment you finish the prompt.</h2>
-        <p class="section-sub">Bolt.new builds, hosts, and deploys your app in the same window where you wrote it. No pipeline to configure, no server to babysit, no second tool to learn.</p>
-        <a href="https://bolt.new/" target="_blank" rel="noopener" class="hero-btn-primary">
-          <div class="btn-bg-hover"></div>
-          <div class="btn-text-wrap">
-            <div class="btn-text-inner">
-              <span>Start Building for Free</span>
-              <span>Start Building for Free</span>
+  <div class="hero-content-area">
+    <div class="hero-inner hero-inner--split">
+      <div class="split-grid">
+
+        <div class="split-copy">
+          <h1 class="hero-h1">Ship the app the moment you finish the prompt.</h1>
+          <p class="hero-subtitle">Bolt.new builds, hosts, and deploys your app in the same window where you wrote it. No pipeline to configure, no server to babysit, no second tool to learn.</p>
+          <a href="https://bolt.new/" target="_blank" rel="noopener" class="hero-btn-primary">
+            <div class="btn-bg-hover"></div>
+            <div class="btn-text-wrap">
+              <div class="btn-text-inner">
+                <span>Start Building for Free</span>
+                <span>Start Building for Free</span>
+              </div>
             </div>
-          </div>
-        </a>
-      </div>
-
-      <div class="split-panel" aria-hidden="true">
-        <div class="split-panel-bar">
-          <div class="split-tabs">
-            <span class="split-tab">Chat</span>
-            <span class="split-tab">Code</span>
-            <span class="split-tab is-active">Deploy</span>
-          </div>
-          <span class="split-live"><span class="split-live-dot"></span>LIVE</span>
+          </a>
         </div>
-        <div class="split-terminal">
-          <p class="split-line split-line--prompt">Add a waitlist page with email capture</p>
-          <p class="split-line">Installing dependencies…</p>
-          <p class="split-line">Compiling project…</p>
-          <p class="split-line">Optimizing assets…</p>
-          <p class="split-line split-line--ok">Build complete in 2.8s</p>
-          <p class="split-line split-line--link">Deployed → https://waitlist-app-x7k2.bolt.host</p>
-          <p class="split-line split-line--ok">Status: LIVE · 4.2s total <span class="split-caret"></span></p>
-        </div>
-      </div>
 
+        <div class="split-panel" aria-hidden="true">
+          <div class="split-panel-bar">
+            <div class="split-tabs">
+              <span class="split-tab">Chat</span>
+              <span class="split-tab">Code</span>
+              <span class="split-tab is-active">Deploy</span>
+            </div>
+            <span class="split-live"><span class="split-live-dot"></span>LIVE</span>
+          </div>
+          <div class="split-terminal">
+            <p class="split-line split-line--prompt">Add a waitlist page with email capture</p>
+            <p class="split-line">Installing dependencies…</p>
+            <p class="split-line">Compiling project…</p>
+            <p class="split-line">Optimizing assets…</p>
+            <p class="split-line split-line--ok">Build complete in 2.8s</p>
+            <p class="split-line split-line--link">Deployed → https://waitlist-app-x7k2.bolt.host</p>
+            <p class="split-line split-line--ok">Status: LIVE · 4.2s total <span class="split-caret"></span></p>
+          </div>
+        </div>
+
+      </div>
     </div>
   </div>
 </section>
@@ -2429,6 +2487,53 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   </div>
 </section>
 
+<!-- SPLIT SECTION — copy left / live terminal panel right.
+     Reusable: swap the copy, edit the .split-line rows (--prompt / --ok /
+     --link are the accent variants), or add .split-section--flip to the
+     <section> to move the panel to the left. H2 is static, not .dsa-reveal:
+     first content section after the hero (CLAUDE.md first-section rule). -->
+<section class="section split-section">
+  <div class="section-inner">
+    <div class="split-grid">
+
+      <div class="split-copy">
+        <h2 class="sc-section-h2">Ship the app the moment you finish the prompt.</h2>
+        <p class="section-sub">Bolt.new builds, hosts, and deploys your app in the same window where you wrote it. No pipeline to configure, no server to babysit, no second tool to learn.</p>
+        <a href="https://bolt.new/" target="_blank" rel="noopener" class="hero-btn-primary">
+          <div class="btn-bg-hover"></div>
+          <div class="btn-text-wrap">
+            <div class="btn-text-inner">
+              <span>Start Building for Free</span>
+              <span>Start Building for Free</span>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <div class="split-panel" aria-hidden="true">
+        <div class="split-panel-bar">
+          <div class="split-tabs">
+            <span class="split-tab">Chat</span>
+            <span class="split-tab">Code</span>
+            <span class="split-tab is-active">Deploy</span>
+          </div>
+          <span class="split-live"><span class="split-live-dot"></span>LIVE</span>
+        </div>
+        <div class="split-terminal">
+          <p class="split-line split-line--prompt">Add a waitlist page with email capture</p>
+          <p class="split-line">Installing dependencies…</p>
+          <p class="split-line">Compiling project…</p>
+          <p class="split-line">Optimizing assets…</p>
+          <p class="split-line split-line--ok">Build complete in 2.8s</p>
+          <p class="split-line split-line--link">Deployed → https://waitlist-app-x7k2.bolt.host</p>
+          <p class="split-line split-line--ok">Status: LIVE · 4.2s total <span class="split-caret"></span></p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
 <!-- TESTIMONIALS -->
 <section class="section testi-section">
   <div class="section-inner">
@@ -2708,8 +2813,8 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 
 /* ── Hero pixel dots — exact microsoft.html (SPACING=11, skyline+wave) ───── */
 (function () {
-  var canvas = document.getElementById('hero-pixel-dots');
-  if (!canvas) return;
+  /* runs for every hero variant present (.hero-section--simple / --split) */
+  document.querySelectorAll('.hero-pixel-canvas').forEach(function (canvas) {
   var ctx = canvas.getContext('2d');
   var SPACING = 11, DOT = 2, cols, rows, phases, skyline;
   function buildSkyline(n) {
@@ -2756,6 +2861,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
     requestAnimationFrame(draw);
   }
   requestAnimationFrame(draw);
+  });
 })();
 
 /* ── Animated noise glow over the lantern illustration (platform deploy style) ── */
