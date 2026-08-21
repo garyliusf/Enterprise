@@ -199,7 +199,7 @@ TIP_CARD = _b_callout(
     '<p style="margin:0 0 16px;font-size:16px;line-height:1.45;color:#ABABAB;">Once you connect a service like Stripe, the Bolt agent can interact with it directly on your behalf &mdash; describe what you want and it creates it in Stripe and wires it into your app.</p>',
     inset=f'''<div style="margin:20px 0 8px;font-size:13px;font-weight:600;color:#8a8a8a;">Try this prompt:</div>
     <table width="100%" cellpadding="0" cellspacing="0" class="pbox-w" style="background-color:#2b2b2b;background-image:radial-gradient(circle at top left,#8FD0FF 0%,#4DA6FF 6%,#1488FC 11%,#2b2b2b 24%);border-radius:12px;"><tr><td style="padding:2px;">
-      <table width="100%" cellpadding="0" cellspacing="0" class="pbox" style="background:#1E1F22;border-radius:10px;"><tr><td class="pbx-t" style="padding:16px 18px 14px;font-family:{_F};font-size:13px;line-height:1.55;color:#E8E8EA;">
+      <table width="100%" cellpadding="0" cellspacing="0" class="pbox" style="background:#1E1F22;border-radius:10px;"><tr><td class="pbx-t" style="padding:16px 18px 14px;font-family:{_F};font-size:13px;line-height:1.42;color:#E8E8EA;">
         Using the Stripe connector, create a new product called Pro Plan at $29/month in test mode, then add a checkout flow for it to my app with success and cancel pages.
       </td></tr>
       <tr><td style="padding:0 12px 12px;">
@@ -640,7 +640,7 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
       <p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:#000000;">Once you connect a service like Stripe, the Bolt agent can interact with it directly on your behalf &mdash; describe what you want and it creates it in Stripe and wires it into your app.</p>
       <div style="margin:24px 0 8px;font-size:13px;font-weight:600;color:#666666;">Try this prompt:</div>
       <table width="100%" cellpadding="0" cellspacing="0" class="pbx-w" style="background-color:#2b2b2b;background-image:radial-gradient(circle at top left,#8FD0FF 0%,#4DA6FF 6%,#1488FC 11%,#2b2b2b 24%);border-radius:12px;"><tr><td style="padding:2px;">
-      <table width="100%" cellpadding="0" cellspacing="0" class="pbx" style="background:#1E1F22;border-radius:10px;"><tr><td class="pbx-t" style="padding:16px 18px 14px;font-family:{_F};font-size:13px;line-height:1.55;color:#E8E8EA;">
+      <table width="100%" cellpadding="0" cellspacing="0" class="pbx" style="background:#1E1F22;border-radius:10px;"><tr><td class="pbx-t" style="padding:16px 18px 14px;font-family:{_F};font-size:13px;line-height:1.42;color:#E8E8EA;">
         Using the Stripe connector, create a new product called Pro Plan at $29/month in test mode, then add a checkout flow for it to my app with success and cancel pages.
       </td></tr>
       <tr><td style="padding:0 12px 12px;">
