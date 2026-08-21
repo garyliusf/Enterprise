@@ -263,7 +263,7 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
     <p style="margin:28px 0 0;font-size:16px;line-height:1.6;color:#ABABAB;text-align:center;">Keep building,<br><span style="font-weight:600;color:#ffffff;">Monika &amp; The Bolt Team &#9889;</span></p>
   </td></tr>
 
-  <tr><td style="padding:8px 40px 8px;"><div style="border-top:1px solid #232323;font-size:0;line-height:0;">&nbsp;</div></td></tr>
+  <tr><td style="padding:8px 40px 8px;"><div style="font-size:0;line-height:0;">&nbsp;</div></td></tr>
   <tr><td align="center" style="padding:28px 40px 0;"><img src="{LOGO_GREY}" width="88" style="width:88px;display:block;" alt="Bolt"></td></tr>
   <tr><td align="center" style="padding:26px 40px 0;">
     {"".join(f'<a href="{s["href"]}" style="text-decoration:none;display:inline-block;margin:0 10px;"><img src="{s["uri"]}" width="16" height="16" style="display:inline-block;"></a>' for s in _socials)}
@@ -643,7 +643,7 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
     <p style="margin:32px 0 0;font-size:16px;line-height:1.6;color:#000000;text-align:center;">Keep building,<br><span style="font-weight:600;">Monika &amp; The Bolt Team &#9889;</span></p>
   </td></tr>
 
-  <tr><td bgcolor="#000000" class="px k-dark" style="background:#000000;padding:8px 36px 8px;"><div style="border-top:1px solid #232323;font-size:0;line-height:0;">&nbsp;</div></td></tr>
+  <tr><td bgcolor="#000000" class="px k-dark" style="background:#000000;padding:8px 36px 8px;"><div style="font-size:0;line-height:0;">&nbsp;</div></td></tr>
   <tr><td bgcolor="#000000" align="center" class="k-dark" style="background:#000000;padding:28px 36px 0;"><img src="{LOGO_GREY}" width="88" style="width:88px;display:block;margin:0 auto;" alt="Bolt"></td></tr>
   <tr><td bgcolor="#000000" align="center" class="k-dark" style="background:#000000;padding:26px 36px 0;">
     {"".join(f'<a href="{s["href"]}" style="text-decoration:none;display:inline-block;margin:0 10px;"><img src="{s["uri"]}" width="16" height="16" style="display:inline-block;"></a>' for s in _socials)}
