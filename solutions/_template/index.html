@@ -1838,6 +1838,109 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
     height: 52px; font-size: 16px;
   }
 }
+
+/* ─── SPLIT SECTION (.split-section) — copy left / live panel right ────────
+   Reusable 50/50 component: eyebrow + H2 + body + CTA on one side, an animated
+   terminal-style panel on the other. Add .split-section--flip to put the panel
+   on the LEFT (it reorders on desktop only; mobile always stacks copy-first).
+   Styled in page tokens — brand blue, 2px radius, Inter — not the mint/pill
+   look of the reference mock. */
+.split-section { position: relative; overflow: hidden; }
+/* faint corner glow, the same trick the hero uses to lift the black */
+.split-section::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(80% 60% at 82% 12%, rgba(20,136,252,0.07) 0%, rgba(0,0,0,0) 60%);
+}
+.split-section > .section-inner { position: relative; z-index: 1; }
+.split-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+.split-section--flip .split-copy { order: 2; }
+
+.split-copy { display: flex; flex-direction: column; align-items: flex-start; gap: 22px; }
+.split-copy > * { margin: 0; }
+/* OPTIONAL dot eyebrow — no longer in the markup. To label a clone's section,
+   add <p class="section-eyebrow split-eyebrow eyebrow-scramble">Label</p> as the
+   first child of .split-copy. */
+.split-eyebrow { display: inline-flex; align-items: center; gap: 10px; }
+.split-eyebrow::before {
+  content: ""; width: 7px; height: 7px; border-radius: 50%;
+  background: #1488FC; flex-shrink: 0;
+}
+.split-copy .sc-section-h2 { max-width: 520px; }
+.split-copy .section-sub { max-width: 500px; }
+/* CTA sits a token gap below the copy (--sub-to-cta equivalent: 32/24) */
+.split-copy .hero-btn-primary { margin-top: 10px; min-width: 180px; }
+
+/* ── Terminal panel ── */
+.split-panel {
+  border: 1px solid rgba(255,255,255,0.10); border-radius: 2px;
+  background: #0b0b0e; overflow: hidden;
+  box-shadow: 0 30px 70px rgba(0,0,0,0.45);
+}
+.split-panel-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 12px 16px;
+  background: rgba(255,255,255,0.025);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.split-tabs { display: flex; align-items: center; gap: 6px; }
+.split-tab {
+  font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.4);
+  padding: 6px 12px; border-radius: 2px; line-height: 1;
+}
+.split-tab.is-active { color: #fff; background: rgba(255,255,255,0.07); }
+.split-live {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 12px; font-weight: 600; letter-spacing: 1px; color: rgba(255,255,255,0.75);
+}
+.split-live-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: #22c55e;
+  box-shadow: 0 0 0 4px rgba(34,197,94,0.16);
+  animation: splitPulse 2.4s ease-in-out infinite;
+}
+@keyframes splitPulse { 0%,100% { box-shadow: 0 0 0 4px rgba(34,197,94,0.16); } 50% { box-shadow: 0 0 0 7px rgba(34,197,94,0.05); } }
+
+.split-terminal {
+  padding: 22px 20px 26px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 14px; line-height: 1.9;
+  min-height: 300px;                 /* holds its height while lines reveal */
+}
+.split-line {
+  margin: 0; color: rgba(255,255,255,0.5);
+  opacity: 0; transform: translateY(4px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.split-line.is-in { opacity: 1; transform: none; }
+.split-line--prompt { color: #fff; }
+.split-line--prompt::before { content: "\203A"; color: #1488FC; margin-right: 10px; }
+.split-line--ok { color: #22c55e; }
+.split-line--link { color: #1488FC; }
+/* trailing block cursor, shown once the run finishes */
+.split-caret {
+  display: inline-block; width: 8px; height: 15px; vertical-align: -2px;
+  background: #1488FC; opacity: 0;
+  animation: splitBlink 1.1s steps(1) infinite;
+}
+.split-terminal.is-done .split-caret { opacity: 1; }
+@keyframes splitBlink { 0%,49% { opacity: 1; } 50%,100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .split-line { opacity: 1; transform: none; transition: none; }
+  .split-live-dot, .split-caret { animation: none; }
+}
+
+@media (max-width: 1024px) {
+  .split-grid { gap: 44px; }
+  .split-terminal { font-size: 13px; min-height: 260px; }
+}
+@media (max-width: 768px) {
+  /* always copy-first on phones, whichever side the panel takes on desktop */
+  .split-grid { grid-template-columns: 1fr; gap: 32px; }
+  .split-section--flip .split-copy { order: 0; }
+  .split-copy { gap: 18px; }
+  .split-copy .hero-btn-primary { min-width: 260px; max-width: 100%; height: 52px; font-size: 16px; }
+  .split-terminal { padding: 18px 16px 22px; font-size: 12.5px; line-height: 1.8; min-height: 0; }
+  .split-tab { font-size: 12px; padding: 5px 10px; }
+}
 </style>
 </head>
 <body>
@@ -1879,6 +1982,53 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
           <li>No code builder</li>
         </ul>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- SPLIT SECTION — copy left / live terminal panel right.
+     Reusable: swap the copy, edit the .split-line rows (--prompt / --ok /
+     --link are the accent variants), or add .split-section--flip to the
+     <section> to move the panel to the left. H2 is static, not .dsa-reveal:
+     first content section after the hero (CLAUDE.md first-section rule). -->
+<section class="section split-section">
+  <div class="section-inner">
+    <div class="split-grid">
+
+      <div class="split-copy">
+        <h2 class="sc-section-h2">Ship the app the moment you finish the prompt.</h2>
+        <p class="section-sub">Bolt.new builds, hosts, and deploys your app in the same window where you wrote it. No pipeline to configure, no server to babysit, no second tool to learn.</p>
+        <a href="https://bolt.new/" target="_blank" rel="noopener" class="hero-btn-primary">
+          <div class="btn-bg-hover"></div>
+          <div class="btn-text-wrap">
+            <div class="btn-text-inner">
+              <span>Start Building for Free</span>
+              <span>Start Building for Free</span>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <div class="split-panel" aria-hidden="true">
+        <div class="split-panel-bar">
+          <div class="split-tabs">
+            <span class="split-tab">Chat</span>
+            <span class="split-tab">Code</span>
+            <span class="split-tab is-active">Deploy</span>
+          </div>
+          <span class="split-live"><span class="split-live-dot"></span>LIVE</span>
+        </div>
+        <div class="split-terminal">
+          <p class="split-line split-line--prompt">Add a waitlist page with email capture</p>
+          <p class="split-line">Installing dependencies…</p>
+          <p class="split-line">Compiling project…</p>
+          <p class="split-line">Optimizing assets…</p>
+          <p class="split-line split-line--ok">Build complete in 2.8s</p>
+          <p class="split-line split-line--link">Deployed → https://waitlist-app-x7k2.bolt.host</p>
+          <p class="split-line split-line--ok">Status: LIVE · 4.2s total <span class="split-caret"></span></p>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
@@ -3464,6 +3614,33 @@ window.addEventListener('load', function () {
     window.addEventListener('resize', updateFade);
     updateFade();
   }
+})();
+
+/* ── Split section terminal — lines reveal in sequence once the panel is in
+      view, then the block cursor starts blinking. One-shot per panel. ─────── */
+(function () {
+  var REDUCE = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.split-terminal').forEach(function (term) {
+    var lines = Array.from(term.querySelectorAll('.split-line'));
+    if (!lines.length) return;
+    // longer beat after the prompt line (it's "thinking"), then a steady drip
+    function run() {
+      if (REDUCE) { lines.forEach(function (l) { l.classList.add('is-in'); }); term.classList.add('is-done'); return; }
+      var t = 0;
+      lines.forEach(function (l, i) {
+        t += i === 1 ? 620 : 340;
+        setTimeout(function () { l.classList.add('is-in'); }, t);
+      });
+      setTimeout(function () { term.classList.add('is-done'); }, t + 200);
+    }
+    if (!('IntersectionObserver' in window)) { run(); return; }
+    var io = new IntersectionObserver(function (entries) {
+      if (!entries[0].isIntersecting) return;
+      io.disconnect();
+      run();
+    }, { threshold: 0.35 });
+    io.observe(term);
+  });
 })();
 </script>
 </body>
