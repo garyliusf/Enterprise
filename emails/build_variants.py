@@ -222,13 +222,15 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
     h2 {{ font-size:20px !important; }}
     .btl {{ padding-top:8px !important; font-size:17px !important; line-height:1.3 !important; }}
     .ann-i {{ padding:20px 16px !important; }}
+    .hlogo {{ width:94px !important; }}
+    .bhead {{ padding-top:32px !important; }}
   }}
 </style></head>
 <body style="margin:0;background:#F2F1EF;">
 <table width="100%" cellpadding="0" cellspacing="0" bgcolor="#F2F1EF"><tr><td align="center" style="padding:28px 12px;">
 <table class="wrap" width="600" cellpadding="0" cellspacing="0" bgcolor="#000000" style="width:600px;max-width:600px;background:#000000;border-radius:12px;overflow:hidden;">
 
-  <tr><td align="center" style="padding:34px 40px 26px;"><img src="{LOGO_WHITE}" width="96" style="width:96px;display:block;" alt="Bolt"></td></tr>
+  <tr><td align="center" class="bhead" style="padding:34px 40px 26px;"><img src="{LOGO_WHITE}" class="hlogo" width="96" style="width:96px;display:block;" alt="Bolt"></td></tr>
 
   <tr><td class="px" style="padding:0 40px;"><img src="va/build-with-voice.jpg" width="520" style="width:100%;border-radius:8px;display:block;" alt=""></td></tr>
 
@@ -573,7 +575,8 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
     .ec {{ padding-top:18px !important; }}
     .tc-i {{ padding:20px 16px !important; }}
     .pbx-t {{ padding:14px 14px 10px !important; }}
-    .hero-pad {{ padding-left:16px !important; padding-right:16px !important; }}
+    .hero-pad {{ padding-left:16px !important; padding-right:16px !important; padding-top:32px !important; }}
+    .hlogo {{ width:81px !important; }}
   }}
 </style></head>
 <body style="margin:0;background:#F2F1EF;">
@@ -581,7 +584,7 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
 <table class="wrap" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;">
 
   <tr><td bgcolor="#000000" style="background:#000000;border-radius:12px 12px 0 0;padding:34px 36px 0;" align="center">
-    <img src="{LOGO_WHITE}" width="83" style="width:83px;display:block;margin:0 auto 26px;" alt="Bolt">
+    <img src="{LOGO_WHITE}" class="hlogo" width="83" style="width:83px;display:block;margin:0 auto 26px;" alt="Bolt">
     <div class="disp" style="font-family:{_SER};font-size:33px;font-weight:500;line-height:1.25;color:#ffffff;letter-spacing:0.2px;">Take payments with<br>the Stripe MCP</div>
     <div style="font-family:{_F};font-size:16px;color:#C9CDD3;margin:14px 0 22px;">This week on Bolt &mdash; live with the team.</div>
     {_e_pill("Register now", "#1488FC", "#ffffff")}
