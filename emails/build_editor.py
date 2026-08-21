@@ -355,7 +355,7 @@ function css(t){
       td[style*="height:26px"]{height:12px !important}
       td[style*="border-radius: 10px 10px 0px 0px"]{padding:8px 5.8% 0 !important}
       [data-footrow]{padding-left:5.8% !important;padding-right:5.8% !important}
-      h1,h2{font-size:${t.hSize - 2}px !important}
+      h1,h2{font-size:${t.hSize - 4}px !important}
       p:not([style]),li,td[align="center"]{font-size:${t.bSize - 1}px !important;
          line-height:1.45 !important}
       td[style*="border-radius: 0px 0px 10px 10px"]{padding:6px 5.8% 6px !important}
