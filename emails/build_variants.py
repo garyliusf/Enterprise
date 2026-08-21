@@ -18,9 +18,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 # CUSTOM_DOCS below (built in python, CX email 2 content).
 VARIANTS = {
     "A": {"custom": True},   # Robinhood promo — the working design
-    "B": {"custom": True},   # the light twin of the dark design
-    "C": {"custom": True},   # Musicbed dark (parked)
-    "D": {"custom": True},   # Apollo-style card stack, same content as A/B
+    "B": {"custom": True},   # Musicbed dark
+    "C": {"custom": True},   # Apollo-style card stack
 }
 
 # ---- pull data + pipeline out of the existing tools ----
@@ -814,9 +813,8 @@ VARIANT_AP = VARIANT_AP.replace('</style></head>', _KD + '</style></head>', 1)
 
 CUSTOM_DOCS = {
     "A": {"light": VARIANT_E, "dark": VARIANT_E},  # A = Robinhood promo (the working design)
-    "B": {"light": B_LIGHT, "dark": VARIANT_B},
-    "C": {"light": VARIANT_B, "dark": VARIANT_B},  # Musicbed dark (former ship candidate)
-    "D": {"light": VARIANT_AP, "dark": VARIANT_AP},  # Apollo-style card stack, A/B content (KLAFS retired)
+    "B": {"light": VARIANT_B, "dark": VARIANT_B},  # Musicbed dark
+    "C": {"light": VARIANT_AP, "dark": VARIANT_AP},  # Apollo-style card stack
 }
 
 SHELL = r"""<!doctype html><html lang="en"><head><meta charset="utf-8">
