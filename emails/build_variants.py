@@ -574,6 +574,7 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
     .evt {{ font-size:17px !important; line-height:1.3 !important; }}
     .ec {{ padding-top:18px !important; }}
     .tc-i {{ padding:20px 16px !important; }}
+    .tct {{ line-height:1.3 !important; }}
     .pbx-t {{ padding:14px 14px 10px !important; }}
     .hero-pad {{ padding-left:16px !important; padding-right:16px !important; padding-top:32px !important; }}
     .hlogo {{ width:81px !important; }}
@@ -625,7 +626,7 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
     <p style="margin:0 0 0;"><a href="#" style="font-size:16px;color:#1488FC;font-weight:600;text-decoration:none;">RSVP <span style="letter-spacing:1px;">&rarr;</span></a></p>
     <table width="100%" cellpadding="0" cellspacing="0" class="tipcard" style="background:#FFFFFF;border:1px solid #E2E0DC;border-radius:10px;margin:36px 0 0;"><tr><td class="tc-i" style="padding:26px 28px;font-family:{_F};">
       <div style="margin:0 0 14px;">{_b_badge("TIP OF THE WEEK")}</div>
-      <div style="font-size:21px;font-weight:600;color:#000000;line-height:1.4;margin:0 0 8px;">Let the Bolt agent work in your other tools for you</div>
+      <div class="tct" style="font-size:21px;font-weight:600;color:#000000;line-height:1.4;margin:0 0 8px;">Let the Bolt agent work in your other tools for you</div>
       <p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:#000000;">Once you connect a service like Stripe, the Bolt agent can interact with it directly on your behalf &mdash; describe what you want and it creates it in Stripe and wires it into your app.</p>
       <div style="margin:24px 0 8px;font-size:13px;font-weight:600;color:#666666;">Try this prompt:</div>
       <table width="100%" cellpadding="0" cellspacing="0" class="pbx-w" style="background-color:#2b2b2b;background-image:radial-gradient(circle at top left,#8FD0FF 0%,#4DA6FF 6%,#1488FC 11%,#2b2b2b 24%);border-radius:12px;"><tr><td style="padding:2px;">
