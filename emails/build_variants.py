@@ -649,7 +649,7 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
       <td style="background:#1389fd;border-radius:2px;"><a href="#" style="display:inline-block;min-width:180px;box-sizing:border-box;padding:15px 28px;font-family:{_F};font-size:15px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;white-space:nowrap;">Start Building</a></td>
     </tr></table>
     </td></tr></table>
-    <p style="margin:32px 0 0;font-size:16px;line-height:1.6;color:#000000;">Keep building,<br><span style="font-weight:600;">Monika &amp; The Bolt Team &#9889;</span></p>
+    <p style="margin:32px 0 0;font-size:16px;line-height:1.6;color:#000000;text-align:center;">Keep building,<br><span style="font-weight:600;">Monika &amp; The Bolt Team &#9889;</span></p>
   </td></tr>
 
   <tr><td bgcolor="#000000" class="px k-dark" style="background:#000000;padding:8px 36px 8px;"><div style="border-top:1px solid #232323;font-size:0;line-height:0;">&nbsp;</div></td></tr>
