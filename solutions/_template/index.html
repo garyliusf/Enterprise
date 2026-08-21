@@ -1646,6 +1646,166 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   .included-visual, .unlocks-visual { padding: 32px 18px; }
   .included-visual .deploy-discovery, .included-visual .deploy-lantern-glow { display: none; }
 }
+
+/* ─── AUDIENCE TABS (.plat-*) — ported verbatim from marketing/solutions.html ─
+   Reusable segment slider: horizontal tab bar + 2-col panel (copy left, live
+   browser mock right). Swap the four tab labels + panel copy per clone; the
+   browser mocks take any full-page screenshot in images/.
+   Widths follow this page's 1120px container (solutions.html uses 1200). */
+.plat-section .section-header { margin-bottom: clamp(28px, 4vh, 48px); }
+
+/* Horizontal tab bar */
+.plat-tabbar {
+  display: flex; gap: 44px;
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+  margin-bottom: 52px; position: relative;
+}
+.plat-tab {
+  background: none; border: none; padding: 0 0 20px; cursor: pointer;
+  font-family: 'Inter', sans-serif; font-size: 19px; font-weight: 500;
+  color: rgba(255,255,255,0.4); position: relative; white-space: nowrap;
+  transition: color 0.25s ease;
+}
+.plat-tab:hover { color: rgba(255,255,255,0.72); }
+.plat-tab.active { color: #fff; }
+/* bottom: 0 (not -1px) — the mobile bar clips overflow-y, which was cutting
+   the underline to a visual 1px */
+.plat-tab::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px;
+  background: #1488FC; border-radius: 2px 2px 0 0;
+  transform: scaleX(0); transform-origin: left center;
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+.plat-tab.active::after { transform: scaleX(1); }
+
+/* Panels */
+.plat-panels { position: relative; }
+.plat-panel { display: none; }
+.plat-panel.active { display: block; animation: platPanelIn 0.45s ease; }
+@keyframes platPanelIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .plat-panel.active { animation: none; } }
+.plat-panel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+.plat-panel-left { display: flex; flex-direction: column; align-items: flex-start; gap: 22px; }
+.plat-h3 { font-size: clamp(28px, 3vw, 40px); font-weight: 500; color: #fff; line-height: 1.15; letter-spacing: -0.5px; margin: 0; max-width: 480px; }
+.plat-body { font-size: 16px; color: rgba(255,255,255,0.55); line-height: 1.65; margin: 0; max-width: 520px; }
+.plat-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 16px; }
+.plat-list li { position: relative; padding-left: 24px; font-size: 15px; color: rgba(255,255,255,0.75); line-height: 1.45; }
+/* top: 6px — square's top sits just inside the first line's cap height */
+.plat-list li::before { content: ""; position: absolute; left: 0; top: 6px; width: 7px; height: 7px; border-radius: 0; background: #1488FC; }
+
+/* Slider stage — one flat panel, a touch lighter than the page so it reads as
+   a surface against the black. (#plat-stage-noise is kept in the markup but
+   hidden: the textured ring read as a border.) */
+.plat-stage {
+  position: relative; overflow: hidden;
+  width: min(1120px, calc(100vw - 160px)); margin: 0 auto;
+  border-radius: 2px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.045) 0%, rgba(255,255,255,0.012) 34%, rgba(255,255,255,0) 62%),
+    #09090b;
+  padding: 0;
+}
+#plat-stage-noise { display: none; }
+.plat-stage-black {
+  position: relative; z-index: 1;
+  background: transparent; border-radius: 2px;
+  padding: clamp(36px, 5vh, 56px) clamp(24px, 3.2vw, 52px) clamp(40px, 6vh, 64px);
+}
+.plat-stage-inner { width: 100%; margin: 0 auto; }
+
+/* Right visual card — simple dark card sitting on the stage */
+.plat-vcard {
+  position: relative; overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.10); border-radius: 2px;
+  background: rgba(0,0,0,0.35);
+  padding: 32px;
+  display: flex; flex-direction: column; gap: 20px; justify-content: center;
+  min-height: 320px;
+  /* stretch to the row + extend 16px past both ends, so the card always
+     runs a fraction longer than the copy column beside it */
+  align-self: stretch; margin: -16px 0;
+}
+/* Browser variant: no chrome of its own — the bolt browser mock inside
+   provides the frame; the card just stretches + centers it. */
+.plat-vcard--browser { padding: 0; border: none; background: none; justify-content: center; }
+
+/* Bolt browser mock: SVG top bar + a viewport in which a full-page template
+   capture slowly scrolls. */
+.plat-browser {
+  position: relative;
+  width: 100%; background: #000;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 2px; overflow: hidden;
+}
+.plat-browser-bar { display: block; width: 100%; height: auto; }
+/* A REAL scroll container — the visitor can scroll/swipe the template inside
+   the mock. The ambient momentum drift is driven from JS by writing scrollTop,
+   so hand-scrolling and the idle animation share one mechanism. */
+.plat-browser-view {
+  position: relative;
+  aspect-ratio: 864 / 553;            /* body of the 864×601 mock */
+  overflow-y: auto; overflow-x: hidden;
+  /* no overscroll-behavior:contain — at either end the page keeps scrolling
+     normally, so the embed never traps the page */
+  scrollbar-width: none; -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+.plat-browser-view::-webkit-scrollbar { width: 0; height: 0; display: none; }
+.plat-browser-page { width: 100%; height: auto; display: block; }
+/* the mock's faint blue glow bleeding down from the bar — on the OUTER frame
+   so it stays pinned above the (opaque) page image while content scrolls */
+.plat-browser::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  background: radial-gradient(75% 125% at 60% 0%, rgba(20,136,252,0.10) 0%, rgba(0,0,0,0) 55%);
+}
+/* single-screen pages (a dashboard with no real scroll of its own) */
+.plat-browser--static .plat-browser-view { overflow: hidden; }
+/* On phones the embed is ambient only: a decorative scroll container would
+   swallow vertical swipes meant for the page. */
+@media (max-width: 768px) { .plat-browser-view { pointer-events: none; } }
+
+@media (max-width: 1024px) {
+  .plat-stage { width: min(900px, calc(100vw - 80px)); }
+  .plat-tabbar { gap: 32px; }
+  .plat-tab { font-size: 17px; }
+  .plat-panel-grid { gap: 44px; }
+  .plat-h3 { font-size: clamp(26px, 3.4vw, 34px); }
+}
+@media (max-width: 768px) {
+  .plat-stage { width: calc(100vw - 32px); padding: 0; border-radius: 2px; }
+  .plat-stage-black { padding: 28px 14px 32px; border-radius: 2px; }
+  /* Tab bar scrolls horizontally so all four labels stay on one row.
+     overflow-y hidden + touch-action pan-x: with overflow-x auto alone, iOS
+     treats the bar as a vertical scroller too and lets you drag the nav down */
+  .plat-tabbar { gap: 22px; margin-bottom: 32px; overflow-x: auto; overflow-y: hidden; touch-action: pan-x; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .plat-tabbar::-webkit-scrollbar { display: none; }
+  /* right-edge fade+blur — signals more tabs off-screen (blog filter-bar
+     pattern); JS adds .at-end when scrolled fully right */
+  .plat-tabbar-wrap { position: relative; }
+  .plat-tabbar-wrap::after {
+    content: ""; position: absolute; top: 0; right: 0; bottom: 0; width: 96px;
+    pointer-events: none; z-index: 2;
+    /* Deliberately heavy: the label behind this needs to read as CUT OFF, not
+       merely dimmed, or the row looks like it simply ends. */
+    background: linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,0.55) 30%, rgba(0,0,0,0.88) 60%, #000 85%);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 22%);
+            mask-image: linear-gradient(to right, transparent, #000 22%);
+    opacity: 1; transition: opacity 0.25s ease;
+  }
+  .plat-tabbar-wrap.at-end::after { opacity: 0; }
+  .plat-tab { font-size: 15px; padding-bottom: 14px; }
+  .plat-panel-grid { grid-template-columns: 1fr; gap: 28px; }
+  .plat-panel-left { gap: 18px; }
+  .plat-h3 { font-size: clamp(24px, 7vw, 30px); }
+  .plat-body, .plat-list li { font-size: 15px; }
+  .plat-vcard { padding: 22px; min-height: 0; align-self: auto; margin: 0; }
+  /* the browser variant carries no card padding — it must stay flush with the
+     copy column above it. Needed explicitly: the rule above has the same
+     specificity as .plat-vcard--browser but comes later, so it would win. */
+  .plat-vcard--browser { padding: 0; }
+}
 </style>
 </head>
 <body>
@@ -1789,6 +1949,129 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
         </div>
 
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- AUDIENCE TABS (business-size slider — ported from marketing/solutions.html)
+     Reusable: swap the tab labels + panel copy per clone, and point each
+     .plat-browser-page at a full-page screenshot in images/. Keep data-feat /
+     data-panel paired (tab n ↔ panel n) — the JS matches on those. -->
+<section class="section plat-section">
+  <div class="section-inner">
+    <div class="section-header dsa-reveal">
+      <p class="section-eyebrow eyebrow-scramble">Solutions</p>
+      <h2 class="sc-section-h2">Build exactly what you need</h2>
+      <p class="section-sub">Whether you&rsquo;re building solo or shipping across a whole organization, Bolt fits the way you work.</p>
+    </div>
+  </div>
+  <div class="plat-stage">
+    <canvas id="plat-stage-noise" aria-hidden="true"></canvas>
+    <div class="plat-stage-black">
+    <div class="plat-stage-inner">
+    <div class="plat-tabbar-wrap">
+    <div class="plat-tabbar" role="tablist">
+      <button class="plat-tab active" data-feat="1" role="tab">Entrepreneur</button>
+      <button class="plat-tab" data-feat="2" role="tab">Small business</button>
+      <button class="plat-tab" data-feat="3" role="tab">Enterprise</button>
+      <button class="plat-tab" data-feat="4" role="tab">Agencies</button>
+    </div>
+    </div>
+
+    <div class="plat-panels">
+
+      <div class="plat-panel active" data-panel="1" role="tabpanel">
+        <div class="plat-panel-grid">
+          <div class="plat-panel-left">
+            <h3 class="plat-h3">Turn your idea into a live product</h3>
+            <p class="plat-body">You know what you want to build. Bolt gets you there directly. You don&rsquo;t need a developer or a $12,000 agency invoice. It&rsquo;s your vision, made live.</p>
+            <ul class="plat-list">
+              <li>Launch a working app without a technical co-founder</li>
+              <li>Build and revise it yourself instead of waiting on a developer</li>
+              <li>Deploy your MVP and test your assumptions</li>
+            </ul>
+          </div>
+          <div class="plat-vcard plat-vcard--browser" aria-hidden="true">
+            <div class="plat-browser">
+              <img class="plat-browser-bar" src="images/bolt-browser-bar.svg" alt="">
+              <div class="plat-browser-view">
+                <img class="plat-browser-page" decoding="async" src="images/premium-saas-dashboard-lp.webp" alt="">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="plat-panel" data-panel="2" role="tabpanel">
+        <div class="plat-panel-grid">
+          <div class="plat-panel-left">
+            <h3 class="plat-h3">Replace the tools that cost you more than they help</h3>
+            <p class="plat-body">Build the internal tools, customer-facing apps, and sales dashboards your business needs, without adding headcount or juggling five different subscriptions.</p>
+            <ul class="plat-list">
+              <li>Internal tools and dashboards built in an afternoon, not a quarter</li>
+              <li>One platform instead of a stack of point solutions</li>
+              <li>No developer or expensive agency quotes needed</li>
+            </ul>
+          </div>
+          <div class="plat-vcard plat-vcard--browser" aria-hidden="true">
+            <!-- --short: fewer drift waypoints, for a page with less to scroll -->
+            <div class="plat-browser plat-browser--short">
+              <img class="plat-browser-bar" src="images/bolt-browser-bar.svg" alt="">
+              <div class="plat-browser-view">
+                <img class="plat-browser-page" decoding="async" src="images/ledger-finance.webp" alt="">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="plat-panel" data-panel="3" role="tabpanel">
+        <div class="plat-panel-grid">
+          <div class="plat-panel-left">
+            <h3 class="plat-h3">Give every team the speed of a startup</h3>
+            <p class="plat-body">Ship production-grade apps with the governance, security, and access controls your organization requires and the speed AI-coding provides.</p>
+            <ul class="plat-list">
+              <li>SSO, audit logs, and role-based access control</li>
+              <li>Security scanning built into every deploy</li>
+              <li>Fits inside the workflows your engineering team already runs</li>
+            </ul>
+          </div>
+          <div class="plat-vcard plat-vcard--browser" aria-hidden="true">
+            <!-- --static: single-screen capture, no drift -->
+            <div class="plat-browser plat-browser--static">
+              <img class="plat-browser-bar" src="images/bolt-browser-bar.svg" alt="">
+              <div class="plat-browser-view">
+                <img class="plat-browser-page" decoding="async" src="images/vantage-dashboard.webp" alt="">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="plat-panel" data-panel="4" role="tabpanel">
+        <div class="plat-panel-grid">
+          <div class="plat-panel-left">
+            <h3 class="plat-h3">Deliver more client work without more headcount</h3>
+            <p class="plat-body">Build client sites, campaign pages, and custom tools fast enough to protect your margins, with the design control your clients expect from a finished deliverable.</p>
+            <ul class="plat-list">
+              <li>Use client design systems</li>
+              <li>Faster turnaround on revision rounds</li>
+              <li>Deliver production ready products</li>
+            </ul>
+          </div>
+          <div class="plat-vcard plat-vcard--browser" aria-hidden="true">
+            <div class="plat-browser">
+              <img class="plat-browser-bar" src="images/bolt-browser-bar.svg" alt="">
+              <div class="plat-browser-view">
+                <img class="plat-browser-page" decoding="async" src="images/noir-agency.webp" alt="">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    </div>
     </div>
   </div>
 </section>
@@ -2999,6 +3282,121 @@ window.addEventListener('load', function () {
     }
     setInterval(tick, 2500);
   });
+})();
+
+/* ── Audience tabs: browser embeds — ambient momentum drift, driven by writing
+      scrollTop so the visitor can grab and scroll the template themselves at
+      any time. Hand-scrolling pauses the drift; after an idle beat it resumes
+      from wherever they left off (picking the next waypoint ahead of them, so
+      it never yanks backwards). Off-screen panels don't animate. ───────────── */
+(function () {
+  var REDUCE = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // [target fraction of scrollable range, travel ms, dwell ms]
+  var LEGS_LONG = [
+    [0.26, 2100, 2300], [0.52, 2100, 2300], [0.76, 2100, 2300], [1, 2100, 3500],
+    [0.48, 1900,  800], [0,    2300, 1500]
+  ];
+  var LEGS_SHORT = [[0.52, 2200, 3000], [1, 2200, 3200], [0.44, 1900, 800], [0, 2200, 1500]];
+  // strong ease-out = a flick that launches fast and decays into a stop
+  function ease(t) { return 1 - Math.pow(1 - t, 3); }
+
+  document.querySelectorAll('.plat-browser').forEach(function (browser) {
+    if (browser.classList.contains('plat-browser--static')) return;
+    var view = browser.querySelector('.plat-browser-view');
+    if (!view) return;
+    var legs = browser.classList.contains('plat-browser--short') ? LEGS_SHORT : LEGS_LONG;
+
+    var leg = 0, moving = true, t0 = null, from = 0;
+    var held = false, idleTimer = null, visible = true, lastWritten = -1;
+
+    function range() { return view.scrollHeight - view.clientHeight; }
+
+    // hand off to the visitor; resume after they've been still for a beat
+    function yieldToUser() {
+      held = true;
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(function () {
+        var max = range(), pos = max > 0 ? view.scrollTop / max : 0;
+        // next waypoint that is actually ahead of where they stopped
+        var next = legs.findIndex(function (l) { return l[0] > pos + 0.02; });
+        leg = next === -1 ? legs.length - 1 : next;
+        held = false; moving = true; t0 = null;
+      }, 2400);
+    }
+    ['wheel', 'touchstart', 'pointerdown', 'keydown'].forEach(function (evt) {
+      view.addEventListener(evt, yieldToUser, { passive: true });
+    });
+    // Catches trackpad momentum flings and scrollbar drags, which fire no
+    // wheel/pointer event. Scroll events are dispatched asynchronously, so a
+    // "we're writing right now" flag would always read false by the time this
+    // runs and the drift would pause itself forever — compare against the last
+    // value we wrote instead, and treat anything else as the visitor's input.
+    view.addEventListener('scroll', function () {
+      if (Math.abs(view.scrollTop - lastWritten) > 2) yieldToUser();
+    }, { passive: true });
+
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (entries) {
+        visible = entries[0].isIntersecting;
+      }, { threshold: 0.05 }).observe(browser);
+    }
+
+    function step(ts) {
+      requestAnimationFrame(step);
+      var max = range();
+      // panel hidden (display:none) or nothing to scroll → idle, keep polling
+      if (held || !visible || max <= 0 || !view.clientHeight) { t0 = null; return; }
+      var l = legs[leg], dur = moving ? l[1] : l[2];
+      if (t0 === null) { t0 = ts; from = view.scrollTop; }
+      var p = Math.min(1, (ts - t0) / dur);
+      if (moving) {
+        view.scrollTop = from + (l[0] * max - from) * ease(p);
+        lastWritten = view.scrollTop;
+      }
+      if (p >= 1) {
+        if (moving) { moving = false; }
+        else { moving = true; leg = (leg + 1) % legs.length; }
+        t0 = null;
+      }
+    }
+    if (!REDUCE) requestAnimationFrame(step);
+  });
+})();
+
+/* ── Audience tab bar — click + auto-advance, sliding underline via .active ── */
+(function () {
+  var DURATION = 7000;
+  var tabs = Array.from(document.querySelectorAll('.plat-tab'));
+  var panels = Array.from(document.querySelectorAll('.plat-panel'));
+  if (!tabs.length) return;
+  var current = 1, timer = null;
+  function setActive(i) {
+    tabs.forEach(function (t) { t.classList.toggle('active', parseInt(t.dataset.feat) === i); });
+    panels.forEach(function (p) { p.classList.toggle('active', parseInt(p.dataset.panel) === i); });
+    current = i;
+  }
+  function schedule() {
+    clearTimeout(timer);
+    timer = setTimeout(function () { setActive(current % tabs.length + 1); schedule(); }, DURATION);
+  }
+  tabs.forEach(function (t) {
+    t.addEventListener('click', function () { setActive(parseInt(t.dataset.feat)); schedule(); });
+  });
+  setActive(1);
+  schedule();
+
+  // right-edge fade affordance: hide once the bar is scrolled fully right (or fits)
+  var bar = document.querySelector('.plat-tabbar');
+  var wrap = document.querySelector('.plat-tabbar-wrap');
+  if (bar && wrap) {
+    function updateFade() {
+      var atEnd = bar.scrollLeft + bar.clientWidth >= bar.scrollWidth - 4;
+      wrap.classList.toggle('at-end', atEnd);
+    }
+    bar.addEventListener('scroll', updateFade, { passive: true });
+    window.addEventListener('resize', updateFade);
+    updateFade();
+  }
 })();
 </script>
 </body>
