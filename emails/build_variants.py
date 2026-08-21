@@ -159,8 +159,8 @@ _SOC_WHITE = [dict(s, uri=_recolor(s["uri"], "#ffffff")) for s in _socials]
 def _b_event(img, title, date):
     return f'''<tr><td style="padding:0 40px 10px;"><img src="{img}" width="520" style="width:100%;border-radius:8px;display:block;" alt=""></td></tr>
     <tr><td class="btl" style="padding:14px 40px 6px;font-family:{_F};font-size:19px;font-weight:600;color:#ffffff;line-height:1.4;">{title}</td></tr>
-    <tr><td style="padding:0 40px 12px;font-family:{_F};font-size:15px;font-weight:500;color:#ABABAB;">{date}</td></tr>
-    <tr><td style="padding:0 40px 52px;font-family:{_F};"><a href="#" style="font-size:16px;color:#1488FC;font-weight:600;text-decoration:none;">RSVP <span style="letter-spacing:1px;">&rarr;</span></a></td></tr>'''
+    <tr><td class="edt" style="padding:0 40px 12px;font-family:{_F};font-size:15px;font-weight:500;color:#ABABAB;">{date}</td></tr>
+    <tr><td style="padding:0 40px 52px;font-family:{_F};"><a class="rsvp" href="#" style="font-size:16px;color:#1488FC;font-weight:600;text-decoration:none;">RSVP <span style="letter-spacing:1px;">&rarr;</span></a></td></tr>'''
 
 def _b_ghost(label, band=False):
     # standard blue button (token spec): #1389fd, radius 8, 16/600, hug min-220
@@ -196,7 +196,7 @@ def _b_callout(eyebrow, title, body, inset='', cta=''):
 TIP_CARD = _b_callout(
     "TIP OF THE WEEK",
     "Let the Bolt agent work in your other tools for you",
-    '<p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#ABABAB;">Once you connect a service like Stripe, the Bolt agent can interact with it directly on your behalf &mdash; describe what you want and it creates it in Stripe and wires it into your app.</p>',
+    '<p style="margin:0 0 16px;font-size:15px;line-height:1.45;color:#ABABAB;">Once you connect a service like Stripe, the Bolt agent can interact with it directly on your behalf &mdash; describe what you want and it creates it in Stripe and wires it into your app.</p>',
     inset=f'''<div style="margin:20px 0 8px;font-size:13px;font-weight:600;color:#8a8a8a;">Try this prompt:</div>
     <table width="100%" cellpadding="0" cellspacing="0" class="pbox-w" style="background-color:#2b2b2b;background-image:radial-gradient(circle at top left,#8FD0FF 0%,#4DA6FF 6%,#1488FC 11%,#2b2b2b 24%);border-radius:12px;"><tr><td style="padding:2px;">
       <table width="100%" cellpadding="0" cellspacing="0" class="pbox" style="background:#1E1F22;border-radius:10px;"><tr><td class="pbx-t" style="padding:16px 18px 14px;font-family:{_F};font-size:13px;line-height:1.55;color:#E8E8EA;">
@@ -218,9 +218,13 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
   @media (max-width:480px) {{
     .wrap {{ width:100% !important; }}
     td[style*="40px"], .px {{ padding-left:12px !important; padding-right:12px !important; }}
-    h1 {{ font-size:24px !important; line-height:1.3 !important; }}
-    h2 {{ font-size:20px !important; }}
-    .btl {{ padding-top:8px !important; font-size:17px !important; line-height:1.3 !important; }}
+    h1 {{ font-size:22px !important; line-height:1.3 !important; }}
+    h2 {{ font-size:18px !important; }}
+    p, li {{ font-size:14px !important; }}
+    .edt, .rsvp {{ font-size:14px !important; }}
+    .pbx-t {{ font-size:12px !important; }}
+    .gbtn a {{ font-size:14px !important; }}
+    .btl {{ padding-top:8px !important; font-size:15px !important; line-height:1.3 !important; }}
     .ann-i {{ padding:20px 16px !important; }}
     .hlogo {{ width:81px !important; }}
     .bhead {{ padding-top:32px !important; }}
@@ -569,9 +573,15 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
   @media (max-width:480px) {{
     .wrap {{ width:100% !important; }}
     .px {{ padding-left:11px !important; padding-right:11px !important; }}
-    .disp {{ font-size:27px !important; }}
+    .disp {{ font-size:24px !important; }}
+    h2 {{ font-size:22px !important; }}
+    p, li {{ font-size:15px !important; }}
+    .edt, .rsvp {{ font-size:14px !important; }}
+    .tct {{ font-size:19px !important; }}
+    .pbx-t {{ font-size:12px !important; }}
+    .btn-t a {{ font-size:14px !important; }}
     .cu {{ margin-bottom:6px !important; }}
-    .evt {{ font-size:17px !important; line-height:1.3 !important; }}
+    .evt {{ font-size:15px !important; line-height:1.3 !important; }}
     .ec {{ padding-top:18px !important; }}
     .tc-i {{ padding:20px 16px !important; }}
     .tct {{ line-height:1.3 !important; }}
@@ -610,20 +620,20 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
   <tr><td bgcolor="#ffffff" class="k-light" style="background:#ffffff;padding:0;line-height:0;"><img src="va/build-with-voice.jpg" width="600" style="width:100%;display:block;" alt=""></td></tr>
   <tr><td bgcolor="#ffffff" class="px k-light ec" style="background:#ffffff;padding:24px 36px 8px;font-family:{_F};">
     <div class="evt k-ink" style="font-size:21px;font-weight:600;color:#000000;line-height:1.4;margin:0 0 6px;">Your Users Have Questions: Answer Them Automatically Inside Your App</div>
-    <div style="font-size:15px;font-weight:500;color:#666666;margin:0 0 12px;">Thursday, August 20</div>
-    <p style="margin:0 0 36px;"><a href="#" style="font-size:16px;color:#1488FC;font-weight:600;text-decoration:none;">RSVP <span style="letter-spacing:1px;">&rarr;</span></a></p>
+    <div class="edt" style="font-size:15px;font-weight:500;color:#666666;margin:0 0 12px;">Thursday, August 20</div>
+    <p style="margin:0 0 36px;"><a class="rsvp" href="#" style="font-size:16px;color:#1488FC;font-weight:600;text-decoration:none;">RSVP <span style="letter-spacing:1px;">&rarr;</span></a></p>
   </td></tr>
   <tr><td bgcolor="#ffffff" class="k-light" style="background:#ffffff;padding:0;line-height:0;"><img src="va/maker-photo.jpg" width="600" style="width:100%;display:block;" alt=""></td></tr>
   <tr><td bgcolor="#ffffff" class="px k-light ec" style="background:#ffffff;padding:24px 36px 8px;font-family:{_F};">
     <div class="evt k-ink" style="font-size:21px;font-weight:600;color:#000000;line-height:1.4;margin:0 0 6px;">Office Hours: Bring your projects, questions, or blockers for live help</div>
-    <div style="font-size:15px;font-weight:500;color:#666666;margin:0 0 12px;">Tuesday, August 25</div>
-    <p style="margin:0 0 36px;"><a href="#" style="font-size:16px;color:#1488FC;font-weight:600;text-decoration:none;">RSVP <span style="letter-spacing:1px;">&rarr;</span></a></p>
+    <div class="edt" style="font-size:15px;font-weight:500;color:#666666;margin:0 0 12px;">Tuesday, August 25</div>
+    <p style="margin:0 0 36px;"><a class="rsvp" href="#" style="font-size:16px;color:#1488FC;font-weight:600;text-decoration:none;">RSVP <span style="letter-spacing:1px;">&rarr;</span></a></p>
   </td></tr>
   <tr><td bgcolor="#ffffff" class="k-light" style="background:#ffffff;padding:0;line-height:0;"><img src="va/bolt-templates.jpg" width="600" style="width:100%;display:block;" alt=""></td></tr>
   <tr><td bgcolor="#ffffff" class="px k-light ec" style="background:#ffffff;padding:24px 36px 36px;font-family:{_F};">
     <div class="evt k-ink" style="font-size:21px;font-weight:600;color:#000000;line-height:1.4;margin:0 0 6px;">Launch and Grow: Market Your App and Find Your First Users</div>
-    <div style="font-size:15px;font-weight:500;color:#666666;margin:0 0 12px;">Thursday, August 27</div>
-    <p style="margin:0 0 0;"><a href="#" style="font-size:16px;color:#1488FC;font-weight:600;text-decoration:none;">RSVP <span style="letter-spacing:1px;">&rarr;</span></a></p>
+    <div class="edt" style="font-size:15px;font-weight:500;color:#666666;margin:0 0 12px;">Thursday, August 27</div>
+    <p style="margin:0 0 0;"><a class="rsvp" href="#" style="font-size:16px;color:#1488FC;font-weight:600;text-decoration:none;">RSVP <span style="letter-spacing:1px;">&rarr;</span></a></p>
     <table width="100%" cellpadding="0" cellspacing="0" class="tipcard" style="background:#FFFFFF;border:1px solid #E2E0DC;border-radius:10px;margin:36px 0 0;"><tr><td class="tc-i" style="padding:26px 28px;font-family:{_F};">
       <div style="margin:0 0 14px;">{_b_badge("TIP OF THE WEEK")}</div>
       <div class="tct" style="font-size:21px;font-weight:600;color:#000000;line-height:1.4;margin:0 0 8px;">Let the Bolt agent work in your other tools for you</div>
