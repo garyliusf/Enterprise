@@ -355,6 +355,7 @@ function css(t){
       td[style*="height:26px"]{height:12px !important}
       td[style*="border-radius: 10px 10px 0px 0px"]{padding:8px 5.8% 0 !important}
       [data-footrow]{padding-left:5.8% !important;padding-right:5.8% !important}
+      [data-footgap]{height:${Math.max(0, t.footerGap - 10)}px !important}
       h1,h2{font-size:${t.hSize - 4}px !important}
       p:not([style]),li,td[align="center"]{font-size:${t.bSize - 1}px !important;
          line-height:1.45 !important}
@@ -484,7 +485,7 @@ function docFor(){
 
   if (t.footerGap) doc = doc.replace(
     /(<tr>\s*<td[^>]*>\s*<p style="[^"]*(?:#999999|#666666))/i,
-    `<tr><td style="height:${t.footerGap}px;line-height:0;font-size:0;">&nbsp;</td></tr>$1`);
+    `<tr><td data-footgap style="height:${t.footerGap}px;line-height:0;font-size:0;">&nbsp;</td></tr>$1`);
 
   if (t.footLogo && t.footLogo !== 'none') doc = doc.replace(
     /(<tr>\s*<td[^>]*>\s*<p style="[^"]*(?:#999999|#666666))/i,
