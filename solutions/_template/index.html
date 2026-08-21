@@ -2038,6 +2038,79 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   .split-row { padding: 14px; gap: 10px; }
   .split-pill { font-size: 11px; padding: 4px 10px; }
 }
+
+/* ─── COMPARISON TABLE (.compare-*) — two-column variant ───────────────────
+   Same anatomy as the pricing page's .compare-table (fixed layout + colgroup,
+   pixel check glyph, column hover highlight, row reveal) cut down to ONE
+   subject vs ONE alternative, with a title + description in each feature cell.
+   Swap the two <th> labels and the rows per clone; .compare-mark--yes /
+   --neutral / --no are the three cell states. */
+.compare-panel {
+  border: 1px solid rgba(255,255,255,0.10); border-radius: 2px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%), #09090b;
+  overflow: hidden;
+}
+.compare-table {
+  width: 100%; border-collapse: separate; border-spacing: 0;
+  table-layout: fixed; font-size: 14px;
+}
+.compare-table col:nth-child(1) { width: 60%; }
+.compare-table col:nth-child(2),
+.compare-table col:nth-child(3) { width: 20%; }
+.compare-table th, .compare-table td {
+  padding: 22px 24px; text-align: left; vertical-align: middle;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  transition: background-color 0.3s cubic-bezier(0.22,1,0.36,1);
+}
+.compare-table tbody tr:last-child td { border-bottom: none; }
+/* head row: mono column labels, ours in brand blue */
+.compare-head th {
+  padding: 18px 24px;
+  background: rgba(255,255,255,0.025);
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+}
+.compare-head th.compare-col-ours { color: #1488FC; }
+.compare-head th:not(:first-child) { text-align: center; }
+/* feature cell — title + description (the pricing table is one line per row) */
+.compare-feat-title { display: block; font-size: 17px; font-weight: 600; color: #fff; letter-spacing: -0.2px; }
+.compare-feat-desc { display: block; margin-top: 8px; font-size: 15px; line-height: 1.6; color: rgba(255,255,255,0.5); max-width: 620px; }
+/* verdict cells */
+.compare-table td:not(:first-child) { text-align: center; }
+.compare-mark {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border-radius: 50%;
+}
+.compare-mark svg { width: 14px; height: 14px; }
+.compare-mark--yes { background: rgba(20,136,252,0.16); color: #4DA6FF; }
+/* --neutral: the alternative also does this — a plain, unbranded yes */
+.compare-mark--neutral { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.75); }
+.compare-mark--no { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.3); }
+/* column hover highlight, minus the feature column (pricing page pattern) */
+.compare-table:has(tr > :nth-child(2):hover) tr > :nth-child(2),
+.compare-table:has(tr > :nth-child(3):hover) tr > :nth-child(3) {
+  background-color: rgba(255,255,255,0.035);
+}
+@media (max-width: 1024px) {
+  .compare-table th, .compare-table td { padding: 20px; }
+  .compare-feat-title { font-size: 16px; }
+  .compare-feat-desc { font-size: 14px; }
+}
+@media (max-width: 768px) {
+  /* the verdict columns need more room than 20% once the head labels wrap —
+     <col> widths are overridable in CSS under table-layout: fixed */
+  .compare-table col:nth-child(1) { width: 48%; }
+  .compare-table col:nth-child(2),
+  .compare-table col:nth-child(3) { width: 26%; }
+  .compare-table th, .compare-table td { padding: 16px 12px; }
+  .compare-head th { padding: 14px 10px; font-size: 10px; letter-spacing: 1px; line-height: 1.4; }
+  .compare-feat-title { font-size: 15px; }
+  .compare-feat-desc { font-size: 13px; margin-top: 6px; }
+  .compare-mark { width: 24px; height: 24px; }
+  .compare-mark svg { width: 12px; height: 12px; }
+}
 </style>
 </head>
 <body>
@@ -2527,6 +2600,78 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
         <span class="included-label">Editable source code — always yours</span>
       </li>
     </ul>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARISON TABLE — two-column variant of the pricing page&rsquo;s
+     .compare-table (marketing/pricing.html). Columns: swap the two <th>
+     labels; rows: title + description on the left, one .compare-mark per
+     column (--yes = brand blue check, --neutral = plain white check when the
+     alternative also does it, --no = muted cross). -->
+<section class="section compare-section">
+  <div class="section-inner">
+    <div class="section-header">
+      <p class="section-eyebrow eyebrow-scramble">Feature by feature</p>
+      <h2 class="sc-section-h2">Where the two builders diverge</h2>
+      <p class="section-sub">Both tools take a prompt and hand back a working app. The difference shows up on day three, when you need to change something the AI didn&rsquo;t get right.</p>
+    </div>
+
+    <div class="compare-panel">
+      <table class="compare-table">
+        <!-- column widths live in CSS (.compare-table col:nth-child) so the
+             mobile rule can override them; inline style attrs could not be -->
+        <colgroup><col><col><col></colgroup>
+        <thead>
+          <tr class="compare-head">
+            <th scope="col">Capability</th>
+            <th scope="col" class="compare-col-ours">Bolt.new</th>
+            <th scope="col">Other builders</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="compare-feat">
+              <span class="compare-feat-title">Prompt to working app</span>
+              <span class="compare-feat-desc">Describe what you want and get a running app you can click through, not a static mockup. Both builders do this well, and both scaffold routing, state, and components for you.</span>
+            </td>
+            <td><span class="compare-mark compare-mark--yes" title="Yes"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges" aria-hidden="true"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></span></td>
+            <td><span class="compare-mark compare-mark--neutral" title="Yes"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges" aria-hidden="true"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></span></td>
+          </tr>
+          <tr>
+            <td class="compare-feat">
+              <span class="compare-feat-title">A real dev environment in the browser</span>
+              <span class="compare-feat-desc">Bolt.new runs on WebContainers, so you get a file tree, a package manager, and a terminal in the tab. Install a dependency, read the error output, and patch the file yourself when that&rsquo;s faster than another prompt.</span>
+            </td>
+            <td><span class="compare-mark compare-mark--yes" title="Yes"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges" aria-hidden="true"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></span></td>
+            <td><span class="compare-mark compare-mark--no" title="No"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges" aria-hidden="true"><path d="M3 3h3v3H3zM18 3h3v3h-3zM6 6h3v3H6zM15 6h3v3h-3zM9 9h6v3H9zM9 12h6v3H9zM6 15h3v3H6zM15 15h3v3h-3zM3 18h3v3H3zM18 18h3v3h-3z"/></svg></span></td>
+          </tr>
+          <tr>
+            <td class="compare-feat">
+              <span class="compare-feat-title">Any framework, any package</span>
+              <span class="compare-feat-desc">Build with Next.js, Astro, Vite, Svelte, or Expo, and pull in whatever&rsquo;s on npm — not a single fixed stack that keeps output consistent but rules out anything outside it.</span>
+            </td>
+            <td><span class="compare-mark compare-mark--yes" title="Yes"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges" aria-hidden="true"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></span></td>
+            <td><span class="compare-mark compare-mark--no" title="No"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges" aria-hidden="true"><path d="M3 3h3v3H3zM18 3h3v3h-3zM6 6h3v3H6zM15 6h3v3h-3zM9 9h6v3H9zM9 12h6v3H9zM6 15h3v3H6zM15 15h3v3h-3zM3 18h3v3H3zM18 18h3v3h-3z"/></svg></span></td>
+          </tr>
+          <tr>
+            <td class="compare-feat">
+              <span class="compare-feat-title">Choose your model</span>
+              <span class="compare-feat-desc">Route a gnarly refactor to a frontier model and a copy tweak to a faster one, instead of taking whatever a single default model picks for every request.</span>
+            </td>
+            <td><span class="compare-mark compare-mark--yes" title="Yes"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges" aria-hidden="true"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></span></td>
+            <td><span class="compare-mark compare-mark--no" title="No"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges" aria-hidden="true"><path d="M3 3h3v3H3zM18 3h3v3h-3zM6 6h3v3H6zM15 6h3v3h-3zM9 9h6v3H9zM9 12h6v3H9zM6 15h3v3H6zM15 15h3v3h-3zM3 18h3v3H3zM18 18h3v3h-3z"/></svg></span></td>
+          </tr>
+          <tr>
+            <td class="compare-feat">
+              <span class="compare-feat-title">Deploy from the same tab</span>
+              <span class="compare-feat-desc">Ship to a live URL without leaving the builder, with a unique preview link for every version.</span>
+            </td>
+            <td><span class="compare-mark compare-mark--yes" title="Yes"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges" aria-hidden="true"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></span></td>
+            <td><span class="compare-mark compare-mark--neutral" title="Yes"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges" aria-hidden="true"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg></span></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </section>
