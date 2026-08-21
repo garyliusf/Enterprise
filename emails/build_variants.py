@@ -217,7 +217,7 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
   body {{ margin:0; }}
   @media (max-width:480px) {{
     .wrap {{ width:100% !important; }}
-    td[style*="40px"], .px {{ padding-left:10px !important; padding-right:10px !important; }}
+    td[style*="40px"], .px {{ padding-left:12px !important; padding-right:12px !important; }}
     h1 {{ font-size:24px !important; line-height:1.3 !important; }}
     h2 {{ font-size:20px !important; }}
     .btl {{ padding-top:10px !important; font-size:17px !important; line-height:1.3 !important; }}
