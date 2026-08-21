@@ -222,7 +222,7 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
     h2 {{ font-size:20px !important; }}
     .btl {{ padding-top:8px !important; font-size:17px !important; line-height:1.3 !important; }}
     .ann-i {{ padding:20px 16px !important; }}
-    .hlogo {{ width:94px !important; }}
+    .hlogo {{ width:81px !important; }}
     .bhead {{ padding-top:32px !important; }}
   }}
 </style></head>
@@ -230,7 +230,7 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
 <table width="100%" cellpadding="0" cellspacing="0" bgcolor="#F2F1EF"><tr><td align="center" style="padding:28px 12px;">
 <table class="wrap" width="600" cellpadding="0" cellspacing="0" bgcolor="#000000" style="width:600px;max-width:600px;background:#000000;border-radius:12px;overflow:hidden;">
 
-  <tr><td align="center" class="bhead" style="padding:34px 40px 26px;"><img src="{LOGO_WHITE}" class="hlogo" width="96" style="width:96px;display:block;" alt="Bolt"></td></tr>
+  <tr><td align="center" class="bhead" style="padding:34px 40px 26px;"><img src="{LOGO_WHITE}" class="hlogo" width="83" style="width:83px;display:block;" alt="Bolt"></td></tr>
 
   <tr><td class="px" style="padding:0 40px;"><img src="va/build-with-voice.jpg" width="520" style="width:100%;border-radius:8px;display:block;" alt=""></td></tr>
 
