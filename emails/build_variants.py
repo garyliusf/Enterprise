@@ -158,8 +158,8 @@ VARIANT_A = f'''<!doctype html><html><head><meta charset="utf-8">
 _SOC_WHITE = [dict(s, uri=_recolor(s["uri"], "#ffffff")) for s in _socials]
 
 def _b_event(img, title, date):
-    return f'''<tr><td style="padding:0 40px 6px;"><img src="{img}" width="520" style="width:100%;border-radius:8px;display:block;" alt=""></td></tr>
-    <tr><td style="padding:4px 40px 6px;font-family:{_F};font-size:19px;font-weight:600;color:#ffffff;line-height:1.4;">{title}</td></tr>
+    return f'''<tr><td style="padding:0 40px 10px;"><img src="{img}" width="520" style="width:100%;border-radius:8px;display:block;" alt=""></td></tr>
+    <tr><td style="padding:14px 40px 6px;font-family:{_F};font-size:19px;font-weight:600;color:#ffffff;line-height:1.4;">{title}</td></tr>
     <tr><td style="padding:0 40px 12px;font-family:{_F};font-size:15px;font-weight:500;color:#ABABAB;">{date}</td></tr>
     <tr><td style="padding:0 40px 52px;font-family:{_F};"><a href="#" style="font-size:16px;color:#1488FC;font-weight:600;text-decoration:none;">RSVP <span style="letter-spacing:1px;">&rarr;</span></a></td></tr>'''
 
@@ -652,18 +652,14 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
     </td></tr></table>
   </td></tr>
 
-  <tr><td bgcolor="#000000" class="px" style="background:#000000;padding:30px 36px 0;font-family:{_F};">
-    <img src="{LOGO_WHITE}" width="92" style="width:92px;display:block;margin:0 0 24px;" alt="Bolt">
-    <p style="margin:0 0 9px;"><a href="#" style="font-size:13px;color:#ffffff;text-decoration:none;">Home</a></p>
-    <p style="margin:0 0 9px;"><a href="#" style="font-size:13px;color:#ffffff;text-decoration:none;">Help Center</a></p>
-    <p style="margin:0 0 9px;"><a href="#" style="font-size:13px;color:#ffffff;text-decoration:none;">Discord</a></p>
-    <p style="margin:0 0 20px;"><a href="#" style="font-size:13px;color:#ffffff;text-decoration:none;">Privacy Policy</a></p>
-    <div style="margin:0 0 24px;">{"".join(f'<a href="{s["href"]}" style="text-decoration:none;display:inline-block;margin:0 14px 0 0;"><img src="{s["uri"]}" width="15" height="15" style="display:inline-block;"></a>' for s in _SOC_WHITE)}</div>
-    <p style="margin:0 0 14px;font-size:12px;line-height:1.7;color:#8a8f96;">You are receiving this email because you opted in to product updates from Bolt.new. Workshops are free for all Bolt users; recordings are shared afterward on our YouTube channel.</p>
-    <p style="margin:0 0 14px;font-size:12px;line-height:1.7;color:#8a8f96;">StackBlitz, Inc. &middot; 2443 Fillmore Street #380-16814 &middot; San Francisco, CA 94115 &middot; United States</p>
-    <p style="margin:0 0 18px;font-size:12px;line-height:1.7;color:#8a8f96;">&copy; 2026 Bolt.new</p>
-    <p style="margin:0 0 26px;"><a href="#" style="font-size:12px;color:#C9CDD3;">Unsubscribe</a>&nbsp;&nbsp;<a href="#" style="font-size:12px;color:#C9CDD3;">Subscription settings</a></p>
+  <tr><td bgcolor="#000000" class="px k-dark" style="background:#000000;padding:8px 36px 8px;"><div style="border-top:1px solid #232323;font-size:0;line-height:0;">&nbsp;</div></td></tr>
+  <tr><td bgcolor="#000000" align="center" class="k-dark" style="background:#000000;padding:28px 36px 0;"><img src="{LOGO_GREY}" width="88" style="width:88px;display:block;margin:0 auto;" alt="Bolt"></td></tr>
+  <tr><td bgcolor="#000000" align="center" class="k-dark" style="background:#000000;padding:26px 36px 0;">
+    {"".join(f'<a href="{s["href"]}" style="text-decoration:none;display:inline-block;margin:0 10px;"><img src="{s["uri"]}" width="16" height="16" style="display:inline-block;"></a>' for s in _socials)}
   </td></tr>
+  <tr><td bgcolor="#000000" align="center" class="k-dark k-fine" style="background:#000000;padding:26px 36px 44px;font-family:{_F};font-size:12px;line-height:1.8;color:#8a8f96;">
+    StackBlitz, Inc. | 2443 Fillmore Street #380-16814, San Francisco, CA 94115<br>
+    <a href="#" style="color:#8a8f96;">Unsubscribe or Manage Preferences</a></td></tr>
 </table></td></tr></table></body></html>'''
 
 
