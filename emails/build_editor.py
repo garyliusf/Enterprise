@@ -36,9 +36,9 @@ FOOTLOGOS = json.dumps({"grey": _tinted_logo("#9E9C99"), "black": _tinted_logo("
 
 PROPOSED = json.dumps({
     "pageBg":"#F2F1EF","pagePad":36,"cardBg":"#ffffff","cardRadius":6,"cardPad":36,
-    "hFont":"Inter","hSize":26,"hWeight":600,"bFont":"Inter","bSize":16,"bLh":160,
-    "linkCol":"#1488FC","btnRadius":8,"btnPy":16,"btnPx":28,"btnWeight":600,
-    "btnWidth":"hug","btnMinW":220,"bannerPos":"inside","footLogo":"grey","footLogoW":94,
+    "hFont":"Inter","hSize":24,"hWeight":600,"bFont":"Inter","bSize":16,"bLh":160,
+    "linkCol":"#1488FC","btnRadius":2,"btnPy":15,"btnPx":28,"btnSize":15,"btnWeight":600,
+    "btnWidth":"hug","btnMinW":180,"bannerPos":"inside","footLogo":"grey","footLogoW":94,
     "socials":"show","fMaxW":420,"fStack":"column","footerGap":32})
 
 def _banner_uri():
@@ -319,7 +319,7 @@ function css(t){
        line-height:1.6 !important;
        color:${t.fColor} !important;font-family:${f(t.bFont)} !important;
        max-width:${Math.min(t.fMaxW, t.containerW)}px !important;box-sizing:border-box !important;
-       margin:0 auto 14px !important;text-align:center !important;
+       margin:0 0 14px !important;text-align:left !important;
        padding-left:${t.cardPad}px !important;padding-right:${t.cardPad}px !important}
     a:not([style]){color:${t.linkCol} !important;text-decoration:none !important;
        font-weight:600 !important}
@@ -353,7 +353,9 @@ function css(t){
       td[align="center"][valign="top"]:not([width]){padding-top:13px !important}
       td[style*="height:26px"]{height:12px !important}
       td[style*="border-radius: 10px 10px 0px 0px"]{padding:8px 5.8% 0 !important}
-      h1,h2{font-size:${t.hSize - 4}px !important}
+      h1,h2{font-size:${t.hSize - 2}px !important}
+      p:not([style]),li,td[align="center"]{font-size:${t.bSize - 1}px !important;
+         line-height:1.45 !important}
       td[style*="border-radius: 0px 0px 10px 10px"]{padding:6px 5.8% 6px !important}
       p[style*="#999999"],p[style*="#666666"]{padding-left:5.8% !important;
          padding-right:5.8% !important}
@@ -369,7 +371,10 @@ function css(t){
        font-weight:${t.btnWeight} !important;text-align:center !important;
        ${t.btnWidth==='hug'
          ? 'display:inline-block !important;width:max-content !important;min-width:'+t.btnMinW+'px !important;box-sizing:border-box !important;'
-         : t.btnWidth==='mixed' ? '' : 'display:'+(t.btnWidth==='full'?'block':'inline-block')+' !important;'}}`;
+         : t.btnWidth==='mixed' ? '' : 'display:'+(t.btnWidth==='full'?'block':'inline-block')+' !important;'}}
+    @media (max-width:480px){
+      a[style*="1389fd"],a[data-btn]{font-size:${t.btnSize - 1}px !important}
+    }`;
 }
 const V = () => cur.variations[vi] || cur.variations[0];
 /* Injected into every preview. Makes the email itself the control surface:
@@ -483,14 +488,14 @@ function docFor(){
     /(<tr>\s*<td[^>]*>\s*<p style="[^"]*(?:#999999|#666666))/i,
     `<tr><td><div style="max-width:${t.containerW}px;margin:0 auto;box-sizing:border-box;` +
     `padding:0 ${t.cardPad}px 14px;"><img data-footlogo src="${FOOT_LOGOS[t.footLogo]}" ` +
-    `style="width:${t.footLogoW}px;display:block;margin:0 auto;"></div></td></tr>$1`);
+    `style="width:${t.footLogoW}px;display:block;margin:0;"></div></td></tr>$1`);
 
   if (t.socials === 'show') doc = doc.replace(
     /(<tr>\s*<td[^>]*>\s*<p style="[^"]*(?:#999999|#666666))/i,
     `<tr><td><div style="max-width:${t.containerW}px;margin:0 auto;box-sizing:border-box;` +
-    `padding:14px ${t.cardPad}px 14px;text-align:center;">` +
+    `padding:14px ${t.cardPad}px 14px;text-align:left;">` +
     SOCIALS.map(so => `<a href="${so.href}" style="text-decoration:none;display:inline-block;` +
-    `margin:0 16px;"><img data-social src="${so.uri}" width="18" height="18" ` +
+    `margin:0 22px 0 0;"><img data-social src="${so.uri}" width="18" height="18" ` +
     `style="display:inline-block;"></a>`).join('') +
     `</div></td></tr>$1`);
 
