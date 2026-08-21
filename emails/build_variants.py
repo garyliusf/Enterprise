@@ -220,7 +220,7 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
     td[style*="40px"], .px {{ padding-left:12px !important; padding-right:12px !important; }}
     h1 {{ font-size:24px !important; line-height:1.3 !important; }}
     h2 {{ font-size:20px !important; }}
-    .btl {{ padding-top:10px !important; font-size:17px !important; line-height:1.3 !important; }}
+    .btl {{ padding-top:8px !important; font-size:17px !important; line-height:1.3 !important; }}
     .ann-i {{ padding:20px 16px !important; }}
   }}
 </style></head>
@@ -570,7 +570,7 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
     .disp {{ font-size:27px !important; }}
     .cu {{ margin-bottom:6px !important; }}
     .evt {{ font-size:17px !important; line-height:1.3 !important; }}
-    .ec {{ padding-top:20px !important; }}
+    .ec {{ padding-top:18px !important; }}
     .tc-i {{ padding:20px 16px !important; }}
     .pbx-t {{ padding:14px 14px 10px !important; }}
     .hero-pad {{ padding-left:16px !important; padding-right:16px !important; }}
