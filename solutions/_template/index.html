@@ -1806,6 +1806,35 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
      specificity as .plat-vcard--browser but comes later, so it would win. */
   .plat-vcard--browser { padding: 0; }
 }
+
+/* ─── FOOTER CTA — two-button variant (.footer-section--buttons) ──────────
+   Duplicate of the footer CTA with the prompt box swapped for a side-by-side
+   button row (blue primary + white-border ghost). Use whichever CTA the page
+   needs and delete the other; the bolt wordmark stays on the LAST one only. */
+.footer-section--buttons { padding-bottom: clamp(72px, 10vh, 110px); }
+/* same field offset as the prompt variant so the pixels sit behind the heading */
+.footer-cta-wrap--buttons { margin-top: -150px; }
+.footer-cta-btns {
+  position: relative; z-index: 1; margin-top: -10px;
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  flex-wrap: wrap;
+}
+/* standalone-CTA min-width floor (CLAUDE.md): equalizes short labels */
+.footer-cta-btns .hero-btn-primary,
+.footer-cta-btns .hero-btn-ghost { min-width: 180px; }
+/* white-border ghost — full-strength border, not the 0.22 default */
+.hero-btn-ghost--white { border-color: #fff; color: #fff; }
+.hero-btn-ghost--white:hover { border-color: #fff; color: #fff; }
+@media (max-width: 768px) {
+  .footer-cta-wrap--buttons { margin-top: -175px; }
+  .footer-cta-wrap--buttons #footer-pixel-canvas-b { height: 185px !important; }
+  .footer-cta-btns { flex-direction: column; width: 100%; }
+  .footer-cta-btns .hero-btn-primary,
+  .footer-cta-btns .hero-btn-ghost {
+    min-width: 260px; max-width: 100%; width: 100%;
+    height: 52px; font-size: 16px;
+  }
+}
 </style>
 </head>
 <body>
@@ -2360,6 +2389,37 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   </div>
 </section>
 
+<!-- FOOTER CTA — VARIANT: two buttons side by side (blue + white-border ghost).
+     Same section as the one below with the prompt box swapped for a button row.
+     Keep one variant per page; the bolt wordmark belongs to the last CTA only. -->
+<section class="footer-section footer-section--buttons">
+  <p class="footer-eyebrow eyebrow-scramble">Get started</p>
+  <div class="dsa-reveal">
+    <h2 class="footer-headline">Build your portfolio website right now</h2>
+  </div>
+  <p class="footer-subtitle footer-subtitle-wide">Free to start. No account required to generate your first app.</p>
+  <div class="footer-cta-wrap footer-cta-wrap--buttons" style="position:relative;width:100%;max-width:600px;">
+    <canvas id="footer-pixel-canvas-b" style="display:block;width:100%;height:175px;pointer-events:none;opacity:1;"></canvas>
+    <div class="footer-cta-btns">
+      <a href="https://bolt.new/" target="_blank" rel="noopener" class="hero-btn-primary">
+        <div class="btn-bg-hover"></div>
+        <div class="btn-text-wrap">
+          <div class="btn-text-inner">
+            <span>Start Building</span>
+            <span>Start Building</span>
+          </div>
+        </div>
+      </a>
+      <a href="#templates" class="hero-btn-ghost hero-btn-ghost--white">Browse Templates</a>
+    </div>
+  </div>
+  <ul class="hero-pills footer-cta-pills">
+    <li>No credit card</li>
+    <li>No install</li>
+    <li>Works in your browser</li>
+  </ul>
+</section>
+
 <!-- FOOTER CTA -->
 <section class="footer-section">
   <p class="footer-eyebrow eyebrow-scramble">Get started</p>
@@ -2896,10 +2956,13 @@ window.addEventListener('load', function () {
     }, 1.0, '90,100,115');
 
   /* footer CTA pixel field — from solutions.html */
-  makePixelCanvas('footer-pixel-canvas', 6, 2,
+  /* both footer CTA variants use the same field — init whichever exist */
+  ['footer-pixel-canvas', 'footer-pixel-canvas-b'].forEach(function (fid) {
+  if (!document.getElementById(fid)) return;
+  makePixelCanvas(fid, 6, 2,
     function (c, r, t, p) {
       var px = c * 6, py = r * 6;
-      var el = document.getElementById('footer-pixel-canvas');
+      var el = document.getElementById(fid);
       var W = el ? el.width : 700, H = el ? el.height : 90;
       var cx = W / 2;
       var hFade = Math.max(0, 1 - Math.abs(px - cx) / (W * 0.55));
@@ -2923,6 +2986,7 @@ window.addEventListener('load', function () {
       var rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
       return density > rand ? density * 0.72 : 0;
     }, 0.8, '220,230,245');
+  });
 
   /* Animated pixel field behind the "Create your own" heading + prompt box */
   if (document.getElementById('create-pixel-canvas')) {
