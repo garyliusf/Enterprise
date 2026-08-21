@@ -1938,13 +1938,27 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
    that the two columns squeeze the H1 to 4+ lines and wrap the log rows.
    Copy always sits above the panel. */
 @media (max-width: 1200px) {
-  .split-grid { grid-template-columns: 1fr; gap: 36px; }
-  .split-section--flip .split-copy { order: 0; }
+  .split-grid { grid-template-columns: 1fr; row-gap: 0; }
+  /* Stacked order is headline → copy → panel → CTA: on a phone the button
+     belongs under the visual, not wedged between the copy and it. The CTA
+     lives inside .split-copy for the desktop column, so the copy box becomes
+     `display: contents` here — its children become grid items in their own
+     right and `order` can interleave them with the panel. Row gap goes to 0
+     and each item carries its own top margin instead. */
+  .split-copy { display: contents; }
+  .split-copy > .section-eyebrow { order: 1; }
+  .split-copy > h1, .split-copy > h2 { order: 2; }
+  .split-copy > p { order: 3; margin-top: 18px; }
+  .split-panel { order: 4; margin-top: 36px; }
+  .split-copy > .hero-btn-primary,
+  .split-copy > .hero-btn-ghost { order: 5; margin-top: 28px; justify-self: start; }
   .split-terminal { min-height: 0; }
 }
 @media (max-width: 768px) {
-  .split-grid { gap: 32px; }
-  .split-copy { gap: 18px; }
+  .split-copy > p { margin-top: 14px; }
+  .split-panel { margin-top: 30px; }
+  .split-copy > .hero-btn-primary,
+  .split-copy > .hero-btn-ghost { margin-top: 24px; }
   .split-copy .hero-btn-primary,
   .split-copy .hero-btn-ghost { min-width: 260px; max-width: 100%; height: 52px; font-size: 16px; }
   .split-terminal { padding: 18px 16px 22px; line-height: 1.8; min-height: 0; }
@@ -1997,7 +2011,6 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 @media (max-width: 768px) {
   .hero-section--split { min-height: min(100dvh, 720px); padding: 92px 0 56px; }
   .hero-inner--split { width: calc(100vw - 32px); }
-  .hero-section--split .split-copy { gap: 18px; }
   .hero-section--split .hero-h1 { font-size: clamp(37px, 10.45vw, 51px); line-height: 1.1; max-width: none; }
   .hero-section--split .hero-subtitle { font-size: 15px; max-width: none; }
   .hero-section--split .split-copy .hero-btn-primary { min-width: 260px; max-width: 100%; height: 52px; }
