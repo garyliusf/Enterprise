@@ -628,7 +628,6 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
     <div class="evt k-ink" style="font-size:21px;font-weight:600;color:#000000;line-height:1.4;margin:0 0 6px;">Launch and Grow: Market Your App and Find Your First Users</div>
     <div style="font-size:15px;font-weight:500;color:#666666;margin:0 0 12px;">Thursday, August 27</div>
     <p style="margin:0 0 0;"><a href="#" style="font-size:16px;color:#1488FC;font-weight:600;text-decoration:none;">RSVP <span style="letter-spacing:1px;">&rarr;</span></a></p>
-    <p style="margin:32px 0 0;font-size:16px;line-height:1.6;color:#000000;">Keep building,<br><span style="font-weight:600;">Monika &amp; The Bolt Team &#9889;</span></p>
     <table width="100%" cellpadding="0" cellspacing="0" class="tipcard" style="background:#FFFFFF;border:1px solid #E2E0DC;border-radius:10px;margin:36px 0 0;"><tr><td class="tc-i" style="padding:26px 28px;font-family:{_F};">
       <div style="margin:0 0 14px;">{_b_badge("TIP OF THE WEEK")}</div>
       <div style="font-size:21px;font-weight:600;color:#000000;line-height:1.4;margin:0 0 8px;">Let the Bolt agent work in your other tools for you</div>
@@ -646,10 +645,11 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
         </tr></table>
       </td></tr></table>
       </td></tr></table>
-      <table class="btn-t" cellpadding="0" cellspacing="0" style="margin:24px 0 0;"><tr>
+      <table class="btn-t" cellpadding="0" cellspacing="0" align="center" style="margin:24px auto 0;"><tr>
       <td style="background:#1389fd;border-radius:2px;"><a href="#" style="display:inline-block;min-width:180px;box-sizing:border-box;padding:15px 28px;font-family:{_F};font-size:15px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;white-space:nowrap;">Start Building</a></td>
     </tr></table>
     </td></tr></table>
+    <p style="margin:32px 0 0;font-size:16px;line-height:1.6;color:#000000;">Keep building,<br><span style="font-weight:600;">Monika &amp; The Bolt Team &#9889;</span></p>
   </td></tr>
 
   <tr><td bgcolor="#000000" class="px k-dark" style="background:#000000;padding:8px 36px 8px;"><div style="border-top:1px solid #232323;font-size:0;line-height:0;">&nbsp;</div></td></tr>
