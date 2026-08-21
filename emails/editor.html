@@ -197,11 +197,11 @@ let T = {...NOW};
 let cur = EMAILS[0], vi = 0, vp = 640, mode = 'after', filter = '';
 Object.assign(T, PROPOSED);                       // shipped default = the proposed design
 T.headerBanner = BANNER_DEFAULT;
-try{ const b = localStorage.getItem('emailBanner'); if (b) T.headerBanner = b; }catch(e){}
-try{ Object.assign(T, JSON.parse(localStorage.getItem('emailTokens')||'{}')); }catch(e){}
+try{ const b = localStorage.getItem('emailBanner_v3'); if (b) T.headerBanner = b; }catch(e){}
+try{ Object.assign(T, JSON.parse(localStorage.getItem('emailTokens_v3')||'{}')); }catch(e){}
 function saveT(){ try{
   const {logoSrc, footerImg, headerBanner, ...rest} = T;
-  localStorage.setItem('emailTokens', JSON.stringify(rest));
+  localStorage.setItem('emailTokens_v3', JSON.stringify(rest));
 }catch(e){} }
 const $ = s => document.querySelector(s);
 $('#count').textContent = EMAILS.length + ' emails · ' + EMAILS.reduce((n,e)=>n+e.variations.length,0) + ' variations';
@@ -516,7 +516,7 @@ function drawCtl(){
           r.readAsDataURL(f);
         };
         clear.onclick=()=>{ T[d.k]=''; file.value=''; clear.style.display='none';
-          if(d.k==='headerBanner'){ try{ localStorage.removeItem('emailBanner'); }catch(e){} }
+          if(d.k==='headerBanner'){ try{ localStorage.removeItem('emailBanner_v3'); }catch(e){} }
           paint(); };
         wrap.appendChild(file); wrap.appendChild(clear);
         row.appendChild(wrap); c.appendChild(row); return;
@@ -579,7 +579,7 @@ function draw(){
   syncMode(); paint();
 }
 function reset(){ T={...NOW};
-  try{ localStorage.removeItem('emailTokens'); localStorage.removeItem('emailBanner'); }catch(e){}
+  try{ localStorage.removeItem('emailTokens_v3'); localStorage.removeItem('emailBanner_v3'); }catch(e){}
   drawCtl(); paint(); }
 function showSpec(){
   const changed=Object.keys(T).filter(k=>T[k]!==NOW[k]);
