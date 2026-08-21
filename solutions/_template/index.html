@@ -2000,6 +2000,42 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   .hero-section--split .hero-subtitle { font-size: 15px; max-width: none; }
   .hero-section--split .split-copy .hero-btn-primary { min-width: 260px; max-width: 100%; height: 52px; }
 }
+
+/* ─── Split panel variant: URL rows (.split-panel--rows) ───────────────────
+   Second panel type for the split component — a stack of deploy URLs with a
+   status pill each. Same reveal treatment as the terminal lines. */
+.split-panel--rows { padding: 14px; }
+.split-urls { display: flex; flex-direction: column; gap: 12px; }
+.split-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 16px 18px;
+  border: 1px solid rgba(255,255,255,0.08); border-radius: 2px;
+  background: rgba(255,255,255,0.02);
+  opacity: 0; transform: translateY(4px);
+  transition: opacity 0.35s ease, transform 0.35s ease, border-color 0.25s ease;
+}
+.split-row.is-in { opacity: 1; transform: none; }
+.split-row:hover { border-color: rgba(255,255,255,0.18); }
+.split-row-url {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: clamp(12.5px, 1.05vw, 14px); color: rgba(255,255,255,0.72);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.split-pill {
+  flex-shrink: 0; border-radius: 999px; padding: 5px 12px;
+  font-size: 12px; font-weight: 600; line-height: 1.2;
+}
+.split-pill--preview { background: rgba(20,136,252,0.16); color: #4DA6FF; }
+.split-pill--prod { background: rgba(34,197,94,0.14); color: #22c55e; }
+/* the production row is the live one — its URL reads full-strength */
+.split-row--prod .split-row-url { color: #fff; }
+@media (prefers-reduced-motion: reduce) {
+  .split-row { opacity: 1; transform: none; transition: none; }
+}
+@media (max-width: 768px) {
+  .split-row { padding: 14px; gap: 10px; }
+  .split-pill { font-size: 11px; padding: 4px 10px; }
+}
 </style>
 </head>
 <body>
@@ -2533,6 +2569,40 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
           <p class="split-line split-line--ok">Build complete in 2.8s</p>
           <p class="split-line split-line--link">Deployed → https://waitlist-app-x7k2.bolt.host</p>
           <p class="split-line split-line--ok">Status: LIVE · 4.2s total <span class="split-caret"></span></p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- SPLIT SECTION — FLIPPED: panel left / copy right (.split-section--flip).
+     Same component as the section above with the sides swapped, and the second
+     panel type (.split-panel--rows: URL + status pill rows). Under 1200 it
+     stacks copy-first like the un-flipped one. -->
+<section class="section split-section split-section--flip">
+  <div class="section-inner">
+    <div class="split-grid">
+
+      <div class="split-copy">
+        <h2 class="sc-section-h2">Every version gets its own URL</h2>
+        <p class="section-sub">Bolt.new gives every deploy a unique preview link, so you can share a specific version with a teammate or a client before anything touches production.</p>
+      </div>
+
+      <div class="split-panel split-panel--rows" aria-hidden="true">
+        <div class="split-urls">
+          <div class="split-row">
+            <span class="split-row-url">preview-a4f9x.bolt.host</span>
+            <span class="split-pill split-pill--preview">Preview</span>
+          </div>
+          <div class="split-row">
+            <span class="split-row-url">preview-b81nc.bolt.host</span>
+            <span class="split-pill split-pill--preview">Preview</span>
+          </div>
+          <div class="split-row split-row--prod">
+            <span class="split-row-url">waitlist-app.com</span>
+            <span class="split-pill split-pill--prod">Production</span>
+          </div>
         </div>
       </div>
 
@@ -3732,8 +3802,8 @@ window.addEventListener('load', function () {
       view, then the block cursor starts blinking. One-shot per panel. ─────── */
 (function () {
   var REDUCE = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  document.querySelectorAll('.split-terminal').forEach(function (term) {
-    var lines = Array.from(term.querySelectorAll('.split-line'));
+  document.querySelectorAll('.split-terminal, .split-urls').forEach(function (term) {
+    var lines = Array.from(term.querySelectorAll('.split-line, .split-row'));
     if (!lines.length) return;
     // longer beat after the prompt line (it's "thinking"), then a steady drip
     function run() {
