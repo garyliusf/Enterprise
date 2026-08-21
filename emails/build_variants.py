@@ -171,7 +171,7 @@ def _b_ghost(label, band=False):
     return f'''<tr>{td}
       <table cellpadding="0" cellspacing="0"><tr>
         <td class="gbtn" style="background:#1389fd;border-radius:2px;">
-          <a href="#" style="display:inline-block;min-width:220px;box-sizing:border-box;padding:16px 28px;font-family:{_F};font-size:16px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;">{label}</a>
+          <a href="#" style="display:inline-block;min-width:180px;box-sizing:border-box;padding:15px 28px;font-family:{_F};font-size:15px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;white-space:nowrap;">{label}</a>
         </td></tr></table></td></tr>'''
 
 
@@ -186,8 +186,8 @@ def _b_callout(eyebrow, title, body, inset='', cta=''):
     + optional inset + optional CTA. Use for tips, feature launches, notices."""
     ins = ('<div style="height:4px;font-size:0;line-height:0;">&nbsp;</div>' + inset) if inset else ''
     btn = (('<div style="height:24px;font-size:0;line-height:0;">&nbsp;</div>'
-            '<table cellpadding="0" cellspacing="0"><tr><td class="gbtn" style="background:#1389fd;border-radius:2px;">'
-            f'<a href="#" style="display:inline-block;min-width:220px;box-sizing:border-box;padding:16px 28px;font-family:{_F};font-size:16px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;">{cta}</a>'
+            '<table class="btn-t" cellpadding="0" cellspacing="0" align="center" style="margin:0 auto;"><tr><td class="gbtn" style="background:#1389fd;border-radius:2px;">'
+            f'<a href="#" style="display:inline-block;min-width:180px;box-sizing:border-box;padding:15px 28px;font-family:{_F};font-size:15px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;white-space:nowrap;">{cta}</a>'
             '</td></tr></table>') if cta else '')
     return (f'<table width="100%" cellpadding="0" cellspacing="0" class="ann" style="background-color:#0D0E10;background-image:url(va/callout-bg.jpg);background-size:cover;background-position:center;border:1px solid #232323;border-radius:10px;"><tr><td style="padding:26px 28px;font-family:{_F};">'
             f'<div style="margin:0 0 14px;">{_b_badge(eyebrow)}</div>'
@@ -198,10 +198,18 @@ TIP_CARD = _b_callout(
     "TIP OF THE WEEK",
     "Let the Bolt agent work in your other tools for you",
     '<p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#ABABAB;">Once you connect a service like Stripe, the Bolt agent can interact with it directly on your behalf &mdash; describe what you want and it creates it in Stripe and wires it into your app.</p>',
-    inset=f'''<table width="100%" cellpadding="0" cellspacing="0" class="pbox-w" style="background-color:#2b2b2b;background-image:linear-gradient(135deg,#4DA6FF 0%,#1488FC 22%,#2b2b2b 58%);border-radius:9px;"><tr><td style="padding:1px;">
-      <table width="100%" cellpadding="0" cellspacing="0" class="pbox" style="background:#111111;border-radius:8px;"><tr><td style="padding:14px 16px;font-family:{_F};font-size:14px;line-height:1.6;color:#ABABAB;">
-      <span style="font-weight:600;color:#ffffff;">Try this prompt:</span> <i>"Using the Stripe connector, create a new product called Pro Plan at $29/month in test mode, then add a checkout flow for it to my app with success and cancel pages."</i>
-    </td></tr></table></td></tr></table>''',
+    inset=f'''<div style="margin:20px 0 8px;font-size:13px;font-weight:600;color:#8a8a8a;">Try this prompt:</div>
+    <table width="100%" cellpadding="0" cellspacing="0" class="pbox-w" style="background-color:#2b2b2b;background-image:radial-gradient(circle at top left,#8FD0FF 0%,#4DA6FF 6%,#1488FC 11%,#2b2b2b 24%);border-radius:12px;"><tr><td style="padding:2px;">
+      <table width="100%" cellpadding="0" cellspacing="0" class="pbox" style="background:#1E1F22;border-radius:10px;"><tr><td class="pbx-t" style="padding:16px 18px 14px;font-family:{_F};font-size:13px;line-height:1.55;color:#E8E8EA;">
+        Using the Stripe connector, create a new product called Pro Plan at $29/month in test mode, then add a checkout flow for it to my app with success and cancel pages.
+      </td></tr>
+      <tr><td style="padding:0 12px 12px;">
+        <table width="100%" cellpadding="0" cellspacing="0"><tr>
+          <td align="right">
+            <span class="pbx-a" style="display:inline-block;width:32px;height:32px;background:#1488FC;border-radius:999px;text-align:center;font-family:{_F};font-size:16px;font-weight:700;line-height:32px;color:#FFFFFF;">&#8593;</span>
+          </td>
+        </tr></table>
+      </td></tr></table></td></tr></table>''',
     cta="Start Building")
 
 VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
@@ -458,8 +466,6 @@ VARIANT_B = re.sub(r'<(p|li|div|span|a|td|h1|h2)( (?![^>]*class=)[^>]*?color:#AB
 VARIANT_B = re.sub(r'<(p|li|div|span|a|td|h1|h2)( (?![^>]*class=)[^>]*?color:#8a8a8a)', r'<\1 class="c-fine"\2', VARIANT_B)
 VARIANT_B = VARIANT_B.replace('<td align="center" style="border:1px solid rgba(255,255,255,0.4);',
                               '<td align="center" class="gbtn" style="border:1px solid rgba(255,255,255,0.4);')
-VARIANT_B = VARIANT_B.replace('<table width="100%" cellpadding="0" cellspacing="0" style="background:#111111;border:1px solid #2b2b2b;',
-                              '<table width="100%" cellpadding="0" cellspacing="0" class="pbox" style="background:#111111;border:1px solid #2b2b2b;')
 _OGS = """
   /* Outlook dark-mode overrides (data-ogsc/-ogsb appear only after
      modern Outlook transforms the email) */
@@ -471,7 +477,10 @@ _OGS = """
   [data-ogsb] .ann { background-color:#0D0E10 !important; border-color:#232323 !important; }
   [data-ogsb] .gbtn { background-color:#1389fd !important; }
   [data-ogsc] .gbtn a { color:#FFFFFF !important; }
-  [data-ogsb] .pbox { background-color:#111111 !important; }
+  [data-ogsb] .pbox { background-color:#1E1F22 !important; }
+  [data-ogsc] .pbx-t { color:#E8E8EA !important; }
+  [data-ogsb] .pbx-a { background-color:#1488FC !important; }
+  [data-ogsc] .pbx-a { color:#FFFFFF !important; }
   [data-ogsb] .pbox-w { background-color:#2b2b2b !important; }
   [data-ogsc] span, [data-ogsc] i, [data-ogsc] b { color:inherit !important; }
 """
@@ -503,26 +512,7 @@ A_DARK = A_DARK.replace(LOGO_BLACK, LOGO_WHITE)
 A_DARK = _swap_socials(A_DARK, _socials, _SOC_WHITE)
 
 # B light: white canvas, black type, dark ghost outlines
-B_LIGHT = _swap(VARIANT_B, [
-    ('bgcolor="#000000"', 'bgcolor="#FFFFFF"'),
-    ("background-color:#0D0E10;background-image:url(va/callout-bg.jpg);background-size:cover;background-position:center;border:1px solid #232323;", 'background-color:#FFFFFF;border:1px solid #E2E0DC;'),
-    (';padding:0 40px 40px;font-family:', ';padding:32px 40px 40px;font-family:'),
-    ('background-color:#0D0E10 !important; border-color:#232323 !important', 'background-color:#FFFFFF !important; border-color:#E2E0DC !important'),
-    ('background:#000001;', 'background-color:#E8E9EB;'),
-    ('bgcolor="#000001"', 'bgcolor="#E8E9EB"'),
-    ('background-color:#000001 !important', 'background-color:#E8E9EB !important'),
-    ('border-top:1px solid #232323', 'border-top:1px solid transparent'),
-    ('background-color:#000000 !important', 'background-color:#FFFFFF !important'),
-    ('background-color:#111111 !important', 'background-color:#FFFFFF !important'),
-    ('background:#000000;border-radius:12px', 'background:#FFFFFF;border-radius:12px'),
-    ('background-color:#2b2b2b;background-image:linear-gradient(135deg,#4DA6FF 0%,#1488FC 22%,#2b2b2b 58%);', 'background-color:#E2E0DC;background-image:linear-gradient(135deg,#4DA6FF 0%,#1488FC 22%,#E2E0DC 58%);'),
-    ('background-color:#2b2b2b !important', 'background-color:#E2E0DC !important'),
-    ('background:#111111;border-radius:8px;', 'background:#FFFFFF;border-radius:8px;'),
-    ('color:#ffffff', 'color:#000000'),
-    ('color:#ABABAB', 'color:#444444'),
-])
-B_LIGHT = B_LIGHT.replace(LOGO_WHITE, LOGO_GREY)  # grey = only logo色 that survives Gmail darkening a light email
-B_LIGHT = _swap_socials(B_LIGHT, _SOC_WHITE, _socials)  # grey #9E9C99 icons on light
+# (Musicbed light twin retired — see git history for the transform pairs)
 
 # C dark: black canvas, white mono, inverted button, band #161616
 C_DARK = _swap(VARIANT_C, [
