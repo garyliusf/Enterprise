@@ -19,7 +19,6 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 VARIANTS = {
     "A": {"custom": True},   # Robinhood promo — the working design
     "B": {"custom": True},   # Musicbed dark
-    "C": {"custom": True},   # Apollo-style card stack
 }
 
 # ---- pull data + pipeline out of the existing tools ----
@@ -802,7 +801,6 @@ VARIANT_AP = VARIANT_AP.replace('</style></head>', _KD + '</style></head>', 1)
 CUSTOM_DOCS = {
     "A": {"light": VARIANT_E, "dark": VARIANT_E},  # A = Robinhood promo (the working design)
     "B": {"light": VARIANT_B, "dark": VARIANT_B},  # Musicbed dark
-    "C": {"light": VARIANT_AP, "dark": VARIANT_AP},  # Apollo-style card stack
 }
 
 SHELL = r"""<!doctype html><html lang="en"><head><meta charset="utf-8">
