@@ -158,7 +158,7 @@ _SOC_WHITE = [dict(s, uri=_recolor(s["uri"], "#ffffff")) for s in _socials]
 
 def _b_event(img, title, date):
     return f'''<tr><td style="padding:0 40px 10px;"><img src="{img}" width="520" style="width:100%;border-radius:8px;display:block;" alt=""></td></tr>
-    <tr><td class="btl" style="padding:14px 40px 6px;font-family:{_F};font-size:19px;font-weight:600;color:#ffffff;line-height:1.4;">{title}</td></tr>
+    <tr><td class="btl" style="padding:14px 40px 6px;font-family:{_F};font-size:21px;font-weight:600;color:#ffffff;line-height:1.4;">{title}</td></tr>
     <tr><td class="edt" style="padding:0 40px 12px;font-family:{_F};font-size:15px;font-weight:500;color:#ABABAB;">{date}</td></tr>
     <tr><td style="padding:0 40px 52px;font-family:{_F};"><a class="rsvp" href="#" style="font-size:16px;color:#1488FC;font-weight:600;text-decoration:none;">RSVP <span style="letter-spacing:1px;">&rarr;</span></a></td></tr>'''
 
@@ -196,7 +196,7 @@ def _b_callout(eyebrow, title, body, inset='', cta=''):
 TIP_CARD = _b_callout(
     "TIP OF THE WEEK",
     "Let the Bolt agent work in your other tools for you",
-    '<p style="margin:0 0 16px;font-size:15px;line-height:1.45;color:#ABABAB;">Once you connect a service like Stripe, the Bolt agent can interact with it directly on your behalf &mdash; describe what you want and it creates it in Stripe and wires it into your app.</p>',
+    '<p style="margin:0 0 16px;font-size:16px;line-height:1.45;color:#ABABAB;">Once you connect a service like Stripe, the Bolt agent can interact with it directly on your behalf &mdash; describe what you want and it creates it in Stripe and wires it into your app.</p>',
     inset=f'''<div style="margin:20px 0 8px;font-size:13px;font-weight:600;color:#8a8a8a;">Try this prompt:</div>
     <table width="100%" cellpadding="0" cellspacing="0" class="pbox-w" style="background-color:#2b2b2b;background-image:radial-gradient(circle at top left,#8FD0FF 0%,#4DA6FF 6%,#1488FC 11%,#2b2b2b 24%);border-radius:12px;"><tr><td style="padding:2px;">
       <table width="100%" cellpadding="0" cellspacing="0" class="pbox" style="background:#1E1F22;border-radius:10px;"><tr><td class="pbx-t" style="padding:16px 18px 14px;font-family:{_F};font-size:13px;line-height:1.55;color:#E8E8EA;">
@@ -219,8 +219,8 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
     .wrap {{ width:100% !important; }}
     td[style*="40px"], .px {{ padding-left:12px !important; padding-right:12px !important; }}
     h1 {{ font-size:22px !important; line-height:1.3 !important; }}
-    h2 {{ font-size:18px !important; }}
-    p, li {{ font-size:14px !important; }}
+    h2 {{ font-size:22px !important; }}
+    p, li {{ font-size:15px !important; }}
     .edt, .rsvp {{ font-size:14px !important; }}
     .pbx-t {{ font-size:12px !important; }}
     .gbtn a {{ font-size:14px !important; }}
@@ -241,7 +241,7 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
 
   <tr><td class="px" style="padding:30px 40px 0;font-family:{_F};">
     <div style="margin:0 0 14px;">{_b_badge("THIS WEEK ON BOLT")}</div>
-    <h1 class="h1" style="margin:0 0 18px;font-size:34px;font-weight:500;color:#ffffff;line-height:1.3;letter-spacing:-0.5px;">Take payments with the Stripe&nbsp;MCP</h1>
+    <h1 class="h1" style="margin:0 0 18px;font-size:33px;font-weight:500;color:#ffffff;line-height:1.3;letter-spacing:-0.5px;">Take payments with the Stripe&nbsp;MCP</h1>
     <p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:#ABABAB;">An app that can\'t take payments is a project, an app that can is a business. The purchase flow is the single feature standing between you and your first paying customer.</p>
     <p style="margin:0 0 24px;font-size:16px;line-height:1.6;color:#ABABAB;">In this week\'s workshop, we\'ll connect and configure payments with the Stripe MCP so your app can start earning, without the usual setup headaches.</p>
   </td></tr>
@@ -250,12 +250,12 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
   <tr><td class="px band" bgcolor="#000001" style="background:#000001;padding:32px 40px 10px;font-family:{_F};">
     <h2 style="margin:0 0 14px;font-size:24px;font-weight:500;color:#ffffff;letter-spacing:-0.3px;">You\'ll learn how to:</h2>
     <ul style="margin:0 0 30px;padding:0 0 0 22px;">
-      <li style="margin:0 0 8px;font-size:15px;line-height:1.6;color:#ABABAB;">Connect the Stripe MCP to a Bolt app</li>
-      <li style="margin:0 0 8px;font-size:15px;line-height:1.6;color:#ABABAB;">Configure products and pricing through Stripe</li>
-      <li style="margin:0 0 8px;font-size:15px;line-height:1.6;color:#ABABAB;">Set up and test a Stripe Checkout flow in test mode</li>
-      <li style="margin:0 0 8px;font-size:15px;line-height:1.6;color:#ABABAB;">Handle API keys and environment variables securely</li>
-      <li style="margin:0 0 8px;font-size:15px;line-height:1.6;color:#ABABAB;">Return customers to the right success or cancel flow after payment</li>
-      <li style="margin:0;font-size:15px;line-height:1.6;color:#ABABAB;">Think through common payment edge cases like failed or cancelled payments</li>
+      <li style="margin:0 0 8px;font-size:16px;line-height:1.6;color:#ABABAB;">Connect the Stripe MCP to a Bolt app</li>
+      <li style="margin:0 0 8px;font-size:16px;line-height:1.6;color:#ABABAB;">Configure products and pricing through Stripe</li>
+      <li style="margin:0 0 8px;font-size:16px;line-height:1.6;color:#ABABAB;">Set up and test a Stripe Checkout flow in test mode</li>
+      <li style="margin:0 0 8px;font-size:16px;line-height:1.6;color:#ABABAB;">Handle API keys and environment variables securely</li>
+      <li style="margin:0 0 8px;font-size:16px;line-height:1.6;color:#ABABAB;">Return customers to the right success or cancel flow after payment</li>
+      <li style="margin:0;font-size:16px;line-height:1.6;color:#ABABAB;">Think through common payment edge cases like failed or cancelled payments</li>
     </ul>
   </td></tr>
 
@@ -574,18 +574,17 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
   @media (max-width:480px) {{
     .wrap {{ width:100% !important; }}
     .px {{ padding-left:11px !important; padding-right:11px !important; }}
-    .disp {{ font-size:24px !important; }}
+    .disp {{ font-size:22px !important; }}
     h2 {{ font-size:22px !important; }}
     p, li {{ font-size:15px !important; }}
     .edt, .rsvp {{ font-size:14px !important; }}
-    .tct {{ font-size:19px !important; }}
+    .tct {{ font-size:22px !important; line-height:1.3 !important; }}
     .pbx-t {{ font-size:12px !important; }}
     .btn-t a {{ font-size:14px !important; }}
     .cu {{ margin-bottom:6px !important; }}
     .evt {{ font-size:15px !important; line-height:1.3 !important; }}
     .ec {{ padding-top:18px !important; }}
     .tc-i {{ padding:20px 16px !important; }}
-    .tct {{ line-height:1.3 !important; }}
     .pbx-t {{ padding:14px 14px 10px !important; }}
     .hero-pad {{ padding-left:16px !important; padding-right:16px !important; padding-top:32px !important; }}
     .hlogo {{ width:81px !important; }}
@@ -637,7 +636,7 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
     <p style="margin:0 0 0;"><a class="rsvp" href="#" style="font-size:16px;color:#1488FC;font-weight:600;text-decoration:none;">RSVP <span style="letter-spacing:1px;">&rarr;</span></a></p>
     <table width="100%" cellpadding="0" cellspacing="0" class="tipcard" style="background:#FFFFFF;border:1px solid #E2E0DC;border-radius:10px;margin:36px 0 0;"><tr><td class="tc-i" style="padding:26px 28px;font-family:{_F};">
       <div style="margin:0 0 14px;">{_b_badge("TIP OF THE WEEK")}</div>
-      <div class="tct" style="font-size:21px;font-weight:600;color:#000000;line-height:1.4;margin:0 0 8px;">Let the Bolt agent work in your other tools for you</div>
+      <div class="tct" style="font-size:24px;font-weight:500;color:#000000;line-height:1.35;margin:0 0 8px;">Let the Bolt agent work in your other tools for you</div>
       <p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:#000000;">Once you connect a service like Stripe, the Bolt agent can interact with it directly on your behalf &mdash; describe what you want and it creates it in Stripe and wires it into your app.</p>
       <div style="margin:24px 0 8px;font-size:13px;font-weight:600;color:#666666;">Try this prompt:</div>
       <table width="100%" cellpadding="0" cellspacing="0" class="pbx-w" style="background-color:#2b2b2b;background-image:radial-gradient(circle at top left,#8FD0FF 0%,#4DA6FF 6%,#1488FC 11%,#2b2b2b 24%);border-radius:12px;"><tr><td style="padding:2px;">
