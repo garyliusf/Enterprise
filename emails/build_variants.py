@@ -575,10 +575,10 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
   body {{ margin:0; }}
   @media (max-width:480px) {{
     .wrap {{ width:100% !important; }}
-    .px {{ padding-left:22px !important; padding-right:22px !important; }}
+    .px {{ padding-left:11px !important; padding-right:11px !important; }}
     .disp {{ font-size:27px !important; }}
     .cu {{ margin-bottom:6px !important; }}
-    .evt {{ font-size:19px !important; line-height:1.3 !important; }}
+    .evt {{ font-size:17px !important; line-height:1.3 !important; }}
     .tc-i {{ padding:20px 16px !important; }}
     .pbx-t {{ padding:14px 14px 10px !important; }}
     .hero-pad {{ padding-left:16px !important; padding-right:16px !important; }}
