@@ -39,7 +39,7 @@ PROPOSED = json.dumps({
     "hFont":"Inter","hSize":24,"hWeight":600,"bFont":"Inter","bSize":16,"bLh":160,
     "linkCol":"#1488FC","btnRadius":2,"btnPy":15,"btnPx":28,"btnSize":15,"btnWeight":600,
     "btnWidth":"hug","btnMinW":180,"bannerPos":"inside","footLogo":"grey","footLogoW":94,
-    "socials":"show","fMaxW":420,"fStack":"column","footerGap":32})
+    "socials":"show","fMaxW":420,"fStack":"column","footerGap":24})
 
 def _banner_uri():
     f = os.path.join(os.path.dirname(os.path.abspath(__file__)), "email_banner.svg")
@@ -357,6 +357,8 @@ function css(t){
       [data-footrow]{padding-left:5.8% !important;padding-right:5.8% !important}
       [data-footgap]{height:${Math.max(0, t.footerGap - 10)}px !important}
       img[data-footlogo]{width:67px !important}
+      [data-footlogo-row]{padding-bottom:16px !important}
+      [data-footsoc-row]{padding-bottom:11px !important}
       h1,h2{font-size:${t.hSize - 4}px !important}
       p:not([style]),li,td[align="center"]{font-size:${t.bSize - 1}px !important;
          line-height:1.45 !important}
@@ -490,14 +492,14 @@ function docFor(){
 
   if (t.footLogo && t.footLogo !== 'none') doc = doc.replace(
     /(<tr>\s*<td[^>]*>\s*<p style="[^"]*(?:#999999|#666666))/i,
-    `<tr><td><div data-footrow style="max-width:${t.containerW}px;margin:0 auto;box-sizing:border-box;` +
-    `padding:0 ${t.cardPad}px 14px;"><img data-footlogo src="${FOOT_LOGOS[t.footLogo]}" ` +
+    `<tr><td><div data-footrow data-footlogo-row style="max-width:${t.containerW}px;margin:0 auto;box-sizing:border-box;` +
+    `padding:0 ${t.cardPad}px 24px;"><img data-footlogo src="${FOOT_LOGOS[t.footLogo]}" ` +
     `style="width:${t.footLogoW}px;display:block;margin:0;"></div></td></tr>$1`);
 
   if (t.socials === 'show') doc = doc.replace(
     /(<tr>\s*<td[^>]*>\s*<p style="[^"]*(?:#999999|#666666))/i,
-    `<tr><td><div data-footrow style="max-width:${t.containerW}px;margin:0 auto;box-sizing:border-box;` +
-    `padding:14px ${t.cardPad}px 14px;text-align:left;">` +
+    `<tr><td><div data-footrow data-footsoc-row style="max-width:${t.containerW}px;margin:0 auto;box-sizing:border-box;` +
+    `padding:0 ${t.cardPad}px 17px;text-align:left;">` +
     SOCIALS.map(so => `<a href="${so.href}" style="text-decoration:none;display:inline-block;` +
     `margin:0 22px 0 0;"><img data-social src="${so.uri}" width="18" height="18" ` +
     `style="display:inline-block;"></a>`).join('') +
