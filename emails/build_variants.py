@@ -188,7 +188,7 @@ def _b_callout(eyebrow, title, body, inset='', cta=''):
             '<table class="btn-t" cellpadding="0" cellspacing="0" align="center" style="margin:0 auto;"><tr><td class="gbtn" style="background:#1389fd;border-radius:2px;">'
             f'<a href="#" style="display:inline-block;min-width:180px;box-sizing:border-box;padding:15px 28px;font-family:{_F};font-size:15px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;white-space:nowrap;">{cta}</a>'
             '</td></tr></table>') if cta else '')
-    return (f'<table width="100%" cellpadding="0" cellspacing="0" class="ann" style="background-color:#0D0E10;background-image:url(va/callout-bg.jpg);background-size:cover;background-position:center;border:1px solid #232323;border-radius:10px;"><tr><td style="padding:26px 28px;font-family:{_F};">'
+    return (f'<table width="100%" cellpadding="0" cellspacing="0" class="ann" style="background-color:#0D0E10;background-image:url(va/callout-bg.jpg);background-size:cover;background-position:center;border:1px solid #232323;border-radius:10px;"><tr><td class="ann-i" style="padding:26px 28px;font-family:{_F};">'
             f'<div style="margin:0 0 14px;">{_b_badge(eyebrow)}</div>'
             f'<div style="font-size:24px;font-weight:500;color:#ffffff;line-height:1.35;margin:0 0 10px;">{title}</div>'
             f'{body}{ins}{btn}</td></tr></table>')
@@ -221,6 +221,7 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
     h1 {{ font-size:24px !important; line-height:1.3 !important; }}
     h2 {{ font-size:20px !important; }}
     .btl {{ padding-top:10px !important; font-size:17px !important; line-height:1.3 !important; }}
+    .ann-i {{ padding:20px 16px !important; }}
   }}
 </style></head>
 <body style="margin:0;background:#F2F1EF;">
