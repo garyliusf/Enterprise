@@ -159,7 +159,7 @@ _SOC_WHITE = [dict(s, uri=_recolor(s["uri"], "#ffffff")) for s in _socials]
 
 def _b_event(img, title, date):
     return f'''<tr><td style="padding:0 40px 10px;"><img src="{img}" width="520" style="width:100%;border-radius:8px;display:block;" alt=""></td></tr>
-    <tr><td style="padding:14px 40px 6px;font-family:{_F};font-size:19px;font-weight:600;color:#ffffff;line-height:1.4;">{title}</td></tr>
+    <tr><td class="btl" style="padding:14px 40px 6px;font-family:{_F};font-size:19px;font-weight:600;color:#ffffff;line-height:1.4;">{title}</td></tr>
     <tr><td style="padding:0 40px 12px;font-family:{_F};font-size:15px;font-weight:500;color:#ABABAB;">{date}</td></tr>
     <tr><td style="padding:0 40px 52px;font-family:{_F};"><a href="#" style="font-size:16px;color:#1488FC;font-weight:600;text-decoration:none;">RSVP <span style="letter-spacing:1px;">&rarr;</span></a></td></tr>'''
 
@@ -210,9 +210,10 @@ VARIANT_B = f'''<!doctype html><html><head><meta charset="utf-8">
   body {{ margin:0; }}
   @media (max-width:480px) {{
     .wrap {{ width:100% !important; }}
-    td[style*="40px"], .px {{ padding-left:20px !important; padding-right:20px !important; }}
+    td[style*="40px"], .px {{ padding-left:10px !important; padding-right:10px !important; }}
     h1 {{ font-size:24px !important; line-height:1.3 !important; }}
     h2 {{ font-size:20px !important; }}
+    .btl {{ padding-top:10px !important; font-size:17px !important; line-height:1.3 !important; }}
   }}
 </style></head>
 <body style="margin:0;background:#F2F1EF;">
