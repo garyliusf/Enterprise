@@ -135,7 +135,9 @@
   .ver-card svg { position: absolute; right: 12px; top: 13px; width: 13px; height: 13px; color: rgba(255,255,255,0.3); }
 
   /* ── Composer zone (queue panel + composer) ──────────────────────────────── */
-  .composer-zone { position: relative; flex: 0 0 auto; padding: 0 14px 14px; z-index: 5; transform-origin: 50% 100%; }
+  /* grows up and to the right from its bottom-left corner, so the box stays
+     anchored where it sits and expands out over the log and the site */
+  .composer-zone { position: relative; flex: 0 0 auto; padding: 0 14px 14px; z-index: 5; transform-origin: 0% 100%; }
 
   .queue-panel {
     position: relative; z-index: 1;
@@ -156,6 +158,24 @@
   }
   .q-acts { display: flex; align-items: center; gap: 14px; flex: 0 0 auto; color: rgba(255,255,255,0.38); }
   .q-acts svg { width: 14px; height: 14px; display: block; }
+
+  /* Sits just outside the prompt box's right edge. Inside .composer-zone so it
+     rides the focus zoom with the box instead of drifting off on its own. */
+  .queued-toast {
+    position: absolute; left: calc(100% - 8px); bottom: 58px; z-index: 3;
+    display: flex; align-items: center; gap: 9px; white-space: nowrap;
+    padding: 9px 15px 9px 11px; border-radius: 999px;
+    background: rgba(18,20,26,0.92); border: 1px solid rgba(255,255,255,0.13);
+    box-shadow: 0 14px 34px rgba(0,0,0,0.45);
+    opacity: 0; pointer-events: none;
+  }
+  .qt-ico {
+    width: 21px; height: 21px; flex: 0 0 21px; border-radius: 6px;
+    background: rgba(20,136,252,0.18); color: #4DA6FF;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .qt-ico svg { width: 12px; height: 12px; }
+  .qt-t { font-size: 12.5px; font-weight: 600; color: #fff; letter-spacing: -0.1px; }
 
   .composer {
     position: relative; z-index: 2;
@@ -300,25 +320,14 @@
      reads as a white border around the box. z-index sits under .composer-zone (5). */
   .focus-scrim {
     position: absolute; inset: 0; z-index: 4; pointer-events: none; opacity: 0;
-    background: radial-gradient(150% 120% at 16% 92%,
-      rgba(4,5,8,0.985) 0%, rgba(4,5,8,0.97) 34%, rgba(4,5,8,0.72) 52%,
-      rgba(4,5,8,0.22) 70%, rgba(4,5,8,0) 86%);
+    /* Narrow dynamic range on purpose: it stays dark enough near the box to hide
+       the panel seams, but never falls to fully clear, so there's no hard bright
+       edge where the light site shows through. Flat and calm, not a vignette. */
+    background: radial-gradient(155% 135% at 16% 92%,
+      rgba(4,5,8,0.96) 0%, rgba(4,5,8,0.93) 42%, rgba(4,5,8,0.78) 68%, rgba(4,5,8,0.62) 100%);
   }
 
-  /* ── Feature caption chip ────────────────────────────────────────────────── */
   /* sits bottom-right so it never crowds the zoomed queue in the lower-left */
-  .tray { position: absolute; left: 0; right: 0; bottom: 56px; display: flex; justify-content: flex-end; padding-right: 84px; z-index: 4; }
-  .feat-chip {
-    display: flex; align-items: center; gap: 12px; padding: 13px 24px 13px 18px;
-    border-radius: 999px; background: rgba(16,18,24,0.82); backdrop-filter: blur(14px);
-    border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 22px 60px rgba(0,0,0,0.5);
-    opacity: 0; transform: translateY(28px);
-  }
-  .feat-ico { width: 32px; height: 32px; border-radius: 9px; background: rgba(20,136,252,0.16);
-    display: flex; align-items: center; justify-content: center; color: #4DA6FF; }
-  .feat-ico svg { width: 17px; height: 17px; }
-  .feat-t { font-size: 19px; font-weight: 600; color: #fff; letter-spacing: -0.3px; }
-  .feat-s { font-size: 19px; font-weight: 400; color: rgba(255,255,255,0.5); letter-spacing: -0.3px; }
 </style>
 </head>
 <body>
@@ -565,6 +574,11 @@
                 </div>
               </div>
 
+              <div class="queued-toast" id="queued-toast">
+                <span class="qt-ico"><svg><use href="#i-layers"/></svg></span>
+                <span class="qt-t">Message queued</span>
+              </div>
+
               <div class="composer">
                 <div class="comp-text-wrap">
                   <span class="comp-ph">How can Bolt help you today? (or /command)</span>
@@ -697,14 +711,6 @@
       </div>
     </div>
 
-    <!-- ── Feature caption ─────────────────────────────────────────────────── -->
-    <div class="tray">
-      <div class="feat-chip" id="feat-chip">
-        <span class="feat-ico"><svg><use href="#i-layers"/></svg></span>
-        <span class="feat-t">Message queue</span>
-        <span class="feat-s">line up what's next while the agent works</span>
-      </div>
-    </div>
 
   </div>
 </div>
@@ -729,7 +735,6 @@ const qCount   = document.getElementById('q-count');
 const inner    = document.getElementById('chat-inner');
 const scroller = inner.parentElement;
 const sp       = document.getElementById('sp');
-const chip     = document.getElementById('feat-chip');
 
 const PROMPTS = [
   'Can you make the album covers bigger and show the artist photos?',
@@ -819,51 +824,48 @@ function agentDone(id, secs) {                         // ✓ Worked for 42s →
 
 /* ── Focus push ────────────────────────────────────────────────────────────
    The browser window never moves or changes size, and the conversation history
-   stays at its normal scale — only the prompt box (queue panel + composer) zooms
-   up. `zoom` re-lays-out the subtree, so giving the zone an explicit width lets
-   it render UI_ZOOM x wider than the chat panel and float out over the blurred
-   site. A transform can't express this: it would overflow the window vertically
-   instead of reflowing, and would blur under the window's own clip. */
+   stays at its normal scale — only the prompt box (queue panel + composer)
+   scales up, growing out of its bottom-left corner over the log and the site.
+
+   This is a transform, not `zoom`. `zoom` relayouts every frame, so the text
+   re-wraps continuously and the exit reads as a stutter; a transform composites
+   on the GPU and the type never reflows. */
 const wbEl    = document.querySelector('.wb');
 const WB_BASE = parseFloat(getComputedStyle(wbEl).getPropertyValue('--wb-scale')) || 0.85;
 const UI_ZOOM = 1.92;          // 468px prompt box -> ~900px. Raise for a tighter push.
 const zoneEl  = document.querySelector('.composer-zone');
 const BG = ['.wb-top', '.preview', '.chat-scroll'];
 
-function uiZoomTween(to, dur) {                 // proxy → style.zoom (a real relayout)
-  const o = { z: parseFloat(zoneEl.style.zoom) || 1 };
-  return gsap.to(o, {
-    z: to, duration: reduce ? 0.01 : dur, ease: 'power3.inOut',
-    onUpdate() { zoneEl.style.zoom = o.z; }
-  });
-}
 function focusIn() {
   const tl = gsap.timeline();
-  // pin the width first — without it `zoom` just shrinks the available space and
-  // the box renders cramped at the same on-screen size
-  tl.call(() => { zoneEl.style.width = '468px'; });
-  tl.add(uiZoomTween(UI_ZOOM, 0.95), 0);
-  tl.to(zoneEl, { boxShadow: '0 30px 80px rgba(0,0,0,0.55)', duration: 0.8, ease: 'power2.out' }, 0);
-  // soft enough that the site stays readable behind it — depth of field, not a screen
+  tl.to(zoneEl, { scale: UI_ZOOM, duration: 0.95, ease: 'power3.inOut' }, 0);
+  tl.to(['.queue-panel', '.composer'], { boxShadow: '0 22px 60px rgba(0,0,0,0.5)', duration: 0.8, ease: 'power2.out' }, 0);
   tl.to('.focus-scrim', { opacity: 1, duration: 0.85, ease: 'power2.out' }, 0);
   tl.to('.chat', { borderRightColor: 'rgba(255,255,255,0)', duration: 0.6, ease: 'power2.out' }, 0);
-  tl.to('.preview',     { filter: 'blur(3.5px)', opacity: 0.92, duration: 0.8, ease: 'power2.out' }, 0.05);
-  tl.to('.wb-top',      { filter: 'blur(2.5px)', opacity: 0.8,  duration: 0.8, ease: 'power2.out' }, 0.05);
-  tl.to('.chat-scroll', { filter: 'blur(2.5px)', opacity: 0.9,  duration: 0.8, ease: 'power2.out' }, 0.05);
+  // soft enough that the site stays readable behind it — depth of field, not a screen
+  tl.to('.preview',     { filter: 'blur(2.2px)', opacity: 0.95, duration: 0.8, ease: 'power2.out' }, 0.05);
+  tl.to('.wb-top',      { filter: 'blur(1.8px)', opacity: 0.85, duration: 0.8, ease: 'power2.out' }, 0.05);
+  tl.to('.chat-scroll', { filter: 'blur(1.8px)', opacity: 0.92, duration: 0.8, ease: 'power2.out' }, 0.05);
   return tl;
 }
 function focusOut() {
   const tl = gsap.timeline();
-  tl.add(uiZoomTween(1, 0.9), 0);
-  tl.to(zoneEl, { boxShadow: '0 0px 0px rgba(0,0,0,0)', duration: 0.7, ease: 'power2.out' }, 0);
+  tl.to(zoneEl, { scale: 1, duration: 0.9, ease: 'power3.inOut' }, 0);
+  tl.to(['.queue-panel', '.composer'], { boxShadow: '0 0px 0px rgba(0,0,0,0)', duration: 0.7, ease: 'power2.out' }, 0);
   tl.to(BG, { filter: 'blur(0px)', opacity: 1, duration: 0.7, ease: 'power2.out' }, 0.15);
   tl.to('.focus-scrim', { opacity: 0, duration: 0.75, ease: 'power2.in' }, 0.1);
   tl.to('.chat', { borderRightColor: 'rgba(255,255,255,0.07)', duration: 0.6, ease: 'power2.out' }, 0.2);
-  tl.call(() => { zoneEl.style.width = ''; });
   return tl;
 }
 
 /* ── Queue ───────────────────────────────────────────────────────────────── */
+function toastQueued() {                        // "Message queued", then away
+  const t = document.getElementById('queued-toast'), tl = gsap.timeline();
+  tl.fromTo(t, { opacity: 0, x: -14, scale: 0.94 },
+               { opacity: 1, x: 0, scale: 1, duration: 0.38, ease: 'back.out(1.8)' });
+  tl.to(t, { opacity: 0, x: 8, duration: 0.32, ease: 'power2.in' }, '+=1.25');
+  return tl;
+}
 function enqueue(n) {
   const item = document.getElementById('q' + n), tl = gsap.timeline();
   tl.call(() => {
@@ -879,6 +881,7 @@ function enqueue(n) {
     tl.to('.q-drag', { opacity: 1, duration: 0.35 }, 0.16);     // reorder handles appear at 2+
   }
   tl.fromTo(item, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, '-=0.24');
+  tl.add(toastQueued(), '-=0.3');
   return tl;
 }
 function dequeue(n, left) {
@@ -950,14 +953,13 @@ function resetAll() {
   gsap.set(queue, { display: 'none', opacity: 0, height: 'auto', marginBottom: -20 });
   gsap.set(['#q1', '#q2'], { display: 'none', opacity: 0, y: 0 });
   gsap.set('.q-drag', { opacity: 0 });
+  gsap.set('#queued-toast', { opacity: 0, x: -14, scale: 0.94 });
   qCount.textContent = '1 queued';
 
-  gsap.set(chip, { opacity: 0, y: 28 });
   gsap.set(wbEl, { scale: WB_BASE, x: 0, y: 0 });
   gsap.set(BG, { filter: 'blur(0px)', opacity: 1 });
-  zoneEl.style.zoom = 1;
-  zoneEl.style.width = '';
-  gsap.set(zoneEl, { boxShadow: '0 0px 0px rgba(0,0,0,0)' });
+  gsap.set(zoneEl, { scale: 1, transformOrigin: '0% 100%' });
+  gsap.set(['.queue-panel', '.composer'], { boxShadow: '0 0px 0px rgba(0,0,0,0)' });
   gsap.set('.focus-scrim', { opacity: 0 });
   gsap.set('.chat', { borderRightColor: 'rgba(255,255,255,0.07)' });
 
@@ -979,63 +981,60 @@ function buildMaster() {
 
   // The agent is already mid-task — that's the premise. Open wide on the whole
   // workbench so the running task and the site are both established.
-  tl.add(elapsedTween('ca1', 8, 42, 12.0), 0.6);
+  tl.add(elapsedTween('ca1', 8, 42, 10.0), 0.6);
   tl.add(workTween('ca1'), 0.6);
 
-  // Push in on the composer and STAY there while both prompts are typed and queued
+  // Push in on the prompt box and STAY there while both prompts are typed and queued
   tl.add(focusIn(), 1.2);
 
   // Prompt 1 typed and sent *while it works* → straight into the queue
   tl.call(() => { stage.classList.add('has-text'); gsap.set(caret, { opacity: 1 }); }, null, 1.6);
-  tl.add(typeTween(compText, PROMPTS[0], 2.4), 1.6);
-  tl.call(() => stage.classList.add('is-sending'), null, 4.3);
+  tl.add(typeTween(compText, PROMPTS[0], 1.6), 1.6);
+  tl.call(() => stage.classList.add('is-sending'), null, 3.5);
   tl.call(() => {
     stage.classList.remove('has-text');
     compText.textContent = '';
     gsap.set(caret, { opacity: 0 });
-  }, null, 4.55);
-  tl.call(() => stage.classList.remove('is-sending'), null, 4.8);
-  tl.add(enqueue(1), 4.55);
+  }, null, 3.75);
+  tl.call(() => stage.classList.remove('is-sending'), null, 4.0);
+  tl.add(enqueue(1), 3.75);
 
   // Prompt 2 — the queue stacks, reorder handles appear
-  tl.call(() => { stage.classList.add('has-text'); gsap.set(caret, { opacity: 1 }); }, null, 5.6);
-  tl.add(typeTween(compText, PROMPTS[1], 2.6), 5.6);
-  tl.call(() => stage.classList.add('is-sending'), null, 8.5);
+  tl.call(() => { stage.classList.add('has-text'); gsap.set(caret, { opacity: 1 }); }, null, 4.9);
+  tl.add(typeTween(compText, PROMPTS[1], 1.75), 4.9);
+  tl.call(() => stage.classList.add('is-sending'), null, 6.95);
   tl.call(() => {
     stage.classList.remove('has-text');
     compText.textContent = '';
     gsap.set(caret, { opacity: 0 });
-  }, null, 8.75);
-  tl.call(() => stage.classList.remove('is-sending'), null, 9.0);
-  tl.add(enqueue(2), 8.75);
-
-  tl.to(chip, { opacity: 1, y: 0, duration: 0.6, ease: 'back.out(1.5)' }, 9.1);
-  tl.to(chip, { opacity: 0, y: 24, duration: 0.45, ease: 'power2.in' }, 11.3);
+  }, null, 7.2);
+  tl.call(() => stage.classList.remove('is-sending'), null, 7.45);
+  tl.add(enqueue(2), 7.2);
 
   // Pull back out — everything from here is the queue draining into the site
-  tl.add(focusOut(), 11.6);
+  tl.add(focusOut(), 9.6);
 
   // Task 1 lands
-  tl.add(agentDone('ca1', 42), 12.6);
-  tl.add(fxSpin(), 12.75);
+  tl.add(agentDone('ca1', 42), 10.6);
+  tl.add(fxSpin(), 10.75);
 
   // Queue drains itself — the next prompt starts the moment the last one lands,
   // and each change shows up while the agent is still writing the summary
-  tl.add(dequeue(1, 1), 13.6);
-  tl.add(handOff('cu2', 'ca2'), 13.9);
-  tl.add(elapsedTween('ca2', 1, 14, 2.2), 14.1);
-  tl.add(workTween('ca2'), 14.1);
-  tl.add(fxCovers(), 14.8);
-  tl.add(agentDone('ca2', 14), 16.4);
+  tl.add(dequeue(1, 1), 11.6);
+  tl.add(handOff('cu2', 'ca2'), 11.9);
+  tl.add(elapsedTween('ca2', 1, 14, 2.2), 12.1);
+  tl.add(workTween('ca2'), 12.1);
+  tl.add(fxCovers(), 12.8);
+  tl.add(agentDone('ca2', 14), 14.4);
 
-  tl.add(dequeue(2, 0), 17.4);
-  tl.add(handOff('cu3', 'ca3'), 17.7);
-  tl.add(elapsedTween('ca3', 1, 11, 1.9), 17.9);
-  tl.add(workTween('ca3'), 17.9);
-  tl.add(fxTheme(), 18.5);
-  tl.add(agentDone('ca3', 11), 19.9);
+  tl.add(dequeue(2, 0), 15.4);
+  tl.add(handOff('cu3', 'ca3'), 15.7);
+  tl.add(elapsedTween('ca3', 1, 11, 1.9), 15.9);
+  tl.add(workTween('ca3'), 15.9);
+  tl.add(fxTheme(), 16.5);
+  tl.add(agentDone('ca3', 11), 17.9);
 
-  tl.to({}, { duration: 1.1 }, 21.1);   // hold on the finished state, then loop
+  tl.to({}, { duration: 1.1 }, 19.1);   // hold on the finished state, then loop
   return tl;
 }
 
