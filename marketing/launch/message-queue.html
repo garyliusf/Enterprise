@@ -869,10 +869,12 @@ function toastQueued() {                        // "Message queued", then away
   // and since the whole timeline is built up front that killed toast 1 the
   // moment toast 2 was created. immediateRender: false keeps the from-state from
   // being stamped on at build time too.
-  tl.fromTo(t, { opacity: 0, y: 12, scale: 0.97 },
-               { opacity: 1, y: 0, scale: 1, duration: 0.4, ease: 'power3.out',
+  // Deliberately unhurried against the rest of the loop: the confirmation should
+  // settle, not snap. Entry runs ~1.75x the length of the beats around it.
+  tl.fromTo(t, { opacity: 0, y: 15, scale: 0.975 },
+               { opacity: 1, y: 0, scale: 1, duration: 0.72, ease: 'power2.out',
                  overwrite: 'auto', immediateRender: false });
-  tl.to(t, { opacity: 0, y: -12, duration: 0.34, ease: 'power2.in' }, '+=0.9');
+  tl.to(t, { opacity: 0, y: -13, duration: 0.44, ease: 'power2.inOut' }, '+=0.72');
   return tl;
 }
 function enqueue(n) {
@@ -962,7 +964,7 @@ function resetAll() {
   gsap.set(queue, { display: 'none', opacity: 0, height: 'auto', marginBottom: -20 });
   gsap.set(['#q1', '#q2'], { display: 'none', opacity: 0, y: 0 });
   gsap.set('.q-drag', { opacity: 0 });
-  gsap.set('#queued-toast', { opacity: 0, y: 12, scale: 0.97 });
+  gsap.set('#queued-toast', { opacity: 0, y: 15, scale: 0.975 });
   qCount.textContent = '1 queued';
 
   gsap.set(wbEl, { scale: WB_BASE, x: 0, y: 0 });
