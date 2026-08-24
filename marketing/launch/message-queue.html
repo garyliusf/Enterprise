@@ -766,10 +766,10 @@ const WORK = {
          [4.4, 'Editing files',          'Edit', 'src/styles/motion.css',        3],
          [6.4, 'Editing files',          'Edit', 'src/components/Tonearm.tsx',   4] ],
   ca2: [ [0.0, 'Editing files',          'Edit', 'src/components/AlbumCard.tsx', 1],
-         [0.8, 'Editing files',          'Edit', 'src/data/releases.ts',         2],
-         [1.5, 'Editing files',          'Edit', 'src/components/Catalog.tsx',   3] ],
+         [0.6, 'Editing files',          'Edit', 'src/data/releases.ts',         2],
+         [1.2, 'Editing files',          'Edit', 'src/components/Catalog.tsx',   3] ],
   ca3: [ [0.0, 'Editing files',          'Edit', 'src/styles/theme.css',         1],
-         [1.0, 'Editing files',          'Edit', 'tailwind.config.js',           2] ]
+         [0.8, 'Editing files',          'Edit', 'tailwind.config.js',           2] ]
 };
 function workTween(id) {
   const b = document.getElementById(id), tl = gsap.timeline();
@@ -861,8 +861,10 @@ function focusOut() {
 /* ── Queue ───────────────────────────────────────────────────────────────── */
 function toastQueued() {                        // "Message queued", then away
   const t = document.getElementById('queued-toast'), tl = gsap.timeline();
+  // overwrite: both queued messages animate this same element, so the second
+  // entry has to kill whatever the first one left running
   tl.fromTo(t, { opacity: 0, y: 12, scale: 0.97 },
-               { opacity: 1, y: 0, scale: 1, duration: 0.4, ease: 'power3.out' });
+               { opacity: 1, y: 0, scale: 1, duration: 0.4, ease: 'power3.out', overwrite: true });
   tl.to(t, { opacity: 0, y: -12, duration: 0.34, ease: 'power2.in' }, '+=0.9');
   return tl;
 }
@@ -1023,20 +1025,20 @@ function buildMaster() {
   // Queue drains itself — the next prompt starts the moment the last one lands,
   // and each change shows up while the agent is still writing the summary
   tl.add(dequeue(1, 1), 9.5);
-  tl.add(handOff('cu2', 'ca2'), 9.8);
-  tl.add(elapsedTween('ca2', 1, 14, 2.2), 10.0);
-  tl.add(workTween('ca2'), 10.0);
-  tl.add(fxCovers(), 10.7);
-  tl.add(agentDone('ca2', 14), 12.3);
+  tl.add(handOff('cu2', 'ca2'), 9.75);
+  tl.add(elapsedTween('ca2', 1, 14, 1.8), 9.9);
+  tl.add(workTween('ca2'), 9.9);
+  tl.add(fxCovers(), 10.3);
+  tl.add(agentDone('ca2', 14), 11.8);
 
-  tl.add(dequeue(2, 0), 13.3);
-  tl.add(handOff('cu3', 'ca3'), 13.6);
-  tl.add(elapsedTween('ca3', 1, 11, 1.9), 13.8);
-  tl.add(workTween('ca3'), 13.8);
-  tl.add(fxTheme(), 14.4);
-  tl.add(agentDone('ca3', 11), 15.8);
+  tl.add(dequeue(2, 0), 12.6);
+  tl.add(handOff('cu3', 'ca3'), 12.85);
+  tl.add(elapsedTween('ca3', 1, 11, 1.5), 13.0);
+  tl.add(workTween('ca3'), 13.0);
+  tl.add(fxTheme(), 13.4);
+  tl.add(agentDone('ca3', 11), 14.6);
 
-  tl.to({}, { duration: 1.1 }, 17.0);   // hold on the finished state, then loop
+  tl.to({}, { duration: 1.1 }, 15.8);   // hold on the finished state, then loop
   return tl;
 }
 
