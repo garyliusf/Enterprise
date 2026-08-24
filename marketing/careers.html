@@ -1454,13 +1454,22 @@ makePixelCanvas('faq-pixel-canvas', 9, 2,
   }
   /* Hand-rolled glide: scrollBy/scrollTo with behavior:'smooth' silently
      no-op on this element in Chrome (instant scrolls work fine), so the
-     easing is driven by rAF directly. */
+     easing is driven by rAF directly. Mobile's mandatory scroll-snap must be
+     suspended for the duration — it re-snaps after every per-frame
+     scrollLeft write, which collapses the animation into a jump-cut. The
+     glide lands exactly on a snap point, so restoring snap doesn't shift
+     anything. */
   var gliding = null;
+  function endGlide() {
+    if (gliding) { cancelAnimationFrame(gliding); gliding = null; }
+    stack.style.scrollSnapType = '';
+  }
   function glide(delta) {
     var from = stack.scrollLeft;
     var to = Math.max(0, Math.min(stack.scrollWidth - stack.clientWidth, from + delta));
     if (to === from) return;
     if (gliding) cancelAnimationFrame(gliding);
+    stack.style.scrollSnapType = 'none';
     var t0 = null;
     var DUR = 380;
     function ease(t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
@@ -1468,10 +1477,16 @@ makePixelCanvas('faq-pixel-canvas', 9, 2,
       if (t0 === null) t0 = ts;
       var p = Math.min(1, (ts - t0) / DUR);
       stack.scrollLeft = from + (to - from) * ease(p);
-      gliding = p < 1 ? requestAnimationFrame(frameStep) : null;
+      if (p < 1) {
+        gliding = requestAnimationFrame(frameStep);
+      } else {
+        endGlide();
+      }
     }
     gliding = requestAnimationFrame(frameStep);
   }
+  /* a real touch takes over instantly — stop writing scrollLeft against it */
+  stack.addEventListener('touchstart', endGlide, { passive: true });
   if (prev) prev.addEventListener('click', function () { glide(-step()); });
   if (next) next.addEventListener('click', function () { glide(step()); });
   stack.addEventListener('scroll', update, { passive: true });
