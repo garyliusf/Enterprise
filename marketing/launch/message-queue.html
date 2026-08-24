@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>bolt.new — Message Queue (launch loop)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: #000; overflow: hidden;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* ── Recording stage: fixed 1920×1080, scaled to fit the viewport ────────── */
+  .stage-wrap { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: #000; }
+  .stage {
+    position: relative; width: 1920px; height: 1080px; flex: 0 0 auto; overflow: hidden;
+    transform: scale(var(--stage-scale, 1)); transform-origin: center center;
+    /* same launch-stage treatment as instant-deploy: navy→black, blue glow lower-left */
+    background:
+      radial-gradient(1150px 900px at 14% 82%, rgba(20,136,252,0.42) 0%, transparent 62%),
+      radial-gradient(760px 620px at 24% 54%, rgba(180,200,230,0.14) 0%, transparent 70%),
+      radial-gradient(1000px 900px at 96% -2%, rgba(255,170,110,0.30) 0%, transparent 62%),
+      linear-gradient(180deg, #0b1a2f 0%, #0a0f1c 55%, #050608 100%);
+  }
+  #pixel-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
+
+  .center { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 1; }
+
+  /* ── Workbench window ────────────────────────────────────────────────────── */
+  .wb {
+    position: relative; width: 1680px; height: 946px;
+    background: #0b0b0c;
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 14px; overflow: hidden;
+    box-shadow: 0 40px 110px rgba(2, 12, 34, 0.62);
+    display: flex; flex-direction: column;
+  }
+
+  /* Top chrome */
+  .wb-top {
+    height: 48px; flex: 0 0 48px; display: flex; align-items: center; gap: 12px;
+    padding: 0 14px; border-bottom: 1px solid rgba(255,255,255,0.07);
+    background: #0b0b0c;
+  }
+  .wb-mark { display: flex; align-items: center; color: #fff; }
+  .wb-mark svg { width: 15px; height: 19px; display: block; }
+  .wb-slash { color: rgba(255,255,255,0.2); font-size: 14px; }
+  .wb-bolt { width: 22px; height: 22px; border-radius: 5px; background: rgba(20,136,252,0.16); display: flex; align-items: center; justify-content: center; }
+  .wb-bolt svg { width: 12px; height: 12px; color: #1488FC; }
+  .wb-proj { font-size: 13.5px; color: #e9eaec; font-weight: 500; }
+  .wb-icons { display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,0.34); }
+  .wb-icons svg { width: 15px; height: 15px; }
+
+  .seg { display: flex; align-items: center; gap: 2px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 7px; padding: 2px; }
+  .seg-i { display: flex; align-items: center; gap: 6px; padding: 4px 9px; border-radius: 5px; font-size: 12.5px; color: rgba(255,255,255,0.4); }
+  .seg-i svg { width: 13px; height: 13px; }
+  .seg-i.on { background: rgba(20,136,252,0.14); color: #6fb6ff; }
+
+  .urlbar {
+    flex: 0 1 470px; height: 28px; margin: 0 auto; display: flex; align-items: center; gap: 10px;
+    background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.07); border-radius: 7px; padding: 0 10px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: rgba(255,255,255,0.42);
+  }
+  .urlbar .u-path { flex: 1; }
+  .urlbar svg { width: 12px; height: 12px; color: rgba(255,255,255,0.3); }
+
+  .top-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+  .btn-share { font-size: 12.5px; color: rgba(255,255,255,0.62); padding: 5px 11px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); }
+  .btn-publish { font-size: 12.5px; font-weight: 500; color: #fff; padding: 6px 13px; border-radius: 6px; background: #1488FC; }
+
+  .wb-body { flex: 1; display: flex; min-height: 0; }
+
+  /* ── Chat panel ──────────────────────────────────────────────────────────── */
+  .chat {
+    width: 468px; flex: 0 0 468px; position: relative;
+    border-right: 1px solid rgba(255,255,255,0.07);
+    background: #0c0c0d; display: flex; flex-direction: column; min-height: 0;
+  }
+  .chat-scroll { position: relative; flex: 1; overflow: hidden; min-height: 0; }
+  .chat-inner { position: absolute; left: 0; right: 0; top: 0; padding: 4px 20px 16px; display: flex; flex-direction: column; gap: 16px; }
+  .chat-fade { position: absolute; left: 0; right: 0; top: 0; height: 46px; z-index: 3; pointer-events: none;
+    background: linear-gradient(180deg, #0c0c0d 0%, rgba(12,12,13,0) 100%); }
+
+  /* user message */
+  .c-user { display: flex; justify-content: flex-end; }
+  .av-g { width: 25px; height: 25px; flex: 0 0 25px; border-radius: 50%; background: #86E08B; color: #10331a;
+    font-size: 12.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .c-user p {
+    font-size: 13.5px; line-height: 1.5; color: #dfe2e5; max-width: 86%;
+    background: rgba(255,255,255,0.05); border-radius: 12px; padding: 9px 14px;
+  }
+
+  /* agent block */
+  .c-agent { display: flex; flex-direction: column; gap: 12px; }
+  .ag-card { border: 1px solid rgba(255,255,255,0.08); border-radius: 9px; background: rgba(255,255,255,0.018); overflow: hidden; }
+  .ag-head { display: flex; align-items: center; gap: 9px; padding: 9px 13px; }
+  .ag-tool { display: flex; align-items: center; gap: 9px; padding: 0 13px 10px; font-size: 12px; color: rgba(255,255,255,0.4); }
+  .ag-tool code {
+    font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: rgba(255,255,255,0.62);
+    background: rgba(255,255,255,0.06); border-radius: 5px; padding: 3px 7px;
+  }
+  .c-agent.is-done .ag-tool { display: none; }
+  .ag-brand { font-size: 14px; font-weight: 700; font-style: italic; color: #fff; letter-spacing: -0.4px; margin-bottom: -4px; }
+  .ag-spin { width: 14px; height: 14px; flex: 0 0 14px; border-radius: 50%;
+    border: 1.6px solid rgba(20,136,252,0.25); border-top-color: #1488FC; animation: spin 0.85s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .ag-done { width: 14px; height: 14px; flex: 0 0 14px; color: #86E08B; display: none; }
+  .ag-done svg { width: 14px; height: 14px; }
+  .ag-title { font-size: 13px; font-weight: 600; color: #e9eaec; }
+  .ag-count { margin-left: auto; font-size: 12px; color: rgba(255,255,255,0.35); display: flex; align-items: center; gap: 6px; }
+  .ag-count svg { width: 11px; height: 11px; }
+  .c-agent.is-done .ag-spin { display: none; }
+  .c-agent.is-done .ag-done { display: block; }
+
+  .ag-body { font-size: 13px; line-height: 1.62; color: rgba(255,255,255,0.62); }
+  .ag-tools { display: flex; gap: 14px; color: rgba(255,255,255,0.26); }
+  .ag-tools svg { width: 14px; height: 14px; }
+
+  .ver-card {
+    border: 1px solid rgba(255,255,255,0.09); border-radius: 9px; padding: 12px 13px;
+    background: rgba(255,255,255,0.022); position: relative;
+  }
+  .ver-title { display: block; font-size: 12.8px; font-weight: 500; color: #e2e5e8; }
+  .ver-sub { display: block; margin-top: 4px; font-size: 11.5px; color: rgba(255,255,255,0.34); }
+  .ver-card svg { position: absolute; right: 12px; top: 13px; width: 13px; height: 13px; color: rgba(255,255,255,0.3); }
+
+  /* ── Composer zone (queue panel + composer) ──────────────────────────────── */
+  .composer-zone { position: relative; flex: 0 0 auto; padding: 0 14px 14px; z-index: 5; }
+
+  .queue-panel {
+    position: relative; z-index: 1;
+    border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;
+    background: #101011; padding: 13px 14px 30px; margin-bottom: -20px;
+    opacity: 0;                              /* GSAP-controlled */
+  }
+  .q-head { display: flex; align-items: center; gap: 9px; margin-bottom: 12px; }
+  .q-head svg { width: 13px; height: 13px; color: rgba(255,255,255,0.4); }
+  .q-count { font-size: 13.5px; font-weight: 600; color: #eceef0; }
+  .q-list { display: flex; flex-direction: column; gap: 11px; }
+  .q-item { display: flex; align-items: center; gap: 10px; opacity: 0; }
+  .q-drag { width: 11px; flex: 0 0 11px; color: rgba(255,255,255,0.26); opacity: 0; }
+  .q-drag svg { width: 11px; height: 11px; display: block; }
+  .q-item .av-g { width: 23px; height: 23px; flex: 0 0 23px; font-size: 11.5px; }
+  .q-text {
+    font-size: 13px; color: #dfe2e5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1;
+  }
+  .q-acts { display: flex; align-items: center; gap: 14px; flex: 0 0 auto; color: rgba(255,255,255,0.38); }
+  .q-acts svg { width: 14px; height: 14px; display: block; }
+
+  .composer {
+    position: relative; z-index: 2;
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; background: #0f0f10;
+    padding: 14px 14px 11px; overflow: hidden;
+  }
+  /* the blue gradient hairline along the composer's top edge */
+  .composer::before {
+    content: ''; position: absolute; left: 0; right: 0; top: 0; height: 1px;
+    background: linear-gradient(90deg, rgba(20,136,252,0) 0%, rgba(20,136,252,0.85) 42%, rgba(120,200,255,0.55) 72%, rgba(20,136,252,0) 100%);
+  }
+  .comp-text-wrap { position: relative; min-height: 46px; }
+  .comp-text, .comp-ph { font-size: 14.5px; line-height: 1.45; letter-spacing: -0.1px; }
+  .comp-text { color: #e6e8ea; }
+  .comp-ph { position: absolute; inset: 0; color: rgba(255,255,255,0.28); transition: opacity 160ms ease; }
+  .stage.has-text .comp-ph { opacity: 0; }
+  .comp-caret { display: inline-block; width: 1.5px; height: 15px; background: #1488FC; vertical-align: -2px; margin-left: 1px; opacity: 0; }
+
+  .comp-row { display: flex; align-items: center; gap: 16px; margin-top: 8px; }
+  .comp-add { width: 26px; height: 26px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.14);
+    display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.5); }
+  .comp-add svg { width: 12px; height: 12px; }
+  .comp-opt { display: flex; align-items: center; gap: 5px; font-size: 12.5px; color: rgba(255,255,255,0.55); }
+  .comp-opt.dim { color: rgba(255,255,255,0.28); }
+  .comp-opt svg { width: 12px; height: 12px; }
+  .comp-send {
+    margin-left: auto; width: 30px; height: 30px; border-radius: 50%; background: #1488FC;
+    display: flex; align-items: center; justify-content: center; position: relative;
+  }
+  .comp-send svg { width: 14px; height: 14px; color: #fff; position: absolute; transition: opacity 180ms ease; }
+  .send-stop { opacity: 1; }
+  .send-arrow { opacity: 0; }
+  .stage.has-text .send-stop { opacity: 0; }
+  .stage.has-text .send-arrow { opacity: 1; }
+  .stage.is-sending .comp-send { animation: press 420ms cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 0 0 8px rgba(20,136,252,0.18); }
+  @keyframes press { 0% { transform: scale(1); } 35% { transform: scale(0.8); } 100% { transform: scale(1); } }
+
+
+  /* ── Preview pane ────────────────────────────────────────────────────────── */
+  .preview { flex: 1; min-width: 0; padding: 13px 13px 13px 0; }
+  .dash-frame {
+    width: 100%; height: 100%; border: 1px solid rgba(255,255,255,0.07); border-radius: 10px;
+    overflow: hidden; background: #0a0c0d; display: flex;
+  }
+
+  /* sidebar */
+  .ds-side { width: 196px; flex: 0 0 196px; border-right: 1px solid rgba(255,255,255,0.055); padding: 15px 12px; display: flex; flex-direction: column; }
+  .ds-brand { display: flex; align-items: center; gap: 9px; padding: 0 4px 14px; }
+  .ds-logo { width: 27px; height: 27px; border-radius: 7px; background: rgba(255,255,255,0.07); color: #fff;
+    font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .ds-brand-t { font-size: 12px; font-weight: 600; color: #eceef0; line-height: 1.3; }
+  .ds-brand-s { font-size: 9.5px; color: rgba(255,255,255,0.32); }
+  .ds-port { border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 9px 10px; margin-bottom: 16px; }
+  .ds-port-r { display: flex; align-items: center; justify-content: space-between; }
+  .ds-port-l { font-size: 8.5px; letter-spacing: 1.1px; color: rgba(255,255,255,0.3); }
+  .ds-port-v { font-size: 11.5px; font-weight: 600; color: #eceef0; }
+  .ds-bar { height: 3px; border-radius: 2px; background: rgba(255,255,255,0.08); margin-top: 8px; position: relative; }
+  .ds-bar i { position: absolute; left: 0; top: 0; bottom: 0; width: 78%; border-radius: 2px; background: #34D399; }
+  .ds-menu-l { font-size: 8.5px; letter-spacing: 1.1px; color: rgba(255,255,255,0.26); padding: 0 6px 8px; }
+  .ds-nav { display: flex; flex-direction: column; gap: 2px; }
+  .ds-nav a { display: flex; align-items: center; gap: 9px; padding: 7px 8px; border-radius: 7px;
+    font-size: 11.5px; color: rgba(255,255,255,0.5); }
+  .ds-nav a svg { width: 13px; height: 13px; opacity: 0.7; }
+  .ds-nav a.on { background: rgba(52,211,153,0.09); color: #6EE7B7; }
+  .ds-nav a.on svg { opacity: 1; }
+  .ds-badge { margin-left: auto; min-width: 15px; height: 15px; border-radius: 4px; background: rgba(255,255,255,0.07);
+    font-size: 9px; color: rgba(255,255,255,0.6); display: flex; align-items: center; justify-content: center; padding: 0 4px; }
+  .ds-user { margin-top: auto; display: flex; align-items: center; gap: 9px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.05); }
+  .ds-user .av { width: 25px; height: 25px; border-radius: 50%; background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.7);
+    font-size: 9.5px; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+
+  /* main */
+  .ds-main { flex: 1; min-width: 0; padding: 15px 16px; display: flex; flex-direction: column; overflow: hidden; }
+  .ds-top { display: flex; align-items: flex-start; margin-bottom: 14px; }
+  .ds-hi { font-size: 17px; font-weight: 600; color: #f0f2f4; letter-spacing: -0.3px; }
+  .ds-date { font-size: 10.5px; color: rgba(255,255,255,0.33); margin-top: 3px; }
+  .ds-top-r { margin-left: auto; display: flex; align-items: center; gap: 9px; }
+  .ds-search { width: 172px; height: 27px; border: 1px solid rgba(255,255,255,0.07); border-radius: 7px;
+    display: flex; align-items: center; gap: 7px; padding: 0 9px; font-size: 10.5px; color: rgba(255,255,255,0.3); }
+  .ds-search svg { width: 11px; height: 11px; }
+  .ds-new { height: 27px; border-radius: 7px; background: #34D399; color: #04231a; font-size: 11px; font-weight: 600;
+    display: flex; align-items: center; gap: 5px; padding: 0 11px; }
+  .ds-new svg { width: 11px; height: 11px; }
+  .ds-bell { width: 27px; height: 27px; border-radius: 7px; border: 1px solid rgba(255,255,255,0.07);
+    display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.45); position: relative; }
+  .ds-bell svg { width: 12px; height: 12px; }
+  .ds-bell i { position: absolute; top: -4px; right: -4px; width: 13px; height: 13px; border-radius: 50%; background: #F87171;
+    color: #2a0707; font-size: 8px; font-weight: 700; display: flex; align-items: center; justify-content: center; font-style: normal; }
+
+  /* stat cards */
+  .ds-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 11px; margin-bottom: 13px; }
+  .ds-stat { border: 1px solid rgba(255,255,255,0.06); border-radius: 9px; padding: 12px 13px 13px; }
+  .ds-stat.s1 { background: linear-gradient(150deg, rgba(52,211,153,0.10) 0%, rgba(52,211,153,0) 62%); }
+  .ds-stat.s2 { background: linear-gradient(150deg, rgba(59,130,246,0.12) 0%, rgba(59,130,246,0) 62%); }
+  .ds-stat.s3 { background: linear-gradient(150deg, rgba(251,191,36,0.11) 0%, rgba(251,191,36,0) 62%); }
+  .ds-stat.s4 { background: linear-gradient(150deg, rgba(45,212,191,0.11) 0%, rgba(45,212,191,0) 62%); }
+  .ds-stat svg { width: 15px; height: 15px; margin-bottom: 14px; display: block; }
+  .ds-stat.s1 svg { color: #34D399; } .ds-stat.s2 svg { color: #60A5FA; }
+  .ds-stat.s3 svg { color: #FBBF24; } .ds-stat.s4 svg { color: #2DD4BF; }
+  .ds-stat-l { font-size: 8.5px; letter-spacing: 1.1px; color: rgba(255,255,255,0.36); }
+  .ds-stat-v { font-size: 22px; font-weight: 600; color: #fff; letter-spacing: -0.8px; margin-top: 5px; }
+  .ds-stat-v span { font-size: 11px; font-weight: 400; color: rgba(255,255,255,0.4); letter-spacing: 0; margin-left: 3px; }
+  .ds-chip { display: inline-flex; align-items: center; gap: 4px; margin-top: 9px; padding: 3px 6px; border-radius: 5px;
+    background: rgba(52,211,153,0.12); color: #34D399; font-size: 9.5px; font-weight: 600; }
+  .ds-chip svg { width: 9px; height: 9px; margin: 0; color: currentColor; }
+  .ds-chip-x { font-size: 9.5px; color: rgba(255,255,255,0.28); margin-left: 6px; }
+
+  /* content columns */
+  .ds-cols { flex: 1; display: grid; grid-template-columns: 1fr 330px; gap: 12px; min-height: 0; }
+  .ds-panel { border: 1px solid rgba(255,255,255,0.06); border-radius: 9px; background: rgba(255,255,255,0.012);
+    display: flex; flex-direction: column; overflow: hidden; }
+  .ds-panel-h { display: flex; align-items: center; gap: 10px; padding: 13px 15px; }
+  .ds-panel-t { font-size: 13px; font-weight: 600; color: #eceef0; }
+  .ds-panel-s { font-size: 10.5px; color: rgba(255,255,255,0.3); padding-left: 10px; border-left: 1px solid rgba(255,255,255,0.1); }
+  .ds-view-all { margin-left: auto; font-size: 10px; color: rgba(255,255,255,0.34); display: flex; align-items: center; gap: 4px; }
+  .ds-view-all svg { width: 9px; height: 9px; }
+
+  /* tenants — header counts (condensed state only) */
+  .tt-counts { display: flex; gap: 10px; opacity: 0; }
+  .tt-cnt { display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 500; }
+  .tt-cnt svg { width: 11px; height: 11px; }
+  .tt-cnt.ok { color: #34D399; } .tt-cnt.bad { color: #F87171; }
+
+  /* tenants table — the two crossfading layouts */
+  .tt-stack { position: relative; flex: 1; min-height: 0; }
+  .tt-layer { position: absolute; inset: 0; padding: 0 15px 12px; }
+  .tt-slim { opacity: 0; }
+
+  .tt-hrow { display: grid; grid-template-columns: 1.6fr 0.7fr 0.9fr 0.8fr 0.75fr; gap: 8px; padding: 0 4px 9px;
+    font-size: 8.5px; letter-spacing: 1.1px; color: rgba(255,255,255,0.28); }
+  .tt-hrow .r { text-align: right; }
+  .tt-row { display: grid; grid-template-columns: 1.6fr 0.7fr 0.9fr 0.8fr 0.75fr; gap: 8px; align-items: center;
+    padding: 9px 4px; border-top: 1px solid rgba(255,255,255,0.045); }
+  .tt-who { display: flex; align-items: center; gap: 9px; }
+  .tt-av { width: 26px; height: 26px; flex: 0 0 26px; border-radius: 7px; background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.6); font-size: 9.5px; font-weight: 600; display: flex; align-items: center; justify-content: center; position: relative; }
+  .tt-name { font-size: 11.5px; font-weight: 500; color: #e8eaec; }
+  .tt-mail { font-size: 9.5px; color: rgba(255,255,255,0.28); margin-top: 1px; }
+  .tt-unit { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: rgba(255,255,255,0.5); }
+  .tt-rent { font-size: 11.5px; font-weight: 600; color: #e8eaec; text-align: right; }
+  .tt-rent span { font-size: 9px; font-weight: 400; color: rgba(255,255,255,0.3); }
+  .tt-lease { font-size: 10.5px; color: rgba(255,255,255,0.42); text-align: right; }
+  .tt-lease.warn { color: #FBBF24; font-weight: 600; }
+
+  .pill { display: inline-flex; align-items: center; gap: 5px; padding: 3.5px 8px; border-radius: 5px;
+    font-size: 9.5px; font-weight: 500; transition: background 420ms ease, color 420ms ease, box-shadow 420ms ease; }
+  .pill i { width: 4px; height: 4px; border-radius: 50%; background: currentColor; font-style: normal;
+    transition: box-shadow 420ms ease; }
+  .pill.ok   { background: rgba(52,211,153,0.10);  color: #34D399; }
+  .pill.soon { background: rgba(251,191,36,0.11);  color: #FBBF24; }
+  .pill.late { background: rgba(248,113,113,0.11); color: #F87171; }
+  .pill.vac  { background: rgba(251,146,60,0.11);  color: #FB923C; }
+  /* "make the status more clear, brighter green" */
+  .dash.is-bright .pill.ok { background: rgba(74,240,168,0.20); color: #4AF0A8; box-shadow: inset 0 0 0 1px rgba(74,240,168,0.34); }
+  .dash.is-bright .pill.ok i { box-shadow: 0 0 6px rgba(74,240,168,0.9); }
+
+  /* slim rows */
+  .ts-row { display: flex; align-items: center; gap: 10px; padding: 7.5px 4px; border-top: 1px solid rgba(255,255,255,0.045); }
+  .ts-av { width: 22px; height: 22px; flex: 0 0 22px; border-radius: 6px; background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.6); font-size: 8.5px; font-weight: 600; display: flex; align-items: center; justify-content: center; position: relative; }
+  .ts-dot { position: absolute; right: -2px; bottom: -2px; width: 7px; height: 7px; border-radius: 50%;
+    border: 1.5px solid #0a0c0d; background: #34D399; opacity: 0; transform: scale(0.4); }
+  .ts-dot.w { background: #FBBF24; } .ts-dot.b { background: #F87171; } .ts-dot.o { background: #FB923C; }
+  .dash.is-bright .ts-dot.g { background: #4AF0A8; box-shadow: 0 0 7px rgba(74,240,168,0.75); }
+  .ts-name { font-size: 11.5px; font-weight: 500; color: #e8eaec; }
+  .ts-unit { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: rgba(255,255,255,0.32); margin-left: 7px; }
+  .ts-rent { margin-left: auto; font-size: 11.5px; font-weight: 600; color: #e8eaec; }
+  .ts-date { font-size: 10px; color: rgba(255,255,255,0.34); width: 56px; text-align: right; }
+  .ts-date.warn { color: #FBBF24; font-weight: 600; }
+  .ts-pill { width: 62px; display: flex; justify-content: flex-end; }
+
+  /* activity */
+  .ac-badge { font-size: 9.5px; font-weight: 600; color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.07);
+    border-radius: 5px; padding: 2px 6px; opacity: 0; }
+  .ac-filter { margin-left: auto; color: rgba(255,255,255,0.3); }
+  .ac-filter svg { width: 12px; height: 12px; }
+  .ac-tabs { display: flex; gap: 6px; padding: 0 15px; opacity: 0; height: 0; overflow: hidden; }
+  .ac-tab { font-size: 9.5px; color: rgba(255,255,255,0.36); padding: 3px 8px; border-radius: 5px; white-space: nowrap; }
+  .ac-tab.on { background: rgba(255,255,255,0.07); color: #e8eaec; }
+  .ac-tab b { font-weight: 600; opacity: 0.55; margin-left: 3px; }
+  .ac-list { padding: 0 15px 12px; display: flex; flex-direction: column; }
+  .ac-day { font-size: 8.5px; letter-spacing: 1.1px; color: rgba(255,255,255,0.26); padding: 0; opacity: 0; height: 0; overflow: hidden; }
+  .ac-item { display: flex; gap: 10px; padding: 8px 0; align-items: flex-start; }
+  .ac-ico { width: 20px; height: 20px; flex: 0 0 20px; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+  .ac-ico svg { width: 11px; height: 11px; }
+  .ac-ico.g { background: rgba(52,211,153,0.10); color: #34D399; }
+  .ac-ico.y { background: rgba(251,191,36,0.10); color: #FBBF24; }
+  .ac-ico.r { background: rgba(248,113,113,0.10); color: #F87171; }
+  .ac-ico.b { background: rgba(59,130,246,0.10); color: #60A5FA; }
+  .ac-txt { font-size: 10.5px; line-height: 1.45; color: rgba(255,255,255,0.62); flex: 1; }
+  .ac-ago { font-size: 9.5px; color: rgba(255,255,255,0.26); flex: 0 0 auto; padding-top: 1px; }
+  .ac-time { display: block; font-size: 9px; color: rgba(255,255,255,0.24); margin-top: 0; opacity: 0; height: 0; overflow: hidden; }
+
+  /* ── Feature caption chip ────────────────────────────────────────────────── */
+  .tray { position: absolute; left: 0; right: 0; bottom: 34px; display: flex; justify-content: center; z-index: 4; }
+  .feat-chip {
+    display: flex; align-items: center; gap: 12px; padding: 13px 24px 13px 18px;
+    border-radius: 999px; background: rgba(16,18,24,0.82); backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 22px 60px rgba(0,0,0,0.5);
+    opacity: 0; transform: translateY(28px);
+  }
+  .feat-ico { width: 32px; height: 32px; border-radius: 9px; background: rgba(20,136,252,0.16);
+    display: flex; align-items: center; justify-content: center; color: #4DA6FF; }
+  .feat-ico svg { width: 17px; height: 17px; }
+  .feat-t { font-size: 19px; font-weight: 600; color: #fff; letter-spacing: -0.3px; }
+  .feat-s { font-size: 19px; font-weight: 400; color: rgba(255,255,255,0.5); letter-spacing: -0.3px; }
+</style>
+</head>
+<body>
+
+<!-- ── Icon set ──────────────────────────────────────────────────────────── -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <g id="s" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></g>
+  </defs>
+  <symbol id="i-b" viewBox="0 0 500 635"><path fill-rule="evenodd" clip-rule="evenodd" d="M290.23 557.091C244.985 557.091 200.563 540.681 175.062 505.402L166.067 547.01L0 635L17.9277 547.01L138.866 0H286.939L244.163 192.808C278.713 155.066 310.795 141.119 351.927 141.119C440.771 141.119 500 199.371 500 306.031C500 415.972 431.722 557.091 290.23 557.091ZM346.991 337.208C346.991 388.076 310.795 426.638 263.906 426.638C237.581 426.638 213.725 416.792 198.095 399.563L221.129 298.647C238.404 281.417 258.147 271.571 281.181 271.571C316.554 271.571 346.991 297.826 346.991 337.208Z" fill="currentColor"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 16 16"><path d="M9 1.5 3.5 9H7.5l-.5 5.5L12.5 7H8.5z" fill="currentColor"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 16 16"><path d="M1.5 8S3.9 3.5 8 3.5 14.5 8 14.5 8 12.1 12.5 8 12.5 1.5 8 1.5 8Z" fill="none" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="8" r="2" fill="none" stroke="currentColor" stroke-width="1.3"/></symbol>
+  <symbol id="i-code" viewBox="0 0 16 16"><path d="m5.5 5-3 3 3 3M10.5 5l3 3-3 3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-db" viewBox="0 0 16 16"><ellipse cx="8" cy="4" rx="5" ry="2" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4" fill="none" stroke="currentColor" stroke-width="1.3"/></symbol>
+  <symbol id="i-rocket" viewBox="0 0 16 16"><path d="M14 2c-4 0-7 2-9 6l3 3c4-2 6-5 6-9Z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M5 11 2.5 13.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.2" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></symbol>
+  <symbol id="i-history" viewBox="0 0 16 16"><path d="M8 3.5v4.5l3 1.8" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="8" cy="8" r="5.5" fill="none" stroke="currentColor" stroke-width="1.3"/></symbol>
+  <symbol id="i-panel" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M6.5 3v10" stroke="currentColor" stroke-width="1.3"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 16 16"><path d="M13 8a5 5 0 1 1-1.6-3.7M13 2.5V6H9.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-ext" viewBox="0 0 16 16"><path d="M9 3h4v4M13 3 7.5 8.5M11.5 9.5V13H3V4.5h3.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-device" viewBox="0 0 16 16"><rect x="2" y="3" width="8" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.3"/><rect x="10.5" y="6" width="3.5" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/></symbol>
+  <symbol id="i-full" viewBox="0 0 16 16"><path d="M6 2.5H2.5V6M10 2.5h3.5V6M6 13.5H2.5V10M10 13.5h3.5V10" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-github" viewBox="0 0 16 16"><path d="M8 1.5a6.5 6.5 0 0 0-2 12.7c.3.1.4-.2.4-.4v-1.3c-1.8.4-2.2-.8-2.2-.8-.3-.8-.7-1-.7-1-.6-.4 0-.4 0-.4.7 0 1 .7 1 .7.6 1 1.6.7 2 .6 0-.5.2-.8.4-1-1.5-.2-3-.7-3-3.2 0-.7.2-1.3.6-1.7 0-.2-.3-.9.1-1.8 0 0 .6-.2 1.8.7a6 6 0 0 1 3.2 0c1.2-.9 1.8-.7 1.8-.7.4.9.1 1.6.1 1.8.4.4.6 1 .6 1.7 0 2.5-1.5 3-3 3.2.3.2.5.6.5 1.3v2c0 .2.1.5.5.4A6.5 6.5 0 0 0 8 1.5Z" fill="currentColor"/></symbol>
+  <symbol id="i-help" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.8" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M6.5 6.3a1.6 1.6 0 1 1 1.9 1.7V9" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="8.3" cy="11" r=".75" fill="currentColor"/></symbol>
+  <symbol id="i-chev-d" viewBox="0 0 16 16"><path d="m4 6 4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-chev-r" viewBox="0 0 16 16"><path d="m6 4 4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-updown" viewBox="0 0 16 16"><path d="m5 6.5 3-3 3 3M5 9.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-check-c" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.8" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="m5.6 8.2 1.7 1.7 3.2-3.6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 16 16"><path d="M8 2.6 1.9 13h12.2L8 2.6Z" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/><path d="M8 6.6v3" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/><circle cx="8" cy="11.2" r=".7" fill="currentColor"/></symbol>
+  <symbol id="i-file" viewBox="0 0 16 16"><path d="M9 2H4.5v12h7V4.5L9 2Z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M6.5 8h3M6.5 10.5h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></symbol>
+  <symbol id="i-list" viewBox="0 0 16 16"><path d="M5.5 4.5h8M5.5 8h8M5.5 11.5h8M2.5 4.5h.01M2.5 8h.01M2.5 11.5h.01" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 16 16"><rect x="5.5" y="5.5" width="8" height="8" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M10.5 5.5v-1a1.6 1.6 0 0 0-1.6-1.6H4.1A1.6 1.6 0 0 0 2.5 4.5v4.8c0 .9.7 1.6 1.6 1.6h1" fill="none" stroke="currentColor" stroke-width="1.3"/></symbol>
+  <symbol id="i-thumb" viewBox="0 0 16 16"><path d="M5.5 14V7l3.2-5c.9 0 1.6.7 1.6 1.6V6h3a1.3 1.3 0 0 1 1.3 1.5l-.9 5A1.7 1.7 0 0 1 12 14H5.5Z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><rect x="1.5" y="7" width="3" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/></symbol>
+  <symbol id="i-dots" viewBox="0 0 16 16"><circle cx="3.5" cy="8" r="1.15" fill="currentColor"/><circle cx="8" cy="8" r="1.15" fill="currentColor"/><circle cx="12.5" cy="8" r="1.15" fill="currentColor"/></symbol>
+  <symbol id="i-bookmark" viewBox="0 0 16 16"><path d="M4 2.5h8v11L8 10.5l-4 3v-11Z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 16 16"><path d="M8 3v10M3 8h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+  <symbol id="i-cursor" viewBox="0 0 16 16"><path d="m3 2 4.4 11 1.7-4.3L13.5 7 3 2Z" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/></symbol>
+  <symbol id="i-bulb" viewBox="0 0 16 16"><path d="M6 12.5h4M6.5 14.2h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M8 1.8a4.2 4.2 0 0 0-2.4 7.6c.4.3.6.7.6 1.1h3.6c0-.4.2-.8.6-1.1A4.2 4.2 0 0 0 8 1.8Z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 16 16"><rect x="6" y="1.8" width="4" height="7.4" rx="2" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M3.6 7.6a4.4 4.4 0 0 0 8.8 0M8 12v2.2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></symbol>
+  <symbol id="i-arrow-up" viewBox="0 0 16 16"><path d="M8 13V3.5M3.8 7.7 8 3.4l4.2 4.3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 16 16"><rect x="5" y="5" width="6" height="6" rx="1.2" fill="currentColor"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 16 16"><path d="M11.4 2.2 13.8 4.6 5.6 12.8l-3 .6.6-3 8.2-8.2Z" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/><path d="m9.9 3.7 2.4 2.4" stroke="currentColor" stroke-width="1.35"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 16 16"><path d="M2.8 4.4h10.4M6.4 4.4V2.9h3.2v1.5M4.2 4.4l.7 8.6a1 1 0 0 0 1 .9h4.2a1 1 0 0 0 1-.9l.7-8.6" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-drag" viewBox="0 0 16 16"><circle cx="6" cy="3.5" r="1.15" fill="currentColor"/><circle cx="10" cy="3.5" r="1.15" fill="currentColor"/><circle cx="6" cy="8" r="1.15" fill="currentColor"/><circle cx="10" cy="8" r="1.15" fill="currentColor"/><circle cx="6" cy="12.5" r="1.15" fill="currentColor"/><circle cx="10" cy="12.5" r="1.15" fill="currentColor"/></symbol>
+  <symbol id="i-dollar" viewBox="0 0 16 16"><path d="M8 1.6v12.8M11 4.4H6.6a2.1 2.1 0 0 0 0 4.2h2.8a2.1 2.1 0 0 1 0 4.2H4.6" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round"/></symbol>
+  <symbol id="i-home" viewBox="0 0 16 16"><path d="M2.6 6.8 8 2.4l5.4 4.4V13a.9.9 0 0 1-.9.9H3.5a.9.9 0 0 1-.9-.9V6.8Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></symbol>
+  <symbol id="i-wrench" viewBox="0 0 16 16"><path d="M10.8 1.9a3.6 3.6 0 0 0-4 5.4L2.3 11.8a1.4 1.4 0 0 0 2 2l4.5-4.5a3.6 3.6 0 0 0 5.3-4l-2.2 2.2-2-2 2-2Z" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 4.6V8l2.4 1.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 16 16"><rect x="2.2" y="2.2" width="4.8" height="4.8" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="2.2" width="4.8" height="4.8" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="2.2" y="9" width="4.8" height="4.8" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="9" width="4.8" height="4.8" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.4"/></symbol>
+  <symbol id="i-building" viewBox="0 0 16 16"><rect x="3" y="2.2" width="10" height="11.6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.35"/><path d="M6 5h1M9 5h1M6 8h1M9 8h1M6.8 13.8v-2.6h2.4v2.6" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/></symbol>
+  <symbol id="i-users" viewBox="0 0 16 16"><circle cx="6.2" cy="5.4" r="2.4" fill="none" stroke="currentColor" stroke-width="1.35"/><path d="M1.8 13.4c0-2.4 2-4 4.4-4s4.4 1.6 4.4 4" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/><path d="M11.2 4c1.2.3 2 1.3 2 2.5s-.8 2.2-2 2.5M12.4 13.4c0-1.3-.4-2.3-1.1-3" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/></symbol>
+  <symbol id="i-search" viewBox="0 0 16 16"><circle cx="7.2" cy="7.2" r="4.4" fill="none" stroke="currentColor" stroke-width="1.45"/><path d="m10.6 10.6 3 3" stroke="currentColor" stroke-width="1.45" stroke-linecap="round"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 16 16"><path d="M4 6.8a4 4 0 1 1 8 0c0 3 .9 4.2.9 4.2H3.1S4 9.8 4 6.8Z" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/><path d="M6.6 13.2a1.6 1.6 0 0 0 2.8 0" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/></symbol>
+  <symbol id="i-trend" viewBox="0 0 16 16"><path d="M2.5 11 6 7.4l2.4 2.3 5-5M10.8 4.4h2.6V7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-arrow-ne" viewBox="0 0 16 16"><path d="M4.6 11.4 11.4 4.6M5.6 4.6h5.8v5.8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-filter" viewBox="0 0 16 16"><path d="M2.4 3.4h11.2L9.4 8.3v4.3l-2.8 1.4V8.3L2.4 3.4Z" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 16 16"><path d="m8 1.8 6 3-6 3-6-3 6-3Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="m2 8.6 6 3 6-3M2 11.9l6 3 6-3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></symbol>
+</svg>
+
+<div class="stage-wrap">
+  <div class="stage" id="stage">
+    <canvas id="pixel-canvas"></canvas>
+
+    <div class="center">
+      <div class="wb">
+
+        <!-- ── Top chrome ─────────────────────────────────────────────────── -->
+        <div class="wb-top">
+          <span class="wb-mark"><svg><use href="#i-b"/></svg></span>
+          <span class="wb-slash">/</span>
+          <span class="wb-bolt"><svg><use href="#i-bolt"/></svg></span>
+          <span class="wb-icons"><svg><use href="#i-updown"/></svg></span>
+          <span class="wb-proj">Raven Properties</span>
+          <span class="wb-icons" style="margin-left:6px"><svg><use href="#i-history"/></svg><svg><use href="#i-panel"/></svg></span>
+
+          <div class="seg" style="margin-left:16px">
+            <span class="seg-i on"><svg><use href="#i-eye"/></svg>Preview</span>
+            <span class="seg-i"><svg><use href="#i-code"/></svg></span>
+            <span class="seg-i"><svg><use href="#i-db"/></svg></span>
+            <span class="seg-i"><svg><use href="#i-rocket"/></svg></span>
+          </div>
+          <span class="wb-icons"><svg><use href="#i-gear"/></svg></span>
+
+          <div class="urlbar">
+            <span class="u-path">/</span>
+            <svg><use href="#i-refresh"/></svg><svg><use href="#i-ext"/></svg>
+            <svg><use href="#i-device"/></svg><svg><use href="#i-full"/></svg>
+          </div>
+
+          <div class="top-right">
+            <span class="wb-icons"><svg><use href="#i-github"/></svg><svg><use href="#i-help"/></svg></span>
+            <span class="btn-share">Share</span>
+            <span class="btn-publish">Publish</span>
+          </div>
+        </div>
+
+        <div class="wb-body">
+
+          <!-- ── Chat panel ───────────────────────────────────────────────── -->
+          <div class="chat">
+            <div class="chat-scroll">
+              <div class="chat-fade"></div>
+              <div class="chat-inner" id="chat-inner">
+
+                <div class="c-user" id="cu1">
+                  <p>Add filter tabs and timestamps to the activity feed.</p>
+                </div>
+
+                <div class="c-agent" id="ca1">
+                  <div class="ag-brand">bolt</div>
+                  <div class="ag-card">
+                  <div class="ag-head">
+                    <span class="ag-spin"></span>
+                    <span class="ag-done"><svg><use href="#i-check-c"/></svg></span>
+                    <span class="ag-title"><span class="ag-tt">Working</span><span class="ag-el"></span></span>
+                    <span class="ag-count"><span class="ag-n">2</span> actions <svg><use href="#i-chev-d"/></svg></span>
+                  </div>
+                  <div class="ag-tool"><span class="ag-verb">Read</span> <code class="ag-file">tailwind.config.js</code></div>
+                  </div>
+                  <p class="ag-body">Added filter tabs to the activity feed, grouped the entries by day and put an exact timestamp under each one.</p>
+                  <div class="ag-tools">
+                    <svg><use href="#i-copy"/></svg>
+                    <svg><use href="#i-thumb"/></svg>
+                    <svg style="transform:rotate(180deg)"><use href="#i-thumb"/></svg>
+                    <svg><use href="#i-dots"/></svg>
+                  </div>
+                  <div class="ver-card">
+                    <span class="ver-title">Add activity filters and timestamps</span>
+                    <span class="ver-sub">Version 14 at Aug 24 11:41 AM</span>
+                    <svg><use href="#i-bookmark"/></svg>
+                  </div>
+                </div>
+
+                <div class="c-user" id="cu2">
+                  <p>Also, can you condense the tenants view into one row per tenant?</p>
+                </div>
+
+                <div class="c-agent" id="ca2">
+                  <div class="ag-brand">bolt</div>
+                  <div class="ag-card">
+                  <div class="ag-head">
+                    <span class="ag-spin"></span>
+                    <span class="ag-done"><svg><use href="#i-check-c"/></svg></span>
+                    <span class="ag-title"><span class="ag-tt">Working</span><span class="ag-el"></span></span>
+                    <span class="ag-count"><span class="ag-n">3</span> actions <svg><use href="#i-chev-d"/></svg></span>
+                  </div>
+                  <div class="ag-tool"><span class="ag-verb">Read</span> <code class="ag-file">tailwind.config.js</code></div>
+                  </div>
+                  <p class="ag-body">The tenants view is now a single row per tenant — name, unit, rent, lease and status all on one line — with the summary counts moved up into the header.</p>
+                  <div class="ag-tools">
+                    <svg><use href="#i-copy"/></svg>
+                    <svg><use href="#i-thumb"/></svg>
+                    <svg style="transform:rotate(180deg)"><use href="#i-thumb"/></svg>
+                    <svg><use href="#i-dots"/></svg>
+                  </div>
+                  <div class="ver-card">
+                    <span class="ver-title">Condense tenants view, add status dots</span>
+                    <span class="ver-sub">Version 15 at Aug 24 11:46 AM</span>
+                    <svg><use href="#i-bookmark"/></svg>
+                  </div>
+                </div>
+
+                <div class="c-user" id="cu3">
+                  <p>Can you make the status more clear, change the color to a brighter green?</p>
+                </div>
+
+                <div class="c-agent" id="ca3">
+                  <div class="ag-brand">bolt</div>
+                  <div class="ag-card">
+                  <div class="ag-head">
+                    <span class="ag-spin"></span>
+                    <span class="ag-done"><svg><use href="#i-check-c"/></svg></span>
+                    <span class="ag-title"><span class="ag-tt">Working</span><span class="ag-el"></span></span>
+                    <span class="ag-count"><span class="ag-n">2</span> actions <svg><use href="#i-chev-d"/></svg></span>
+                  </div>
+                  <div class="ag-tool"><span class="ag-verb">Read</span> <code class="ag-file">tailwind.config.js</code></div>
+                  </div>
+                  <p class="ag-body">Brightened the active status and gave each avatar dot a soft glow, so status reads at a glance.</p>
+                  <div class="ag-tools">
+                    <svg><use href="#i-copy"/></svg>
+                    <svg><use href="#i-thumb"/></svg>
+                    <svg style="transform:rotate(180deg)"><use href="#i-thumb"/></svg>
+                    <svg><use href="#i-dots"/></svg>
+                  </div>
+                  <div class="ver-card">
+                    <span class="ver-title">Brighten active status</span>
+                    <span class="ver-sub">Version 16 at Aug 24 11:49 AM</span>
+                    <svg><use href="#i-bookmark"/></svg>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- queue panel + composer -->
+            <div class="composer-zone">
+              <div class="queue-panel" id="queue">
+                <div class="q-head">
+                  <svg><use href="#i-chev-d"/></svg>
+                  <span class="q-count" id="q-count">1 queued</span>
+                </div>
+                <div class="q-list">
+                  <div class="q-item" id="q1">
+                    <span class="q-drag"><svg><use href="#i-drag"/></svg></span>
+                    <span class="av-g">G</span>
+                    <span class="q-text">Also, can you condense the tenants view into one row per tenant?</span>
+                    <span class="q-acts"><svg><use href="#i-pencil"/></svg><svg><use href="#i-trash"/></svg></span>
+                  </div>
+                  <div class="q-item" id="q2">
+                    <span class="q-drag"><svg><use href="#i-drag"/></svg></span>
+                    <span class="av-g">G</span>
+                    <span class="q-text">Can you make the status more clear, change the color to a brighter green?</span>
+                    <span class="q-acts"><svg><use href="#i-pencil"/></svg><svg><use href="#i-trash"/></svg></span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="composer">
+                <div class="comp-text-wrap">
+                  <span class="comp-ph">How can Bolt help you today? (or /command)</span>
+                  <span class="comp-text" id="comp-text"></span><span class="comp-caret" id="caret"></span>
+                </div>
+                <div class="comp-row">
+                  <span class="comp-add"><svg><use href="#i-plus"/></svg></span>
+                  <span class="comp-opt">Max <svg><use href="#i-updown"/></svg></span>
+                  <span class="comp-opt"><svg><use href="#i-cursor"/></svg> Select</span>
+                  <span class="comp-opt dim"><svg><use href="#i-bulb"/></svg> Plan</span>
+                  <span class="comp-opt"><svg><use href="#i-mic"/></svg></span>
+                  <span class="comp-send">
+                    <svg class="send-stop"><use href="#i-stop"/></svg>
+                    <svg class="send-arrow"><use href="#i-arrow-up"/></svg>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Preview pane ─────────────────────────────────────────────── -->
+          <div class="preview">
+            <div class="dash-frame"><div class="dash" id="dash" style="display:flex;width:100%">
+
+              <div class="ds-side">
+                <div class="ds-brand">
+                  <span class="ds-logo">R</span>
+                  <div><div class="ds-brand-t">Raven Properties</div><div class="ds-brand-s">Property Management</div></div>
+                </div>
+                <div class="ds-port">
+                  <div class="ds-port-r"><span class="ds-port-l">PORTFOLIO</span><span class="ds-port-v">31 units</span></div>
+                  <div class="ds-bar"><i></i></div>
+                </div>
+                <div class="ds-menu-l">MENU</div>
+                <nav class="ds-nav">
+                  <a class="on"><svg><use href="#i-grid"/></svg>Overview<span style="margin-left:auto"><svg width="11" height="11"><use href="#i-chev-r"/></svg></span></a>
+                  <a><svg><use href="#i-building"/></svg>Properties</a>
+                  <a><svg><use href="#i-users"/></svg>Tenants</a>
+                  <a><svg><use href="#i-dollar"/></svg>Payments<span class="ds-badge">1</span></a>
+                  <a><svg><use href="#i-wrench"/></svg>Maintenance<span class="ds-badge">7</span></a>
+                  <a><svg><use href="#i-file"/></svg>Leases</a>
+                  <a><svg><use href="#i-gear"/></svg>Settings</a>
+                </nav>
+                <div class="ds-user"><span class="av">RH</span><div><div class="ds-brand-t">Rachel Huang</div><div class="ds-brand-s">Property Manager</div></div></div>
+              </div>
+
+              <div class="ds-main">
+                <div class="ds-top">
+                  <div><div class="ds-hi">Good morning, Rachel</div><div class="ds-date">Monday, August 24</div></div>
+                  <div class="ds-top-r">
+                    <span class="ds-search"><svg><use href="#i-search"/></svg>Search…</span>
+                    <span class="ds-new"><svg><use href="#i-plus"/></svg>New</span>
+                    <span class="ds-bell"><svg><use href="#i-bell"/></svg><i>3</i></span>
+                  </div>
+                </div>
+
+                <div class="ds-stats">
+                  <div class="ds-stat s1"><svg><use href="#i-dollar"/></svg><div class="ds-stat-l">MONTHLY REVENUE</div><div class="ds-stat-v">$62,450</div><span class="ds-chip"><svg><use href="#i-trend"/></svg>+4.4%</span><span class="ds-chip-x">vs prior</span></div>
+                  <div class="ds-stat s2"><svg><use href="#i-home"/></svg><div class="ds-stat-l">OCCUPANCY RATE</div><div class="ds-stat-v">93%</div><span class="ds-chip"><svg><use href="#i-trend"/></svg>+4.5%</span><span class="ds-chip-x">vs prior</span></div>
+                  <div class="ds-stat s3"><svg><use href="#i-wrench"/></svg><div class="ds-stat-l">OPEN MAINTENANCE</div><div class="ds-stat-v">7<span>tickets</span></div><span class="ds-chip"><svg><use href="#i-trend"/></svg>-41.7%</span><span class="ds-chip-x">vs prior</span></div>
+                  <div class="ds-stat s4"><svg><use href="#i-clock"/></svg><div class="ds-stat-l">AVG DAYS TO LEASE</div><div class="ds-stat-v">18<span>days</span></div><span class="ds-chip"><svg><use href="#i-trend"/></svg>-25.0%</span><span class="ds-chip-x">vs prior</span></div>
+                </div>
+
+                <div class="ds-cols">
+                  <div class="ds-panel">
+                    <div class="ds-panel-h">
+                      <span class="ds-panel-t">Tenants</span>
+                      <span class="ds-panel-s" id="tt-sub">10 active leases</span>
+                      <span class="tt-counts" id="tt-counts">
+                        <span class="tt-cnt ok"><svg><use href="#i-check-c"/></svg>5</span>
+                        <span class="tt-cnt bad"><svg><use href="#i-alert"/></svg>4</span>
+                      </span>
+                    </div>
+                    <div class="tt-stack">
+                      <div class="tt-layer tt-wide" id="tt-wide">
+                        <div class="tt-hrow"><span>TENANT</span><span>UNIT</span><span>STATUS</span><span class="r">RENT</span><span class="r">LEASE</span></div>
+            <div class="tt-row">
+              <div class="tt-who"><span class="tt-av">DO</span><div><div class="tt-name">David Okafor</div><div class="tt-mail">david.o@email.com</div></div></div>
+              <div class="tt-unit">2C</div>
+              <div><span class="pill ok"><i></i>Active</span></div>
+              <div class="tt-rent">$2,250<span>/mo</span></div>
+              <div class="tt-lease ">Jan 2027</div>
+            </div>
+            <div class="tt-row">
+              <div class="tt-who"><span class="tt-av">MR</span><div><div class="tt-name">Marcus Rivera</div><div class="tt-mail">marcus.r@email.com</div></div></div>
+              <div class="tt-unit">4B</div>
+              <div><span class="pill ok"><i></i>Active</span></div>
+              <div class="tt-rent">$1,850<span>/mo</span></div>
+              <div class="tt-lease ">Expired</div>
+            </div>
+            <div class="tt-row">
+              <div class="tt-who"><span class="tt-av">OM</span><div><div class="tt-name">Olivia Martinez</div><div class="tt-mail">olivia.m@email.com</div></div></div>
+              <div class="tt-unit">Suite B</div>
+              <div><span class="pill ok"><i></i>Active</span></div>
+              <div class="tt-rent">$4,500<span>/mo</span></div>
+              <div class="tt-lease ">Jan 2028</div>
+            </div>
+            <div class="tt-row">
+              <div class="tt-who"><span class="tt-av">RK</span><div><div class="tt-name">Rachel Kim</div><div class="tt-mail">rachel.k@email.com</div></div></div>
+              <div class="tt-unit">1</div>
+              <div><span class="pill ok"><i></i>Active</span></div>
+              <div class="tt-rent">$1,950<span>/mo</span></div>
+              <div class="tt-lease ">Dec 2026</div>
+            </div>
+            <div class="tt-row">
+              <div class="tt-who"><span class="tt-av">TN</span><div><div class="tt-name">Tommy Nguyen</div><div class="tt-mail">tommy.n@email.com</div></div></div>
+              <div class="tt-unit">10D</div>
+              <div><span class="pill ok"><i></i>Active</span></div>
+              <div class="tt-rent">$1,900<span>/mo</span></div>
+              <div class="tt-lease ">Mar 2027</div>
+            </div>
+            <div class="tt-row">
+              <div class="tt-who"><span class="tt-av">CM</span><div><div class="tt-name">Carlos Mendez</div><div class="tt-mail">carlos.m@email.com</div></div></div>
+              <div class="tt-unit">8B</div>
+              <div><span class="pill soon"><i></i>Ending Soon</span></div>
+              <div class="tt-rent">$2,250<span>/mo</span></div>
+              <div class="tt-lease ">Expired</div>
+            </div>
+            <div class="tt-row">
+              <div class="tt-who"><span class="tt-av">SC</span><div><div class="tt-name">Sarah Chen</div><div class="tt-mail">sarah.chen@email.com</div></div></div>
+              <div class="tt-unit">7A</div>
+              <div><span class="pill soon"><i></i>Ending Soon</span></div>
+              <div class="tt-rent">$1,850<span>/mo</span></div>
+              <div class="tt-lease warn">7d left</div>
+            </div>
+            <div class="tt-row">
+              <div class="tt-who"><span class="tt-av">EW</span><div><div class="tt-name">Emily Watson</div><div class="tt-mail">emily.w@email.com</div></div></div>
+              <div class="tt-unit">5A</div>
+              <div><span class="pill late"><i></i>Late</span></div>
+              <div class="tt-rent">$2,250<span>/mo</span></div>
+              <div class="tt-lease ">Oct 2026</div>
+            </div>
+            <div class="tt-row">
+              <div class="tt-who"><span class="tt-av">AJ</span><div><div class="tt-name">Aisha Johnson</div><div class="tt-mail">aisha.j@email.com</div></div></div>
+              <div class="tt-unit">3</div>
+              <div><span class="pill vac"><i></i>Vacating</span></div>
+              <div class="tt-rent">$1,950<span>/mo</span></div>
+              <div class="tt-lease ">Expired</div>
+            </div>
+                      </div>
+                      <div class="tt-layer tt-slim" id="tt-slim">
+            <div class="ts-row">
+              <span class="ts-av">DO<i class="ts-dot g"></i></span>
+              <span class="ts-name">David Okafor</span><span class="ts-unit">2C</span>
+              <span class="ts-rent">$2,250</span>
+              <span class="ts-date ">Jan 2027</span>
+              <span class="ts-pill"><span class="pill ok"><i></i>Active</span></span>
+            </div>
+            <div class="ts-row">
+              <span class="ts-av">MR<i class="ts-dot g"></i></span>
+              <span class="ts-name">Marcus Rivera</span><span class="ts-unit">4B</span>
+              <span class="ts-rent">$1,850</span>
+              <span class="ts-date ">Expired</span>
+              <span class="ts-pill"><span class="pill ok"><i></i>Active</span></span>
+            </div>
+            <div class="ts-row">
+              <span class="ts-av">OM<i class="ts-dot g"></i></span>
+              <span class="ts-name">Olivia Martinez</span><span class="ts-unit">Suite B</span>
+              <span class="ts-rent">$4,500</span>
+              <span class="ts-date ">Jan 2028</span>
+              <span class="ts-pill"><span class="pill ok"><i></i>Active</span></span>
+            </div>
+            <div class="ts-row">
+              <span class="ts-av">RK<i class="ts-dot g"></i></span>
+              <span class="ts-name">Rachel Kim</span><span class="ts-unit">1</span>
+              <span class="ts-rent">$1,950</span>
+              <span class="ts-date ">Dec 2026</span>
+              <span class="ts-pill"><span class="pill ok"><i></i>Active</span></span>
+            </div>
+            <div class="ts-row">
+              <span class="ts-av">TN<i class="ts-dot g"></i></span>
+              <span class="ts-name">Tommy Nguyen</span><span class="ts-unit">10D</span>
+              <span class="ts-rent">$1,900</span>
+              <span class="ts-date ">Mar 2027</span>
+              <span class="ts-pill"><span class="pill ok"><i></i>Active</span></span>
+            </div>
+            <div class="ts-row">
+              <span class="ts-av">CM<i class="ts-dot w"></i></span>
+              <span class="ts-name">Carlos Mendez</span><span class="ts-unit">8B</span>
+              <span class="ts-rent">$2,250</span>
+              <span class="ts-date ">Expired</span>
+              <span class="ts-pill"><span class="pill soon"><i></i>Ending</span></span>
+            </div>
+            <div class="ts-row">
+              <span class="ts-av">SC<i class="ts-dot w"></i></span>
+              <span class="ts-name">Sarah Chen</span><span class="ts-unit">7A</span>
+              <span class="ts-rent">$1,850</span>
+              <span class="ts-date warn">7d left</span>
+              <span class="ts-pill"><span class="pill soon"><i></i>Ending</span></span>
+            </div>
+            <div class="ts-row">
+              <span class="ts-av">EW<i class="ts-dot b"></i></span>
+              <span class="ts-name">Emily Watson</span><span class="ts-unit">5A</span>
+              <span class="ts-rent">$2,250</span>
+              <span class="ts-date ">Oct 2026</span>
+              <span class="ts-pill"><span class="pill late"><i></i>Late</span></span>
+            </div>
+            <div class="ts-row">
+              <span class="ts-av">AJ<i class="ts-dot o"></i></span>
+              <span class="ts-name">Aisha Johnson</span><span class="ts-unit">3</span>
+              <span class="ts-rent">$1,950</span>
+              <span class="ts-date ">Expired</span>
+              <span class="ts-pill"><span class="pill vac"><i></i>Vacating</span></span>
+            </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="ds-panel">
+                    <div class="ds-panel-h">
+                      <span class="ds-panel-t">Activity</span>
+                      <span class="ac-badge" id="ac-badge">10</span>
+                      <span class="ds-view-all" id="ac-viewall">View all <svg><use href="#i-arrow-ne"/></svg></span>
+                      <span class="ac-filter" id="ac-filter" style="display:none"><svg><use href="#i-filter"/></svg></span>
+                    </div>
+                    <div class="ac-tabs" id="ac-tabs">
+                      <span class="ac-tab on">All <b>10</b></span><span class="ac-tab">Issues <b>1</b></span>
+                      <span class="ac-tab">Attention <b>3</b></span><span class="ac-tab">Done <b>4</b></span><span class="ac-tab">Updates <b>2</b></span>
+                    </div>
+                    <div class="ac-list">
+                      <div class="ac-day" id="ac-day">TODAY</div>
+            <div class="ac-item">
+              <span class="ac-ico g"><svg><use href="#i-check-c"/></svg></span>
+              <span class="ac-txt">Rent payment received: Marcus Rivera — $1,850 (Unit 4B)<span class="ac-time">9:13 AM</span></span>
+              <span class="ac-ago">2h</span>
+            </div>
+            <div class="ac-item">
+              <span class="ac-ico y"><svg><use href="#i-alert"/></svg></span>
+              <span class="ac-txt">Maintenance request: Leaking faucet at 742 Maple St, Unit 7A<span class="ac-time">8:38 AM</span></span>
+              <span class="ac-ago">2h</span>
+            </div>
+            <div class="ac-item">
+              <span class="ac-ico g"><svg><use href="#i-check-c"/></svg></span>
+              <span class="ac-txt">Lease renewal signed: David Okafor — 1580 Oak Ave, Unit 2C<span class="ac-time">7:38 AM</span></span>
+              <span class="ac-ago">3h</span>
+            </div>
+            <div class="ac-item">
+              <span class="ac-ico r"><svg><use href="#i-alert"/></svg></span>
+              <span class="ac-txt">Late payment notice sent: Emily Watson — 15 days overdue<span class="ac-time">5:38 AM</span></span>
+              <span class="ac-ago">5h</span>
+            </div>
+            <div class="ac-item">
+              <span class="ac-ico b"><svg><use href="#i-file"/></svg></span>
+              <span class="ac-txt">New tenant application: 910 Birch Court, Unit 6<span class="ac-time">4:38 AM</span></span>
+              <span class="ac-ago">6h</span>
+            </div>
+            <div class="ac-item">
+              <span class="ac-ico g"><svg><use href="#i-check-c"/></svg></span>
+              <span class="ac-txt">Inspection completed: 320 Pine Lane — all clear<span class="ac-time">2:38 AM</span></span>
+              <span class="ac-ago">8h</span>
+            </div>
+            <div class="ac-item">
+              <span class="ac-ico y"><svg><use href="#i-alert"/></svg></span>
+              <span class="ac-txt">Move-out scheduled: Aisha Johnson — Sep 1, 2026<span class="ac-time">12:38 AM</span></span>
+              <span class="ac-ago">10h</span>
+            </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Feature caption ─────────────────────────────────────────────────── -->
+    <div class="tray">
+      <div class="feat-chip" id="feat-chip">
+        <span class="feat-ico"><svg><use href="#i-layers"/></svg></span>
+        <span class="feat-t">Message queue</span>
+        <span class="feat-s">line up what's next while the agent works</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- GSAP -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+<script>
+/* ── Scale the 1920×1080 stage to fit the viewport ───────────────────────── */
+function fitStage() {
+  const s = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+  document.querySelector('.stage').style.setProperty('--stage-scale', s);
+}
+fitStage();
+window.addEventListener('resize', fitStage);
+
+const reduce   = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const stage    = document.getElementById('stage');
+const compText = document.getElementById('comp-text');
+const caret    = document.getElementById('caret');
+const queue    = document.getElementById('queue');
+const qCount   = document.getElementById('q-count');
+const inner    = document.getElementById('chat-inner');
+const scroller = inner.parentElement;
+const dash     = document.getElementById('dash');
+const chip     = document.getElementById('feat-chip');
+
+const PROMPTS = [
+  'Also, can you condense the tenants view into one row per tenant?',
+  'Can you make the status more clear, change the color to a brighter green?'
+];
+
+/* ── Helpers ─────────────────────────────────────────────────────────────── */
+function typeTween(el, text, dur) {                   // proxy tween → textContent
+  const o = { n: 0 };
+  return gsap.to(o, {
+    n: text.length, duration: reduce ? 0.01 : dur, ease: 'none',
+    onUpdate() { el.textContent = text.slice(0, Math.round(o.n)); }
+  });
+}
+
+/* The log runs top-down; once it outgrows the panel it scrolls so the newest block
+   stays in view. Short conversations simply sit at the top, like the real product. */
+function grow(apply, dur) {
+  apply();
+  const y = Math.min(0, scroller.offsetHeight - inner.offsetHeight);
+  // overwrite: a queued-up earlier scroll tween would otherwise win the last frame
+  gsap.to(inner, { y, duration: reduce ? 0.01 : (dur || 0.55), ease: 'power2.inOut', overwrite: true });
+}
+
+/* What the agent is visibly doing while it works — phase label, tool line, action count */
+const WORK = {
+  ca1: [ [0.0, 'Exploring your project', 'Read', 'tailwind.config.js',        1],
+         [2.6, 'Editing files',          'Edit', 'src/ActivityFeed.tsx',      2],
+         [5.6, 'Editing files',          'Edit', 'src/lib/formatDate.ts',     3] ],
+  ca2: [ [0.0, 'Editing files',          'Edit', 'src/TenantsTable.tsx',      1],
+         [1.6, 'Editing files',          'Edit', 'src/components/Row.tsx',    2],
+         [3.0, 'Editing files',          'Edit', 'src/styles/tokens.css',     3] ],
+  ca3: [ [0.0, 'Editing files',          'Edit', 'src/StatusPill.tsx',        1],
+         [1.5, 'Editing files',          'Edit', 'src/styles/tokens.css',     2] ]
+};
+function workTween(id) {
+  const b = document.getElementById(id), tl = gsap.timeline();
+  WORK[id].forEach(([at, title, verb, file, n]) => {
+    tl.call(() => {
+      $('.ag-tt', b).textContent = title;
+      $('.ag-verb', b).textContent = verb;
+      $('.ag-file', b).textContent = file;
+      $('.ag-n', b).textContent = n;
+    }, null, at);
+    if (at > 0) tl.fromTo($('.ag-tool', b), { opacity: 0.25 }, { opacity: 1, duration: 0.3 }, at);
+  });
+  return tl;
+}
+
+const $ = (sel, root) => (root || document).querySelector(sel);
+const parts = id => {
+  const b = document.getElementById(id);
+  return { b, tt: $('.ag-tt', b), el: $('.ag-el', b), tail: b.querySelectorAll('.ag-body, .ag-tools, .ver-card') };
+};
+
+function agentWorking(id) {                            // spinner + live elapsed counter
+  const p = parts(id);
+  p.b.classList.remove('is-done');
+  p.tt.textContent = WORK[id][0][1];
+  p.el.textContent = '';
+  $('.ag-verb', p.b).textContent = WORK[id][0][2];
+  $('.ag-file', p.b).textContent = WORK[id][0][3];
+  $('.ag-n', p.b).textContent = WORK[id][0][4];
+  gsap.set($('.ag-tool', p.b), { opacity: 1 });
+  gsap.set(p.b, { display: 'flex', opacity: 1 });
+  gsap.set(p.tail, { display: 'none', opacity: 0, y: 8 });
+}
+function elapsedTween(id, from, to, dur) {             // "Working · 18s"
+  const p = parts(id), o = { n: from };
+  return gsap.to(o, {
+    n: to, duration: reduce ? 0.01 : dur, ease: 'none',
+    onUpdate() { p.el.textContent = ' · ' + Math.round(o.n) + 's'; }
+  });
+}
+function agentDone(id, secs) {                         // ✓ Worked for 42s → answer + version card
+  const p = parts(id), tl = gsap.timeline();
+  tl.call(() => grow(() => {
+    p.b.classList.add('is-done');
+    p.tt.textContent = 'Worked for ' + secs + 's';
+    p.el.textContent = '';
+    gsap.set(p.tail, { display: 'block' });
+  }, 0.5));
+  tl.to(p.tail, { opacity: 1, y: 0, duration: 0.42, stagger: 0.12, ease: 'power2.out' });
+  return tl;
+}
+
+/* ── Queue ───────────────────────────────────────────────────────────────── */
+function enqueue(n) {
+  const item = document.getElementById('q' + n), tl = gsap.timeline();
+  tl.call(() => {
+    gsap.set(item, { display: 'flex' });
+    qCount.textContent = n + ' queued';
+  });
+  if (n === 1) {
+    // measure at runtime — a from() here would capture the build-time (collapsed) values
+    tl.call(() => gsap.set(queue, { display: 'block', opacity: 0, overflow: 'hidden', height: 0, marginBottom: 0 }));
+    tl.to(queue, { height: 'auto', marginBottom: -20, opacity: 1, duration: 0.46, ease: 'power2.out' });
+  } else {
+    tl.to(queue, { height: 'auto', duration: 0.42, ease: 'power2.out' }, 0);
+    tl.to('.q-drag', { opacity: 1, duration: 0.35 }, 0.16);     // reorder handles appear at 2+
+  }
+  tl.fromTo(item, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, '-=0.24');
+  return tl;
+}
+function dequeue(n, left) {
+  const item = document.getElementById('q' + n), tl = gsap.timeline();
+  tl.to(item, { opacity: 0, y: -16, duration: 0.34, ease: 'power2.in' });
+  tl.call(() => { gsap.set(item, { display: 'none' }); qCount.textContent = left + ' queued'; });
+  if (left === 0) {
+    tl.to('.q-drag', { opacity: 0, duration: 0.2 }, 0);
+    tl.to(queue, { height: 0, marginBottom: 0, opacity: 0, duration: 0.42, ease: 'power2.inOut' });
+    tl.call(() => gsap.set(queue, { display: 'none' }));
+  } else {
+    tl.to(queue, { height: 'auto', duration: 0.4, ease: 'power2.out' });
+    tl.to('.q-drag', { opacity: 0, duration: 0.25 }, '<');      // one item left — nothing to reorder
+  }
+  return tl;
+}
+
+/* the queued prompt lands in the chat as a user message, agent picks it straight up */
+function handOff(userId, agentId) {
+  const tl = gsap.timeline();
+  tl.call(() => grow(() => {
+    gsap.set('#' + userId, { display: 'flex', opacity: 0 });
+    agentWorking(agentId);
+    gsap.set('#' + agentId, { opacity: 0 });
+  }, 0.6));
+  tl.to('#' + userId,  { opacity: 1, duration: 0.4, ease: 'power2.out' }, 0.05);
+  tl.to('#' + agentId, { opacity: 1, duration: 0.4, ease: 'power2.out' }, 0.22);
+  return tl;
+}
+
+/* ── Preview effects (what each queued prompt actually ships) ────────────── */
+function fxActivity() {                 // #1 — filter tabs, day grouping, timestamps
+  const tl = gsap.timeline();
+  tl.to('#ac-viewall', { opacity: 0, duration: 0.22 }, 0);
+  tl.call(() => { $('#ac-viewall').style.display = 'none'; $('#ac-filter').style.display = 'block'; }, null, 0.22);
+  tl.fromTo('#ac-filter', { opacity: 0 }, { opacity: 1, duration: 0.3 }, 0.24);
+  tl.to('#ac-badge', { opacity: 1, duration: 0.3 }, 0.1);
+  tl.to('#ac-tabs', { height: 'auto', paddingBottom: 10, opacity: 1, duration: 0.45, ease: 'power2.out' }, 0.15);
+  tl.to('#ac-day', { height: 'auto', paddingTop: 4, paddingBottom: 8, opacity: 1, duration: 0.35, ease: 'power2.out' }, 0.35);
+  tl.to('.ac-time', { height: 'auto', marginTop: 3, opacity: 1, duration: 0.3, stagger: 0.05, ease: 'power2.out' }, 0.45);
+  return tl;
+}
+function fxCondense() {                 // #2 — the table collapses to one row per tenant
+  const tl = gsap.timeline();
+  // the wide layer clears fully before the slim rows arrive — overlapping the two
+  // absolutely-stacked layouts reads as a double exposure, not a collapse
+  tl.to('#tt-wide', { opacity: 0, y: -8, duration: 0.3, ease: 'power2.inOut' }, 0);
+  tl.to('#tt-sub',  { opacity: 0, duration: 0.28 }, 0);
+  tl.call(() => { $('#tt-sub').style.display = 'none'; }, null, 0.3);
+  tl.set('#tt-slim', { opacity: 1 }, 0.34);
+  tl.fromTo('.ts-row', { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.34, stagger: 0.035, ease: 'power2.out' }, 0.34);
+  tl.to('#tt-counts', { opacity: 1, duration: 0.35 }, 0.5);
+  tl.to('.ts-dot', { opacity: 1, scale: 1, duration: 0.32, stagger: 0.035, ease: 'back.out(2.4)' }, 0.62);
+  return tl;
+}
+function fxBright() {                   // #3 — brighter, clearer active status
+  const tl = gsap.timeline();
+  tl.call(() => dash.classList.add('is-bright'));
+  tl.fromTo('.ts-pill .pill.ok', { scale: 1 }, { scale: 1.07, duration: 0.22, stagger: 0.05, ease: 'power2.out' }, 0);
+  tl.to('.ts-pill .pill.ok', { scale: 1, duration: 0.3, stagger: 0.05, ease: 'power2.inOut' }, 0.26);
+  return tl;
+}
+
+/* ── Reset ───────────────────────────────────────────────────────────────── */
+function resetAll() {
+  stage.classList.remove('has-text', 'is-sending');
+  compText.textContent = '';
+  gsap.set(caret, { opacity: 0 });
+
+  gsap.set(['#cu2', '#ca2', '#cu3', '#ca3'], { display: 'none', opacity: 0, y: 0 });
+  gsap.set(['#cu1'], { display: 'flex', opacity: 1, y: 0 });
+  gsap.set(inner, { y: 0 });
+  agentWorking('ca1');
+
+  gsap.set(queue, { display: 'none', opacity: 0, height: 'auto', marginBottom: -20 });
+  gsap.set(['#q1', '#q2'], { display: 'none', opacity: 0, y: 0 });
+  gsap.set('.q-drag', { opacity: 0 });
+  qCount.textContent = '1 queued';
+
+  gsap.set(chip, { opacity: 0, y: 28 });
+
+  // dashboard back to "before"
+  dash.classList.remove('is-bright');
+  gsap.set('#tt-wide', { opacity: 1, y: 0 });
+  gsap.set('#tt-slim', { opacity: 0 });
+  gsap.set('.ts-row', { opacity: 0, y: 10 });
+  gsap.set('.ts-dot', { opacity: 0, scale: 0.4 });
+  gsap.set('#tt-counts', { opacity: 0 });
+  const sub = $('#tt-sub'); sub.style.display = ''; gsap.set(sub, { opacity: 1 });
+  $('#ac-viewall').style.display = ''; $('#ac-filter').style.display = 'none';
+  gsap.set('#ac-viewall', { opacity: 1 });
+  gsap.set(['#ac-badge'], { opacity: 0 });
+  gsap.set('#ac-tabs', { height: 0, paddingBottom: 0, opacity: 0 });
+  gsap.set('#ac-day', { height: 0, paddingTop: 0, paddingBottom: 0, opacity: 0 });
+  gsap.set('.ac-time', { height: 0, marginTop: 0, opacity: 0 });
+}
+
+/* ── Master timeline ─────────────────────────────────────────────────────── */
+function buildMaster() {
+  const tl = gsap.timeline({ repeat: -1, defaults: { ease: 'power2.out' } });
+
+  tl.call(resetAll, null, 0);
+
+  // The agent is already mid-task — that's the premise.
+  tl.add(elapsedTween('ca1', 8, 42, 8.6), 0.6);
+  tl.add(workTween('ca1'), 0.6);
+
+  // Prompt 1 typed and sent *while it works* → straight into the queue
+  tl.call(() => { stage.classList.add('has-text'); gsap.set(caret, { opacity: 1 }); }, null, 1.0);
+  tl.add(typeTween(compText, PROMPTS[0], 2.4), 1.0);
+  tl.call(() => stage.classList.add('is-sending'), null, 3.7);
+  tl.call(() => {
+    stage.classList.remove('has-text');
+    compText.textContent = '';
+    gsap.set(caret, { opacity: 0 });
+  }, null, 3.95);
+  tl.call(() => stage.classList.remove('is-sending'), null, 4.2);
+  tl.add(enqueue(1), 3.95);
+
+  // Prompt 2 — the queue stacks, reorder handles appear
+  tl.call(() => { stage.classList.add('has-text'); gsap.set(caret, { opacity: 1 }); }, null, 5.0);
+  tl.add(typeTween(compText, PROMPTS[1], 2.6), 5.0);
+  tl.call(() => stage.classList.add('is-sending'), null, 7.9);
+  tl.call(() => {
+    stage.classList.remove('has-text');
+    compText.textContent = '';
+    gsap.set(caret, { opacity: 0 });
+  }, null, 8.15);
+  tl.call(() => stage.classList.remove('is-sending'), null, 8.4);
+  tl.add(enqueue(2), 8.15);
+
+  tl.to(chip, { opacity: 1, y: 0, duration: 0.6, ease: 'back.out(1.5)' }, 8.7);
+
+  // Task 1 lands
+  tl.add(agentDone('ca1', 42), 9.2);
+  tl.add(fxActivity(), 9.35);
+
+  // Queue drains itself — no click, no waiting
+  tl.add(dequeue(1, 1), 11.4);
+  tl.add(handOff('cu2', 'ca2'), 11.7);
+  tl.add(elapsedTween('ca2', 1, 38, 4.0), 11.9);
+  tl.add(workTween('ca2'), 11.9);
+  tl.add(fxCondense(), 12.8);
+  tl.add(agentDone('ca2', 38), 16.0);
+
+  tl.to(chip, { opacity: 0, y: 24, duration: 0.45, ease: 'power2.in' }, 17.5);
+
+  tl.add(dequeue(2, 0), 17.9);
+  tl.add(handOff('cu3', 'ca3'), 18.2);
+  tl.add(elapsedTween('ca3', 1, 21, 2.8), 18.4);
+  tl.add(workTween('ca3'), 18.4);
+  tl.add(fxBright(), 19.2);
+  tl.add(agentDone('ca3', 21), 21.3);
+
+  tl.to({}, { duration: 1.0 }, 23.0);   // hold on the finished state, then loop
+  return tl;
+}
+
+function startShow() {
+  resetAll();
+  if (reduce) {                          // static end state, no looping motion
+    gsap.set(['#cu2', '#ca2', '#cu3', '#ca3'], { display: 'flex', opacity: 1 });
+    ['ca1', 'ca2', 'ca3'].forEach((id, i) => {
+      const p = parts(id);
+      p.b.classList.add('is-done');
+      p.tt.textContent = 'Worked for ' + [42, 38, 21][i] + 's';
+      gsap.set(p.tail, { display: 'block', opacity: 1, y: 0 });
+    });
+    fxActivity().progress(1); fxCondense().progress(1); fxBright().progress(1);
+    gsap.set(inner, { y: 0 });
+    return;
+  }
+  window.__master = buildMaster();
+}
+
+/* ── Pixel-dot texture behind the window (makePixelCanvas engine) ────────── */
+function makePixelCanvas(canvas, spacing, dot, waveFn, opacity, color) {
+  const ctx = canvas.getContext('2d');
+  let cells = [];
+  function resize() {
+    canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
+    cells = [];
+    for (let x = 0; x < canvas.width; x += spacing)
+      for (let y = 0; y < canvas.height; y += spacing)
+        cells.push({ x, y, phase: (x * 13 + y * 7) % 100 / 100 * Math.PI * 2 });
+  }
+  resize();
+  window.addEventListener('resize', resize);
+  let t = 0;
+  (function frame() {
+    t += 0.016;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (const c of cells) {
+      const op = waveFn(c.x, c.y, t, c.phase) * opacity;
+      if (op <= 0.002) continue;
+      ctx.fillStyle = 'rgba(' + color + ',' + op.toFixed(3) + ')';
+      ctx.fillRect(c.x, c.y, dot, dot);
+    }
+    requestAnimationFrame(frame);
+  })();
+}
+const CW = 1920, CH = 1080, PCX = CW * 0.5, PCY = CH * 0.42, PMAX = Math.hypot(CW * 0.72, CH * 0.72);
+makePixelCanvas(document.getElementById('pixel-canvas'), 15, 2, (x, y, t, phase) => {
+  const d = Math.hypot(x - PCX, y - PCY);
+  const fall = Math.max(0, 1 - d / PMAX);
+  const shimmer = reduce ? 0.85 : (0.72 + 0.28 * Math.sin(t * 0.8 + x * 0.008 + y * 0.006 + phase));
+  return fall * shimmer;
+}, 0.6, '150,175,220');
+
+if (window.gsap) startShow();
+else window.addEventListener('load', () => window.gsap && startShow());
+</script>
+</body>
+</html>
