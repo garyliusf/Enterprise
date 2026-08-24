@@ -864,10 +864,14 @@ function focusOut() {
 /* ── Queue ───────────────────────────────────────────────────────────────── */
 function toastQueued() {                        // "Message queued", then away
   const t = document.getElementById('queued-toast'), tl = gsap.timeline();
-  // overwrite: both queued messages animate this same element, so the second
-  // entry has to kill whatever the first one left running
+  // Both queued messages animate this same element. overwrite must be 'auto'
+  // (resolved when the tween first RENDERS) — plain `true` resolves at creation,
+  // and since the whole timeline is built up front that killed toast 1 the
+  // moment toast 2 was created. immediateRender: false keeps the from-state from
+  // being stamped on at build time too.
   tl.fromTo(t, { opacity: 0, y: 12, scale: 0.97 },
-               { opacity: 1, y: 0, scale: 1, duration: 0.4, ease: 'power3.out', overwrite: true });
+               { opacity: 1, y: 0, scale: 1, duration: 0.4, ease: 'power3.out',
+                 overwrite: 'auto', immediateRender: false });
   tl.to(t, { opacity: 0, y: -12, duration: 0.34, ease: 'power2.in' }, '+=0.9');
   return tl;
 }
