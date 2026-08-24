@@ -32,6 +32,7 @@
       p.setAttribute('aria-hidden', active ? 'false' : 'true');
     });
     if (scrim) scrim.classList.toggle('is-open', !!key);
+    nav.classList.toggle('has-menu-open', !!key);
   }
 
   /* Hover listener lives on the parent <li> (which fills the full 68px nav height) rather than the button itself — small vertical cursor movements above/below the button text no longer exit the hover zone and don't cause the dropdown to flicker. Click stays on the button for accessibility. */
@@ -102,6 +103,7 @@
     drawer.classList.add('is-open');
     drawer.setAttribute('aria-hidden', 'false');
     document.body.classList.add('mkt-nav-mobile-open');
+    if (navEl) navEl.classList.add('has-menu-open');
     if (burger) {
       burger.classList.add('is-open');
       burger.setAttribute('aria-expanded', 'true');
@@ -113,6 +115,7 @@
     drawer.classList.remove('is-open');
     drawer.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('mkt-nav-mobile-open');
+    if (navEl) navEl.classList.remove('has-menu-open');
     /* Reset submenu state so the next open lands on home. */
     if (navEl) navEl.classList.remove('is-on-submenu');
     if (burger) {
