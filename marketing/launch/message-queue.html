@@ -37,7 +37,7 @@
      stage has real breathing room around it. Tune with --wb-scale. */
   .wb {
     position: relative; width: 1680px; height: 946px;
-    --wb-scale: 0.85;
+    --wb-scale: 1.0;    /* tight frame — 120px of stage each side, 67px top/bottom */
     transform: scale(var(--wb-scale)); transform-origin: center center;
     background: #0b0b0c;
     border: 1px solid rgba(255,255,255,0.09);
@@ -159,23 +159,24 @@
   .q-acts { display: flex; align-items: center; gap: 14px; flex: 0 0 auto; color: rgba(255,255,255,0.38); }
   .q-acts svg { width: 14px; height: 14px; display: block; }
 
-  /* Sits just outside the prompt box's right edge. Inside .composer-zone so it
-     rides the focus zoom with the box instead of drifting off on its own. */
+  /* Lives OUTSIDE .composer-zone, as a child of .wb, so the prompt box's zoom
+     can't scale it off the right edge of the window. JS parks it just past the
+     zoomed box; its metrics are pre-scaled to the size it read at before. */
   .queued-toast {
-    position: absolute; left: calc(100% - 8px); bottom: 58px; z-index: 3;
-    display: flex; align-items: center; gap: 9px; white-space: nowrap;
-    padding: 9px 15px 9px 11px; border-radius: 999px;
+    position: absolute; bottom: 150px; z-index: 6;
+    display: flex; align-items: center; gap: 17px; white-space: nowrap;
+    padding: 17px 29px 17px 21px; border-radius: 999px;
     background: rgba(18,20,26,0.92); border: 1px solid rgba(255,255,255,0.13);
-    box-shadow: 0 14px 34px rgba(0,0,0,0.45);
+    box-shadow: 0 20px 52px rgba(0,0,0,0.5);
     opacity: 0; pointer-events: none;
   }
   .qt-ico {
-    width: 21px; height: 21px; flex: 0 0 21px; border-radius: 6px;
+    width: 40px; height: 40px; flex: 0 0 40px; border-radius: 11px;
     background: rgba(20,136,252,0.18); color: #4DA6FF;
     display: flex; align-items: center; justify-content: center;
   }
-  .qt-ico svg { width: 12px; height: 12px; }
-  .qt-t { font-size: 12.5px; font-weight: 600; color: #fff; letter-spacing: -0.1px; }
+  .qt-ico svg { width: 23px; height: 23px; }
+  .qt-t { font-size: 24px; font-weight: 600; color: #fff; letter-spacing: -0.2px; }
 
   .composer {
     position: relative; z-index: 2;
@@ -574,11 +575,6 @@
                 </div>
               </div>
 
-              <div class="queued-toast" id="queued-toast">
-                <span class="qt-ico"><svg><use href="#i-layers"/></svg></span>
-                <span class="qt-t">Message queued</span>
-              </div>
-
               <div class="composer">
                 <div class="comp-text-wrap">
                   <span class="comp-ph">How can Bolt help you today? (or /command)</span>
@@ -708,6 +704,11 @@
         </div>
 
         <div class="focus-scrim"></div>
+
+        <div class="queued-toast" id="queued-toast">
+          <span class="qt-ico"><svg><use href="#i-layers"/></svg></span>
+          <span class="qt-t">Message queued</span>
+        </div>
       </div>
     </div>
 
@@ -835,13 +836,22 @@ function agentDone(id, secs) {                         // ✓ Worked for 42s →
    on the GPU and the type never reflows. */
 const wbEl    = document.querySelector('.wb');
 const WB_BASE = parseFloat(getComputedStyle(wbEl).getPropertyValue('--wb-scale')) || 0.85;
-const UI_ZOOM = 1.92;          // 468px prompt box -> ~900px. Raise for a tighter push.
+const UI_ZOOM = 2.88;          // 468px prompt box -> ~1350px. Raise for a tighter push.
 const zoneEl  = document.querySelector('.composer-zone');
+const toastEl = document.getElementById('queued-toast');
+// The box scales from its bottom-left corner, so it renders 468 * scale wide from
+// the window's left edge. Park the toast just past that, clamped so it can never
+// cross the window's right edge and get clipped by .wb's overflow.
+function parkToast() {
+  const z = gsap.getProperty(zoneEl, 'scale') || 1;
+  const left = Math.min(468 * z + 20, 1680 - toastEl.offsetWidth - 28);
+  toastEl.style.left = Math.max(24, left) + 'px';
+}
 const BG = ['.wb-top', '.preview', '.chat-scroll'];
 
 function focusIn() {
   const tl = gsap.timeline();
-  tl.to(zoneEl, { scale: UI_ZOOM, duration: 0.95, ease: 'power3.inOut' }, 0);
+  tl.to(zoneEl, { scale: UI_ZOOM, duration: 0.95, ease: 'power3.inOut', onUpdate: parkToast }, 0);
   tl.to(['.queue-panel', '.composer'], { boxShadow: '0 22px 60px rgba(0,0,0,0.5)', duration: 0.8, ease: 'power2.out' }, 0);
   tl.to('.focus-scrim', { opacity: 1, duration: 0.85, ease: 'power2.out' }, 0);
   tl.to('.chat', { borderRightColor: 'rgba(255,255,255,0)', duration: 0.6, ease: 'power2.out' }, 0);
@@ -853,7 +863,7 @@ function focusIn() {
 }
 function focusOut() {
   const tl = gsap.timeline();
-  tl.to(zoneEl, { scale: 1, duration: 0.9, ease: 'power3.inOut' }, 0);
+  tl.to(zoneEl, { scale: 1, duration: 0.9, ease: 'power3.inOut', onUpdate: parkToast }, 0);
   tl.to(['.queue-panel', '.composer'], { boxShadow: '0 0px 0px rgba(0,0,0,0)', duration: 0.7, ease: 'power2.out' }, 0);
   tl.to(BG, { filter: 'blur(0px)', opacity: 1, duration: 0.7, ease: 'power2.out' }, 0.15);
   tl.to('.focus-scrim', { opacity: 0, duration: 0.75, ease: 'power2.in' }, 0.1);
@@ -970,6 +980,7 @@ function resetAll() {
   gsap.set(wbEl, { scale: WB_BASE, x: 0, y: 0 });
   gsap.set(BG, { filter: 'blur(0px)', opacity: 1 });
   gsap.set(zoneEl, { scale: 1, transformOrigin: '0% 100%' });
+  parkToast();
   gsap.set(['.queue-panel', '.composer'], { boxShadow: '0 0px 0px rgba(0,0,0,0)' });
   gsap.set('.focus-scrim', { opacity: 0 });
   gsap.set('.chat', { borderRightColor: 'rgba(255,255,255,0.07)' });
