@@ -8,6 +8,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,300;1,400&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet" />
+  <!-- Candidate faces for the Experimental category; swapped at runtime by the
+       Face control, so all six load up front. -->
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Space+Grotesk:wght@500;700&family=Bricolage+Grotesque:opsz,wght@12..96,600&family=Unbounded:wght@400;600&family=Chakra+Petch:wght@600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -157,7 +160,16 @@
       margin: -0.12em -0.20em -0.28em;
     }
     .fg--serif { --fg-ff: 'Cormorant Garamond', serif; --fg-fs: italic; --fg-w: 400; --fg-scale: 1.30; --fg-ls: 0; }
-    .fg--pixel { --fg-ff: 'Silkscreen', monospace; --fg-tt: uppercase; --fg-w: 400; --fg-scale: 0.70; --fg-ls: 0.04em; }
+    /* The Experimental face is not baked in — every axis reads a --exp-* var
+       that the Face control rewrites, so all ten treatments re-set at once.
+       Only .fg--exp consumes these, so writing them at :root is safe. */
+    .fg--exp {
+      --fg-ff: var(--exp-ff, 'Syne', sans-serif);
+      --fg-w: var(--exp-w, 700);
+      --fg-scale: var(--exp-scale, 1.05);
+      --fg-ls: var(--exp-ls, -0.01em);
+      --fg-tt: var(--exp-tt, none);
+    }
     /* The three neutrals are literal, not ground-following — otherwise "White"
        renders black on the light ground and stops being the thing it's named
        after. Each one is legible on one ground and not the other; that is the
@@ -306,6 +318,15 @@
         <button data-theme="dark" class="is-on">Dark</button>
         <button data-theme="light">Light</button>
       </div>
+      <span class="seg-label">Face</span>
+      <div class="seg" id="face-seg">
+        <button data-face="syne" class="is-on">Syne</button>
+        <button data-face="space">Space&nbsp;Grotesk</button>
+        <button data-face="bricolage">Bricolage</button>
+        <button data-face="unbounded">Unbounded</button>
+        <button data-face="chakra">Chakra&nbsp;Petch</button>
+        <button data-face="jetbrains">JetBrains&nbsp;Mono</button>
+      </div>
       <span class="seg-label">Size</span>
       <div class="seg" id="size-seg">
         <button data-size="30">S</button>
@@ -355,7 +376,7 @@
 
   <section class="sec-head">
     <h2>Three directions, ten treatments each</h2>
-    <p>Three type directions &mdash; sans, serif, and the pixel face as the experimental one &mdash; each run through the same ten colour treatments: seven blue ramps and three flat neutrals. Because the set is identical in all three, reading down compares faces and reading across compares colour. Black only reads on the Light ground; that is what the toggle is for.</p>
+    <p>Three type directions &mdash; sans, serif, and an experimental face you can swap from the header &mdash; each run through the same ten colour treatments: seven blue ramps and three flat neutrals. Because the set is identical in all three, reading down compares faces and reading across compares colour. Black only reads on the Light ground; that is what the toggle is for.</p>
   </section>
 
   <div class="grid grid--three">
@@ -609,11 +630,11 @@
       </div>
       <div class="fam">
         <span class="fam-label">Experimental</span>
-        <span class="fam-note">Silkscreen, our pixel eyebrow face, set in caps. Same ten colour treatments as the other two categories.</span>
+        <span class="fam-note">A face we don&rsquo;t use anywhere yet &mdash; switch it with the Face control in the header. Same ten colour treatments as the other two categories.</span>
       </div>
       <div class="cell">
         <div class="cell-field">
-          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--pixel fg--grad" style="--grad:linear-gradient(92deg,var(--ink) 12%,var(--blue) 96%)">Forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--exp fg--grad" style="--grad:linear-gradient(92deg,var(--ink) 12%,var(--blue) 96%)">Forge</span></div>
         </div>
         <div class="cell-meta">
           <span class="cell-num">21</span>
@@ -625,7 +646,7 @@
       </div>
       <div class="cell">
         <div class="cell-field">
-          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--pixel fg--grad" style="--grad:linear-gradient(45deg,var(--ink) 10%,var(--blue) 95%)">Forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--exp fg--grad" style="--grad:linear-gradient(45deg,var(--ink) 10%,var(--blue) 95%)">Forge</span></div>
         </div>
         <div class="cell-meta">
           <span class="cell-num">22</span>
@@ -637,7 +658,7 @@
       </div>
       <div class="cell">
         <div class="cell-field">
-          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--pixel fg--grad" style="--grad:linear-gradient(180deg,var(--ink) 8%,var(--blue) 100%)">Forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--exp fg--grad" style="--grad:linear-gradient(180deg,var(--ink) 8%,var(--blue) 100%)">Forge</span></div>
         </div>
         <div class="cell-meta">
           <span class="cell-num">23</span>
@@ -649,7 +670,7 @@
       </div>
       <div class="cell">
         <div class="cell-field">
-          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--pixel fg--grad" style="--grad:linear-gradient(92deg,var(--blue) 4%,var(--ink) 92%)">Forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--exp fg--grad" style="--grad:linear-gradient(92deg,var(--blue) 4%,var(--ink) 92%)">Forge</span></div>
         </div>
         <div class="cell-meta">
           <span class="cell-num">24</span>
@@ -661,7 +682,7 @@
       </div>
       <div class="cell">
         <div class="cell-field">
-          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--pixel fg--grad" style="--grad:linear-gradient(92deg,var(--ink) 60%,var(--blue) 100%)">Forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--exp fg--grad" style="--grad:linear-gradient(92deg,var(--ink) 60%,var(--blue) 100%)">Forge</span></div>
         </div>
         <div class="cell-meta">
           <span class="cell-num">25</span>
@@ -673,7 +694,7 @@
       </div>
       <div class="cell">
         <div class="cell-field">
-          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--pixel fg--grad" style="--grad:linear-gradient(92deg,var(--blue) 0%,var(--ink) 50%,var(--blue) 100%)">Forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--exp fg--grad" style="--grad:linear-gradient(92deg,var(--blue) 0%,var(--ink) 50%,var(--blue) 100%)">Forge</span></div>
         </div>
         <div class="cell-meta">
           <span class="cell-num">26</span>
@@ -685,7 +706,7 @@
       </div>
       <div class="cell">
         <div class="cell-field">
-          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--pixel fg--grad" style="--grad:linear-gradient(92deg,var(--blue) 6%,#0a3a70 100%)">Forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--exp fg--grad" style="--grad:linear-gradient(92deg,var(--blue) 6%,#0a3a70 100%)">Forge</span></div>
         </div>
         <div class="cell-meta">
           <span class="cell-num">27</span>
@@ -697,7 +718,7 @@
       </div>
       <div class="cell">
         <div class="cell-field">
-          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--pixel fg--white">Forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--exp fg--white">Forge</span></div>
         </div>
         <div class="cell-meta">
           <span class="cell-num">28</span>
@@ -709,7 +730,7 @@
       </div>
       <div class="cell">
         <div class="cell-field">
-          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--pixel fg--grey">Forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--exp fg--grey">Forge</span></div>
         </div>
         <div class="cell-meta">
           <span class="cell-num">29</span>
@@ -721,7 +742,7 @@
       </div>
       <div class="cell">
         <div class="cell-field">
-          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--pixel fg--black">Forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--exp fg--black">Forge</span></div>
         </div>
         <div class="cell-meta">
           <span class="cell-num">30</span>
@@ -790,6 +811,33 @@
     document.body.setAttribute('data-theme', btn.getAttribute('data-theme'));
     pick(themeSeg, btn);
   });
+
+  /* Experimental face. Each entry carries its own metrics because the faces
+     have very different x-heights and widths — swapping family alone would
+     make some of them read much larger than the mark. */
+  var FACES = {
+    syne:      { ff: "'Syne', sans-serif",                w: 700, scale: 1.05, ls: '-0.01em' },
+    space:     { ff: "'Space Grotesk', sans-serif",       w: 500, scale: 1.12, ls: '-0.02em' },
+    bricolage: { ff: "'Bricolage Grotesque', sans-serif", w: 600, scale: 1.12, ls: '-0.03em' },
+    unbounded: { ff: "'Unbounded', sans-serif",           w: 400, scale: 0.95, ls: '-0.02em' },
+    chakra:    { ff: "'Chakra Petch', sans-serif",        w: 600, scale: 1.15, ls: '0'       },
+    jetbrains: { ff: "'JetBrains Mono', monospace",       w: 500, scale: 1.10, ls: '-0.04em' }
+  };
+  var faceSeg = document.getElementById('face-seg');
+  if (faceSeg) {
+    faceSeg.addEventListener('click', function (e) {
+      var btn = e.target.closest('button');
+      if (!btn) return;
+      var f = FACES[btn.getAttribute('data-face')];
+      if (!f) return;
+      var r = document.documentElement.style;
+      r.setProperty('--exp-ff', f.ff);
+      r.setProperty('--exp-w', f.w);
+      r.setProperty('--exp-scale', f.scale);
+      r.setProperty('--exp-ls', f.ls);
+      pick(faceSeg, btn);
+    });
+  }
 
   sizeSeg.addEventListener('click', function (e) {
     var btn = e.target.closest('button');
