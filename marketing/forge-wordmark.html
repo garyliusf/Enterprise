@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Forge lockup — wordmark explorations</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,300;1,400&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Theme ─────────────────────────────────────────────────────────────
+       The whole point of this page is judging the lockup on more than one
+       ground, so every colour is a token and the toggle just swaps them. */
+    :root {
+      --bg: #000;
+      --panel: #0a0a0a;
+      --field: #060607;
+      --line: rgba(255,255,255,0.10);
+      --line-soft: rgba(255,255,255,0.06);
+      --ink: #fff;
+      --ink-2: rgba(255,255,255,0.55);
+      --ink-3: rgba(255,255,255,0.32);
+      --blue: #1488FC;
+      --blue-soft: rgba(20,136,252,0.14);
+      /* default lockup size — must live above .lock so per-section overrides
+         (the Size control on .grid, the fixed sizes on .scale-row) inherit
+         down into it rather than being shadowed by the lockup's own value. */
+      --mark-h: 46px;
+    }
+    body[data-theme="light"] {
+      --bg: #F0EDE9;
+      --panel: #E8E3DE;
+      --field: #F6F4F1;
+      --line: rgba(0,0,0,0.12);
+      --line-soft: rgba(0,0,0,0.07);
+      --ink: #10100F;
+      --ink-2: #555;
+      --ink-3: #999;
+      --blue: #0f6fd0;
+      --blue-soft: rgba(20,136,252,0.12);
+    }
+    body[data-theme="blue"] {
+      --bg: #071528;
+      --panel: #0b1e38;
+      --field: #061223;
+      --line: rgba(255,255,255,0.12);
+      --line-soft: rgba(255,255,255,0.07);
+      --ink: #fff;
+      --ink-2: rgba(255,255,255,0.6);
+      --ink-3: rgba(255,255,255,0.36);
+      --blue: #4DA6FF;
+      --blue-soft: rgba(77,166,255,0.18);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      transition: background 0.25s ease, color 0.25s ease;
+    }
+
+    .wrap { width: min(1240px, calc(100vw - 80px)); margin: 0 auto; }
+    @media (max-width: 768px) { .wrap { width: calc(100vw - 32px); } }
+
+    /* ── Header ── */
+    .head {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: color-mix(in srgb, var(--bg) 88%, transparent);
+      -webkit-backdrop-filter: saturate(140%) blur(18px);
+              backdrop-filter: saturate(140%) blur(18px);
+      border-bottom: 1px solid var(--line);
+    }
+    .head-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 16px 0;
+      flex-wrap: wrap;
+    }
+    .head-title { font-size: 15px; font-weight: 600; letter-spacing: -0.2px; }
+    .head-title span { color: var(--ink-3); font-weight: 400; margin-left: 10px; }
+    .controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+    .seg {
+      display: inline-flex;
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      overflow: hidden;
+      background: var(--panel);
+    }
+    .seg button {
+      appearance: none;
+      border: none;
+      background: none;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+      color: var(--ink-2);
+      padding: 7px 13px;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease;
+      border-right: 1px solid var(--line);
+    }
+    .seg button:last-child { border-right: none; }
+    .seg button:hover { color: var(--ink); }
+    .seg button.is-on { background: var(--blue); color: #fff; }
+    body[data-theme="light"] .seg button.is-on { color: #fff; }
+    .seg-label { font-family: 'Silkscreen', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-3); margin-right: 2px; }
+
+    /* ── Intro ── */
+    .intro { padding: 56px 0 40px; max-width: 720px; }
+    .intro h1 { font-size: clamp(34px, 4.4vw, 52px); font-weight: 500; line-height: 1.12; letter-spacing: -1.4px; }
+    .intro p { margin-top: 18px; font-size: 16px; line-height: 1.7; color: var(--ink-2); }
+
+    /* ── The lockup itself ─────────────────────────────────────────────────
+       .mark-wrap is exactly the bolt mark's baseline height (37.93 of the
+       43-unit viewBox), with the SVG overflowing below it. A block box with
+       no line box takes its baseline from its bottom margin edge, so the
+       wrapper's bottom IS the bolt baseline — which lets `align-items:
+       baseline` line "forge" up with the letterforms instead of eyeballing
+       a nudge. Everything scales off --mark-h. */
+    .lock {
+      display: flex;
+      align-items: baseline;
+      gap: var(--gap, calc(var(--mark-h) * 0.30));
+      color: var(--ink);
+      white-space: nowrap;
+    }
+    .mark-wrap { height: calc(var(--mark-h) * 0.8821); flex: none; }
+    .mark-wrap svg { height: var(--mark-h); width: auto; display: block; overflow: visible; }
+    /* the bolt.new wordmark has its own baseline ratio (20.9 of its 24-unit box) */
+    .mark-wrap--new { height: calc(var(--mark-h) * 0.8708); }
+
+    /* x-height match: bolt's 'o' is 0.63 of the mark box; Inter's x-height is
+       ~0.546em, so 0.63 / 0.546 ≈ 1.15 mark-heights of font-size. */
+    .fg {
+      font-size: calc(var(--mark-h) * 1.15);
+      font-weight: 500;
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+
+    /* divider glyphs */
+    .div-rule { flex: none; align-self: center; width: 1px; height: calc(var(--mark-h) * 0.78); background: currentColor; opacity: 0.28; }
+    .div-bar  { flex: none; align-self: center; width: 3px; height: calc(var(--mark-h) * 0.82); background: var(--blue); border-radius: 1px; }
+    .div-txt  { font-size: calc(var(--mark-h) * 1.05); font-weight: 300; line-height: 1; opacity: 0.35; }
+    .div-dot  { flex: none; align-self: center; width: calc(var(--mark-h) * 0.13); height: calc(var(--mark-h) * 0.13); border-radius: 50%; background: currentColor; opacity: 0.4; }
+    .div-pixels {
+      flex: none; align-self: center;
+      width: calc(var(--mark-h) * 0.12);
+      height: calc(var(--mark-h) * 0.62);
+      background:
+        linear-gradient(currentColor 0 0) 0 0 / 100% 28%,
+        linear-gradient(currentColor 0 0) 0 50% / 100% 28%,
+        linear-gradient(currentColor 0 0) 0 100% / 100% 28%;
+      background-repeat: no-repeat;
+      opacity: 0.45;
+    }
+    .div-dot--blue { background: var(--blue); opacity: 1; }
+
+    /* modifiers */
+    .fg--upper { text-transform: uppercase; letter-spacing: 0.06em; font-size: calc(var(--mark-h) * 0.86); font-weight: 500; }
+    .fg--pixel { font-family: 'Silkscreen', monospace; text-transform: uppercase; font-size: calc(var(--mark-h) * 0.70); letter-spacing: 0.04em; font-weight: 400; }
+    .fg--light { font-weight: 200; }
+    .fg--semi  { font-weight: 600; }
+    .fg--serif { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 400; font-size: calc(var(--mark-h) * 1.30); letter-spacing: 0; }
+    .fg--blue  { color: var(--blue); }
+    .fg--muted { color: var(--ink-2); }
+    .fg--grad  {
+      background: linear-gradient(92deg, var(--ink) 12%, var(--blue) 96%);
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent; color: transparent;
+    }
+
+    /* enclosures — sized off the mark so they scale with everything else */
+    .chip {
+      align-self: center;
+      padding: calc(var(--mark-h) * 0.16) calc(var(--mark-h) * 0.30);
+      border-radius: 2px;
+      line-height: 1;
+    }
+    .chip--fill    { background: var(--blue); color: #fff; }
+    .chip--outline { border: 1px solid currentColor; }
+    .chip--pill    { background: var(--blue); color: #fff; border-radius: 999px; padding: calc(var(--mark-h) * 0.17) calc(var(--mark-h) * 0.38); }
+    .chip--tint    { background: var(--blue-soft); color: var(--blue); }
+
+    /* stacked alternate */
+    .lock--stack { flex-direction: column; align-items: flex-start; gap: calc(var(--mark-h) * 0.20); }
+    .lock--stack .mark-wrap { height: auto; }
+
+    /* ── Grid of variations ── */
+    .grid {
+      --mark-h: 46px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0;
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 80px;
+    }
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+
+    .cell {
+      background: var(--panel);
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+    }
+    .cell:nth-child(2n) { border-right: none; }
+    @media (max-width: 900px) { .cell { border-right: none; } }
+
+    .cell-field {
+      background: var(--field);
+      flex: 1;
+      min-height: 190px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 28px;
+      overflow-x: auto;
+    }
+    .cell-meta {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 16px 20px 18px;
+      border-top: 1px solid var(--line-soft);
+    }
+    .cell-num {
+      font-family: 'Silkscreen', monospace;
+      font-size: 11px;
+      letter-spacing: 1px;
+      color: var(--blue);
+      flex: none;
+      padding-top: 2px;
+      min-width: 24px;
+    }
+    .cell-name { font-size: 14px; font-weight: 600; letter-spacing: -0.1px; }
+    .cell-note { margin-top: 5px; font-size: 13px; line-height: 1.55; color: var(--ink-2); }
+
+    /* ── Section headers between families ── */
+    .fam {
+      grid-column: 1 / -1;
+      background: var(--bg);
+      border-bottom: 1px solid var(--line);
+      padding: 22px 20px 20px;
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .fam-label { font-family: 'Silkscreen', monospace; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--blue); }
+    .fam-note { font-size: 13px; color: var(--ink-2); }
+
+    /* ── Scale test strip ── */
+    .scale-sec { padding-bottom: 96px; }
+    .scale-sec h2 { font-size: 24px; font-weight: 600; letter-spacing: -0.5px; }
+    .scale-sec > p { margin-top: 10px; font-size: 15px; color: var(--ink-2); line-height: 1.65; max-width: 640px; }
+    .scale-rows {
+      margin-top: 28px;
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .scale-row {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      padding: 26px 28px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--line-soft);
+      overflow-x: auto;
+    }
+    .scale-row:last-child { border-bottom: none; }
+    .scale-tag {
+      font-family: 'Silkscreen', monospace;
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      min-width: 108px;
+      flex: none;
+    }
+    .scale-items { display: flex; align-items: center; gap: 44px; flex-wrap: wrap; }
+
+    .foot { border-top: 1px solid var(--line); padding: 28px 0 64px; font-size: 13px; color: var(--ink-3); line-height: 1.7; }
+  </style>
+</head>
+<body data-theme="dark">
+
+<!-- One copy of the bolt mark; every lockup <use>s it. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="bolt-mark" viewBox="0 0 100 43">
+      <path d="M47.3242 37.9289C38.1648 37.9289 33.5047 32.5887 33.5047 25.9133C33.5047 18.0097 39.8253 10.8537 48.9847 10.8537C58.1441 10.8537 62.8041 16.194 62.8041 22.8693C62.8041 30.773 56.4836 37.9289 47.3242 37.9289ZM47.6991 29.4379C50.913 29.4379 52.9484 26.5541 52.9484 23.35C52.9484 20.7866 51.2879 19.3447 48.6097 19.3447C45.3959 19.3447 43.3605 22.2285 43.3605 25.4327C43.3605 27.996 45.021 29.4379 47.6991 29.4379Z" fill="currentColor"/>
+      <path d="M72.5607 37.2881H62.9192L70.7931 1.66838H80.4346L72.5607 37.2881Z" fill="currentColor"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M18.8977 37.9289C15.9517 37.9289 13.0593 36.8609 11.3988 34.5646L10.8131 37.2728L0 43L1.16732 37.2728L9.04198 1.66838H18.6835L15.8981 14.2181C18.1478 11.7615 20.2368 10.8537 22.915 10.8537C28.6999 10.8537 32.5565 14.6453 32.5565 21.5877C32.5565 28.7436 28.1107 37.9289 18.8977 37.9289ZM22.5936 23.617C22.5936 26.9279 20.2368 29.4379 17.1837 29.4379C15.4696 29.4379 13.9163 28.797 12.8986 27.6756L14.3984 21.107C15.5232 19.9856 16.8087 19.3447 18.3085 19.3447C20.6118 19.3447 22.5936 21.0536 22.5936 23.617Z" fill="currentColor"/>
+      <path d="M90.4656 37.9289C84.895 37.9289 80.9313 35.8996 80.9313 31.4138C80.9313 31.04 80.9849 30.1321 81.1455 29.3845L83.2345 19.8254H78.9494L80.8242 11.4945H85.1093L86.6626 4.44533L97.4562 0L96.3043 4.4562L94.7508 11.4945H100L98.1253 19.8254H92.876L91.4834 26.1269C91.3762 26.6075 91.3227 27.1416 91.3227 27.3552C91.3227 28.5834 92.0726 29.4379 93.733 29.4379C94.2151 29.4379 94.9114 29.2777 95.0721 29.1709V36.8609C94.0544 37.5551 92.2333 37.9289 90.4656 37.9289Z" fill="currentColor"/>  </symbol>
+  <symbol id="bolt-new-mark" viewBox="0 0 85 24">
+    <path d="M26.1121 20.9491C21.0582 20.9491 18.4869 17.9995 18.4869 14.3126C18.4869 9.9472 21.9744 5.99476 27.0283 5.99476C32.0822 5.99476 34.6535 8.94434 34.6535 12.6313C34.6535 16.9967 31.166 20.9491 26.1121 20.9491ZM26.319 16.2593C28.0923 16.2593 29.2154 14.6665 29.2154 12.8968C29.2154 11.481 28.2992 10.6846 26.8214 10.6846C25.0481 10.6846 23.925 12.2774 23.925 14.0471C23.925 15.4629 24.8412 16.2593 26.319 16.2593Z" fill="currentColor"/>
+    <path d="M40.0368 20.5952H34.717L39.0615 0.921487H44.3814L40.0368 20.5952Z" fill="currentColor"/>
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M10.4272 20.9491C8.80168 20.9491 7.20572 20.3592 6.28951 19.0909L5.96635 20.5867L0 23.75L0.644095 20.5867L4.9891 0.921487H10.309L8.77213 7.853C10.0134 6.49619 11.1661 5.99476 12.6438 5.99476C15.8358 5.99476 17.9637 8.08896 17.9637 11.9234C17.9637 15.8758 15.5107 20.9491 10.4272 20.9491ZM12.4665 13.0443C12.4665 14.873 11.1661 16.2593 9.48145 16.2593C8.53569 16.2593 7.6786 15.9053 7.11705 15.2859L7.94459 11.658C8.56524 11.0385 9.27456 10.6846 10.1021 10.6846C11.373 10.6846 12.4665 11.6285 12.4665 13.0443Z" fill="currentColor"/>
+    <path d="M49.9163 20.9491C46.8426 20.9491 44.6555 19.8283 44.6555 17.3506C44.6555 17.1442 44.6851 16.6427 44.7737 16.2298L45.9264 10.9501H43.562L44.5964 6.34871H46.9608L47.8179 2.45527L53.7735 0L53.1378 2.46127L52.2807 6.34871H55.1771L54.1426 10.9501H51.2462L50.4778 14.4306C50.4187 14.696 50.3892 14.991 50.3892 15.109C50.3892 15.7874 50.8029 16.2593 51.7191 16.2593C51.9851 16.2593 52.3693 16.1708 52.458 16.1118V20.3592C51.8965 20.7427 50.8916 20.9491 49.9163 20.9491Z" fill="currentColor"/>
+    <path d="M56.461 21.0087C55.7527 21.0087 55.1886 20.4196 55.1886 19.7127C55.1886 18.8879 55.897 18.1941 56.7234 18.1941C57.4317 18.1941 57.9958 18.7832 57.9958 19.4901C57.9958 20.3149 57.2875 21.0087 56.461 21.0087Z" fill="currentColor"/>
+    <path d="M65.3576 20.8386H62.9964L63.7309 17.5133C63.7572 17.3955 63.8097 17.186 63.8097 17.0289C63.8097 16.5969 63.4292 16.4398 63.0488 16.4398C62.5372 16.4398 62.183 16.7016 61.9338 16.9242L61.068 20.8386H58.7068L60.1104 14.5153H62.4716L62.3011 15.2354C62.7602 14.8164 63.3374 14.3582 64.295 14.3582C65.6199 14.3582 66.3807 15.0783 66.3807 16.0209C66.3807 16.1256 66.3414 16.4136 66.3151 16.5314L65.3576 20.8386Z" fill="currentColor"/>
+    <path d="M70.256 20.9956C68.2096 20.9956 66.7929 19.9745 66.7929 18.1155C66.7929 16.0994 68.3408 14.3582 70.5577 14.3582C72.1319 14.3582 73.5223 15.3139 73.5223 17.2384C73.5223 17.6704 73.4436 18.1679 73.3781 18.4035H69.1279V18.4166C69.1279 18.5083 69.5083 19.2021 70.4265 19.2021C70.925 19.2021 71.5153 19.0843 71.8039 18.8879L72.5254 20.4196C71.8826 20.8255 71.0169 20.9956 70.256 20.9956ZM69.3509 16.9111H71.4366V16.8718C71.4366 16.6885 71.2136 16.1518 70.4659 16.1518C69.8363 16.1518 69.4296 16.6362 69.3509 16.9111Z" fill="currentColor"/>
+    <path d="M81.7599 20.8386H79.1888L78.9265 17.3038L77.1293 20.8386H74.5582L74.1254 14.5153H76.4866L76.5521 17.9977L78.4411 14.5153H80.5531L80.881 17.9977L82.4945 14.5153H85L81.7599 20.8386Z" fill="currentColor"/>
+  </symbol>
+</svg>
+
+<header class="head">
+  <div class="wrap head-inner">
+    <p class="head-title">Forge lockup <span>wordmark explorations</span></p>
+    <div class="controls">
+      <span class="seg-label">Ground</span>
+      <div class="seg" id="theme-seg">
+        <button data-theme="dark" class="is-on">Dark</button>
+        <button data-theme="light">Light</button>
+        <button data-theme="blue">Blue</button>
+      </div>
+      <span class="seg-label">Size</span>
+      <div class="seg" id="size-seg">
+        <button data-size="30">S</button>
+        <button data-size="46" class="is-on">M</button>
+        <button data-size="72">L</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="intro">
+    <h1>Twenty ways to put Forge next to bolt</h1>
+    <p>All twenty are the same two elements &mdash; the bolt mark, and the word Forge to its right &mdash; so the only thing changing from tile to tile is the one decision named underneath it. Grouped into five families so they can be judged against their own kind rather than all at once. Use the controls above to change the ground colour and the size; every lockup scales from one variable, so nothing drifts out of proportion when you do.</p>
+  </section>
+
+  <div class="grid">
+      <div class="fam">
+        <span class="fam-label">Spacing &amp; divider</span>
+        <span class="fam-note">Same type treatment throughout — the only variable is what sits between the two words.</span>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+<div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg">forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">01</span>
+          <div>
+            <p class="cell-name">Plain space</p>
+            <p class="cell-note">Nothing between them. Reads as one wordmark; relies on the space alone to separate the product from the parent.</p>
+          </div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+<div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="div-rule"></span><span class="fg">forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">02</span>
+          <div>
+            <p class="cell-name">Hairline rule</p>
+            <p class="cell-note">A 1px rule sets Forge apart as a named product without adding a glyph to the lockup.</p>
+          </div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+<div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="div-txt">/</span><span class="fg">forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">03</span>
+          <div>
+            <p class="cell-name">Slash</p>
+            <p class="cell-note">Reads as a path — bolt/forge. Familiar from developer tooling, and it survives being set in one line of plain text.</p>
+          </div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+<div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="div-dot"></span><span class="fg">forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">04</span>
+          <div>
+            <p class="cell-name">Dot</p>
+            <p class="cell-note">The lightest possible separator. Echoes the dot already in bolt.new.</p>
+          </div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+<div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="div-bar"></span><span class="fg">forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">05</span>
+          <div>
+            <p class="cell-name">Blue bar</p>
+            <p class="cell-note">The divider carries the brand colour instead of the word, so Forge stays in the parent's voice.</p>
+          </div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+<div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="div-pixels"></span><span class="fg">forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">06</span>
+          <div>
+            <p class="cell-name">Pixel divider</p>
+            <p class="cell-note">Three stacked squares instead of a rule &mdash; the same pixel motif the marketing pages already use for eyebrows and check glyphs.</p>
+          </div>
+        </div>
+      </div>
+      <div class="fam">
+        <span class="fam-label">Case &amp; weight</span>
+        <span class="fam-note">Divider held constant (a plain space) so the type is the only thing moving.</span>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+<div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--upper">Forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">07</span>
+          <div>
+            <p class="cell-name">Uppercase, tracked</p>
+            <p class="cell-note">Sets Forge as a label rather than a second word. Tracking keeps it from crowding the mark.</p>
+          </div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+<div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--pixel">Forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">08</span>
+          <div>
+            <p class="cell-name">Silkscreen pixel</p>
+            <p class="cell-note">Our eyebrow face. Most on-system option here, and it ties Forge to the pixel motif used across the marketing pages.</p>
+          </div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+<div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--semi">forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">09</span>
+          <div>
+            <p class="cell-name">Semibold</p>
+            <p class="cell-note">Forge holds equal weight with the mark — reads as a peer product, not a sub-brand.</p>
+          </div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+<div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--serif">Forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">10</span>
+          <div>
+            <p class="cell-name">Cormorant italic</p>
+            <p class="cell-note">Deliberately off-system — our serif is blog/pull-quote only. Included so the team can see what a warmer, editorial Forge would look like.</p>
+          </div>
+        </div>
+      </div>
+      <div class="fam">
+        <span class="fam-label">Colour</span>
+        <span class="fam-note">Where the brand blue lands: on the word, on the divider, or nowhere.</span>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+<div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--blue">forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">11</span>
+          <div>
+            <p class="cell-name">Forge in blue</p>
+            <p class="cell-note">The clearest signal that Forge is the new thing. Costs us a two-colour lockup.</p>
+          </div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+<div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="div-dot div-dot--blue"></span><span class="fg fg--blue">forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">12</span>
+          <div>
+            <p class="cell-name">Blue dot, blue word</p>
+            <p class="cell-note">Divider and word agree, so the blue reads as intentional rather than as an accent that got left on.</p>
+          </div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+<div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--grad">forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">13</span>
+          <div>
+            <p class="cell-name">Gradient</p>
+            <p class="cell-note">White into blue across the word. Looks good large; the gradient collapses to mush at nav size — see the scale test.</p>
+          </div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+<div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--muted">forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">14</span>
+          <div>
+            <p class="cell-name">Muted</p>
+            <p class="cell-note">Forge as secondary text. The most conservative option: nothing competes with the bolt mark.</p>
+          </div>
+        </div>
+      </div>
+      <div class="fam">
+        <span class="fam-label">Enclosure</span>
+        <span class="fam-note">Forge treated as a badge attached to the mark rather than a second word beside it.</span>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+<div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--upper chip chip--fill">Forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">15</span>
+          <div>
+            <p class="cell-name">Filled chip</p>
+            <p class="cell-note">2px radius, our standard surface corner. Strongest separation of parent and product.</p>
+          </div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+<div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--upper chip chip--outline">Forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">16</span>
+          <div>
+            <p class="cell-name">Outlined chip</p>
+            <p class="cell-note">Same shape, one colour. Works on any background without a knockout.</p>
+          </div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+<div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--upper chip chip--pill">Forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">17</span>
+          <div>
+            <p class="cell-name">Pill</p>
+            <p class="cell-note">Softer, more consumer. Off our 2px surface standard, which is why it looks like a different family.</p>
+          </div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+<div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--pixel chip chip--tint">Forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">18</span>
+          <div>
+            <p class="cell-name">Tinted pixel chip</p>
+            <p class="cell-note">Silkscreen in a blue-tinted chip — the closest thing here to how our eyebrows and badges already look.</p>
+          </div>
+        </div>
+      </div>
+      <div class="fam">
+        <span class="fam-label">Structure</span>
+        <span class="fam-note">Two alternates that change the lockup's shape rather than its styling.</span>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+<div class="lock"><span class="mark-wrap mark-wrap--new"><svg viewBox="0 0 85 24" style="height:var(--mark-h);width:auto;display:block"><use href="#bolt-new-mark"/></svg></span><span class="fg">forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">19</span>
+          <div>
+            <p class="cell-name">On bolt.new</p>
+            <p class="cell-note">Built on the full bolt.new wordmark instead of the plain mark. Longer, and the two dots start to fight.</p>
+          </div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+<div class="lock lock--stack"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--upper">Forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">20</span>
+          <div>
+            <p class="cell-name">Stacked</p>
+            <p class="cell-note">Forge under the mark rather than beside it. Not what was asked for — included as the reference point for how much width the horizontal lockup costs us.</p>
+          </div>
+        </div>
+      </div>  </div>
+
+  <section class="scale-sec">
+    <h2>At working sizes</h2>
+    <p>The tiles above are set large, which flatters everything. This is the same five candidates at the sizes they would actually ship at &mdash; a 24px navbar mark, a 40px docs header, and a 96px hero. Anything that stops reading in the top row is out, whatever it looks like at the bottom.</p>
+
+    <div class="scale-rows">
+      <div class="scale-row" style="--mark-h: 24px;">
+        <span class="scale-tag">24px · navbar</span>
+        <div class="scale-items">
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="div-rule"></span><span class="fg">forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--pixel">Forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--blue">forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--grad">forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--pixel chip chip--tint">Forge</span></div>
+        </div>
+      </div>
+      <div class="scale-row" style="--mark-h: 40px;">
+        <span class="scale-tag">40px · header</span>
+        <div class="scale-items">
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="div-rule"></span><span class="fg">forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--pixel">Forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--blue">forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--grad">forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--pixel chip chip--tint">Forge</span></div>
+        </div>
+      </div>
+      <div class="scale-row" style="--mark-h: 96px;">
+        <span class="scale-tag">96px · hero</span>
+        <div class="scale-items">
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="div-rule"></span><span class="fg">forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--pixel">Forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--blue">forge</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>Prototype page &mdash; not linked from anywhere and marked <code>noindex</code>. The bolt mark is <code>images/bolt-logo.svg</code> and the full wordmark is <code>images/bolt-new.svg</code>, both inlined as symbols and recoloured with <code>currentColor</code> so they follow the ground. &ldquo;Forge&rdquo; is live text (Inter, Silkscreen, Cormorant Garamond) rather than outlines, so any of these can be re-set without redrawing anything.</p>
+  </footer>
+
+</div>
+
+<script>
+/* Ground + size controls. Both write a single value the whole page keys off:
+   data-theme swaps the colour tokens, --mark-h drives every dimension in a
+   lockup, so nothing gets out of proportion when the size changes. */
+(function () {
+  var themeSeg = document.getElementById('theme-seg');
+  var sizeSeg  = document.getElementById('size-seg');
+
+  function pick(seg, btn) {
+    seg.querySelectorAll('button').forEach(function (b) { b.classList.remove('is-on'); });
+    btn.classList.add('is-on');
+  }
+
+  themeSeg.addEventListener('click', function (e) {
+    var btn = e.target.closest('button');
+    if (!btn) return;
+    document.body.setAttribute('data-theme', btn.getAttribute('data-theme'));
+    pick(themeSeg, btn);
+  });
+
+  sizeSeg.addEventListener('click', function (e) {
+    var btn = e.target.closest('button');
+    if (!btn) return;
+    document.querySelector('.grid').style.setProperty('--mark-h', btn.getAttribute('data-size') + 'px');
+    pick(sizeSeg, btn);
+  });
+})();
+</script>
+
+</body>
+</html>
