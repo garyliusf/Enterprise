@@ -10,8 +10,10 @@ cx-weekly/
   snippets/bolt_footer.html     optional shared-footer snippet
 ```
 
-Images are NOT duplicated here — they're the same files as `hubspot/cx-weekly/assets/`,
-and the template points at their live HubSpot File Manager URLs by default (see Assets).
+Images live in the **Customer.io asset manager** (Assets page, workspace 224051) —
+uploaded 2026-08-24 from `hubspot/cx-weekly/assets/` (still the source files in the
+repo). The template and snippet reference the `userimg-assets.customeriomail.com`
+CDN URLs directly (see Assets).
 
 ---
 
@@ -80,17 +82,14 @@ https://…/maker-photo.jpg ;; Maker session ;; Tuesday, September 1 ;; https://
 
 ## Assets
 
-Same files as `hubspot/cx-weekly/assets/`, already uploaded to the HubSpot File Manager
-(public CDN) — `asset_base` in the template points there:
-
-```
-https://45403856.fs1.hubspotusercontent-na1.net/hubfs/45403856/email/cx-weekly
-```
-
-That works from Customer.io sends as-is. To stop depending on the HubSpot portal,
-re-upload `hubspot/cx-weekly/assets/*` to your own CDN (or Customer.io's image hosting
-via the composer) and change `asset_base` — everything derives from it except the
-`bolt_footer` snippet, which hardcodes its four URLs (update those too).
+Hosted in the Customer.io asset manager (Assets page) — same filenames as
+`hubspot/cx-weekly/assets/`, which remain the source files in the repo. Customer.io
+keys each upload by a unique id, so there is no shared `asset_base`; every image
+reference in the template's LOCKED assets block (and the 5 hardcoded URLs in the
+`bolt_footer` snippet) carries its full `userimg-assets.customeriomail.com` URL.
+To replace an image: upload the new file in the Assets page, copy its URL, and swap
+it into the matching assign. Three uploaded files are spares for future weeks
+(`bolt-templates.jpg`, `soulpress-app.jpg`, `callout-bg.jpg`).
 
 All images are exported at 2x and displayed at 1x. **Never** swap them for data URIs or
 relative paths — Gmail and Outlook block them.
