@@ -889,32 +889,50 @@ function toastQueued() {                        // "Message queued", then away
 }
 function enqueue(n) {
   const item = document.getElementById('q' + n), tl = gsap.timeline();
-  tl.call(() => {
-    gsap.set(item, { display: 'flex' });
-    qCount.textContent = n + ' queued';
-  });
   if (n === 1) {
-    // measure at runtime — a from() here would capture the build-time (collapsed) values
-    tl.call(() => gsap.set(queue, { display: 'block', opacity: 0, overflow: 'hidden', height: 0, marginBottom: 0 }));
-    tl.to(queue, { height: 'auto', marginBottom: -20, opacity: 1, duration: 0.46, ease: 'power2.out' });
+    tl.call(() => {
+      gsap.set(item, { display: 'flex' });
+      qCount.textContent = '1 queued';
+      // measure at runtime — a from() here would capture the build-time (collapsed) values
+      gsap.set(queue, { display: 'block', opacity: 0, overflow: 'hidden', height: 0, marginBottom: 0 });
+    });
+    tl.to(queue, { height: 'auto', marginBottom: -20, opacity: 1, duration: 0.52, ease: 'power2.inOut' }, 0);
   } else {
-    tl.to(queue, { height: 'auto', duration: 0.42, ease: 'power2.out' }, 0);
-    tl.to('.q-drag', { opacity: 1, duration: 0.35 }, 0.16);     // reorder handles appear at 2+
+    tl.call(() => {
+      // Pin the current height BEFORE inserting the row. The panel is sitting at
+      // height:auto, so showing the row resizes it instantly and the tween is then
+      // asked to go from that new height to the same height — nothing to
+      // interpolate, and the panel snaps open in one frame.
+      const from = queue.offsetHeight;
+      gsap.set(item, { display: 'flex' });
+      qCount.textContent = n + ' queued';
+      gsap.set(queue, { height: from });
+    });
+    tl.to(queue, { height: 'auto', duration: 0.52, ease: 'power2.inOut' }, 0);
+    tl.to('.q-drag', { opacity: 1, duration: 0.4, ease: 'power2.out' }, 0.3);   // handles appear at 2+
   }
-  tl.fromTo(item, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, '-=0.24');
-  tl.add(toastQueued(), '-=0.3');
+  // Fade only. The panel growing upward IS the movement — a y-offset on the row
+  // travels the other way at the same time, and at 2.88x scale those two opposing
+  // motions are what read as a stutter.
+  tl.to(item, { opacity: 1, duration: 0.4, ease: 'power2.out' }, 0.18);
+  tl.add(toastQueued(), 0.3);
   return tl;
 }
 function dequeue(n, left) {
   const item = document.getElementById('q' + n), tl = gsap.timeline();
   tl.to(item, { opacity: 0, y: -16, duration: 0.34, ease: 'power2.in' });
-  tl.call(() => { gsap.set(item, { display: 'none' }); qCount.textContent = left + ' queued'; });
+  tl.call(() => {
+    const from = queue.offsetHeight;                 // same pin as enqueue, in reverse
+    gsap.set(item, { display: 'none' });
+    qCount.textContent = left + ' queued';
+    gsap.set(queue, { height: from });
+  });
   if (left === 0) {
     tl.to('.q-drag', { opacity: 0, duration: 0.2 }, 0);
-    tl.to(queue, { height: 0, marginBottom: 0, opacity: 0, duration: 0.42, ease: 'power2.inOut' });
+    tl.to(queue, { height: 0, marginBottom: 0, opacity: 0, duration: 0.46, ease: 'power2.inOut' });
     tl.call(() => gsap.set(queue, { display: 'none' }));
   } else {
-    tl.to(queue, { height: 'auto', duration: 0.4, ease: 'power2.out' });
+    tl.to(queue, { height: 'auto', duration: 0.46, ease: 'power2.inOut' });
     tl.to('.q-drag', { opacity: 0, duration: 0.25 }, '<');      // one item left — nothing to reorder
   }
   return tl;
