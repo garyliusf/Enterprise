@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bolt Forge · Build 50× more</title>
+  <meta name="description" content="Bolt Forge gives you frontier-class open models inside Bolt — within 8.8 index points of Claude Opus 5, at a fraction of the cost. Included in every Pro plan." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="shared-nav-footer.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #000;
+      color: #fff;
+      min-height: 100vh;
+      /* clip (not hidden) — `overflow-x: hidden` on body makes it a scroll
+         container and kills the sticky navbar. See CLAUDE.md. */
+      overflow-x: hidden;
+      overflow-x: clip;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       LAYOUT — one content column, matched to .mkt-nav-inner so the page
+       aligns with the navbar logo / CTA edges (same rule as pricing.html)
+       ═══════════════════════════════════════════════════════════════════ */
+    .fg-wrap {
+      width: min(1200px, calc(100vw - 160px));
+      margin: 0 auto;
+    }
+    @media (max-width: 1024px) { .fg-wrap { width: min(900px, calc(100vw - 80px)); } }
+    @media (max-width: 768px)  { .fg-wrap { width: calc(100vw - 32px); } }
+
+    .fg-section { padding: clamp(80px, 12vh, 140px) 0; position: relative; }
+    @media (max-width: 1024px) { .fg-section { padding: 64px 0; } }
+    @media (max-width: 768px)  { .fg-section { padding: 48px 0; } }
+
+    /* Adjacent-section seams (CLAUDE.md): every section on this page is
+       black-on-black with no visual boundary, so a seam must total ~ONE
+       standard unit, not two. Trim the lower section's padding-top rather
+       than shrinking the shared .fg-section rule. */
+    .fg-hero + .fg-section { padding-top: clamp(24px, 4vh, 48px); }
+    .fg-section + .fg-section { padding-top: 0; }
+
+    /* Section header block — eyebrow / H2 / subtitle, centered */
+    .fg-head { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 18px; }
+    .fg-head .fg-sub {
+      font-size: clamp(15px, 1.1vw, 17px);
+      font-weight: 400;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.65;
+      max-width: 620px;
+    }
+    @media (max-width: 1024px) { .fg-head .fg-sub { font-size: 16px; } }
+    @media (max-width: 768px)  { .fg-head { gap: 14px; } .fg-head .fg-sub { font-size: 15px; } }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       HERO — short variant (H1 + subtitle + one CTA), per the canonical
+       simple-hero height rule in CLAUDE.md
+       ═══════════════════════════════════════════════════════════════════ */
+    .fg-hero {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      height: auto;
+      min-height: min(65vh, 720px);
+      min-height: min(65dvh, 720px);
+      padding-top: clamp(96px, 11vh, 140px);
+      padding-bottom: clamp(72px, 8vh, 112px);
+      overflow: hidden;
+    }
+    @media (max-width: 768px) {
+      .fg-hero { min-height: min(78dvh, 640px); padding: 72px 0 56px; }
+    }
+
+    /* ambient glow behind the headline */
+    .fg-hero-glow {
+      position: absolute;
+      top: -220px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(1100px, 130vw);
+      height: 760px;
+      pointer-events: none;
+      z-index: 0;
+      background: radial-gradient(ellipse at 50% 40%, rgba(20,136,252,0.16) 0%, rgba(20,136,252,0.05) 42%, transparent 70%);
+    }
+    #fg-hero-canvas {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      pointer-events: none; z-index: 0; opacity: 0.9;
+    }
+    .fg-hero-inner {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      max-width: 860px;
+      margin: 0 auto; /* the 860px stack is narrower than .fg-wrap — centre it */
+    }
+
+    .fg-hero h1 {
+      font-size: 66px;
+      font-weight: 500;
+      line-height: 1.1;
+      letter-spacing: normal;
+      color: #fff;
+      margin-top: 22px;
+    }
+    @media (max-width: 1024px) { .fg-hero h1 { font-size: 51px; } }
+    @media (max-width: 768px)  { .fg-hero h1 { font-size: clamp(37px, 10.45vw, 51px); margin-top: 18px; } }
+
+    .fg-hero-sub {
+      font-size: clamp(16px, 1.4vw, 20px);
+      font-weight: 400;
+      color: #ABABAB;
+      line-height: 1.4;
+      max-width: 560px;
+      margin-top: 18px;
+    }
+    @media (max-width: 1024px) { .fg-hero-sub { font-size: 18px; } }
+    @media (max-width: 768px)  { .fg-hero-sub { font-size: 16px; } }
+
+    /* --sub-to-cta token: 32px desktop / 24px mobile */
+    .fg-hero-cta { margin-top: var(--sub-to-cta, 32px); }
+    .fg-hero-note {
+      margin-top: 18px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.42);
+      line-height: 1.6;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       COST CALCULATOR — "For 1/5th the cost."
+       ═══════════════════════════════════════════════════════════════════ */
+    .fg-calc {
+      margin-top: 56px;
+      background: #0a0a0a;
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 2px;
+      padding: 36px 36px 32px;
+    }
+    @media (max-width: 768px) { .fg-calc { margin-top: 36px; padding: 24px 20px 22px; } }
+
+    .fg-calc-readout {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .fg-calc-value {
+      font-size: 44px;
+      font-weight: 500;
+      letter-spacing: -1.5px;
+      line-height: 1;
+      color: #fff;
+      font-variant-numeric: tabular-nums;
+    }
+    @media (max-width: 768px) { .fg-calc-value { font-size: 34px; letter-spacing: -1px; } }
+    .fg-calc-value-unit { font-size: 15px; font-weight: 400; letter-spacing: normal; color: rgba(255,255,255,0.5); margin-left: 8px; }
+    .fg-calc-label {
+      font-family: 'Silkscreen', monospace;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+    }
+    /* On phones the readout wraps, dropping this label between the token
+       count and the slider where it no longer labels the cost cards. */
+    @media (max-width: 640px) { .fg-calc-label { display: none; } }
+
+    /* range input — blue fill left of the thumb, hairline track right of it */
+    .fg-range {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 22px;
+      margin-top: 22px;
+      background: transparent;
+      cursor: pointer;
+      display: block;
+    }
+    .fg-range::-webkit-slider-runnable-track {
+      height: 4px;
+      border-radius: 2px;
+      background: linear-gradient(to right, #1488FC 0%, #1488FC var(--fill, 20%), rgba(255,255,255,0.12) var(--fill, 20%), rgba(255,255,255,0.12) 100%);
+    }
+    .fg-range::-moz-range-track { height: 4px; border-radius: 2px; background: rgba(255,255,255,0.12); }
+    .fg-range::-moz-range-progress { height: 4px; border-radius: 2px; background: #1488FC; }
+    .fg-range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px; height: 16px;
+      margin-top: -6px;
+      border-radius: 50%;
+      background: #fff;
+      border: 3px solid #1488FC;
+      box-shadow: 0 0 0 4px rgba(20,136,252,0.18);
+      transition: box-shadow 0.2s ease;
+    }
+    .fg-range::-moz-range-thumb {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: #fff;
+      border: 3px solid #1488FC;
+      box-shadow: 0 0 0 4px rgba(20,136,252,0.18);
+    }
+    .fg-range:hover::-webkit-slider-thumb { box-shadow: 0 0 0 7px rgba(20,136,252,0.22); }
+    .fg-range:focus { outline: none; }
+    .fg-range:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 7px rgba(20,136,252,0.45); }
+
+    /* Tick labels are positioned at their real slider percentage, not evenly
+       spaced — the token scale is exponential, so 1M sits at 48%, not 33%. */
+    .fg-range-scale {
+      position: relative;
+      height: 14px;
+      margin-top: 6px;
+      font-size: 11px;
+      font-variant-numeric: tabular-nums;
+      color: rgba(255,255,255,0.28);
+    }
+    .fg-range-scale span { position: absolute; top: 0; white-space: nowrap; }
+
+    /* the two cost cards under the slider */
+    .fg-cost-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 26px;
+    }
+    @media (max-width: 640px) { .fg-cost-grid { grid-template-columns: 1fr; } }
+
+    .fg-cost {
+      background: #0d0d0f;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 2px;
+      padding: 20px 22px 22px;
+    }
+    .fg-cost--forge {
+      background: linear-gradient(180deg, rgba(20,136,252,0.12) 0%, rgba(20,136,252,0.03) 100%), #0d0d0f;
+      border-color: rgba(20,136,252,0.32);
+    }
+    .fg-cost-name {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; font-weight: 500;
+      color: rgba(255,255,255,0.6);
+    }
+    .fg-cost--forge .fg-cost-name { color: #fff; }
+    .fg-cost-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.3); flex-shrink: 0; }
+    .fg-cost--forge .fg-cost-dot { background: #1488FC; }
+    .fg-cost-amount {
+      margin-top: 14px;
+      font-size: 38px;
+      font-weight: 500;
+      letter-spacing: -1.5px;
+      line-height: 1;
+      color: #fff;
+      font-variant-numeric: tabular-nums;
+    }
+    @media (max-width: 768px) { .fg-cost-amount { font-size: 32px; } }
+    .fg-cost-meta { margin-top: 10px; font-size: 12px; color: rgba(255,255,255,0.4); line-height: 1.5; }
+
+    .fg-calc-foot {
+      margin-top: 22px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.32);
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       PLANS — the pricing-page card component (.card / .plan-label /
+       .card-price / .features / .feature-item / .check-icon), lifted from
+       marketing/pricing.html so this page and /pricing render the same
+       component. Only the two-up grid + the Forge callout are local.
+       ═══════════════════════════════════════════════════════════════════ */
+    .fg-plans {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      margin-top: 52px;
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    @media (max-width: 860px) {
+      .fg-plans { grid-template-columns: 1fr; margin-top: 36px; }
+      .fg-plans .card { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.10); }
+      .fg-plans .card:last-child { border-bottom: none; }
+    }
+
+    .card {
+      --cd-pt: 32px;
+      --cd-px: 30px;
+      background: #0a0a0a;
+      padding: var(--cd-pt) var(--cd-px) 26px;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid rgba(255,255,255,0.10);
+      position: relative;
+      transition: box-shadow 0.3s ease;
+      overflow: hidden;
+    }
+    .card:last-child { border-right: none; }
+    .card > * { position: relative; z-index: 1; }
+    @media (max-width: 768px) { .card { --cd-pt: 24px; --cd-px: 20px; } }
+
+    /* Pro — the recommended card, blue-washed like the pricing page's Teams */
+    .card--pro {
+      background:
+        linear-gradient(180deg, rgba(20,136,252,0.16) 0%, rgba(20,136,252,0.05) 55%, rgba(20,136,252,0.10) 100%),
+        #0a0a0a;
+    }
+    .card--pro #fg-pro-canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.14; z-index: 0; pointer-events: none; }
+
+    .plan-label {
+      font-family: 'Inter', sans-serif;
+      font-size: 32px;
+      font-weight: 400;
+      letter-spacing: -0.5px;
+      line-height: 1.1;
+      color: #fff;
+      margin-bottom: 18px;
+      display: block;
+    }
+    @media (max-width: 768px) { .plan-label { font-size: 26px; } }
+
+    .plan-flag {
+      position: absolute;
+      top: var(--cd-pt);
+      right: var(--cd-px);
+      font-family: 'Silkscreen', monospace;
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #1488FC;
+      background: rgba(20,136,252,0.12);
+      border: 1px solid rgba(20,136,252,0.3);
+      border-radius: 2px;
+      padding: 5px 9px;
+      z-index: 2;
+    }
+
+    .card-price { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px; row-gap: 8px; margin-bottom: 12px; min-height: 30px; }
+    .price-amount { font-size: 34px; font-weight: 500; color: #fff; letter-spacing: -1px; line-height: 1; font-variant-numeric: tabular-nums; }
+    .price-prefix { font-size: 15px; font-weight: 400; color: rgba(255,255,255,0.55); }
+    .price-period { font-size: 13px; white-space: nowrap; color: rgba(255,255,255,0.55); }
+    .price-note { margin: 0; min-height: 36px; }
+    .price-total { font-size: 13px; font-variant-numeric: tabular-nums; line-height: 1.5; color: rgba(255,255,255,0.55); }
+
+    .card .card-cta { width: 100%; margin: 20px 0 22px; }
+    .card-description { font-size: 14px; color: #fff; line-height: 1.6; }
+    .divider { border: none; border-top: 1px solid rgba(255,255,255,0.09); margin: 24px 0; }
+
+    /* the "Bolt Forge included free" highlight inside the Pro card */
+    .fg-included {
+      border: 1px solid rgba(20,136,252,0.35);
+      background: rgba(20,136,252,0.07);
+      border-radius: 2px;
+      padding: 14px 16px;
+      display: flex;
+      gap: 11px;
+      align-items: flex-start;
+    }
+    .fg-included svg { flex-shrink: 0; width: 13px; height: 13px; color: #1488FC; margin-top: 3px; }
+    .fg-included-title { font-size: 14px; font-weight: 600; color: #fff; line-height: 1.4; }
+    .fg-included-body { margin-top: 5px; font-size: 13px; color: rgba(255,255,255,0.55); line-height: 1.5; }
+
+    .features { list-style: none; display: flex; flex-direction: column; gap: 9px; margin-top: 4px; }
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.45;
+    }
+    .check-icon { flex-shrink: 0; margin-top: 3px; width: 13px; height: 13px; color: rgba(255,255,255,0.35); }
+    .card--pro .check-icon { color: rgba(20,136,252,0.85); }
+    .card--pro .feature-item { color: rgba(255,255,255,0.68); }
+
+    .fg-plans-foot { margin-top: 22px; text-align: center; font-size: 13px; color: rgba(255,255,255,0.4); line-height: 1.6; }
+    .fg-plans-foot a { color: rgba(255,255,255,0.7); border-bottom: 1px solid rgba(255,255,255,0.25); text-decoration: none; transition: color .2s ease, border-color .2s ease; }
+    .fg-plans-foot a:hover { color: #fff; border-bottom-color: rgba(255,255,255,0.6); }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       BENCHMARK CHARTS
+       ═══════════════════════════════════════════════════════════════════ */
+    .fg-bench-h2 { max-width: 900px; }
+    .fg-charts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      margin-top: 52px;
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    @media (max-width: 860px) {
+      .fg-charts { grid-template-columns: 1fr; margin-top: 36px; }
+      .fg-chart { border-right: none !important; border-bottom: 1px solid rgba(255,255,255,0.10); }
+      .fg-chart:last-child { border-bottom: none; }
+    }
+    .fg-chart {
+      background: #0a0a0a;
+      border-right: 1px solid rgba(255,255,255,0.10);
+      padding: 28px 30px 26px;
+    }
+    @media (max-width: 768px) { .fg-chart { padding: 22px 20px 20px; } }
+    .fg-chart:last-child { border-right: none; }
+
+    .fg-chart-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .fg-chart-title { font-family: 'Silkscreen', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #1488FC; }
+    .fg-chart-unit { font-size: 11px; color: rgba(255,255,255,0.32); }
+
+    /* plot area — bars grow from a baseline rule; heights come from --h */
+    .fg-plot {
+      margin-top: 26px;
+      height: 200px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: end;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      padding: 0 12px;
+    }
+    @media (max-width: 768px) { .fg-plot { height: 168px; gap: 24px; } }
+    .fg-bar-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+    .fg-bar-value { font-size: 15px; font-weight: 600; color: #fff; font-variant-numeric: tabular-nums; margin-bottom: 8px; }
+    .fg-bar {
+      width: 100%;
+      max-width: 96px;
+      height: 0;
+      background: rgba(255,255,255,0.14);
+      border-radius: 2px 2px 0 0;
+      transition: height 1s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .fg-bar--forge { background: linear-gradient(180deg, #1488FC 0%, #0f6fd0 100%); }
+    .fg-charts.is-plotted .fg-bar { height: var(--h); }
+    .fg-bar-label { margin-top: 12px; font-size: 12px; color: rgba(255,255,255,0.5); text-align: center; line-height: 1.4; }
+    .fg-bar-label strong { display: block; font-weight: 500; color: rgba(255,255,255,0.8); }
+
+    .fg-bench-callout {
+      margin-top: 22px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid rgba(20,136,252,0.35);
+      background: rgba(20,136,252,0.06);
+      border-radius: 2px;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.72);
+      text-decoration: none;
+      transition: border-color .25s ease, background .25s ease, color .25s ease;
+    }
+    .fg-bench-callout:hover { border-color: rgba(20,136,252,0.7); background: rgba(20,136,252,0.12); color: #fff; }
+    .fg-bench-callout svg { width: 13px; height: 13px; color: #1488FC; flex-shrink: 0; }
+    .fg-bench-foot { margin-top: 20px; font-size: 12px; color: rgba(255,255,255,0.3); line-height: 1.65; max-width: 820px; }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       "We pass these savings to you" — 3 columns
+       ═══════════════════════════════════════════════════════════════════ */
+    .fg-why-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      margin-top: 52px;
+      border-top: 1px solid rgba(255,255,255,0.10);
+    }
+    @media (max-width: 860px) { .fg-why-grid { grid-template-columns: 1fr; margin-top: 36px; } }
+    .fg-why {
+      padding: 30px 32px 34px;
+      border-right: 1px solid rgba(255,255,255,0.10);
+    }
+    .fg-why:last-child { border-right: none; }
+    @media (max-width: 860px) {
+      .fg-why { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.10); padding: 26px 0 28px; }
+      .fg-why:last-child { border-bottom: none; }
+    }
+    .fg-why-title { font-size: 18px; font-weight: 600; color: #fff; line-height: 1.35; letter-spacing: -0.2px; }
+    .fg-why-body { margin-top: 12px; font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.65; }
+
+    /* ── Footer CTA + bolt wordmark (same rules as pricing.html) ── */
+    .footer-section { background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-sizing: border-box; width: 100%; }
+    .bolt-image-wrap { margin-top: 0; width: 100%; overflow: hidden; position: relative; height: 32vw; max-height: 32vw; }
+    .bolt-image-wrap img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; opacity: 0.22; }
+    #bolt-shimmer-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; mix-blend-mode: screen; }
+    .site-footer-divider { width: 100%; max-width: 1200px; margin: 0 auto; border-top: 1px solid rgba(255,255,255,0.2); }
+
+    /* shared-components.css full-bleeds the wordmark with `width: 100vw` at
+       <=768px. 100vw counts the scrollbar, which pushed ~7px of horizontal
+       scroll onto this page. .footer-image-section is already full-width, so
+       100% is the correct measure here. Higher specificity than shared's
+       `.bolt-image-wrap { ... !important }`, which loads after this block. */
+    .footer-image-section .bolt-image-wrap { width: 100% !important; margin-left: 0 !important; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .fg-bar { transition: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── NAVBAR ────────────────────────────────────────────────────────────── -->
+<nav class="mkt-nav" aria-label="Primary">
+  <div class="mkt-nav-inner">
+    <!-- Nav-bar Back button — only appears on mobile when a submenu is active (JS toggles .is-on-submenu on .mkt-nav). Replaces the logo in the same slot. -->
+    <button class="mkt-nav-back" data-mobile-back aria-label="Back to main menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+      Back
+    </button>
+    <a href="../" class="mkt-nav-logo" aria-label="bolt.new home">
+      <!-- Canonical bolt.new wordmark (from images/bolt-new.svg) — inlined so the nav renders without an extra network request. -->
+      <svg viewBox="0 0 85 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M26.1121 20.9491C21.0582 20.9491 18.4869 17.9995 18.4869 14.3126C18.4869 9.9472 21.9744 5.99476 27.0283 5.99476C32.0822 5.99476 34.6535 8.94434 34.6535 12.6313C34.6535 16.9967 31.166 20.9491 26.1121 20.9491ZM26.319 16.2593C28.0923 16.2593 29.2154 14.6665 29.2154 12.8968C29.2154 11.481 28.2992 10.6846 26.8214 10.6846C25.0481 10.6846 23.925 12.2774 23.925 14.0471C23.925 15.4629 24.8412 16.2593 26.319 16.2593Z" fill="#fff"/>
+        <path d="M40.0368 20.5952H34.717L39.0615 0.921487H44.3814L40.0368 20.5952Z" fill="#fff"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M10.4272 20.9491C8.80168 20.9491 7.20572 20.3592 6.28951 19.0909L5.96635 20.5867L0 23.75L0.644095 20.5867L4.9891 0.921487H10.309L8.77213 7.853C10.0134 6.49619 11.1661 5.99476 12.6438 5.99476C15.8358 5.99476 17.9637 8.08896 17.9637 11.9234C17.9637 15.8758 15.5107 20.9491 10.4272 20.9491ZM12.4665 13.0443C12.4665 14.873 11.1661 16.2593 9.48145 16.2593C8.53569 16.2593 7.6786 15.9053 7.11705 15.2859L7.94459 11.658C8.56524 11.0385 9.27456 10.6846 10.1021 10.6846C11.373 10.6846 12.4665 11.6285 12.4665 13.0443Z" fill="#fff"/>
+        <path d="M49.9163 20.9491C46.8426 20.9491 44.6555 19.8283 44.6555 17.3506C44.6555 17.1442 44.6851 16.6427 44.7737 16.2298L45.9264 10.9501H43.562L44.5964 6.34871H46.9608L47.8179 2.45527L53.7735 0L53.1378 2.46127L52.2807 6.34871H55.1771L54.1426 10.9501H51.2462L50.4778 14.4306C50.4187 14.696 50.3892 14.991 50.3892 15.109C50.3892 15.7874 50.8029 16.2593 51.7191 16.2593C51.9851 16.2593 52.3693 16.1708 52.458 16.1118V20.3592C51.8965 20.7427 50.8916 20.9491 49.9163 20.9491Z" fill="#fff"/>
+        <path d="M56.461 21.0087C55.7527 21.0087 55.1886 20.4196 55.1886 19.7127C55.1886 18.8879 55.897 18.1941 56.7234 18.1941C57.4317 18.1941 57.9958 18.7832 57.9958 19.4901C57.9958 20.3149 57.2875 21.0087 56.461 21.0087Z" fill="#fff"/>
+        <path d="M65.3576 20.8386H62.9964L63.7309 17.5133C63.7572 17.3955 63.8097 17.186 63.8097 17.0289C63.8097 16.5969 63.4292 16.4398 63.0488 16.4398C62.5372 16.4398 62.183 16.7016 61.9338 16.9242L61.068 20.8386H58.7068L60.1104 14.5153H62.4716L62.3011 15.2354C62.7602 14.8164 63.3374 14.3582 64.295 14.3582C65.6199 14.3582 66.3807 15.0783 66.3807 16.0209C66.3807 16.1256 66.3414 16.4136 66.3151 16.5314L65.3576 20.8386Z" fill="#fff"/>
+        <path d="M70.256 20.9956C68.2096 20.9956 66.7929 19.9745 66.7929 18.1155C66.7929 16.0994 68.3408 14.3582 70.5577 14.3582C72.1319 14.3582 73.5223 15.3139 73.5223 17.2384C73.5223 17.6704 73.4436 18.1679 73.3781 18.4035H69.1279V18.4166C69.1279 18.5083 69.5083 19.2021 70.4265 19.2021C70.925 19.2021 71.5153 19.0843 71.8039 18.8879L72.5254 20.4196C71.8826 20.8255 71.0169 20.9956 70.256 20.9956ZM69.3509 16.9111H71.4366V16.8718C71.4366 16.6885 71.2136 16.1518 70.4659 16.1518C69.8363 16.1518 69.4296 16.6362 69.3509 16.9111Z" fill="#fff"/>
+        <path d="M81.7599 20.8386H79.1888L78.9265 17.3038L77.1293 20.8386H74.5582L74.1254 14.5153H76.4866L76.5521 17.9977L78.4411 14.5153H80.5531L80.881 17.9977L82.4945 14.5153H85L81.7599 20.8386Z" fill="#fff"/>
+      </svg>
+    </a>
+
+    <ul class="mkt-nav-items">
+      <li data-menu="platform">
+        <button class="mkt-nav-link" data-menu="platform" aria-haspopup="true" aria-expanded="false">
+          Platform
+          <svg class="mkt-nav-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </li>
+      <li data-menu="solutions">
+        <button class="mkt-nav-link" data-menu="solutions" aria-haspopup="true" aria-expanded="false">
+          Solutions
+          <svg class="mkt-nav-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </li>
+      <li data-menu="resources">
+        <button class="mkt-nav-link" data-menu="resources" aria-haspopup="true" aria-expanded="false">
+          Resources
+          <svg class="mkt-nav-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </li>
+      <li><a href="pricing.html" class="mkt-nav-link">Pricing</a></li>
+    </ul>
+
+    <div class="mkt-nav-right">
+      <div class="mkt-nav-actions">
+        <a href="https://bolt.new/signin" class="mkt-nav-signin">Sign in</a>
+        <a href="https://bolt.new/" target="_blank" rel="noopener" class="mkt-nav-cta hero-btn-primary">
+          <div class="btn-bg-hover"></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Started</span><span>Get Started</span></div></div>
+        </a>
+      </div>
+      <button class="mkt-nav-burger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mega panels — one per top-level menu, JS toggles .is-open on the matching data-panel -->
+  <div class="mkt-nav-panel" data-panel="platform" aria-hidden="true">
+    <div class="mkt-nav-panel-inner">
+      <a href="https://garyliusf.github.io/Enterprise/solutions/smb/" class="mkt-nav-panel-feature">
+        <div class="mkt-nav-panel-feature-visual" aria-hidden="true"></div>
+        <p class="mkt-nav-panel-feature-eyebrow">Featured</p>
+        <p class="mkt-nav-panel-feature-title">AI for Small Business</p>
+        <p class="mkt-nav-panel-feature-desc">Custom apps for your business, built in an afternoon — no code, no developer, no $100K project.</p>
+      </a>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Product Overview</p>
+        <a href="https://garyliusf.github.io/Enterprise/marketing/solutions.html">Platform</a>
+        <a href="https://bolt.new/platform/security">Security &amp; Trust</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="mkt-nav-panel" data-panel="solutions" aria-hidden="true">
+    <div class="mkt-nav-panel-inner">
+      <a href="https://bolt.new/blog/introducing-bolt-slides" class="mkt-nav-panel-feature">
+        <div class="mkt-nav-panel-feature-visual" aria-hidden="true"></div>
+        <p class="mkt-nav-panel-feature-eyebrow">Featured</p>
+        <p class="mkt-nav-panel-feature-title">Bolt Slides</p>
+        <p class="mkt-nav-panel-feature-desc">An AI deck builder that turns a prompt into a live, interactive presentation — shareable by link, no account needed.</p>
+      </a>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Top Use Cases</p>
+        <a href="https://bolt.new/use-cases/ai-app-builder">AI App Builder</a>
+        <a href="https://bolt.new/use-cases/ai-website-builder">AI Website Builder</a>
+        <a href="https://bolt.new/use-cases/custom-crm-software">SaaS Dev</a>
+        <a href="https://bolt.new/use-cases/ai-prototyping-tools">Prototyping</a>
+      </div>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Business Type</p>
+        <a href="https://garyliusf.github.io/Enterprise/solutions/smb/">Small Business</a>
+        <a href="https://bolt.new/enterprise">Enterprise</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="mkt-nav-panel" data-panel="resources" aria-hidden="true">
+    <div class="mkt-nav-panel-inner">
+      <a href="https://bolt.new/resources/templates" class="mkt-nav-panel-feature">
+        <div class="mkt-nav-panel-feature-visual" aria-hidden="true"></div>
+        <p class="mkt-nav-panel-feature-eyebrow">Featured collection</p>
+        <p class="mkt-nav-panel-feature-title">Bolt Templates</p>
+        <p class="mkt-nav-panel-feature-desc">Production-ready starting points — dashboards, storefronts, portfolios, and more. Fork one and make it yours.</p>
+      </a>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Support</p>
+        <a href="https://discord.com/invite/stackblitz" target="_blank" rel="noopener">Community</a>
+        <a href="https://support.bolt.new/" target="_blank" rel="noopener">Help Center</a>
+      </div>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Build and Learn</p>
+        <a href="https://bolt.new/resources/templates">Templates</a>
+        <a href="https://bolt.new/blog">Blog</a>
+      </div>
+    </div>
+  </div>
+</nav>
+<div class="mkt-nav-scrim" aria-hidden="true"></div>
+
+<!-- Mobile drawer — full-screen slide-in sheet with drill-down. Only rendered on ≤1024px via CSS. -->
+<div class="mkt-nav-mobile" id="mkt-nav-mobile" aria-hidden="true" role="dialog" aria-label="Menu">
+  <div class="mkt-nav-mobile-header">
+    <!-- Left slot swaps: logo on home view, Back on submenu views. Both live in the DOM; JS toggles which is visible via a class on the drawer. -->
+    <a href="../" class="mkt-nav-logo" aria-label="bolt.new home" data-mobile-role="logo">
+      <svg viewBox="0 0 85 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M26.1121 20.9491C21.0582 20.9491 18.4869 17.9995 18.4869 14.3126C18.4869 9.9472 21.9744 5.99476 27.0283 5.99476C32.0822 5.99476 34.6535 8.94434 34.6535 12.6313C34.6535 16.9967 31.166 20.9491 26.1121 20.9491ZM26.319 16.2593C28.0923 16.2593 29.2154 14.6665 29.2154 12.8968C29.2154 11.481 28.2992 10.6846 26.8214 10.6846C25.0481 10.6846 23.925 12.2774 23.925 14.0471C23.925 15.4629 24.8412 16.2593 26.319 16.2593Z" fill="#fff"/>
+        <path d="M40.0368 20.5952H34.717L39.0615 0.921487H44.3814L40.0368 20.5952Z" fill="#fff"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M10.4272 20.9491C8.80168 20.9491 7.20572 20.3592 6.28951 19.0909L5.96635 20.5867L0 23.75L0.644095 20.5867L4.9891 0.921487H10.309L8.77213 7.853C10.0134 6.49619 11.1661 5.99476 12.6438 5.99476C15.8358 5.99476 17.9637 8.08896 17.9637 11.9234C17.9637 15.8758 15.5107 20.9491 10.4272 20.9491ZM12.4665 13.0443C12.4665 14.873 11.1661 16.2593 9.48145 16.2593C8.53569 16.2593 7.6786 15.9053 7.11705 15.2859L7.94459 11.658C8.56524 11.0385 9.27456 10.6846 10.1021 10.6846C11.373 10.6846 12.4665 11.6285 12.4665 13.0443Z" fill="#fff"/>
+        <path d="M49.9163 20.9491C46.8426 20.9491 44.6555 19.8283 44.6555 17.3506C44.6555 17.1442 44.6851 16.6427 44.7737 16.2298L45.9264 10.9501H43.562L44.5964 6.34871H46.9608L47.8179 2.45527L53.7735 0L53.1378 2.46127L52.2807 6.34871H55.1771L54.1426 10.9501H51.2462L50.4778 14.4306C50.4187 14.696 50.3892 14.991 50.3892 15.109C50.3892 15.7874 50.8029 16.2593 51.7191 16.2593C51.9851 16.2593 52.3693 16.1708 52.458 16.1118V20.3592C51.8965 20.7427 50.8916 20.9491 49.9163 20.9491Z" fill="#fff"/>
+        <path d="M56.461 21.0087C55.7527 21.0087 55.1886 20.4196 55.1886 19.7127C55.1886 18.8879 55.897 18.1941 56.7234 18.1941C57.4317 18.1941 57.9958 18.7832 57.9958 19.4901C57.9958 20.3149 57.2875 21.0087 56.461 21.0087Z" fill="#fff"/>
+        <path d="M65.3576 20.8386H62.9964L63.7309 17.5133C63.7572 17.3955 63.8097 17.186 63.8097 17.0289C63.8097 16.5969 63.4292 16.4398 63.0488 16.4398C62.5372 16.4398 62.183 16.7016 61.9338 16.9242L61.068 20.8386H58.7068L60.1104 14.5153H62.4716L62.3011 15.2354C62.7602 14.8164 63.3374 14.3582 64.295 14.3582C65.6199 14.3582 66.3807 15.0783 66.3807 16.0209C66.3807 16.1256 66.3414 16.4136 66.3151 16.5314L65.3576 20.8386Z" fill="#fff"/>
+        <path d="M70.256 20.9956C68.2096 20.9956 66.7929 19.9745 66.7929 18.1155C66.7929 16.0994 68.3408 14.3582 70.5577 14.3582C72.1319 14.3582 73.5223 15.3139 73.5223 17.2384C73.5223 17.6704 73.4436 18.1679 73.3781 18.4035H69.1279V18.4166C69.1279 18.5083 69.5083 19.2021 70.4265 19.2021C70.925 19.2021 71.5153 19.0843 71.8039 18.8879L72.5254 20.4196C71.8826 20.8255 71.0169 20.9956 70.256 20.9956ZM69.3509 16.9111H71.4366V16.8718C71.4366 16.6885 71.2136 16.1518 70.4659 16.1518C69.8363 16.1518 69.4296 16.6362 69.3509 16.9111Z" fill="#fff"/>
+        <path d="M81.7599 20.8386H79.1888L78.9265 17.3038L77.1293 20.8386H74.5582L74.1254 14.5153H76.4866L76.5521 17.9977L78.4411 14.5153H80.5531L80.881 17.9977L82.4945 14.5153H85L81.7599 20.8386Z" fill="#fff"/>
+      </svg>
+    </a>
+    <button class="mkt-nav-mobile-back" data-back hidden aria-label="Back to menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+      BACK
+    </button>
+    <button class="mkt-nav-mobile-close" aria-label="Close menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+    </button>
+  </div>
+
+  <div class="mkt-nav-mobile-body">
+    <!-- Home view — top-level items -->
+    <div class="mkt-nav-mobile-view" data-view="home">
+      <button class="mkt-nav-mobile-item" data-drill="platform">
+        Platform
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <button class="mkt-nav-mobile-item" data-drill="solutions">
+        Solutions
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <button class="mkt-nav-mobile-item" data-drill="resources">
+        Resources
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <a class="mkt-nav-mobile-item" href="pricing.html">Pricing</a>
+    </div>
+
+    <!-- Platform submenu -->
+    <div class="mkt-nav-mobile-view" data-view="platform">
+      <a href="https://garyliusf.github.io/Enterprise/solutions/smb/" class="mkt-nav-mobile-feature">
+        <p class="mkt-nav-mobile-feature-title">AI for Small Business →</p>
+        <p class="mkt-nav-mobile-feature-desc">Custom apps for your business, built in an afternoon — no code, no developer, no $100K project.</p>
+      </a>
+      <p class="mkt-nav-mobile-heading">Product Overview</p>
+      <div class="mkt-nav-mobile-links">
+        <a href="https://garyliusf.github.io/Enterprise/marketing/solutions.html">Platform</a>
+        <a href="https://bolt.new/platform/security">Security &amp; Trust</a>
+      </div>
+    </div>
+
+    <!-- Solutions submenu -->
+    <div class="mkt-nav-mobile-view" data-view="solutions">
+      <a href="https://bolt.new/blog/introducing-bolt-slides" class="mkt-nav-mobile-feature">
+        <p class="mkt-nav-mobile-feature-title">Bolt Slides →</p>
+        <p class="mkt-nav-mobile-feature-desc">An AI deck builder that turns a prompt into a live, interactive presentation — shareable by link, no account needed.</p>
+      </a>
+      <p class="mkt-nav-mobile-heading">Top Use Cases</p>
+      <div class="mkt-nav-mobile-links">
+        <a href="https://bolt.new/use-cases/ai-app-builder">AI App Builder</a>
+        <a href="https://bolt.new/use-cases/ai-website-builder">AI Website Builder</a>
+        <a href="https://bolt.new/use-cases/custom-crm-software">SaaS Dev</a>
+        <a href="https://bolt.new/use-cases/ai-prototyping-tools">Prototyping</a>
+      </div>
+      <p class="mkt-nav-mobile-heading">Business Type</p>
+      <div class="mkt-nav-mobile-links">
+        <a href="https://garyliusf.github.io/Enterprise/solutions/smb/">Small Business</a>
+        <a href="https://bolt.new/enterprise">Enterprise</a>
+      </div>
+    </div>
+
+    <!-- Resources submenu -->
+    <div class="mkt-nav-mobile-view" data-view="resources">
+      <a href="https://bolt.new/resources/templates" class="mkt-nav-mobile-feature">
+        <p class="mkt-nav-mobile-feature-title">Bolt Templates →</p>
+        <p class="mkt-nav-mobile-feature-desc">Production-ready starting points — dashboards, storefronts, portfolios, and more. Fork one and make it yours.</p>
+      </a>
+      <p class="mkt-nav-mobile-heading">Support</p>
+      <div class="mkt-nav-mobile-links">
+        <a href="https://discord.com/invite/stackblitz" target="_blank" rel="noopener">Community</a>
+        <a href="https://support.bolt.new/" target="_blank" rel="noopener">Help Center</a>
+      </div>
+      <p class="mkt-nav-mobile-heading">Build and Learn</p>
+      <div class="mkt-nav-mobile-links">
+        <a href="https://bolt.new/resources/templates">Templates</a>
+        <a href="https://bolt.new/blog">Blog</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="mkt-nav-mobile-footer">
+    <a href="https://bolt.new/" target="_blank" rel="noopener" class="hero-btn-primary">
+      <div class="btn-bg-hover"></div>
+      <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Started</span><span>Get Started</span></div></div>
+    </a>
+    <a href="https://bolt.new/signin" class="mkt-nav-mobile-signin">Sign in</a>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     HERO — "Build 50× more"
+     Above the fold, so the H1 is NOT wrapped in .dsa-reveal (CLAUDE.md).
+     ═══════════════════════════════════════════════════════════════════════ -->
+<section class="fg-hero">
+  <div class="fg-hero-glow"></div>
+  <canvas id="fg-hero-canvas"></canvas>
+  <div class="fg-wrap">
+    <div class="fg-hero-inner">
+      <p class="section-eyebrow eyebrow-scramble">Bolt Forge</p>
+      <h1>Build 50&times; more</h1>
+      <p class="fg-hero-sub">Access the frontier of open models with Bolt Forge.</p>
+      <div class="fg-hero-cta">
+        <a href="https://bolt.new" target="_blank" rel="noopener" class="hero-btn-primary">
+          <div class="btn-bg-hover"></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Start Building</span><span>Start Building</span></div></div>
+        </a>
+      </div>
+      <p class="fg-hero-note">Included in every Pro plan &mdash; no extra bill, no model shopping.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     COST — "For 1/5th the cost."
+     First section after the hero: H2 renders statically, no .dsa-reveal
+     (first-section rule, CLAUDE.md).
+     ═══════════════════════════════════════════════════════════════════════ -->
+<section class="fg-section" id="cost">
+  <div class="fg-wrap">
+    <div class="fg-head">
+      <h2 class="sc-section-h2">For 1/5th the cost.</h2>
+      <p class="fg-sub">Drag to size a month of building. The same work, priced on the frontier model and on Forge.</p>
+    </div>
+
+    <div class="fg-calc">
+      <div class="fg-calc-readout">
+        <div>
+          <span class="fg-calc-value" id="fg-tokens">250K</span><span class="fg-calc-value-unit">output tokens / month</span>
+        </div>
+        <span class="fg-calc-label">Estimated spend</span>
+      </div>
+
+      <input class="fg-range" id="fg-slider" type="range"
+             min="0" max="100" value="26" step="1"
+             aria-label="Output tokens per month"
+             aria-valuetext="250 thousand output tokens per month" />
+      <div class="fg-range-scale" aria-hidden="true">
+        <span style="left:0;">50K</span>
+        <span style="left:48.2%;transform:translateX(-50%);">1M</span>
+        <span style="left:74.1%;transform:translateX(-50%);">5M</span>
+        <span style="right:0;">25M</span>
+      </div>
+
+      <div class="fg-cost-grid">
+        <div class="fg-cost">
+          <div class="fg-cost-name"><span class="fg-cost-dot"></span>Claude Opus 5</div>
+          <div class="fg-cost-amount" id="fg-cost-frontier">$0.72</div>
+          <p class="fg-cost-meta">$2.88 per million output tokens</p>
+        </div>
+        <div class="fg-cost fg-cost--forge">
+          <div class="fg-cost-name"><span class="fg-cost-dot"></span>Bolt Forge</div>
+          <div class="fg-cost-amount" id="fg-cost-forge">$0.12</div>
+          <p class="fg-cost-meta">$0.48 per million output tokens</p>
+        </div>
+      </div>
+
+      <p class="fg-calc-foot">Illustrative list rates for output tokens, shown before the Forge allowance included in your plan. Your bill depends on how much of that allowance you use.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     PLANS — the /pricing card component, two-up
+     ═══════════════════════════════════════════════════════════════════════ -->
+<section class="fg-section" id="plans">
+  <div class="fg-wrap">
+    <div class="fg-head dsa-reveal">
+      <h2 class="sc-section-h2" style="max-width:820px;">Get started today with 50&times; more Bolt Forge usage in every Pro plan</h2>
+    </div>
+    <div class="fg-head" style="margin-top:18px;">
+      <p class="fg-sub">Every token you buy is yours to spend on any model. Forge just makes each one go a lot further.</p>
+    </div>
+
+    <div class="fg-plans">
+
+      <!-- Forge standalone -->
+      <div class="card">
+        <span class="plan-label">Forge</span>
+        <div class="card-price">
+          <span class="price-amount">$9</span>
+          <span class="price-period">/month</span>
+        </div>
+        <div class="price-note">
+          <p class="price-total">Billed monthly, cancel anytime</p>
+        </div>
+        <a href="https://bolt.new" target="_blank" rel="noopener" class="hero-btn-ghost card-cta">
+          <div class="btn-bg-hover"></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Started</span><span>Get Started</span></div></div>
+        </a>
+
+        <p class="card-description">Forge on its own. Open models, Bolt&rsquo;s runtime, one flat price.</p>
+
+        <hr class="divider" />
+
+        <ul class="features">
+          <li class="feature-item">
+            <svg class="check-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            25M Forge tokens/month
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            Public and private projects
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            Unlimited databases
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            Website hosting
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            Bolt branding on websites
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            Frontier models available at list rates
+          </li>
+        </ul>
+      </div>
+
+      <!-- Pro — Forge included -->
+      <div class="card card--pro">
+        <canvas id="fg-pro-canvas"></canvas>
+        <span class="plan-flag">Recommended</span>
+        <span class="plan-label">Pro</span>
+        <div class="card-price">
+          <span class="price-prefix">From</span>
+          <span class="price-amount">$25</span>
+          <span class="price-period">/month</span>
+        </div>
+        <div class="price-note">
+          <p class="price-total">Billed yearly &mdash; <strong>save up to 28%</strong></p>
+        </div>
+        <a href="https://bolt.new" target="_blank" rel="noopener" class="hero-btn-primary card-cta">
+          <div class="btn-bg-hover"></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Try Pro Today</span><span>Try Pro Today</span></div></div>
+        </a>
+
+        <div class="fg-included">
+          <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges" aria-hidden="true"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+          <div>
+            <p class="fg-included-title">Bolt Forge included free</p>
+            <p class="fg-included-body">Your whole token allowance goes 50&times; further on Forge &mdash; on top of everything Pro already gives you.</p>
+          </div>
+        </div>
+
+        <hr class="divider" />
+
+        <ul class="features">
+          <li class="feature-item">
+            <svg class="check-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            10M tokens/month, rollover included
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            Expanded database capacity
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            Choice of database provider
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            Your own domain, no Bolt branding
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            Access to the newest AI models
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            Connectors and MCPs
+          </li>
+          <li class="feature-item">
+            <svg class="check-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+            SEO boosting
+          </li>
+        </ul>
+      </div>
+
+    </div>
+
+    <p class="fg-plans-foot">Teams and Organization plans include Forge too. <a href="pricing.html">See the full plan comparison</a></p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     BENCHMARKS
+     ═══════════════════════════════════════════════════════════════════════ -->
+<section class="fg-section" id="benchmarks">
+  <div class="fg-wrap">
+    <div class="fg-head dsa-reveal">
+      <h2 class="sc-section-h2 fg-bench-h2">Bolt Forge models score within 8.8 index points of Claude Opus 5 &mdash; at 5.8&times; less cost.</h2>
+    </div>
+
+    <div class="fg-charts" id="fg-charts">
+      <div class="fg-chart">
+        <div class="fg-chart-head">
+          <span class="fg-chart-title">Capability</span>
+          <span class="fg-chart-unit">Bolt build index, higher is better</span>
+        </div>
+        <div class="fg-plot">
+          <div class="fg-bar-col">
+            <span class="fg-bar-value">92.2</span>
+            <div class="fg-bar fg-bar--forge" style="--h: 87%;"></div>
+          </div>
+          <div class="fg-bar-col">
+            <span class="fg-bar-value">101.0</span>
+            <div class="fg-bar" style="--h: 95%;"></div>
+          </div>
+        </div>
+        <div class="fg-plot" style="height:auto;margin-top:0;border:none;align-items:start;">
+          <p class="fg-bar-label"><strong>Bolt Forge</strong>open models</p>
+          <p class="fg-bar-label"><strong>Claude Opus 5</strong>frontier</p>
+        </div>
+      </div>
+
+      <div class="fg-chart">
+        <div class="fg-chart-head">
+          <span class="fg-chart-title">Cost to run</span>
+          <span class="fg-chart-unit">USD per million output tokens, lower is better</span>
+        </div>
+        <div class="fg-plot">
+          <div class="fg-bar-col">
+            <span class="fg-bar-value">$0.62</span>
+            <div class="fg-bar fg-bar--forge" style="--h: 16%;"></div>
+          </div>
+          <div class="fg-bar-col">
+            <span class="fg-bar-value">$3.60</span>
+            <div class="fg-bar" style="--h: 95%;"></div>
+          </div>
+        </div>
+        <div class="fg-plot" style="height:auto;margin-top:0;border:none;align-items:start;">
+          <p class="fg-bar-label"><strong>Bolt Forge</strong>open models</p>
+          <p class="fg-bar-label"><strong>Claude Opus 5</strong>frontier</p>
+        </div>
+      </div>
+    </div>
+
+    <a class="fg-bench-callout" href="#methodology">
+      <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges" aria-hidden="true"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
+      How to read this: benchmark, methodology and sources
+    </a>
+
+    <p class="fg-bench-foot" id="methodology">The Bolt build index is a blended score across code generation, multi-file edits, tool use and instruction following, measured on real Bolt project traces rather than public leaderboards. Cost is the list rate per million output tokens at the time of testing. Scores move as models ship &mdash; we re-run the index every release and publish the deltas.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     WHY IT'S CHEAPER
+     ═══════════════════════════════════════════════════════════════════════ -->
+<section class="fg-section" id="savings">
+  <div class="fg-wrap">
+    <div class="fg-head dsa-reveal">
+      <h2 class="sc-section-h2">We pass these savings to you</h2>
+    </div>
+    <div class="fg-head" style="margin-top:18px;">
+      <p class="fg-sub">Running open models on our own capacity costs us less than renting frontier inference. That difference lands in your token balance, not our margin.</p>
+    </div>
+
+    <div class="fg-why-grid">
+      <div class="fg-why">
+        <h3 class="fg-why-title">Dedicated capacity</h3>
+        <p class="fg-why-body">We run Forge on reserved GPU capacity instead of paying per-call API rates. Fixed cost, predictable throughput, and none of the per-token markup that gets passed down a rental chain.</p>
+      </div>
+      <div class="fg-why">
+        <h3 class="fg-why-title">Trained on millions of real builds</h3>
+        <p class="fg-why-body">Forge models are tuned on the work Bolt actually does &mdash; scaffolding, refactors, wiring databases, fixing its own build errors. A smaller model that has seen the task beats a larger one that hasn&rsquo;t.</p>
+      </div>
+      <div class="fg-why">
+        <h3 class="fg-why-title">Rate consistency</h3>
+        <p class="fg-why-body">One rate, published, no surge pricing and no quiet changes at renewal. When our costs drop, the Forge allowance goes up rather than the price staying put.</p>
+      </div>
+    </div>
+  </div>
+</section>
+  <!-- CTA / Footer — canonical block (pricing.html) -->
+  <section class="footer-section">
+    <div class="dsa-reveal" style="display:flex;flex-direction:column;align-items:center;gap:24px;text-align:center;width:100%;">
+      <p class="footer-eyebrow eyebrow-scramble" style="margin:0;">Are you ready?</p>
+      <h2 class="footer-headline">Start building on Forge</h2>
+      <p class="footer-subtitle">
+        Frontier-class open models, included in every Pro plan. No extra bill, no model shopping.
+      </p>
+    </div>
+    <div style="position:relative;width:100%;max-width:700px;margin-top:-152px;display:flex;flex-direction:column;align-items:center;">
+      <canvas id="footer-pixel-canvas" style="display:block;width:100%;height:192px;pointer-events:none;opacity:1;"></canvas>
+      <a href="https://bolt.new" target="_blank" rel="noopener" class="hero-btn-primary footer-cta-btn" style="position:relative;z-index:1;height:52px;padding:0 28px;font-size:15px;">
+        <div class="btn-bg-hover"></div>
+        <div class="btn-text-wrap"><div class="btn-text-inner"><span>Start Building</span><span>Start Building</span></div></div>
+      </a>
+    </div>
+  </section>
+
+<!-- Subtle divider between the prompt-box CTA and the footer columns -->
+<div class="site-footer-divider" style="max-width:1200px;margin:88px auto 0;padding:0 min(80px, 5vw);box-sizing:border-box;"></div>
+
+<!-- ─── SITE FOOTER (link columns, ported from the Retool footer pattern) ── -->
+<footer class="site-footer">
+  <div class="site-footer-cols">
+    <div class="site-footer-col">
+      <p class="site-footer-label">Platform</p>
+      <ul class="site-footer-links">
+        <li><a href="https://garyliusf.github.io/Enterprise/marketing/solutions.html">Product</a></li>
+        <li><a href="https://bolt.new/platform/security">Security &amp; Trust</a></li>
+      </ul>
+    </div>
+    <div class="site-footer-col">
+      <p class="site-footer-label">Solutions</p>
+      <ul class="site-footer-links">
+        <li><a href="https://bolt.new/use-cases/ai-app-builder">AI App Builder</a></li>
+        <li><a href="https://bolt.new/use-cases/ai-website-builder">AI Website Builder</a></li>
+        <li><a href="https://bolt.new/use-cases/custom-crm-software">SaaS Dev</a></li>
+        <li><a href="https://bolt.new/use-cases/ai-prototyping-tools">Prototyping</a></li>
+        <li><a href="https://garyliusf.github.io/Enterprise/solutions/smb/">Small Business</a></li>
+        <li><a href="https://bolt.new/enterprise">Enterprise</a></li>
+      </ul>
+    </div>
+    <div class="site-footer-col">
+      <p class="site-footer-label">Resources</p>
+      <ul class="site-footer-links">
+        <li><a href="https://discord.com/invite/stackblitz" target="_blank" rel="noopener">Community</a></li>
+        <li><a href="https://support.bolt.new/" target="_blank" rel="noopener">Help Center</a></li>
+        <li><a href="https://bolt.new/blog">Blog</a></li>
+      </ul>
+    </div>
+    <div class="site-footer-col">
+      <p class="site-footer-label">More</p>
+      <ul class="site-footer-links">
+        <li><a href="https://bolt.new/resources/templates">Templates</a></li>
+        <li><a href="pricing.html">Pricing</a></li>
+        <li><a href="https://stackblitz.com/terms-of-service">Terms of Use</a></li>
+        <li><a href="https://stackblitz.com/privacy-policy">Privacy Policy</a></li>
+        <li><a href="https://bolt.new/platform/security">Security</a></li>
+      </ul>
+    </div>
+    <div class="site-footer-col site-footer-col--connect">
+      <p class="site-footer-label">Connect</p>
+      <div class="site-footer-social site-footer-social--col">
+        <a href="https://x.com/boltdotnew" target="_blank" rel="noopener" aria-label="X (Twitter)">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a>
+        <a href="https://www.linkedin.com/company/boltdotnew/" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.03-1.85-3.03-1.86 0-2.14 1.45-2.14 2.94v5.66H9.34V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.61 0 4.28 2.38 4.28 5.47zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56z"/></svg>
+        </a>
+        <a href="https://discord.gg/stackblitz" target="_blank" rel="noopener" aria-label="Discord">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.32 4.37a19.8 19.8 0 0 0-4.89-1.52.07.07 0 0 0-.08.04c-.21.38-.45.86-.61 1.25a18.27 18.27 0 0 0-5.49 0 12.6 12.6 0 0 0-.62-1.25.08.08 0 0 0-.08-.04c-1.7.29-3.36.8-4.89 1.52a.07.07 0 0 0-.03.03C.53 8.6-.32 12.71.1 16.77a.08.08 0 0 0 .03.06 19.9 19.9 0 0 0 6 3.03.08.08 0 0 0 .08-.03c.46-.63.87-1.3 1.23-2a.08.08 0 0 0-.04-.11 13.1 13.1 0 0 1-1.87-.9.08.08 0 0 1-.01-.13c.13-.09.25-.19.37-.29a.07.07 0 0 1 .08-.01c3.93 1.79 8.18 1.79 12.06 0a.07.07 0 0 1 .08.01c.12.1.25.2.37.3a.08.08 0 0 1-.01.12c-.6.35-1.22.65-1.87.9a.08.08 0 0 0-.04.11c.36.7.78 1.36 1.23 2a.08.08 0 0 0 .08.03 19.83 19.83 0 0 0 6.01-3.03.08.08 0 0 0 .03-.06c.5-4.7-.83-8.78-3.5-12.4a.06.06 0 0 0-.03-.03zM8.02 14.24c-1.18 0-2.16-1.08-2.16-2.42s.96-2.42 2.16-2.42c1.21 0 2.18 1.1 2.16 2.42 0 1.34-.96 2.42-2.16 2.42zm7.97 0c-1.18 0-2.16-1.08-2.16-2.42s.96-2.42 2.16-2.42c1.21 0 2.18 1.1 2.16 2.42 0 1.34-.95 2.42-2.16 2.42z"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<section class="footer-image-section">
+    <div class="bolt-image-wrap">
+      <img src="../images/bolt-bottom.png" alt="" aria-hidden="true" loading="lazy" decoding="async">
+      <canvas id="bolt-shimmer-canvas"></canvas>
+      <div style="position:absolute;inset:0;background:linear-gradient(to bottom, #000 0%, transparent 22%, transparent 88%, #000 100%);z-index:3;pointer-events:none;"></div>
+    </div>
+</section>
+
+<script>
+/* ── Pixel-field helper — verbatim from marketing/pricing.html ──────────── */
+    function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
+      color = color || '20,136,252';
+      var canvas = document.getElementById(id);
+      if (!canvas) return;
+      var phases = [];
+
+      function buildPhases(cols, rows) {
+        phases = [];
+        for (var r = 0; r < rows; r++) {
+          phases[r] = [];
+          for (var c = 0; c < cols; c++) {
+            phases[r][c] = Math.random() * Math.PI * 2;
+          }
+        }
+      }
+
+      function resize() {
+        var parent = canvas.parentElement;
+        var w = parent.offsetWidth || parent.getBoundingClientRect().width;
+        var h = parent.offsetHeight || parent.getBoundingClientRect().height;
+        if (!w || !h) return;
+        canvas.width = Math.round(w);
+        canvas.height = Math.round(h);
+        buildPhases(Math.ceil(w / spacing), Math.ceil(h / spacing));
+      }
+
+      window.addEventListener('load', resize);
+      window.addEventListener('resize', resize);
+      new ResizeObserver(function() { resize(); }).observe(canvas.parentElement);
+      requestAnimationFrame(function() { resize(); });
+
+      function draw(t) {
+        var w = canvas.width, h = canvas.height;
+        if (!w || !h) { requestAnimationFrame(draw); return; }
+        var ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, w, h);
+        var cols = Math.ceil(w / spacing);
+        var rows = Math.ceil(h / spacing);
+        for (var r = 0; r < rows; r++) {
+          for (var c = 0; c < cols; c++) {
+            var phase = (phases[r] && phases[r][c]) || 0;
+            var op = waveFn(c, r, t, phase) * opacity;
+            if (op < 0.04) continue;
+            ctx.fillStyle = 'rgba(' + color + ',' + op.toFixed(3) + ')';
+            ctx.fillRect(c * spacing, r * spacing, dot, dot);
+          }
+        }
+        requestAnimationFrame(draw);
+      }
+      requestAnimationFrame(draw);
+    }
+
+    /* Hero — diagonal pixel wave behind the headline (enterprise hero algo) */
+    makePixelCanvas('fg-hero-canvas', 9, 3,
+      function (c, r, t, p) {
+        var el = document.getElementById('fg-hero-canvas');
+        var W = el ? el.width : 1200, H = el ? el.height : 700;
+        var px = c * 9, py = r * 9;
+        /* fade out toward the edges and the bottom so the copy stays clean */
+        var hFade = Math.max(0, 1 - Math.abs(px - W / 2) / (W * 0.62));
+        var vFade = Math.max(0, 1 - py / (H * 0.95));
+        var fade = hFade * vFade;
+        if (fade <= 0) return 0;
+        var wave = Math.sin((px + py) / 130 - t * 0.00042 + p * 0.12);
+        var v = Math.max(0, wave) * fade * 0.55;
+        return v;
+      }, 1.0, '20,136,252'
+    );
+
+    /* Pro plan card — always-on pixel field behind the blue wash */
+    makePixelCanvas('fg-pro-canvas', 6, 2,
+      function (c, r, t, p) {
+        var el = document.getElementById('fg-pro-canvas');
+        var W = el ? el.width : 500, H = el ? el.height : 700;
+        var px = c * 6, py = r * 6;
+        var fade = Math.max(0, 1 - py / (H * 1.05)) * Math.max(0, 1 - Math.abs(px - W / 2) / (W * 0.75));
+        if (fade <= 0) return 0;
+        function rwave(scale, rotRate, phase, tMult) {
+          var angle = t * rotRate + phase;
+          var u = (px * Math.cos(angle) + py * Math.sin(angle)) / scale;
+          var v = (-px * Math.sin(angle) + py * Math.cos(angle)) / scale;
+          return Math.sin(u * Math.PI * 2 + t * tMult) * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7);
+        }
+        var s1 = rwave(280, 0.00012, 0.3, 0.00022);
+        var s2 = rwave(150, 0.00025, 1.6, 0.00048);
+        var raw = (s1 * 0.5 + 0.5) * (s2 * 0.35 + 0.65);
+        var density = Math.pow(Math.max(0, raw), 0.8) * fade;
+        var rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
+        return density > rand ? density * 0.9 : 0;
+      }, 1.0, '150,200,255'
+    );
+
+    makePixelCanvas('footer-pixel-canvas', 6, 2,
+      function(c, r, t, p) {
+        var px = c * 6, py = r * 6;
+        var el = document.getElementById('footer-pixel-canvas');
+        var W = el ? el.width : 700, H = el ? el.height : 90;
+        var cx = W / 2;
+        var hFade = Math.max(0, 1 - Math.abs(px - cx) / (W * 0.55));
+        var vFade = Math.max(0, 1 - py / (H * 0.85));
+        var fade = hFade * vFade;
+        if (fade <= 0) return 0;
+        var speedMod = 0.05 + (Math.sin(t * 0.00070 + 2.2) * 0.5 + 0.5) * 0.22;
+        function rwave(scale, rotRate, phase, tMult) {
+          var angle = t * rotRate + phase;
+          var u = (px * Math.cos(angle) + py * Math.sin(angle)) / scale;
+          var v = (-px * Math.sin(angle) + py * Math.cos(angle)) / scale;
+          return Math.sin(u * Math.PI * 2 + t * tMult * speedMod)
+               * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7 * speedMod);
+        }
+        var s1 = rwave(300, 0.00012, 0.3, 0.00030);
+        var s2 = rwave(160, 0.00025, 1.6, 0.00065);
+        var s3 = rwave(80,  0.00042, 2.9, 0.00130);
+        var s4 = rwave(220, 0.00018, 4.2, 0.00048);
+        var waveFront = s1 * 0.5 + 0.5;
+        var detail = s2 * 0.45 + s3 * 0.30 + s4 * 0.25;
+        var raw = waveFront * (detail * 0.5 + 0.5);
+        var density = Math.pow(Math.max(0, raw), 0.7) * fade;
+        var rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
+        return density > rand ? density * 0.85 : 0;
+      }, 1.0, '220,230,245'
+    );
+</script>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   COST SLIDER
+   Exponential mapping so the low end (where most people live) gets most of
+   the travel: 50K tokens at 0% → 25M at 100%. Default 26% ≈ 250K.
+   ═══════════════════════════════════════════════════════════════════════ */
+(function () {
+  var slider   = document.getElementById('fg-slider');
+  if (!slider) return;
+  var tokensEl = document.getElementById('fg-tokens');
+  var frontEl  = document.getElementById('fg-cost-frontier');
+  var forgeEl  = document.getElementById('fg-cost-forge');
+
+  var MIN = 50000, MAX = 25000000;
+  var RATE_FRONTIER = 2.88 / 1e6;   /* USD per output token */
+  var RATE_FORGE    = 0.48 / 1e6;
+
+  function tokensAt(pct) {
+    return MIN * Math.pow(MAX / MIN, pct / 100);
+  }
+  /* round to something a human would say out loud */
+  function roundTokens(n) {
+    if (n < 1e6)  return Math.round(n / 1e4) * 1e4;
+    if (n < 1e7)  return Math.round(n / 1e5) * 1e5;
+    return Math.round(n / 1e6) * 1e6;
+  }
+  function fmtTokens(n) {
+    if (n >= 1e6) {
+      var m = n / 1e6;
+      return (m >= 10 ? m.toFixed(0) : m.toFixed(1).replace(/\.0$/, '')) + 'M';
+    }
+    return Math.round(n / 1e3) + 'K';
+  }
+  function fmtUSD(v) {
+    return '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function render() {
+    var pct = Number(slider.value);
+    var n = roundTokens(tokensAt(pct));
+    slider.style.setProperty('--fill', pct + '%');
+    tokensEl.textContent = fmtTokens(n);
+    frontEl.textContent  = fmtUSD(n * RATE_FRONTIER);
+    forgeEl.textContent  = fmtUSD(n * RATE_FORGE);
+    slider.setAttribute('aria-valuetext', fmtTokens(n) + ' output tokens per month');
+  }
+
+  slider.addEventListener('input', render);
+  render();
+})();
+
+/* ═══════════════════════════════════════════════════════════════════════
+   BENCHMARK BARS — grow from the baseline once the charts scroll into view
+   ═══════════════════════════════════════════════════════════════════════ */
+(function () {
+  var charts = document.getElementById('fg-charts');
+  if (!charts) return;
+  if (!('IntersectionObserver' in window) ||
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    charts.classList.add('is-plotted');
+    return;
+  }
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      charts.classList.add('is-plotted');
+      io.unobserve(e.target);
+    });
+  }, { threshold: 0.25 });
+  io.observe(charts);
+})();
+</script>
+
+<!-- Shared navbar + site-footer behaviour (mega-menu, mobile drawer) -->
+<script src="shared-nav-footer.js"></script>
+
+<!-- Shared standardized components (single source of truth) — loaded last so
+     button / eyebrow / H2 CSS wins the cascade. This page has NO local
+     reveal or scramble code, so shared owns the scroll animations. -->
+<link rel="stylesheet" href="shared-components.css">
+<script src="shared-components.js"></script>
+
+</body>
+</html>
