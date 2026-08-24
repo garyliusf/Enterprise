@@ -863,7 +863,7 @@ function focusIn() {
 }
 function focusOut() {
   const tl = gsap.timeline();
-  tl.to(zoneEl, { scale: 1, duration: 0.9, ease: 'power3.inOut', onUpdate: parkToast }, 0);
+  tl.to(zoneEl, { scale: 1, duration: 0.9, ease: 'power3.inOut' }, 0);
   tl.to(['.queue-panel', '.composer'], { boxShadow: '0 0px 0px rgba(0,0,0,0)', duration: 0.7, ease: 'power2.out' }, 0);
   tl.to(BG, { filter: 'blur(0px)', opacity: 1, duration: 0.7, ease: 'power2.out' }, 0.15);
   tl.to('.focus-scrim', { opacity: 0, duration: 0.75, ease: 'power2.in' }, 0.1);
@@ -884,7 +884,7 @@ function toastQueued() {                        // "Message queued", then away
   tl.fromTo(t, { opacity: 0, y: 15, scale: 0.975 },
                { opacity: 1, y: 0, scale: 1, duration: 0.72, ease: 'power2.out',
                  overwrite: 'auto', immediateRender: false });
-  tl.to(t, { opacity: 0, y: -13, duration: 0.44, ease: 'power2.inOut' }, '+=0.72');
+  tl.to(t, { opacity: 0, y: -13, duration: 0.44, ease: 'power2.inOut' }, '+=0.5');
   return tl;
 }
 function enqueue(n) {
@@ -915,7 +915,7 @@ function enqueue(n) {
   // travels the other way at the same time, and at 2.88x scale those two opposing
   // motions are what read as a stutter.
   tl.to(item, { opacity: 1, duration: 0.4, ease: 'power2.out' }, 0.18);
-  tl.add(toastQueued(), 0.3);
+  tl.add(toastQueued(), 0.05);
   return tl;
 }
 function dequeue(n, left) {
@@ -1022,7 +1022,7 @@ function buildMaster() {
 
   // The agent is already mid-task — that's the premise. Open wide on the whole
   // workbench so the running task and the site are both established.
-  tl.add(elapsedTween('ca1', 8, 42, 7.9), 0.6);
+  tl.add(elapsedTween('ca1', 8, 42, 8.5), 0.6);
   tl.add(workTween('ca1'), 0.6);
 
   // Push in on the prompt box and STAY there while both prompts are typed and queued
@@ -1055,29 +1055,29 @@ function buildMaster() {
   tl.add(enqueue(2), 6.3);
 
   // Pull back out — everything from here is the queue draining into the site
-  tl.add(focusOut(), 7.5);
+  tl.add(focusOut(), 8.1);
 
   // Task 1 lands
-  tl.add(agentDone('ca1', 42), 8.5);
-  tl.add(fxSpin(), 8.65);
+  tl.add(agentDone('ca1', 42), 9.1);
+  tl.add(fxSpin(), 9.25);
 
   // Queue drains itself — the next prompt starts the moment the last one lands,
   // and each change shows up while the agent is still writing the summary
-  tl.add(dequeue(1, 1), 9.5);
-  tl.add(handOff('cu2', 'ca2'), 9.75);
-  tl.add(elapsedTween('ca2', 1, 14, 1.8), 9.9);
-  tl.add(workTween('ca2'), 9.9);
-  tl.add(fxCovers(), 10.3);
-  tl.add(agentDone('ca2', 14), 11.8);
+  tl.add(dequeue(1, 1), 10.1);
+  tl.add(handOff('cu2', 'ca2'), 10.35);
+  tl.add(elapsedTween('ca2', 1, 14, 1.8), 10.5);
+  tl.add(workTween('ca2'), 10.5);
+  tl.add(fxCovers(), 10.9);
+  tl.add(agentDone('ca2', 14), 12.4);
 
-  tl.add(dequeue(2, 0), 12.6);
-  tl.add(handOff('cu3', 'ca3'), 12.85);
-  tl.add(elapsedTween('ca3', 1, 11, 1.5), 13.0);
-  tl.add(workTween('ca3'), 13.0);
-  tl.add(fxTheme(), 13.4);
-  tl.add(agentDone('ca3', 11), 14.6);
+  tl.add(dequeue(2, 0), 13.2);
+  tl.add(handOff('cu3', 'ca3'), 13.45);
+  tl.add(elapsedTween('ca3', 1, 11, 1.5), 13.6);
+  tl.add(workTween('ca3'), 13.6);
+  tl.add(fxTheme(), 14.0);
+  tl.add(agentDone('ca3', 11), 15.2);
 
-  tl.to({}, { duration: 1.1 }, 15.8);   // hold on the finished state, then loop
+  tl.to({}, { duration: 1.1 }, 16.4);   // hold on the finished state, then loop
   return tl;
 }
 
