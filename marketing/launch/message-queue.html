@@ -727,6 +727,9 @@ fitStage();
 window.addEventListener('resize', fitStage);
 
 const reduce   = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+// Playback rate for the whole loop. Every beat below is authored at 1x and then
+// scaled here, so the rhythm between them is preserved.
+const SPEED    = 1.43;         // 30% faster than authored
 const stage    = document.getElementById('stage');
 const compText = document.getElementById('comp-text');
 const caret    = document.getElementById('caret');
@@ -978,6 +981,7 @@ function resetAll() {
 /* ── Master timeline ─────────────────────────────────────────────────────── */
 function buildMaster() {
   const tl = gsap.timeline({ repeat: -1, defaults: { ease: 'power2.out' } });
+  tl.timeScale(SPEED);
 
   tl.call(resetAll, null, 0);
 
