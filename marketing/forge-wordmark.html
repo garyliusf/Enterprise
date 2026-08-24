@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Forge lockup — wordmark explorations</title>
+  <title>Forge lockup — shortlist + 40 more</title>
   <meta name="robots" content="noindex" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -41,18 +41,6 @@
       --ink-3: #999;
       --blue: #0f6fd0;
       --blue-soft: rgba(20,136,252,0.12);
-    }
-    body[data-theme="blue"] {
-      --bg: #071528;
-      --panel: #0b1e38;
-      --field: #061223;
-      --line: rgba(255,255,255,0.12);
-      --line-soft: rgba(255,255,255,0.07);
-      --ink: #fff;
-      --ink-2: rgba(255,255,255,0.6);
-      --ink-3: rgba(255,255,255,0.36);
-      --blue: #4DA6FF;
-      --blue-soft: rgba(77,166,255,0.18);
     }
 
     body {
@@ -137,64 +125,63 @@
     .mark-wrap { height: calc(var(--mark-h) * 0.8821); flex: none; }
     .mark-wrap svg { height: var(--mark-h); width: auto; display: block; overflow: visible; }
     /* the bolt.new wordmark has its own baseline ratio (20.9 of its 24-unit box) */
-    .mark-wrap--new { height: calc(var(--mark-h) * 0.8708); }
 
     /* x-height match: bolt's 'o' is 0.63 of the mark box; Inter's x-height is
-       ~0.546em, so 0.63 / 0.546 ≈ 1.15 mark-heights of font-size. */
+       ~0.546em, so 0.63 / 0.546 ≈ 1.15 mark-heights of font-size. Every axis
+       is a custom property so a variation is data (one inline style) rather
+       than its own rule. */
     .fg {
-      font-size: calc(var(--mark-h) * 1.15);
-      font-weight: 500;
+      font-family: var(--fg-ff, 'Inter', sans-serif);
+      font-style: var(--fg-fs, normal);
+      font-size: calc(var(--mark-h) * var(--fg-scale, 1.15));
+      font-weight: var(--fg-w, 500);
+      letter-spacing: var(--fg-ls, -0.02em);
+      text-transform: var(--fg-tt, none);
       line-height: 1;
-      letter-spacing: -0.02em;
+      position: relative;
+      top: var(--fg-shift, 0);
     }
 
-    /* divider glyphs */
-    .div-rule { flex: none; align-self: center; width: 1px; height: calc(var(--mark-h) * 0.78); background: currentColor; opacity: 0.28; }
-    .div-bar  { flex: none; align-self: center; width: 3px; height: calc(var(--mark-h) * 0.82); background: var(--blue); border-radius: 1px; }
-    .div-txt  { font-size: calc(var(--mark-h) * 1.05); font-weight: 300; line-height: 1; opacity: 0.35; }
-    .div-dot  { flex: none; align-self: center; width: calc(var(--mark-h) * 0.13); height: calc(var(--mark-h) * 0.13); border-radius: 50%; background: currentColor; opacity: 0.4; }
-    .div-pixels {
-      flex: none; align-self: center;
-      width: calc(var(--mark-h) * 0.12);
-      height: calc(var(--mark-h) * 0.62);
-      background:
-        linear-gradient(currentColor 0 0) 0 0 / 100% 28%,
-        linear-gradient(currentColor 0 0) 0 50% / 100% 28%,
-        linear-gradient(currentColor 0 0) 0 100% / 100% 28%;
-      background-repeat: no-repeat;
-      opacity: 0.45;
-    }
-    .div-dot--blue { background: var(--blue); opacity: 1; }
-
-    /* modifiers */
-    .fg--upper { text-transform: uppercase; letter-spacing: 0.06em; font-size: calc(var(--mark-h) * 0.86); font-weight: 500; }
-    .fg--pixel { font-family: 'Silkscreen', monospace; text-transform: uppercase; font-size: calc(var(--mark-h) * 0.70); letter-spacing: 0.04em; font-weight: 400; }
-    .fg--light { font-weight: 200; }
-    .fg--semi  { font-weight: 600; }
-    .fg--serif { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 400; font-size: calc(var(--mark-h) * 1.30); letter-spacing: 0; }
-    .fg--blue  { color: var(--blue); }
-    .fg--muted { color: var(--ink-2); }
-    .fg--grad  {
-      background: linear-gradient(92deg, var(--ink) 12%, var(--blue) 96%);
+    /* the two shortlisted treatments */
+    .fg--grad {
+      background: var(--grad, linear-gradient(92deg, var(--ink) 12%, var(--blue) 96%));
       -webkit-background-clip: text; background-clip: text;
       -webkit-text-fill-color: transparent; color: transparent;
+      /* background-clip:text paints only inside the element's box, and
+         line-height:1 makes that box shorter than the glyphs — so the g's
+         descender came out cut off. Italic and serif cuts lean past the inline
+         box sideways for the same reason. Pad the paint area out on every side
+         and pull exactly that much back out of the layout, so the box grows
+         without anything moving. */
+      padding: 0.12em 0.20em 0.28em;
+      margin: -0.12em -0.20em -0.28em;
     }
+    .fg--serif { --fg-ff: 'Cormorant Garamond', serif; --fg-fs: italic; --fg-w: 400; --fg-scale: 1.30; --fg-ls: 0; }
+    .fg--blue  { color: var(--blue); }
+    .fg--muted { color: var(--ink-2); }
 
-    /* enclosures — sized off the mark so they scale with everything else */
-    .chip {
-      align-self: center;
-      padding: calc(var(--mark-h) * 0.16) calc(var(--mark-h) * 0.30);
-      border-radius: 2px;
-      line-height: 1;
+    /* dividers used by a couple of the contrast plays */
+    .div-rule { flex: none; align-self: center; width: 1px; height: calc(var(--mark-h) * 0.78); background: currentColor; opacity: 0.28; }
+    .div-dot  { flex: none; align-self: center; width: calc(var(--mark-h) * 0.13); height: calc(var(--mark-h) * 0.13); border-radius: 50%; background: currentColor; opacity: 0.4; }
+
+    /* family headers inside a grid */
+    .fam {
+      grid-column: 1 / -1;
+      background: var(--bg);
+      border-bottom: 1px solid var(--line);
+      padding: 22px 20px 20px;
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      flex-wrap: wrap;
     }
-    .chip--fill    { background: var(--blue); color: #fff; }
-    .chip--outline { border: 1px solid currentColor; }
-    .chip--pill    { background: var(--blue); color: #fff; border-radius: 999px; padding: calc(var(--mark-h) * 0.17) calc(var(--mark-h) * 0.38); }
-    .chip--tint    { background: var(--blue-soft); color: var(--blue); }
+    .fam-label { font-family: 'Silkscreen', monospace; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--blue); }
+    .fam-note { font-size: 13px; color: var(--ink-2); }
 
-    /* stacked alternate */
-    .lock--stack { flex-direction: column; align-items: flex-start; gap: calc(var(--mark-h) * 0.20); }
-    .lock--stack .mark-wrap { height: auto; }
+    /* section rule between the shortlist and the wider set */
+    .sec-head { padding: 72px 0 26px; }
+    .sec-head h2 { font-size: 24px; font-weight: 600; letter-spacing: -0.5px; }
+    .sec-head p { margin-top: 10px; font-size: 15px; color: var(--ink-2); line-height: 1.65; max-width: 680px; }
 
     /* ── Grid of variations ── */
     .grid {
@@ -236,6 +223,13 @@
       padding: 16px 20px 18px;
       border-top: 1px solid var(--line-soft);
     }
+    .grid--three { grid-template-columns: repeat(3, 1fr); }
+    .grid--three .cell:nth-child(2n) { border-right: 1px solid var(--line); }
+    .grid--three .cell:nth-child(3n) { border-right: none; }
+    @media (max-width: 1100px) { .grid--three { grid-template-columns: repeat(2, 1fr); } .grid--three .cell:nth-child(3n) { border-right: 1px solid var(--line); } .grid--three .cell:nth-child(2n) { border-right: none; } }
+    @media (max-width: 900px) { .grid--three { grid-template-columns: 1fr; } .grid--three .cell { border-right: none; } }
+    .grid--three .cell-field { min-height: 150px; padding: 32px 22px; }
+
     .cell-num {
       font-family: 'Silkscreen', monospace;
       font-size: 11px;
@@ -249,18 +243,6 @@
     .cell-note { margin-top: 5px; font-size: 13px; line-height: 1.55; color: var(--ink-2); }
 
     /* ── Section headers between families ── */
-    .fam {
-      grid-column: 1 / -1;
-      background: var(--bg);
-      border-bottom: 1px solid var(--line);
-      padding: 22px 20px 20px;
-      display: flex;
-      align-items: baseline;
-      gap: 14px;
-      flex-wrap: wrap;
-    }
-    .fam-label { font-family: 'Silkscreen', monospace; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--blue); }
-    .fam-note { font-size: 13px; color: var(--ink-2); }
 
     /* ── Scale test strip ── */
     .scale-sec { padding-bottom: 96px; }
@@ -293,6 +275,28 @@
     }
     .scale-items { display: flex; align-items: center; gap: 44px; flex-wrap: wrap; }
 
+    /* ── Shimmer rows ──
+       Mark and word live in the SAME svg, so the baseline is set in user units
+       (the mark box is 43 units tall and its baseline sits at 37.93, i.e.
+       0.8821 — at height 72 that is y=63.5) instead of being reconciled
+       between an HTML box and an SVG one. */
+    .shim-rows { margin-top: 28px; border: 1px solid var(--line); border-radius: 2px; overflow: hidden; }
+    .shim-row {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      padding: 20px 28px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--line-soft);
+      overflow-x: auto;
+    }
+    .shim-row:last-child { border-bottom: none; }
+    .shim { height: 104px; width: auto; flex: none; overflow: visible; color: var(--ink); }
+    .shim use { fill: var(--ink); }
+    .shim-rest { fill: var(--ink); }
+    .shim-f { fill: none; stroke: url(#f-shimmer); stroke-width: 2.5; stroke-linejoin: round; }
+
+
     .foot { border-top: 1px solid var(--line); padding: 28px 0 64px; font-size: 13px; color: var(--ink-3); line-height: 1.7; }
   </style>
 </head>
@@ -305,27 +309,16 @@
       <path d="M72.5607 37.2881H62.9192L70.7931 1.66838H80.4346L72.5607 37.2881Z" fill="currentColor"/>
       <path fill-rule="evenodd" clip-rule="evenodd" d="M18.8977 37.9289C15.9517 37.9289 13.0593 36.8609 11.3988 34.5646L10.8131 37.2728L0 43L1.16732 37.2728L9.04198 1.66838H18.6835L15.8981 14.2181C18.1478 11.7615 20.2368 10.8537 22.915 10.8537C28.6999 10.8537 32.5565 14.6453 32.5565 21.5877C32.5565 28.7436 28.1107 37.9289 18.8977 37.9289ZM22.5936 23.617C22.5936 26.9279 20.2368 29.4379 17.1837 29.4379C15.4696 29.4379 13.9163 28.797 12.8986 27.6756L14.3984 21.107C15.5232 19.9856 16.8087 19.3447 18.3085 19.3447C20.6118 19.3447 22.5936 21.0536 22.5936 23.617Z" fill="currentColor"/>
       <path d="M90.4656 37.9289C84.895 37.9289 80.9313 35.8996 80.9313 31.4138C80.9313 31.04 80.9849 30.1321 81.1455 29.3845L83.2345 19.8254H78.9494L80.8242 11.4945H85.1093L86.6626 4.44533L97.4562 0L96.3043 4.4562L94.7508 11.4945H100L98.1253 19.8254H92.876L91.4834 26.1269C91.3762 26.6075 91.3227 27.1416 91.3227 27.3552C91.3227 28.5834 92.0726 29.4379 93.733 29.4379C94.2151 29.4379 94.9114 29.2777 95.0721 29.1709V36.8609C94.0544 37.5551 92.2333 37.9289 90.4656 37.9289Z" fill="currentColor"/>  </symbol>
-  <symbol id="bolt-new-mark" viewBox="0 0 85 24">
-    <path d="M26.1121 20.9491C21.0582 20.9491 18.4869 17.9995 18.4869 14.3126C18.4869 9.9472 21.9744 5.99476 27.0283 5.99476C32.0822 5.99476 34.6535 8.94434 34.6535 12.6313C34.6535 16.9967 31.166 20.9491 26.1121 20.9491ZM26.319 16.2593C28.0923 16.2593 29.2154 14.6665 29.2154 12.8968C29.2154 11.481 28.2992 10.6846 26.8214 10.6846C25.0481 10.6846 23.925 12.2774 23.925 14.0471C23.925 15.4629 24.8412 16.2593 26.319 16.2593Z" fill="currentColor"/>
-    <path d="M40.0368 20.5952H34.717L39.0615 0.921487H44.3814L40.0368 20.5952Z" fill="currentColor"/>
-    <path fill-rule="evenodd" clip-rule="evenodd" d="M10.4272 20.9491C8.80168 20.9491 7.20572 20.3592 6.28951 19.0909L5.96635 20.5867L0 23.75L0.644095 20.5867L4.9891 0.921487H10.309L8.77213 7.853C10.0134 6.49619 11.1661 5.99476 12.6438 5.99476C15.8358 5.99476 17.9637 8.08896 17.9637 11.9234C17.9637 15.8758 15.5107 20.9491 10.4272 20.9491ZM12.4665 13.0443C12.4665 14.873 11.1661 16.2593 9.48145 16.2593C8.53569 16.2593 7.6786 15.9053 7.11705 15.2859L7.94459 11.658C8.56524 11.0385 9.27456 10.6846 10.1021 10.6846C11.373 10.6846 12.4665 11.6285 12.4665 13.0443Z" fill="currentColor"/>
-    <path d="M49.9163 20.9491C46.8426 20.9491 44.6555 19.8283 44.6555 17.3506C44.6555 17.1442 44.6851 16.6427 44.7737 16.2298L45.9264 10.9501H43.562L44.5964 6.34871H46.9608L47.8179 2.45527L53.7735 0L53.1378 2.46127L52.2807 6.34871H55.1771L54.1426 10.9501H51.2462L50.4778 14.4306C50.4187 14.696 50.3892 14.991 50.3892 15.109C50.3892 15.7874 50.8029 16.2593 51.7191 16.2593C51.9851 16.2593 52.3693 16.1708 52.458 16.1118V20.3592C51.8965 20.7427 50.8916 20.9491 49.9163 20.9491Z" fill="currentColor"/>
-    <path d="M56.461 21.0087C55.7527 21.0087 55.1886 20.4196 55.1886 19.7127C55.1886 18.8879 55.897 18.1941 56.7234 18.1941C57.4317 18.1941 57.9958 18.7832 57.9958 19.4901C57.9958 20.3149 57.2875 21.0087 56.461 21.0087Z" fill="currentColor"/>
-    <path d="M65.3576 20.8386H62.9964L63.7309 17.5133C63.7572 17.3955 63.8097 17.186 63.8097 17.0289C63.8097 16.5969 63.4292 16.4398 63.0488 16.4398C62.5372 16.4398 62.183 16.7016 61.9338 16.9242L61.068 20.8386H58.7068L60.1104 14.5153H62.4716L62.3011 15.2354C62.7602 14.8164 63.3374 14.3582 64.295 14.3582C65.6199 14.3582 66.3807 15.0783 66.3807 16.0209C66.3807 16.1256 66.3414 16.4136 66.3151 16.5314L65.3576 20.8386Z" fill="currentColor"/>
-    <path d="M70.256 20.9956C68.2096 20.9956 66.7929 19.9745 66.7929 18.1155C66.7929 16.0994 68.3408 14.3582 70.5577 14.3582C72.1319 14.3582 73.5223 15.3139 73.5223 17.2384C73.5223 17.6704 73.4436 18.1679 73.3781 18.4035H69.1279V18.4166C69.1279 18.5083 69.5083 19.2021 70.4265 19.2021C70.925 19.2021 71.5153 19.0843 71.8039 18.8879L72.5254 20.4196C71.8826 20.8255 71.0169 20.9956 70.256 20.9956ZM69.3509 16.9111H71.4366V16.8718C71.4366 16.6885 71.2136 16.1518 70.4659 16.1518C69.8363 16.1518 69.4296 16.6362 69.3509 16.9111Z" fill="currentColor"/>
-    <path d="M81.7599 20.8386H79.1888L78.9265 17.3038L77.1293 20.8386H74.5582L74.1254 14.5153H76.4866L76.5521 17.9977L78.4411 14.5153H80.5531L80.881 17.9977L82.4945 14.5153H85L81.7599 20.8386Z" fill="currentColor"/>
-  </symbol>
 </svg>
 
 <header class="head">
   <div class="wrap head-inner">
-    <p class="head-title">Forge lockup <span>wordmark explorations</span></p>
+    <p class="head-title">Forge lockup <span>shortlist + 40</span></p>
     <div class="controls">
       <span class="seg-label">Ground</span>
       <div class="seg" id="theme-seg">
         <button data-theme="dark" class="is-on">Dark</button>
         <button data-theme="light">Light</button>
-        <button data-theme="blue">Blue</button>
       </div>
       <span class="seg-label">Size</span>
       <div class="seg" id="size-seg">
@@ -340,310 +333,648 @@
 <div class="wrap">
 
   <section class="intro">
-    <h1>Twenty ways to put Forge next to bolt</h1>
-    <p>All twenty are the same two elements &mdash; the bolt mark, and the word Forge to its right &mdash; so the only thing changing from tile to tile is the one decision named underneath it. Grouped into five families so they can be judged against their own kind rather than all at once. Use the controls above to change the ground colour and the size; every lockup scales from one variable, so nothing drifts out of proportion when you do.</p>
+    <h1>Putting Forge next to bolt</h1>
+    <p>The two you kept from the first round are at the top. Underneath them are 40 more, built out from those two &mdash; mostly a gradient or a serif with one thing moved, grouped so that within any family the only difference between tiles is the one named underneath it. After that: the same candidates at the sizes they&rsquo;d actually ship at, and a first pass at the shimmering F.</p>
   </section>
 
   <div class="grid">
+
+      <div class="cell">
+        <div class="cell-field">
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--grad">forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">A</span>
+          <div>
+            <p class="cell-name">Gradient</p>
+            <p class="cell-note">White into brand blue across the word. Forge reads as the new thing without a divider or a badge doing the work. One caveat worth deciding on: the gradient has very little room to travel at navbar size &mdash; see the 24px row below.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="cell">
+        <div class="cell-field">
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--serif">Forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">B</span>
+          <div>
+            <p class="cell-name">Cormorant italic</p>
+            <p class="cell-note">A warmer, editorial Forge against the mark&rsquo;s hard geometry &mdash; the contrast is the idea. Note it&rsquo;s off-system today: Cormorant is our blog and pull-quote face, so adopting it here makes it a brand face too.</p>
+          </div>
+        </div>
+      </div>
+
+  </div>
+
+  <section class="sec-head">
+    <h2>40 more</h2>
+    <p>Built out from the two you kept, so most of these are a gradient or a serif with one thing moved. Grouped so each family holds everything else constant &mdash; within a family, the only difference between tiles is the one named underneath. The last two families step outside both directions on purpose, as controls.</p>
+  </section>
+
+  <div class="grid grid--three">
       <div class="fam">
-        <span class="fam-label">Spacing &amp; divider</span>
-        <span class="fam-note">Same type treatment throughout — the only variable is what sits between the two words.</span>
+        <span class="fam-label">Gradient — direction</span>
+        <span class="fam-note">Same two colours throughout; only where and how the blend runs is moving.</span>
       </div>
       <div class="cell">
         <div class="cell-field">
-<div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg">forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--grad" style="--grad:linear-gradient(92deg,var(--ink) 12%,var(--blue) 96%)">forge</span></div>
         </div>
         <div class="cell-meta">
           <span class="cell-num">01</span>
           <div>
-            <p class="cell-name">Plain space</p>
-            <p class="cell-note">Nothing between them. Reads as one wordmark; relies on the space alone to separate the product from the parent.</p>
+            <p class="cell-name">Horizontal (baseline)</p>
+            <p class="cell-note">The shortlisted one, here for comparison. 92°, white from 12%, blue by 96%.</p>
           </div>
         </div>
       </div>
       <div class="cell">
         <div class="cell-field">
-<div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="div-rule"></span><span class="fg">forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--grad" style="--grad:linear-gradient(45deg,var(--ink) 10%,var(--blue) 95%)">forge</span></div>
         </div>
         <div class="cell-meta">
           <span class="cell-num">02</span>
           <div>
-            <p class="cell-name">Hairline rule</p>
-            <p class="cell-note">A 1px rule sets Forge apart as a named product without adding a glyph to the lockup.</p>
+            <p class="cell-name">Diagonal 45°</p>
+            <p class="cell-note">The blend runs corner to corner, so the descender of the g catches the darkest blue.</p>
           </div>
         </div>
       </div>
       <div class="cell">
         <div class="cell-field">
-<div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="div-txt">/</span><span class="fg">forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--grad" style="--grad:linear-gradient(180deg,var(--ink) 8%,var(--blue) 100%)">forge</span></div>
         </div>
         <div class="cell-meta">
           <span class="cell-num">03</span>
           <div>
-            <p class="cell-name">Slash</p>
-            <p class="cell-note">Reads as a path — bolt/forge. Familiar from developer tooling, and it survives being set in one line of plain text.</p>
+            <p class="cell-name">Vertical</p>
+            <p class="cell-note">Top-to-bottom. Reads as lighting rather than as a left-to-right run.</p>
           </div>
         </div>
       </div>
       <div class="cell">
         <div class="cell-field">
-<div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="div-dot"></span><span class="fg">forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--grad" style="--grad:linear-gradient(92deg,var(--blue) 4%,var(--ink) 92%)">forge</span></div>
         </div>
         <div class="cell-meta">
           <span class="cell-num">04</span>
           <div>
-            <p class="cell-name">Dot</p>
-            <p class="cell-note">The lightest possible separator. Echoes the dot already in bolt.new.</p>
+            <p class="cell-name">Reversed</p>
+            <p class="cell-note">Blue first, resolving to white. Puts the colour next to the mark instead of away from it.</p>
           </div>
         </div>
       </div>
       <div class="cell">
         <div class="cell-field">
-<div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="div-bar"></span><span class="fg">forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--grad" style="--grad:linear-gradient(92deg,var(--ink) 60%,var(--blue) 100%)">forge</span></div>
         </div>
         <div class="cell-meta">
           <span class="cell-num">05</span>
           <div>
-            <p class="cell-name">Blue bar</p>
-            <p class="cell-note">The divider carries the brand colour instead of the word, so Forge stays in the parent's voice.</p>
+            <p class="cell-name">Late start</p>
+            <p class="cell-note">White holds through most of the word, then turns. The blue reads as an accent on the last two letters.</p>
           </div>
         </div>
       </div>
       <div class="cell">
         <div class="cell-field">
-<div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="div-pixels"></span><span class="fg">forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--grad" style="--grad:linear-gradient(92deg,var(--ink) 0%,var(--blue) 45%)">forge</span></div>
         </div>
         <div class="cell-meta">
           <span class="cell-num">06</span>
           <div>
-            <p class="cell-name">Pixel divider</p>
-            <p class="cell-note">Three stacked squares instead of a rule &mdash; the same pixel motif the marketing pages already use for eyebrows and check glyphs.</p>
+            <p class="cell-name">Early start</p>
+            <p class="cell-note">Blue almost immediately. Closest of these to just setting the word in blue.</p>
           </div>
         </div>
       </div>
-      <div class="fam">
-        <span class="fam-label">Case &amp; weight</span>
-        <span class="fam-note">Divider held constant (a plain space) so the type is the only thing moving.</span>
-      </div>
       <div class="cell">
         <div class="cell-field">
-<div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--upper">Forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--grad" style="--grad:linear-gradient(92deg,var(--ink) 6%,var(--blue) 62%,#0b4d94 100%)">forge</span></div>
         </div>
         <div class="cell-meta">
           <span class="cell-num">07</span>
           <div>
-            <p class="cell-name">Uppercase, tracked</p>
-            <p class="cell-note">Sets Forge as a label rather than a second word. Tracking keeps it from crowding the mark.</p>
+            <p class="cell-name">Three stop</p>
+            <p class="cell-note">White to brand blue to a deeper blue, so the far end has somewhere left to go.</p>
           </div>
         </div>
       </div>
       <div class="cell">
         <div class="cell-field">
-<div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--pixel">Forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--grad" style="--grad:linear-gradient(92deg,var(--ink) 0 50%,var(--blue) 50% 100%)">forge</span></div>
         </div>
         <div class="cell-meta">
           <span class="cell-num">08</span>
           <div>
-            <p class="cell-name">Silkscreen pixel</p>
-            <p class="cell-note">Our eyebrow face. Most on-system option here, and it ties Forge to the pixel motif used across the marketing pages.</p>
+            <p class="cell-name">Hard split</p>
+            <p class="cell-note">No blend at all — a clean break mid-word. Survives small sizes better than a soft ramp.</p>
           </div>
         </div>
       </div>
+      <div class="fam">
+        <span class="fam-label">Gradient — colour</span>
+        <span class="fam-note">Same left-to-right ramp; the colours at each end are the variable.</span>
+      </div>
       <div class="cell">
         <div class="cell-field">
-<div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--semi">forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--grad" style="--grad:linear-gradient(92deg,var(--ink) 12%,#3ee0e8 96%)">forge</span></div>
         </div>
         <div class="cell-meta">
           <span class="cell-num">09</span>
           <div>
-            <p class="cell-name">Semibold</p>
-            <p class="cell-note">Forge holds equal weight with the mark — reads as a peer product, not a sub-brand.</p>
+            <p class="cell-name">White to cyan</p>
+            <p class="cell-note">Cooler and brighter than brand blue. Off-palette, included as a probe.</p>
           </div>
         </div>
       </div>
       <div class="cell">
         <div class="cell-field">
-<div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--serif">Forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--grad" style="--grad:linear-gradient(92deg,var(--ink) 12%,#8b7bff 96%)">forge</span></div>
         </div>
         <div class="cell-meta">
           <span class="cell-num">10</span>
           <div>
-            <p class="cell-name">Cormorant italic</p>
-            <p class="cell-note">Deliberately off-system — our serif is blog/pull-quote only. Included so the team can see what a warmer, editorial Forge would look like.</p>
+            <p class="cell-name">White to violet</p>
+            <p class="cell-note">Warmer end of cool. Reads more consumer than the brand blue does.</p>
           </div>
         </div>
       </div>
-      <div class="fam">
-        <span class="fam-label">Colour</span>
-        <span class="fam-note">Where the brand blue lands: on the word, on the divider, or nowhere.</span>
-      </div>
       <div class="cell">
         <div class="cell-field">
-<div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--blue">forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--grad" style="--grad:linear-gradient(92deg,var(--blue) 8%,#3ee0e8 98%)">forge</span></div>
         </div>
         <div class="cell-meta">
           <span class="cell-num">11</span>
           <div>
-            <p class="cell-name">Forge in blue</p>
-            <p class="cell-note">The clearest signal that Forge is the new thing. Costs us a two-colour lockup.</p>
+            <p class="cell-name">Blue to cyan</p>
+            <p class="cell-note">No white at all — the whole word carries colour, which separates it hard from the mark.</p>
           </div>
         </div>
       </div>
       <div class="cell">
         <div class="cell-field">
-<div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="div-dot div-dot--blue"></span><span class="fg fg--blue">forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--grad" style="--grad:linear-gradient(92deg,var(--blue) 0%,var(--ink) 50%,var(--blue) 100%)">forge</span></div>
         </div>
         <div class="cell-meta">
           <span class="cell-num">12</span>
           <div>
-            <p class="cell-name">Blue dot, blue word</p>
-            <p class="cell-note">Divider and word agree, so the blue reads as intentional rather than as an accent that got left on.</p>
+            <p class="cell-name">Symmetric</p>
+            <p class="cell-note">Blue in, white through the middle, blue out. The word reads as lit from behind.</p>
           </div>
         </div>
       </div>
       <div class="cell">
         <div class="cell-field">
-<div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--grad">forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--grad" style="--grad:linear-gradient(92deg,var(--ink) 12%,#F0A93B 96%)">forge</span></div>
         </div>
         <div class="cell-meta">
           <span class="cell-num">13</span>
           <div>
-            <p class="cell-name">Gradient</p>
-            <p class="cell-note">White into blue across the word. Looks good large; the gradient collapses to mush at nav size — see the scale test.</p>
+            <p class="cell-name">White to amber</p>
+            <p class="cell-note">Deliberately off-palette. Worth one look to confirm the blue is doing something warm can't.</p>
           </div>
         </div>
       </div>
       <div class="cell">
         <div class="cell-field">
-<div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--muted">forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--grad" style="--grad:linear-gradient(92deg,var(--ink) 10%,rgba(255,255,255,0.42) 98%)">forge</span></div>
         </div>
         <div class="cell-meta">
           <span class="cell-num">14</span>
           <div>
-            <p class="cell-name">Muted</p>
-            <p class="cell-note">Forge as secondary text. The most conservative option: nothing competes with the bolt mark.</p>
+            <p class="cell-name">Monochrome</p>
+            <p class="cell-note">White fading to grey. All of the gradient idea, none of the colour commitment.</p>
           </div>
         </div>
       </div>
-      <div class="fam">
-        <span class="fam-label">Enclosure</span>
-        <span class="fam-note">Forge treated as a badge attached to the mark rather than a second word beside it.</span>
-      </div>
       <div class="cell">
         <div class="cell-field">
-<div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--upper chip chip--fill">Forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--grad" style="--grad:linear-gradient(92deg,var(--blue) 6%,#0a3a70 100%)">forge</span></div>
         </div>
         <div class="cell-meta">
           <span class="cell-num">15</span>
           <div>
-            <p class="cell-name">Filled chip</p>
-            <p class="cell-note">2px radius, our standard surface corner. Strongest separation of parent and product.</p>
+            <p class="cell-name">Blue to navy</p>
+            <p class="cell-note">Stays inside the brand ramp. Subtle at size, nearly invisible small.</p>
           </div>
         </div>
       </div>
       <div class="cell">
         <div class="cell-field">
-<div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--upper chip chip--outline">Forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--grad" style="--grad:linear-gradient(92deg,var(--ink) 30%,var(--blue) 55%,var(--ink) 80%)">forge</span></div>
         </div>
         <div class="cell-meta">
           <span class="cell-num">16</span>
           <div>
-            <p class="cell-name">Outlined chip</p>
-            <p class="cell-note">Same shape, one colour. Works on any background without a knockout.</p>
-          </div>
-        </div>
-      </div>
-      <div class="cell">
-        <div class="cell-field">
-<div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--upper chip chip--pill">Forge</span></div>
-        </div>
-        <div class="cell-meta">
-          <span class="cell-num">17</span>
-          <div>
-            <p class="cell-name">Pill</p>
-            <p class="cell-note">Softer, more consumer. Off our 2px surface standard, which is why it looks like a different family.</p>
-          </div>
-        </div>
-      </div>
-      <div class="cell">
-        <div class="cell-field">
-<div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--pixel chip chip--tint">Forge</span></div>
-        </div>
-        <div class="cell-meta">
-          <span class="cell-num">18</span>
-          <div>
-            <p class="cell-name">Tinted pixel chip</p>
-            <p class="cell-note">Silkscreen in a blue-tinted chip — the closest thing here to how our eyebrows and badges already look.</p>
+            <p class="cell-name">Steep and short</p>
+            <p class="cell-note">A tight blend confined to the middle of the word, white at both ends.</p>
           </div>
         </div>
       </div>
       <div class="fam">
-        <span class="fam-label">Structure</span>
-        <span class="fam-note">Two alternates that change the lockup's shape rather than its styling.</span>
+        <span class="fam-label">Gradient — type</span>
+        <span class="fam-note">Same gradient; the letterforms underneath it change.</span>
       </div>
       <div class="cell">
         <div class="cell-field">
-<div class="lock"><span class="mark-wrap mark-wrap--new"><svg viewBox="0 0 85 24" style="height:var(--mark-h);width:auto;display:block"><use href="#bolt-new-mark"/></svg></span><span class="fg">forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--grad" style="--fg-w:200">forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">17</span>
+          <div>
+            <p class="cell-name">Light</p>
+            <p class="cell-note">Weight 200. The gradient carries the word, so the strokes don't have to.</p>
+          </div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--grad" style="--fg-w:600">forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">18</span>
+          <div>
+            <p class="cell-name">Semibold</p>
+            <p class="cell-note">Weight 600. Holds the gradient better at small sizes than the light cut does.</p>
+          </div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--grad" style="--fg-tt:uppercase;--fg-ls:0.06em;--fg-scale:0.86">FORGE</span></div>
         </div>
         <div class="cell-meta">
           <span class="cell-num">19</span>
           <div>
-            <p class="cell-name">On bolt.new</p>
-            <p class="cell-note">Built on the full bolt.new wordmark instead of the plain mark. Longer, and the two dots start to fight.</p>
+            <p class="cell-name">Uppercase</p>
+            <p class="cell-note">Caps and tracked. The gradient has more stroke to sit on.</p>
           </div>
         </div>
       </div>
       <div class="cell">
         <div class="cell-field">
-<div class="lock lock--stack"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--upper">Forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--grad" style="--fg-ls:-0.05em">forge</span></div>
         </div>
         <div class="cell-meta">
           <span class="cell-num">20</span>
           <div>
-            <p class="cell-name">Stacked</p>
-            <p class="cell-note">Forge under the mark rather than beside it. Not what was asked for — included as the reference point for how much width the horizontal lockup costs us.</p>
+            <p class="cell-name">Tight tracking</p>
+            <p class="cell-note">Letters pulled together so the blend crosses fewer gaps.</p>
           </div>
         </div>
-      </div>  </div>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--grad" style="--fg-ls:0.06em">forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">21</span>
+          <div>
+            <p class="cell-name">Open tracking</p>
+            <p class="cell-note">Letters pushed apart, so each one takes a distinct step along the ramp.</p>
+          </div>
+        </div>
+      </div>
+      <div class="fam">
+        <span class="fam-label">Serif — weight and style</span>
+        <span class="fam-note">Cormorant Garamond throughout, working through cut, case and size.</span>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--serif" style="--fg-w:300">Forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">22</span>
+          <div>
+            <p class="cell-name">Italic 300</p>
+            <p class="cell-note">Lighter than the shortlisted cut. More editorial, less sturdy.</p>
+          </div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--serif" style="--fg-w:500">Forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">23</span>
+          <div>
+            <p class="cell-name">Italic 500</p>
+            <p class="cell-note">Heavier. Stands up to the mark's weight rather than sitting beside it.</p>
+          </div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--serif" style="--fg-fs:normal">Forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">24</span>
+          <div>
+            <p class="cell-name">Roman</p>
+            <p class="cell-note">Upright, not italic. The contrast becomes purely serif-vs-geometric.</p>
+          </div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--serif" style="--fg-fs:normal;--fg-w:500">Forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">25</span>
+          <div>
+            <p class="cell-name">Roman 500</p>
+            <p class="cell-note">Upright and heavier — the most conventional pairing on this page.</p>
+          </div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--serif" style="--fg-scale:1.46">Forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">26</span>
+          <div>
+            <p class="cell-name">Italic, larger</p>
+            <p class="cell-note">Set bigger so the serif's x-height matches the mark rather than its cap height.</p>
+          </div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--serif" style="--fg-scale:1.12">Forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">27</span>
+          <div>
+            <p class="cell-name">Italic, smaller</p>
+            <p class="cell-note">Set back so the mark clearly leads and Forge is the qualifier.</p>
+          </div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--serif">forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">28</span>
+          <div>
+            <p class="cell-name">Lowercase italic</p>
+            <p class="cell-note">No capital at all. Matches the mark's own lowercase.</p>
+          </div>
+        </div>
+      </div>
+      <div class="fam">
+        <span class="fam-label">Serif — colour</span>
+        <span class="fam-note">The serif carrying colour, including the two shortlisted ideas combined.</span>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--serif fg--muted">Forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">29</span>
+          <div>
+            <p class="cell-name">Italic muted</p>
+            <p class="cell-note">Serif at secondary weight of colour — the quietest option here.</p>
+          </div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--serif fg--grad" style="--grad:linear-gradient(92deg,var(--ink) 12%,var(--blue) 96%)">Forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">30</span>
+          <div>
+            <p class="cell-name">Italic gradient</p>
+            <p class="cell-note">The two shortlisted ideas combined: Cormorant italic with the white-to-blue ramp.</p>
+          </div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--serif fg--grad" style="--fg-fs:normal;--grad:linear-gradient(92deg,var(--ink) 12%,var(--blue) 96%)">Forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">31</span>
+          <div>
+            <p class="cell-name">Roman gradient</p>
+            <p class="cell-note">Same combination, upright. Easier to read small than the italic version.</p>
+          </div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--serif fg--grad" style="--grad:linear-gradient(92deg,var(--blue) 6%,var(--ink) 90%)">Forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">32</span>
+          <div>
+            <p class="cell-name">Italic, blue to white</p>
+            <p class="cell-note">Reversed ramp on the serif, so the colour sits against the mark.</p>
+          </div>
+        </div>
+      </div>
+      <div class="fam">
+        <span class="fam-label">Contrast plays</span>
+        <span class="fam-note">Whether the change of face needs help from a divider — and what happens if you drop the contrast entirely.</span>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="div-rule"></span><span class="fg fg--serif">Forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">33</span>
+          <div>
+            <p class="cell-name">Serif with a rule</p>
+            <p class="cell-note">A hairline between the mark and the serif, so the change of face reads as deliberate.</p>
+          </div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="div-dot"></span><span class="fg fg--serif">Forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">34</span>
+          <div>
+            <p class="cell-name">Serif with a dot</p>
+            <p class="cell-note">The lightest separator against the heaviest face change.</p>
+          </div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="div-rule"></span><span class="fg fg--grad">forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">35</span>
+          <div>
+            <p class="cell-name">Gradient with a rule</p>
+            <p class="cell-note">The same divider test on the gradient candidate.</p>
+          </div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+          <div class="lock" style="--gap:calc(var(--mark-h) * 0.62)"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--serif">Forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">36</span>
+          <div>
+            <p class="cell-name">Serif italic, wide gap</p>
+            <p class="cell-note">Serif with a lot more air between it and the mark. Two marks rather than one lockup.</p>
+          </div>
+        </div>
+      </div>
+      <div class="fam">
+        <span class="fam-label">Proportion and spacing</span>
+        <span class="fam-note">One treatment held constant so the only variable is how big Forge is and how far away it sits.</span>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+          <div class="lock" style="--gap:calc(var(--mark-h) * 0.15)"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--grad">forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">37</span>
+          <div>
+            <p class="cell-name">Tight gap</p>
+            <p class="cell-note">Half the standard space. The two words start to read as one compound.</p>
+          </div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+          <div class="lock" style="--gap:calc(var(--mark-h) * 0.62)"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--grad">forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">38</span>
+          <div>
+            <p class="cell-name">Wide gap</p>
+            <p class="cell-note">Double. Forge becomes a separate mark that happens to sit alongside.</p>
+          </div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--grad" style="--fg-scale:1.35">forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">39</span>
+          <div>
+            <p class="cell-name">Forge larger</p>
+            <p class="cell-note">Set up to 1.35. Forge leads and the mark becomes the qualifier.</p>
+          </div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="cell-field">
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--grad" style="--fg-shift:calc(var(--mark-h) * -0.08)">forge</span></div>
+        </div>
+        <div class="cell-meta">
+          <span class="cell-num">40</span>
+          <div>
+            <p class="cell-name">Raised</p>
+            <p class="cell-note">Nudged up off the baseline, aligned nearer the mark's cap height.</p>
+          </div>
+        </div>
+      </div>
+  </div>
+
+  <section class="sec-head" id="shimmer">
+    <h2>Shimmer on the F</h2>
+    <p>A highlight travelling around the outline of the F, with the rest of the word solid. This is why the face has to be settled first &mdash; the effect lives on the letterform&rsquo;s contour, so it reads completely differently on a geometric F than on a serif one. Cormorant&rsquo;s thin strokes give the highlight less to travel along; Inter&rsquo;s give it more but less character. Same sweep on all five.</p>
+  </section>
+
+  <div class="shim-rows">
+      <div class="shim-row">
+        <span class="scale-tag">Inter 500</span>
+        <svg class="shim" viewBox="0 0 620 104" role="img" aria-label="bolt Forge">
+          <!-- One gradient, shared by every row (IDs are document-wide, and
+               userSpaceOnUse means the coordinates mean the same thing in each
+               row's identical viewBox — so all six shimmer in step). The bright
+               band is the middle stop; the script at the foot of the page slides
+               x1/x2 across. Driven from rAF rather than SMIL or a CSS keyframe:
+               both of those need the document animation timeline, which is a
+               worse thing to depend on than a frame callback. -->
+          <defs>
+            <linearGradient id="f-shimmer" gradientUnits="userSpaceOnUse" x1="-160" y1="0" x2="0" y2="0">
+              <stop offset="0"    stop-color="currentColor" stop-opacity="0.30"/>
+              <stop offset="0.34" stop-color="currentColor" stop-opacity="0.30"/>
+              <stop offset="0.46" stop-color="#EAF3FF"      stop-opacity="1"/>
+              <stop offset="0.54" stop-color="#EAF3FF"      stop-opacity="1"/>
+              <stop offset="0.66" stop-color="currentColor" stop-opacity="0.30"/>
+              <stop offset="1"    stop-color="currentColor" stop-opacity="0.30"/>
+            </linearGradient>
+          </defs>
+          <use href="#bolt-mark" x="0" y="0" width="167" height="72"/>
+          <text x="195" y="63.5" font-family="Inter, sans-serif" font-weight="500" font-style="normal" font-size="83"><tspan class="shim-f">F</tspan><tspan class="shim-rest">orge</tspan></text>
+        </svg>
+      </div>
+      <div class="shim-row">
+        <span class="scale-tag">Inter 200</span>
+        <svg class="shim" viewBox="0 0 620 104" role="img" aria-label="bolt Forge">
+          <use href="#bolt-mark" x="0" y="0" width="167" height="72"/>
+          <text x="195" y="63.5" font-family="Inter, sans-serif" font-weight="200" font-style="normal" font-size="83"><tspan class="shim-f">F</tspan><tspan class="shim-rest">orge</tspan></text>
+        </svg>
+      </div>
+      <div class="shim-row">
+        <span class="scale-tag">Cormorant italic 400</span>
+        <svg class="shim" viewBox="0 0 620 104" role="img" aria-label="bolt Forge">
+          <use href="#bolt-mark" x="0" y="0" width="167" height="72"/>
+          <text x="195" y="63.5" font-family="'Cormorant Garamond', serif" font-weight="400" font-style="italic" font-size="94"><tspan class="shim-f">F</tspan><tspan class="shim-rest">orge</tspan></text>
+        </svg>
+      </div>
+      <div class="shim-row">
+        <span class="scale-tag">Cormorant italic 500</span>
+        <svg class="shim" viewBox="0 0 620 104" role="img" aria-label="bolt Forge">
+          <use href="#bolt-mark" x="0" y="0" width="167" height="72"/>
+          <text x="195" y="63.5" font-family="'Cormorant Garamond', serif" font-weight="500" font-style="italic" font-size="94"><tspan class="shim-f">F</tspan><tspan class="shim-rest">orge</tspan></text>
+        </svg>
+      </div>
+      <div class="shim-row">
+        <span class="scale-tag">Cormorant roman 400</span>
+        <svg class="shim" viewBox="0 0 620 104" role="img" aria-label="bolt Forge">
+          <use href="#bolt-mark" x="0" y="0" width="167" height="72"/>
+          <text x="195" y="63.5" font-family="'Cormorant Garamond', serif" font-weight="400" font-style="normal" font-size="94"><tspan class="shim-f">F</tspan><tspan class="shim-rest">orge</tspan></text>
+        </svg>
+      </div>
+  </div>
+
 
   <section class="scale-sec">
     <h2>At working sizes</h2>
-    <p>The tiles above are set large, which flatters everything. This is the same five candidates at the sizes they would actually ship at &mdash; a 24px navbar mark, a 40px docs header, and a 96px hero. Anything that stops reading in the top row is out, whatever it looks like at the bottom.</p>
+    <p>The tiles above are set large, which flatters everything. This is both of them at the sizes they would actually ship at &mdash; a 24px navbar mark, a 40px docs header, and a 96px hero. The top row is the one that decides: the gradient has almost no distance to travel at 24px, and Cormorant&rsquo;s thin strokes are the other thing to look at there.</p>
 
     <div class="scale-rows">
       <div class="scale-row" style="--mark-h: 24px;">
         <span class="scale-tag">24px · navbar</span>
         <div class="scale-items">
-          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="div-rule"></span><span class="fg">forge</span></div>
-          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--pixel">Forge</span></div>
-          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--blue">forge</span></div>
           <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--grad">forge</span></div>
-          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--pixel chip chip--tint">Forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--serif">Forge</span></div>
         </div>
       </div>
       <div class="scale-row" style="--mark-h: 40px;">
         <span class="scale-tag">40px · header</span>
         <div class="scale-items">
-          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="div-rule"></span><span class="fg">forge</span></div>
-          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--pixel">Forge</span></div>
-          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--blue">forge</span></div>
           <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--grad">forge</span></div>
-          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--pixel chip chip--tint">Forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--serif">Forge</span></div>
         </div>
       </div>
       <div class="scale-row" style="--mark-h: 96px;">
         <span class="scale-tag">96px · hero</span>
         <div class="scale-items">
-          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="div-rule"></span><span class="fg">forge</span></div>
-          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--pixel">Forge</span></div>
-          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--blue">forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--grad">forge</span></div>
+          <div class="lock"><span class="mark-wrap"><svg viewBox="0 0 100 43"><use href="#bolt-mark"/></svg></span><span class="fg fg--serif">Forge</span></div>
         </div>
       </div>
     </div>
   </section>
 
   <footer class="foot">
-    <p>Prototype page &mdash; not linked from anywhere and marked <code>noindex</code>. The bolt mark is <code>images/bolt-logo.svg</code> and the full wordmark is <code>images/bolt-new.svg</code>, both inlined as symbols and recoloured with <code>currentColor</code> so they follow the ground. &ldquo;Forge&rdquo; is live text (Inter, Silkscreen, Cormorant Garamond) rather than outlines, so any of these can be re-set without redrawing anything.</p>
+    <p>Prototype page &mdash; not linked from anywhere and marked <code>noindex</code>. The bolt mark is <code>images/bolt-logo.svg</code>, inlined as a symbol and recoloured with <code>currentColor</code> so it follows the ground. &ldquo;Forge&rdquo; is live text (Inter for the gradient, Cormorant Garamond for the italic) rather than outlines, so either can be re-set without redrawing anything. The eighteen cut variations are in git history at <code>b26a3e3</code> if any need to come back.</p>
   </footer>
 
 </div>
@@ -674,6 +1005,37 @@
     document.querySelector('.grid').style.setProperty('--mark-h', btn.getAttribute('data-size') + 'px');
     pick(sizeSeg, btn);
   });
+})();
+</script>
+
+<script>
+/* Slides the bright band of #f-shimmer across the shimmer rows. One gradient,
+   referenced by every row, so all six stay in step. Parked over the F (rather
+   than swept) when the visitor asks for reduced motion. */
+(function () {
+  var grad = document.getElementById('f-shimmer');
+  if (!grad) return;
+
+  var WIDTH = 140;            /* how wide the band is, in viewBox units */
+  var START = -200, END = 700, PERIOD = 2800;
+
+  function place(x) {
+    grad.setAttribute('x1', x.toFixed(1));
+    grad.setAttribute('x2', (x + WIDTH).toFixed(1));
+  }
+
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    place(155);               /* sitting on the F */
+    return;
+  }
+
+  var t0 = null;
+  function step(now) {
+    if (t0 === null) t0 = now;
+    place(START + (END - START) * (((now - t0) % PERIOD) / PERIOD));
+    requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
 })();
 </script>
 
