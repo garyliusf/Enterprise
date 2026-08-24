@@ -29,6 +29,11 @@
 <style>
   body { margin:0; }
 
+  /* dnd_area chrome: HubSpot wraps every dropped module in td.hs_padded (20px sides)
+     inside a 600px column — our modules carry their own 600px tables + padding, so
+     kill the wrapper padding or everything shifts 20px right and overflows the card. */
+  .hs_padded { padding:0 !important; }
+
   /* rich-text safety net: normalise anything pasted into a rich-text field */
   .rt p { margin:0 0 16px; font-size:16px; line-height:1.6; color:#000000; }
   .rt ul, .rt ol { margin:0 0 16px; padding:0 0 0 22px; }
@@ -80,14 +85,15 @@
 <table width="100%" cellpadding="0" cellspacing="0" bgcolor="#F2F1EF" style="background:#F2F1EF;">
 <tr><td align="center" style="padding:28px 12px;">
 
-<!--[if mso]><table role="presentation" width="600" cellpadding="0" cellspacing="0" align="center"><tr><td><![endif]-->
-<table class="wrap" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;">
+{# Every module carries its own centered 600px table — module/dnd output is
+   div-wrapped by HubSpot, so nothing here may sit between <tr>s of a shared
+   table (browsers hoist the divs out and the rows go full-bleed). #}
 
   {% module "hero" path="../modules/bolt-hero" %}
 
   {# ---- editable body: CX drags approved modules in here ---- #}
   {% dnd_area "main" %}
-    {% dnd_section %}
+    {% dnd_section padding={'top':0,'right':0,'bottom':0,'left':0}, full_width=False %}
       {% dnd_column %}
         {% dnd_row %}{% dnd_module path="../modules/bolt-rich-text" %}{% end_dnd_module %}{% end_dnd_row %}
         {% dnd_row %}{% dnd_module path="../modules/bolt-section-heading" %}{% end_dnd_module %}{% end_dnd_row %}
@@ -100,6 +106,7 @@
   {% module "signature" path="../modules/bolt-signature" %}
 
   {# ---- footer: locked. Legal tokens are required to publish. ---- #}
+<table class="wrap" width="600" align="center" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;margin:0 auto;">
   <tr><td style="padding:8px 36px 8px;"><div style="font-size:0;line-height:0;">&nbsp;</div></td></tr>
   <tr><td align="center" style="padding:28px 36px 0;">
     <img src="{{ wordmark_grey_url }}" width="88" style="width:88px;display:block;margin:0 auto;" alt="Bolt">
@@ -114,9 +121,7 @@
     {{ site_settings.company_name }} | {{ site_settings.company_street_address_1 }}, {{ site_settings.company_city }}, {{ site_settings.company_state }} {{ site_settings.company_zip }}<br>
     <a href="{{ unsubscribe_link }}" style="color:#8a8f96;">Unsubscribe or Manage Preferences</a>
   </td></tr>
-
 </table>
-<!--[if mso]></td></tr></table><![endif]-->
 
 </td></tr></table>
 </body>
