@@ -345,16 +345,16 @@ function css(t){
     td[style*="border-top:1px solid #111"]{border-top:1px solid #EAEAEA !important}
     @media (max-width:480px){
       body{padding:16px 12px !important}
-      /* card side padding goes proportional (35/600 = 5.26%) so body text
+      /* card side padding goes proportional (35/600 = 6%) so body text
          stays aligned with the banner wordmark as the banner scales down */
-      td[style*="padding: 0 10px"]{padding:6px 5.26% !important}
+      td[style*="padding: 0 10px"]{padding:6px 6% !important}
       /* tighter banner->first-line gap on mobile: kill the rounding strip's
          vertical pad, the content cell's 14px top pad, and CX's 26px spacer */
-      td[style*="border-radius: 6px 6px 0px 0px"]{padding:0 5.26% !important}
+      td[style*="border-radius: 6px 6px 0px 0px"]{padding:0 6% !important}
       td[align="center"][valign="top"]:not([width]){padding-top:13px !important}
       td[style*="height:26px"]{height:12px !important}
-      td[style*="border-radius: 10px 10px 0px 0px"]{padding:8px 5.26% 0 !important}
-      [data-footrow]{padding-left:5.26% !important;padding-right:5.26% !important}
+      td[style*="border-radius: 10px 10px 0px 0px"]{padding:8px 6% 0 !important}
+      [data-footrow]{padding-left:6% !important;padding-right:6% !important}
       [data-footgap]{height:${Math.max(0, t.footerGap - 8)}px !important}
       img[data-footlogo]{width:71px !important}
       [data-footlogo-row]{padding-bottom:16px !important}
@@ -362,9 +362,9 @@ function css(t){
       h1,h2{font-size:${t.hSize - 4}px !important}
       p:not([style]),li,td[align="center"]{font-size:${t.bSize - 1}px !important;
          line-height:1.45 !important}
-      td[style*="border-radius: 0px 0px 10px 10px"]{padding:6px 5.26% 6px !important}
-      p[style*="#999999"],p[style*="#666666"]{padding-left:5.26% !important;
-         padding-right:5.26% !important}
+      td[style*="border-radius: 0px 0px 10px 10px"]{padding:6px 6% 6px !important}
+      p[style*="#999999"],p[style*="#666666"]{padding-left:6% !important;
+         padding-right:6% !important}
     }
     ${t.btnWidth==='hug'
       ? 'td[style*="1389fd"],span[style*="1389fd"]{background:transparent !important;border-radius:0 !important}'
