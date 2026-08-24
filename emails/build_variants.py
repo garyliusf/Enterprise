@@ -673,7 +673,7 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
 # ---- C armor: modern-Outlook dark overrides (mirror of B's approach) ----
 for _col, _cls in [('#ffffff','k-w'), ('#C9CDD3','k-sub'), ('#000000','k-ink'), ('#8a8f96','k-fine'), ('#666666','k-date')]:
     VARIANT_E = re.sub(r'<(p|li|div|span|a|td|h1|h2)( (?![^>]*class=)[^>]*?color:' + _col + ')', r'<\1 class="' + _cls + r'"\2', VARIANT_E)
-VARIANT_E = VARIANT_E.replace('<tr><td bgcolor="#000000" style="background:#000000;border-radius:12px 12px 0 0;', '<tr><td class="k-dark hero-pad" bgcolor="#000000" style="background-color:#000000;background-image:url(va/hero-bg.jpg);background-size:cover;background-position:center top;border-radius:12px 12px 0 0;')
+VARIANT_E = VARIANT_E.replace('<tr><td bgcolor="#000000" style="background:#000000;border-radius:12px 12px 0 0;', '<tr><td class="k-dark hero-pad" bgcolor="#000000" style="background-color:#000000;background-image:url(va/hero-bg.jpg);background-size:100% 100%;background-position:center top;border-radius:12px 12px 0 0;')
 VARIANT_E = VARIANT_E.replace('<tr><td bgcolor="#000000" style="background:#000000;padding:0;line-height:0;">', '<tr><td class="k-dark" bgcolor="#000000" style="background:#000000;padding:0;line-height:0;">')
 VARIANT_E = VARIANT_E.replace('<tr><td bgcolor="#000000" class="px"', '<tr><td bgcolor="#000000" class="px k-dark"')
 VARIANT_E = VARIANT_E.replace('<tr><td bgcolor="#ffffff" class="px"', '<tr><td bgcolor="#ffffff" class="px k-light"')

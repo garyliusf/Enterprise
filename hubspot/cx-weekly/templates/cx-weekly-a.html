@@ -31,8 +31,15 @@
 
   /* dnd_area chrome: HubSpot wraps every dropped module in td.hs_padded (20px sides)
      inside a 600px column — our modules carry their own 600px tables + padding, so
-     kill the wrapper padding or everything shifts 20px right and overflows the card. */
-  .hs_padded { padding:0 !important; }
+     kill the wrapper padding or everything shifts 20px right and overflows the card.
+     MUST be td.hs_padded (element+class): HubSpot appends its generated stylesheet
+     after all template styles regardless of tag position, and it re-adds the padding
+     at ≤639px with .hs_padded !important — only higher specificity beats it. */
+  td.hs_padded { padding:0 !important; }
+  @media only screen and (max-width:639px) {
+    td.hs_padded { padding-left:0 !important; padding-right:0 !important; }
+    div.hse-section { padding-left:0 !important; padding-right:0 !important; }
+  }
 
   /* rich-text safety net: normalise anything pasted into a rich-text field */
   .rt p { margin:0 0 16px; font-size:16px; line-height:1.6; color:#000000; }
