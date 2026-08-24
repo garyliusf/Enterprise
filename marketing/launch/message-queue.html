@@ -82,7 +82,7 @@
 
   /* ── Chat panel ──────────────────────────────────────────────────────────── */
   .chat {
-    width: 468px; flex: 0 0 auto; position: relative;
+    width: 468px; flex: 0 0 468px; position: relative;
     border-right: 1px solid rgba(255,255,255,0.07);
     background: #0c0c0d; display: flex; flex-direction: column; min-height: 0;
   }
@@ -806,36 +806,44 @@ function agentDone(id, secs) {                         // ✓ Worked for 42s →
 }
 
 /* ── Focus push ────────────────────────────────────────────────────────────
-   The browser window never moves or changes size. Instead the chat panel's own
-   UI scale goes up: `zoom` re-lays-out the subtree, so the panel widens, its
-   contents get bigger, and the preview (flex: 1) gives up the space and blurs.
-   A transform can't do this — scaling would overflow the window vertically
-   instead of reflowing inside it. */
+   The browser window never moves or changes size, and the conversation history
+   stays at its normal scale — only the prompt box (queue panel + composer) zooms
+   up. `zoom` re-lays-out the subtree, so giving the zone an explicit width lets
+   it render UI_ZOOM x wider than the chat panel and float out over the blurred
+   site. A transform can't express this: it would overflow the window vertically
+   instead of reflowing, and would blur under the window's own clip. */
 const wbEl    = document.querySelector('.wb');
 const WB_BASE = parseFloat(getComputedStyle(wbEl).getPropertyValue('--wb-scale')) || 0.85;
-const UI_ZOOM = 1.92;          // 468px chat panel -> ~900px. Raise for a tighter push.
-const chatEl  = document.querySelector('.chat');
-const BG = ['.wb-top', '.preview'];
+const UI_ZOOM = 1.92;          // 468px prompt box -> ~900px. Raise for a tighter push.
+const zoneEl  = document.querySelector('.composer-zone');
+const BG = ['.wb-top', '.preview', '.chat-scroll'];
 
 function uiZoomTween(to, dur) {                 // proxy → style.zoom (a real relayout)
-  const o = { z: parseFloat(chatEl.style.zoom) || 1 };
+  const o = { z: parseFloat(zoneEl.style.zoom) || 1 };
   return gsap.to(o, {
     z: to, duration: reduce ? 0.01 : dur, ease: 'power3.inOut',
-    onUpdate() { chatEl.style.zoom = o.z; }
+    onUpdate() { zoneEl.style.zoom = o.z; }
   });
 }
 function focusIn() {
   const tl = gsap.timeline();
+  // pin the width first — without it `zoom` just shrinks the available space and
+  // the box renders cramped at the same on-screen size
+  tl.call(() => { zoneEl.style.width = '468px'; });
   tl.add(uiZoomTween(UI_ZOOM, 0.95), 0);
+  tl.to(zoneEl, { boxShadow: '0 30px 80px rgba(0,0,0,0.55)', duration: 0.8, ease: 'power2.out' }, 0);
   // soft enough that the site stays readable behind it — depth of field, not a screen
-  tl.to('.preview', { filter: 'blur(3.5px)', opacity: 0.72, duration: 0.8, ease: 'power2.out' }, 0.05);
-  tl.to('.wb-top',  { filter: 'blur(2.5px)', opacity: 0.5,  duration: 0.8, ease: 'power2.out' }, 0.05);
+  tl.to('.preview',     { filter: 'blur(3.5px)', opacity: 0.72, duration: 0.8, ease: 'power2.out' }, 0.05);
+  tl.to('.wb-top',      { filter: 'blur(2.5px)', opacity: 0.5,  duration: 0.8, ease: 'power2.out' }, 0.05);
+  tl.to('.chat-scroll', { filter: 'blur(2.5px)', opacity: 0.45, duration: 0.8, ease: 'power2.out' }, 0.05);
   return tl;
 }
 function focusOut() {
   const tl = gsap.timeline();
   tl.add(uiZoomTween(1, 0.9), 0);
+  tl.to(zoneEl, { boxShadow: '0 0px 0px rgba(0,0,0,0)', duration: 0.7, ease: 'power2.out' }, 0);
   tl.to(BG, { filter: 'blur(0px)', opacity: 1, duration: 0.7, ease: 'power2.out' }, 0.15);
+  tl.call(() => { zoneEl.style.width = ''; });
   return tl;
 }
 
@@ -931,7 +939,9 @@ function resetAll() {
   gsap.set(chip, { opacity: 0, y: 28 });
   gsap.set(wbEl, { scale: WB_BASE, x: 0, y: 0 });
   gsap.set(BG, { filter: 'blur(0px)', opacity: 1 });
-  chatEl.style.zoom = 1;
+  zoneEl.style.zoom = 1;
+  zoneEl.style.width = '';
+  gsap.set(zoneEl, { boxShadow: '0 0px 0px rgba(0,0,0,0)' });
 
   // the deployed site back to its "before" state
   sp.classList.remove('is-playing', 'is-dark');
