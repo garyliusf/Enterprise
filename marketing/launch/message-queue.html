@@ -762,9 +762,9 @@ function grow(apply, dur) {
 /* What the agent is visibly doing while it works — phase label, tool line, action count */
 const WORK = {
   ca1: [ [0.0, 'Exploring your project', 'Read', 'src/components/Hero.tsx',      1],
-         [2.6, 'Editing files',          'Edit', 'src/components/Turntable.tsx', 2],
-         [6.0, 'Editing files',          'Edit', 'src/styles/motion.css',        3],
-         [9.2, 'Editing files',          'Edit', 'src/components/Tonearm.tsx',   4] ],
+         [2.2, 'Editing files',          'Edit', 'src/components/Turntable.tsx', 2],
+         [4.4, 'Editing files',          'Edit', 'src/styles/motion.css',        3],
+         [6.4, 'Editing files',          'Edit', 'src/components/Tonearm.tsx',   4] ],
   ca2: [ [0.0, 'Editing files',          'Edit', 'src/components/AlbumCard.tsx', 1],
          [0.8, 'Editing files',          'Edit', 'src/data/releases.ts',         2],
          [1.5, 'Editing files',          'Edit', 'src/components/Catalog.tsx',   3] ],
@@ -863,7 +863,7 @@ function toastQueued() {                        // "Message queued", then away
   const t = document.getElementById('queued-toast'), tl = gsap.timeline();
   tl.fromTo(t, { opacity: 0, x: -14, scale: 0.94 },
                { opacity: 1, x: 0, scale: 1, duration: 0.38, ease: 'back.out(1.8)' });
-  tl.to(t, { opacity: 0, x: 8, duration: 0.32, ease: 'power2.in' }, '+=1.25');
+  tl.to(t, { opacity: 0, x: 8, duration: 0.3, ease: 'power2.in' }, '+=0.9');
   return tl;
 }
 function enqueue(n) {
@@ -981,60 +981,62 @@ function buildMaster() {
 
   // The agent is already mid-task — that's the premise. Open wide on the whole
   // workbench so the running task and the site are both established.
-  tl.add(elapsedTween('ca1', 8, 42, 10.0), 0.6);
+  tl.add(elapsedTween('ca1', 8, 42, 7.9), 0.6);
   tl.add(workTween('ca1'), 0.6);
 
   // Push in on the prompt box and STAY there while both prompts are typed and queued
   tl.add(focusIn(), 1.2);
 
-  // Prompt 1 typed and sent *while it works* → straight into the queue
-  tl.call(() => { stage.classList.add('has-text'); gsap.set(caret, { opacity: 1 }); }, null, 1.6);
-  tl.add(typeTween(compText, PROMPTS[0], 1.6), 1.6);
-  tl.call(() => stage.classList.add('is-sending'), null, 3.5);
+  // Prompt 1 typed and sent *while it works* → straight into the queue. Beats run
+  // back to back: send lands right off the last keystroke, and the next prompt
+  // starts as the row drops into the queue.
+  tl.call(() => { stage.classList.add('has-text'); gsap.set(caret, { opacity: 1 }); }, null, 1.55);
+  tl.add(typeTween(compText, PROMPTS[0], 1.6), 1.55);
+  tl.call(() => stage.classList.add('is-sending'), null, 3.33);
   tl.call(() => {
     stage.classList.remove('has-text');
     compText.textContent = '';
     gsap.set(caret, { opacity: 0 });
-  }, null, 3.75);
-  tl.call(() => stage.classList.remove('is-sending'), null, 4.0);
-  tl.add(enqueue(1), 3.75);
+  }, null, 3.55);
+  tl.call(() => stage.classList.remove('is-sending'), null, 3.78);
+  tl.add(enqueue(1), 3.55);
 
   // Prompt 2 — the queue stacks, reorder handles appear
-  tl.call(() => { stage.classList.add('has-text'); gsap.set(caret, { opacity: 1 }); }, null, 4.9);
-  tl.add(typeTween(compText, PROMPTS[1], 1.75), 4.9);
-  tl.call(() => stage.classList.add('is-sending'), null, 6.95);
+  tl.call(() => { stage.classList.add('has-text'); gsap.set(caret, { opacity: 1 }); }, null, 4.15);
+  tl.add(typeTween(compText, PROMPTS[1], 1.75), 4.15);
+  tl.call(() => stage.classList.add('is-sending'), null, 6.08);
   tl.call(() => {
     stage.classList.remove('has-text');
     compText.textContent = '';
     gsap.set(caret, { opacity: 0 });
-  }, null, 7.2);
-  tl.call(() => stage.classList.remove('is-sending'), null, 7.45);
-  tl.add(enqueue(2), 7.2);
+  }, null, 6.3);
+  tl.call(() => stage.classList.remove('is-sending'), null, 6.53);
+  tl.add(enqueue(2), 6.3);
 
   // Pull back out — everything from here is the queue draining into the site
-  tl.add(focusOut(), 9.6);
+  tl.add(focusOut(), 7.5);
 
   // Task 1 lands
-  tl.add(agentDone('ca1', 42), 10.6);
-  tl.add(fxSpin(), 10.75);
+  tl.add(agentDone('ca1', 42), 8.5);
+  tl.add(fxSpin(), 8.65);
 
   // Queue drains itself — the next prompt starts the moment the last one lands,
   // and each change shows up while the agent is still writing the summary
-  tl.add(dequeue(1, 1), 11.6);
-  tl.add(handOff('cu2', 'ca2'), 11.9);
-  tl.add(elapsedTween('ca2', 1, 14, 2.2), 12.1);
-  tl.add(workTween('ca2'), 12.1);
-  tl.add(fxCovers(), 12.8);
-  tl.add(agentDone('ca2', 14), 14.4);
+  tl.add(dequeue(1, 1), 9.5);
+  tl.add(handOff('cu2', 'ca2'), 9.8);
+  tl.add(elapsedTween('ca2', 1, 14, 2.2), 10.0);
+  tl.add(workTween('ca2'), 10.0);
+  tl.add(fxCovers(), 10.7);
+  tl.add(agentDone('ca2', 14), 12.3);
 
-  tl.add(dequeue(2, 0), 15.4);
-  tl.add(handOff('cu3', 'ca3'), 15.7);
-  tl.add(elapsedTween('ca3', 1, 11, 1.9), 15.9);
-  tl.add(workTween('ca3'), 15.9);
-  tl.add(fxTheme(), 16.5);
-  tl.add(agentDone('ca3', 11), 17.9);
+  tl.add(dequeue(2, 0), 13.3);
+  tl.add(handOff('cu3', 'ca3'), 13.6);
+  tl.add(elapsedTween('ca3', 1, 11, 1.9), 13.8);
+  tl.add(workTween('ca3'), 13.8);
+  tl.add(fxTheme(), 14.4);
+  tl.add(agentDone('ca3', 11), 15.8);
 
-  tl.to({}, { duration: 1.1 }, 19.1);   // hold on the finished state, then loop
+  tl.to({}, { duration: 1.1 }, 17.0);   // hold on the finished state, then loop
   return tl;
 }
 
