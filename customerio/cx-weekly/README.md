@@ -6,9 +6,14 @@ black footer). Same design as `hubspot/cx-weekly/`; design source of truth is
 
 ```
 cx-weekly/
-  templates/cx-weekly-a.html    the full code-editor template (Liquid)
-  snippets/bolt_footer.html     optional shared-footer snippet
+  templates/cx-weekly-a.html    variant A — cloud hero, white content, black footer
+  templates/cx-weekly-b.html    variant B — Musicbed-style all-dark canvas
+  snippets/bolt_footer.html     shared-footer snippet (variant A style; B's footer is in-canvas)
 ```
+
+Both templates share the same conventions: an EDIT block at the top holds every
+per-send value; the markup below is locked. Variant B does NOT use the
+`bolt_footer` snippet — its footer lives inside the black canvas.
 
 Images live in the **Customer.io asset manager** (Assets page, workspace 224051) —
 uploaded 2026-08-24 from `hubspot/cx-weekly/assets/` (still the source files in the
