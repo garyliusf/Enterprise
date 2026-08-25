@@ -449,7 +449,7 @@
       background: #171719;
       padding-left: 2ch;              /* cover the baked date's full width */
       font-family: 'Inter', sans-serif;
-      font-size: 4.2cqw;
+      font-size: 3.5cqw;   /* = 14px at the full 400px panel, scales below */
       line-height: 1.6;
       color: #A4A3AC;
     }
@@ -472,7 +472,10 @@
     }
     .fg-picker-burst {
       position: absolute; width: 30%; aspect-ratio: 1; border-radius: 50%;
-      background: radial-gradient(circle, rgba(20,136,252,0.5) 0%, rgba(100,102,250,0.28) 42%, rgba(188,82,238,0.12) 60%, transparent 72%);
+      /* brand blue → green, feathered by a radial mask */
+      background: linear-gradient(135deg, rgba(20,136,252,0.6) 0%, rgba(0,220,130,0.5) 100%);
+      -webkit-mask: radial-gradient(circle, #000 28%, transparent 70%);
+      mask: radial-gradient(circle, #000 28%, transparent 70%);
       transform: translate(-50%,-50%) scale(0.15);
       opacity: 0; pointer-events: none;
     }
@@ -504,6 +507,17 @@
       transition: transform 0.55s cubic-bezier(0.3,0.7,0.3,1);
       will-change: transform;
       filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
+    }
+    /* idle wander on the inner path — a human hand never holds a cursor
+       perfectly still. Layers on top of the JS glides. */
+    .fg-cursor path { animation: fgCursorDrift 5s ease-in-out infinite; transform-origin: 4px 3px; }
+    @keyframes fgCursorDrift {
+      0%   { transform: translate(0, 0) rotate(0deg); }
+      18%  { transform: translate(3.5px, -2.5px) rotate(1.2deg); }
+      38%  { transform: translate(-2.5px, 3px) rotate(-1deg); }
+      58%  { transform: translate(4px, 2px) rotate(0.8deg); }
+      80%  { transform: translate(-3px, -2px) rotate(-1.2deg); }
+      100% { transform: translate(0, 0) rotate(0deg); }
     }
     @media (prefers-reduced-motion: reduce) {
       .fg-cursor, .fg-picker-hl { display: none; }
