@@ -159,24 +159,23 @@
   .q-acts { display: flex; align-items: center; gap: 14px; flex: 0 0 auto; color: rgba(255,255,255,0.38); }
   .q-acts svg { width: 14px; height: 14px; display: block; }
 
-  /* Lives OUTSIDE .composer-zone, as a child of .wb, so the prompt box's zoom
-     can't scale it off the right edge of the window. JS parks it just past the
-     zoomed box; its metrics are pre-scaled to the size it read at before. */
+  /* Sits just right of the prompt box in the window's own coordinates. The camera
+     magnifies it along with everything else, so these are real UI sizes. */
   .queued-toast {
-    position: absolute; bottom: 150px; z-index: 6;
-    display: flex; align-items: center; gap: 17px; white-space: nowrap;
-    padding: 17px 29px 17px 21px; border-radius: 999px;
+    position: absolute; left: 490px; bottom: 128px; z-index: 6;
+    display: flex; align-items: center; gap: 9px; white-space: nowrap;
+    padding: 9px 15px 9px 11px; border-radius: 999px;
     background: rgba(18,20,26,0.92); border: 1px solid rgba(255,255,255,0.13);
-    box-shadow: 0 20px 52px rgba(0,0,0,0.5);
+    box-shadow: 0 14px 34px rgba(0,0,0,0.45);
     opacity: 0; pointer-events: none;
   }
   .qt-ico {
-    width: 40px; height: 40px; flex: 0 0 40px; border-radius: 11px;
+    width: 21px; height: 21px; flex: 0 0 21px; border-radius: 6px;
     background: rgba(20,136,252,0.18); color: #4DA6FF;
     display: flex; align-items: center; justify-content: center;
   }
-  .qt-ico svg { width: 23px; height: 23px; }
-  .qt-t { font-size: 24px; font-weight: 600; color: #fff; letter-spacing: -0.2px; }
+  .qt-ico svg { width: 12px; height: 12px; }
+  .qt-t { font-size: 12.5px; font-weight: 600; color: #fff; letter-spacing: -0.1px; }
 
   .composer {
     position: relative; z-index: 2;
@@ -321,11 +320,13 @@
      reads as a white border around the box. z-index sits under .composer-zone (5). */
   .focus-scrim {
     position: absolute; inset: 0; z-index: 4; pointer-events: none; opacity: 0;
-    /* Narrow dynamic range on purpose: it stays dark enough near the box to hide
-       the panel seams, but never falls to fully clear, so there's no hard bright
-       edge where the light site shows through. Flat and calm, not a vignette. */
-    background: radial-gradient(155% 135% at 16% 92%,
-      rgba(4,5,8,0.96) 0%, rgba(4,5,8,0.93) 42%, rgba(4,5,8,0.78) 68%, rgba(4,5,8,0.62) 100%);
+    /* Radii are sized for the camera's pushed-in framing: at WB_FOCUS only the
+       window's bottom-left ~873x491 is on screen, so a gradient scaled to the whole
+       element barely falls off inside that and crushes the entire shot flat.
+       Dark enough at the box to hide the panel seams, clear by the far corner. */
+    background: radial-gradient(52% 58% at 14% 92%,
+      rgba(4,5,8,0.94) 0%, rgba(4,5,8,0.89) 34%, rgba(4,5,8,0.62) 62%,
+      rgba(4,5,8,0.3) 80%, rgba(4,5,8,0) 96%);
   }
 
   /* sits bottom-right so it never crowds the zoomed queue in the lower-left */
@@ -827,31 +828,40 @@ function agentDone(id, secs) {                         // ✓ Worked for 42s →
 }
 
 /* ── Focus push ────────────────────────────────────────────────────────────
-   The browser window never moves or changes size, and the conversation history
-   stays at its normal scale — only the prompt box (queue panel + composer)
-   scales up, growing out of its bottom-left corner over the log and the site.
+   A camera move, not an element resize: the whole window scales up and pans so
+   the prompt box comes toward frame centre, taking the log and the site with it.
+   The box itself never changes size — everything just gets closer.
 
-   This is a transform, not `zoom`. `zoom` relayouts every frame, so the text
-   re-wraps continuously and the exit reads as a stutter; a transform composites
-   on the GPU and the type never reflows. */
-const wbEl    = document.querySelector('.wb');
-const WB_BASE = parseFloat(getComputedStyle(wbEl).getPropertyValue('--wb-scale')) || 0.85;
-const UI_ZOOM = 2.88;          // 468px prompt box -> ~1350px. Raise for a tighter push.
-const zoneEl  = document.querySelector('.composer-zone');
-const toastEl = document.getElementById('queued-toast');
-// The box scales from its bottom-left corner, so it renders 468 * scale wide from
-// the window's left edge. Park the toast just past that, clamped so it can never
-// cross the window's right edge and get clipped by .wb's overflow.
-function parkToast() {
-  const z = gsap.getProperty(zoneEl, 'scale') || 1;
-  const left = Math.min(468 * z + 20, 1680 - toastEl.offsetWidth - 28);
-  toastEl.style.left = Math.max(24, left) + 'px';
-}
+   Solved as scale + translate about the window's centre rather than a moving
+   transformOrigin, which would jump the whole frame mid-scale. The pan is
+   clamped so the scaled window can never pull its own edge into shot. */
+const wbEl     = document.querySelector('.wb');
+const WB_BASE  = parseFloat(getComputedStyle(wbEl).getPropertyValue('--wb-scale')) || 1;
+const WB_FOCUS = 2.2;          // how far the camera pushes in. Raise for a tighter shot.
+const zoneEl   = document.querySelector('.composer-zone');
 const BG = ['.wb-top', '.preview', '.chat-scroll'];
+
+/* Translate that brings the prompt box toward centre at a given scale, clamped
+   to keep the window covering the 1920x1080 frame. Resolved as a GSAP function
+   value so it measures when the tween STARTS — the box's centre sits lower or
+   higher depending on how many prompts are queued. */
+function focusOffset(scale) {
+  const wr = wbEl.getBoundingClientRect(), zr = zoneEl.getBoundingClientRect();
+  const unit = wr.width / 1680;                                   // stage scale x wb scale
+  const dx = (zr.left + zr.width  / 2 - (wr.left + wr.width  / 2)) / unit;
+  const dy = (zr.top  + zr.height / 2 - (wr.top  + wr.height / 2)) / unit;
+  const maxX = Math.max(0, 1680 * scale / 2 - 960);
+  const maxY = Math.max(0, 946  * scale / 2 - 540);
+  const clamp = (v, m) => Math.max(-m, Math.min(m, v));
+  return { x: clamp(-dx * scale, maxX), y: clamp(-dy * scale, maxY) };
+}
 
 function focusIn() {
   const tl = gsap.timeline();
-  tl.to(zoneEl, { scale: UI_ZOOM, duration: 0.95, ease: 'power3.inOut', onUpdate: parkToast }, 0);
+  tl.to(wbEl, { scale: WB_FOCUS,
+                x: () => focusOffset(WB_FOCUS).x,
+                y: () => focusOffset(WB_FOCUS).y,
+                duration: 1.05, ease: 'power3.inOut' }, 0);
   tl.to(['.queue-panel', '.composer'], { boxShadow: '0 22px 60px rgba(0,0,0,0.5)', duration: 0.8, ease: 'power2.out' }, 0);
   tl.to('.focus-scrim', { opacity: 1, duration: 0.85, ease: 'power2.out' }, 0);
   tl.to('.chat', { borderRightColor: 'rgba(255,255,255,0)', duration: 0.6, ease: 'power2.out' }, 0);
@@ -863,7 +873,7 @@ function focusIn() {
 }
 function focusOut() {
   const tl = gsap.timeline();
-  tl.to(zoneEl, { scale: 1, duration: 0.9, ease: 'power3.inOut' }, 0);
+  tl.to(wbEl, { scale: WB_BASE, x: 0, y: 0, duration: 1.0, ease: 'power3.inOut' }, 0);
   tl.to(['.queue-panel', '.composer'], { boxShadow: '0 0px 0px rgba(0,0,0,0)', duration: 0.7, ease: 'power2.out' }, 0);
   tl.to(BG, { filter: 'blur(0px)', opacity: 1, duration: 0.7, ease: 'power2.out' }, 0.15);
   tl.to('.focus-scrim', { opacity: 0, duration: 0.75, ease: 'power2.in' }, 0.1);
@@ -997,8 +1007,8 @@ function resetAll() {
 
   gsap.set(wbEl, { scale: WB_BASE, x: 0, y: 0 });
   gsap.set(BG, { filter: 'blur(0px)', opacity: 1 });
-  gsap.set(zoneEl, { scale: 1, transformOrigin: '0% 100%' });
-  parkToast();
+  gsap.set(zoneEl, { scale: 1 });
+  gsap.set(wbEl, { scale: WB_BASE, x: 0, y: 0 });
   gsap.set(['.queue-panel', '.composer'], { boxShadow: '0 0px 0px rgba(0,0,0,0)' });
   gsap.set('.focus-scrim', { opacity: 0 });
   gsap.set('.chat', { borderRightColor: 'rgba(255,255,255,0.07)' });
