@@ -30,6 +30,11 @@ link it to a broadcast and send. No code visible anywhere.
 don't republish linked emails; re-publish to push changes. Check impact first with
 `POST /ds/components/references`.
 
+**Editor note for CX:** the edit-mode canvas draws gaps between components (each is
+a draggable row) — the white card looks "broken into sections" there. It isn't: the
+rendered email is seamless. Toggle **Preview** at the bottom of the canvas to see
+real spacing. Don't try to "fix" these gaps.
+
 **Gotchas learned:** component `content` must be the full `<script>`+`<template>` file
 (raw markup saves fine but shows "No base component found"); `defaultValue` (editor)
 is separate from the schema `.default()` (render); boolean props are passed
