@@ -454,12 +454,6 @@
          as ONE motion and arrive together */
       transition: top 0.55s cubic-bezier(0.3,0.7,0.3,1), opacity 0.2s ease;
     }
-    .fg-picker-checkcover { position: absolute; left: 87.5%; top: 30%; width: 9%; height: 7.5%; background: #171719; }
-    .fg-picker-check {
-      position: absolute; left: 89%; width: 3.8%; top: 31.8%;
-      /* no top transition — a real menu's check JUMPS to the clicked row;
-         sliding it read as lag */
-    }
     .fg-cursor {
       position: absolute; width: 20px; height: 22px; z-index: 3;
       top: 0; left: 0;
@@ -851,8 +845,6 @@
       <div class="fg-picker" id="fg-picker" aria-hidden="true">
         <img class="fg-picker-img" src="../images/forge-submenu.svg" alt="" />
         <span class="fg-picker-hl" id="fg-picker-hl"></span>
-        <span class="fg-picker-checkcover"></span>
-        <svg class="fg-picker-check" id="fg-picker-check" viewBox="0 0 14 11" fill="none"><path d="M1.5 5.5 L5 9 L12.5 1.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <svg class="fg-cursor" id="fg-cursor" viewBox="0 0 20 22" fill="none"><path d="M3 1.5 L3 17.5 L7.2 13.9 L9.7 19.6 L12.6 18.3 L10.1 12.7 L15.4 12.3 Z" fill="#fff" stroke="rgba(0,0,0,0.65)" stroke-width="1.2" stroke-linejoin="round"/></svg>
       </div>
     </div>
@@ -1491,7 +1483,6 @@
   if (!picker || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   var cursor = document.getElementById('fg-cursor');
   var hl = document.getElementById('fg-picker-hl');
-  var check = document.getElementById('fg-picker-check');
   /* row centers as % of the 285×254 SVG (from the export's geometry) */
   var ROWS = [33.5, 46.9, 60.2, 73.6];
   var HL_H = 11.5;
@@ -1524,10 +1515,8 @@
         hl.style.top = (ROWS[row] - HL_H / 2) + '%';
         hl.style.opacity = 1;
         await wait(620);
-        /* beat 2: click — check jumps on the press itself */
-        var pressed = press();
-        check.style.top = (ROWS[row] - 1.7) + '%';
-        await pressed;
+        /* beat 2: click */
+        await press();
         await wait(1050);
       }
       hl.style.opacity = 0;
