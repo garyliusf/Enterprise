@@ -30,10 +30,13 @@ link it to a broadcast and send. No code visible anywhere.
 don't republish linked emails; re-publish to push changes. Check impact first with
 `POST /ds/components/references`.
 
-**Editor note for CX:** the edit-mode canvas draws gaps between components (each is
-a draggable row) — the white card looks "broken into sections" there. It isn't: the
-rendered email is seamless. Toggle **Preview** at the bottom of the canvas to see
-real spacing. Don't try to "fix" these gaps.
+**Component roots must be table/td, never div (learned via a real bug):** a div-root
+component leaks its first/last child's margins via CSS margin collapse — the list's
+16px and the signature's 32px top margins escaped their white containers and showed
+as beige page-background gaps between blocks (visible in Preview AND sent email).
+Table cells don't collapse margins; all bolt-cx-* roots are tables now. The edit-mode
+canvas additionally separates components as draggable rows — judge spacing only in
+**Preview** or a test send.
 
 **Gotchas learned:** component `content` must be the full `<script>`+`<template>` file
 (raw markup saves fine but shows "No base component found"); `defaultValue` (editor)
