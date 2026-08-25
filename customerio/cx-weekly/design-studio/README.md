@@ -40,4 +40,7 @@ real spacing. Don't try to "fix" these gaps.
 is separate from the schema `.default()` (render); boolean props are passed
 `:show-prompt="true"` — quoted-string form fails; `x-section width` includes its own
 side padding (624px − 2×12px = the 600px design column); `{% unsubscribe_url %}`
-survives the two-phase render into send time.
+survives the two-phase render into send time; **component attributes do NOT decode
+HTML entities** — pass raw characters (`signer="Monika & …"`, never `&amp;`) or the
+`${props}` interpolation double-escapes them. Slot/text content DOES take entities
+(`&rsquo;`, `&mdash;`) normally.
