@@ -1,0 +1,70 @@
+<script>
+  export const config = {
+    componentType: 'content',
+    label: 'Bolt CX Event',
+    presets: [{
+      icon: 'event',
+      label: 'Bolt CX Event',
+      section: 'CX Weekly',
+      content: '<bolt-cx-event>Event title goes here — about 60 characters reads best</bolt-cx-event>',
+      description: 'Event row (variant A) — full-bleed image, title (click to edit), date, RSVP link. Add one per event; image, date, and link live in the sidebar.'
+    }]
+  };
+
+  export const props = Component.defineProps({
+    image: {
+      label: 'Event image',
+      section: 'Content',
+      schema: Component.props.string().optional().default('https://userimg-assets.customeriomail.com/images/client-env-224051/01M0V1C6Q6XKE642H4Z233EFGW.jpg'),
+      defaultValue: 'https://userimg-assets.customeriomail.com/images/client-env-224051/01M0V1C6Q6XKE642H4Z233EFGW.jpg',
+      type: 'media',
+      helpText: '1200px wide. Dark edges preferred. Clear to remove the image row.',
+    },
+    'image-alt': {
+      label: 'Image alt text',
+      section: 'Content',
+      schema: Component.props.string().optional().default('Event'),
+      defaultValue: 'Event',
+      type: 'text',
+      advanced: true,
+    },
+    date: {
+      label: 'Date line',
+      section: 'Content',
+      schema: Component.props.string().optional().default('Thursday, August 27'),
+      defaultValue: 'Thursday, August 27',
+      type: 'text',
+      helpText: 'e.g. Thursday, August 27. Clear to hide.',
+    },
+    'rsvp-url': {
+      label: 'RSVP link',
+      section: 'Action',
+      schema: Component.props.string().optional().default('https://bolt.new'),
+      defaultValue: 'https://bolt.new',
+      type: 'url',
+      helpText: 'Clear to hide the RSVP line.',
+    },
+    'rsvp-label': {
+      label: 'Link label',
+      section: 'Action',
+      schema: Component.props.string().optional().default('RSVP'),
+      defaultValue: 'RSVP',
+      type: 'text',
+    },
+  });
+
+  export const slots = Component.defineSlots({
+    default: { schema: Component.slots.text(), marks: [] },
+  });
+</script>
+
+<template>
+  <table #root role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:separate;width:100%;">
+    <tr #if="props.image"><td style="background:#ffffff;padding:0;line-height:0;"><img :src="props.image" :alt="props['image-alt']" width="600" style="width:100%;display:block;" /></td></tr>
+    <tr><td style="background:#ffffff;padding:24px 36px 8px;font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+      <div style="font-size:21px;font-weight:600;color:#000000;line-height:1.4;margin:0 0 6px;"><slot>Event title goes here — about 60 characters reads best</slot></div>
+      <div #if="props.date" style="font-size:15px;font-weight:500;color:#666666;margin:0 0 12px;">${props.date}</div>
+      <p #if="props['rsvp-url']" style="margin:0 0 36px;"><a :href="props['rsvp-url']" style="font-size:16px;color:#1488FC;font-weight:600;text-decoration:none;">${props['rsvp-label']} <span style="letter-spacing:1px;">&rarr;</span></a></p>
+    </td></tr>
+  </table>
+</template>
