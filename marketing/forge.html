@@ -450,7 +450,9 @@
       position: absolute; left: 4.5%; width: 91%; height: 11.5%;
       border-radius: 6px; background: rgba(255,255,255,0.045);
       opacity: 0;
-      transition: top 0.22s cubic-bezier(0.22,1,0.36,1), opacity 0.2s ease;
+      /* same duration + easing as the cursor so highlight and cursor glide
+         as ONE motion and arrive together */
+      transition: top 0.55s cubic-bezier(0.3,0.7,0.3,1), opacity 0.2s ease;
     }
     .fg-picker-checkcover { position: absolute; left: 87.5%; top: 30%; width: 9%; height: 7.5%; background: #171719; }
     .fg-picker-check {
@@ -1517,15 +1519,16 @@
       for (var k = 0; k < order.length; k++) {
         var row = order[k];
         if (!inView) { running = false; return; }
-        place(cursor, 58, ROWS[row] + 3);        /* tip near row text */
-        await wait(560);                          /* cursor traveling */
-        hl.style.top = (ROWS[row] - HL_H / 2) + '%';   /* hover appears on arrival */
+        /* beat 1: cursor + highlight glide together (same transition) */
+        place(cursor, 58, ROWS[row] + 3);
+        hl.style.top = (ROWS[row] - HL_H / 2) + '%';
         hl.style.opacity = 1;
-        await wait(160);
-        var pressed = press();                    /* mousedown… */
-        check.style.top = (ROWS[row] - 1.7) + '%';     /* …check jumps that instant */
+        await wait(620);
+        /* beat 2: click — check jumps on the press itself */
+        var pressed = press();
+        check.style.top = (ROWS[row] - 1.7) + '%';
         await pressed;
-        await wait(1000);
+        await wait(1050);
       }
       hl.style.opacity = 0;
       place(cursor, 82, 92);
