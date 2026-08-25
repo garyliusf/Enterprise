@@ -1,0 +1,97 @@
+<script>
+  export const config = {
+    componentType: 'content',
+    label: 'Bolt CX Dark Tip Card',
+    presets: [{
+      icon: 'lightbulb',
+      label: 'Bolt CX Dark Tip Card',
+      section: 'CX Weekly (Dark)',
+      content: '<bolt-cxd-tip>Once you connect a service like Stripe, the Bolt agent can interact with it directly on your behalf — describe what you want and it creates it in Stripe and wires it into your app.</bolt-cxd-tip>',
+      description: 'Announcement / tip card (variant B) — textured dark card with blue eyebrow, white title, body (click to edit), optional prompt box, CTA. Eyebrow, title, prompt, and button live in the sidebar.'
+    }]
+  };
+
+  export const props = Component.defineProps({
+    eyebrow: {
+      label: 'Eyebrow',
+      section: 'Content',
+      schema: Component.props.string().optional().default('TIP OF THE WEEK'),
+      defaultValue: 'TIP OF THE WEEK',
+      type: 'text',
+      helpText: 'Short, uppercase. Also used for NEW FEATURE, HEADS UP, etc. Clear to hide.',
+    },
+    title: {
+      label: 'Title',
+      section: 'Content',
+      schema: Component.props.string().optional().default('Let the Bolt agent work in your other tools for you'),
+      defaultValue: 'Let the Bolt agent work in your other tools for you',
+      type: 'textarea',
+    },
+    'show-prompt': {
+      label: 'Show prompt box',
+      section: 'Prompt',
+      schema: Component.props.boolean().optional().default(true),
+      defaultValue: true,
+      type: 'switch',
+    },
+    'prompt-label': {
+      label: 'Prompt label',
+      section: 'Prompt',
+      schema: Component.props.string().optional().default('Try this prompt:'),
+      defaultValue: 'Try this prompt:',
+      type: 'text',
+      hidden: (props) => !props['show-prompt'],
+    },
+    'prompt-text': {
+      label: 'Prompt text',
+      section: 'Prompt',
+      schema: Component.props.string().optional().default('Using the Stripe connector, create a new product called Pro Plan at $29/month in test mode, then add a checkout flow for it to my app with success and cancel pages.'),
+      defaultValue: 'Using the Stripe connector, create a new product called Pro Plan at $29/month in test mode, then add a checkout flow for it to my app with success and cancel pages.',
+      type: 'textarea',
+      hidden: (props) => !props['show-prompt'],
+    },
+    'cta-label': {
+      label: 'Button label',
+      section: 'Action',
+      schema: Component.props.string().optional().default('Start Building'),
+      defaultValue: 'Start Building',
+      type: 'text',
+      helpText: 'Clear to hide the button.',
+    },
+    'cta-url': {
+      label: 'Button link',
+      section: 'Action',
+      schema: Component.props.string().optional().default('https://bolt.new'),
+      defaultValue: 'https://bolt.new',
+      type: 'url',
+    },
+  });
+
+  export const slots = Component.defineSlots({
+    default: { schema: Component.slots.text(), marks: ['bold', 'italic', 'link'] },
+  });
+</script>
+
+<template>
+  <table #root role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:separate;width:100%;">
+  <tr><td style="background:#000000;padding:0 40px 0;font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:separate;background-color:#0D0E10;background-image:url(https://userimg-assets.customeriomail.com/images/client-env-224051/01M0V1C7Z8A46NTBW29MR0WQP2.jpg);background-size:cover;background-position:center;border:1px solid #232323;border-radius:10px;"><tr><td style="padding:26px 28px;font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+      <div #if="props.eyebrow" style="margin:0 0 14px;"><span style="display:inline-block;font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;color:#1488FC;">${props.eyebrow}</span></div>
+      <div style="font-size:24px;font-weight:500;color:#ffffff;line-height:1.35;margin:0 0 10px;">${props.title}</div>
+      <div style="font-size:16px;line-height:1.45;color:#ABABAB;"><slot>Once you connect a service like Stripe, the Bolt agent can interact with it directly on your behalf.</slot></div>
+      <fragment #if="props['show-prompt']">
+        <div style="margin:20px 0 8px;font-size:13px;font-weight:600;color:#8a8a8a;">${props['prompt-label']}</div>
+        <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:separate;background-color:#2b2b2b;background-image:radial-gradient(circle at top left,#8FD0FF 0%,#4DA6FF 6%,#1488FC 11%,#2b2b2b 24%);border-radius:12px;"><tr><td style="padding:2px;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:separate;background:#1E1F22;border-radius:10px;"><tr><td style="padding:16px 18px 14px;font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:13px;line-height:1.42;color:#E8E8EA;">${props['prompt-text']}</td></tr>
+          <tr><td style="padding:0 12px 12px;">
+            <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="right"><span style="display:inline-block;width:32px;height:32px;background:#1488FC;border-radius:999px;text-align:center;font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;font-weight:700;line-height:32px;color:#FFFFFF;">&#8593;</span></td></tr></table>
+          </td></tr></table>
+        </td></tr></table>
+      </fragment>
+      <table #if="props['cta-label']" cellpadding="0" cellspacing="0" align="center" style="margin:24px auto 0;"><tr>
+        <td style="background:#1389fd;border-radius:2px;"><a :href="props['cta-url']" style="display:inline-block;min-width:180px;box-sizing:border-box;padding:15px 28px;font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:15px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;white-space:nowrap;">${props['cta-label']}</a></td>
+      </tr></table>
+    </td></tr></table>
+  </td></tr>
+  </table>
+</template>

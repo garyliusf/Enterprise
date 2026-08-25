@@ -20,6 +20,31 @@ The assembled email lives as Design Studio node **1447823b-44b5-4316-999d-5ed94f
 `cx-weekly-a-email.html` for the markup. All components carry a `CX Weekly` section
 in the insert menu, with descriptions.
 
+## Variant B (Musicbed all-dark canvas) — `bolt-cxd-*`
+
+Same system, dark design. Everything sits inside a **canvas** component (the black
+rounded card); insert-menu section `CX Weekly (Dark)`.
+
+| Component (tag) | Workspace id | Editable | Locked |
+|---|---|---|---|
+| `bolt-cxd-canvas` | e4b1ee5f-c0aa-4af5-92f5-b29b4d7df71c | blocks dropped inside | black card, radius 12, overflow clip |
+| `bolt-cxd-header` | ce8851e5-5487-4443-9fd9-2489fa802bb1 | nothing | wordmark row |
+| `bolt-cxd-hero` | 2306b392-c64a-49d3-9efa-8a63b62af0d0 | headline (inline), eyebrow, featured image + alt | badge/type styling, inset-rounded image layout |
+| `bolt-cxd-copy` | b78a2ec3-a359-46e0-b417-a1ceece1c00c | paragraphs/lists inside (set color #ABABAB) | 40px gutters, grey type |
+| `bolt-cxd-button` | 2f2f263e-5912-44fd-8d56-83e235a9c693 | label, link | button spec, left alignment |
+| `bolt-cxd-heading` | cb280250-9657-44eb-884a-29a8a5f4c1f6 | heading text (inline) | 24px/500 white |
+| `bolt-cxd-event` | 46c1527a-b596-4a7c-93de-d59538cc1db9 | title (inline), image, date, RSVP link/label | inset image, spacing, colors |
+| `bolt-cxd-tip` | 533819a5-0cc2-44ec-9fe7-6dd637d94d49 | body (inline), eyebrow, title, prompt toggle/label/text, CTA | textured card, badge, composer chrome |
+| `bolt-cxd-signature` | 3badf7f2-a6fa-44d0-a69d-2fffdeb1ecab | closing, signer | layout, white signer |
+| `bolt-cxd-footer` | 101d4cfb-a799-435d-9c6c-45062fd9b74e | nothing | divider, wordmark, socials, legal, `{% unsubscribe_url %}` |
+
+Assembled email: node **30f20689-6d40-47d0-bb03-c88796cd25b0** ("CX Weekly — Variant B
+(Design Studio)", is_template) — markup in `cx-weekly-b-email.html`. The code
+template's `#000001` band trick is deliberately absent: Design Studio emails ship
+`color-scheme: normal` meta, which handles dark-mode clients, so plain `#000000` is
+used throughout. Verified visually in the editor preview (canvas corners, all seams,
+tip texture, footer).
+
 **Weekly workflow (CX):** duplicate the template email → click text to edit, select a
 block for its sidebar fields → add/remove `Bolt CX Event` blocks from the insert menu →
 link it to a broadcast and send. No code visible anywhere.
