@@ -424,8 +424,10 @@
     });
   /* Fires as the heading ENTERS view (was threshold 0.5 = half-visible, which
      on tall sections meant scrolling well past the heading before it appeared).
-     A small bottom rootMargin keeps it from firing on the very first pixel. */
-  }, { threshold: 0 });
+     A small bottom rootMargin keeps it from firing on the very first pixel —
+     without it the cascade played at the viewport's bottom edge and was over
+     before the heading reached reading position (looked like "no animation"). */
+  }, { threshold: 0, rootMargin: '0px 0px -18% 0px' });
 
   /* ── Subtitle block-reveal ───────────────────────────────────────────────
      Section subtitles get a whole-element fade/blur-up when their heading's
