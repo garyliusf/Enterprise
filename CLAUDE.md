@@ -245,7 +245,7 @@ Canonical source for the sticky **navbar** (`.mkt-nav*` — mega-menu + mobile d
 - **`overflow-x: hidden` on `body` breaks the sticky navbar** — it makes body a scroll container, so `position: sticky` on descendants stops working. Use `overflow-x: hidden; overflow-x: clip;` (hidden first as the fallback). Bit both templates and platform.
 - **Not yet migrated:** `marketing/templates/index.html` and `marketing/templates/detail/index.html` still carry inline copies of this CSS/JS (their markup is now in sync). Mirror changes there until they're migrated to these files.
 
-Pages on the standard: `solutions.html`, `templates/index.html`, `pricing.html` (no divider yet — minor). `templates/detail/index.html` still shows the retired tail.
+Pages on the standard: `solutions.html`, `templates/index.html`, `pricing.html` (no divider yet — minor). `templates/detail/index.html` still shows the retired tail. **Chrome rollout (2026-08-25):** security, security-agent, compliance, trust, trust-v2, integrations, use-cases, solutions/ai-for-real-estate, solutions/smb all got the nav + footer-columns chrome (markup copied from solutions.html, hrefs re-based per depth; they LINK `shared-nav-footer.css/js` — no new inline CSS copies). Their footers were restructured to the canonical order (CTA section → divider → columns → wordmark in its own `.footer-image-section`), body `overflow-x` got the `clip` fallback, and the five security/trust-family heroes moved to the with-nav top pad `clamp(90px, calc(24px + 8.5vh), 148px)`. Still chrome-less on purpose: `solutions/_template` (production `/use-cases/*` renders the site nav from Astro — adding it to the synced template needs Donald's call) and the forrester report page (gated landing).
 
 ---
 
