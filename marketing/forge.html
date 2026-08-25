@@ -1584,16 +1584,28 @@
     cards.forEach(function (c) { c.classList.add('is-plotted'); });
     return;
   }
-  /* each card plots on its own scroll-in: grey lands, blue answers */
+  /* each card plots on its own scroll-in: grey lands, blue answers. On tall
+     viewports both cards can pass the threshold at once — the chain below
+     makes card 2 wait for card 1's full sequence (~2.4s) before starting. */
+  var SEQ_MS = 2400;
+  var plotAt = [];
+  var list = Array.prototype.slice.call(cards);
+  function plot(card) {
+    var idx = list.indexOf(card);
+    var prev = plotAt[idx - 1];
+    var wait = prev ? Math.max(0, prev + SEQ_MS - Date.now()) : 0;
+    plotAt[idx] = Date.now() + wait;
+    setTimeout(function () { card.classList.add('is-plotted'); }, wait);
+  }
   var io = new IntersectionObserver(function (entries) {
     entries.forEach(function (e) {
       if (!e.isIntersecting) return;
-      e.target.classList.add('is-plotted');
+      plot(e.target);
       io.unobserve(e.target);
     });
   /* 0.6 = don't grow until the card is well into view */
   }, { threshold: 0.6 });
-  cards.forEach(function (c) { io.observe(c); });
+  list.forEach(function (c) { io.observe(c); });
 })();
 
 /* ═══════════════════════════════════════════════════════════════════════
