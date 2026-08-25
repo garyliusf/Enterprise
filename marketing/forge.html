@@ -856,7 +856,7 @@
          build inside), rotating slowly. Draws only while in view. -->
     <div class="fg-container-viz">
       <canvas id="fg-cube-canvas" aria-hidden="true"></canvas>
-      <p class="fg-container-caption">Your builds run in your browser. No VMs.</p>
+      <p class="fg-container-caption">WebContainers: your builds run in your browser. No VMs.</p>
     </div>
 
     <div class="fg-why-grid">
@@ -1332,7 +1332,7 @@
     });
     return e;
   }
-  var OUTER = cubeEdges(1), INNER = cubeEdges(0.45);
+  var OUTER = cubeEdges(1);
   var DOTS_PER_EDGE = 14, F = 4.2;   /* perspective distance */
 
   function drawCube(edges, t, rotY, rotX, color, baseOp, scalePx) {
@@ -1360,6 +1360,65 @@
     }
   }
 
+  /* shared rotate+project (same transform as the cube, so the nodes read
+     as INSIDE the container) */
+  function proj(x, y, z, rotY, rotX, scalePx) {
+    var cy = Math.cos(rotY), sy = Math.sin(rotY);
+    var cx = Math.cos(rotX), sx = Math.sin(rotX);
+    var x1 = x*cy + z*sy, z1 = -x*sy + z*cy;
+    var y1 = y*cx - z1*sx, z2 = y*sx + z1*cx;
+    var s = F / (F + z2);
+    return { x: W/2 + x1 * scalePx * s, y: H/2 + y1 * scalePx * s, s: s };
+  }
+
+  /* nodes inside the container + the links that connect them. Fixed layout
+     (a jittered grid, like the WebContainers built-in panel), links pulse
+     faintly in and out on staggered cycles. */
+  var NODES = [
+    [-0.62,-0.55,-0.35], [0.05,-0.6,0.3], [0.6,-0.5,-0.5],
+    [-0.55,-0.05,0.55], [0.02,0.02,-0.06], [0.58,0.05,0.5],
+    [-0.6,0.5,-0.55], [0.0,0.55,0.5], [0.62,0.55,-0.3],
+    [-0.05,-0.35,-0.6], [0.35,0.4,0.02], [-0.35,0.3,0.05]
+  ];
+  var LINKS = [];
+  for (var a = 0; a < NODES.length; a++) for (var b = a + 1; b < NODES.length; b++) {
+    var dx = NODES[a][0]-NODES[b][0], dy = NODES[a][1]-NODES[b][1], dz = NODES[a][2]-NODES[b][2];
+    if (Math.sqrt(dx*dx + dy*dy + dz*dz) < 0.95) LINKS.push([a, b]);
+  }
+  function drawNetwork(t, rotY, rotX, scalePx) {
+    var pts = NODES.map(function (n) { return proj(n[0], n[1], n[2], rotY, rotX, scalePx); });
+    var lit = NODES.map(function () { return 0; });
+    /* links: each on its own slow cycle — draws in, holds faint, fades */
+    for (var i = 0; i < LINKS.length; i++) {
+      var cyc = (t * 0.07 + i * 0.83) % 1;               /* stagger */
+      var op = Math.pow(Math.max(0, Math.sin(cyc * Math.PI * 2)), 2) * 0.22;
+      if (op < 0.01) continue;
+      var A = pts[LINKS[i][0]], B = pts[LINKS[i][1]];
+      var prog = Math.min(1, cyc * 3);                    /* draw-in from A to B */
+      ctx.strokeStyle = 'rgba(110,175,255,' + op.toFixed(3) + ')';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(A.x, A.y);
+      ctx.lineTo(A.x + (B.x-A.x) * prog, A.y + (B.y-A.y) * prog);
+      ctx.stroke();
+      lit[LINKS[i][0]] = Math.max(lit[LINKS[i][0]], op * 3);
+      lit[LINKS[i][1]] = Math.max(lit[LINKS[i][1]], op * 3 * prog);
+    }
+    /* nodes: faint resting dots, brightening + haloing when a link touches */
+    for (var j = 0; j < pts.length; j++) {
+      var p = pts[j];
+      var depth = 0.4 + 0.6 * (p.s - 0.78) / 0.5;
+      var glow = Math.min(1, lit[j]);
+      if (glow > 0.05) {
+        ctx.fillStyle = 'rgba(60,150,255,' + (0.10 * glow * depth).toFixed(3) + ')';
+        ctx.fillRect(p.x - 5, p.y - 5, 10, 10);
+      }
+      var core = (0.28 + 0.6 * glow) * depth;
+      ctx.fillStyle = 'rgba(170,205,255,' + Math.min(core, 0.9).toFixed(3) + ')';
+      ctx.fillRect(p.x - 1.5, p.y - 1.5, 3, 3);
+    }
+  }
+
   var t = 0, inView = false;
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   function frame() {
@@ -1368,7 +1427,7 @@
     var rotY = t * 0.28 + 0.6, rotX = 0.42 + Math.sin(t * 0.18) * 0.06;
     var scalePx = Math.min(W, H) * 0.34;
     drawCube(OUTER, t, rotY, rotX, '255,255,255', 0.5, scalePx);
-    drawCube(INNER, t, -rotY * 0.7 + 0.3, rotX, '60,150,255', 0.9, scalePx);
+    drawNetwork(t, rotY, rotX, scalePx);
     if (reduced) return;             /* one static frame */
     t += 0.016;
     if (inView) requestAnimationFrame(frame);
