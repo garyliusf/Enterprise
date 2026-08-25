@@ -304,7 +304,8 @@
       border-radius: 2px 2px 0 0;
       transition: height 1s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .fg-bar--forge { background: linear-gradient(180deg, #1488FC 0%, #0f6fd0 100%); }
+    /* blue bars wait a beat so the grey comparison bars land first */
+    .fg-bar--forge { background: linear-gradient(180deg, #1488FC 0%, #0f6fd0 100%); transition-delay: 1s; }
     .fg-charts.is-plotted .fg-bar { height: var(--h); }
     .fg-bar-label { margin-top: 12px; font-size: 12px; color: rgba(255,255,255,0.5); text-align: center; line-height: 1.4; }
     .fg-bar-label strong { display: block; font-weight: 500; color: rgba(255,255,255,0.8); }
@@ -1216,7 +1217,9 @@
       charts.classList.add('is-plotted');
       io.unobserve(e.target);
     });
-  }, { threshold: 0.25 });
+  /* 0.6 = don't grow the bars until the charts are well into view (0.25 fired
+     while they were still mostly below the fold and the reveal was missed) */
+  }, { threshold: 0.6 });
   io.observe(charts);
 })();
 
