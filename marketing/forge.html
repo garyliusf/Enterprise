@@ -542,17 +542,17 @@
     }
     .fg-picker-burst {
       position: absolute; width: 30%; aspect-ratio: 1; border-radius: 50%;
-      /* brand blue → green, feathered by a radial mask */
-      background: linear-gradient(135deg, rgba(20,136,252,0.6) 0%, rgba(0,220,130,0.5) 100%);
-      -webkit-mask: radial-gradient(circle, #000 28%, transparent 70%);
-      mask: radial-gradient(circle, #000 28%, transparent 70%);
+      /* brand blue → green — saturated and tight, a flash not a haze */
+      background: linear-gradient(135deg, rgba(20,136,252,0.9) 0%, rgba(0,220,130,0.75) 100%);
+      -webkit-mask: radial-gradient(circle, #000 18%, transparent 56%);
+      mask: radial-gradient(circle, #000 18%, transparent 56%);
       transform: translate(-50%,-50%) scale(0.15);
       opacity: 0; pointer-events: none;
     }
-    .fg-picker-burst.is-go { animation: fgBurst 1.05s cubic-bezier(0.22,1,0.36,1) forwards; }
+    .fg-picker-burst.is-go { animation: fgBurst 0.8s cubic-bezier(0.22,1,0.36,1) forwards; }
     @keyframes fgBurst {
       0%   { opacity: 1;  transform: translate(-50%,-50%) scale(0.1); }
-      100% { opacity: 0;  transform: translate(-50%,-50%) scale(3.4); }
+      100% { opacity: 0;  transform: translate(-50%,-50%) scale(2.4); }
     }
     /* expanding ring chases the burst */
     .fg-picker-ring {
@@ -575,18 +575,6 @@
       45%  { transform: scale(0.988); }
       68%  { transform: scale(1.014); }
       100% { transform: scale(1); }
-    }
-    /* …plus a blue→green wash flashing across the whole panel */
-    .fg-picker-wash {
-      position: absolute; inset: 0; border-radius: 3.5%;
-      background: radial-gradient(circle at 58% 74%, rgba(20,136,252,0.30) 0%, rgba(0,220,130,0.14) 42%, transparent 72%);
-      opacity: 0; pointer-events: none;
-    }
-    .fg-picker-wash.is-go { animation: fgWash 0.9s ease-out forwards; }
-    @keyframes fgWash {
-      0%   { opacity: 0; }
-      25%  { opacity: 1; }
-      100% { opacity: 0; }
     }
     .fg-cursor {
       position: absolute; width: 20px; height: 22px; z-index: 3;
@@ -1027,7 +1015,6 @@
         <svg class="fg-picker-check" id="fg-picker-check" viewBox="0 0 14 11" fill="none"><path d="M1.5 5.5 L5 9 L12.5 1.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span class="fg-picker-burst" id="fg-picker-burst"></span>
         <span class="fg-picker-ring" id="fg-picker-ring"></span>
-        <span class="fg-picker-wash" id="fg-picker-wash"></span>
         <span class="fg-picker-hl" id="fg-picker-hl"></span>
         <svg class="fg-cursor" id="fg-cursor" viewBox="0 0 20 22" fill="none"><path d="M3 1.5 L3 17.5 L7.2 13.9 L9.7 19.6 L12.6 18.3 L10.1 12.7 L15.4 12.3 Z" fill="#fff" stroke="rgba(0,0,0,0.65)" stroke-width="1.2" stroke-linejoin="round"/></svg>
       </div>
@@ -1641,7 +1628,6 @@
     hl.style.opacity = 1;
   }
   var ring = document.getElementById('fg-picker-ring');
-  var wash = document.getElementById('fg-picker-wash');
   var inView = false, running = false;
   async function run() {
     if (running) return; running = true;
@@ -1665,7 +1651,6 @@
       }
       burst.classList.remove('is-go');
       ring.classList.remove('is-go');
-      wash.classList.remove('is-go');
       void burst.offsetWidth;
       await wait(1500);
       if (!inView) { running = false; return; }
@@ -1689,7 +1674,6 @@
       check.classList.add('is-in');
       burst.classList.add('is-go');
       ring.classList.add('is-go');
-      wash.classList.add('is-go');
       picker.classList.add('is-pop');
       hl.style.background = 'rgba(20,136,252,0.16)';   /* selection flash */
       await pressed;
