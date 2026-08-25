@@ -450,12 +450,13 @@
       position: absolute; left: 4.5%; width: 91%; height: 11.5%;
       border-radius: 6px; background: rgba(255,255,255,0.045);
       opacity: 0;
-      transition: top 0.4s cubic-bezier(0.22,1,0.36,1), opacity 0.25s ease;
+      transition: top 0.22s cubic-bezier(0.22,1,0.36,1), opacity 0.2s ease;
     }
     .fg-picker-checkcover { position: absolute; left: 87.5%; top: 30%; width: 9%; height: 7.5%; background: #171719; }
     .fg-picker-check {
       position: absolute; left: 89%; width: 3.8%; top: 31.8%;
-      transition: top 0.35s cubic-bezier(0.22,1,0.36,1);
+      /* no top transition — a real menu's check JUMPS to the clicked row;
+         sliding it read as lag */
     }
     .fg-cursor {
       position: absolute; width: 20px; height: 22px; z-index: 3;
@@ -1520,9 +1521,10 @@
         await wait(560);                          /* cursor traveling */
         hl.style.top = (ROWS[row] - HL_H / 2) + '%';   /* hover appears on arrival */
         hl.style.opacity = 1;
-        await wait(180);
-        check.style.top = (ROWS[row] - 1.7) + '%';     /* selection lands ON the click */
-        await press();
+        await wait(160);
+        var pressed = press();                    /* mousedown… */
+        check.style.top = (ROWS[row] - 1.7) + '%';     /* …check jumps that instant */
+        await pressed;
         await wait(1000);
       }
       hl.style.opacity = 0;
