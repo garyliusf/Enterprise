@@ -471,8 +471,21 @@
     .fg-picker-checkcover { position: absolute; left: 87.5%; top: 30%; width: 9%; height: 7.5%; background: #171719; }
     .fg-picker-check {
       position: absolute; left: 89%; width: 3.8%; top: 31.8%;
-      /* rides WITH the hover bar — identical transition */
-      transition: top 0.55s cubic-bezier(0.3,0.7,0.3,1);
+      /* the check is the SELECTION: it never rides the hover — it jumps to
+         the clicked row with a pop-in */
+    }
+    /* pop-in with a burst of color: green → blue flare, settles white */
+    .fg-picker-check.is-in { animation: fgCheckIn 0.5s cubic-bezier(0.22,1,0.36,1); }
+    .fg-picker-check.is-in path { animation: fgCheckColor 0.9s ease-out; }
+    @keyframes fgCheckIn {
+      0%   { opacity: 0; transform: scale(0.3); filter: drop-shadow(0 0 6px rgba(0,220,130,0.9)); }
+      55%  { opacity: 1; transform: scale(1.3);  filter: drop-shadow(0 0 12px rgba(20,136,252,0.85)); }
+      100% { opacity: 1; transform: scale(1);   filter: drop-shadow(0 0 0 rgba(20,136,252,0)); }
+    }
+    @keyframes fgCheckColor {
+      0%   { stroke: #00DC82; }
+      45%  { stroke: #1488FC; }
+      100% { stroke: #fff; }
     }
     .fg-picker-burst {
       position: absolute; width: 30%; aspect-ratio: 1; border-radius: 50%;
@@ -1592,7 +1605,6 @@
   function hover(row) {
     hl.style.top = (ROWS[row] - HL_H / 2) + '%';
     hl.style.opacity = 1;
-    check.style.top = (ROWS[row] - 1.7) + '%';   /* check rides with the bar */
   }
   var ring = document.getElementById('fg-picker-ring');
   var wash = document.getElementById('fg-picker-wash');
@@ -1604,13 +1616,14 @@
       if (!inView) { running = false; return; }
       /* home state: cursor resting ON the GLM row, bar + check there.
          After a cycle this is a glide back up (no teleports). */
+      check.classList.remove('is-in');
+      check.style.top = (ROWS[0] - 1.7) + '%';   /* selection back home on GLM */
       if (first) {
-        hl.style.transition = 'none'; check.style.transition = 'none';
-        cursor.style.transition = 'none';
+        hl.style.transition = 'none'; cursor.style.transition = 'none';
         place(cursor, 58, ROWS[0] + 3);
         hover(0);
         void hl.offsetHeight;
-        hl.style.transition = ''; check.style.transition = ''; cursor.style.transition = '';
+        hl.style.transition = ''; cursor.style.transition = '';
         first = false;
       } else {
         place(cursor, 58, ROWS[0] + 3);
@@ -1636,6 +1649,10 @@
       ring.style.left = '58%';
       ring.style.top = (ROWS[3] + 2) + '%';
       var pressed = press();
+      /* the check is the SELECTION — it stays on GLM through the walk and
+         lands here, on the click */
+      check.style.top = (ROWS[3] - 1.7) + '%';
+      check.classList.add('is-in');
       burst.classList.add('is-go');
       ring.classList.add('is-go');
       wash.classList.add('is-go');
