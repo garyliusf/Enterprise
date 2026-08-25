@@ -48,15 +48,18 @@
     /* Section header block — eyebrow / H2 / subtitle, centered */
     .fg-head { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 18px; }
     .fg-head--left { align-items: flex-start; text-align: left; }
-    .fg-head .fg-sub {
+    /* type on .fg-sub itself (not scoped to .fg-head) so subs outside the
+       standard head block — e.g. the models half-section — keep the
+       standard subtitle grey */
+    .fg-sub {
       font-size: clamp(15px, 1.1vw, 17px);
       font-weight: 400;
       color: rgba(255,255,255,0.5);
       line-height: 1.65;
       max-width: 620px;
     }
-    @media (max-width: 1024px) { .fg-head .fg-sub { font-size: 16px; } }
-    @media (max-width: 768px)  { .fg-head { gap: 14px; } .fg-head .fg-sub { font-size: 15px; } }
+    @media (max-width: 1024px) { .fg-sub { font-size: 16px; } }
+    @media (max-width: 768px)  { .fg-head { gap: 14px; } .fg-sub { font-size: 15px; } }
 
     /* ═══════════════════════════════════════════════════════════════════
        HERO — short variant (H1 + subtitle + one CTA), per the canonical
@@ -412,6 +415,47 @@
     @media (prefers-reduced-motion: reduce) {
       .fg-node--logo, .fg-node--logo svg, .fg-term-caret { animation: none; }
       .fg-node--logo svg { opacity: 1; }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       MODELS half section — copy + the real Forge submenu (SVG export)
+       with an animated cursor browsing/selecting models
+       ═══════════════════════════════════════════════════════════════════ */
+    .fg-models-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: clamp(40px, 6vw, 96px);
+      align-items: center;
+    }
+    @media (max-width: 900px) { .fg-models-grid { grid-template-columns: 1fr; gap: 44px; } }
+    .fg-models-copy { display: flex; flex-direction: column; gap: 18px; }
+    /* panel-H2 variant (.controls-h2 family), not the full section canon */
+    .fg-models-h2 { font-size: clamp(30px, 3.6vw, 46px); font-weight: 500; color: #fff; line-height: 1.15; letter-spacing: -1px; margin: 0; }
+    .fg-models-copy .fg-sub { max-width: 460px; }
+    .fg-picker { position: relative; width: min(400px, 100%); justify-self: center; }
+    @media (max-width: 900px) { .fg-picker { justify-self: start; } }
+    .fg-picker-img { width: 100%; display: block; }
+    /* overlays are % of the 285×254 SVG box */
+    .fg-picker-hl {
+      position: absolute; left: 4.5%; width: 91%; height: 11.5%;
+      border-radius: 6px; background: rgba(255,255,255,0.045);
+      opacity: 0;
+      transition: top 0.4s cubic-bezier(0.22,1,0.36,1), opacity 0.25s ease;
+    }
+    .fg-picker-checkcover { position: absolute; left: 87.5%; top: 30%; width: 9%; height: 7.5%; background: #171719; }
+    .fg-picker-check {
+      position: absolute; left: 89%; width: 3.8%; top: 31.8%;
+      transition: top 0.35s cubic-bezier(0.22,1,0.36,1);
+    }
+    .fg-cursor {
+      position: absolute; width: 20px; height: 22px; z-index: 3;
+      top: 0; left: 0;
+      transition: transform 0.55s cubic-bezier(0.3,0.7,0.3,1);
+      will-change: transform;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .fg-cursor, .fg-picker-hl { display: none; }
     }
 
     /* card treatment mirrors solutions.html's .trust-check (bordered card,
@@ -773,6 +817,32 @@
     </a>
 
     <p class="fg-bench-foot" id="methodology">The Bolt build index is a blended score across code generation, multi-file edits, tool use and instruction following, measured on real Bolt project traces rather than public leaderboards. Cost is the list rate per million output tokens at the time of testing. Scores move as models ship, so we re-run the index every release and publish the deltas.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     MODELS — half section: you pick the model (animated dropdown demo)
+     ═══════════════════════════════════════════════════════════════════════ -->
+<section class="fg-section" id="models">
+  <div class="fg-wrap">
+    <div class="fg-models-grid">
+      <div class="fg-models-copy dsa-reveal">
+        <!-- panel-H2 variant (the .controls-h2/.aiblock-h2 size), not the
+             full .sc-section-h2 — this is a half section -->
+        <h2 class="fg-models-h2">Open models only, and you pick the model</h2>
+        <p class="fg-sub section-sub">GLM 5.3 by default, with Kimi K3 and DeepSeek v4 as experimental options. The mix evolves, and new open-model drops land in Forge first, day one.</p>
+      </div>
+      <!-- the real Forge submenu design (Figma export) with animated
+           overlays: hover highlight, moving check, and a cursor that
+           browses + selects the models on a loop -->
+      <div class="fg-picker" id="fg-picker" aria-hidden="true">
+        <img class="fg-picker-img" src="../images/forge-submenu.svg" alt="" />
+        <span class="fg-picker-hl" id="fg-picker-hl"></span>
+        <span class="fg-picker-checkcover"></span>
+        <svg class="fg-picker-check" id="fg-picker-check" viewBox="0 0 14 11" fill="none"><path d="M1.5 5.5 L5 9 L12.5 1.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg class="fg-cursor" id="fg-cursor" viewBox="0 0 20 22" fill="none"><path d="M3 1.5 L3 17.5 L7.2 13.9 L9.7 19.6 L12.6 18.3 L10.1 12.7 L15.4 12.3 Z" fill="#fff" stroke="rgba(0,0,0,0.65)" stroke-width="1.2" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1403,6 +1473,66 @@
   document.querySelectorAll('.fg-why').forEach(function(el, i) {
     var cv = el.querySelector('.fg-why-hover-canvas'); if (cv) attachHoverField(el, cv, i);
   });
+})();
+
+/* ═══════════════════════════════════════════════════════════════════════
+   MODEL PICKER DEMO — a cursor browses the Forge submenu and selects
+   models on a loop. Overlays (highlight, check) are % of the SVG box;
+   runs only in view; hidden under prefers-reduced-motion.
+   ═══════════════════════════════════════════════════════════════════════ */
+(function () {
+  var picker = document.getElementById('fg-picker');
+  if (!picker || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var cursor = document.getElementById('fg-cursor');
+  var hl = document.getElementById('fg-picker-hl');
+  var check = document.getElementById('fg-picker-check');
+  /* row centers as % of the 285×254 SVG (from the export's geometry) */
+  var ROWS = [33.5, 46.9, 60.2, 73.6];
+  var HL_H = 11.5;
+  function place(el, xPct, yPct) {
+    var w = picker.clientWidth, h = picker.clientHeight;
+    el.style.transform = 'translate(' + (w * xPct / 100) + 'px,' + (h * yPct / 100) + 'px)';
+  }
+  var inView = false, running = false;
+  function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function press() {
+    cursor.style.transition = 'transform 0.12s ease';
+    var t = cursor.style.transform;
+    cursor.style.transform = t + ' scale(0.82)';
+    return wait(130).then(function () {
+      cursor.style.transform = t;
+      return wait(120).then(function () { cursor.style.transition = 'transform 0.55s cubic-bezier(0.3,0.7,0.3,1)'; });
+    });
+  }
+  async function loop() {
+    if (running) return; running = true;
+    place(cursor, 82, 92);                       /* park bottom-right */
+    var order = [1, 2, 3, 0];                    /* Kimi → Flash → Pro → GLM */
+    while (true) {
+      if (!inView) { running = false; return; } /* stop cleanly off-screen */
+      for (var k = 0; k < order.length; k++) {
+        var row = order[k];
+        if (!inView) { running = false; return; }
+        place(cursor, 58, ROWS[row] + 3);        /* tip near row text */
+        await wait(560);                          /* cursor traveling */
+        hl.style.top = (ROWS[row] - HL_H / 2) + '%';   /* hover appears on arrival */
+        hl.style.opacity = 1;
+        await wait(180);
+        check.style.top = (ROWS[row] - 1.7) + '%';     /* selection lands ON the click */
+        await press();
+        await wait(1000);
+      }
+      hl.style.opacity = 0;
+      place(cursor, 82, 92);
+      await wait(2200);
+    }
+  }
+  new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      inView = e.isIntersecting;
+      if (inView) loop();
+    });
+  }, { threshold: 0.35 }).observe(picker);
 })();
 
 /* ═══════════════════════════════════════════════════════════════════════
