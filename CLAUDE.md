@@ -146,11 +146,13 @@ All buttons must use these exact specs. No inline overrides unless absolutely ne
 ### Horizontal Padding (inner containers)
 | Breakpoint | Value |
 |------------|-------|
-| Desktop | `min(1120px, calc(100vw - 160px))` — 80px each side |
+| Desktop | `min(1200px, calc(100vw - 160px))` — 80px each side (was 1120; sweep 2026-08-25 so containers align with the 1200px mkt-nav bar + site-footer edges) |
 | Tablet (≤1024px) | `min(900px, calc(100vw - 80px))` — 40px each side |
 | Mobile (≤768px) | `calc(100vw - 32px)` — **16px each side** (matches enterprise `px-4`) |
 
 **Never use less than 16px horizontal padding on any breakpoint.**
+
+**Deliberate 1120 holdouts (Gary, 2026-08-25 — do NOT "fix" to 1200):** the nav mega-menu panel (`.mkt-nav-panel-inner` max-width 1120 in shared-nav-footer.css + its five inline copies) and the blog-family light pages (`--max-w: 1120px` on customers/press/customers-detail — editorial reading measure, not the marketing grid). Excluded from the sweep as stale/production-owned: microsoft, bolt-cli, platform-old, platform/referral, staging/enterprise, staging/get-started, blog snapshot.
 
 ### Adjacent-section seams (rule, 2026-08-06)
 The per-section `clamp(80px, 12vh, 140px)` padding applies to each side, so two adjacent sections stack ~215px at the seam. **When both sections share the same background (black-on-black, no visual boundary), the seam must total ~ONE standard unit (~110–155px), not two** — trim ONE side (usually the lower section's `padding-top`, e.g. `clamp(24px, 4vh, 48px)`) rather than shrinking the shared `.section` rule. Keep the full double padding only where a background change, border, or panel edge marks the section break. First applied: solutions.html tabs→use-cases seam.
