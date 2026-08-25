@@ -442,7 +442,17 @@
     /* panel-H2 variant (.controls-h2 family), not the full section canon */
     .fg-panel-h2 { font-size: clamp(30px, 3.6vw, 46px); font-weight: 500; color: #fff; line-height: 1.15; letter-spacing: -1px; margin: 0; }
     .fg-models-copy .fg-sub { max-width: 460px; }
-    .fg-picker { position: relative; width: min(400px, 100%); justify-self: center; }
+    .fg-picker { position: relative; width: min(400px, 100%); justify-self: center; container-type: inline-size; }
+    .fg-picker-resets {
+      position: absolute; right: 4.6%; top: 24.2%;
+      transform: translateY(-100%);
+      background: #171719;
+      padding-left: 2ch;              /* cover the baked date's full width */
+      font-family: 'Inter', sans-serif;
+      font-size: 4.2cqw;
+      line-height: 1.6;
+      color: #A4A3AC;
+    }
     @media (max-width: 900px) { .fg-picker { justify-self: start; } }
     .fg-picker-img { width: 100%; display: block; }
     /* overlays are % of the 285×254 SVG box */
@@ -452,7 +462,41 @@
       opacity: 0;
       /* same duration + easing as the cursor so highlight and cursor glide
          as ONE motion and arrive together */
-      transition: top 0.55s cubic-bezier(0.3,0.7,0.3,1), opacity 0.2s ease;
+      transition: top 0.55s cubic-bezier(0.3,0.7,0.3,1), opacity 0.2s ease, background 0.35s ease;
+    }
+    .fg-picker-checkcover { position: absolute; left: 87.5%; top: 30%; width: 9%; height: 7.5%; background: #171719; }
+    .fg-picker-check {
+      position: absolute; left: 89%; width: 3.8%; top: 31.8%;
+      /* rides WITH the hover bar — identical transition */
+      transition: top 0.55s cubic-bezier(0.3,0.7,0.3,1);
+    }
+    .fg-picker-burst {
+      position: absolute; width: 30%; aspect-ratio: 1; border-radius: 50%;
+      background: radial-gradient(circle, rgba(20,136,252,0.5) 0%, rgba(100,102,250,0.28) 42%, rgba(188,82,238,0.12) 60%, transparent 72%);
+      transform: translate(-50%,-50%) scale(0.15);
+      opacity: 0; pointer-events: none;
+    }
+    .fg-picker-burst.is-go { animation: fgBurst 1.05s cubic-bezier(0.22,1,0.36,1) forwards; }
+    @keyframes fgBurst {
+      0%   { opacity: 1;  transform: translate(-50%,-50%) scale(0.1); }
+      100% { opacity: 0;  transform: translate(-50%,-50%) scale(3.4); }
+    }
+    /* expanding ring chases the burst */
+    .fg-picker-ring {
+      position: absolute; width: 24%; aspect-ratio: 1; border-radius: 50%;
+      border: 1.5px solid rgba(20,136,252,0.75);
+      transform: translate(-50%,-50%) scale(0.2);
+      opacity: 0; pointer-events: none;
+    }
+    .fg-picker-ring.is-go { animation: fgRing 0.9s cubic-bezier(0.22,1,0.36,1) 0.06s forwards; }
+    @keyframes fgRing {
+      0%   { opacity: 0.9; transform: translate(-50%,-50%) scale(0.2); border-width: 2px; }
+      100% { opacity: 0;   transform: translate(-50%,-50%) scale(3.0); border-width: 1px; }
+    }
+    /* whole panel pops with the click */
+    .fg-picker.is-pop { animation: fgPanelPop 0.5s cubic-bezier(0.22,1,0.36,1); }
+    @keyframes fgPanelPop {
+      0% { transform: scale(1); } 30% { transform: scale(1.018); } 100% { transform: scale(1); }
     }
     .fg-cursor {
       position: absolute; width: 20px; height: 22px; z-index: 3;
@@ -844,6 +888,13 @@
            browses + selects the models on a loop -->
       <div class="fg-picker" id="fg-picker" aria-hidden="true">
         <img class="fg-picker-img" src="../images/forge-submenu.svg" alt="" />
+        <!-- the export's "Resets Sep 1" is outlined paths — covered by a
+             live label so the date stays editable -->
+        <span class="fg-picker-resets">Resets Oct 14</span>
+        <span class="fg-picker-checkcover"></span>
+        <svg class="fg-picker-check" id="fg-picker-check" viewBox="0 0 14 11" fill="none"><path d="M1.5 5.5 L5 9 L12.5 1.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="fg-picker-burst" id="fg-picker-burst"></span>
+        <span class="fg-picker-ring" id="fg-picker-ring"></span>
         <span class="fg-picker-hl" id="fg-picker-hl"></span>
         <svg class="fg-cursor" id="fg-cursor" viewBox="0 0 20 22" fill="none"><path d="M3 1.5 L3 17.5 L7.2 13.9 L9.7 19.6 L12.6 18.3 L10.1 12.7 L15.4 12.3 Z" fill="#fff" stroke="rgba(0,0,0,0.65)" stroke-width="1.2" stroke-linejoin="round"/></svg>
       </div>
@@ -1071,7 +1122,7 @@
   <div class="ms-faq-inner">
     <div class="dsa-reveal">
       <p class="ms-faq-eyebrow eyebrow-scramble">FAQ</p>
-      <h2 class="ms-faq-headline">Forge, answered</h2>
+      <h2 class="ms-faq-headline">Questions, answered</h2>
     </div>
     <div class="ms-faq-list">
 
@@ -1483,6 +1534,8 @@
   if (!picker || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   var cursor = document.getElementById('fg-cursor');
   var hl = document.getElementById('fg-picker-hl');
+  var check = document.getElementById('fg-picker-check');
+  var burst = document.getElementById('fg-picker-burst');
   /* row centers as % of the 285×254 SVG (from the export's geometry) */
   var ROWS = [33.5, 46.9, 60.2, 73.6];
   var HL_H = 11.5;
@@ -1490,7 +1543,6 @@
     var w = picker.clientWidth, h = picker.clientHeight;
     el.style.transform = 'translate(' + (w * xPct / 100) + 'px,' + (h * yPct / 100) + 'px)';
   }
-  var inView = false, running = false;
   function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
   function press() {
     cursor.style.transition = 'transform 0.12s ease';
@@ -1501,35 +1553,69 @@
       return wait(120).then(function () { cursor.style.transition = 'transform 0.55s cubic-bezier(0.3,0.7,0.3,1)'; });
     });
   }
-  async function loop() {
+  function hover(row) {
+    hl.style.top = (ROWS[row] - HL_H / 2) + '%';
+    hl.style.opacity = 1;
+    check.style.top = (ROWS[row] - 1.7) + '%';   /* check rides with the bar */
+  }
+  var ring = document.getElementById('fg-picker-ring');
+  var inView = false, running = false;
+  async function run() {
     if (running) return; running = true;
-    place(cursor, 82, 92);                       /* park bottom-right */
-    var order = [1, 2, 3, 0];                    /* Kimi → Flash → Pro → GLM */
+    var first = true;
     while (true) {
-      if (!inView) { running = false; return; } /* stop cleanly off-screen */
-      for (var k = 0; k < order.length; k++) {
-        var row = order[k];
-        if (!inView) { running = false; return; }
-        /* beat 1: cursor + highlight glide together (same transition) */
-        place(cursor, 58, ROWS[row] + 3);
-        hl.style.top = (ROWS[row] - HL_H / 2) + '%';
-        hl.style.opacity = 1;
-        await wait(620);
-        /* beat 2: click */
-        await press();
-        await wait(1050);
+      if (!inView) { running = false; return; }
+      /* home state: cursor resting ON the GLM row, bar + check there.
+         After a cycle this is a glide back up (no teleports). */
+      if (first) {
+        hl.style.transition = 'none'; check.style.transition = 'none';
+        cursor.style.transition = 'none';
+        place(cursor, 58, ROWS[0] + 3);
+        hover(0);
+        void hl.offsetHeight;
+        hl.style.transition = ''; check.style.transition = ''; cursor.style.transition = '';
+        first = false;
+      } else {
+        place(cursor, 58, ROWS[0] + 3);
+        hover(0);
       }
-      hl.style.opacity = 0;
-      place(cursor, 82, 92);
-      await wait(2200);
+      burst.classList.remove('is-go');
+      ring.classList.remove('is-go');
+      void burst.offsetWidth;
+      await wait(1500);
+      if (!inView) { running = false; return; }
+      /* walk down: Kimi → Flash → Pro, cursor + bar + check as one motion */
+      var path = [1, 2, 3];
+      for (var k = 0; k < path.length; k++) {
+        var row = path[k];
+        place(cursor, 58, ROWS[row] + 3);
+        hover(row);
+        await wait(row === 3 ? 520 : 880);
+      }
+      /* the dramatic click on DeepSeek v4 Pro: burst + ring + panel pop */
+      burst.style.left = '58%';
+      burst.style.top = (ROWS[3] + 2) + '%';
+      ring.style.left = '58%';
+      ring.style.top = (ROWS[3] + 2) + '%';
+      var pressed = press();
+      burst.classList.add('is-go');
+      ring.classList.add('is-go');
+      picker.classList.add('is-pop');
+      hl.style.background = 'rgba(20,136,252,0.16)';   /* selection flash */
+      await pressed;
+      await wait(520);
+      hl.style.background = '';
+      picker.classList.remove('is-pop');
+      await wait(2600);                           /* hold the selection */
     }
   }
-  new IntersectionObserver(function (entries) {
+  var io = new IntersectionObserver(function (entries) {
     entries.forEach(function (e) {
       inView = e.isIntersecting;
-      if (inView) loop();
+      if (inView) run();
     });
-  }, { threshold: 0.35 }).observe(picker);
+  }, { threshold: 0.5 });
+  io.observe(picker);
 })();
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -1558,25 +1644,41 @@
   /* connections by DOM order: 0 top, 1 left, 2 right, 3 lower-right dims;
      4 nuxt, 5 next, 6 svelte, 7 astro */
   var LINKS = [[4,5],[7,5],[5,6],[5,3],[0,4],[0,7],[1,6],[2,3]];
-  /* one mote per link: slow traverse, staggered, fades near the endpoints */
-  var MOTES = LINKS.map(function (l, i) {
-    return { l: l, speed: 1 / (9 + (i % 3) * 2.5), u: (i * 0.37) % 1 };
+  /* each link is a CONTINUOUS stream: tiny particles evenly spaced along
+     the whole segment, all advancing together — reads as a dotted line of
+     energy flowing into the node. Direction alternates per link. */
+  var STREAMS = LINKS.map(function (l, i) {
+    return {
+      l: l,
+      speed: (1 / (7 + (i % 3) * 2)) * (i % 2 ? 1 : -1),  /* alternate flow direction */
+      phase: i * 0.37,
+      shimmer: i * 1.9
+    };
   });
-  var inView = false, last = 0;
+  var SPACING = 6;      /* px between particles along the line */
+  var inView = false, last = 0, t = 0;
   function frame(ts) {
     if (!inView) return;
     var dt = last ? Math.min((ts - last) / 1000, 0.05) : 0.016;
-    last = ts;
+    last = ts; t += dt;
     ctx.clearRect(0, 0, W, H);
-    for (var i = 0; i < MOTES.length; i++) {
-      var m = MOTES[i];
-      m.u = (m.u + m.speed * dt) % 1;
-      var A = centers[m.l[0]], B = centers[m.l[1]];
+    for (var i = 0; i < STREAMS.length; i++) {
+      var s = STREAMS[i];
+      var A = centers[s.l[0]], B = centers[s.l[1]];
       if (!A || !B) continue;
-      var x = A[0] + (B[0]-A[0]) * m.u, y = A[1] + (B[1]-A[1]) * m.u;
-      var fade = Math.min(1, Math.min(m.u, 1 - m.u) / 0.18);   /* ease in/out of the circles */
-      ctx.fillStyle = 'rgba(120,175,240,' + (0.55 * fade).toFixed(3) + ')';
-      ctx.fillRect(x - 1, y - 1, 2, 2);
+      var len = Math.hypot(B[0]-A[0], B[1]-A[1]);
+      var n = Math.max(4, Math.round(len / SPACING));
+      var drift = t * s.speed + s.phase;
+      for (var j = 0; j < n; j++) {
+        var u = ((j / n + drift) % 1 + 1) % 1;
+        var x = A[0] + (B[0]-A[0]) * u, y = A[1] + (B[1]-A[1]) * u;
+        /* soft fade where the stream enters the circles */
+        var fade = Math.min(1, Math.min(u, 1 - u) / 0.10);
+        /* gentle shimmer travelling along the stream */
+        var tw = 0.7 + 0.3 * Math.sin(u * 14 + t * 2 + s.shimmer);
+        ctx.fillStyle = 'rgba(120,175,240,' + (0.30 * fade * tw).toFixed(3) + ')';
+        ctx.fillRect(x - 0.75, y - 0.75, 1.5, 1.5);
+      }
     }
     requestAnimationFrame(frame);
   }
