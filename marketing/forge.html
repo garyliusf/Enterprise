@@ -443,16 +443,20 @@
     .fg-panel-h2 { font-size: clamp(30px, 3.6vw, 46px); font-weight: 500; color: #fff; line-height: 1.15; letter-spacing: -1px; margin: 0; }
     .fg-models-copy .fg-sub { max-width: 460px; }
     .fg-picker { position: relative; width: min(400px, 100%); justify-self: center; container-type: inline-size; }
-    .fg-picker-resets {
-      position: absolute; right: 4.6%; top: 24.2%;
+    /* both usage-row texts are outlined paths in the export — covered by
+       live labels so they share one font size + weight (and stay editable) */
+    .fg-picker-resets, .fg-picker-used {
+      position: absolute; top: 24.2%;
       transform: translateY(-100%);
       background: #171719;
-      padding-left: 2ch;              /* cover the baked date's full width */
       font-family: 'Inter', sans-serif;
       font-size: 3.5cqw;   /* = 14px at the full 400px panel, scales below */
+      font-weight: 400;
       line-height: 1.6;
       color: #A4A3AC;
     }
+    .fg-picker-resets { right: 4.6%; padding-left: 2ch; }   /* cover the baked date */
+    .fg-picker-used   { left: 4.8%;  padding-right: 2ch; }  /* cover the baked "62% used" */
     @media (max-width: 900px) { .fg-picker { justify-self: start; } }
     .fg-picker-img { width: 100%; display: block; }
     /* overlays are % of the 285×254 SVG box */
@@ -496,10 +500,27 @@
       0%   { opacity: 0.9; transform: translate(-50%,-50%) scale(0.2); border-width: 2px; }
       100% { opacity: 0;   transform: translate(-50%,-50%) scale(3.0); border-width: 1px; }
     }
-    /* whole panel pops with the click */
-    .fg-picker.is-pop { animation: fgPanelPop 0.5s cubic-bezier(0.22,1,0.36,1); }
-    @keyframes fgPanelPop {
-      0% { transform: scale(1); } 30% { transform: scale(1.018); } 100% { transform: scale(1); }
+    /* the click sends a WAVE through the container: springy oscillation
+       emanating from the click point… */
+    .fg-picker.is-pop { animation: fgPanelWave 0.75s cubic-bezier(0.22,1,0.36,1); transform-origin: 58% 74%; }
+    @keyframes fgPanelWave {
+      0%   { transform: scale(1); }
+      22%  { transform: scale(1.035); }
+      45%  { transform: scale(0.988); }
+      68%  { transform: scale(1.014); }
+      100% { transform: scale(1); }
+    }
+    /* …plus a blue→green wash flashing across the whole panel */
+    .fg-picker-wash {
+      position: absolute; inset: 0; border-radius: 3.5%;
+      background: radial-gradient(circle at 58% 74%, rgba(20,136,252,0.30) 0%, rgba(0,220,130,0.14) 42%, transparent 72%);
+      opacity: 0; pointer-events: none;
+    }
+    .fg-picker-wash.is-go { animation: fgWash 0.9s ease-out forwards; }
+    @keyframes fgWash {
+      0%   { opacity: 0; }
+      25%  { opacity: 1; }
+      100% { opacity: 0; }
     }
     .fg-cursor {
       position: absolute; width: 20px; height: 22px; z-index: 3;
@@ -905,10 +926,12 @@
         <!-- the export's "Resets Sep 1" is outlined paths — covered by a
              live label so the date stays editable -->
         <span class="fg-picker-resets">Resets Oct 14</span>
+        <span class="fg-picker-used">62% used</span>
         <span class="fg-picker-checkcover"></span>
         <svg class="fg-picker-check" id="fg-picker-check" viewBox="0 0 14 11" fill="none"><path d="M1.5 5.5 L5 9 L12.5 1.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span class="fg-picker-burst" id="fg-picker-burst"></span>
         <span class="fg-picker-ring" id="fg-picker-ring"></span>
+        <span class="fg-picker-wash" id="fg-picker-wash"></span>
         <span class="fg-picker-hl" id="fg-picker-hl"></span>
         <svg class="fg-cursor" id="fg-cursor" viewBox="0 0 20 22" fill="none"><path d="M3 1.5 L3 17.5 L7.2 13.9 L9.7 19.6 L12.6 18.3 L10.1 12.7 L15.4 12.3 Z" fill="#fff" stroke="rgba(0,0,0,0.65)" stroke-width="1.2" stroke-linejoin="round"/></svg>
       </div>
@@ -1066,7 +1089,6 @@
         <span class="plan-flag">Recommended</span>
         <span class="plan-label">Pro</span>
         <div class="card-price">
-          <span class="price-prefix">From</span>
           <span class="price-amount">$25</span>
           <span class="price-period">/month</span>
         </div>
@@ -1573,6 +1595,7 @@
     check.style.top = (ROWS[row] - 1.7) + '%';   /* check rides with the bar */
   }
   var ring = document.getElementById('fg-picker-ring');
+  var wash = document.getElementById('fg-picker-wash');
   var inView = false, running = false;
   async function run() {
     if (running) return; running = true;
@@ -1595,6 +1618,7 @@
       }
       burst.classList.remove('is-go');
       ring.classList.remove('is-go');
+      wash.classList.remove('is-go');
       void burst.offsetWidth;
       await wait(1500);
       if (!inView) { running = false; return; }
@@ -1614,6 +1638,7 @@
       var pressed = press();
       burst.classList.add('is-go');
       ring.classList.add('is-go');
+      wash.classList.add('is-go');
       picker.classList.add('is-pop');
       hl.style.background = 'rgba(20,136,252,0.16)';   /* selection flash */
       await pressed;
