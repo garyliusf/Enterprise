@@ -1371,52 +1371,71 @@
     return { x: W/2 + x1 * scalePx * s, y: H/2 + y1 * scalePx * s, s: s };
   }
 
-  /* nodes inside the container + the links that connect them. Fixed layout
-     (a jittered grid, like the WebContainers built-in panel), links pulse
-     faintly in and out on staggered cycles. */
-  var NODES = [
+  /* inside the container: circular node tiles (the WebContainers "built in"
+     panel language) — most rest dark; four carry framework marks that glow
+     in brand colors on slow staggered pulses. */
+  var NODE_POS = [
     [-0.62,-0.55,-0.35], [0.05,-0.6,0.3], [0.6,-0.5,-0.5],
     [-0.55,-0.05,0.55], [0.02,0.02,-0.06], [0.58,0.05,0.5],
     [-0.6,0.5,-0.55], [0.0,0.55,0.5], [0.62,0.55,-0.3],
     [-0.05,-0.35,-0.6], [0.35,0.4,0.02], [-0.35,0.3,0.05]
   ];
-  var LINKS = [];
-  for (var a = 0; a < NODES.length; a++) for (var b = a + 1; b < NODES.length; b++) {
-    var dx = NODES[a][0]-NODES[b][0], dy = NODES[a][1]-NODES[b][1], dz = NODES[a][2]-NODES[b][2];
-    if (Math.sqrt(dx*dx + dy*dy + dz*dz) < 0.95) LINKS.push([a, b]);
+  /* brand marks on spread-out nodes: Nuxt (mountain), Next (N), Svelte (S),
+     Astro (A) — matching the reference panel's lit tiles */
+  var BRAND_AT = {
+    1:  { color: '0,220,130',  glyph: null, phase: 0.00 },   /* Nuxt */
+    5:  { color: '255,255,255', glyph: 'N', phase: 0.25 },   /* Next.js */
+    7:  { color: '255,62,0',   glyph: 'S', phase: 0.50 },    /* Svelte */
+    10: { color: '188,82,238', glyph: 'A', phase: 0.75 }     /* Astro */
+  };
+  function pulse(t, ph) {
+    var c = (t * 0.08 + ph) % 1;
+    return Math.pow(Math.max(0, Math.sin(c * Math.PI * 2)), 2);
   }
-  function drawNetwork(t, rotY, rotX, scalePx) {
-    var pts = NODES.map(function (n) { return proj(n[0], n[1], n[2], rotY, rotX, scalePx); });
-    var lit = NODES.map(function () { return 0; });
-    /* links: each on its own slow cycle — draws in, holds faint, fades */
-    for (var i = 0; i < LINKS.length; i++) {
-      var cyc = (t * 0.07 + i * 0.83) % 1;               /* stagger */
-      var op = Math.pow(Math.max(0, Math.sin(cyc * Math.PI * 2)), 2) * 0.22;
-      if (op < 0.01) continue;
-      var A = pts[LINKS[i][0]], B = pts[LINKS[i][1]];
-      var prog = Math.min(1, cyc * 3);                    /* draw-in from A to B */
-      ctx.strokeStyle = 'rgba(110,175,255,' + op.toFixed(3) + ')';
+  function drawNodes(t, rotY, rotX, scalePx) {
+    var order = NODE_POS.map(function (n, i) {
+      return { i: i, p: proj(n[0], n[1], n[2], rotY, rotX, scalePx) };
+    }).sort(function (a, b) { return a.p.s - b.p.s; });   /* back to front */
+    order.forEach(function (o) {
+      var p = o.p;
+      var r = 16 * p.s * p.s;                              /* depth-scaled tile */
+      var depth = 0.35 + 0.65 * (p.s - 0.78) / 0.5;
+      ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, 7);
+      ctx.fillStyle = 'rgba(15,18,24,' + (0.85 * depth).toFixed(3) + ')';
+      ctx.fill();
       ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(A.x, A.y);
-      ctx.lineTo(A.x + (B.x-A.x) * prog, A.y + (B.y-A.y) * prog);
+      ctx.strokeStyle = 'rgba(255,255,255,' + (0.11 * depth).toFixed(3) + ')';
       ctx.stroke();
-      lit[LINKS[i][0]] = Math.max(lit[LINKS[i][0]], op * 3);
-      lit[LINKS[i][1]] = Math.max(lit[LINKS[i][1]], op * 3 * prog);
-    }
-    /* nodes: faint resting dots, brightening + haloing when a link touches */
-    for (var j = 0; j < pts.length; j++) {
-      var p = pts[j];
-      var depth = 0.4 + 0.6 * (p.s - 0.78) / 0.5;
-      var glow = Math.min(1, lit[j]);
-      if (glow > 0.05) {
-        ctx.fillStyle = 'rgba(60,150,255,' + (0.10 * glow * depth).toFixed(3) + ')';
-        ctx.fillRect(p.x - 5, p.y - 5, 10, 10);
+      var b = BRAND_AT[o.i];
+      if (!b) return;
+      var a = pulse(t, b.phase);
+      if (a > 0.02) {                                      /* brand glow ring */
+        ctx.save();
+        ctx.shadowColor = 'rgba(' + b.color + ',' + (0.55 * a).toFixed(3) + ')';
+        ctx.shadowBlur = 16 * a * p.s;
+        ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, 7);
+        ctx.strokeStyle = 'rgba(' + b.color + ',' + (0.2 + 0.6 * a).toFixed(3) + ')';
+        ctx.stroke();
+        ctx.restore();
       }
-      var core = (0.28 + 0.6 * glow) * depth;
-      ctx.fillStyle = 'rgba(170,205,255,' + Math.min(core, 0.9).toFixed(3) + ')';
-      ctx.fillRect(p.x - 1.5, p.y - 1.5, 3, 3);
-    }
+      var ga = (0.3 + 0.7 * a) * depth;
+      if (b.glyph) {
+        ctx.fillStyle = 'rgba(255,255,255,' + ga.toFixed(3) + ')';
+        ctx.font = '600 ' + Math.max(8, r * 0.95) + 'px Inter, sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(b.glyph, p.x, p.y + r * 0.04);
+      } else {                                             /* Nuxt mountain */
+        ctx.beginPath();
+        ctx.moveTo(p.x - r*0.58, p.y + r*0.32);
+        ctx.lineTo(p.x - r*0.08, p.y - r*0.42);
+        ctx.lineTo(p.x + r*0.16, p.y - r*0.06);
+        ctx.lineTo(p.x + r*0.32, p.y - r*0.28);
+        ctx.lineTo(p.x + r*0.62, p.y + r*0.32);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(0,220,130,' + ga.toFixed(3) + ')';
+        ctx.fill();
+      }
+    });
   }
 
   var t = 0, inView = false;
@@ -1427,7 +1446,7 @@
     var rotY = t * 0.28 + 0.6, rotX = 0.42 + Math.sin(t * 0.18) * 0.06;
     var scalePx = Math.min(W, H) * 0.34;
     drawCube(OUTER, t, rotY, rotX, '255,255,255', 0.5, scalePx);
-    drawNetwork(t, rotY, rotX, scalePx);
+    drawNodes(t, rotY, rotX, scalePx);
     if (reduced) return;             /* one static frame */
     t += 0.016;
     if (inView) requestAnimationFrame(frame);
