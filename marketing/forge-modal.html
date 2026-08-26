@@ -38,7 +38,7 @@
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
     opacity: 0; pointer-events: none;
-    transition: opacity .24s ease;
+    transition: opacity .5s ease;
   }
   .fm-overlay.is-open { opacity: 1; pointer-events: auto; }
 
@@ -47,22 +47,38 @@
         (FLIP transform, set by JS) to its natural top-left title spot, and
         the rest of the card fades in. Sequence driven by JS timeouts. ──────── */
   .fm-greet {
-    position: absolute; left: 0; right: 0; top: calc(50% + 12px); margin: 0;
+    position: absolute; left: 50%; top: calc(50% + 12px); margin: 0;
+    width: max-content; max-width: calc(100% - 40px);
     text-align: center;
     font-size: 20px; font-weight: 500; color: #fff; letter-spacing: -0.3px;
     line-height: 1.3;
-    opacity: 0;
-    transition: opacity .35s ease;
+    opacity: 0; transform: translate(-50%, 5px);
+    transition: opacity .6s ease, transform .6s cubic-bezier(0.22, 1, 0.36, 1);
     pointer-events: none;
   }
-  .fm-overlay.is-greet .fm-greet { opacity: 1; }
+  .fm-overlay.is-greet .fm-greet { opacity: 1; transform: translate(-50%, 0); }
+  /* pixel-dissolve canvas laid over the greeting on its way out (JS-driven,
+     same dot language as the button hover fill) */
+  .fm-greet-canvas { position: absolute; inset: -8px; width: calc(100% + 16px); height: calc(100% + 16px); pointer-events: none; }
   /* the lockup rides a JS-set transform during the greeting; clearing it
-     glides it home to the top-left */
-  .fm-title { transition: transform .55s cubic-bezier(0.32, 0.72, 0.22, 1); }
-  /* rest of the card hidden until the lockup starts moving home; the fade-in
-     trails the move slightly so the glide reads first */
-  .fm-card > :not(.fm-greet):not(.fm-title) { transition: opacity .35s ease .18s; }
-  .fm-overlay:not(.is-card) .fm-card > :not(.fm-greet):not(.fm-title) { opacity: 0; transition-delay: 0s; }
+     glides it home to the top-left — long, soft deceleration */
+  .fm-title { transition: transform .7s cubic-bezier(0.22, 1, 0.36, 1); }
+  /* rest of the card: hidden with a slight sink until the lockup starts
+     moving home, then a staggered cascade — each block fades/rises a beat
+     after the one above it, trailing the lockup's glide */
+  .fm-card > :not(.fm-greet):not(.fm-title) {
+    transition: opacity .8s ease, transform .8s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .fm-overlay:not(.is-card) .fm-card > :not(.fm-greet):not(.fm-title) {
+    opacity: 0; transform: translateY(10px); transition-delay: 0s;
+  }
+  .fm-overlay.is-card .fm-close { transition-delay: .10s; }
+  .fm-overlay.is-card .fm-price { transition-delay: .10s; }
+  .fm-overlay.is-card .fm-price-note { transition-delay: .17s; }
+  .fm-overlay.is-card .fm-card .hero-btn-primary { transition-delay: .24s; }
+  .fm-overlay.is-card .fm-desc { transition-delay: .31s; }
+  .fm-overlay.is-card .fm-divider { transition-delay: .38s; }
+  .fm-overlay.is-card .fm-features { transition-delay: .45s; }
 
   /* ── Modal card ──────────────────────────────────────────────────────────── */
   .fm-card {
@@ -74,8 +90,8 @@
     border-radius: 2px;
     padding: 32px 30px 26px;
     box-shadow: 0 24px 80px rgba(0,0,0,0.6);
-    transform: translateY(10px) scale(0.97);
-    transition: transform .28s cubic-bezier(0.32, 0.72, 0.22, 1);
+    transform: translateY(12px) scale(0.97);
+    transition: transform .65s cubic-bezier(0.22, 1, 0.36, 1);
   }
   .fm-overlay.is-open .fm-card { transform: translateY(0) scale(1); }
 
@@ -292,21 +308,65 @@
     title.style.transition = '';
   }
 
+  /* Pixel dissolve — the greeting's exit borrows the button hover's dot
+     language: white pixels sweep over the text as it fades, then dissipate. */
+  function pixelDissolve(el) {
+    var canvas = document.createElement('canvas');
+    canvas.className = 'fm-greet-canvas';
+    el.appendChild(canvas);
+    var r = el.getBoundingClientRect();
+    canvas.width = Math.ceil(r.width) + 16;
+    canvas.height = Math.ceil(r.height) + 16;
+    var ctx = canvas.getContext('2d');
+    var spacing = 4, dot = 2;
+    var cols = Math.ceil(canvas.width / spacing), rows = Math.ceil(canvas.height / spacing);
+    var noise = [];
+    for (var y = 0; y < rows; y++) {
+      noise[y] = [];
+      for (var x = 0; x < cols; x++) noise[y][x] = Math.random();
+    }
+    var start = null, up = 220, down = 500, total = up + down;
+    function draw(prog) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'rgba(225, 234, 248, 0.9)';
+      var threshold = prog * 1.1;
+      for (var y = 0; y < rows; y++) {
+        for (var x = 0; x < cols; x++) {
+          if (noise[y][x] < threshold) {
+            if (Math.random() < 0.12) continue;   /* shimmer */
+            ctx.fillRect(x * spacing, y * spacing, dot, dot);
+          }
+        }
+      }
+    }
+    (function tick(ts) {
+      if (!start) start = ts;
+      var t = ts - start;
+      draw(t < up ? t / up : Math.max(0, 1 - (t - up) / down));
+      if (t < total) requestAnimationFrame(tick); else canvas.remove();
+    })(performance.now());
+  }
+
   /* Open sequence: card rises in with the lockup centred and "You're in!"
-     decrypting beneath it → text fades out → lockup glides home to the
-     top-left → rest of the card fades in (trails the glide via CSS delay). */
+     decrypting beneath it → text pixel-dissolves out → lockup glides home to
+     the top-left → rest of the card fades in (cascade trails the glide). */
   var timers = [];
   function open() {
     parkTitleCentered();
     overlay.classList.add('is-open', 'is-greet');
     overlay.classList.remove('is-card');
-    timers.push(setTimeout(function () { scrambleEl(greet); }, 250));
-    timers.push(setTimeout(function () { overlay.classList.remove('is-greet'); }, 1400));
+    timers.push(setTimeout(function () { scrambleEl(greet); }, 350));
+    /* beats overlap so the motion is continuous: the glide starts while the
+       greeting is still dissolving, and the content cascade trails the glide */
+    timers.push(setTimeout(function () {
+      pixelDissolve(greet);
+      overlay.classList.remove('is-greet');
+    }, 1250));
     timers.push(setTimeout(function () {
       title.style.transform = '';
       overlay.classList.add('is-card');
       closeBtn.focus();
-    }, 1550));
+    }, 1450));
   }
   function close() {
     timers.forEach(clearTimeout); timers = [];
