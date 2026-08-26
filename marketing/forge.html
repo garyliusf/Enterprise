@@ -626,6 +626,7 @@
     .fg-panel-h2 { font-size: clamp(30px, 3.6vw, 46px); font-weight: 500; color: #fff; line-height: 1.15; letter-spacing: -1px; margin: 0; }
     .fg-models-copy .fg-sub { max-width: 460px; }
     .fg-models-h2-break { max-width: 8.6em; }   /* breaks after "model." at any clamp size */
+    @media (max-width: 900px) { .fg-models-h2-break { max-width: none; } }   /* stacked: let it run the full width */
     .fg-picker { position: relative; width: min(400px, 100%); justify-self: center; container-type: inline-size; }
     /* both usage-row texts are outlined paths in the export — covered by
        live labels so they share one font size + weight (and stay editable) */
@@ -844,14 +845,14 @@
     /* Variant B: the duo is fixed-px (sizing span must match the SVG mask
        1:1), so smaller screens scale the WHOLE assembly — span, video and
        mask shrink together and stay registered. Safe: true mask, no blends. */
-    @media (max-width: 1024px) {
-      body[data-hv="b"] .fg-h1-duo { transform: scale(0.78); transform-origin: center; margin: -6px 0; }
-    }
-    @media (max-width: 768px) {
-      body[data-hv="b"] .fg-h1-duo { transform: scale(0.56); margin: -16px 0; }
-    }
-    @media (max-width: 420px) {
-      body[data-hv="b"] .fg-h1-duo { transform: scale(0.48); margin: -20px 0; }
+    /* continuous fit: the duo's natural size is ~460×66; scale to the
+       available width (capped at 1) instead of stepped breakpoints — a
+       fixed step undersized the heading on mid-width phones. The margin
+       reclaims the vertical slack the transform leaves behind. */
+    body[data-hv="b"] .fg-h1-duo {
+      transform-origin: center;
+      transform: scale(min(1, calc((100vw - 44px) / 470px)));
+      margin: calc((min(1, calc((100vw - 44px) / 470px)) - 1) * 40px) 0;
     }
     /* switcher: compact row, top-left under the nav */
     @media (max-width: 768px) {
