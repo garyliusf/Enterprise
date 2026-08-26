@@ -42,6 +42,18 @@
   }
   .fm-overlay.is-open { opacity: 1; pointer-events: auto; }
 
+  /* ── "You're in!" greeting beat — fades in over the backdrop, holds, fades
+        out; the card enters after (sequence driven by JS timeouts) ────────── */
+  .fm-greet {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px; font-weight: 500; color: #fff; letter-spacing: -0.5px;
+    opacity: 0; transform: translateY(6px);
+    transition: opacity .45s ease, transform .45s ease;
+    pointer-events: none;
+  }
+  .fm-overlay.is-greet .fm-greet { opacity: 1; transform: none; }
+
   /* ── Modal card ──────────────────────────────────────────────────────────── */
   .fm-card {
     position: relative;
@@ -52,10 +64,10 @@
     border-radius: 2px;
     padding: 32px 30px 26px;
     box-shadow: 0 24px 80px rgba(0,0,0,0.6);
-    transform: translateY(10px) scale(0.97);
-    transition: transform .28s cubic-bezier(0.32, 0.72, 0.22, 1);
+    opacity: 0; transform: translateY(10px) scale(0.97);
+    transition: opacity .28s ease, transform .28s cubic-bezier(0.32, 0.72, 0.22, 1);
   }
-  .fm-overlay.is-open .fm-card { transform: translateY(0) scale(1); }
+  .fm-overlay.is-card .fm-card { opacity: 1; transform: translateY(0) scale(1); }
 
   .fm-close {
     position: absolute; top: 14px; right: 14px;
@@ -160,6 +172,7 @@
 
 <!-- ── Forge purchase modal ─────────────────────────────────────────────── -->
 <div class="fm-overlay" id="fm-overlay" role="dialog" aria-modal="true" aria-labelledby="fm-title">
+  <p class="fm-greet" aria-hidden="true">You&rsquo;re in!</p>
   <div class="fm-card">
     <button type="button" class="fm-close" id="fm-close" aria-label="Close">
       <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M1 1l12 12M13 1L1 13"/></svg>
@@ -227,8 +240,21 @@
   var openBtn = document.getElementById('fm-open');
   var closeBtn = document.getElementById('fm-close');
 
-  function open() { overlay.classList.add('is-open'); closeBtn.focus(); }
-  function close() { overlay.classList.remove('is-open'); openBtn.focus(); }
+  /* Open sequence: backdrop → "You're in!" fades in, holds, fades out → card */
+  var timers = [];
+  function open() {
+    overlay.classList.add('is-open');
+    overlay.classList.remove('is-card');
+    overlay.classList.add('is-greet');
+    timers.push(setTimeout(function () { overlay.classList.remove('is-greet'); }, 1200));
+    /* card enters only after the greeting's 450ms fade-out has fully cleared */
+    timers.push(setTimeout(function () { overlay.classList.add('is-card'); closeBtn.focus(); }, 1800));
+  }
+  function close() {
+    timers.forEach(clearTimeout); timers = [];
+    overlay.classList.remove('is-open', 'is-greet', 'is-card');
+    openBtn.focus();
+  }
 
   openBtn.addEventListener('click', open);
   closeBtn.addEventListener('click', close);
