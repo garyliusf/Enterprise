@@ -133,6 +133,34 @@
     .variant-btn:hover { color: #fff; border-color: rgba(255,255,255,0.4); }
     .variant-btn.is-active { background: #1488FC; border-color: #1488FC; color: #fff; }
 
+    /* ── Variant D: waitlist form in the Forge card (replaces the button) ── */
+    .fg-wait-form { display: none; width: 100%; }
+    .fg-wait-success { display: none; height: 52px; align-items: center; font-size: 14px; font-weight: 600; color: #7FDDC1; margin: 0; }
+    body[data-hv="d"] .fg-plans .card:first-child .card-cta { display: none; }
+    body[data-hv="d"] .fg-wait-form { display: flex; }
+    body[data-hv="d"] .fg-wait-form.is-done { display: none; }
+    body[data-hv="d"] .fg-wait-form.is-done + .fg-wait-success { display: flex; }
+    .fg-wait-input {
+      flex: 1; min-width: 0; height: 52px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.14); border-right: none;
+      border-radius: 2px 0 0 2px;
+      padding: 0 14px;
+      font-family: 'Inter', sans-serif; font-size: 15px; color: #fff;
+      outline: none;
+    }
+    .fg-wait-input::placeholder { color: rgba(255,255,255,0.35); }
+    .fg-wait-input:focus { border-color: rgba(20,136,252,0.6); }
+    .fg-wait-btn {
+      height: 52px; padding: 0 20px; flex-shrink: 0;
+      background: #1488FC; color: #fff; border: none;
+      border-radius: 0 2px 2px 0;
+      font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    .fg-wait-btn:hover { background: #0f6fd0; }
+
     /* ── Hero variants: A = classic, B = giant video "50×", C = full video line ──
        True SVG-text masking: the sizing span is invisible (fixed px so it
        matches the mask text exactly); the mask-stack holds video + the
@@ -976,6 +1004,7 @@
   <button class="variant-btn" data-hv="a">A</button>
   <button class="variant-btn is-active" data-hv="b">B</button>
   <button class="variant-btn" data-hv="c">C</button>
+  <button class="variant-btn" data-hv="d">D</button>
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════════
@@ -1273,6 +1302,12 @@
           <div class="btn-bg-hover"></div>
           <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Started</span><span>Get Started</span></div></div>
         </a>
+        <!-- variant D: waitlist form instead of the button -->
+        <form class="fg-wait-form" id="fg-wait-form" novalidate>
+          <input type="email" required placeholder="you@company.com" class="fg-wait-input" aria-label="Work email" />
+          <button type="submit" class="fg-wait-btn">Join Waitlist</button>
+        </form>
+        <p class="fg-wait-success" id="fg-wait-success">You&rsquo;re on the list. We&rsquo;ll email you when Forge opens up.</p>
 
         <p class="card-description">Forge on its own. Open models, Bolt&rsquo;s runtime, one flat price.</p>
 
@@ -1842,6 +1877,18 @@
     });
   }, { threshold: 0.5 });
   io.observe(picker);
+})();
+
+/* ── Variant D waitlist form (prototype: no backend, success state only) ── */
+(function () {
+  var form = document.getElementById('fg-wait-form');
+  if (!form) return;
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var input = form.querySelector('.fg-wait-input');
+    if (!input.value || !/.+@.+\..+/.test(input.value)) { input.focus(); return; }
+    form.classList.add('is-done');
+  });
 })();
 
 /* ── Prototype variant switcher (hero) ── */
