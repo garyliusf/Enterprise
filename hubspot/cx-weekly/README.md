@@ -1,7 +1,33 @@
 # Bolt CX weekly — HubSpot files
 
-Ready-to-upload template, modules and assets for **variant A** (cloud hero → white
-content → black footer). Design source of truth: `emails/variants.html`.
+Template, modules and assets for **variant A** (cloud hero → white content → black
+footer). Design source of truth: `emails/variants.html`.
+
+**Status (2026-08-26): live in the bolt.new portal (45403856) and synced.** Template +
+7 modules uploaded to `cx-weekly/` in the Design Manager, images in the File Manager at
+`email/cx-weekly/`, `asset_base` pointing at the real URLs. The template shows up under
+the Custom tab when creating a Regular email.
+
+**CX-team handoff guide** (how to build and send the weekly email — share this, not this
+README): https://claude.ai/code/artifact/959816d2-dc81-4695-8d56-07989f6e1057
+
+Re-upload after editing (from the repo root, CLI is authed via `hubspot.config.yml`):
+
+```bash
+hs cms upload hubspot/cx-weekly/modules cx-weekly/modules
+hs cms upload hubspot/cx-weekly/templates cx-weekly/templates
+```
+
+Three rendering gotchas baked into the current files — don't undo them:
+
+1. **Every module wraps itself in its own centered 600px table.** HubSpot div-wraps all
+   module/dnd output, so bare `<tr>` splices get hoisted out of a shared template table
+   and render full-bleed.
+2. **The template CSS kills HubSpot's dnd padding with higher specificity**
+   (`td.hs_padded`, `div.hse-section`) — HubSpot appends its generated stylesheet after
+   all template styles, so source order can't win, and it re-adds padding at ≤639px.
+3. **Radius-carrying tables force `border-collapse:separate`** — HubSpot's sheet sets
+   `collapse`, which makes browsers ignore `border-radius` on bordered tables.
 
 ```
 cx-weekly/
