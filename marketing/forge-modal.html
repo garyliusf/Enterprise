@@ -57,9 +57,6 @@
     pointer-events: none;
   }
   .fm-overlay.is-greet .fm-greet { opacity: 1; transform: translate(-50%, 0); }
-  /* pixel-dissolve canvas laid over the greeting on its way out (JS-driven,
-     same dot language as the button hover fill) */
-  .fm-greet-canvas { position: absolute; inset: -8px; width: calc(100% + 16px); height: calc(100% + 16px); pointer-events: none; }
   /* the lockup rides a JS-set transform during the greeting; clearing it
      glides it home to the top-left — long, soft deceleration */
   .fm-title { transition: transform .7s cubic-bezier(0.22, 1, 0.36, 1); }
@@ -308,48 +305,9 @@
     title.style.transition = '';
   }
 
-  /* Pixel dissolve — the greeting's exit borrows the button hover's dot
-     language: white pixels sweep over the text as it fades, then dissipate. */
-  function pixelDissolve(el) {
-    var canvas = document.createElement('canvas');
-    canvas.className = 'fm-greet-canvas';
-    el.appendChild(canvas);
-    var r = el.getBoundingClientRect();
-    canvas.width = Math.ceil(r.width) + 16;
-    canvas.height = Math.ceil(r.height) + 16;
-    var ctx = canvas.getContext('2d');
-    var spacing = 4, dot = 2;
-    var cols = Math.ceil(canvas.width / spacing), rows = Math.ceil(canvas.height / spacing);
-    var noise = [];
-    for (var y = 0; y < rows; y++) {
-      noise[y] = [];
-      for (var x = 0; x < cols; x++) noise[y][x] = Math.random();
-    }
-    var start = null, up = 220, down = 500, total = up + down;
-    function draw(prog) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = 'rgba(225, 234, 248, 0.9)';
-      var threshold = prog * 1.1;
-      for (var y = 0; y < rows; y++) {
-        for (var x = 0; x < cols; x++) {
-          if (noise[y][x] < threshold) {
-            if (Math.random() < 0.12) continue;   /* shimmer */
-            ctx.fillRect(x * spacing, y * spacing, dot, dot);
-          }
-        }
-      }
-    }
-    (function tick(ts) {
-      if (!start) start = ts;
-      var t = ts - start;
-      draw(t < up ? t / up : Math.max(0, 1 - (t - up) / down));
-      if (t < total) requestAnimationFrame(tick); else canvas.remove();
-    })(performance.now());
-  }
-
   /* Open sequence: card rises in with the lockup centred and "You're in!"
-     decrypting beneath it → text pixel-dissolves out → lockup glides home to
-     the top-left → rest of the card fades in (cascade trails the glide). */
+     decrypting beneath it → text fades out → lockup glides home to the
+     top-left → rest of the card fades in (cascade trails the glide). */
   var timers = [];
   function open() {
     parkTitleCentered();
@@ -357,11 +315,8 @@
     overlay.classList.remove('is-card');
     timers.push(setTimeout(function () { scrambleEl(greet); }, 350));
     /* beats overlap so the motion is continuous: the glide starts while the
-       greeting is still dissolving, and the content cascade trails the glide */
-    timers.push(setTimeout(function () {
-      pixelDissolve(greet);
-      overlay.classList.remove('is-greet');
-    }, 1250));
+       greeting is still fading, and the content cascade trails the glide */
+    timers.push(setTimeout(function () { overlay.classList.remove('is-greet'); }, 1250));
     timers.push(setTimeout(function () {
       title.style.transform = '';
       overlay.classList.add('is-card');
