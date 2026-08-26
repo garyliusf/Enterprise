@@ -134,7 +134,7 @@
     .variant-btn.is-active { background: #1488FC; border-color: #1488FC; color: #fff; }
 
     /* ── Variant D: waitlist form in the Forge card (replaces the button) ── */
-    .fg-wait-form { display: none; width: 100%; margin: 20px 0 22px; }   /* same slot spacing as .card-cta */
+    .fg-wait-form { display: none; width: 100%; max-width: 400px; margin: 20px 0 22px; }   /* same slot spacing as .card-cta */
     .fg-wait-success { display: none; height: 52px; align-items: center; font-size: 14px; font-weight: 600; color: #7FDDC1; margin: 20px 0 22px; }
     body[data-hv="d"] .fg-plans .card:first-child .card-cta { display: none; }
     body[data-hv="d"] .fg-wait-form { display: flex; }
@@ -160,6 +160,8 @@
       transition: background 0.2s ease;
     }
     .fg-wait-btn:hover { background: #0f6fd0; }
+    /* beats shared .hero-btn-primary (loaded last) — keep the attached corner */
+    .fg-wait-form .fg-wait-btn { border-radius: 0 2px 2px 0; padding: 0 20px; width: auto; min-width: 0; }
 
     /* ── Hero variants: A = classic, B = giant video "50×", C = full video line ──
        True SVG-text masking: the sizing span is invisible (fixed px so it
@@ -1291,6 +1293,7 @@
       <!-- Forge standalone -->
       <div class="card">
         <span class="plan-label">Forge</span>
+        <span class="plan-flag fg-countdown" id="fg-countdown" aria-label="Time until Forge launches">&nbsp;</span>
         <div class="card-price">
           <span class="price-amount">$9</span>
           <span class="price-period">/month</span>
@@ -1305,7 +1308,10 @@
         <!-- variant D: waitlist form instead of the button -->
         <form class="fg-wait-form" id="fg-wait-form" novalidate>
           <input type="email" required placeholder="you@company.com" class="fg-wait-input" aria-label="Work email" />
-          <button type="submit" class="fg-wait-btn">Join Waitlist</button>
+          <button type="submit" class="hero-btn-primary fg-wait-btn">
+            <div class="btn-bg-hover"></div>
+            <div class="btn-text-wrap"><div class="btn-text-inner"><span>Join Waitlist</span><span>Join Waitlist</span></div></div>
+          </button>
         </form>
         <p class="fg-wait-success" id="fg-wait-success">You&rsquo;re on the list. We&rsquo;ll email you when Forge opens up.</p>
 
@@ -1889,6 +1895,25 @@
     if (!input.value || !/.+@.+\..+/.test(input.value)) { input.focus(); return; }
     form.classList.add('is-done');
   });
+})();
+
+/* ── Forge launch countdown (Sept 14) ── */
+(function () {
+  var el = document.getElementById('fg-countdown');
+  if (!el) return;
+  var launch = new Date(2026, 8, 14, 0, 0, 0);   // Sept 14, local midnight
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function tick() {
+    var ms = launch - Date.now();
+    if (ms <= 0) { el.textContent = 'Live now'; return; }
+    var s = Math.floor(ms / 1000);
+    var d = Math.floor(s / 86400);
+    var h = Math.floor((s % 86400) / 3600);
+    var m = Math.floor((s % 3600) / 60);
+    el.textContent = 'Launch ' + d + 'd ' + pad(h) + ':' + pad(m) + ':' + pad(s % 60);
+    setTimeout(tick, 1000);
+  }
+  tick();
 })();
 
 /* ── Prototype variant switcher (hero) ── */
