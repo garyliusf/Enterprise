@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bolt Forge — Purchase Modal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100%; min-height: 100%;
+    background: #000;
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Blank host page — just a reopen trigger for testing ─────────────────── */
+  .host {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  }
+  .host-open {
+    appearance: none; border: 1px solid rgba(255,255,255,0.22); background: transparent;
+    color: rgba(255,255,255,0.8); font: 500 14px/1 'Inter', sans-serif;
+    padding: 12px 22px; border-radius: 8px; cursor: pointer;
+    transition: border-color .2s ease, color .2s ease;
+  }
+  .host-open:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
+
+  /* ── Modal overlay ───────────────────────────────────────────────────────── */
+  .fm-overlay {
+    position: fixed; inset: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+    background: rgba(0,0,0,0.62);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    opacity: 0; pointer-events: none;
+    transition: opacity .24s ease;
+  }
+  .fm-overlay.is-open { opacity: 1; pointer-events: auto; }
+
+  /* ── Modal card ──────────────────────────────────────────────────────────── */
+  .fm-card {
+    position: relative;
+    width: 100%; max-width: 360px;
+    max-height: calc(100vh - 48px); overflow-y: auto;
+    background: #0d0d0f;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    padding: 28px 26px 26px;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+    transform: translateY(10px) scale(0.97);
+    transition: transform .28s cubic-bezier(0.32, 0.72, 0.22, 1);
+  }
+  .fm-overlay.is-open .fm-card { transform: translateY(0) scale(1); }
+
+  .fm-close {
+    position: absolute; top: 14px; right: 14px;
+    width: 30px; height: 30px; border-radius: 7px;
+    appearance: none; border: none; background: transparent; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.4);
+    transition: color .2s ease, background .2s ease;
+  }
+  .fm-close:hover { color: #fff; background: rgba(255,255,255,0.07); }
+  .fm-close svg { width: 14px; height: 14px; display: block; }
+
+  .fm-title { font-size: 26px; font-weight: 500; color: #fff; letter-spacing: -0.3px; }
+
+  .fm-price { display: flex; align-items: baseline; gap: 6px; margin-top: 14px; }
+  .fm-price-amount { font-size: 34px; font-weight: 600; color: #fff; letter-spacing: -0.8px; }
+  .fm-price-period { font-size: 13px; color: rgba(255,255,255,0.45); }
+
+  .fm-price-note { margin-top: 10px; font-size: 13px; font-weight: 500; color: #4DA6FF; }
+
+  /* Blue CTA — app checkout style */
+  .fm-cta {
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; height: 46px; margin-top: 18px;
+    background: #1488FC; border-radius: 8px;
+    color: #fff; font-size: 15px; font-weight: 600; text-decoration: none;
+    transition: background .2s ease;
+  }
+  .fm-cta:hover { background: #0f6fd0; }
+
+  .fm-desc {
+    margin-top: 18px; font-size: 13.5px; line-height: 1.55;
+    color: rgba(255,255,255,0.85);
+  }
+
+  .fm-divider { border: none; border-top: 1px solid rgba(255,255,255,0.09); margin: 18px 0 16px; }
+
+  .fm-features { list-style: none; display: flex; flex-direction: column; gap: 11px; }
+  .fm-feature {
+    display: flex; align-items: flex-start; gap: 10px;
+    font-size: 13.5px; line-height: 1.45; color: rgba(255,255,255,0.72);
+  }
+  .fm-check { width: 14px; height: 14px; flex: 0 0 14px; margin-top: 2px; color: rgba(255,255,255,0.45); }
+  .fm-check svg { width: 100%; height: 100%; display: block; }
+
+  .fm-hint {
+    display: inline-flex; vertical-align: -2px; margin-left: 4px;
+    width: 13px; height: 13px; color: rgba(255,255,255,0.3); cursor: help;
+    transition: color .2s ease;
+  }
+  .fm-hint:hover { color: rgba(255,255,255,0.6); }
+  .fm-hint svg { width: 100%; height: 100%; display: block; }
+
+  @media (max-width: 420px) {
+    .fm-card { padding: 24px 20px 22px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Blank host page. Eng lifts everything from .fm-overlay down. -->
+<div class="host">
+  <button type="button" class="host-open" id="fm-open">Open modal</button>
+</div>
+
+<!-- ── Forge purchase modal ─────────────────────────────────────────────── -->
+<div class="fm-overlay" id="fm-overlay" role="dialog" aria-modal="true" aria-labelledby="fm-title">
+  <div class="fm-card">
+    <button type="button" class="fm-close" id="fm-close" aria-label="Close">
+      <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M1 1l12 12M13 1L1 13"/></svg>
+    </button>
+
+    <h2 class="fm-title" id="fm-title">Forge</h2>
+
+    <div class="fm-price">
+      <span class="fm-price-amount">$9</span>
+      <span class="fm-price-period">/month</span>
+    </div>
+
+    <p class="fm-price-note">Billed monthly, cancel anytime</p>
+
+    <a href="https://bolt.new" target="_blank" rel="noopener" class="fm-cta">Get Started</a>
+
+    <p class="fm-desc">Forge on its own. Open models, Bolt&rsquo;s runtime, one flat price.</p>
+
+    <hr class="fm-divider">
+
+    <ul class="fm-features">
+      <li class="fm-feature">
+        <span class="fm-check"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8.5l3.5 3.5 7.5-8"/></svg></span>
+        <span>25M Forge tokens/month<span class="fm-hint" title="Tokens spent on Forge models. Unused tokens roll over for one month."><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="8" cy="8" r="6.5"/><path d="M8 7.2v4" stroke-linecap="round"/><circle cx="8" cy="4.8" r="0.4" fill="currentColor" stroke="none"/></svg></span></span>
+      </li>
+      <li class="fm-feature">
+        <span class="fm-check"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8.5l3.5 3.5 7.5-8"/></svg></span>
+        <span>Public and private projects</span>
+      </li>
+      <li class="fm-feature">
+        <span class="fm-check"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8.5l3.5 3.5 7.5-8"/></svg></span>
+        <span>Unlimited databases</span>
+      </li>
+      <li class="fm-feature">
+        <span class="fm-check"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8.5l3.5 3.5 7.5-8"/></svg></span>
+        <span>Website hosting</span>
+      </li>
+      <li class="fm-feature">
+        <span class="fm-check"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8.5l3.5 3.5 7.5-8"/></svg></span>
+        <span>Bolt branding on websites</span>
+      </li>
+      <li class="fm-feature">
+        <span class="fm-check"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8.5l3.5 3.5 7.5-8"/></svg></span>
+        <span>Frontier models available at list rates</span>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<script>
+(function () {
+  var overlay = document.getElementById('fm-overlay');
+  var card = overlay.querySelector('.fm-card');
+  var openBtn = document.getElementById('fm-open');
+  var closeBtn = document.getElementById('fm-close');
+
+  function open() { overlay.classList.add('is-open'); closeBtn.focus(); }
+  function close() { overlay.classList.remove('is-open'); openBtn.focus(); }
+
+  openBtn.addEventListener('click', open);
+  closeBtn.addEventListener('click', close);
+  overlay.addEventListener('click', function (e) { if (!card.contains(e.target)) close(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && overlay.classList.contains('is-open')) close();
+  });
+
+  /* Open on load so the deliverable is what you see first */
+  requestAnimationFrame(function () { requestAnimationFrame(open); });
+})();
+</script>
+
+</body>
+</html>
