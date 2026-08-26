@@ -42,17 +42,22 @@
   }
   .fm-overlay.is-open { opacity: 1; pointer-events: auto; }
 
-  /* ── "You're in!" greeting beat — fades in over the backdrop, holds, fades
-        out; the card enters after (sequence driven by JS timeouts) ────────── */
+  /* ── "You're in!" greeting beat — lives INSIDE the card at the title spot:
+        letters scramble in (canonical eyebrow-scramble algo, local copy),
+        brief hold, then it crossfades out as the pricing content fades in.
+        Sequence driven by JS timeouts. ─────────────────────────────────────── */
   .fm-greet {
-    position: absolute; inset: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 32px; font-weight: 500; color: #fff; letter-spacing: -0.5px;
-    opacity: 0; transform: translateY(6px);
-    transition: opacity .45s ease, transform .45s ease;
+    position: absolute; top: 32px; left: 30px; right: 30px; margin: 0;
+    font-size: 22px; font-weight: 500; color: #fff; letter-spacing: -0.3px;
+    line-height: 1.2;
+    opacity: 0;
+    transition: opacity .35s ease;
     pointer-events: none;
   }
-  .fm-overlay.is-greet .fm-greet { opacity: 1; transform: none; }
+  .fm-overlay.is-greet .fm-greet { opacity: 1; }
+  /* card content hidden until the greeting clears; crossfade on .is-card */
+  .fm-card > :not(.fm-greet) { transition: opacity .35s ease; }
+  .fm-overlay:not(.is-card) .fm-card > :not(.fm-greet) { opacity: 0; }
 
   /* ── Modal card ──────────────────────────────────────────────────────────── */
   .fm-card {
@@ -64,10 +69,10 @@
     border-radius: 2px;
     padding: 32px 30px 26px;
     box-shadow: 0 24px 80px rgba(0,0,0,0.6);
-    opacity: 0; transform: translateY(10px) scale(0.97);
-    transition: opacity .28s ease, transform .28s cubic-bezier(0.32, 0.72, 0.22, 1);
+    transform: translateY(10px) scale(0.97);
+    transition: transform .28s cubic-bezier(0.32, 0.72, 0.22, 1);
   }
-  .fm-overlay.is-card .fm-card { opacity: 1; transform: translateY(0) scale(1); }
+  .fm-overlay.is-open .fm-card { transform: translateY(0) scale(1); }
 
   .fm-close {
     position: absolute; top: 14px; right: 14px;
@@ -160,6 +165,7 @@
 
   @media (max-width: 420px) {
     .fm-card { padding: 24px 20px 22px; }
+    .fm-greet { top: 24px; left: 20px; right: 20px; }
   }
 </style>
 </head>
@@ -172,8 +178,8 @@
 
 <!-- ── Forge purchase modal ─────────────────────────────────────────────── -->
 <div class="fm-overlay" id="fm-overlay" role="dialog" aria-modal="true" aria-labelledby="fm-title">
-  <p class="fm-greet" aria-hidden="true">You&rsquo;re in!</p>
   <div class="fm-card">
+    <p class="fm-greet" aria-hidden="true">You&rsquo;re in!</p>
     <button type="button" class="fm-close" id="fm-close" aria-label="Close">
       <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M1 1l12 12M13 1L1 13"/></svg>
     </button>
@@ -240,19 +246,50 @@
   var openBtn = document.getElementById('fm-open');
   var closeBtn = document.getElementById('fm-close');
 
-  /* Open sequence: backdrop → "You're in!" fades in, holds, fades out → card */
+  /* Letter scramble — the canonical eyebrow-scramble algo from
+     shared-components.js, copied local so it can run on cue (the shared one
+     is IntersectionObserver-driven and re-fires every 6s). */
+  var greet = overlay.querySelector('.fm-greet');
+  var scrambleChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&';
+  function scrambleEl(el) {
+    var final = el.dataset.sf || el.textContent.trim();
+    el.dataset.sf = final;
+    var chars = final.split('');
+    var locked = chars.map(function () { return false; });
+    var cur = chars.map(function (c) { return c === ' ' ? ' ' : scrambleChars[Math.floor(Math.random() * scrambleChars.length)]; });
+    var start = null, dur = 600;
+    (function tick(ts) {
+      if (!start) start = ts;
+      var p = Math.min((ts - start) / dur, 1);
+      chars.forEach(function (ch, i) {
+        if (ch === ' ') { locked[i] = true; cur[i] = ' '; return; }
+        if (!locked[i] && p > (i / chars.length) * 0.75 + Math.random() * 0.1) { locked[i] = true; cur[i] = ch; }
+        else if (!locked[i]) cur[i] = scrambleChars[Math.floor(Math.random() * scrambleChars.length)];
+      });
+      el.textContent = cur.join('');
+      if (p < 1 || locked.some(function (l) { return !l; })) requestAnimationFrame(tick);
+      else el.textContent = final;
+    })(performance.now());
+  }
+
+  /* Open sequence: card rises in showing only "You're in!" at the title spot
+     (letters scrambling), brief hold, then it crossfades into the pricing
+     content. */
   var timers = [];
   function open() {
-    overlay.classList.add('is-open');
+    overlay.classList.add('is-open', 'is-greet');
     overlay.classList.remove('is-card');
-    overlay.classList.add('is-greet');
-    timers.push(setTimeout(function () { overlay.classList.remove('is-greet'); }, 1200));
-    /* card enters only after the greeting's 450ms fade-out has fully cleared */
-    timers.push(setTimeout(function () { overlay.classList.add('is-card'); closeBtn.focus(); }, 1800));
+    timers.push(setTimeout(function () { scrambleEl(greet); }, 250));
+    timers.push(setTimeout(function () {
+      overlay.classList.remove('is-greet');
+      overlay.classList.add('is-card');
+      closeBtn.focus();
+    }, 1500));
   }
   function close() {
     timers.forEach(clearTimeout); timers = [];
     overlay.classList.remove('is-open', 'is-greet', 'is-card');
+    if (greet.dataset.sf) greet.textContent = greet.dataset.sf;
     openBtn.focus();
   }
 
