@@ -42,22 +42,27 @@
   }
   .fm-overlay.is-open { opacity: 1; pointer-events: auto; }
 
-  /* ── "You're in!" greeting beat — lives INSIDE the card at the title spot:
-        letters scramble in (canonical eyebrow-scramble algo, local copy),
-        brief hold, then it crossfades out as the pricing content fades in.
-        Sequence driven by JS timeouts. ─────────────────────────────────────── */
+  /* ── Greeting beat — the lockup starts CENTERED in the card with "You're
+        in!" decrypting under it; then the text fades out, the lockup glides
+        (FLIP transform, set by JS) to its natural top-left title spot, and
+        the rest of the card fades in. Sequence driven by JS timeouts. ──────── */
   .fm-greet {
-    position: absolute; top: 32px; left: 30px; right: 30px; margin: 0;
-    font-size: 22px; font-weight: 500; color: #fff; letter-spacing: -0.3px;
-    line-height: 1.2;
+    position: absolute; left: 0; right: 0; top: calc(50% + 12px); margin: 0;
+    text-align: center;
+    font-size: 20px; font-weight: 500; color: #fff; letter-spacing: -0.3px;
+    line-height: 1.3;
     opacity: 0;
     transition: opacity .35s ease;
     pointer-events: none;
   }
   .fm-overlay.is-greet .fm-greet { opacity: 1; }
-  /* card content hidden until the greeting clears; crossfade on .is-card */
-  .fm-card > :not(.fm-greet) { transition: opacity .35s ease; }
-  .fm-overlay:not(.is-card) .fm-card > :not(.fm-greet) { opacity: 0; }
+  /* the lockup rides a JS-set transform during the greeting; clearing it
+     glides it home to the top-left */
+  .fm-title { transition: transform .55s cubic-bezier(0.32, 0.72, 0.22, 1); }
+  /* rest of the card hidden until the lockup starts moving home; the fade-in
+     trails the move slightly so the glide reads first */
+  .fm-card > :not(.fm-greet):not(.fm-title) { transition: opacity .35s ease .18s; }
+  .fm-overlay:not(.is-card) .fm-card > :not(.fm-greet):not(.fm-title) { opacity: 0; transition-delay: 0s; }
 
   /* ── Modal card ──────────────────────────────────────────────────────────── */
   .fm-card {
@@ -93,6 +98,7 @@
     display: flex; align-items: center;
     gap: calc(var(--mark) * 0.32);
     margin: 0 0 18px;
+    width: fit-content;   /* box hugs the lockup so the FLIP centering math measures the visual, not the full row */
   }
   .fm-mark-bolt { height: var(--mark); width: auto; display: block; }
   .fm-mark-forge {
@@ -272,23 +278,40 @@
     })(performance.now());
   }
 
-  /* Open sequence: card rises in showing only "You're in!" at the title spot
-     (letters scrambling), brief hold, then it crossfades into the pricing
-     content. */
+  /* FLIP: park the lockup at the card's centre (transform set with the
+     transition suppressed so it doesn't animate INTO place). Offsets use
+     offsetLeft/Top — unaffected by the card's entrance transform. The -20px
+     lifts the lockup so the lockup + greeting pair sits optically centred. */
+  var title = document.getElementById('fm-title');
+  function parkTitleCentered() {
+    var dx = card.clientWidth / 2 - (title.offsetLeft + title.offsetWidth / 2);
+    var dy = card.clientHeight / 2 - 20 - (title.offsetTop + title.offsetHeight / 2);
+    title.style.transition = 'none';
+    title.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
+    void title.offsetWidth;   /* flush so the upcoming clear animates */
+    title.style.transition = '';
+  }
+
+  /* Open sequence: card rises in with the lockup centred and "You're in!"
+     decrypting beneath it → text fades out → lockup glides home to the
+     top-left → rest of the card fades in (trails the glide via CSS delay). */
   var timers = [];
   function open() {
+    parkTitleCentered();
     overlay.classList.add('is-open', 'is-greet');
     overlay.classList.remove('is-card');
     timers.push(setTimeout(function () { scrambleEl(greet); }, 250));
+    timers.push(setTimeout(function () { overlay.classList.remove('is-greet'); }, 1400));
     timers.push(setTimeout(function () {
-      overlay.classList.remove('is-greet');
+      title.style.transform = '';
       overlay.classList.add('is-card');
       closeBtn.focus();
-    }, 1500));
+    }, 1550));
   }
   function close() {
     timers.forEach(clearTimeout); timers = [];
     overlay.classList.remove('is-open', 'is-greet', 'is-card');
+    title.style.transform = '';
     if (greet.dataset.sf) greet.textContent = greet.dataset.sf;
     openBtn.focus();
   }
