@@ -134,7 +134,7 @@
     .variant-btn.is-active { background: #1488FC; border-color: #1488FC; color: #fff; }
 
     /* ── Variant D: waitlist form in the Forge card (replaces the button) ── */
-    .fg-wait-form { display: none; width: 100%; max-width: 400px; margin: 20px 0 22px; }   /* same slot spacing as .card-cta */
+    .fg-wait-form { display: none; width: 100%; margin: 20px 0 22px; }   /* full content width — right edge aligns with the countdown */
     .fg-wait-success { display: none; height: 52px; align-items: center; font-size: 14px; font-weight: 600; color: #7FDDC1; margin: 20px 0 22px; }
     body[data-hv="d"] .fg-plans .card:first-child .card-cta { display: none; }
     body[data-hv="d"] .fg-wait-form { display: flex; }
@@ -168,6 +168,7 @@
        matches the mask text exactly); the mask-stack holds video + the
        blue luminance lift and is clipped to the glyphs. Opaque type, the
        page bg never shows through. */
+    .fg-50-it { font-style: italic; }   /* variant A: italic 50×, matches the lockup */
     .fg-h1-duo, .fg-h1-blend { display: none; }
     .fg-h1-duo { align-items: center; gap: 10px; }   /* + glyph side bearings ≈ one word space */
     .fg-duo-side { font-size: 66px; font-weight: 500; color: #fff; letter-spacing: -1px; line-height: 1; }   /* = H1 size */
@@ -328,15 +329,32 @@
       z-index: 2;
     }
 
-    /* countdown chip: Inter (not Silkscreen), larger tabular numbers */
+    /* countdown: segmented cells — value tiles with tiny unit labels */
     .fg-countdown {
+      position: absolute;
+      top: var(--cd-pt);
+      right: var(--cd-px);
+      display: flex;
+      gap: 5px;
+      z-index: 2;
+    }
+    .fg-cd-cell {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 2px;
+      padding: 6px 0 5px;
+      min-width: 42px;
+    }
+    .fg-cd-cell b {
       font-family: 'Inter', sans-serif;
-      font-size: 14px;
-      font-weight: 600;
-      letter-spacing: 0.3px;
-      text-transform: none;
-      font-variant-numeric: tabular-nums;
-      padding: 6px 11px;
+      font-size: 16px; font-weight: 600; color: #fff;
+      line-height: 1; font-variant-numeric: tabular-nums;
+    }
+    .fg-cd-cell i {
+      font-style: normal;
+      font-size: 9px; letter-spacing: 1px; text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
     }
 
     .card-price { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px; row-gap: 8px; margin-bottom: 12px; min-height: 30px; }
@@ -1040,7 +1058,7 @@
         </svg>
         <span class="fg-mark-forge">forge</span>
       </div>
-      <h1 class="fg-h1-normal">Build 50&times; more</h1>
+      <h1 class="fg-h1-normal">Build <em class="fg-50-it">50&times;</em> more</h1>
 <!-- variant B: small Build/more flanking a giant video-filled 50×.
            Blend-mode knockout (black box + white text, multiply over the
            video) — reliable everywhere, unlike SVG mask over foreignObject. -->
@@ -1304,7 +1322,12 @@
       <!-- Forge standalone -->
       <div class="card">
         <span class="plan-label">Forge</span>
-        <span class="plan-flag fg-countdown" id="fg-countdown" aria-label="Time until Forge launches">&nbsp;</span>
+        <div class="fg-countdown" id="fg-countdown" aria-label="Time until Forge launches">
+          <span class="fg-cd-cell"><b id="fg-cd-d">--</b><i>days</i></span>
+          <span class="fg-cd-cell"><b id="fg-cd-h">--</b><i>hrs</i></span>
+          <span class="fg-cd-cell"><b id="fg-cd-m">--</b><i>min</i></span>
+          <span class="fg-cd-cell"><b id="fg-cd-s">--</b><i>sec</i></span>
+        </div>
         <div class="card-price">
           <span class="price-amount">$9</span>
           <span class="price-period">/month</span>
@@ -1914,14 +1937,15 @@
   if (!el) return;
   var launch = new Date(2026, 8, 14, 0, 0, 0);   // Sept 14, local midnight
   function pad(n) { return String(n).padStart(2, '0'); }
+  var cd = ['d','h','m','s'].map(function (k) { return document.getElementById('fg-cd-' + k); });
   function tick() {
     var ms = launch - Date.now();
-    if (ms <= 0) { el.textContent = 'Live now'; return; }
+    if (ms <= 0) { el.innerHTML = '<span class="fg-cd-cell" style="padding:6px 10px 5px"><b>Live now</b></span>'; return; }
     var s = Math.floor(ms / 1000);
-    var d = Math.floor(s / 86400);
-    var h = Math.floor((s % 86400) / 3600);
-    var m = Math.floor((s % 3600) / 60);
-    el.textContent = 'Launch ' + d + 'd ' + pad(h) + ':' + pad(m) + ':' + pad(s % 60);
+    cd[0].textContent = Math.floor(s / 86400);
+    cd[1].textContent = pad(Math.floor((s % 86400) / 3600));
+    cd[2].textContent = pad(Math.floor((s % 3600) / 60));
+    cd[3].textContent = pad(s % 60);
     setTimeout(tick, 1000);
   }
   tick();
