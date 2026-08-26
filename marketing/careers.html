@@ -597,8 +597,6 @@ html { scroll-behavior: smooth; }
 
 
   /* ─── OPEN ROLES ──────────────────────────────────────────────────────── */
-  /* flex-start, not stretch: the pill row carries a scrollbar gutter below
-     it, and stretch would grow the select to match that extra height. */
   .roles-controls { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 52px; }
   .roles-select {
     flex: 0 0 auto; align-self: flex-start;
@@ -617,7 +615,7 @@ html { scroll-behavior: smooth; }
      overflows (same affordance as the blog filter bar / platform tab bar).
      JS toggles .at-end when scrolled fully right. */
   .roles-pills-wrap::after {
-    content: ""; position: absolute; top: 0; right: 0; bottom: 10px; width: 72px;
+    content: ""; position: absolute; top: 0; right: 0; bottom: 0; width: 72px;
     pointer-events: none; z-index: 2; opacity: 0; transition: opacity 0.25s ease;
     background: linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,0.55) 35%, rgba(0,0,0,0.88) 65%, #000 88%);
   }
@@ -626,29 +624,30 @@ html { scroll-behavior: smooth; }
   .roles-pills {
     display: flex; gap: 8px; overflow-x: auto; overflow-y: hidden;
     touch-action: pan-x; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch;
-    /* Visible slim scrollbar — the edge fade alone gave no draggable affordance
-       on desktop, and macOS hides overlay scrollbars until you scroll.
-       6px is a floor, NOT a style choice: below ~4px Chrome ignores the
-       ::-webkit-scrollbar height entirely and reverts to an overlay bar that
-       reserves no space and only flashes mid-scroll (a 3px version measured
-       offsetHeight - clientHeight = 0, i.e. no scrollbar at all). Keep it
-       restrained with colour, not size. */
-    padding-bottom: 10px;
-    /* Deliberately NOT setting scrollbar-width/scrollbar-color: Chrome 121+
-       ignores every ::-webkit-scrollbar rule when either standard property is
-       present, and `scrollbar-width: thin` on macOS is an OVERLAY bar that
-       reserves no space — which is why the bar vanished (offsetHeight -
-       clientHeight measured 0). Firefox falls back to its native thin bar. */
+    /* Scrollbar only when the row ACTUALLY overflows (Gary, 2026-08-24):
+       the base hides it — the 14px pill font means the full team list fits
+       at desktop width — and the .is-scrollable class (set by the same JS
+       that drives the edge fade) restores the styled 6px bar + its gutter
+       on narrower screens where the row really scrolls. Class-driven, not a
+       viewport breakpoint, so any width that overflows gets the bar.
+       scrollbar-width flips to auto there because Chrome 121+ ignores
+       ::-webkit-scrollbar styling while a non-initial standard scrollbar
+       property is in effect. 6px is a floor — below ~4px Chrome reverts to
+       an overlay bar that reserves no space. */
+    scrollbar-width: none; -ms-overflow-style: none;
   }
-  .roles-pills::-webkit-scrollbar { height: 6px; }
-  .roles-pills::-webkit-scrollbar-track { background: rgba(255,255,255,0.045); border-radius: 999px; }
-  .roles-pills::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.20); border-radius: 999px; }
-  .roles-pills:hover::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.34); }
+  .roles-pills::-webkit-scrollbar { display: none; }
+  .roles-pills-wrap.is-scrollable .roles-pills { scrollbar-width: auto; padding-bottom: 10px; }
+  .roles-pills-wrap.is-scrollable .roles-pills::-webkit-scrollbar { display: block; height: 6px; }
+  .roles-pills-wrap.is-scrollable .roles-pills::-webkit-scrollbar-track { background: rgba(255,255,255,0.045); border-radius: 999px; }
+  .roles-pills-wrap.is-scrollable .roles-pills::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.20); border-radius: 999px; }
+  .roles-pills-wrap.is-scrollable .roles-pills:hover::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.34); }
+  .roles-pills-wrap.is-scrollable::after { bottom: 10px; }
   .role-pill {
     flex: 0 0 auto; height: 44px; padding: 0 18px; border-radius: 2px;
     display: inline-flex; align-items: center;
     background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.10);
-    color: rgba(255,255,255,0.6); font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 500;
+    color: rgba(255,255,255,0.6); font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500;
     cursor: pointer; transition: all 0.22s ease; white-space: nowrap;
   }
   .role-pill:hover { color: #fff; border-color: rgba(255,255,255,0.28); }
