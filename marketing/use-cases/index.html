@@ -237,7 +237,6 @@
     flex-shrink: 0;
   }
   .int-logo svg { width: 12px; height: 12px; display: block; }
-  .int-card-image-logo svg { width: 14px; height: 14px; }
   /* tiles are neutral grey — the per-color tint variants were removed (Gary, 2026-09-14) */
   .int-name {
     font-size: 22px;
@@ -286,24 +285,11 @@
     aspect-ratio: 16 / 10;
     overflow: hidden;
     border-bottom: 1px solid rgba(255,255,255,0.08);
+    /* one neutral gradient across all three cards (per-color tints removed, Gary 2026-09-14) */
     background:
-      radial-gradient(120% 80% at 100% 0%, rgba(20,136,252,0.22) 0%, transparent 55%),
-      radial-gradient(100% 70% at 0% 100%, rgba(127,221,193,0.10) 0%, transparent 60%),
+      radial-gradient(120% 80% at 100% 0%, rgba(255,255,255,0.07) 0%, transparent 55%),
       linear-gradient(165deg, #15151c 0%, #0a0a10 60%, #050508 100%);
   }
-  /* color-tint the image per card */
-  .int-card--featured[data-color="purple"] .int-card-image { background-image:
-    radial-gradient(120% 80% at 100% 0%, rgba(168,140,255,0.22) 0%, transparent 55%),
-    radial-gradient(100% 70% at 0% 100%, rgba(168,140,255,0.08) 0%, transparent 60%),
-    linear-gradient(165deg, #16121f 0%, #0a0810 60%, #050407 100%); }
-  .int-card--featured[data-color="amber"] .int-card-image { background-image:
-    radial-gradient(120% 80% at 100% 0%, rgba(250,182,98,0.20) 0%, transparent 55%),
-    radial-gradient(100% 70% at 0% 100%, rgba(250,182,98,0.07) 0%, transparent 60%),
-    linear-gradient(165deg, #1a160f 0%, #0c0a07 60%, #050403 100%); }
-  .int-card--featured[data-color="mint"] .int-card-image { background-image:
-    radial-gradient(120% 80% at 100% 0%, rgba(127,221,193,0.22) 0%, transparent 55%),
-    radial-gradient(100% 70% at 0% 100%, rgba(20,136,252,0.08) 0%, transparent 60%),
-    linear-gradient(165deg, #0f1a17 0%, #070d0b 60%, #040605 100%); }
   /* Film-grain noise overlay */
   .int-card--featured .int-card-image::after {
     content: '';
@@ -314,15 +300,6 @@
     mix-blend-mode: overlay;
     opacity: 0.32;
     pointer-events: none;
-  }
-  .int-card-image-logo {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    width: 26px;
-    height: 26px;
-    z-index: 2;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.45);
   }
   .int-card--featured .int-card-body {
     padding: 24px 24px 26px;
@@ -342,7 +319,6 @@
     .featured-grid { grid-template-columns: 1fr; gap: 16px; }
     .int-card--featured:nth-child(3) .int-card-image { aspect-ratio: 16 / 10; }
     .int-card--featured .int-card-body { padding: 20px; }
-    .int-card-image-logo { width: 22px; height: 22px; top: 16px; left: 16px; }
   }
 
   /* ─── CATALOG ────────────────────────────────────────────────────────── */
@@ -1210,11 +1186,9 @@ var hoverField = (function () {
   var grid = document.getElementById('featured-grid');
   if (!grid) return;
   grid.innerHTML = FEATURED.map(function (i) {
-    return '<a href="' + i.url + '" target="_blank" rel="noopener" class="int-card int-card--featured" data-color="' + i.color + '">'
+    return '<a href="' + i.url + '" target="_blank" rel="noopener" class="int-card int-card--featured">'
       + '<canvas class="int-card-hover-canvas" aria-hidden="true"></canvas>'
-      + '<div class="int-card-image" aria-hidden="true">'
-      +   '<span class="int-card-image-logo int-logo" data-color="' + i.color + '">' + ICONS[i.icon] + '</span>'
-      + '</div>'
+      + '<div class="int-card-image" aria-hidden="true"></div>'
       + '<div class="int-card-body">'
       +   '<h3 class="int-name">' + i.name + '</h3>'
       +   '<p class="int-desc">' + i.desc + '</p>'
