@@ -286,10 +286,18 @@
     aspect-ratio: 16 / 10;
     overflow: hidden;
     border-bottom: 1px solid rgba(255,255,255,0.08);
-    /* one neutral gradient across all three cards (per-color tints removed, Gary 2026-09-14) */
+    /* neutral gradient shows while the screenshot loads */
     background:
       radial-gradient(120% 80% at 100% 0%, rgba(255,255,255,0.07) 0%, transparent 55%),
       linear-gradient(165deg, #15151c 0%, #0a0a10 60%, #050508 100%);
+  }
+  .int-card--featured .int-card-image img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
   }
   /* Film-grain noise overlay */
   .int-card--featured .int-card-image::after {
@@ -968,9 +976,9 @@
 <script>
 /* ── Use case data ─────────────────────────────────────────────────────── */
 var FEATURED = [
-  { name: 'App Builder',       icon: 'sparkle',     color: 'blue',   tag: 'apps',     url: 'https://bolt.new/use-cases/ai-app-builder',       desc: 'Turn a plain-language prompt into a working, full-stack app.' },
-  { name: 'Website Builder',   icon: 'globe',       color: 'mint',   tag: 'websites', url: 'https://bolt.new/use-cases/ai-website-builder',   desc: 'Ship a polished marketing site or landing page in minutes.' },
-  { name: 'Prototype Builder', icon: 'layers',      color: 'purple', tag: 'tools',    url: 'https://bolt.new/use-cases/ai-prototyping-tools', desc: 'Spin up an interactive prototype to pressure-test an idea fast.' },
+  { name: 'App Builder',       img: 'images/app-builder.webp',       tag: 'apps',     url: 'https://bolt.new/use-cases/ai-app-builder',       desc: 'Turn a plain-language prompt into a working, full-stack app.' },
+  { name: 'Website Builder',   img: 'images/website-builder.webp',   tag: 'websites', url: 'https://bolt.new/use-cases/ai-website-builder',   desc: 'Ship a polished marketing site or landing page in minutes.' },
+  { name: 'Prototype Builder', img: 'images/prototype-builder.webp', tag: 'tools',    url: 'https://bolt.new/use-cases/ai-prototyping-tools', desc: 'Spin up an interactive prototype to pressure-test an idea fast.' },
 ];
 
 /* All 77 live /use-cases/* pages (source: bolt-public-pages src/content/use-cases,
@@ -1189,7 +1197,7 @@ var hoverField = (function () {
   grid.innerHTML = FEATURED.map(function (i) {
     return '<a href="' + i.url + '" target="_blank" rel="noopener" class="int-card int-card--featured">'
       + '<canvas class="int-card-hover-canvas" aria-hidden="true"></canvas>'
-      + '<div class="int-card-image" aria-hidden="true"></div>'
+      + '<div class="int-card-image" aria-hidden="true"><img src="' + i.img + '" alt="" loading="lazy" decoding="async"></div>'
       + '<div class="int-card-body">'
       +   '<h3 class="int-name">' + i.name + '</h3>'
       +   '<p class="int-desc">' + i.desc + '</p>'
