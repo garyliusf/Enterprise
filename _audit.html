@@ -1,0 +1,21 @@
+<!doctype html><meta charset="utf-8"><body style="margin:0;background:#333">
+<iframe id="f" style="border:0;display:block;width:360px;height:740px"></iframe>
+<pre id="out" style="color:#fff"></pre>
+<script>
+var f = document.getElementById('f');
+f.src = '/marketing/use-cases/';
+f.addEventListener('load', function () {
+  setTimeout(function () {
+    var d = f.contentDocument;
+    var lines = ['docScrollW=' + d.documentElement.scrollWidth];
+    ['.mkt-nav', '.mkt-nav-inner', '.mkt-nav-logo', '.mkt-nav-right', '.mkt-nav-actions', '.mkt-nav-signin', '.mkt-nav-cta', '.mkt-nav-burger'].forEach(function (sel) {
+      var e = d.querySelector(sel);
+      if (!e) { lines.push(sel + ' MISSING'); return; }
+      var r = e.getBoundingClientRect();
+      var cs = f.contentWindow.getComputedStyle(e);
+      lines.push(sel + ' left=' + Math.round(r.left) + ' right=' + Math.round(r.right) + ' w=' + Math.round(r.width) + ' display=' + cs.display + ' minW=' + cs.minWidth);
+    });
+    document.getElementById('out').textContent = lines.join('\n');
+  }, 2500);
+});
+</script>
