@@ -56,29 +56,72 @@ def preview(img, caption, meta):
               </tr>
             </table>'''
 
-def comment(initials, tint, name, when, body, pin=None, last=True):
-    """One comment row: avatar + name/time + text. Hairline between rows."""
-    pad = "0 0 0 0" if last else "0 0 18px 0"
-    rule = "" if last else f' border-bottom:1px solid {LINE}; padding-bottom:18px;'
+def comment(initials, tint, name, when, body, pin=None, last=True, compact=False):
+    """One comment row: avatar + name/time + text. Hairline between rows.
+    compact=True is the in-card size used by the multi-project digest."""
+    av = 28 if compact else 36
+    gap = 11 if compact else 14
+    fs = 15 if compact else 16
+    pad = "0 0 0 0" if last else ("0 0 14px 0" if compact else "0 0 18px 0")
+    rule = "" if last else f' border-bottom:1px solid {LINE}; padding-bottom:{14 if compact else 18}px;'
     pinchip = (f'<span class="cm-pin" style="display:inline-block; min-width:18px; padding:1px 5px; margin-right:8px;'
                f' background-color:{BLUE}; border-radius:999px; font-family:{F}; font-size:11px; font-weight:600;'
                f' line-height:16px; color:#ffffff; text-align:center;">{pin}</span>') if pin else ""
     return f'''<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:{pad};">
               <tr>
-                <td valign="top" width="36" style="width:36px; padding:0 14px 0 0;{rule}">
+                <td valign="top" width="{av}" style="width:{av}px; padding:0 {gap}px 0 0;{rule}">
                   <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-                    <td class="cm-av" width="36" height="36" align="center" bgcolor="{tint}" style="width:36px; height:36px; background-color:{tint}; border-radius:999px; font-family:{F}; font-size:13px; font-weight:600; line-height:36px; color:#ffffff; text-align:center;">{initials}</td>
+                    <td class="cm-av" width="{av}" height="{av}" align="center" bgcolor="{tint}" style="width:{av}px; height:{av}px; background-color:{tint}; border-radius:999px; font-family:{F}; font-size:{11 if compact else 13}px; font-weight:600; line-height:{av}px; color:#ffffff; text-align:center;">{initials}</td>
                   </tr></table>
                 </td>
                 <td valign="top" style="{rule}">
-                  <p style="margin:0 0 5px; font-family:{F}; font-size:15px; line-height:1.4; color:{INK};">
+                  <p style="margin:0 0 4px; font-family:{F}; font-size:{14 if compact else 15}px; line-height:1.4; color:{INK};">
                     {pinchip}<span class="cm-name" style="font-weight:600;">{name}</span>
                     <span style="color:{FAINT}; font-weight:400;">&nbsp;&nbsp;{when}</span>
                   </p>
-                  <p class="cm-text" style="margin:0; font-family:{F}; font-size:16px; line-height:160%; color:{INK};">{body}</p>
+                  <p class="cm-text" style="margin:0; font-family:{F}; font-size:{fs}px; line-height:{"155%" if compact else "160%"}; color:{INK};">{body}</p>
                 </td>
               </tr>
             </table>'''
+
+
+def project_card(img, project, design, rows, link, href=None, last=False):
+    """One card per design — the multi-project digest's unit.
+    Thumbnail + caption strip (project / design + count) + its comments + link.
+    Mirrors Figma's per-file card; the CTA is a link, not a second button,
+    so the email keeps one primary action.
+
+    PRODUCTION: the thumbnail must be served PRE-CROPPED at 526x240 (2x =
+    1052x480). object-fit below only holds the mock together — Outlook's Word
+    engine ignores it and would squash an off-ratio source to 240px tall."""
+    href = href or URL
+    mb = "0" if last else "0 0 20px"
+    return f'''<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid {LINE}; border-radius:6px; margin:{mb};">
+              <tr>
+                <td bgcolor="#F7F6F4" style="padding:0; line-height:0; background-color:#F7F6F4; border-radius:6px 6px 0 0;">
+                  <img src="{img}" width="526" height="240" alt="{design}" style="width:100%; max-width:526px; height:240px; object-fit:cover; display:block; border:0; border-radius:6px 6px 0 0;">
+                </td>
+              </tr>
+              <tr>
+                <td bgcolor="#FBFAF9" style="background-color:#FBFAF9; border-top:1px solid {LINE}; border-bottom:1px solid {LINE}; padding:11px 16px; font-family:{F}; font-size:13px; line-height:1.4; color:{MUTE};">
+                  <span style="color:{INK}; font-weight:600;">{project}</span>
+                  <span style="color:#C9C6C2;"> &#47; </span>{design}
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:18px 16px 0;">{rows}</td>
+              </tr>
+              <tr>
+                <td style="padding:14px 16px 16px; font-family:{F}; font-size:14px; line-height:1.5;">
+                  <a href="{href}" style="color:{BLUE}; font-weight:600; text-decoration:none;">{link} &rarr;</a>
+                </td>
+              </tr>
+            </table>'''
+
+
+def lede(text):
+    return f'''<p style="margin:0 0 22px; font-family:{F}; font-size:16px; line-height:160%; color:{MUTE};">{text}</p>'''
+
 
 def quoted(name, when, body):
     """The comment being replied to — quiet, rule on the left."""
@@ -202,6 +245,34 @@ STATES = [
             + quoted("You", "Yesterday, 4:12 PM", "Promo field feels buried down here. Does it need to sit this far below the fold?")
             + comment(A[0], A[1], A[2], "2:41 PM", "Agreed &mdash; I&rsquo;ll move it under the summary card so it&rsquo;s visible without scrolling. Pushing a revision this afternoon.")
             + button("View Thread", URL)
+            + reply_hint()
+        ),
+    ),
+    dict(
+        key="multi",
+        label="Across projects",
+        note="Comments spread over several designs &mdash; one card per design, Figma-style. Three cards max, the rest roll up.",
+        subject="7 new comments across 3 projects",
+        preheader="Nexal, Soul Press and Atlas all have new comments.",
+        footer_reason="You&rsquo;re receiving this because you&rsquo;re a collaborator on these projects. Comment emails are batched every 30 minutes.",
+        body=(
+            title("7 new comments across 3 projects")
+            + lede("Here&rsquo;s what came in while you were away.")
+            + project_card(
+                "../va/nexal-dashboard.jpg", "Nexal", "Checkout flow",
+                comment(A[0], A[1], A[2], "2:41 PM", "The total should update the moment a promo code is applied &mdash; right now it only refreshes after you hit Continue.", pin=1, last=False, compact=True)
+                + comment(M[0], M[1], M[2], "3:02 PM", "Can we drop the second address field? Everyone I watched in testing skipped straight past it.", pin=3, compact=True),
+                "View 4 comments")
+            + project_card(
+                "../va/soulpress-app.jpg", "Soul Press", "Reader &mdash; mobile",
+                comment(M[0], M[1], M[2], "1:18 PM", "Type size in the article body is a notch small on a 390px screen. 17px reads much better.", pin=1, compact=True),
+                "View 2 comments")
+            + project_card(
+                "../va/bolt-templates.jpg", "Atlas", "Pricing page",
+                comment(A[0], A[1], A[2], "11:04 AM", "Annual toggle should be the default &mdash; it&rsquo;s the plan we want people landing on.", pin=1, compact=True),
+                "View 1 comment", last=True)
+            + more("1 more design has new comments &rarr;")
+            + button("View All Comments", "https://bolt.new/inbox")
             + reply_hint()
         ),
     ),
