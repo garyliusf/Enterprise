@@ -28,6 +28,18 @@ MUTE = "#6B6B6B"
 FAINT = "#999999"
 LINE = "#E6E4E1"
 
+# Avatar tints — deliberately DESATURATED. Brand blue (#1488FC) is reserved in
+# this email for the things you can act on: the pin number, links, the button.
+# An avatar in the same blue sits a few px from the pin chip and reads as part
+# of the same control. These also clear AA for white initials (5.9–10.8:1);
+# white on #1488FC is only 3.5:1, so the old blue avatar failed contrast too.
+AVATARS = {
+    "ink":   "#3F3D3A",
+    "slate": "#4E5A63",
+    "clay":  "#6E6257",
+    "plum":  "#6B5B74",
+}
+
 # ───────────────────────── components ─────────────────────────
 
 def crumb(project, design):
@@ -176,8 +188,8 @@ PROJECT, DESIGN = "Nexal", "Checkout flow"
 IMG = "../va/nexal-dashboard.jpg"
 URL = "https://bolt.new/projects/nexal/checkout-flow"
 
-A = ("AR", "#1488FC", "Alberto Ruiz")      # commenter
-M = ("MK", "#0F8A55", "Mira Kade")         # second commenter
+A = ("AR", AVATARS["slate"], "Alberto Ruiz")   # commenter
+M = ("MK", AVATARS["clay"], "Mira Kade")       # second commenter
 
 STATES = [
     dict(
