@@ -57,7 +57,7 @@ def preview(img, caption, meta):
     return f'''<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid {LINE}; border-radius:6px; margin:0 0 24px;">
               <tr>
                 <td bgcolor="#F7F6F4" style="padding:0; line-height:0; background-color:#F7F6F4; border-radius:6px 6px 0 0;">
-                  <img src="{img}" width="526" alt="{caption}" style="width:100%; max-width:526px; height:auto; display:block; border:0; border-radius:6px 6px 0 0;">
+                  <img src="{img}" width="526" height="300" alt="{caption}" style="width:100%; max-width:526px; height:300px; object-fit:cover; display:block; border:0; border-radius:6px 6px 0 0;">
                 </td>
               </tr>
               <tr>
@@ -103,15 +103,15 @@ def project_card(img, project, design, rows, link, href=None, last=False):
     Mirrors Figma's per-file card; the CTA is a link, not a second button,
     so the email keeps one primary action.
 
-    PRODUCTION: the thumbnail must be served PRE-CROPPED at 526x240 (2x =
-    1052x480). object-fit below only holds the mock together — Outlook's Word
+    PRODUCTION: the thumbnail must be served PRE-CROPPED at 526x300 (2x =
+    1052x600). object-fit below only holds the mock together — Outlook's Word
     engine ignores it and would squash an off-ratio source to 240px tall."""
     href = href or URL
     mb = "0" if last else "0 0 20px"
     return f'''<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid {LINE}; border-radius:6px; margin:{mb};">
               <tr>
                 <td bgcolor="#F7F6F4" style="padding:0; line-height:0; background-color:#F7F6F4; border-radius:6px 6px 0 0;">
-                  <img src="{img}" width="526" height="240" alt="{design}" style="width:100%; max-width:526px; height:240px; object-fit:cover; display:block; border:0; border-radius:6px 6px 0 0;">
+                  <img src="{img}" width="526" height="300" alt="{design}" style="width:100%; max-width:526px; height:300px; object-fit:cover; display:block; border:0; border-radius:6px 6px 0 0;">
                 </td>
               </tr>
               <tr>
@@ -184,26 +184,29 @@ def mention(name):
 
 # ───────────────────────── content ─────────────────────────
 
-PROJECT, DESIGN = "Nexal", "Checkout flow"
-IMG = "../va/nexal-dashboard.jpg"
-URL = "https://bolt.new/projects/nexal/checkout-flow"
+PROJECT, DESIGN = "Nestly", "Home"
+IMG = "../va/gen/nestly-home.jpg"
+IMG1 = "../va/gen/nestly-home-1.jpg"
+URL = "https://bolt.new/projects/nestly/comments"
 
-A = ("AR", AVATARS["slate"], "Alberto Ruiz")   # commenter
-M = ("MK", AVATARS["clay"], "Mira Kade")       # second commenter
+S = ("ST", AVATARS["slate"], "Sophie Tremblay")
+O = ("OC", AVATARS["clay"],  "Olivia Chen")
+K = ("KP", AVATARS["ink"],   "Kwinten Pizman")
+G = ("GM", AVATARS["plum"],  "Gabriella Martinez")
 
 STATES = [
     dict(
         key="single",
         label="Single comment",
-        note="One new comment. The base case — everything else is this plus context.",
-        subject="Alberto Ruiz commented on Checkout flow",
-        preheader="“The total should update the moment a promo code is applied.”",
+        note="One new comment. The base case &mdash; everything else is this plus context.",
+        subject="Sophie Tremblay commented on Nestly",
+        preheader="“This headline wraps to three lines at laptop widths.”",
         footer_reason=f"You&rsquo;re receiving this because you&rsquo;re a collaborator on <b style=\"font-weight:600;\">{PROJECT}</b>.",
         body=(
             crumb(PROJECT, DESIGN)
-            + title("Alberto Ruiz left a comment")
-            + preview(IMG, DESIGN, "1 new comment")
-            + comment(A[0], A[1], A[2], "2:41 PM", "The total should update the moment a promo code is applied &mdash; right now it only refreshes after you hit Continue, which reads like the discount didn&rsquo;t land.", pin=1)
+            + title("Sophie Tremblay left a comment")
+            + preview(IMG1, DESIGN, "1 new comment")
+            + comment(S[0], S[1], S[2], "3h ago", "This headline wraps to three lines at laptop widths. Could we tighten it to two, or drop the last clause?", pin=1)
             + button("View Comment", URL)
             + reply_hint()
         ),
@@ -211,18 +214,18 @@ STATES = [
     dict(
         key="digest",
         label="Digest (4 comments)",
-        note="Batched thread &mdash; Figma&rsquo;s case. Caps at three previews, the rest roll up into a link.",
-        subject="4 new comments on Checkout flow",
-        preheader="Alberto Ruiz and Mira Kade commented while you were away.",
+        note="Batched thread &mdash; Figma&rsquo;s case. The pins on the preview are numbered to match the comments below it.",
+        subject="4 new comments on Nestly",
+        preheader="Sophie, Kwinten and Olivia commented while you were away.",
         footer_reason=f"You&rsquo;re receiving this because you&rsquo;re a collaborator on <b style=\"font-weight:600;\">{PROJECT}</b>. Comment emails are batched every 30 minutes.",
         body=(
             crumb(PROJECT, DESIGN)
-            + title("4 new comments on Checkout flow")
+            + title("4 new comments on Home")
             + preview(IMG, DESIGN, "4 new comments")
-            + comment(A[0], A[1], A[2], "2:41 PM", "The total should update the moment a promo code is applied &mdash; right now it only refreshes after you hit Continue.", pin=1, last=False)
-            + comment(A[0], A[1], A[2], "2:44 PM", "Same on mobile. The summary card also clips the tax line at 390px.", pin=2, last=False)
-            + comment(M[0], M[1], M[2], "3:02 PM", "Can we drop the second address field? Everyone I watched in testing skipped straight past it.", pin=3, last=True)
-            + more("Show 1 more comment &rarr;", URL)
+            + comment(S[0], S[1], S[2], "3h ago", "This headline wraps to three lines at laptop widths. Could we tighten it to two, or drop the last clause?", pin=1, last=False)
+            + comment(K[0], K[1], K[2], "1d ago", "Legal asked us to say &ldquo;Check availability&rdquo; until the instant-booking flow ships &mdash; can we swap the label?", pin=2, last=False)
+            + comment(O[0], O[1], O[2], "6h ago", "The tour video is 2m40s, not 90 seconds. Either re-cut it or change the label before launch.", pin=3, last=True)
+            + more("Show 1 more comment &mdash; not pinned to an element &rarr;")
             + button("View Comments", URL)
             + reply_hint()
         ),
@@ -231,14 +234,14 @@ STATES = [
         key="mention",
         label="@mention",
         note="Direct mention &mdash; never batched, own subject line, highest priority of the three.",
-        subject="Alberto Ruiz mentioned you in Checkout flow",
-        preheader="“@Gary can you confirm the promo rules before Thursday?”",
+        subject="Sophie Tremblay mentioned you on Nestly",
+        preheader="“@Gary can we drop the last clause before Thursday?”",
         footer_reason="You&rsquo;re receiving this because you were mentioned. Mentions are always sent immediately.",
         body=(
             crumb(PROJECT, DESIGN)
-            + title("Alberto Ruiz mentioned you")
-            + preview(IMG, DESIGN, "1 mention")
-            + comment(A[0], A[1], A[2], "2:41 PM", f"{mention('Gary')} can you confirm the promo rules before Thursday? If stacking is allowed I&rsquo;ll need a second line in the summary card.", pin=1)
+            + title("Sophie Tremblay mentioned you")
+            + preview(IMG1, DESIGN, "1 mention")
+            + comment(S[0], S[1], S[2], "3h ago", f"{mention('Gary')} this headline wraps to three lines at laptop widths &mdash; can we drop the last clause before Thursday? Copy is yours to call.", pin=1)
             + button("Reply in Bolt", URL)
             + reply_hint()
         ),
@@ -247,15 +250,15 @@ STATES = [
         key="reply",
         label="Reply to you",
         note="Reply on your own thread &mdash; your comment is quoted above it so the reply has context.",
-        subject="Alberto Ruiz replied to your comment",
-        preheader="“Agreed &mdash; I&rsquo;ll move it under the summary card.”",
+        subject="Kwinten Pizman replied to your comment",
+        preheader="“Legal asked us to say Check availability until instant booking ships.”",
         footer_reason="You&rsquo;re receiving this because you started this comment thread.",
         body=(
             crumb(PROJECT, DESIGN)
-            + title("Alberto Ruiz replied to you")
-            + preview(IMG, DESIGN, "1 reply")
-            + quoted("You", "Yesterday, 4:12 PM", "Promo field feels buried down here. Does it need to sit this far below the fold?")
-            + comment(A[0], A[1], A[2], "2:41 PM", "Agreed &mdash; I&rsquo;ll move it under the summary card so it&rsquo;s visible without scrolling. Pushing a revision this afternoon.")
+            + title("Kwinten Pizman replied to you")
+            + preview("../va/gen/nestly-home-2.jpg", DESIGN, "1 reply")
+            + quoted("You", "Yesterday, 4:12 PM", "Is &ldquo;See services &amp; prices&rdquo; the label we&rsquo;re shipping with? It tests worse than the shorter one.")
+            + comment(K[0], K[1], K[2], "1d ago", "Legal asked us to say &ldquo;Check availability&rdquo; until the instant-booking flow ships. Happy to swap it back the week after.")
             + button("View Thread", URL)
             + reply_hint()
         ),
@@ -264,26 +267,25 @@ STATES = [
         key="multi",
         label="Across projects",
         note="Comments spread over several designs &mdash; one card per design, Figma-style. Three cards max, the rest roll up.",
-        subject="7 new comments across 3 projects",
-        preheader="Nexal, Soul Press and Atlas all have new comments.",
+        subject="7 new comments across 2 projects",
+        preheader="Nestly and Soul Press both have new comments.",
         footer_reason="You&rsquo;re receiving this because you&rsquo;re a collaborator on these projects. Comment emails are batched every 30 minutes.",
         body=(
-            title("7 new comments across 3 projects")
+            title("7 new comments across 2 projects")
             + lede("Here&rsquo;s what came in while you were away.")
             + project_card(
-                "../va/nexal-dashboard.jpg", "Nexal", "Checkout flow",
-                comment(A[0], A[1], A[2], "2:41 PM", "The total should update the moment a promo code is applied &mdash; right now it only refreshes after you hit Continue.", pin=1, last=False, compact=True)
-                + comment(M[0], M[1], M[2], "3:02 PM", "Can we drop the second address field? Everyone I watched in testing skipped straight past it.", pin=3, compact=True),
+                IMG, "Nestly", "Home",
+                comment(S[0], S[1], S[2], "3h ago", "This headline wraps to three lines at laptop widths. Could we tighten it to two?", pin=1, last=False, compact=True)
+                + comment(K[0], K[1], K[2], "1d ago", "Legal asked us to say &ldquo;Check availability&rdquo; until the instant-booking flow ships.", pin=2, compact=True),
                 "View 4 comments")
             + project_card(
-                "../va/soulpress-app.jpg", "Soul Press", "Reader &mdash; mobile",
-                comment(M[0], M[1], M[2], "1:18 PM", "Type size in the article body is a notch small on a 390px screen. 17px reads much better.", pin=1, compact=True),
+                "../va/gen/nestly-pricing.jpg", "Nestly", "Pricing",
+                comment(O[0], O[1], O[2], "8h ago", "&ldquo;NY area only&rdquo; is buried in 13px grey under the table. Most people who land here won&rsquo;t see it.", pin=1, compact=True),
                 "View 2 comments")
             + project_card(
-                "../va/bolt-templates.jpg", "Atlas", "Pricing page",
-                comment(A[0], A[1], A[2], "11:04 AM", "Annual toggle should be the default &mdash; it&rsquo;s the plan we want people landing on.", pin=1, compact=True),
+                "../va/gen/soulpress-reader.jpg", "Soul Press", "Catalog",
+                comment(G[0], G[1], G[2], "4d ago", "Can we bring back a secondary button next to the primary CTA? Not everyone is ready to buy on the first visit.", pin=1, compact=True),
                 "View 1 comment", last=True)
-            + more("1 more design has new comments &rarr;")
             + button("View All Comments", "https://bolt.new/inbox")
             + reply_hint()
         ),
