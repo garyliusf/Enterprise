@@ -1,0 +1,71 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Comment notification emails</title>
+<style>
+*{box-sizing:border-box}
+:root{--bg:#faf9f8;--panel:#fff;--line:#e6e4e1;--ink:#16151a;--mute:#6d6a66;--accent:#1389fd}
+@media (prefers-color-scheme:dark){:root{--bg:#131316;--panel:#1b1b1f;--line:#2c2c32;--ink:#f0eff2;--mute:#94919b}}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);display:flex;flex-direction:column;height:100vh;overflow:hidden;
+  font:13px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+header{padding:14px 22px;border-bottom:1px solid var(--line);background:var(--panel)}
+.top{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+h1{font:600 14px/1 ui-monospace,Menlo,monospace;margin:0}
+.lbl{font-size:9.5px;text-transform:uppercase;letter-spacing:1.1px;color:var(--mute);margin-right:-10px}
+.seg{display:flex;gap:2px;background:var(--bg);padding:3px;border-radius:6px;border:1px solid var(--line)}
+.seg button{border:0;background:transparent;color:var(--mute);font:500 11.5px/1 inherit;
+  padding:6px 11px;border-radius:4px;cursor:pointer}
+.seg button.on{background:var(--accent);color:#fff}
+.meta{margin:12px 0 0;display:grid;gap:3px;font-size:12.5px;color:var(--mute);max-width:820px}
+.meta b{color:var(--ink);font-weight:600}
+.note{font-size:12px;color:var(--mute);margin-top:6px}
+.stage{flex:1;overflow:auto;padding:26px;display:flex;justify-content:center;align-items:flex-start}
+.frame{background:#fff;border:1px solid var(--line);border-radius:8px;overflow:hidden;
+  box-shadow:0 4px 24px rgba(0,0,0,.08);transition:width .2s ease;flex:none}
+.frame iframe{display:block;width:100%;height:100%;border:0;background:#fff}
+a.raw{color:var(--accent);text-decoration:none;font-size:11.5px}
+</style></head><body>
+<header>
+  <div class="top">
+    <h1>comment-notification/</h1>
+    <span class="lbl">State</span>
+    <div class="seg" id="states"></div>
+    <span class="lbl">Width</span>
+    <div class="seg" id="widths">
+      <button data-w="632" class="on">Desktop 600</button>
+      <button data-w="390">iPhone 390</button>
+    </div>
+    <a class="raw" id="raw" href="#" target="_blank">open raw &rarr;</a>
+  </div>
+  <div class="meta">
+    <div><b>Subject</b> &nbsp;<span id="subj"></span></div>
+    <div><b>Preview</b> &nbsp;<span id="pre"></span></div>
+    <div class="note" id="note"></div>
+  </div>
+</header>
+<div class="stage"><div class="frame" id="frame" style="width:632px;height:1400px"><iframe id="f"></iframe></div></div>
+<script>
+const STATES = [{"key": "single", "label": "Single comment", "note": "One new comment. The base case \u2014 everything else is this plus context.", "subject": "Alberto Ruiz commented on Checkout flow", "preheader": "\u201cThe total should update the moment a promo code is applied.\u201d"}, {"key": "digest", "label": "Digest (4 comments)", "note": "Batched thread &mdash; Figma&rsquo;s case. Caps at three previews, the rest roll up into a link.", "subject": "4 new comments on Checkout flow", "preheader": "Alberto Ruiz and Mira Kade commented while you were away."}, {"key": "mention", "label": "@mention", "note": "Direct mention &mdash; never batched, own subject line, highest priority of the three.", "subject": "Alberto Ruiz mentioned you in Checkout flow", "preheader": "\u201c@Gary can you confirm the promo rules before Thursday?\u201d"}, {"key": "reply", "label": "Reply to you", "note": "Reply on your own thread &mdash; your comment is quoted above it so the reply has context.", "subject": "Alberto Ruiz replied to your comment", "preheader": "\u201cAgreed &mdash; I&rsquo;ll move it under the summary card.\u201d"}];
+let cur = 0, w = 632;
+const seg = document.getElementById('states');
+STATES.forEach((s,i)=>{const b=document.createElement('button');b.textContent=s.label;
+  b.onclick=()=>{cur=i;render()};seg.appendChild(b)});
+document.querySelectorAll('#widths button').forEach(b=>b.onclick=()=>{
+  w=+b.dataset.w;document.querySelectorAll('#widths button').forEach(x=>x.classList.toggle('on',x===b));render()});
+function fit(){const f=document.getElementById('f');try{
+  const h=f.contentDocument.documentElement.scrollHeight;
+  document.getElementById('frame').style.height=(h+2)+'px';}catch(e){}}
+function render(){
+  const s=STATES[cur];
+  [...seg.children].forEach((b,i)=>b.classList.toggle('on',i===cur));
+  document.getElementById('subj').textContent=s.subject;
+  document.getElementById('pre').textContent=s.preheader;
+  document.getElementById('note').innerHTML=s.note;
+  document.getElementById('raw').href='comments/'+s.key+'.html';
+  const fr=document.getElementById('frame');fr.style.width=w+'px';
+  const f=document.getElementById('f');f.onload=()=>{fit();setTimeout(fit,260)};
+  f.src='comments/'+s.key+'.html';
+}
+window.addEventListener('resize',fit);
+render();
+</script></body></html>
