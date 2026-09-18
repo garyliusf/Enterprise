@@ -870,7 +870,13 @@ body { background: var(--sc-ground); color: var(--sc-ink); font-family: 'Inter',
      mixBlendMode, which is exactly what the theme toggle does). That is the
      "no strips until I switch themes" bug. isolate pins the backdrop to this
      wrap, where the wordmark image actually lives. */
-  .bolt-image-wrap { margin-top: 0; width: 100%; overflow: hidden; position: relative; isolation: isolate; height: 32vw; max-height: 32vw; }
+  .bolt-image-wrap { margin-top: 0; width: 100%; overflow: hidden; position: relative;
+    /* isolate pins the blend backdrop to this wrap, and the explicit ground
+       gives the isolated group something OPAQUE to multiply into — an
+       isolated group starts as transparent black, and multiply against
+       transparent produces nothing at all. Both are required together. */
+    isolation: isolate; background: var(--sc-ground);
+    height: 32vw; max-height: 32vw; }
 
   /* Local H2 word-reveal — fires at ~50% viewport (same as security-agent) */
   .reveal-h .word { display: inline-block; opacity: 0; transform: translate(-10px, -7px); filter: blur(5px); will-change: opacity, transform, filter; }
@@ -1716,9 +1722,9 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
       if (isTouch2) splashDuration = 1500;
     }
     lastTs = 0;
-    /* own compositing layer + re-assert the blend after the first painted
-       frame; cheap insurance against a stale layer on GPU compositing */
-    canvas.style.willChange = 'opacity';
+    /* re-assert the blend after the first painted frame, in case a stale
+       layer survived init. Deliberately NOT will-change: promoting the canvas
+       to its own composited layer is a known way to break mix-blend-mode. */
     var mbm = canvas.style.mixBlendMode;
     requestAnimationFrame(function () {
       requestAnimationFrame(function () { canvas.style.mixBlendMode = mbm; });
