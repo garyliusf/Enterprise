@@ -664,11 +664,13 @@ body { background: var(--sc-ground); color: var(--sc-ink); font-family: 'Inter',
     display: flex; flex-direction: column; gap: 10px; min-height: 180px;
     position: relative; overflow: hidden;
   }
-  /* Flashlight — soft radial glow that follows the cursor (JS sets --mx/--my) */
+  /* Hover tint. Was a cursor-following "flashlight" radial; replaced with a
+     flat blue lean (Gary, 2026-09-18) — the radial read as a wash on a light
+     ground, and a tint states the affordance without chasing the pointer. */
   .unlock-card::before {
     content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
-    background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), rgba(150,185,255,0.14), rgba(150,185,255,0) 60%);
-    opacity: 0; transition: opacity 0.35s ease;
+    background: var(--sc-hover-tint);
+    opacity: 0; transition: opacity 0.28s ease;
   }
   .unlock-card:hover::before { opacity: 1; }
   .unlock-card > * { position: relative; z-index: 1; }
@@ -838,7 +840,9 @@ body { background: var(--sc-ground); color: var(--sc-ink); font-family: 'Inter',
       var(--sc-surface);
     transition: filter 0.3s ease;
   }
-  .int-tile:hover { filter: brightness(1.25); }
+  /* brightness(1.25) blows a LIGHT card out toward white — the direction has
+     to flip with the theme, so it comes from a token (Gary, 2026-09-18) */
+  .int-tile:hover { filter: var(--sc-hover-filter); }
   /* Neutral icon tile — same treatment as the card icons elsewhere on the page */
   .int-logo {
     width: 52px; height: 52px; border-radius: 2px; flex-shrink: 0;
@@ -2114,16 +2118,9 @@ window.addEventListener('load', function() {
   check();
 })();
 
-// ── Card hover "flashlight" — radial glow follows the cursor ─────────────────
-(function () {
-  document.querySelectorAll('.unlock-card').forEach(function (el) {
-    el.addEventListener('mousemove', function (e) {
-      var r = el.getBoundingClientRect();
-      el.style.setProperty('--mx', (e.clientX - r.left) + 'px');
-      el.style.setProperty('--my', (e.clientY - r.top) + 'px');
-    });
-  });
-})();
+// The card "flashlight" pointer-tracking block was removed with the effect it
+// drove (a mousemove listener per card, setting --mx/--my every frame). The
+// hover is now a flat blue tint in CSS — no JS, no per-move style writes.
 
 // ── Trust-card hover pixel field (verbatim security-agent builtin-card wave) ──
 (function () {
