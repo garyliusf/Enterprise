@@ -8,6 +8,164 @@
    Used by: microsoft.html, bolt-cli.html  (Phase 1)
    ============================================================================ */
 
+/* ─── THEME TOKENS ──────────────────────────────────────────────────────────
+   LIGHT IS THE DEFAULT (Gary, 2026-09-18). Dark is no longer the ground the
+   site is designed on — it comes back only for visitors whose OS asks for it,
+   and for pages that pin a theme explicitly.
+
+   Resolution order:
+     :root                                → LIGHT   (the default, always)
+     @media (prefers-color-scheme: dark)
+       :root:not([data-theme="light"])    → DARK    (system preference)
+     :root[data-theme="dark"]             → DARK    (explicitly pinned)
+
+   Pin a page with <html data-theme="light"> or <html data-theme="dark"> when
+   it must NOT follow the system — a dark-only campaign page, a screenshot
+   source, or a page whose art only works on one ground.
+
+   ── Token SCOPES: .sc-on-dark / .sc-on-light ──
+   Put .sc-on-dark on any SECTION that sits on dark art (a photo hero, a video
+   band, the footer) and every token inside it flips to the dark set — so the
+   copy stays white on a light page without a single hand-written override.
+   .sc-on-light is the mirror. Same value sets as the themes, so a component
+   only ever needs ONE set of token-based rules.
+
+   ── The RGB-triplet trick ──
+   The dark palette is built almost entirely out of rgba(255,255,255,α) at two
+   dozen different alphas. Rather than mint a token per alpha step, ONE triplet
+   token carries the ink and every rule composes the alpha it needs:
+
+       color:  rgba(var(--sc-ink-rgb), 0.65);
+       border: 1px solid rgba(var(--sc-ink-rgb), 0.10);
+
+   That keeps the token list short and makes conversion mechanical: every
+   rgba(255,255,255,X) in a page becomes rgba(var(--sc-ink-rgb),X) and themes
+   itself. The pixel-canvas JS reads the same triplet — makePixelCanvas already
+   takes an 'R,G,B' string — so the canvas effects theme for free.
+
+   ── What does NOT theme ──
+   Brand blue (#1488FC) is the same in both themes. Only blue *text on the
+   page ground* changes: #1488FC on white is 3.1:1 and fails WCAG AA, so light
+   uses the darker #0a5aa8 (6.4:1). Blue as a BUTTON FILL is unchanged in both
+   themes — white on #1488FC is fine either way.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+:root,
+.sc-on-light {
+  /* ink — the text/border colour, as an RGB triplet for free alpha */
+  --sc-ink-rgb: 10, 12, 20;
+  --sc-ink: #0a0a0a;                      /* solid primary text / headlines */
+
+  /* ground + surfaces */
+  --sc-ground: #fff;                      /* page background */
+  --sc-ground-rgb: 255, 255, 255;         /* for translucent grounds/scrims */
+  --sc-surface: #fafbfd;                  /* cards, panels, tiles */
+  --sc-band: #f7f8fa;                     /* section band, a step off the ground */
+  --sc-band-rgb: 247, 248, 250;           /* for ramps that fade INTO the band */
+  --sc-surface-strong: #f1f3f7;           /* deeper surface — strips, table heads */
+  --sc-recess: rgba(10, 12, 20, 0.05);    /* panel RECESSED into a surface */
+
+  /* standard text roles (see CLAUDE.md typography table) */
+  --sc-text-sub: #5b5b66;                 /* hero subtitle   (dark: #ABABAB) */
+  --sc-text-muted: rgba(10, 12, 20, 0.61);/* section subtitle  — 5.35:1 (dark: 5.28) */
+  --sc-text-desc: rgba(10, 12, 20, 0.65); /* card/body copy    — 6.18:1 (dark: 6.27) */
+  --sc-text-faint: rgba(10, 12, 20, 0.58);/* small caps labels — 4.80:1 (dark: 3.66) */
+
+  /* lines */
+  --sc-line: rgba(10, 12, 20, 0.10);      /* standard card/panel border */
+  --sc-line-soft: rgba(10, 12, 20, 0.07); /* hairlines, FAQ item rules */
+  --sc-line-strong: rgba(10, 12, 20, 0.22);/* ghost-button border */
+
+  /* brand blue — identical in both themes except as text on the ground */
+  --sc-blue: #1488FC;                     /* button fills, icons, eyebrows */
+  --sc-blue-hover: #0f6fd0;
+  --sc-blue-ink: #0a5aa8;                 /* blue TEXT on the ground (AA) */
+
+  /* effects */
+  --sc-dot-rgb: 20, 136, 252;             /* pixel-canvas dots — blue on light */
+  --sc-shadow: rgba(10, 12, 20, 0.14);
+  --sc-accent-warm: #b1502a;             /* warm serif accent (dark: #FFB093) */
+  --sc-logo-invert: 0;                    /* logo trains ship BLACK artwork */
+}
+
+/* DARK — system preference. The :not([data-theme="light"]) guard lets a page
+   pin itself light even on a dark-set machine. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --sc-ink-rgb: 255, 255, 255;
+    --sc-ink: #fff;
+
+    --sc-ground: #000;
+    --sc-ground-rgb: 0, 0, 0;
+    --sc-surface: #09090b;
+    --sc-band: #050508;
+    --sc-band-rgb: 5, 5, 8;
+    --sc-surface-strong: #060606;
+    --sc-recess: rgba(0, 0, 0, 0.35);
+
+    --sc-text-sub: #ABABAB;
+    --sc-text-muted: rgba(255, 255, 255, 0.5);
+    --sc-text-desc: rgba(255, 255, 255, 0.55);
+    --sc-text-faint: rgba(255, 255, 255, 0.4);
+
+    --sc-line: rgba(255, 255, 255, 0.10);
+    --sc-line-soft: rgba(255, 255, 255, 0.07);
+    --sc-line-strong: rgba(255, 255, 255, 0.22);
+
+    --sc-blue: #1488FC;
+    --sc-blue-hover: #0f6fd0;
+    --sc-blue-ink: #1488FC;               /* full brand blue reads fine on black */
+
+    --sc-dot-rgb: 180, 185, 195;
+    --sc-shadow: rgba(0, 0, 0, 0.5);
+    --sc-accent-warm: #FFB093;
+    --sc-logo-invert: 1;                  /* black wordmarks inverted to white */
+  }
+}
+
+/* DARK — explicitly pinned. SYNC PAIR with the media-query block above: these
+   two carry the same values and must be edited together. (Kept as plain CSS
+   rather than light-dark() so the tokens resolve on every browser, not just
+   Baseline-2024 ones.) */
+:root[data-theme="dark"],
+.sc-on-dark {
+  --sc-ink-rgb: 255, 255, 255;
+  --sc-ink: #fff;
+
+  --sc-ground: #000;
+  --sc-ground-rgb: 0, 0, 0;
+  --sc-surface: #09090b;
+  --sc-band: #050508;
+  --sc-band-rgb: 5, 5, 8;
+  --sc-surface-strong: #060606;
+  --sc-recess: rgba(0, 0, 0, 0.35);
+
+  --sc-text-sub: #ABABAB;
+  --sc-text-muted: rgba(255, 255, 255, 0.5);
+  --sc-text-desc: rgba(255, 255, 255, 0.55);
+  --sc-text-faint: rgba(255, 255, 255, 0.4);
+
+  --sc-line: rgba(255, 255, 255, 0.10);
+  --sc-line-soft: rgba(255, 255, 255, 0.07);
+  --sc-line-strong: rgba(255, 255, 255, 0.22);
+
+  --sc-blue: #1488FC;
+  --sc-blue-hover: #0f6fd0;
+  --sc-blue-ink: #1488FC;
+
+  --sc-dot-rgb: 180, 185, 195;
+  --sc-shadow: rgba(0, 0, 0, 0.5);
+  --sc-accent-warm: #FFB093;
+  --sc-logo-invert: 1;
+}
+
+/* Tell the UA which themes the page supports, so form controls, scrollbars
+   and the canvas behind the page follow along. */
+:root { color-scheme: light dark; }
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"]  { color-scheme: dark; }
+
+
 /* ─── DESIGN TOKENS ──────────────────────────────────────────────────────── */
 /* Canonical subtitle → CTA vertical spacing. Change here to move every
    hero, section side-card, callout, and footer across every page in one edit.
@@ -81,11 +239,11 @@
 /* ─── PRIMARY / GHOST / CTA BUTTONS ──────────────────────────────────────── */
 .hero-btn-primary {
   display: inline-flex; align-items: center; justify-content: center;
-  height: 52px; padding: 0 28px; background: #1488FC; border: none; border-radius: 2px;
+  height: 52px; padding: 0 28px; background: var(--sc-blue); border: none; border-radius: 2px;
   color: #fff; font-size: 15px; font-weight: 600; font-family: 'Inter', sans-serif;
   cursor: pointer; position: relative; overflow: hidden; text-decoration: none;
 }
-.hero-btn-primary .btn-bg-hover { position: absolute; inset: 0; background: #0f6fd0; z-index: 1; transform: translateY(101%); transition: transform 0.45s cubic-bezier(0.165,0.84,0.44,1); }
+.hero-btn-primary .btn-bg-hover { position: absolute; inset: 0; background: var(--sc-blue-hover); z-index: 1; transform: translateY(101%); transition: transform 0.45s cubic-bezier(0.165,0.84,0.44,1); }
 .hero-btn-primary .btn-text-wrap { position: relative; z-index: 3; overflow: hidden; height: 1.2em; }
 .hero-btn-primary .btn-text-inner { display: flex; flex-direction: column; transition: transform 0.45s cubic-bezier(0.165,0.84,0.44,1); }
 .hero-btn-primary .btn-text-inner span { display: block; line-height: 1.2; }
@@ -142,7 +300,7 @@
      The old 32px floor only ever bound in the 769–800px sliver. */
   font-size: clamp(40px, 4vw, 52px);
   font-weight: 500;
-  color: #fff;
+  color: var(--sc-ink);
   line-height: 1.15;
   letter-spacing: -1px;
   margin: 0;
@@ -207,12 +365,12 @@
 
 /* Email-capture submit button */
 .hero-cta-button {
-  width: auto; padding: 0 24px; height: 52px; flex-shrink: 0; background: #1488FC;
+  width: auto; padding: 0 24px; height: 52px; flex-shrink: 0; background: var(--sc-blue);
   border: none; border-radius: 0 2px 2px 0; color: #fff; font-size: 15px; font-weight: 600;
   font-family: 'Inter', sans-serif; cursor: pointer; position: relative; overflow: hidden;
   display: inline-flex; align-items: center; justify-content: center;
 }
-.hero-cta-button .btn-bg-hover { position: absolute; inset: 0; background: #0f6fd0; z-index: 1; transform: translateY(101%); transition: transform 0.45s cubic-bezier(0.165,0.84,0.44,1); }
+.hero-cta-button .btn-bg-hover { position: absolute; inset: 0; background: var(--sc-blue-hover); z-index: 1; transform: translateY(101%); transition: transform 0.45s cubic-bezier(0.165,0.84,0.44,1); }
 .hero-cta-button .btn-text-wrap { position: relative; z-index: 3; overflow: hidden; height: 1.2em; }
 .hero-cta-button .btn-text-inner { display: flex; flex-direction: column; transition: transform 0.45s cubic-bezier(0.165,0.84,0.44,1); }
 .hero-cta-button .btn-text-inner span { display: block; line-height: 1.2; }
@@ -222,12 +380,12 @@
 /* ─── EMAIL CAPTURE STRIP (bordered card: label + email input + submit) ───── */
 .card-form-strip { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; padding: 12px 28px; cursor: default; }
 /* Footer usage of the strip is a bordered rounded card */
-.card-form-strip.is-carded { border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; }
+.card-form-strip.is-carded { border: 1px solid rgba(var(--sc-ink-rgb),0.08); border-radius: 8px; }
 .card-strip-text { display: flex; flex-direction: column; gap: 3px; flex-shrink: 0; }
-.card-strip-sub { font-size: 16px; font-weight: 500; color: #fff; margin: 0; line-height: 1.2; display: inline-flex; align-items: baseline; gap: 0.25em; }
-.hero-form-row { display: flex; gap: 0; flex: 1 1 320px; max-width: 420px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; }
-.hero-email-input { flex: 1; height: 52px; background: transparent; border: none; padding: 0 18px; font-size: 15px; font-family: 'Inter', sans-serif; color: #fff; outline: none; }
-.hero-email-input::placeholder { color: rgba(255,255,255,0.45); }
+.card-strip-sub { font-size: 16px; font-weight: 500; color: var(--sc-ink); margin: 0; line-height: 1.2; display: inline-flex; align-items: baseline; gap: 0.25em; }
+.hero-form-row { display: flex; gap: 0; flex: 1 1 320px; max-width: 420px; background: rgba(var(--sc-ink-rgb),0.08); border-radius: 4px; overflow: hidden; }
+.hero-email-input { flex: 1; height: 52px; background: transparent; border: none; padding: 0 18px; font-size: 15px; font-family: 'Inter', sans-serif; color: var(--sc-ink); outline: none; }
+.hero-email-input::placeholder { color: rgba(var(--sc-ink-rgb),0.45); }
 @media (max-width: 768px) {
   .card-form-strip { flex-direction: column; align-items: center; gap: 12px; padding: 16px 12px; }
   .card-form-strip .hero-form-row { width: 100%; max-width: none; flex-basis: auto; }
@@ -236,18 +394,18 @@
 .hero-btn-ghost {
   display: inline-flex; align-items: center; justify-content: center;
   height: 52px; padding: 0 28px; background: transparent;
-  border: 1px solid rgba(255,255,255,0.22); border-radius: 2px;
-  color: rgba(255,255,255,0.8); font-size: 15px; font-weight: 500;
+  border: 1px solid var(--sc-line-strong); border-radius: 2px;
+  color: rgba(var(--sc-ink-rgb),0.8); font-size: 15px; font-weight: 500;
   font-family: 'Inter', sans-serif; cursor: pointer; text-decoration: none;
   position: relative; overflow: hidden;     /* anchor + clip for the pixel-fill canvas hover */
 }
-.hero-btn-ghost:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
+.hero-btn-ghost:hover { border-color: rgba(var(--sc-ink-rgb),0.4); color: var(--sc-ink); }
 
 /* ─── EYEBROWS (Silkscreen blue labels) ──────────────────────────────────── */
 .ms-faq-eyebrow, .footer-eyebrow, .how-eyebrow, .section-eyebrow,
 .slider-section-eyebrow, .feat-eyebrow, .success-eyebrow, .practice-visual-label {
   font-family: 'Silkscreen', monospace; font-size: 16px; font-weight: 400;
-  letter-spacing: 2px; text-transform: uppercase; color: #1488FC;
+  letter-spacing: 2px; text-transform: uppercase; color: var(--sc-blue-ink);
 }
 @media (max-width: 1024px) {
   .ms-faq-eyebrow, .footer-eyebrow, .how-eyebrow, .section-eyebrow,
@@ -261,12 +419,12 @@
 /* type comes from the canonical section-H2 group above; this is layout only */
 .ms-faq-headline { margin: 0 0 48px; }
 .ms-faq-list { display: flex; flex-direction: column; }
-.ms-faq-item { border-top: 1px solid rgba(255,255,255,0.07); border-bottom: none; position: relative; transition: background 0.2s ease; overflow: hidden; }
-.ms-faq-item:last-child { border-bottom: 1px solid rgba(255,255,255,0.07); }
+.ms-faq-item { border-top: 1px solid var(--sc-line-soft); border-bottom: none; position: relative; transition: background 0.2s ease; overflow: hidden; }
+.ms-faq-item:last-child { border-bottom: 1px solid var(--sc-line-soft); }
 .ms-faq-item.is-open { background: rgba(20,136,252,0.03); }
-.ms-faq-q { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 28px 16px; background: none; border: none; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 500; color: rgba(255,255,255,0.7); text-align: left; transition: color 0.2s; }
-.ms-faq-q:hover, .ms-faq-item.is-open .ms-faq-q { color: #fff; }
-.ms-faq-icon { flex-shrink: 0; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; color: #1488FC; position: relative; }
+.ms-faq-q { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 28px 16px; background: none; border: none; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 500; color: rgba(var(--sc-ink-rgb),0.7); text-align: left; transition: color 0.2s; }
+.ms-faq-q:hover, .ms-faq-item.is-open .ms-faq-q { color: var(--sc-ink); }
+.ms-faq-icon { flex-shrink: 0; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; color: var(--sc-blue-ink); position: relative; }
 .ms-faq-icon-plus, .ms-faq-icon-minus { position: absolute; transition: opacity 0.2s, transform 0.2s; }
 .ms-faq-icon-minus { opacity: 0; transform: rotate(-90deg); }
 .ms-faq-item.is-open .ms-faq-icon-plus { opacity: 0; transform: rotate(90deg); }
@@ -274,9 +432,9 @@
 .ms-faq-chevron { display: none; }
 .ms-faq-a { display: grid; grid-template-rows: 0fr; max-height: none; overflow: hidden; transition: grid-template-rows 0.38s cubic-bezier(0.4,0,0.2,1); }
 .ms-faq-item.is-open .ms-faq-a { grid-template-rows: 1fr; }
-.ms-faq-a-inner { overflow: hidden; padding: 0 16px; font-size: 15px; color: rgba(255,255,255,0.5); /* section-subtitle grey (standardized 2026-08-07, was 0.65) */ line-height: 1.7; max-width: 720px; transition: padding-bottom 0.38s cubic-bezier(0.4,0,0.2,1); }
+.ms-faq-a-inner { overflow: hidden; padding: 0 16px; font-size: 15px; color: var(--sc-text-muted); /* section-subtitle grey (standardized 2026-08-07, was 0.65) */ line-height: 1.7; max-width: 720px; transition: padding-bottom 0.38s cubic-bezier(0.4,0,0.2,1); }
 .ms-faq-item.is-open .ms-faq-a-inner { padding-bottom: 24px; }
-.ms-faq-link { color: #1488FC; text-decoration: none; }
+.ms-faq-link { color: var(--sc-blue-ink); text-decoration: none; }
 .ms-faq-link:hover { text-decoration: underline; }
 @media (max-width: 768px) {
   .ms-faq-inner { width: calc(100vw - 32px); }
@@ -297,7 +455,7 @@
 .footer-section { padding: 90px 40px 0; gap: 24px; }
 .footer-eyebrow { font-family: 'Silkscreen', monospace; }
 /* type comes from the canonical section-H2 group above */
-.footer-subtitle { font-size: 18px; color: #ABABAB; max-width: 640px; line-height: 1.6; margin: -16px auto 0; }
+.footer-subtitle { font-size: 18px; color: var(--sc-text-sub); max-width: 640px; line-height: 1.6; margin: -16px auto 0; }
 @media (max-width: 1024px) {
 }
 @media (max-width: 768px) {
@@ -357,7 +515,7 @@
    Set the modal poster via the --video-poster custom property (shown above).
    ──────────────────────────────────────────────────────────────────────────── */
 .hero-video-col { display: flex; flex-direction: column; gap: 0; width: 100%; max-width: min(800px, 88vh); margin: 0 auto; }
-.hero-video-card { border-radius: 4px; overflow: hidden; border: none; cursor: pointer; display: flex; flex-direction: column; box-shadow: 0 24px 64px rgba(0,0,0,0.5); }
+.hero-video-card { border-radius: 4px; overflow: hidden; border: none; cursor: pointer; display: flex; flex-direction: column; box-shadow: 0 24px 64px var(--sc-shadow); }
 .hero-video-area { position: relative; aspect-ratio: 16/9; background: #000; border-radius: 4px 4px 0 0; overflow: hidden; }
 /* Scoped to the video card's own markup. An unscoped .hero-video-overlay
    collides with pages that use the same class name for a full-page hero
@@ -383,22 +541,22 @@
 .hero-play-btn.returning { animation: play-fadein 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards; }
 
 /* bottom strip — base + content variants (social-proof / label / email form) */
-.hero-card-strip { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; padding: 14px 20px; background: #060606; }
+.hero-card-strip { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; padding: 14px 20px; background: var(--sc-surface-strong); }
 .hero-card-strip--social { flex-wrap: nowrap; }
 .hero-card-social-line { display: flex; align-items: flex-start; gap: 10px; flex: 1 1 auto; min-width: 0; }
-.hero-card-social-text { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.5; }
-.hero-card-social-text strong { color: rgba(255,255,255,0.78); font-weight: 600; }
+.hero-card-social-text { font-size: 14px; color: var(--sc-text-desc); line-height: 1.5; }
+.hero-card-social-text strong { color: rgba(var(--sc-ink-rgb),0.78); font-weight: 600; }
 .hero-social-proof-dot { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; flex-shrink: 0; margin-top: 4px; }
 .hero-card-strip--social .hero-social-proof-dot { margin-top: 6px; }
 .hero-strip-btn { flex-shrink: 0; }
-.hero-card-strip-sub { font-size: 15px; font-weight: 500; color: #fff; margin: 0; line-height: 1.2; display: inline-flex; align-items: baseline; gap: 0.25em; flex-shrink: 0; }
-.hero-card-strip-text { font-size: 14px; color: rgba(255,255,255,0.7); flex-shrink: 0; }
-.hero-card-strip-text em { font-style: italic; color: #FFB093; font-family: 'Cormorant Garamond', serif; font-size: 16px; }
-.hero-card-form { display: flex; gap: 0; flex: 1; max-width: 340px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; }
-.hero-card-input { flex: 1; height: 44px; background: transparent; border: none; padding: 0 14px; font-size: 14px; font-family: 'Inter', sans-serif; color: #fff; outline: none; }
-.hero-card-input::placeholder { color: rgba(255,255,255,0.4); }
-.hero-card-submit { height: 44px; padding: 0 18px; background: #1488FC; border: none; border-radius: 0 2px 2px 0; color: #fff; font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; white-space: nowrap; transition: background 0.2s; }
-.hero-card-submit:hover { background: #0f6fd0; }
+.hero-card-strip-sub { font-size: 15px; font-weight: 500; color: var(--sc-ink); margin: 0; line-height: 1.2; display: inline-flex; align-items: baseline; gap: 0.25em; flex-shrink: 0; }
+.hero-card-strip-text { font-size: 14px; color: rgba(var(--sc-ink-rgb),0.7); flex-shrink: 0; }
+.hero-card-strip-text em { font-style: italic; color: var(--sc-accent-warm); font-family: 'Cormorant Garamond', serif; font-size: 16px; }
+.hero-card-form { display: flex; gap: 0; flex: 1; max-width: 340px; background: rgba(var(--sc-ink-rgb),0.08); border-radius: 4px; overflow: hidden; }
+.hero-card-input { flex: 1; height: 44px; background: transparent; border: none; padding: 0 14px; font-size: 14px; font-family: 'Inter', sans-serif; color: var(--sc-ink); outline: none; }
+.hero-card-input::placeholder { color: rgba(var(--sc-ink-rgb),0.4); }
+.hero-card-submit { height: 44px; padding: 0 18px; background: var(--sc-blue); border: none; border-radius: 0 2px 2px 0; color: #fff; font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; white-space: nowrap; transition: background 0.2s; }
+.hero-card-submit:hover { background: var(--sc-blue-hover); }
 
 /* fullscreen video modal (poster set per-page via --video-poster) */
 .video-modal { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.88); align-items: center; justify-content: center; }
