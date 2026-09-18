@@ -1628,8 +1628,12 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
   var LIGHT_SRC = '../images/bolt-bottom-light.webp';
   var light = false;
   function isLight() { return document.documentElement.getAttribute('data-theme') !== 'dark'; }
+  var appliedTheme = null;
   function applyThemeArt(reinit) {
     light = isLight();
+    var nowTheme = light ? 'light' : 'dark';
+    if (reinit && nowTheme === appliedTheme) return;   /* nothing changed */
+    appliedTheme = nowTheme;
     var want = light ? LIGHT_SRC : DARK_SRC;
     canvas.style.mixBlendMode = light ? 'multiply' : 'screen';
     img.style.opacity = light ? '0.32' : '0.20';
@@ -1680,21 +1684,39 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
     }
     if (inStrip) strips.push({ cx: (stripStart + SW) / 2 / SW, w: (SW - stripStart) / SW, phase: Math.random() * Math.PI * 2, freq: 0.5 + Math.random() * 1.2, yPhase: Math.random() * Math.PI * 2, yFreq: 0.35 + Math.random() * 0.7, speedMult: 0.6 + Math.random() * 0.8 });
   }
+  var rafId = null, bound = false;
   function init() {
+    /* cancel any loop already running: init() can be called again on a theme
+       change, and two live loops = two increments of `t` per frame */
+    if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
     var r = wrap.getBoundingClientRect(); W = canvas.width = r.width; H = canvas.height = r.height;
     t = Math.random() * 80; sampleStrips();
+    /* a degenerate sample (0 strips, or 1 strip spanning the whole width) means
+       we read an image that was not the one we wanted — usually the previous
+       theme's art, still `complete` from cache. Don't accept it; wait for the
+       real decode. */
+    if (strips.length < 2) { img.addEventListener('load', init, { once: true }); return; }
     var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
     if (isTouch) { splashDuration = 1500; } else {
       wrap.addEventListener('mouseenter', function() { isHovered = true; });
       wrap.addEventListener('mouseleave', function() { isHovered = false; });
     }
-    requestAnimationFrame(tick);
+    if (!bound) {
+      bound = true;
+      var isTouch2 = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+      if (isTouch2) splashDuration = 1500;
+    }
+    lastTs = 0;
+    rafId = requestAnimationFrame(tick);
   }
-  function tick() {
+  var lastTs = 0;
+  function tick(ts) {
     var splashRaw = splashStart ? Math.max(0, 1 - (Date.now() - splashStart) / splashDuration) : 0;
     splashT = splashRaw * splashRaw * splashRaw;
-    t += 0.028 + hoverT * 0.016;
-    hoverT += ((isHovered ? 1 : 0) - hoverT) * (isHovered ? 0.07 : 0.025);
+    var dt = lastTs ? Math.min((ts - lastTs) / 16.667, 3) : 1;   /* in 60fps frames */
+    lastTs = ts;
+    t += (0.028 + hoverT * 0.016) * dt;
+    hoverT += ((isHovered ? 1 : 0) - hoverT) * (isHovered ? 0.07 : 0.025) * dt;
     ctx.clearRect(0, 0, W, H);
     for (var i = 0; i < strips.length; i++) {
       var st = strips[i];
@@ -1715,7 +1737,7 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
       grad.addColorStop(1, 'rgba(' + edge + ',0)');
       ctx.fillStyle = grad; ctx.fillRect(x - w / 2, 0, w, H);
     }
-    requestAnimationFrame(tick);
+    rafId = requestAnimationFrame(tick);
   }
   applyThemeArt(false);
   whenDecoded(init);
