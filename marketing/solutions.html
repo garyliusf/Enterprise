@@ -2260,6 +2260,38 @@ window.addEventListener('load', function() {
   .sc-theme-switch button[aria-pressed="true"] { background: var(--sc-blue); color: #fff; }
   @media print { .sc-theme-switch { display: none; } }
 </style>
+<!-- ╔═══ TEMPORARY DEBUG BADGE — REMOVE ═══════════════════════════════════╗
+     Live readout of the wordmark shimmer's internal state, on-page so it can
+     be screenshotted instead of typed into a console. Delete this block and
+     its script when the footer bug is closed.
+     ╚══════════════════════════════════════════════════════════════════════╝ -->
+<style>
+  #sc-debug {
+    position: fixed; left: 16px; bottom: 16px; z-index: 10000;
+    font: 11px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+    background: rgba(10,12,20,0.88); color: #7FDDC1; padding: 8px 11px;
+    border-radius: 2px; white-space: pre; pointer-events: none;
+  }
+</style>
+<div id="sc-debug">shimmer: booting…</div>
+<script>
+(function () {
+  var el = document.getElementById('sc-debug'); if (!el) return;
+  var prevT = null, stalled = 0;
+  setInterval(function () {
+    var s = window.__shimmer;
+    if (!s) { el.textContent = 'shimmer: NOT INITIALISED (script never ran)'; return; }
+    var moving = (prevT !== null && s.t !== prevT);
+    if (prevT !== null && !moving) stalled++; else stalled = 0;
+    prevT = s.t;
+    el.textContent =
+      'strips ' + s.strips + '   running ' + s.running + '   inits ' + s.inits + '\n' +
+      't ' + s.t + '   ' + (moving ? 'ADVANCING' : 'FROZEN x' + stalled) + '\n' +
+      'src ' + s.src + '   loaded ' + s.complete + '/' + s.nw + '\n' +
+      'canvas ' + s.canvas + '   blend ' + s.blend + '   img-op ' + s.opacity;
+  }, 500);
+})();
+</script>
 <div class="sc-theme-switch" role="group" aria-label="Theme preview">
   <button type="button" data-theme-set="">System</button>
   <button type="button" data-theme-set="light">Light</button>
