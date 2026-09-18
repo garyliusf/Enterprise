@@ -1715,7 +1715,7 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
     }
     if (inStrip) strips.push({ cx: (stripStart + SW) / 2 / SW, w: (SW - stripStart) / SW, phase: Math.random() * Math.PI * 2, freq: 0.5 + Math.random() * 1.2, yPhase: Math.random() * Math.PI * 2, yFreq: 0.35 + Math.random() * 0.7, speedMult: 0.6 + Math.random() * 0.8 });
   }
-  var rafId = null, bound = false, retries = 0, initCount = 0;
+  var rafId = null, bound = false, retries = 0, initCount = 0, frames = 0, lastError = null;
   function init() {
     initCount++;
     /* cancel any loop already running: init() can be called again on a theme
@@ -1749,6 +1749,11 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
   }
   var lastTs = 0;
   function tick(ts) {
+    frames++;
+    try { tickBody(ts); } catch (e) { lastError = (e && e.message) || String(e); }
+    rafId = requestAnimationFrame(tick);
+  }
+  function tickBody(ts) {
     var splashRaw = splashStart ? Math.max(0, 1 - (Date.now() - splashStart) / splashDuration) : 0;
     splashT = splashRaw * splashRaw * splashRaw;
     var dt = lastTs ? Math.min((ts - lastTs) / 16.667, 3) : 1;   /* in 60fps frames */
@@ -1782,14 +1787,38 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
       grad.addColorStop(1, 'rgba(' + edge + ',0)');
       ctx.fillStyle = grad; ctx.fillRect(x - w / 2, 0, w, H);
     }
-    rafId = requestAnimationFrame(tick);
   }
+  /* WATCHDOG. The rAF loop can stop being delivered while rafId is still set
+     and nothing has thrown — reproducible when the footer is already in view
+     as the page initialises, which is what a reload with restored scroll
+     position looks like. Root cause not identified; this restarts the loop
+     whenever `t` has not advanced between checks and the strip is on screen
+     and the tab is visible. Costs one comparison every 700ms. */
+  var wdT = null, restarts = 0;
+  setInterval(function () {
+    if (!strips.length || document.hidden) { wdT = null; return; }
+    var r = wrap.getBoundingClientRect();
+    var vh = window.innerHeight || document.documentElement.clientHeight;
+    if (r.bottom <= 0 || r.top >= vh) { wdT = null; return; }   /* off screen */
+    if (wdT !== null && t === wdT) {
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      lastTs = 0; restarts++;
+      rafId = requestAnimationFrame(tick);
+    }
+    wdT = t;
+  }, 700);
+
   /* debug hook — read it in the console with JSON.stringify(window.__shimmer) */
   window.__shimmer = {
     get strips()   { return strips.length; },
     get light()    { return light; },
     get running()  { return rafId !== null; },
     get inits()    { return initCount; },
+    get frames()   { return frames; },
+    get err()      { return lastError; },
+    get restarts() { return restarts; },
+    get wrapH()    { return Math.round(wrap.getBoundingClientRect().height); },
+    get hidden()   { return document.hidden; },
     get t()        { return Math.round(t * 100) / 100; },
     get src()      { return (img.currentSrc || img.getAttribute('src') || '').split('/').pop(); },
     get complete() { return img.complete; },
@@ -2266,6 +2295,33 @@ window.addEventListener('load', function() {
   .sc-theme-switch button[aria-pressed="true"] { background: var(--sc-blue); color: #fff; }
   @media print { .sc-theme-switch { display: none; } }
 </style>
+<!-- ╔═══ TEMPORARY DEBUG BADGE — REMOVE WHEN THE FOOTER BUG IS CLOSED ═════╗ -->
+<style>
+  #sc-debug { position: fixed; left: 16px; bottom: 16px; z-index: 10000;
+    font: 11px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+    background: rgba(10,12,20,0.88); color: #7FDDC1; padding: 8px 11px;
+    border-radius: 2px; white-space: pre; pointer-events: none; }
+  #sc-debug b { color: #ff9c8a; font-weight: 400; }
+</style>
+<div id="sc-debug">shimmer: booting…</div>
+<script>
+(function () {
+  var el = document.getElementById('sc-debug'); if (!el) return;
+  var prev = null, frozenFor = 0;
+  setInterval(function () {
+    var s = window.__shimmer;
+    if (!s) { el.textContent = 'shimmer: NOT INITIALISED'; return; }
+    var moving = prev !== null && s.t !== prev;
+    frozenFor = moving ? 0 : frozenFor + 1;
+    prev = s.t;
+    el.innerHTML =
+      'strips ' + s.strips + '   running ' + s.running + '   inits ' + s.inits + '\n' +
+      'frames ' + s.frames + '   restarts ' + s.restarts + '   err ' + (s.err || 'none') + '\n' +
+      't ' + s.t + '   ' + (moving ? 'ADVANCING' : '<b>FROZEN x' + frozenFor + '</b>') + '\n' +
+      'src ' + s.src + '   ' + s.canvas;
+  }, 500);
+})();
+</script>
 <div class="sc-theme-switch" role="group" aria-label="Theme preview">
   <button type="button" data-theme-set="">System</button>
   <button type="button" data-theme-set="light">Light</button>
