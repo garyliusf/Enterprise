@@ -1695,7 +1695,9 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
   }
   img.addEventListener('error', function () {
     if (img.getAttribute('src') !== DARK_SRC) {     /* fall back to the dark art */
-      light = false; img.style.opacity = '0.20';
+      /* NB: do NOT touch `light` here. The theme has not changed — only the
+         art has. Flipping it would draw the strips in the dark palette
+         (220,225,240 / 255,255,255), i.e. white on white: invisible. */
       img.setAttribute('src', DARK_SRC);
     }
   });
@@ -1767,6 +1769,7 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
     rafId = requestAnimationFrame(tick);
   }
   function tickBody(ts) {
+    light = isLight();          /* never let a stale flag pick the palette */
     var splashRaw = splashStart ? Math.max(0, 1 - (Date.now() - splashStart) / splashDuration) : 0;
     splashT = splashRaw * splashRaw * splashRaw;
     var dt = lastTs ? Math.min((ts - lastTs) / 16.667, 3) : 1;   /* in 60fps frames */
@@ -2331,7 +2334,7 @@ window.addEventListener('load', function() {
       'strips ' + s.strips + '   running ' + s.running + '   inits ' + s.inits + '\n' +
       'frames ' + s.frames + '   restarts ' + s.restarts + '   err ' + (s.err || 'none') + '\n' +
       't ' + s.t + '   ' + (moving ? 'ADVANCING' : '<b>FROZEN x' + frozenFor + '</b>') + '\n' +
-      'src ' + s.src + '   ' + s.canvas;
+      'src ' + s.src + '   ' + s.canvas + '   light ' + s.light;
   }, 500);
 })();
 </script>
