@@ -1581,8 +1581,20 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
     img.style.opacity = light ? '0.32' : '0.20';
     if (img.getAttribute('src') !== want) {
       img.setAttribute('src', want);
-      if (reinit) { if (img.complete) init(); else img.addEventListener('load', init, { once: true }); }
-    } else if (reinit) { init(); }
+      if (reinit) whenDecoded(init);
+    } else if (reinit) { whenDecoded(init); }
+  }
+  /* `complete` alone is not enough: a deferred loading="lazy" image can report
+     complete with naturalWidth 0, and drawing that yields a blank sample. */
+  function whenDecoded(cb) {
+    if (img.complete && img.naturalWidth > 0) { cb(); return; }
+    img.addEventListener('load', cb, { once: true });
+    img.addEventListener('error', function () {
+      if (img.getAttribute('src') !== DARK_SRC) {   /* fall back to the dark art */
+        light = false; canvas.style.mixBlendMode = 'screen'; img.style.opacity = '0.20';
+        img.setAttribute('src', DARK_SRC); whenDecoded(cb);
+      }
+    }, { once: true });
   }
   document.addEventListener('sc-themechange', function () { applyThemeArt(true); });
   var W, H, strips = [], t = 0;
@@ -1594,7 +1606,10 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
   function sampleStrips() {
     var SW = light ? 1600 : 400, SH = 200;
     var s = document.createElement('canvas'); s.width = SW; s.height = SH;
-    var sc = s.getContext('2d'); sc.drawImage(img, 0, 0, SW, SH);
+    var sc = s.getContext('2d');
+    sc.fillStyle = light ? '#fff' : '#000';   /* the ground the art sits on */
+    sc.fillRect(0, 0, SW, SH);
+    sc.drawImage(img, 0, 0, SW, SH);
     var data = sc.getImageData(0, 0, SW, SH).data;
     strips = [];
     var inStrip = false, stripStart = 0;
@@ -1609,6 +1624,7 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
         strips.push({ cx: (stripStart + x) / 2 / SW, w: (x - stripStart) / SW, phase: Math.random() * Math.PI * 2, freq: 0.5 + Math.random() * 1.2, yPhase: Math.random() * Math.PI * 2, yFreq: 0.35 + Math.random() * 0.7, speedMult: 0.6 + Math.random() * 0.8 });
       }
     }
+    if (inStrip) strips.push({ cx: (stripStart + SW) / 2 / SW, w: (SW - stripStart) / SW, phase: Math.random() * Math.PI * 2, freq: 0.5 + Math.random() * 1.2, yPhase: Math.random() * Math.PI * 2, yFreq: 0.35 + Math.random() * 0.7, speedMult: 0.6 + Math.random() * 0.8 });
   }
   function init() {
     var r = wrap.getBoundingClientRect(); W = canvas.width = r.width; H = canvas.height = r.height;
@@ -1630,7 +1646,7 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
       var st = strips[i];
       var brightness = (Math.sin(t * st.freq * st.speedMult + st.phase) * 0.5 + 0.5);
       if (brightness < 0.01) continue;
-      var x = st.cx * W; var w = Math.max(st.w * W, 3);
+      var x = st.cx * W; var w = Math.max(st.w * W, light ? 2 : 3);
       var centerY = (Math.sin(t * st.yFreq * st.speedMult + st.yPhase) * 0.5 + 0.5) * H;
       var spread = H * (0.55 + hoverT * 0.25);
       var baseA = brightness * 0.11; var peakA = brightness * 0.28;
@@ -1648,7 +1664,7 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
     requestAnimationFrame(tick);
   }
   applyThemeArt(false);
-  if (img.complete) init(); else img.addEventListener('load', init, { once: true });
+  whenDecoded(init);
 })();
 
 // ── Hero pixel dots — uniform ambient field (verbatim security-agent) ─────────
