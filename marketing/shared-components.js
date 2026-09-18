@@ -141,7 +141,16 @@
    matching .btn-pixel-canvas + .btn-pixelized CSS lives in shared-components.css.
    ============================================================================ */
 (function () {
-  function attach(btn, color) {
+  /* The dot colour cannot be a constant: white dots are invisible on a light
+     ground. Resolve it from a token at attach time and again whenever the
+     theme changes, so one canvas serves both themes. */
+  function token(name, fallback) {
+    try {
+      var v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+      return v || fallback;
+    } catch (e) { return fallback; }
+  }
+  function attach(btn, varName, fallback) {
     if (btn.__pixelized) return;
     btn.__pixelized = true;
     btn.classList.add('btn-pixelized');
@@ -149,6 +158,11 @@
     canvas.className = 'btn-pixel-canvas';
     btn.insertBefore(canvas, btn.firstChild);
     var ctx = canvas.getContext('2d');
+    var color = token(varName, fallback);
+    document.addEventListener('sc-themechange', function () {
+      color = token(varName, fallback);
+      draw();
+    });
     var spacing = 4, dot = 2, cols = 0, rows = 0, noise = [];
     function resize() {
       var r = btn.getBoundingClientRect();
@@ -208,9 +222,11 @@
     btn.addEventListener('mouseleave', function () { target = 0; if (!raf) { last = 0; raf = requestAnimationFrame(tick); } });
   }
   function init() {
-    document.querySelectorAll('.hero-btn-primary').forEach(function (b) { attach(b, '#0a5aa8'); });
-    document.querySelectorAll('.hero-btn-ghost').forEach(function (b) { attach(b, 'rgba(255,255,255,0.18)'); });
-    document.querySelectorAll('.footer-cta-btn').forEach(function (b) { attach(b, '#0a5aa8'); });
+    /* The primary button carries its own blue ground in both themes, so its
+       dots stay the fixed hover blue; only the ghost sits on the page. */
+    document.querySelectorAll('.hero-btn-primary').forEach(function (b) { attach(b, '--sc-btn-pixel-primary', '#0a5aa8'); });
+    document.querySelectorAll('.hero-btn-ghost').forEach(function (b) { attach(b, '--sc-btn-pixel-ghost', 'rgba(255,255,255,0.18)'); });
+    document.querySelectorAll('.footer-cta-btn').forEach(function (b) { attach(b, '--sc-btn-pixel-primary', '#0a5aa8'); });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
