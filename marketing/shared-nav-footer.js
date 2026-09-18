@@ -149,3 +149,24 @@
     if (e.key === 'Escape' && drawer.classList.contains('is-open')) closeDrawer();
   });
 })();
+
+/* ─── NAV SCROLL STATE ──────────────────────────────────────────────────────
+   Toggles .is-scrolled on the nav past a few pixels. The CSS for that state
+   already existed but NOTHING set the class, so it was dead. On light the nav
+   is solid at rest (it sits on the vivid blue hero aurora, where glass reads
+   muddy) and becomes glass once scrolled; dark keeps glass throughout.
+   ──────────────────────────────────────────────────────────────────────── */
+(function () {
+  var nav = document.querySelector('.mkt-nav');
+  if (!nav) return;
+  var pending = false;
+  function sync() {
+    pending = false;
+    var y = window.pageYOffset || document.documentElement.scrollTop || 0;
+    nav.classList.toggle('is-scrolled', y > 8);
+  }
+  function onScroll() { if (!pending) { pending = true; requestAnimationFrame(sync); } }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  sync();
+})();

@@ -1449,7 +1449,7 @@
    ║ matched, so the panel stayed dark while its text went light.              ║
    ╚══════════════════════════════════════════════════════════════════════════╝ */
 .mkt-nav { border-bottom: 1px solid var(--sc-nav-hairline, transparent); }
-.mkt-nav.is-scrolled { background: var(--sc-nav-bg-solid, rgba(5,5,7,0.72)); }
+.mkt-nav.is-scrolled { background: var(--sc-nav-bg-scrolled, rgba(5,5,7,0.72)); }
 /* the wordmark ships fill="#fff" as a markup attribute, so CSS has to win */
 .mkt-nav-logo svg path { fill: var(--sc-nav-logo, #fff); }
 .mkt-nav-scrim { background: var(--sc-scrim, rgba(0,0,0,0.5)); }
@@ -2554,5 +2554,27 @@ window.addEventListener('load', function () {
 })();
 </script>
 
+<script>
+/* ─── NAV SCROLL STATE ──────────────────────────────────────────────────────
+   Toggles .is-scrolled on the nav past a few pixels. The CSS for that state
+   already existed but NOTHING set the class, so it was dead. On light the nav
+   is solid at rest (it sits on the vivid blue hero aurora, where glass reads
+   muddy) and becomes glass once scrolled; dark keeps glass throughout.
+   ──────────────────────────────────────────────────────────────────────── */
+(function () {
+  var nav = document.querySelector('.mkt-nav');
+  if (!nav) return;
+  var pending = false;
+  function sync() {
+    pending = false;
+    var y = window.pageYOffset || document.documentElement.scrollTop || 0;
+    nav.classList.toggle('is-scrolled', y > 8);
+  }
+  function onScroll() { if (!pending) { pending = true; requestAnimationFrame(sync); } }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  sync();
+})();
+</script>
 </body>
 </html>
