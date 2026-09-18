@@ -861,7 +861,16 @@ body { background: var(--sc-ground); color: var(--sc-ink); font-family: 'Inter',
   /* padding + gap come from shared-components.css (canonical footer) */
   .footer-section { background: var(--sc-ground); position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-sizing: border-box; width: 100%; }
   .footer-headline { max-width: 880px; } /* type comes from the shared sc-section-h2 group */
-  .bolt-image-wrap { margin-top: 0; width: 100%; overflow: hidden; position: relative; height: 32vw; max-height: 32vw; }
+  /* isolation:isolate is load-bearing, not cosmetic. The shimmer canvas uses
+     mix-blend-mode (multiply on light, screen on dark), and a blended element
+     composites against its nearest STACKING CONTEXT. This wrap was
+     position:relative with z-index:auto, which is NOT one — so the canvas
+     blended against an ill-defined backdrop further up the tree and could
+     fail to composite until something forced a re-layer (reassigning
+     mixBlendMode, which is exactly what the theme toggle does). That is the
+     "no strips until I switch themes" bug. isolate pins the backdrop to this
+     wrap, where the wordmark image actually lives. */
+  .bolt-image-wrap { margin-top: 0; width: 100%; overflow: hidden; position: relative; isolation: isolate; height: 32vw; max-height: 32vw; }
 
   /* Local H2 word-reveal — fires at ~50% viewport (same as security-agent) */
   .reveal-h .word { display: inline-block; opacity: 0; transform: translate(-10px, -7px); filter: blur(5px); will-change: opacity, transform, filter; }
@@ -1707,6 +1716,13 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
       if (isTouch2) splashDuration = 1500;
     }
     lastTs = 0;
+    /* own compositing layer + re-assert the blend after the first painted
+       frame; cheap insurance against a stale layer on GPU compositing */
+    canvas.style.willChange = 'opacity';
+    var mbm = canvas.style.mixBlendMode;
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () { canvas.style.mixBlendMode = mbm; });
+    });
     rafId = requestAnimationFrame(tick);
   }
   var lastTs = 0;
