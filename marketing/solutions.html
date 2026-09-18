@@ -1040,8 +1040,7 @@ body { background: var(--sc-ground); color: var(--sc-ink); font-family: 'Inter',
 
 <!-- ─── SECTION 1: HERO ──────────────────────────────────────────────────── -->
 <section class="hero-section">
-  <div class="hero-aurora" aria-hidden="true"><i class="au1"></i><i class="au2"></i><i class="au3"></i></div>
-  <div class="hero-blob hero-blob--1" aria-hidden="true"></div>
+    <div class="hero-blob hero-blob--1" aria-hidden="true"></div>
   <div class="hero-blob hero-blob--2" aria-hidden="true"></div>
   <div class="hero-blob hero-blob--3" aria-hidden="true"></div>
   <div class="hero-blob hero-blob--4" aria-hidden="true"></div>
@@ -1913,7 +1912,10 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
     for (var r = 0; r < rows; r++) {
       var gy = r / rows;
       /* density: full at the top, gone by ~70% where the aurora reaches white */
-      var base = 1 - gy / (light ? 0.60 : 0.85);
+      /* Light: the dither belongs on the DARK crown only. Spread across the
+         blue band it adds white to every cell and desaturates the ramp — which
+         is what read as washed out next to the reference. */
+      var base = 1 - gy / (light ? 0.34 : 0.85);
       if (base <= 0) continue;
       base = base * base;                       /* ease the falloff */
       for (var c = 0; c < cols; c++) {
