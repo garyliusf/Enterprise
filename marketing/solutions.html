@@ -1665,18 +1665,26 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
       if (reinit) whenDecoded(init);
     } else if (reinit) { whenDecoded(init); }
   }
-  /* `complete` alone is not enough: a deferred loading="lazy" image can report
-     complete with naturalWidth 0, and drawing that yields a blank sample. */
-  function whenDecoded(cb) {
-    if (img.complete && img.naturalWidth > 0) { cb(); return; }
-    img.addEventListener('load', cb, { once: true });
-    img.addEventListener('error', function () {
-      if (img.getAttribute('src') !== DARK_SRC) {   /* fall back to the dark art */
-        light = false; canvas.style.mixBlendMode = 'screen'; img.style.opacity = '0.20';
-        img.setAttribute('src', DARK_SRC); whenDecoded(cb);
-      }
-    }, { once: true });
+  /* Right after src changes, img.complete and naturalWidth STILL describe the
+     previously decoded image — so trusting them can sample the old art (the
+     dark PNG while light=true), which reads as one full-width run and yields
+     no usable strips. Gate on currentSrc actually matching what we asked for,
+     and keep a PERSISTENT load listener so any later decode (including a lazy
+     load that only happens when the footer is scrolled into view) re-inits. */
+  function srcLoaded() {
+    var want = img.getAttribute('src') || '';
+    var have = img.currentSrc || '';
+    return img.complete && img.naturalWidth > 0 &&
+           have.indexOf(want.replace(/^\.\.\//, '')) !== -1;
   }
+  img.addEventListener('load', function () { init(); });
+  img.addEventListener('error', function () {
+    if (img.getAttribute('src') !== DARK_SRC) {     /* fall back to the dark art */
+      light = false; img.style.opacity = '0.20';
+      img.setAttribute('src', DARK_SRC);
+    }
+  });
+  function whenDecoded(cb) { if (srcLoaded()) cb(); }
   document.addEventListener('sc-themechange', function () { applyThemeArt(true); });
   var W, H, strips = [], t = 0;
   var hoverT = 0, isHovered = false, splashT = 0, splashStart = null, splashDuration = 300;
@@ -1707,8 +1715,9 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
     }
     if (inStrip) strips.push({ cx: (stripStart + SW) / 2 / SW, w: (SW - stripStart) / SW, phase: Math.random() * Math.PI * 2, freq: 0.5 + Math.random() * 1.2, yPhase: Math.random() * Math.PI * 2, yFreq: 0.35 + Math.random() * 0.7, speedMult: 0.6 + Math.random() * 0.8 });
   }
-  var rafId = null, bound = false, retries = 0;
+  var rafId = null, bound = false, retries = 0, initCount = 0;
   function init() {
+    initCount++;
     /* cancel any loop already running: init() can be called again on a theme
        change, and two live loops = two increments of `t` per frame */
     if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
@@ -1769,6 +1778,20 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
     }
     rafId = requestAnimationFrame(tick);
   }
+  /* debug hook — read it in the console with JSON.stringify(window.__shimmer) */
+  window.__shimmer = {
+    get strips()   { return strips.length; },
+    get light()    { return light; },
+    get running()  { return rafId !== null; },
+    get inits()    { return initCount; },
+    get t()        { return Math.round(t * 100) / 100; },
+    get src()      { return (img.currentSrc || img.getAttribute('src') || '').split('/').pop(); },
+    get complete() { return img.complete; },
+    get nw()       { return img.naturalWidth; },
+    get canvas()   { return canvas.width + 'x' + canvas.height; },
+    get blend()    { return getComputedStyle(canvas).mixBlendMode; },
+    get opacity()  { return getComputedStyle(img).opacity; }
+  };
   applyThemeArt(false);
   whenDecoded(init);
 })();
