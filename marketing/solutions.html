@@ -396,19 +396,19 @@ body { background: var(--sc-ground); color: var(--sc-ink); font-family: 'Inter',
   }
   .hero-aurora .au1 {
     background: radial-gradient(62% 52% at 50% 50%,
-      #01080f 0%, #030e1c 30%, #051629 48%, #0a2a55 64%,
+      #000509 0%, #01080f 34%, #030e1c 52%, #061c3a 66%,
       rgba(10,42,85,0) 84%);
     animation: au-drift-1 34s ease-in-out infinite alternate;
   }
   .hero-aurora .au2 {
-    background: radial-gradient(56% 40% at 44% 56%,
-      rgba(19,98,189,0.34) 0%, rgba(47,154,224,0.20) 42%,
+    background: radial-gradient(56% 34% at 44% 72%,
+      rgba(19,98,189,0.16) 0%, rgba(47,154,224,0.09) 42%,
       rgba(143,208,246,0) 74%);
     animation: au-drift-2 27s ease-in-out infinite alternate;
   }
   .hero-aurora .au3 {
-    background: radial-gradient(48% 34% at 58% 60%,
-      rgba(127,208,255,0.26) 0%, rgba(143,208,246,0.12) 45%,
+    background: radial-gradient(48% 28% at 58% 74%,
+      rgba(127,208,255,0.12) 0%, rgba(143,208,246,0.06) 45%,
       rgba(255,255,255,0) 76%);
     animation: au-drift-3 21s ease-in-out infinite alternate;
   }
@@ -1926,7 +1926,11 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
         var level = base * hm + wave * 0.16;
         var th = (BAYER[r & 3][c & 3] + 0.5) / 16;
         if (level <= th) continue;              /* ordered-dither test */
-        var a = Math.min(0.22, (level - th) * 0.9);
+        /* The dither is densest at the crown, so a high ceiling here lifts a
+           near-black (2,11,24) ground to grey (56,61,65) — which is what made
+           every "make it darker" pass fail. Keep it faint; the reference's
+           texture is barely there in the dark region. */
+        var a = Math.min(0.085, (level - th) * 0.42);
         if (a < 0.02) continue;
         ctx.fillStyle = 'rgba(' + rgb + ',' + a.toFixed(3) + ')';
         ctx.fillRect(c * CELL, r * CELL, SQ, SQ);
