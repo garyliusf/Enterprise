@@ -1939,23 +1939,37 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
          the light falloff is near-full-height rather than crown-only. */
       var base = 1 - gy / (light ? 0.98 : 0.85);
       if (base <= 0) continue;
-      base = base * base;                       /* ease the falloff */
+      /* Squaring this collapsed the field fast — by mid-height base fell to
+         ~0.24, under the Bayer threshold for most cells, so the texture died
+         in the blue band. A gentle 0.75 power keeps it alive through the
+         middle and still thins toward the pale bottom (Gary). */
+      base = light ? Math.pow(base, 0.75) : base * base;
       for (var c = 0; c < cols; c++) {
         var gx = c / cols;
         /* two slow waves so the dither edge keeps reorganising */
-        var wave = Math.sin(gx * 4.1 + gy * 6.3 - t * 0.55) * 0.5
-                 + Math.sin(gx * 7.7 - gy * 3.1 + t * 0.37) * 0.28;
+        var wave = Math.sin(gx * 4.1 + gy * 6.3 - t * 0.95) * 0.5
+                 + Math.sin(gx * 7.7 - gy * 3.1 + t * 0.62) * 0.28;
         /* edges thin out horizontally so the field doesn't end on a hard line */
         var hm = 1 - Math.pow(Math.abs(gx - 0.5) * 2, 2.2) * 0.85;
-        var level = base * hm + wave * 0.16;
+        /* The wave is what ANIMATES the field: cells cross the Bayer threshold
+           as it moves, so squares wink in and out. At 0.16 it barely shifted
+           `level` and almost nothing flipped — the dither rendered but sat
+           still. 0.38 gives it real travel. */
+        var level = base * hm + wave * 0.38;
         var th = (BAYER[r & 3][c & 3] + 0.5) / 16;
         if (level <= th) continue;              /* ordered-dither test */
         /* The dither is densest at the crown, so a high ceiling here lifts a
            near-black (2,11,24) ground to grey (56,61,65) — which is what made
            every "make it darker" pass fail. Keep it faint; the reference's
            texture is barely there in the dark region. */
-        var a = Math.min(0.13, (level - th) * 0.62);
-        if (a < 0.02) continue;
+        /* Alpha comes from POSITION, not from (level - th). Deriving it from
+           the threshold margin meant every cell near the threshold — exactly
+           the ones the wave flips — drew at near-zero alpha, so flipping them
+           changed nothing (max delta 4-7). The threshold is now purely on/off,
+           which is how an ordered dither is supposed to work: a square is
+           either there at full strength or absent, so the wave reads as
+           squares winking in and out. */
+        var a = 0.055 + base * 0.11;
         ctx.fillStyle = 'rgba(' + rgb + ',' + a.toFixed(3) + ')';
         ctx.fillRect(c * CELL, r * CELL, SQ, SQ);
       }
