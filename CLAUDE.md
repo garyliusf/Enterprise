@@ -123,6 +123,7 @@ rendered the desktop values; it now carries these.
 | Hero subtitle | `clamp(16px, 1.4vw, 20px)` desktop / `18px` tablet (≤1024px) / `16px` mobile (≤768px) | `400` | `#ABABAB` | `1.4` | — |
 | Section headline (H2) | `clamp(40px, 4vw, 52px)` desktop / `clamp(28px, 8vw, 40px)` mobile (≤768px) — 40px desktop floor = mobile cap, so the size is continuous at the breakpoint (a 32px floor made H2s shrink 8px crossing 768→769px) | `500` | `#fff` | `1.15` | `-1px` |
 | Section subtitle | `clamp(15px, 1.1vw, 17px)` desktop / `16px` tablet / `15px` mobile | `400` | `rgba(255,255,255,0.5)` | `1.65` | — |
+| Footer CTA subtitle | same as section subtitle — `clamp(15px, 1.1vw, 17px)` / `1.65` (was a one-off flat `18px`/`1.6` until 2026-09-18, Gary) | `400` | `--sc-text-sub` | `1.65` | — |
 | Eyebrow | `16px` desktop / `13px` tablet+mobile | `400` | `#1488FC` | — | `2px` letter-spacing, `uppercase` |
 | Card title | `18px` | `600` | `#fff` | `1.35` | `-0.2px` |
 | Body/description | `14–15px` | `400` | `rgba(255,255,255,0.55)` | `1.55–1.65` | — |
