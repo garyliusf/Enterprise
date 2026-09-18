@@ -75,7 +75,7 @@ All buttons must use these exact specs. No inline overrides unless absolutely ne
 - Height stays `52px` — buttons do NOT shrink on mobile
 - Padding `0 26px` (2px tighter than desktop's 28)
 - Font size `16px` (1px LARGER than desktop's 15 — it is a touch target)
-- `min-width: 260px` via `--cta-min-w`, `max-width: 100%`, centered
+- `min-width: 220px` via `--cta-min-w`, `max-width: 100%`, centered
 - Apply to: `.hero-btn-primary`, `.hero-btn-ghost`; form input height matches
 
 **Corrected 2026-09-18.** This section previously read "height scales to 44px /
@@ -90,7 +90,8 @@ rendered the desktop values; it now carries these.
 ### Standalone CTA button min-width (standard)
 **Standalone hero/footer CTA buttons** (`.hero-btn-primary` / `.hero-btn-ghost` — NOT form-attached submits) get an equalizing min-width so single short labels (e.g. "Learn More") don't look small and multiple buttons match:
 - **Desktop:** `min-width: 180px`
-- **Mobile (≤768px):** `min-width: 260px` (`--cta-min-w`, was 220px in shared until 2026-09-18) + `max-width: 100%`, `height: 52px`, `font-size: 16px`, centered/contained (not full-bleed)
+- **Mobile (≤768px):** `min-width: 220px` (`--cta-min-w`) + `max-width: 100%`, `height: 52px`, `font-size: 16px`, centered/contained (not full-bleed)
+  - **220, not 260 (Gary, 2026-09-18).** Production's hero sections use 260px; it was tried in shared and read too wide on a phone. Height, padding and type DO match production — only the width floor is deliberately narrower. Do not "fix" it to 260.
 - **Scope to the hero CTA container** so it never hits form buttons: `.hero-btn-group .hero-btn-primary`, `.hero-cta-row .hero-btn-primary`, `.hero-section--simple .hero-btn-group .hero-btn-primary`, etc.
 - **Excluded:** form/input-attached submit buttons (`.hero-cta-button` email strips, `.re-prompt-submit` prompt boxes) — these keep their natural width.
 
