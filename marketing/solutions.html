@@ -279,7 +279,7 @@ body { background: var(--sc-ground); color: var(--sc-ink); font-family: 'Inter',
     flex-direction: column;
     justify-content: center;
     font-family: 'Inter', sans-serif;
-    background: #000;
+    background: var(--sc-ground);
     /* Top pad is the shared below-nav gap formula (templates hero + pricing
        .page use the identical clamp). The old clamp(120px, 14vh, 180px) was
        written when this page had NO navbar — the sticky nav takes ~69px of
@@ -294,6 +294,8 @@ body { background: var(--sc-ground); color: var(--sc-ink); font-family: 'Inter',
   .hero-section::before {
     content: ''; position: absolute; left: 0; right: 0; top: 0; bottom: -20%;
     z-index: 0; pointer-events: none;
+    /* dark-only art — the photo is lit for a black scrim and cannot invert */
+    opacity: var(--sc-hero-art, 1);
     background: url('../images/platform-hero.webp') center / cover no-repeat;
   }
   /* Darkening overlay — the SAME two-layer scrim the pricing hero uses, so the
@@ -307,6 +309,7 @@ body { background: var(--sc-ground); color: var(--sc-ink); font-family: 'Inter',
   .hero-section::after {
     content: ''; position: absolute; inset: 0;
     z-index: 2; pointer-events: none;
+    opacity: var(--sc-hero-art, 1);
     background:
       radial-gradient(ellipse 1000px 560px at 50% 34%, rgba(0,0,0,0.55), transparent 72%),
       /* Tail closes to FULL black by 100% so the hero meets the black page with
@@ -334,7 +337,11 @@ body { background: var(--sc-ground); color: var(--sc-ink); font-family: 'Inter',
      (the composition evolves instead of sliding as one). GPU transforms only. */
   /* Stripe-shaped light shafts (heavily stretched ellipses = soft ends, no
      circles) with strong opacity swings so shapes appear/dissolve — ephemeral. */
-  .hero-blob { position: absolute; z-index: 0; pointer-events: none; will-change: transform, opacity; }
+  /* animated shafts that ride ON the aurora photo — hidden with it on light */
+  /* animated shafts that ride ON the aurora photo. Their keyframes animate
+     opacity, and an animation beats a plain declaration — so these have to
+     be switched off with display, not opacity (Gary: "random blue streaks"). */
+  .hero-blob { position: absolute; z-index: 0; pointer-events: none; will-change: transform, opacity; display: var(--sc-hero-art-display, block); }
   /* broad faint azure band across the mid-field */
   .hero-blob--1 { left: -12%; top: 32%; width: 96%; height: 34%;
     background: radial-gradient(50% 38% at 50% 50%, rgba(42,122,242,0.32) 0%, rgba(35,110,235,0.12) 56%, transparent 78%);
@@ -382,13 +389,15 @@ body { background: var(--sc-ground); color: var(--sc-ink); font-family: 'Inter',
   .hero-h1 {
     font-size: clamp(40px, 5vw, 66px); font-weight: 500; color: var(--sc-ink);
     line-height: 1.1; letter-spacing: normal; margin: 0; max-width: 1000px;
-    text-shadow: 0 2px 28px rgba(0,8,26,0.4);
+    /* lifts the type off the aurora photo — dark-theme art only, or it
+       reads as a dirty halo on the light ground (Gary, 2026-09-18) */
+    text-shadow: 0 2px 28px rgba(0,8,26,calc(0.4 * var(--sc-hero-art, 1)));
   }
   .hero-subtitle { max-width: 720px; }
   .hero-subtitle {
     font-size: clamp(16px, 1.4vw, 20px); font-weight: 400; color: var(--sc-text-sub);
     max-width: 600px; line-height: 1.5; margin: 0;
-    text-shadow: 0 1px 22px rgba(0,8,26,0.55);
+    text-shadow: 0 1px 22px rgba(0,8,26,calc(0.55 * var(--sc-hero-art, 1)));
   }
   /* hero-text gap is 20px — top up to the --sub-to-cta token (32/24) */
   .hero-text > .hero-btn-group { margin-top: calc(var(--sub-to-cta, 32px) - 20px); justify-content: center; }
@@ -962,7 +971,7 @@ body { background: var(--sc-ground); color: var(--sc-ink); font-family: 'Inter',
 </style>
 
 <!-- ─── SECTION 1: HERO ──────────────────────────────────────────────────── -->
-<section class="hero-section sc-on-dark">
+<section class="hero-section">
   <div class="hero-blob hero-blob--1" aria-hidden="true"></div>
   <div class="hero-blob hero-blob--2" aria-hidden="true"></div>
   <div class="hero-blob hero-blob--3" aria-hidden="true"></div>
@@ -1718,6 +1727,17 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
   if (!canvas) return;
   var ctx = canvas.getContext('2d');
   var SPACING = 11, DOT = 2, cols, rows, phases;
+  /* dark keeps its pale-blue field; light uses --sc-dot-rgb (brand blue),
+     the same treatment the Forge Lite hero uses */
+  var heroDotRGB = '160,185,230';
+  function readHeroDot() {
+    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    if (dark) { heroDotRGB = '160,185,230'; return; }
+    var v = getComputedStyle(canvas).getPropertyValue('--sc-dot-rgb').trim();
+    heroDotRGB = v || '20,136,252';
+  }
+  readHeroDot();
+  document.addEventListener('sc-themechange', readHeroDot);
   function init() {
     canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
     cols = Math.ceil(canvas.width / SPACING) + 1;
@@ -1749,7 +1769,7 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
         var wave = (w1 + w2 + w3) / 3;
         var op = hm * vm * Math.max(0, wave) * 0.28;
         if (op < 0.015) continue;
-        ctx.fillStyle = 'rgba(160,185,230,' + op.toFixed(3) + ')';
+        ctx.fillStyle = 'rgba(' + heroDotRGB + ',' + op.toFixed(3) + ')';
         ctx.fillRect(x - DOT, y - DOT, DOT * 2, DOT * 2);
       }
     }
