@@ -72,15 +72,25 @@ All buttons must use these exact specs. No inline overrides unless absolutely ne
 - **Border radius:** `0 2px 2px 0` (right side only, attached to input)
 
 ### Mobile (max-width: 768px)
-- Height scales to `44px`
-- Padding scales to `0 18px`
-- Font size scales to `14px`
-- Apply to: `.hero-btn-primary`, `.hero-btn-ghost`, `.hero-cta-button`, and form input height
+- Height stays `52px` — buttons do NOT shrink on mobile
+- Padding `0 26px` (2px tighter than desktop's 28)
+- Font size `16px` (1px LARGER than desktop's 15 — it is a touch target)
+- `min-width: 260px` via `--cta-min-w`, `max-width: 100%`, centered
+- Apply to: `.hero-btn-primary`, `.hero-btn-ghost`; form input height matches
+
+**Corrected 2026-09-18.** This section previously read "height scales to 44px /
+padding 0 18px / font size 14px", which (a) nothing in either repo implemented
+and (b) directly contradicted the standalone-CTA section below, which says
+mobile CTAs are `52px` / `16px` / `min-width: 260px`. The values above are the
+ones production actually ships — `cli-hero`, `ms-hero`, `referral-hero` and
+`hero-split` all agree on them, as do sandbox microsoft.html, bolt-cli.html and
+solutions/_template. `shared-components.css` had no mobile rule at all and so
+rendered the desktop values; it now carries these.
 
 ### Standalone CTA button min-width (standard)
 **Standalone hero/footer CTA buttons** (`.hero-btn-primary` / `.hero-btn-ghost` — NOT form-attached submits) get an equalizing min-width so single short labels (e.g. "Learn More") don't look small and multiple buttons match:
 - **Desktop:** `min-width: 180px`
-- **Mobile (≤768px):** `min-width: 260px` + `max-width: 100%`, `height: 52px`, `font-size: 16px`, centered/contained (not full-bleed)
+- **Mobile (≤768px):** `min-width: 260px` (`--cta-min-w`, was 220px in shared until 2026-09-18) + `max-width: 100%`, `height: 52px`, `font-size: 16px`, centered/contained (not full-bleed)
 - **Scope to the hero CTA container** so it never hits form buttons: `.hero-btn-group .hero-btn-primary`, `.hero-cta-row .hero-btn-primary`, `.hero-section--simple .hero-btn-group .hero-btn-primary`, etc.
 - **Excluded:** form/input-attached submit buttons (`.hero-cta-button` email strips, `.re-prompt-submit` prompt boxes) — these keep their natural width.
 
