@@ -1658,12 +1658,13 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
        draws only the strips, plain source-over. At their alphas (0.11-0.39)
        that reads essentially the same as screen/multiply, and depends on
        nothing that can fail to composite. */
-    /* Production's treatment, restored: `screen` can only lighten so it is
-       invisible on white; multiply is its dark-on-light mirror and is what
-       makes the ink strips darken the wordmark's pinstripes where they cross.
-       Removing this (chasing a compositing theory the badge later disproved)
-       is what made the light shimmer read as a flat grey veil. */
-    canvas.style.mixBlendMode = light ? 'multiply' : 'screen';
+    /* NO mix-blend-mode. Production uses multiply here, but it does not
+       composite on Gary's machine in either Chrome or Safari, while rendering
+       fine in this environment — the one configuration he has reported being
+       able to SEE is plain source-over with the raised alphas below. Evidence
+       over fidelity: a blend that renders nothing is worse than an approximation
+       that renders. */
+    canvas.style.mixBlendMode = 'normal';
     img.style.opacity = light ? '0.32' : '0.20';
     if (img.getAttribute('src') !== want) img.setAttribute('src', want);
     loadProbe(want, init);              /* sampling never waits on the <img> */
@@ -1781,8 +1782,11 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
       var x = st.cx * W; var w = Math.max(st.w * W, light ? 2 : 3);
       var centerY = (Math.sin(t * st.yFreq * st.speedMult + st.yPhase) * 0.5 + 0.5) * H;
       var spread = H * (0.55 + hoverT * 0.25);
-      var baseA = brightness * 0.11;
-      var peakA = brightness * 0.28;
+      /* Raised for light: without multiply the strips only lay a flat veil, and
+         at 0.11 over white that is invisible. These are the values that were on
+         screen the one time the strips were confirmed visible. */
+      var baseA = brightness * (light ? 0.21 : 0.11);
+      var peakA = brightness * (light ? 0.52 : 0.28);
       var boost = Math.max(hoverT, splashT);
       var a = (baseA + (peakA - baseA) * boost).toFixed(3);
       var a2 = (parseFloat(a) * 1.4).toFixed(3);
