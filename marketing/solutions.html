@@ -448,7 +448,12 @@ body { background: var(--sc-ground); color: var(--sc-ink); font-family: 'Inter',
   }
   .hero-subtitle { max-width: 720px; }
   .hero-subtitle {
-    font-size: clamp(16px, 1.4vw, 20px); font-weight: 400; color: var(--sc-text-sub);
+    font-size: clamp(16px, 1.4vw, 20px); font-weight: 400;
+    /* Literal, not a token: the hero copy lives inside .sc-on-dark, so ANY
+       token read here resolves to its dark value in BOTH themes — which is how
+       this ended up #ABABAB on the blue ramp. The hero sits on dark art in both
+       themes anyway, so white is correct for both. */
+    color: rgba(255,255,255,0.94);
     max-width: 600px; line-height: 1.5; margin: 0;
     text-shadow: 0 1px 22px rgba(0,8,26,calc(0.55 * var(--sc-hero-art, 1)));
   }
@@ -1895,6 +1900,9 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
   function readTheme() {
     light = document.documentElement.getAttribute('data-theme') !== 'dark';
     /* light: white squares over the deep-blue aurora. dark: the pale field. */
+    /* White reads on the navy crown; ink would be invisible there. The lower
+       half is pale enough that the same white still textures it, so one colour
+       carries the full ramp. */
     rgb = light ? '255,255,255' : '160,185,230';
   }
   readTheme();
@@ -1920,7 +1928,9 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
       /* Light: the dither belongs on the DARK crown only. Spread across the
          blue band it adds white to every cell and desaturates the ramp — which
          is what read as washed out next to the reference. */
-      var base = 1 - gy / (light ? 0.34 : 0.85);
+      /* Gary's linear reference carries the halftone the WHOLE way down, so
+         the light falloff is near-full-height rather than crown-only. */
+      var base = 1 - gy / (light ? 0.98 : 0.85);
       if (base <= 0) continue;
       base = base * base;                       /* ease the falloff */
       for (var c = 0; c < cols; c++) {
@@ -1937,7 +1947,7 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
            near-black (2,11,24) ground to grey (56,61,65) — which is what made
            every "make it darker" pass fail. Keep it faint; the reference's
            texture is barely there in the dark region. */
-        var a = Math.min(0.085, (level - th) * 0.42);
+        var a = Math.min(0.13, (level - th) * 0.62);
         if (a < 0.02) continue;
         ctx.fillStyle = 'rgba(' + rgb + ',' + a.toFixed(3) + ')';
         ctx.fillRect(c * CELL, r * CELL, SQ, SQ);
