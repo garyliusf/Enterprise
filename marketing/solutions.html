@@ -1,6 +1,30 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
+<!-- Theme resolution. Light is the site default; a visitor whose OS is set to
+     dark gets dark. The attribute is ALWAYS stamped (never absent) so the
+     ported production chrome rules — which key on html[data-theme='light'] —
+     match verbatim. Runs before paint to avoid a flash; with JS off the
+     document keeps the data-theme="light" it ships with. -->
+<script>
+(function () {
+  var root = document.documentElement, stored = null;
+  try { stored = localStorage.getItem('sc-theme'); } catch (e) {}
+  var t = stored || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  root.setAttribute('data-theme', t);
+  if (!stored && window.matchMedia) {
+    var mq = window.matchMedia('(prefers-color-scheme: dark)');
+    var onSys = function (e) {
+      var s = null; try { s = localStorage.getItem('sc-theme'); } catch (err) {}
+      if (s) return;                                  /* explicit choice wins */
+      root.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+      document.dispatchEvent(new CustomEvent('sc-themechange'));
+    };
+    if (mq.addEventListener) mq.addEventListener('change', onSys);
+    else if (mq.addListener) mq.addListener(onSys);
+  }
+})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Solutions · Bolt</title>
@@ -19,7 +43,7 @@ body { background: var(--sc-ground); color: var(--sc-ink); font-family: 'Inter',
 <body>
 
 <!-- ─── NAVBAR ────────────────────────────────────────────────────────────── -->
-<nav class="mkt-nav mkt-nav--on-light" aria-label="Primary">
+<nav class="mkt-nav" aria-label="Primary">
   <div class="mkt-nav-inner">
     <!-- Nav-bar Back button — only appears on mobile when a submenu is active (JS toggles .is-on-submenu on .mkt-nav). Replaces the logo in the same slot. -->
     <button class="mkt-nav-back" data-mobile-back aria-label="Back to main menu">
@@ -826,7 +850,7 @@ body { background: var(--sc-ground); color: var(--sc-ink); font-family: 'Inter',
 
   /* ─── SECTION 8: FINAL CTA + FOOTER ───────────────────────────────────── */
   /* padding + gap come from shared-components.css (canonical footer) */
-  .footer-section { background: #000; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-sizing: border-box; width: 100%; }
+  .footer-section { background: var(--sc-ground); position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-sizing: border-box; width: 100%; }
   .footer-headline { max-width: 880px; } /* type comes from the shared sc-section-h2 group */
   .bolt-image-wrap { margin-top: 0; width: 100%; overflow: hidden; position: relative; height: 32vw; max-height: 32vw; }
 
@@ -1392,7 +1416,7 @@ body { background: var(--sc-ground); color: var(--sc-ink); font-family: 'Inter',
 </section>
 
 <!-- ─── SECTION 8: FINAL CTA + FOOTER ────────────────────────────────────── -->
-<section class="footer-section sc-on-dark">
+<section class="footer-section">
   <p class="footer-eyebrow eyebrow-scramble" style="font-weight:400;letter-spacing:2px;text-transform:uppercase;color:#1488FC;margin:0;font-family:'Silkscreen',monospace;">Get started</p>
   <div class="dsa-reveal"><!-- footer H2 animates (parity with other marketing footers) -->
     <h2 class="footer-headline">Build your next app on a platform that gets you to the finish line.</h2>
@@ -1462,9 +1486,9 @@ body { background: var(--sc-ground); color: var(--sc-ink); font-family: 'Inter',
 
 <!-- bolt wordmark — moved out of .footer-section so the site-footer link
      columns sit above it (matches the templates pages' footer order) -->
-<section class="footer-image-section sc-on-dark">
+<section class="footer-image-section">
   <div class="bolt-image-wrap">
-    <img src="../images/bolt-bottom.png" alt="bolt" loading="lazy" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;opacity:0.20;">
+    <img id="bolt-wordmark-img" src="../images/bolt-bottom.png" alt="bolt" loading="lazy" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;opacity:0.20;">
     <canvas id="bolt-shimmer-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;mix-blend-mode:screen;"></canvas>
     <div style="position:absolute;inset:0;background:linear-gradient(to bottom, var(--sc-ground) 0%, transparent 22%, transparent 88%, var(--sc-ground) 100%);z-index:3;"></div>
   </div>
@@ -1541,6 +1565,26 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
   var wrap = canvas.parentElement;
   var ctx = canvas.getContext('2d');
   var img = wrap.querySelector('img');
+  /* Light wordmark strip — production's treatment (FooterWordmark `light`):
+     a processed INK-ON-WHITE asset rather than a CSS invert of the dark one
+     (invert read muddy because of the glow vignette), sampled 4x finer so each
+     hairline pinstripe resolves, and drawn with multiply + ink washes since
+     `screen` can only lighten and is invisible on white. */
+  var DARK_SRC = '../images/bolt-bottom.png';
+  var LIGHT_SRC = '../images/bolt-bottom-light.webp';
+  var light = false;
+  function isLight() { return document.documentElement.getAttribute('data-theme') !== 'dark'; }
+  function applyThemeArt(reinit) {
+    light = isLight();
+    var want = light ? LIGHT_SRC : DARK_SRC;
+    canvas.style.mixBlendMode = light ? 'multiply' : 'screen';
+    img.style.opacity = light ? '0.32' : '0.20';
+    if (img.getAttribute('src') !== want) {
+      img.setAttribute('src', want);
+      if (reinit) { if (img.complete) init(); else img.addEventListener('load', init, { once: true }); }
+    } else if (reinit) { init(); }
+  }
+  document.addEventListener('sc-themechange', function () { applyThemeArt(true); });
   var W, H, strips = [], t = 0;
   var hoverT = 0, isHovered = false, splashT = 0, splashStart = null, splashDuration = 300;
   var observer = new IntersectionObserver(function(entries) {
@@ -1548,7 +1592,7 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
   }, { threshold: 0.1 });
   observer.observe(wrap);
   function sampleStrips() {
-    var SW = 400, SH = 200;
+    var SW = light ? 1600 : 400, SH = 200;
     var s = document.createElement('canvas'); s.width = SW; s.height = SH;
     var sc = s.getContext('2d'); sc.drawImage(img, 0, 0, SW, SH);
     var data = sc.getImageData(0, 0, SW, SH).data;
@@ -1558,6 +1602,7 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
       var b = 0;
       for (var y = 20; y < SH - 20; y++) { var idx = (y * SW + x) * 4; b += (data[idx] + data[idx+1] + data[idx+2]) / 3; }
       b /= (SH - 40);
+      if (light) b = 255 - b;          /* ink-on-white: glyphs are the dark columns */
       if (b > 28 && !inStrip) { inStrip = true; stripStart = x; }
       else if (b <= 28 && inStrip) {
         inStrip = false;
@@ -1593,14 +1638,17 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
       var a = (baseA + (peakA - baseA) * boost).toFixed(3);
       var a2 = (parseFloat(a) * 1.4).toFixed(3);
       var grad = ctx.createLinearGradient(0, centerY - spread, 0, centerY + spread);
-      grad.addColorStop(0, 'rgba(220,225,240,0)'); grad.addColorStop(0.3, 'rgba(220,225,240,' + a + ')');
-      grad.addColorStop(0.5, 'rgba(255,255,255,' + a2 + ')'); grad.addColorStop(0.7, 'rgba(220,225,240,' + a + ')');
-      grad.addColorStop(1, 'rgba(220,225,240,0)');
+      var edge = light ? '35,40,55' : '220,225,240';
+      var peak = light ? '10,12,20'  : '255,255,255';
+      grad.addColorStop(0, 'rgba(' + edge + ',0)'); grad.addColorStop(0.3, 'rgba(' + edge + ',' + a + ')');
+      grad.addColorStop(0.5, 'rgba(' + peak + ',' + a2 + ')'); grad.addColorStop(0.7, 'rgba(' + edge + ',' + a + ')');
+      grad.addColorStop(1, 'rgba(' + edge + ',0)');
       ctx.fillStyle = grad; ctx.fillRect(x - w / 2, 0, w, H);
     }
     requestAnimationFrame(tick);
   }
-  if (img.complete) init(); else img.addEventListener('load', init);
+  applyThemeArt(false);
+  if (img.complete) init(); else img.addEventListener('load', init, { once: true });
 })();
 
 // ── Hero pixel dots — uniform ambient field (verbatim security-agent) ─────────
@@ -1717,7 +1765,7 @@ window.addEventListener('load', function() {
       const raw = wf * (det * 0.5 + 0.5), density = Math.pow(Math.max(0, raw), 0.7) * fade;
       const rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
       return density > rand ? density * 0.85 : 0;
-    }, 1.0, '220,230,245');
+    }, 1.0, 'theme');
 });
 </script>
 
@@ -2033,8 +2081,9 @@ window.addEventListener('load', function() {
 <script src="shared-nav-footer.js"></script>
 
 <!-- ╔═══ PROTOTYPE ONLY — THEME REVIEW TOGGLE ═══════════════════════════════╗
-     Light is the site default and dark follows the OS, so there is normally
-     nothing to click. This switcher exists so the two themes can be compared
+     Light is the site default; "System" follows the OS, so a visitor whose
+     machine is set to dark sees dark — that is the agreed behaviour, not a
+     fallback to a dark default. Normally there is nothing to click. This switcher exists so the two themes can be compared
      without changing System Settings. REMOVE BEFORE PORTING TO PRODUCTION —
      delete this whole block, nothing else references it.
      ╚════════════════════════════════════════════════════════════════════════╝ -->
@@ -2056,7 +2105,7 @@ window.addEventListener('load', function() {
   @media print { .sc-theme-switch { display: none; } }
 </style>
 <div class="sc-theme-switch" role="group" aria-label="Theme preview">
-  <button type="button" data-theme-set="">Auto</button>
+  <button type="button" data-theme-set="">System</button>
   <button type="button" data-theme-set="light">Light</button>
   <button type="button" data-theme-set="dark">Dark</button>
 </div>
@@ -2064,12 +2113,19 @@ window.addEventListener('load', function() {
 (function () {
   var root = document.documentElement;
   var btns = document.querySelectorAll('[data-theme-set]');
+  function sysTheme() {
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
   function apply(v, persist) {
-    if (v) root.setAttribute('data-theme', v); else root.removeAttribute('data-theme');
+    /* '' = System: drop the stored choice and follow the OS. The attribute is
+       still stamped — it is never absent. */
+    root.setAttribute('data-theme', v || sysTheme());
     btns.forEach(function (b) {
       b.setAttribute('aria-pressed', String(b.getAttribute('data-theme-set') === v));
     });
-    if (persist) { try { localStorage.setItem('sc-theme', v); } catch (e) {} }
+    if (persist) {
+      try { if (v) localStorage.setItem('sc-theme', v); else localStorage.removeItem('sc-theme'); } catch (e) {}
+    }
     /* canvases cache their dot colour — tell them to re-read the token */
     document.dispatchEvent(new CustomEvent('sc-themechange'));
   }
