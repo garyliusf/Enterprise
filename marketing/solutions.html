@@ -1660,10 +1660,8 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
        nothing that can fail to composite. */
     canvas.style.mixBlendMode = 'normal';
     img.style.opacity = light ? '0.32' : '0.20';
-    if (img.getAttribute('src') !== want) {
-      img.setAttribute('src', want);
-      if (reinit) whenDecoded(init);
-    } else if (reinit) { whenDecoded(init); }
+    if (img.getAttribute('src') !== want) img.setAttribute('src', want);
+    loadProbe(want, init);              /* sampling never waits on the <img> */
   }
   /* Right after src changes, img.complete and naturalWidth STILL describe the
      previously decoded image — so trusting them can sample the old art (the
@@ -1671,25 +1669,39 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
      no usable strips. Gate on currentSrc actually matching what we asked for,
      and keep a PERSISTENT load listener so any later decode (including a lazy
      load that only happens when the footer is scrolled into view) re-inits. */
+  /* The <img> in the DOM is loading="lazy": its decode state depends on scroll
+     position, it gets its src swapped on theme change, and browsers differ on
+     whether a src mutation re-arms a deferred lazy load. Sampling it was the
+     root of every "no strips on reload" failure. A dedicated Image() is never
+     lazy, never swapped underneath us, and is decoded before we ever read it. */
+  var probe = null;
+  function loadProbe(src, done) {
+    var p = new Image();
+    p.onload = function () { if (p.naturalWidth) { probe = p; done(); } };
+    p.onerror = function () { if (src !== DARK_SRC) loadProbe(DARK_SRC, done); };
+    p.src = src;
+  }
   function srcLoaded() {
     var want = img.getAttribute('src') || '';
     var have = img.currentSrc || '';
     return img.complete && img.naturalWidth > 0 &&
            have.indexOf(want.replace(/^\.\.\//, '')) !== -1;
   }
-  img.addEventListener('load', function () { init(); });
   img.addEventListener('error', function () {
     if (img.getAttribute('src') !== DARK_SRC) {     /* fall back to the dark art */
       light = false; img.style.opacity = '0.20';
       img.setAttribute('src', DARK_SRC);
     }
   });
-  function whenDecoded(cb) { if (srcLoaded()) cb(); }
   document.addEventListener('sc-themechange', function () { applyThemeArt(true); });
   var W, H, strips = [], t = 0;
   var hoverT = 0, isHovered = false, splashT = 0, splashStart = null, splashDuration = 300;
+  /* Re-arm the entry splash on every re-entry rather than once per load: it is
+     the moment that reads as "alive" when you scroll down to the footer, and
+     firing it once meant the strip was only ever lively on first sight. */
   var observer = new IntersectionObserver(function(entries) {
-    if (entries[0].isIntersecting && !splashStart) { splashStart = Date.now(); observer.disconnect(); }
+    if (!entries[0].isIntersecting) { splashStart = null; return; }
+    splashStart = Date.now();
   }, { threshold: 0.1 });
   observer.observe(wrap);
   function sampleStrips() {
@@ -1698,7 +1710,7 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
     var sc = s.getContext('2d');
     sc.fillStyle = light ? '#fff' : '#000';   /* the ground the art sits on */
     sc.fillRect(0, 0, SW, SH);
-    sc.drawImage(img, 0, 0, SW, SH);
+    sc.drawImage(probe, 0, 0, SW, SH);
     var data = sc.getImageData(0, 0, SW, SH).data;
     strips = [];
     var inStrip = false, stripStart = 0;
@@ -1718,6 +1730,7 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
   var rafId = null, bound = false, retries = 0, initCount = 0, frames = 0, lastError = null;
   function init() {
     initCount++;
+    if (!probe) return;                 /* nothing decoded to sample yet */
     /* cancel any loop already running: init() can be called again on a theme
        change, and two live loops = two increments of `t` per frame */
     if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
@@ -1727,13 +1740,7 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
        we read an image that was not the one we wanted — usually the previous
        theme's art, still `complete` from cache. Don't accept it; wait for the
        real decode. */
-    if (strips.length < 2) {
-      /* A bad read (wrong art, or not decoded yet). Waiting on `load` alone
-         DEADLOCKS: once the image is decoded that event never fires again.
-         Retry on a timer, bounded, and give up gracefully. */
-      if (retries < 12) { retries++; setTimeout(init, 120); return; }
-    }
-    retries = 0;
+    if (strips.length < 2) return;      /* degenerate read — keep the old loop */
     var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
     if (isTouch) { splashDuration = 1500; } else {
       wrap.addEventListener('mouseenter', function() { isHovered = true; });
@@ -1758,7 +1765,9 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
     splashT = splashRaw * splashRaw * splashRaw;
     var dt = lastTs ? Math.min((ts - lastTs) / 16.667, 3) : 1;   /* in 60fps frames */
     lastTs = ts;
-    t += (0.028 + hoverT * 0.016) * dt;
+    /* light drifts ~1.6x faster: on white each strip is lower contrast, so a
+       3-4s cycle reads as static texture rather than movement */
+    t += ((light ? 0.045 : 0.028) + hoverT * 0.016) * dt;
     hoverT += ((isHovered ? 1 : 0) - hoverT) * (isHovered ? 0.07 : 0.025) * dt;
     ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
     ctx.clearRect(0, 0, W, H);
@@ -1828,7 +1837,6 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
     get opacity()  { return getComputedStyle(img).opacity; }
   };
   applyThemeArt(false);
-  whenDecoded(init);
 })();
 
 // ── Hero pixel dots — uniform ambient field (verbatim security-agent) ─────────
