@@ -638,7 +638,12 @@ body { background: var(--sc-ground); color: var(--sc-ink); font-family: 'Inter',
     border: 1px solid rgba(var(--sc-ink-rgb),0.12);
     border-radius: 2px; overflow: hidden; /* 2px surface standard (was 12px — the last un-normalized stage) */
   }
-  .plat-browser-bar { display: block; width: 100%; height: auto; }
+  /* The SVG bakes in its own 23/864 top-corner radius with transparent
+     corners, while .plat-browser only clips at the 2px surface standard — so
+     on light the page ground showed through as two bright notches against the
+     black bar. Painting the element's own box black fills those corners; the
+     parent's 2px radius still trims the outer edge. */
+  .plat-browser-bar { display: block; width: 100%; height: auto; background: #000; }
   /* A REAL scroll container — the visitor can scroll/swipe the template inside
      the mock. The ambient momentum drift is driven from JS by writing
      scrollTop (see the platBrowserScroll module), so hand-scrolling and the
