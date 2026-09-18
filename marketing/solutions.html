@@ -1558,7 +1558,7 @@ body { background: var(--sc-ground); color: var(--sc-ink); font-family: 'Inter',
 <section class="footer-image-section">
   <div class="bolt-image-wrap">
     <img id="bolt-wordmark-img" src="../images/bolt-bottom.png" alt="bolt" loading="lazy" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;opacity:0.20;">
-    <canvas id="bolt-shimmer-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;mix-blend-mode:screen;"></canvas>
+    <canvas id="bolt-shimmer-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;"></canvas>
     <div style="position:absolute;inset:0;background:linear-gradient(to bottom, var(--sc-ground) 0%, transparent 22%, transparent 88%, var(--sc-ground) 100%);z-index:3;"></div>
   </div>
 </section>
@@ -1627,224 +1627,195 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
   requestAnimationFrame(draw);
 }
 
-// ── Bolt strip shimmer (verbatim security-agent) ─────────────────────────────
-(function() {
+// ── Bolt strip shimmer ───────────────────────────────────────────────────────
+// Faithful vanilla port of production's FooterWordmark
+// (bolt-public-pages src/components/chrome/FooterWordmark.tsx), which is the
+// component the Forge Lite footer uses. The sandbox had a FORK of this that
+// drifted; every difference between them turned out to be a bug. Re-port from
+// the component, do not hand-tune here.
+//
+// Deltas from production, both deliberate:
+//   · theme switching: production picks light/dark once per render, this
+//     re-initialises on sc-themechange so the preview toggle works.
+//   · window.__shimmer debug hook.
+(function () {
   var canvas = document.getElementById('bolt-shimmer-canvas');
   if (!canvas) return;
   var wrap = canvas.parentElement;
-  var ctx = canvas.getContext('2d');
   var img = wrap.querySelector('img');
-  /* Light wordmark strip — production's treatment (FooterWordmark `light`):
-     a processed INK-ON-WHITE asset rather than a CSS invert of the dark one
-     (invert read muddy because of the glow vignette), sampled 4x finer so each
-     hairline pinstripe resolves, and drawn with multiply + ink washes since
-     `screen` can only lighten and is invisible on white. */
-  var DARK_SRC = '../images/bolt-bottom.png';
-  var LIGHT_SRC = '../images/bolt-bottom-light.webp';
-  var light = false;
+  var ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  var WORDMARK_SRC = '../images/bolt-bottom.png';
+  var WORDMARK_LIGHT_SRC = '../images/bolt-bottom-light.webp';
+  var SAMPLE_WIDTH = 400, SAMPLE_HEIGHT = 200, SAMPLE_WIDTH_FINE = 1600;
+  var STRIP_BRIGHTNESS_THRESHOLD = 28;
+  var HOVER_SPLASH_DURATION_MS = 300, TOUCH_SPLASH_DURATION_MS = 1500;
+
+  /* production bails entirely under reduced motion */
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+  var splashDuration = isTouch ? TOUCH_SPLASH_DURATION_MS : HOVER_SPLASH_DURATION_MS;
+
+  var strips = [], inView = false, width = 0, height = 0;
+  var time = Math.random() * 80, hoverAmount = 0, isHovered = false;
+  var splashStart, frame, light = false, frames = 0, lastError = null;
+
   function isLight() { return document.documentElement.getAttribute('data-theme') !== 'dark'; }
-  var appliedTheme = null;
-  function applyThemeArt(reinit) {
-    light = isLight();
-    var nowTheme = light ? 'light' : 'dark';
-    if (reinit && nowTheme === appliedTheme) return;   /* nothing changed */
-    appliedTheme = nowTheme;
-    var want = light ? LIGHT_SRC : DARK_SRC;
-    /* The canvas composites everything itself now (see tick): the wordmark is
-       drawn INTO it and the strips are blended with globalCompositeOperation.
-       No CSS mix-blend-mode anywhere — that is what kept failing to composite
-       on GPU while the canvas demonstrably had pixels (toDataURL was 17,726).
-       The <img> keeps rendering the wordmark exactly as before; the canvas
-       draws only the strips, plain source-over. At their alphas (0.11-0.39)
-       that reads essentially the same as screen/multiply, and depends on
-       nothing that can fail to composite. */
-    /* NO mix-blend-mode. Production uses multiply here, but it does not
-       composite on Gary's machine in either Chrome or Safari, while rendering
-       fine in this environment — the one configuration he has reported being
-       able to SEE is plain source-over with the raised alphas below. Evidence
-       over fidelity: a blend that renders nothing is worse than an approximation
-       that renders. */
-    canvas.style.mixBlendMode = 'normal';
-    img.style.opacity = light ? '0.32' : '0.20';
-    if (img.getAttribute('src') !== want) img.setAttribute('src', want);
-    loadProbe(want, init);              /* sampling never waits on the <img> */
-  }
-  /* Right after src changes, img.complete and naturalWidth STILL describe the
-     previously decoded image — so trusting them can sample the old art (the
-     dark PNG while light=true), which reads as one full-width run and yields
-     no usable strips. Gate on currentSrc actually matching what we asked for,
-     and keep a PERSISTENT load listener so any later decode (including a lazy
-     load that only happens when the footer is scrolled into view) re-inits. */
-  /* The <img> in the DOM is loading="lazy": its decode state depends on scroll
-     position, it gets its src swapped on theme change, and browsers differ on
-     whether a src mutation re-arms a deferred lazy load. Sampling it was the
-     root of every "no strips on reload" failure. A dedicated Image() is never
-     lazy, never swapped underneath us, and is decoded before we ever read it. */
-  var probe = null;
-  function loadProbe(src, done) {
-    var p = new Image();
-    p.onload = function () { if (p.naturalWidth) { probe = p; done(); } };
-    p.onerror = function () { if (src !== DARK_SRC) loadProbe(DARK_SRC, done); };
-    p.src = src;
-  }
-  function srcLoaded() {
-    var want = img.getAttribute('src') || '';
-    var have = img.currentSrc || '';
-    return img.complete && img.naturalWidth > 0 &&
-           have.indexOf(want.replace(/^\.\.\//, '')) !== -1;
-  }
-  img.addEventListener('error', function () {
-    if (img.getAttribute('src') !== DARK_SRC) {     /* fall back to the dark art */
-      /* NB: do NOT touch `light` here. The theme has not changed — only the
-         art has. Flipping it would draw the strips in the dark palette
-         (220,225,240 / 255,255,255), i.e. white on white: invisible. */
-      img.setAttribute('src', DARK_SRC);
-    }
-  });
-  document.addEventListener('sc-themechange', function () { applyThemeArt(true); });
-  var W, H, strips = [], t = 0;
-  var hoverT = 0, isHovered = false, splashT = 0, splashStart = null, splashDuration = 300;
-  /* Re-arm the entry splash on every re-entry rather than once per load: it is
-     the moment that reads as "alive" when you scroll down to the footer, and
-     firing it once meant the strip was only ever lively on first sight. */
-  var observer = new IntersectionObserver(function(entries) {
-    if (!entries[0].isIntersecting) { splashStart = null; return; }
-    splashStart = Date.now();
-  }, { threshold: 0.1 });
-  observer.observe(wrap);
-  function sampleStrips() {
-    var SW = light ? 1600 : 400, SH = 200;
-    var s = document.createElement('canvas'); s.width = SW; s.height = SH;
-    var sc = s.getContext('2d');
-    sc.fillStyle = light ? '#fff' : '#000';   /* the ground the art sits on */
-    sc.fillRect(0, 0, SW, SH);
-    sc.drawImage(probe, 0, 0, SW, SH);
-    var data = sc.getImageData(0, 0, SW, SH).data;
-    strips = [];
-    var inStrip = false, stripStart = 0;
-    for (var x = 0; x < SW; x++) {
-      var b = 0;
-      for (var y = 20; y < SH - 20; y++) { var idx = (y * SW + x) * 4; b += (data[idx] + data[idx+1] + data[idx+2]) / 3; }
-      b /= (SH - 40);
-      if (light) b = 255 - b;          /* ink-on-white: glyphs are the dark columns */
-      if (b > 28 && !inStrip) { inStrip = true; stripStart = x; }
-      else if (b <= 28 && inStrip) {
+
+  function sampleStrips(image) {
+    var sampleWidth = light ? SAMPLE_WIDTH_FINE : SAMPLE_WIDTH;
+    var scratch = document.createElement('canvas');
+    scratch.width = sampleWidth; scratch.height = SAMPLE_HEIGHT;
+    var c = scratch.getContext('2d', { willReadFrequently: true });
+    if (!c) return [];
+    c.drawImage(image, 0, 0, sampleWidth, SAMPLE_HEIGHT);
+    var data = c.getImageData(0, 0, sampleWidth, SAMPLE_HEIGHT).data;
+    var out = [], inStrip = false, stripStart = 0;
+    for (var x = 0; x < sampleWidth; x++) {
+      var brightness = 0;
+      for (var y = 20; y < SAMPLE_HEIGHT - 20; y++) {
+        var i = (y * sampleWidth + x) * 4;
+        var lum = (data[i] + data[i + 1] + data[i + 2]) / 3;
+        brightness += light ? 255 - lum : lum;   /* light art is ink-on-white */
+      }
+      brightness /= SAMPLE_HEIGHT - 40;
+      if (brightness > STRIP_BRIGHTNESS_THRESHOLD && !inStrip) { inStrip = true; stripStart = x; }
+      else if (brightness <= STRIP_BRIGHTNESS_THRESHOLD && inStrip) {
         inStrip = false;
-        strips.push({ cx: (stripStart + x) / 2 / SW, w: (x - stripStart) / SW, phase: Math.random() * Math.PI * 2, freq: 0.5 + Math.random() * 1.2, yPhase: Math.random() * Math.PI * 2, yFreq: 0.35 + Math.random() * 0.7, speedMult: 0.6 + Math.random() * 0.8 });
+        out.push({ centerX: (stripStart + x) / 2 / sampleWidth, width: (x - stripStart) / sampleWidth,
+                   phase: Math.random() * Math.PI * 2, frequency: 0.5 + Math.random() * 1.2,
+                   yPhase: Math.random() * Math.PI * 2, yFrequency: 0.35 + Math.random() * 0.7,
+                   speedMultiplier: 0.6 + Math.random() * 0.8 });
       }
     }
-    if (inStrip) strips.push({ cx: (stripStart + SW) / 2 / SW, w: (SW - stripStart) / SW, phase: Math.random() * Math.PI * 2, freq: 0.5 + Math.random() * 1.2, yPhase: Math.random() * Math.PI * 2, yFreq: 0.35 + Math.random() * 0.7, speedMult: 0.6 + Math.random() * 0.8 });
+    return out;
   }
-  var rafId = null, bound = false, retries = 0, initCount = 0, frames = 0, lastError = null;
-  function init() {
-    initCount++;
-    if (!probe) return;                 /* nothing decoded to sample yet */
-    /* cancel any loop already running: init() can be called again on a theme
-       change, and two live loops = two increments of `t` per frame */
-    if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
-    var r = wrap.getBoundingClientRect(); W = canvas.width = r.width; H = canvas.height = r.height;
-    t = Math.random() * 80; sampleStrips();
-    /* a degenerate sample (0 strips, or 1 strip spanning the whole width) means
-       we read an image that was not the one we wanted — usually the previous
-       theme's art, still `complete` from cache. Don't accept it; wait for the
-       real decode. */
-    if (strips.length < 2) return;      /* degenerate read — keep the old loop */
-    var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
-    if (isTouch) { splashDuration = 1500; } else {
-      wrap.addEventListener('mouseenter', function() { isHovered = true; });
-      wrap.addEventListener('mouseleave', function() { isHovered = false; });
-    }
-    if (!bound) {
-      bound = true;
-      var isTouch2 = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
-      if (isTouch2) splashDuration = 1500;
-    }
-    lastTs = 0;
-    rafId = requestAnimationFrame(tick);
+
+  function resize() {
+    var rect = wrap.getBoundingClientRect();
+    width = canvas.width = Math.round(rect.width);
+    height = canvas.height = Math.round(rect.height);
   }
-  var lastTs = 0;
-  function tick(ts) {
+
+  function tick() {
+    if (!inView) { frame = undefined; return; }
     frames++;
-    try { tickBody(ts); } catch (e) { lastError = (e && e.message) || String(e); }
-    rafId = requestAnimationFrame(tick);
+    try {
+      var splashRaw = splashStart ? Math.max(0, 1 - (Date.now() - splashStart) / splashDuration) : 0;
+      var splash = splashRaw * splashRaw * splashRaw;
+      time += 0.028 + hoverAmount * 0.016;
+      hoverAmount += ((isHovered ? 1 : 0) - hoverAmount) * (isHovered ? 0.07 : 0.025);
+      ctx.clearRect(0, 0, width, height);
+      for (var i = 0; i < strips.length; i++) {
+        var strip = strips[i];
+        var brightness = Math.sin(time * strip.frequency * strip.speedMultiplier + strip.phase) * 0.5 + 0.5;
+        if (brightness < 0.01) continue;
+        var x = strip.centerX * width;
+        var stripWidth = Math.max(strip.width * width, light ? 2 : 3);
+        var centerY = (Math.sin(time * strip.yFrequency * strip.speedMultiplier + strip.yPhase) * 0.5 + 0.5) * height;
+        var spread = height * (0.55 + hoverAmount * 0.25);
+        var boost = Math.max(hoverAmount, splash);
+        var alpha = brightness * 0.11 + (brightness * 0.28 - brightness * 0.11) * boost;
+        var peakAlpha = alpha * 1.4;
+        var edge = light ? '35,40,55' : '220,225,240';
+        var peak = light ? '10,12,20' : '255,255,255';
+        var g = ctx.createLinearGradient(0, centerY - spread, 0, centerY + spread);
+        g.addColorStop(0, 'rgba(' + edge + ',0)');
+        g.addColorStop(0.3, 'rgba(' + edge + ',' + alpha.toFixed(3) + ')');
+        g.addColorStop(0.5, 'rgba(' + peak + ',' + peakAlpha.toFixed(3) + ')');
+        g.addColorStop(0.7, 'rgba(' + edge + ',' + alpha.toFixed(3) + ')');
+        g.addColorStop(1, 'rgba(' + edge + ',0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(x - stripWidth / 2, 0, stripWidth, height);
+      }
+    } catch (e) { lastError = (e && e.message) || String(e); }
+    frame = requestAnimationFrame(tick);
   }
-  function tickBody(ts) {
-    light = isLight();          /* never let a stale flag pick the palette */
-    var splashRaw = splashStart ? Math.max(0, 1 - (Date.now() - splashStart) / splashDuration) : 0;
-    splashT = splashRaw * splashRaw * splashRaw;
-    var dt = lastTs ? Math.min((ts - lastTs) / 16.667, 3) : 1;   /* in 60fps frames */
-    lastTs = ts;
-    t += (0.028 + hoverT * 0.016) * dt;
-    hoverT += ((isHovered ? 1 : 0) - hoverT) * (isHovered ? 0.07 : 0.025) * dt;
-    ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
-    ctx.clearRect(0, 0, W, H);
-    for (var i = 0; i < strips.length; i++) {
-      var st = strips[i];
-      var brightness = (Math.sin(t * st.freq * st.speedMult + st.phase) * 0.5 + 0.5);
-      if (brightness < 0.01) continue;
-      var x = st.cx * W; var w = Math.max(st.w * W, light ? 2 : 3);
-      var centerY = (Math.sin(t * st.yFreq * st.speedMult + st.yPhase) * 0.5 + 0.5) * H;
-      var spread = H * (0.55 + hoverT * 0.25);
-      /* Gary: "I see the stripes for 0.5 seconds then they disappear" — that is
-         the 300ms entry splash (boost -> peak) followed by the drop to base.
-         Production can afford a big base/peak gap because multiply amplifies
-         the resting state; without it the base has to carry the strips on its
-         own, so light runs a HIGH base with only a small lift to peak. The
-         near-flat ramp also removes the visible cliff when the splash ends. */
-      var baseA = brightness * (light ? 0.42 : 0.11);
-      var peakA = brightness * (light ? 0.60 : 0.28);
-      var boost = Math.max(hoverT, splashT);
-      var a = (baseA + (peakA - baseA) * boost).toFixed(3);
-      var a2 = (parseFloat(a) * 1.4).toFixed(3);
-      var grad = ctx.createLinearGradient(0, centerY - spread, 0, centerY + spread);
-      var edge = light ? '35,40,55' : '220,225,240';
-      var peak = light ? '10,12,20'  : '255,255,255';
-      grad.addColorStop(0, 'rgba(' + edge + ',0)'); grad.addColorStop(0.3, 'rgba(' + edge + ',' + a + ')');
-      grad.addColorStop(0.5, 'rgba(' + peak + ',' + a2 + ')'); grad.addColorStop(0.7, 'rgba(' + edge + ',' + a + ')');
-      grad.addColorStop(1, 'rgba(' + edge + ',0)');
-      ctx.fillStyle = grad; ctx.fillRect(x - w / 2, 0, w, H);
-    }
-  }
-  /* WATCHDOG. The rAF loop can stop being delivered while rafId is still set
-     and nothing has thrown — reproducible when the footer is already in view
-     as the page initialises, which is what a reload with restored scroll
-     position looks like. Root cause not identified; this restarts the loop
-     whenever `t` has not advanced between checks and the strip is on screen
-     and the tab is visible. Costs one comparison every 700ms. */
-  var wdT = null, restarts = 0;
-  setInterval(function () {
-    if (!strips.length || document.hidden) { wdT = null; return; }
+
+  /* Production gates the loop on inView from an IntersectionObserver. That is
+     correct but it is also a single point of failure: if the observer has not
+     reported by the time the art decodes, nothing ever starts. Compute
+     visibility directly as a fallback so start() can never be stranded. */
+  function computeInView() {
     var r = wrap.getBoundingClientRect();
     var vh = window.innerHeight || document.documentElement.clientHeight;
-    if (r.bottom <= 0 || r.top >= vh) { wdT = null; return; }   /* off screen */
-    if (wdT !== null && t === wdT) {
-      if (rafId !== null) cancelAnimationFrame(rafId);
-      lastTs = 0; restarts++;
-      rafId = requestAnimationFrame(tick);
-    }
-    wdT = t;
-  }, 700);
+    return r.bottom > 0 && r.top < vh;
+  }
+  function run() { if (frame === undefined && inView) frame = requestAnimationFrame(tick); }
+  function start() {
+    resize();
+    strips = sampleStrips(img);
+    if (!inView && computeInView()) { inView = true; if (!splashStart) splashStart = Date.now(); }
+    run();
+  }
 
-  /* debug hook — read it in the console with JSON.stringify(window.__shimmer) */
+  /* Theme art. Production picks this once; we re-apply on the preview toggle.
+     NOTE: mix-blend-mode is set HERE, never authored in the markup — `screen`
+     on a white ground is invisible, so an authored default is a trap. */
+  var appliedTheme = null;
+  function applyTheme() {
+    light = isLight();
+    var now = light ? 'light' : 'dark';
+    if (now === appliedTheme) return;
+    appliedTheme = now;
+    canvas.style.mixBlendMode = light ? 'multiply' : 'screen';
+    img.style.opacity = light ? '0.32' : '0.20';
+    var want = light ? WORDMARK_LIGHT_SRC : WORDMARK_SRC;
+    if (img.getAttribute('src') !== want) {
+      img.setAttribute('src', want);
+      img.addEventListener('load', start, { once: true });
+    } else if (img.complete && img.naturalWidth) {
+      start();
+    }
+  }
+  document.addEventListener('sc-themechange', applyTheme);
+
+  new ResizeObserver(resize).observe(wrap);
+  new IntersectionObserver(function (entries) {
+    setInView(entries[0].isIntersecting);
+  }, { threshold: 0.1 }).observe(wrap);
+
+  /* The observer is the efficient path, but it is not the only one: it can fail
+     to report (nested browsing contexts, some restored-scroll cases), and then
+     the loop never starts at all — which is exactly the failure mode being
+     chased here. A throttled scroll/resize check keeps inView honest
+     regardless, and costs one getBoundingClientRect per frame while scrolling. */
+  function setInView(v) {
+    if (v === inView) return;
+    inView = v;
+    if (inView) { if (!splashStart) splashStart = Date.now(); run(); }
+  }
+  var pending = false;
+  function onScroll() {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(function () { pending = false; setInView(computeInView()); });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+
+  if (!isTouch) {
+    wrap.addEventListener('mouseenter', function () { isHovered = true; });
+    wrap.addEventListener('mouseleave', function () { isHovered = false; });
+  }
+
   window.__shimmer = {
-    get strips()   { return strips.length; },
-    get light()    { return light; },
-    get running()  { return rafId !== null; },
-    get inits()    { return initCount; },
-    get frames()   { return frames; },
-    get err()      { return lastError; },
-    get restarts() { return restarts; },
-    get wrapH()    { return Math.round(wrap.getBoundingClientRect().height); },
-    get hidden()   { return document.hidden; },
-    get t()        { return Math.round(t * 100) / 100; },
-    get src()      { return (img.currentSrc || img.getAttribute('src') || '').split('/').pop(); },
-    get complete() { return img.complete; },
-    get nw()       { return img.naturalWidth; },
-    get canvas()   { return canvas.width + 'x' + canvas.height; },
-    get blend()    { return getComputedStyle(canvas).mixBlendMode; },
-    get opacity()  { return getComputedStyle(img).opacity; }
+    get strips()  { return strips.length; },
+    get light()   { return light; },
+    get running() { return frame !== undefined; },
+    get inView()  { return inView; },
+    get frames()  { return frames; },
+    get err()     { return lastError; },
+    get t()       { return Math.round(time * 100) / 100; },
+    get src()     { return (img.currentSrc || img.getAttribute('src') || '').split('/').pop(); },
+    get canvas()  { return canvas.width + 'x' + canvas.height; },
+    get blend()   { return getComputedStyle(canvas).mixBlendMode; }
   };
-  applyThemeArt(false);
+
+  applyTheme();
+  if (img.complete && img.naturalWidth) start(); else img.addEventListener('load', start, { once: true });
 })();
 
 // ── Hero pixel dots — uniform ambient field (verbatim security-agent) ─────────
@@ -2311,33 +2282,6 @@ window.addEventListener('load', function() {
   .sc-theme-switch button[aria-pressed="true"] { background: var(--sc-blue); color: #fff; }
   @media print { .sc-theme-switch { display: none; } }
 </style>
-<!-- ╔═══ TEMPORARY DEBUG BADGE — REMOVE WHEN THE FOOTER BUG IS CLOSED ═════╗ -->
-<style>
-  #sc-debug { position: fixed; left: 16px; bottom: 16px; z-index: 10000;
-    font: 11px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
-    background: rgba(10,12,20,0.88); color: #7FDDC1; padding: 8px 11px;
-    border-radius: 2px; white-space: pre; pointer-events: none; }
-  #sc-debug b { color: #ff9c8a; font-weight: 400; }
-</style>
-<div id="sc-debug">shimmer: booting…</div>
-<script>
-(function () {
-  var el = document.getElementById('sc-debug'); if (!el) return;
-  var prev = null, frozenFor = 0;
-  setInterval(function () {
-    var s = window.__shimmer;
-    if (!s) { el.textContent = 'shimmer: NOT INITIALISED'; return; }
-    var moving = prev !== null && s.t !== prev;
-    frozenFor = moving ? 0 : frozenFor + 1;
-    prev = s.t;
-    el.innerHTML =
-      'strips ' + s.strips + '   running ' + s.running + '   inits ' + s.inits + '\n' +
-      'frames ' + s.frames + '   restarts ' + s.restarts + '   err ' + (s.err || 'none') + '\n' +
-      't ' + s.t + '   ' + (moving ? 'ADVANCING' : '<b>FROZEN x' + frozenFor + '</b>') + '\n' +
-      'src ' + s.src + '   ' + s.canvas + '   light ' + s.light;
-  }, 500);
-})();
-</script>
 <div class="sc-theme-switch" role="group" aria-label="Theme preview">
   <button type="button" data-theme-set="">System</button>
   <button type="button" data-theme-set="light">Light</button>
