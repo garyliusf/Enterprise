@@ -1593,6 +1593,30 @@
 .mkt-nav.is-scrolled { background: var(--sc-nav-bg-scrolled, rgba(5,5,7,0.72)); }
 /* the wordmark ships fill="#fff" as a markup attribute, so CSS has to win */
 .mkt-nav-logo svg path { fill: var(--sc-nav-logo, #fff); }
+/* Over-hero variant — opt-in per page via a class on <nav>. Only for pages
+   whose hero is dark enough for white ink; on a white-topped page (pricing,
+   customers, press, templates) the at-rest ink would vanish. The bar is
+   pulled over the hero by --sc-nav-overlap and the page adds the same amount
+   back to its hero's top padding + min-height, so the copy does not move.
+   Tokens carry the theme difference rather than a light-only selector: on
+   dark every --sc-nav-over-* equals its regular token and the overlap is 0,
+   so dark renders exactly as before. */
+.mkt-nav--over-hero {
+  margin-bottom: calc(-1 * var(--sc-nav-overlap, 0px));
+  transition: background-color 0.25s ease;
+}
+.mkt-nav--over-hero:not(.is-scrolled):not(.has-menu-open) {
+  --sc-nav-bg: var(--sc-nav-over-bg);
+  --sc-nav-hairline: var(--sc-nav-over-hairline);
+  --sc-nav-ink: var(--sc-nav-over-ink);
+  --sc-nav-ink-hover: var(--sc-nav-over-ink-hover);
+  --sc-nav-ink-hover-bg: var(--sc-nav-over-ink-hover-bg);
+  --sc-nav-logo: var(--sc-nav-over-logo);
+  -webkit-backdrop-filter: var(--sc-nav-over-blur);
+          backdrop-filter: var(--sc-nav-over-blur);
+}
+.mkt-nav--over-hero .mkt-nav-logo svg path { transition: fill 0.25s ease; }
+.mkt-nav--over-hero.is-scrolled { background: var(--sc-nav-over-bg-scrolled, var(--sc-nav-bg-scrolled)); }
 .mkt-nav-scrim { background: var(--sc-scrim, rgba(0,0,0,0.5)); }
 
 /* dropdown panel */
@@ -2529,10 +2553,25 @@ window.addEventListener('load', function () {
   var nav = document.querySelector('.mkt-nav');
   if (!nav) return;
   var pending = false;
+  /* Over-hero variant flips at 5% of the page's scroll distance (Gary) —
+     capped at the point where the hero's bottom edge reaches the bar, so the
+     white at-rest ink can never sit over white content on a long page. */
+  var overHero = nav.classList.contains('mkt-nav--over-hero');
+  var hero = overHero ? document.querySelector('.hero-section, [data-nav-hero]') : null;
+  function threshold() {
+    if (!overHero) return 8;
+    var doc = document.documentElement;
+    var t = Math.max(0, doc.scrollHeight - window.innerHeight) * 0.05;
+    if (hero) {
+      var heroBottom = hero.getBoundingClientRect().bottom + (window.pageYOffset || doc.scrollTop || 0);
+      t = Math.min(t, heroBottom - nav.offsetHeight);
+    }
+    return Math.max(8, t);
+  }
   function sync() {
     pending = false;
     var y = window.pageYOffset || document.documentElement.scrollTop || 0;
-    nav.classList.toggle('is-scrolled', y > 8);
+    nav.classList.toggle('is-scrolled', y > threshold());
   }
   function onScroll() { if (!pending) { pending = true; requestAnimationFrame(sync); } }
   window.addEventListener('scroll', onScroll, { passive: true });

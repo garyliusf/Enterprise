@@ -160,10 +160,25 @@
   var nav = document.querySelector('.mkt-nav');
   if (!nav) return;
   var pending = false;
+  /* Over-hero variant flips at 5% of the page's scroll distance (Gary) —
+     capped at the point where the hero's bottom edge reaches the bar, so the
+     white at-rest ink can never sit over white content on a long page. */
+  var overHero = nav.classList.contains('mkt-nav--over-hero');
+  var hero = overHero ? document.querySelector('.hero-section, [data-nav-hero]') : null;
+  function threshold() {
+    if (!overHero) return 8;
+    var doc = document.documentElement;
+    var t = Math.max(0, doc.scrollHeight - window.innerHeight) * 0.05;
+    if (hero) {
+      var heroBottom = hero.getBoundingClientRect().bottom + (window.pageYOffset || doc.scrollTop || 0);
+      t = Math.min(t, heroBottom - nav.offsetHeight);
+    }
+    return Math.max(8, t);
+  }
   function sync() {
     pending = false;
     var y = window.pageYOffset || document.documentElement.scrollTop || 0;
-    nav.classList.toggle('is-scrolled', y > 8);
+    nav.classList.toggle('is-scrolled', y > threshold());
   }
   function onScroll() { if (!pending) { pending = true; requestAnimationFrame(sync); } }
   window.addEventListener('scroll', onScroll, { passive: true });
