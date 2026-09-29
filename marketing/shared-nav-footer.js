@@ -20,6 +20,13 @@
   var hoverTimer = null;
 
   function setOpen(key) {
+    /* Moving straight from one open menu to another swaps the panels with NO
+       crossfade: mid-fade both panels are part-transparent, so on light the
+       page flashed through the white panel (Gary). Fresh opens and closes
+       still fade. */
+    var switching = !!(openKey && key && openKey !== key);
+    nav.classList.toggle('is-switching', switching);
+    if (switching) requestAnimationFrame(function () { requestAnimationFrame(function () { nav.classList.remove('is-switching'); }); });
     openKey = key;
     triggers.forEach(function (t) {
       var active = t.getAttribute('data-menu') === key;

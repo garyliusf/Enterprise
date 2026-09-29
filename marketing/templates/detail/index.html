@@ -1480,6 +1480,7 @@
    ╚══════════════════════════════════════════════════════════════════════════╝ */
 .mkt-nav { border-bottom: 1px solid var(--sc-nav-hairline, transparent); }
 .mkt-nav.has-menu-open { border-bottom-color: var(--sc-nav-menu-divider, var(--sc-nav-hairline, transparent)); }  /* visible seam over the open panel (Gary) */
+.mkt-nav.is-switching .mkt-nav-panel { transition: none; }  /* direct menu-to-menu swap: no crossfade flash (see setOpen) */
 .mkt-nav.is-scrolled { background: var(--sc-nav-bg-scrolled, rgba(5,5,7,0.72)); }
 /* scrolled AND a menu open: .is-scrolled (0,2,0) sits later than the has-menu-open
    rule and was winning, so the open bar went back to glass with its blur off —
@@ -2502,6 +2503,13 @@ window.addEventListener('load', function () {
   var hoverTimer = null;
 
   function setOpen(key) {
+    /* Moving straight from one open menu to another swaps the panels with NO
+       crossfade: mid-fade both panels are part-transparent, so on light the
+       page flashed through the white panel (Gary). Fresh opens and closes
+       still fade. */
+    var switching = !!(openKey && key && openKey !== key);
+    nav.classList.toggle('is-switching', switching);
+    if (switching) requestAnimationFrame(function () { requestAnimationFrame(function () { nav.classList.remove('is-switching'); }); });
     openKey = key;
     triggers.forEach(function (t) {
       var active = t.getAttribute('data-menu') === key;
