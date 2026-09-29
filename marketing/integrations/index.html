@@ -276,15 +276,15 @@
      API) keep the monogram fallback. */
   .int-logo-glyph {
     width: 21px; height: 21px; display: block;
-    background: currentColor;
+    /* exact brand colour (Simple Icons official hex), not the decorative
+       palette tints (Gary). Monogram fallbacks stay neutral ink. */
+    background: var(--brand, currentColor);
     -webkit-mask: var(--m) center / contain no-repeat;
             mask: var(--m) center / contain no-repeat;
   }
-  .int-logo[data-color="blue"]   { background: rgba(20,136,252,0.14);  color: #8AC7FF; border-color: rgba(20,136,252,0.40); }
-  .int-logo[data-color="mint"]   { background: rgba(127,221,193,0.12); color: #7FDDC1; border-color: rgba(127,221,193,0.35); }
-  .int-logo[data-color="salmon"] { background: rgba(255,176,147,0.12); color: #FFB093; border-color: rgba(255,176,147,0.35); }
-  .int-logo[data-color="purple"] { background: rgba(168,140,255,0.12); color: #C7B6FF; border-color: rgba(168,140,255,0.35); }
-  .int-logo[data-color="amber"]  { background: rgba(250,182,98,0.12);  color: #FAB662; border-color: rgba(250,182,98,0.35); }
+  /* near-black brands vanish on dark, pale ones on light: neutral fallbacks */
+  html[data-theme="dark"] :is([data-brand="anthropic"],[data-brand="github"],[data-brand="notion"],[data-brand="posthog"],[data-brand="vercel"],[data-brand="sentry"],[data-brand="slack"],[data-brand="zendesk"]).int-logo-glyph { background: rgba(255,255,255,0.82); }
+  html[data-theme="light"] [data-brand="intercom"].int-logo-glyph { background: var(--sc-ink); }
   .int-name {
     font-size: 22px;
     font-weight: 500;
@@ -610,13 +610,6 @@ html[data-theme="light"] .hero-section {
     background: var(--sc-surface);
     box-shadow: 0 18px 48px rgba(15,26,42,0.10), inset 0 1px 0 rgba(255,255,255,0.6);
   }
-  /* tile tints: the pale dark-theme glyph/monogram colours fail contrast on
-     white — deepen them on light (bgs/borders keep their alpha tints) */
-  html[data-theme="light"] .int-logo[data-color="blue"]   { color: #0f6fd0; }
-  html[data-theme="light"] .int-logo[data-color="mint"]   { color: #0d9b7a; }
-  html[data-theme="light"] .int-logo[data-color="salmon"] { color: #c05030; }
-  html[data-theme="light"] .int-logo[data-color="purple"] { color: #6a4fd8; }
-  html[data-theme="light"] .int-logo[data-color="amber"]  { color: #b06a1e; }
 </style>
 <link rel="stylesheet" href="../shared-nav-footer.css?v=20260929t">
 </head>
@@ -1056,9 +1049,11 @@ var ICONS = {
   'Sentry': 'sentry', 'Snowflake': 'snowflake', 'Twilio': 'twilio',
   'Vercel': 'vercel', 'Zendesk': 'zendesk',
 };
+var BRAND_HEX = {"postgresql": "4169E1", "stripe": "635BFF", "openai": "412991", "slack": "4A154B", "salesforce": "00A1E0", "supabase": "3FCF8E", "github": "181717", "airtable": "18BFFF", "algolia": "003DFF", "anthropic": "191919", "amazons3": "569A31", "googlebigquery": "669DF6", "cloudflare": "F38020", "amazondynamodb": "4053D6", "figma": "F24E1E", "firebase": "DD2C00", "graphql": "E10098", "hubspot": "FF7A59", "intercom": "6AFDEF", "linear": "5E6AD2", "mongodb": "47A248", "mysql": "4479A1", "notion": "000000", "opensearch": "005EB8", "pagerduty": "06AC38", "posthog": "000000", "sendgrid": "51A9E3", "sentry": "362D59", "snowflake": "29B5E8", "twilio": "F22F46", "vercel": "000000", "zendesk": "03363D"};
 function logoHTML(i) {
   var s = ICONS[i.name];
-  return s ? '<span class="int-logo-glyph" style="--m:url(logos/' + s + '.svg)"></span>' : i.abbr;
+  if (!s) return i.abbr;
+  return '<span class="int-logo-glyph" data-brand="' + s + '" style="--m:url(logos/' + s + '.svg);--brand:#' + BRAND_HEX[s] + '"></span>';
 }
 
 /* ── Render featured grid ─────────────────────────────────────────────── */
