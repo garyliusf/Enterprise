@@ -132,6 +132,14 @@ rendered the desktop values; it now carries these.
 | Success pull-quote | `26px` | `300` | `#EDDCC6` (warm beige) | `1.55` | not italic |
 | Stat number | `72px` | `300` | `#fff` | `0.85` | `-3px` |
 
+### Header rhythm + label face (Gary, 2026-09-29 — supersedes older font/eyebrow rows above)
+
+- **Fonts**: body/UI = **Schibsted Grotesk** (`--sc-font-sans`); serif display/quotes = **Literata italic 400** (`--sc-font-serif` + `--sc-serif-style`); **labels/eyebrows = the sans** (`--sc-font-label` carries the Schibsted stack) at `--sc-eyebrow-size: 13px`, weight `--sc-label-weight: 700` (500/600 read thin at 13px). The Inter/Silkscreen/16px values in the tables above are the legacy production reference, not the sandbox standard.
+- **Header stack rhythm 16/12/6**: eyebrow→H2 and H2→subtitle gaps are **16px desktop / 12px tablet (≤1024) / 6px mobile (≤768)** on EVERY header stack. Shared media rules cover `.section-header` + `.unlocks-header`; page-local stacks (solutions' `.feat-header`, `.trust-left`) and the footer CTA (`.footer-eyebrow + .dsa-reveal` / `.footer-subtitle` counter-margins against the 24px flex gap) are netted to the same rhythm. **Don't mint new header containers with their own gaps — that's exactly how the rhythm drifted.**
+- **Subtitle leading**: 1.65 desktop/tablet, **1.4 on mobile** (`.section-sub, .feat-subheadline, .footer-subtitle` in shared's ≤768 block).
+- **Nav/footer arrows**: the bare chevron (no shaft) as a currentColor mask — a utility rule appended last in `shared-nav-footer.css` + the 3 inline copies (and the blog branch). Never `content: '→'` (heavy head in Schibsted).
+- **Chevron/icon baseline nudges**: Schibsted centres its caps 0.09px from the line-box centre — the correct nudge next to a Schibsted label is **0**. The old +1px/+0.75px values were Literata/Silkscreen metrics.
+
 ### Section H2 — ONE canonical class: `.sc-section-h2` (RULE)
 
 **When building or replicating a page, section-level H2s use `class="sc-section-h2"` from `shared-components.css` — do NOT mint a new per-page/per-section class.** We learned this the hard way (2026-08): the same H2 style existed under 12 aliases (`.builtin-h2`, `.detail-h2`, `.agent-h2`, `.compliance-h2`, `.trust-h2`, `.hiw-h2`, `.run-callout-h2`, `.section-headline`, …), so the ≤768px size rule got written for `.builtin-h2` only and sibling H2s rendered visibly smaller on phones. Twelve names for one component = breakpoint changes silently miss instances.
