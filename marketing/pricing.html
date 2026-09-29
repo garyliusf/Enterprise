@@ -1393,6 +1393,10 @@
     pointer-events: none;
   }
   .mkt-nav-back svg { width: 16px; height: 16px;
+    /* -5px: the chevron's INK starts ~5px into its 16px viewBox (polyline
+       x=9..15 of 24 + stroke) — pull the box left so the ink edge, not the
+       box edge, sits on the shared 40/16px gutter line with the drawer text */
+    margin-left: -5px;
     /* No nudge: align-items:center centers the LINE BOXES, and Schibsted
        Grotesk (asc 2000 / desc 528 / cap 1440 per 2048) puts its caps-only
        ink 0.008em = 0.09px from the line-box centre at 12px — dead centre.
@@ -1760,7 +1764,7 @@
     position: absolute;
     inset: 0;
     overflow-y: auto;
-    padding: 28px clamp(16px, 4vw, 40px) 28px;
+    padding: 28px 40px;  /* match .mkt-nav-inner's gutter exactly (40 tablet / 16 mobile below) — the old 4vw clamp only coincided at exact widths, so drawer text sat off the bar's Back chevron */
     opacity: 0;
     /* Off-screen to the left when not active — slides in from the left as it fades in, matching the logo/back header animation direction. */
     transform: translateX(-24px);
@@ -2153,6 +2157,9 @@
      the divider and "Solutions", vs ~14px between the bar content and the
      divider. Tightened so the two gaps read equal; submenu views keep 28px
      (their header block wants the air). */
+    @media (max-width: 768px) {
+      .mkt-nav-mobile-view { padding-left: 16px; padding-right: 16px; }  /* nav-inner's mobile gutter */
+    }
   .mkt-nav-mobile-view[data-view="home"] { padding-top: 10px; }  /* 2px sat the first link too close to the divider (Gary) */
   .mkt-nav-mobile-view[data-view="home"] .mkt-nav-mobile-links { margin-top: 0; }
 }
