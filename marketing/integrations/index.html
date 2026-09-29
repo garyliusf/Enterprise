@@ -185,11 +185,17 @@
   }
   .featured-section { padding-top: clamp(32px, 6vh, 64px); }
   /* LIGHT: a ~2-value 1px row renders where the hero's bottom edge
-     antialiases against the section white (measured in Gary's screenshot —
-     same artifact trust had). The section's opaque ground overlaps the
-     hero's last 2px so nothing can show at the boundary. The bridge between
-     them is net-zero flow and transparent, so the pull-up is safe. */
-  html[data-theme="light"] .featured-section { margin-top: -2px; }
+     antialiases against the page white (measured in Gary's screenshot —
+     same artifact trust had). Trust's fix relied on the next section's
+     OPAQUE ground; this section is transparent (the bridge dots show
+     through it), so the overlap alone painted nothing. A 4px full-bleed
+     ground strip at the section's top does the covering instead; it sits
+     above the first 4px of the bridge dots only. */
+  html[data-theme="light"] .featured-section { margin-top: -2px; position: relative; }
+  html[data-theme="light"] .featured-section::before {
+    content: ""; position: absolute; left: 0; right: 0; top: 0; height: 4px;
+    background: var(--sc-ground); z-index: 0; pointer-events: none;
+  }
 
   /* ─── PIXEL BAND BETWEEN FEATURED + CATALOG (verbatim from solutions/_template .why-who-transition) ─── */
   .section-transition {
