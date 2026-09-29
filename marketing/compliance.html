@@ -373,10 +373,12 @@ body { background: var(--sc-ground); font-family: var(--sc-font-sans, 'Schibsted
      corner and winking out radially. Colour follows --sc-dot-rgb (brand blue
      on light, pale grey on dark); masked toward the panel like the old art. */
   #incl-corner-dither {
-    position: absolute; left: -46px; bottom: -48px; width: min(480px, 46%); aspect-ratio: 1 / 0.85;
+    /* bigger + bolder pass (Gary): ~2/3 of the panel wide, mask holds longer
+       before fading so the field reads as a real presence, not a corner dust */
+    position: absolute; left: -46px; bottom: -48px; width: min(720px, 64%); aspect-ratio: 1 / 0.9;
     z-index: 0; pointer-events: none;
-    -webkit-mask-image: radial-gradient(ellipse at 30% 80%, #000 32%, transparent 72%);
-            mask-image: radial-gradient(ellipse at 30% 80%, #000 32%, transparent 72%);
+    -webkit-mask-image: radial-gradient(ellipse at 28% 82%, #000 48%, transparent 82%);
+            mask-image: radial-gradient(ellipse at 28% 82%, #000 48%, transparent 82%);
   }
   /* cursor-following "shine a light" glow on hover */
   .incl-item::before {
@@ -1775,7 +1777,7 @@ window.addEventListener('load', function() {
         var gx = c / cols;
         /* density falls radially from the bottom-left corner */
         var dx = gx, dy = 1 - gy;
-        var base = 1 - Math.sqrt(dx * dx + dy * dy) / 0.85;
+        var base = 1 - Math.sqrt(dx * dx + dy * dy) / 1.0;
         if (base <= 0) continue;
         base = Math.pow(base, 0.8);
         var wave = Math.sin(gx * 4.3 + gy * 5.9 - t * 0.9) * 0.5
@@ -1783,7 +1785,7 @@ window.addEventListener('load', function() {
         var level = base + wave * 0.38;
         var th = (BAYER[r & 3][c & 3] + 0.5) / 16;
         if (level <= th) continue;               /* on/off, like the hero */
-        var a = 0.10 + base * 0.16;
+        var a = 0.16 + base * 0.24;
         ctx.fillStyle = 'rgba(' + rgb + ',' + a.toFixed(3) + ')';
         ctx.fillRect(c * CELL, r * CELL, SQ, SQ);
       }
