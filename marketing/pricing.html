@@ -3780,7 +3780,12 @@
       p.setAttribute('aria-hidden', active ? 'false' : 'true');
     });
     if (scrim) scrim.classList.toggle('is-open', !!key);
-    nav.classList.toggle('has-menu-open', !!key);
+    /* The mobile drawer ALSO owns this class (it paints the bar while the
+       drawer is open). iOS taps inside the drawer fire a synthetic mouseleave
+       on the nav, whose unguarded 120ms setOpen(null) was stripping it — the
+       bar flipped white on the first drill tap (Gary). Keep it while the
+       drawer is open. */
+    nav.classList.toggle('has-menu-open', !!key || document.body.classList.contains('mkt-nav-mobile-open'));
   }
 
   /* Hover listener lives on the parent <li> (which fills the full 68px nav height) rather than the button itself — small vertical cursor movements above/below the button text no longer exit the hover zone and don't cause the dropdown to flicker. Click stays on the button for accessibility. */

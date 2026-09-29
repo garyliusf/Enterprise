@@ -2554,7 +2554,12 @@ window.addEventListener('load', function () {
       p.setAttribute('aria-hidden', active ? 'false' : 'true');
     });
     if (scrim) scrim.classList.toggle('is-open', !!key);
-    nav.classList.toggle('has-menu-open', !!key);
+    /* The mobile drawer ALSO owns this class (it paints the bar while the
+       drawer is open). iOS taps inside the drawer fire a synthetic mouseleave
+       on the nav, whose unguarded 120ms setOpen(null) was stripping it — the
+       bar flipped white on the first drill tap (Gary). Keep it while the
+       drawer is open. */
+    nav.classList.toggle('has-menu-open', !!key || document.body.classList.contains('mkt-nav-mobile-open'));
   }
 
   var hoverZones = nav.querySelectorAll('.mkt-nav-items li[data-menu]');
