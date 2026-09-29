@@ -688,7 +688,13 @@ body { background: var(--sc-ground); font-family: var(--sc-font-sans, 'Schibsted
      a dark variant (pale squares, tighter falloff). The page's old uniform
      dot field is retired. */
   #hero-pixel-dots { display: none; }
-  #hero-dither-light { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+  #hero-dither-light {
+    position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none;
+    /* same reason as the grain: squares over the near-white tail cut off in a
+       line at the canvas edge — dissolve them before the foot */
+    -webkit-mask-image: linear-gradient(180deg, #000 55%, rgba(0,0,0,0) 90%);
+            mask-image: linear-gradient(180deg, #000 55%, rgba(0,0,0,0) 90%);
+  }
   /* DARK: the hero ground ends #04060c against the next section's #000 — a
      visible step, with the pixels running right to the edge (Gary). This fade
      takes ground AND pixels to true black by the last row; z2 sits over the
@@ -702,6 +708,10 @@ body { background: var(--sc-ground); font-family: var(--sc-font-sans, 'Schibsted
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='256' height='256' filter='url(%23n)'/%3E%3C/svg%3E");
     background-size: 256px 256px;
     opacity: 0.05;
+    /* fade out before the hero's foot: at full bleed the 5% dim ended in a
+       visible line against the next section's pure white (Gary) */
+    -webkit-mask-image: linear-gradient(180deg, #000 65%, rgba(0,0,0,0) 95%);
+            mask-image: linear-gradient(180deg, #000 65%, rgba(0,0,0,0) 95%);
   }
   html[data-theme="dark"] .hero-section::after {
     content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 240px;
