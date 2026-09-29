@@ -1072,21 +1072,19 @@ body { background: var(--sc-ground); color: var(--sc-ink); font-family: var(--sc
     /* right-edge fade+blur — signals more tabs off-screen (blog filter-bar pattern);
        JS adds .at-end when scrolled fully right */
     .plat-tabbar-wrap { position: relative; }
-    .plat-tabbar-wrap::after {
-      content: ""; position: absolute; top: 0; right: 0; bottom: 0; width: 76px;
-      pointer-events: none; z-index: 2;
-      /* Overflow affordance, take 3 (Gary): NO fill of any kind — just a
-         feathered blur over the cut-off label's second half, dissolving as
-         the bar scrolls left (--tab-overflow, set by the scroll handler).
-         Blur over the flat section ground is invisible, so only the text
-         softens — nothing box-shaped in either theme. The earlier box was
-         the dark gradient FILL plus a mask that hit full strength at 22%. */
-      -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
-      -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,0.2) 35%, rgba(0,0,0,0.6) 65%, #000 100%);
-              mask-image: linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,0.2) 35%, rgba(0,0,0,0.6) 65%, #000 100%);
-      opacity: var(--tab-overflow, 1);
+    /* Overflow affordance, final (Gary): mask the TAB TEXT itself so the
+       cut-off label's glyphs fade out toward the edge. No overlay element
+       exists, so nothing can render as a box — every blur/gradient overlay
+       did (a backdrop filter spreads the blurred white text's light across
+       its whole rectangle). The fade zone is pinned to the scrollport's
+       right edge, so a label slides crisp out of it as you scroll — the
+       progressive un-dissolve for free. at-end lifts the mask so the last
+       tab reads fully. */
+    .plat-tabbar {
+      -webkit-mask-image: linear-gradient(to right, #000 0%, #000 calc(100% - 72px), rgba(0,0,0,0.35) calc(100% - 26px), rgba(0,0,0,0) 100%);
+              mask-image: linear-gradient(to right, #000 0%, #000 calc(100% - 72px), rgba(0,0,0,0.35) calc(100% - 26px), rgba(0,0,0,0) 100%);
     }
-    .plat-tabbar-wrap.at-end::after { opacity: 0; }
+    .plat-tabbar-wrap.at-end .plat-tabbar { -webkit-mask-image: none; mask-image: none; }
     .plat-tab { font-size: 15px; padding-bottom: 14px; }
     .plat-panel-grid { grid-template-columns: 1fr; gap: 28px; }
     .plat-panel-left { gap: 18px; }
@@ -2219,9 +2217,6 @@ window.addEventListener('load', function() {
       var remaining = bar.scrollWidth - bar.clientWidth - bar.scrollLeft;
       var atEnd = remaining <= 4;
       wrap.classList.toggle('at-end', atEnd);
-      /* progressive: the blur dissolves over the last 56px of scroll instead
-         of popping at the end (Gary: unblur as the user scrolls) */
-      wrap.style.setProperty('--tab-overflow', Math.max(0, Math.min(1, remaining / 56)).toFixed(3));
     }
     bar.addEventListener('scroll', updateFade, { passive: true });
     window.addEventListener('resize', updateFade);
