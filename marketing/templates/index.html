@@ -1620,7 +1620,13 @@
    ║ matched, so the panel stayed dark while its text went light.              ║
    ╚══════════════════════════════════════════════════════════════════════════╝ */
 .mkt-nav { border-bottom: 1px solid var(--sc-nav-hairline, transparent); }
-.mkt-nav.has-menu-open { border-bottom-color: var(--sc-nav-menu-divider, var(--sc-nav-hairline, transparent)); }  /* visible seam over the open panel (Gary) */
+/* Bar/panel seam while a menu is open (Gary). NOT the border: the panel is a
+   child at top:100% and children paint over the parent's border, which is why
+   the first attempt never showed. A pseudo laid over the panel's top edge. */
+.mkt-nav.has-menu-open::after {
+  content: ''; position: absolute; left: 0; right: 0; top: 100%; height: 1px;
+  background: var(--sc-nav-menu-divider, transparent); z-index: 300; pointer-events: none;
+}
 .mkt-nav.is-switching .mkt-nav-panel { transition: none; }  /* direct menu-to-menu swap: no crossfade flash (see setOpen) */
 .mkt-nav.is-scrolled { background: var(--sc-nav-bg-scrolled, rgba(5,5,7,0.72)); }
 /* scrolled AND a menu open: .is-scrolled (0,2,0) sits later than the has-menu-open
