@@ -247,6 +247,15 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
 /* ── STORY FEED (live blog-feed list) ── */
 .blog-list-section { padding: 0 0 96px; }
 .blog-list-header { display: flex; align-items: center; justify-content: space-between; padding: 84px 0 0; margin-bottom: 18px; }
+/* filter toolbar above the list: pills left, search right. It takes over the
+   header's 84px top pad; the header tucks in beneath it. */
+.blog-list-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 84px 0 14px; border-bottom: 1px solid var(--border); scroll-margin-top: calc(var(--bolt-nav-h) + 72px); }
+.blog-list-toolbar + .blog-list-header { padding-top: 22px; }
+.blog-list-toolbar .filter-group-wrap { flex: 1; }
+@media (max-width: 768px) {
+  .blog-list-toolbar { flex-direction: column; align-items: stretch; gap: 12px; padding-top: 56px; }
+  .blog-list-toolbar .blog-search { padding-left: 0; }
+}
 .blog-list-label { font-family: var(--font-mono); font-size: var(--sc-eyebrow-size, 13px); font-weight: var(--sc-label-weight, 500); letter-spacing: 2px; text-transform: uppercase; color: var(--accent-blue); }
 .blog-list-count { font-family: var(--font-mono); font-weight: var(--sc-label-weight, 500); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); }
 .blog-list { list-style: none; }
@@ -594,25 +603,6 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
   <a href="customers.html" class="nav-logo">
     <span class="nav-logo-label eyebrow-scramble">Customers</span>
   </a>
-  <div class="filter-group-wrap">
-    <div class="filter-group" id="filter-group">
-      <button class="filter-btn active" data-seg="all">All</button>
-      <button class="filter-btn" data-seg="founders">Founders</button>
-      <button class="filter-btn" data-seg="small-business">Small Business</button>
-      <button class="filter-btn" data-seg="enterprise">Enterprise</button>
-      <button class="filter-btn" data-seg="agencies">Agencies</button>
-      <button class="filter-btn" data-seg="side-projects">Side Projects</button>
-    </div>
-  </div>
-  <form class="blog-search" role="search" id="story-search-form">
-    <input class="blog-search-input" id="story-search" type="search" placeholder="Search" aria-label="Search stories" autocomplete="off">
-    <button class="blog-search-clear" type="button" aria-label="Clear search" id="story-search-clear" hidden>
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
-    <button class="blog-search-btn" type="submit" aria-label="Search">
-      <svg class="blog-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-    </button>
-  </form>
 </nav>
 
 <div class="blog-wrap">
@@ -657,6 +647,30 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
 
   <!-- ── STORY FEED ── -->
   <section class="blog-list-section blog-feed">
+    <!-- STORY FILTERS — moved down from the sub-nav (Gary): unlike the blog, whose
+         categories navigate to separate pages, these filter THIS list in place,
+         so they sit with the results. Same classes/ids, same script. -->
+    <div class="blog-list-toolbar" id="stories">
+    <div class="filter-group-wrap">
+      <div class="filter-group" id="filter-group">
+        <button class="filter-btn active" data-seg="all">All</button>
+        <button class="filter-btn" data-seg="founders">Founders</button>
+        <button class="filter-btn" data-seg="small-business">Small Business</button>
+        <button class="filter-btn" data-seg="enterprise">Enterprise</button>
+        <button class="filter-btn" data-seg="agencies">Agencies</button>
+        <button class="filter-btn" data-seg="side-projects">Side Projects</button>
+      </div>
+    </div>
+    <form class="blog-search" role="search" id="story-search-form">
+      <input class="blog-search-input" id="story-search" type="search" placeholder="Search" aria-label="Search stories" autocomplete="off">
+      <button class="blog-search-clear" type="button" aria-label="Clear search" id="story-search-clear" hidden>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <button class="blog-search-btn" type="submit" aria-label="Search">
+        <svg class="blog-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </button>
+    </form>
+    </div>
     <div class="blog-list-header">
       <span class="blog-list-label eyebrow-scramble">All stories</span>
       <span class="blog-list-count" id="story-count">6 stories</span>
@@ -988,6 +1002,11 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
   search.addEventListener('input', apply);
   clear.addEventListener('click', function () { search.value = ''; apply(); search.focus(); });
   form.addEventListener('submit', function (e) { e.preventDefault(); apply(); });
+  /* deep links from the story pages: customers.html?seg=founders / ?q=SaaS */
+  var qs = new URLSearchParams(location.search);
+  var wantSeg = qs.get('seg'), wantQ = qs.get('q');
+  if (wantSeg) buttons.forEach(function (b) { if (b.dataset.seg === wantSeg) b.click(); });
+  if (wantQ) { search.value = wantQ; apply(); }
 
   /* overflow fade affordance on the pill row (blog __enhanceFilterFade) */
   var group = document.getElementById('filter-group');
