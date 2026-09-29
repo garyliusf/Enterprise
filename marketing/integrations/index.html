@@ -260,6 +260,17 @@
     color: #fff;
     flex-shrink: 0;
   }
+  /* Real brand marks (Simple Icons, logos/*.svg) rendered as a currentColor
+     mask so each glyph inherits its tile's tint from data-color — same
+     palette system as the old monograms. Tiles with no mark (Segment, whose
+     logo left Simple Icons after the Twilio acquisition; the generic REST
+     API) keep the monogram fallback. */
+  .int-logo-glyph {
+    width: 21px; height: 21px; display: block;
+    background: currentColor;
+    -webkit-mask: var(--m) center / contain no-repeat;
+            mask: var(--m) center / contain no-repeat;
+  }
   .int-logo[data-color="blue"]   { background: rgba(20,136,252,0.14);  color: #8AC7FF; border-color: rgba(20,136,252,0.40); }
   .int-logo[data-color="mint"]   { background: rgba(127,221,193,0.12); color: #7FDDC1; border-color: rgba(127,221,193,0.35); }
   .int-logo[data-color="salmon"] { background: rgba(255,176,147,0.12); color: #FFB093; border-color: rgba(255,176,147,0.35); }
@@ -938,6 +949,26 @@ var TAG_LABELS = {
   crm: 'CRM', analytics: 'Analytics', messaging: 'Messaging', payment: 'Payment',
 };
 
+/* ── Brand marks: name -> logos/<slug>.svg (Simple Icons). Names missing
+      here (Segment, REST API) fall back to their monogram. ─────────────── */
+var ICONS = {
+  'PostgreSQL': 'postgresql', 'Stripe': 'stripe', 'OpenAI': 'openai',
+  'Slack': 'slack', 'Salesforce': 'salesforce', 'Supabase': 'supabase',
+  'GitHub': 'github', 'Airtable': 'airtable', 'Algolia': 'algolia',
+  'Anthropic': 'anthropic', 'AWS S3': 'amazons3', 'BigQuery': 'googlebigquery',
+  'Cloudflare': 'cloudflare', 'DynamoDB': 'amazondynamodb', 'Figma': 'figma',
+  'Firebase': 'firebase', 'GraphQL': 'graphql', 'HubSpot': 'hubspot',
+  'Intercom': 'intercom', 'Linear': 'linear', 'MongoDB': 'mongodb',
+  'MySQL': 'mysql', 'Notion': 'notion', 'OpenSearch': 'opensearch',
+  'PagerDuty': 'pagerduty', 'Posthog': 'posthog', 'Sendgrid': 'sendgrid',
+  'Sentry': 'sentry', 'Snowflake': 'snowflake', 'Twilio': 'twilio',
+  'Vercel': 'vercel', 'Zendesk': 'zendesk',
+};
+function logoHTML(i) {
+  var s = ICONS[i.name];
+  return s ? '<span class="int-logo-glyph" style="--m:url(logos/' + s + '.svg)"></span>' : i.abbr;
+}
+
 /* ── Render featured grid ─────────────────────────────────────────────── */
 (function () {
   var grid = document.getElementById('featured-grid');
@@ -945,7 +976,7 @@ var TAG_LABELS = {
   grid.innerHTML = FEATURED.map(function (i) {
     return '<a href="#" class="int-card">'
       + '<canvas class="int-card-hover-canvas" aria-hidden="true"></canvas>'
-      + '<div class="int-logo" data-color="' + i.color + '">' + i.abbr + '</div>'
+      + '<div class="int-logo" data-color="' + i.color + '">' + logoHTML(i) + '</div>'
       + '<h3 class="int-name">' + i.name + '</h3>'
       + '<p class="int-desc">' + i.desc + '</p>'
       + '<div class="int-card-foot">'
@@ -968,7 +999,7 @@ var TAG_LABELS = {
     grid.innerHTML = items.map(function (i) {
       return '<a href="#" class="catalog-card">'
         + '<canvas class="int-card-hover-canvas" aria-hidden="true"></canvas>'
-        + '<div class="int-logo" data-color="' + i.color + '">' + i.abbr + '</div>'
+        + '<div class="int-logo" data-color="' + i.color + '">' + logoHTML(i) + '</div>'
         + '<div class="int-body">'
         +   '<h3 class="int-name">' + i.name + '</h3>'
         +   '<p class="int-desc">' + i.desc + '</p>'
