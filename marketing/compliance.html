@@ -374,10 +374,10 @@ body { background: var(--sc-ground); font-family: var(--sc-font-sans, 'Schibsted
   #incl-corner-dither {
     /* bigger + bolder pass (Gary): ~2/3 of the panel wide, mask holds longer
        before fading so the field reads as a real presence, not a corner dust */
-    position: absolute; left: -46px; bottom: -48px; width: min(720px, 64%); aspect-ratio: 1 / 0.9;
+    position: absolute; left: -46px; bottom: -48px; width: min(520px, 46%); aspect-ratio: 1 / 0.85;
     z-index: 0; pointer-events: none;
-    -webkit-mask-image: radial-gradient(ellipse at 28% 82%, #000 48%, transparent 82%);
-            mask-image: radial-gradient(ellipse at 28% 82%, #000 48%, transparent 82%);
+    -webkit-mask-image: radial-gradient(ellipse at 28% 82%, #000 34%, transparent 68%);
+            mask-image: radial-gradient(ellipse at 28% 82%, #000 34%, transparent 68%);
   }
   /* cursor-following "shine a light" glow on hover */
   .incl-item::before {
@@ -1764,8 +1764,8 @@ window.addEventListener('load', function() {
        need far more ink on the light panel than the pale grey needs on dark */
     var light = document.documentElement.getAttribute('data-theme') !== 'dark';
     /* light needs the ink; dark at the same strength read overwhelming (Gary) */
-    aBase = light ? 0.30 : 0.08;
-    aRamp = light ? 0.38 : 0.13;
+    aBase = light ? 0.28 : 0.10;
+    aRamp = light ? 0.50 : 0.30;   /* steep ramp: drama lives AT the corner */
   }
   document.addEventListener('sc-themechange', readDot);
   function init() {
@@ -1788,9 +1788,9 @@ window.addEventListener('load', function() {
         var gx = c / cols;
         /* density falls radially from the bottom-left corner */
         var dx = gx, dy = 1 - gy;
-        var base = 1 - Math.sqrt(dx * dx + dy * dy) / 1.0;
+        var base = 1 - Math.sqrt(dx * dx + dy * dy) / 0.72;   /* tighter field */
         if (base <= 0) continue;
-        base = Math.pow(base, 0.8);
+        base = Math.pow(base, 1.35);   /* steeper: the corner pops, the tail thins fast */
         var wave = Math.sin(gx * 4.3 + gy * 5.9 - t * 0.9) * 0.5
                  + Math.sin(gx * 7.1 - gy * 3.3 + t * 0.6) * 0.28;
         var level = base + wave * 0.38;
