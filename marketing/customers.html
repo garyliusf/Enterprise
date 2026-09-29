@@ -249,8 +249,8 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
 .blog-list-header { display: flex; align-items: center; justify-content: space-between; padding: 84px 0 0; margin-bottom: 18px; }
 /* filter toolbar above the list: pills left, search right. It takes over the
    header's 84px top pad; the header tucks in beneath it. */
-.blog-list-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 84px 0 14px; border-bottom: 1px solid var(--border); scroll-margin-top: calc(var(--bolt-nav-h) + 72px); }
-.blog-list-toolbar + .blog-list-header { padding-top: 22px; }
+/* no border of its own: the first story row draws the line (border-top) */
+.blog-list-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 84px 0 20px; scroll-margin-top: calc(var(--bolt-nav-h) + 72px); }
 .blog-list-toolbar .filter-group-wrap { flex: 1; }
 @media (max-width: 768px) {
   .blog-list-toolbar { flex-direction: column; align-items: stretch; gap: 12px; padding-top: 56px; }
@@ -671,10 +671,6 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
       </button>
     </form>
     </div>
-    <div class="blog-list-header">
-      <span class="blog-list-label eyebrow-scramble">All stories</span>
-      <span class="blog-list-count" id="story-count">6 stories</span>
-    </div>
     <ul class="blog-list" id="story-list">
 
       <li data-seg="founders">
@@ -987,7 +983,8 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
       li.hidden = !show;
       if (show) shown++;
     });
-    count.textContent = shown + (shown === 1 ? ' story' : ' stories');
+    /* the 'All stories · N' header row was removed (Gary) — guard, or filtering throws */
+    if (count) count.textContent = shown + (shown === 1 ? ' story' : ' stories');
     empty.hidden = shown !== 0;
     clear.hidden = !search.value;
   }
