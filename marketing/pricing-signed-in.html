@@ -1,6 +1,30 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
+<!-- Theme resolution. Light is the site default; a visitor whose OS is set to
+     dark gets dark. The attribute is ALWAYS stamped (never absent) so the
+     ported production chrome rules — which key on html[data-theme='light'] —
+     match verbatim. Runs before paint to avoid a flash; with JS off the
+     document keeps the data-theme="light" it ships with. -->
+<script>
+(function () {
+  var root = document.documentElement, stored = null;
+  try { stored = localStorage.getItem('sc-theme'); } catch (e) {}
+  var t = stored || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  root.setAttribute('data-theme', t);
+  if (!stored && window.matchMedia) {
+    var mq = window.matchMedia('(prefers-color-scheme: dark)');
+    var onSys = function (e) {
+      var s = null; try { s = localStorage.getItem('sc-theme'); } catch (err) {}
+      if (s) return;                                  /* explicit choice wins */
+      root.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+      document.dispatchEvent(new CustomEvent('sc-themechange'));
+    };
+    if (mq.addEventListener) mq.addEventListener('change', onSys);
+    else if (mq.addListener) mq.addListener(onSys);
+  }
+})();
+</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pricing · Bolt (signed in)</title>
@@ -4167,5 +4191,61 @@ window.__pageOwnsScrollAnims = true;
     })();
   </script>
 
+<!-- ╔═══ PROTOTYPE ONLY — THEME REVIEW TOGGLE ═══════════════════════════════╗
+     Light is the site default; "System" follows the OS, so a visitor whose
+     machine is set to dark sees dark — that is the agreed behaviour, not a
+     fallback to a dark default. Normally there is nothing to click. This switcher exists so the two themes can be compared
+     without changing System Settings. REMOVE BEFORE PORTING TO PRODUCTION —
+     delete this whole block, nothing else references it.
+     ╚════════════════════════════════════════════════════════════════════════╝ -->
+<style id="theme-review-toggle-style">
+  .sc-theme-switch {
+    position: fixed; right: 16px; bottom: 16px; z-index: 10000;
+    display: flex; gap: 2px; padding: 3px;
+    background: var(--sc-surface); border: 1px solid var(--sc-line);
+    border-radius: 2px; box-shadow: 0 6px 20px var(--sc-shadow);
+    font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif);
+  }
+  .sc-theme-switch button {
+    appearance: none; border: 0; cursor: pointer; border-radius: 2px;
+    padding: 6px 11px; font-size: 11px; font-weight: 500; letter-spacing: 0.3px;
+    background: transparent; color: var(--sc-text-muted);
+  }
+  .sc-theme-switch button:hover { color: var(--sc-ink); }
+  .sc-theme-switch button[aria-pressed="true"] { background: var(--sc-blue); color: #fff; }
+  @media print { .sc-theme-switch { display: none; } }
+</style>
+<div class="sc-theme-switch" role="group" aria-label="Theme preview">
+  <button type="button" data-theme-set="">System</button>
+  <button type="button" data-theme-set="light">Light</button>
+  <button type="button" data-theme-set="dark">Dark</button>
+</div>
+<script>
+(function () {
+  var root = document.documentElement;
+  var btns = document.querySelectorAll('[data-theme-set]');
+  function sysTheme() {
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function apply(v, persist) {
+    /* '' = System: drop the stored choice and follow the OS. The attribute is
+       still stamped — it is never absent. */
+    root.setAttribute('data-theme', v || sysTheme());
+    btns.forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-theme-set') === v));
+    });
+    if (persist) {
+      try { if (v) localStorage.setItem('sc-theme', v); else localStorage.removeItem('sc-theme'); } catch (e) {}
+    }
+    /* canvases cache their dot colour — tell them to re-read the token */
+    document.dispatchEvent(new CustomEvent('sc-themechange'));
+  }
+  btns.forEach(function (b) {
+    b.addEventListener('click', function () { apply(b.getAttribute('data-theme-set'), true); });
+  });
+  var saved = ''; try { saved = localStorage.getItem('sc-theme') || ''; } catch (e) {}
+  apply(saved, false);
+})();
+</script>
 </body>
 </html>
