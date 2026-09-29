@@ -560,9 +560,11 @@ body { background: var(--sc-ground); font-family: var(--sc-font-sans, 'Schibsted
      .sc-on-dark scope so it stays white on the blue. */
   html[data-theme="light"] .hero-section { background: var(--sc-hero-bg); }
   html[data-theme="light"] .hero-subtitle { color: rgba(255,255,255,0.94); }
-  html[data-theme="light"] #hero-pixel-dots { display: none; }   /* this page's dark dot field */
-  #hero-dither-light { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; display: none; }
-  html[data-theme="light"] #hero-dither-light { display: block; }
+  /* The ordered dither runs in BOTH themes now (Gary) — its JS already draws
+     a dark variant (pale squares, tighter falloff). The page's old uniform
+     dot field is retired. */
+  #hero-pixel-dots { display: none; }
+  #hero-dither-light { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
   /* the shimmer multiplies into this wrap on light: it must be its own
      stacking context AND opaque (see the pilot's note on .bolt-image-wrap) */
   .bolt-image-wrap { isolation: isolate; background: var(--sc-ground); }
@@ -1636,7 +1638,7 @@ window.addEventListener('load', function() {
 })();
 </script>
 <script>
-// ── Hero dither (LIGHT only — ported from the solutions.html pilot; dark keeps this page's own dot field) ─────────────────────────────────────────────────────────────
+// ── Hero dither (BOTH themes — ported from the solutions.html pilot) ─────────────────────────────────────────────────────────────
 // Ordered (Bayer 4x4) dither over the aurora, matching Gary's reference: square
 // pixels, dense at the top and thinning downward, with the threshold pattern
 // giving the characteristic broken-checker edge rather than a smooth fade.
