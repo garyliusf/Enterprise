@@ -51,8 +51,10 @@
   .hero-section {
     width: 100%;
     /* Matches templates/index.html hero height — shorter than a full-page hero. */
-    min-height: calc(min(30vh, 300px) + var(--sc-nav-overlap, 0px));       /* fallback */
-    min-height: calc(min(30dvh, 300px) + var(--sc-nav-overlap, 0px));      /* mobile-viewport correct */
+    /* standard SHORT-variant hero (CLAUDE.md): H1 + subtitle + CTAs, no
+       prompt box. Was the templates-catalog compact 30vh/300px (Gary). */
+    min-height: calc(min(65vh, 720px) + var(--sc-nav-overlap, 0px));       /* fallback */
+    min-height: calc(min(65dvh, 720px) + var(--sc-nav-overlap, 0px));      /* mobile-viewport correct */
     position: relative;
     overflow: hidden;
     display: flex;
@@ -493,7 +495,8 @@
     width: 100%; height: 100%;
     pointer-events: none;
     z-index: 2;
-    mix-blend-mode: screen;
+    /* no mix-blend-mode: the ported shimmer composites per theme itself —
+       screen-blend whitewashed the strip on light */
   }
   .bolt-fade {
     position: absolute; inset: 0;
@@ -924,9 +927,9 @@
 
 <!-- bolt wordmark in its own section so the footer columns sit above it -->
 <section class="footer-image-section">
-  <div class="bolt-image-wrap" style="margin-top:0;width:100%;overflow:hidden;position:relative;height:32vw;max-height:32vw;">
-    <img src="../../images/bolt-footer.webp" crossorigin="anonymous" alt="" aria-hidden="true" decoding="async" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;opacity:0.20;">
-    <canvas id="bolt-shimmer-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;mix-blend-mode:screen;"></canvas>
+  <div class="bolt-image-wrap">
+    <img id="bolt-wordmark-img" src="../../images/bolt-bottom-light.webp" alt="bolt" decoding="async" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;opacity:0.20;">
+    <canvas id="bolt-shimmer-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;"></canvas>
     <div style="position:absolute;inset:0;background:linear-gradient(to bottom, var(--sc-ground) 0%, transparent 22%, transparent 88%, var(--sc-ground) 100%);z-index:3;"></div>
   </div>
 </section>
@@ -1482,8 +1485,8 @@ window.addEventListener('load', function () {
   var ctx = canvas.getContext('2d');
   if (!ctx) return;
 
-  var WORDMARK_SRC = '../images/bolt-bottom.png';
-  var WORDMARK_LIGHT_SRC = '../images/bolt-bottom-light.webp';
+  var WORDMARK_SRC = '../../images/bolt-bottom.png';
+  var WORDMARK_LIGHT_SRC = '../../images/bolt-bottom-light.webp';
   var SAMPLE_WIDTH = 400, SAMPLE_HEIGHT = 200, SAMPLE_WIDTH_FINE = 1600;
   var STRIP_BRIGHTNESS_THRESHOLD = 28;
   var HOVER_SPLASH_DURATION_MS = 300, TOUCH_SPLASH_DURATION_MS = 1500;
