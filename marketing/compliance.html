@@ -1751,10 +1751,15 @@ window.addEventListener('load', function() {
   var ctx = canvas.getContext('2d');
   var CELL = 5, SQ = 2, cols, rows;
   var BAYER = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]];
-  var rgb = '20,136,252';
+  var rgb = '20,136,252', aBase = 0.16, aRamp = 0.24;
   function readDot() {
     var v = getComputedStyle(canvas).getPropertyValue('--sc-dot-rgb').trim();
     if (v) rgb = v;
+    /* alpha-on-white and alpha-on-black are not symmetric: the blue squares
+       need far more ink on the light panel than the pale grey needs on dark */
+    var light = document.documentElement.getAttribute('data-theme') !== 'dark';
+    aBase = light ? 0.30 : 0.16;
+    aRamp = light ? 0.38 : 0.24;
   }
   document.addEventListener('sc-themechange', readDot);
   function init() {
@@ -1785,7 +1790,7 @@ window.addEventListener('load', function() {
         var level = base + wave * 0.38;
         var th = (BAYER[r & 3][c & 3] + 0.5) / 16;
         if (level <= th) continue;               /* on/off, like the hero */
-        var a = 0.16 + base * 0.24;
+        var a = aBase + base * aRamp;
         ctx.fillStyle = 'rgba(' + rgb + ',' + a.toFixed(3) + ')';
         ctx.fillRect(c * CELL, r * CELL, SQ, SQ);
       }
