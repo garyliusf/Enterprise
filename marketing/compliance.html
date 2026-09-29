@@ -368,6 +368,16 @@ body { background: var(--sc-ground); font-family: var(--sc-font-sans, 'Schibsted
   .incl-item:nth-child(6) { grid-area: 2 / 3; }
   .incl-item:nth-child(7) { grid-area: 2 / 4; }
   .incl-item:nth-child(8) { grid-area: 3 / 4; }
+  /* corner pixels — the explorer figure's replacement (Gary): the hero's
+     ordered-dither squares, densest in the staggered grid's open bottom-left
+     corner and winking out radially. Colour follows --sc-dot-rgb (brand blue
+     on light, pale grey on dark); masked toward the panel like the old art. */
+  #incl-corner-dither {
+    position: absolute; left: -46px; bottom: -48px; width: min(480px, 46%); aspect-ratio: 1 / 0.85;
+    z-index: 0; pointer-events: none;
+    -webkit-mask-image: radial-gradient(ellipse at 30% 80%, #000 32%, transparent 72%);
+            mask-image: radial-gradient(ellipse at 30% 80%, #000 32%, transparent 72%);
+  }
   /* cursor-following "shine a light" glow on hover */
   .incl-item::before {
     content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
@@ -546,6 +556,7 @@ body { background: var(--sc-ground); font-family: var(--sc-font-sans, 'Schibsted
     .builtin-left { position: static; }
     /* included grid: staggered → normal 2 columns, illustration hidden */
     .incl-grid { grid-template-columns: repeat(2, 1fr); grid-auto-rows: auto; }
+    #incl-corner-dither { display: none; }
     .incl-item { grid-area: auto !important; min-height: 84px; }
   }
   @media (max-width: 768px) {
@@ -816,6 +827,7 @@ body { background: var(--sc-ground); font-family: var(--sc-font-sans, 'Schibsted
       </div>
       <p class="controls-sub">The full profile breaks down every control we have in place, section by section.</p>
     </div>
+    <canvas id="incl-corner-dither" aria-hidden="true"></canvas>
     <ul class="incl-grid">
       <li class="incl-item">
         <span class="incl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"/></svg></span>
@@ -1719,6 +1731,59 @@ window.addEventListener('load', function() {
            either there at full strength or absent, so the wave reads as
            squares winking in and out. */
         var a = 0.085 + base * 0.13;
+        ctx.fillStyle = 'rgba(' + rgb + ',' + a.toFixed(3) + ')';
+        ctx.fillRect(c * CELL, r * CELL, SQ, SQ);
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+</script>
+<script>
+// ── Corner dither (compliance controls panel) — the hero's Bayer squares,
+//    densest at the open bottom-left corner, winking with the same wave. ──
+(function () {
+  var canvas = document.getElementById('incl-corner-dither');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var CELL = 5, SQ = 2, cols, rows;
+  var BAYER = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]];
+  var rgb = '20,136,252';
+  function readDot() {
+    var v = getComputedStyle(canvas).getPropertyValue('--sc-dot-rgb').trim();
+    if (v) rgb = v;
+  }
+  document.addEventListener('sc-themechange', readDot);
+  function init() {
+    canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
+    cols = Math.ceil(canvas.width / CELL) + 1;
+    rows = Math.ceil(canvas.height / CELL) + 1;
+    readDot();
+  }
+  window.addEventListener('resize', init); init();
+  var start = null;
+  function draw(ts) {
+    if (!start) start = ts;
+    var t = (ts - start) / 1000;
+    var W = canvas.width, H = canvas.height;
+    if (!W || !H) { init(); requestAnimationFrame(draw); return; }
+    ctx.clearRect(0, 0, W, H);
+    for (var r = 0; r < rows; r++) {
+      var gy = r / rows;
+      for (var c = 0; c < cols; c++) {
+        var gx = c / cols;
+        /* density falls radially from the bottom-left corner */
+        var dx = gx, dy = 1 - gy;
+        var base = 1 - Math.sqrt(dx * dx + dy * dy) / 0.85;
+        if (base <= 0) continue;
+        base = Math.pow(base, 0.8);
+        var wave = Math.sin(gx * 4.3 + gy * 5.9 - t * 0.9) * 0.5
+                 + Math.sin(gx * 7.1 - gy * 3.3 + t * 0.6) * 0.28;
+        var level = base + wave * 0.38;
+        var th = (BAYER[r & 3][c & 3] + 0.5) / 16;
+        if (level <= th) continue;               /* on/off, like the hero */
+        var a = 0.10 + base * 0.16;
         ctx.fillStyle = 'rgba(' + rgb + ',' + a.toFixed(3) + ')';
         ctx.fillRect(c * CELL, r * CELL, SQ, SQ);
       }
