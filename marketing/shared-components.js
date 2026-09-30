@@ -563,12 +563,13 @@
     ['Pricing (signed in)', 'marketing/pricing-signed-in.html'],
     ['Referral',         'marketing/platform/referral/'],
     ['Microsoft',        'marketing/microsoft.html'],
+    ['Enterprise (staging)', 'staging/enterprise.html'],
     ['Solutions: Real Estate', 'solutions/ai-for-real-estate/'],
     ['Solutions: _template',   'solutions/_template/'],
     ['Blog (preview)',   'https://blog-light-navbar.bolt-public-pages.pages.dev/blog']
   ];
   /* repo base = everything before /marketing/ or /solutions/ in the path */
-  var base = location.pathname.replace(/(marketing|solutions)\/.*$/, '');
+  var base = location.pathname.replace(/(marketing|solutions|staging)\/.*$/, '');
   var css = document.createElement('style');
   css.id = 'sc-page-nav-style';
   css.textContent =
