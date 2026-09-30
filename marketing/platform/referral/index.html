@@ -1,339 +1,92 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bolt Referral Program — Give 20% off, get up to $50 per referral</title>
 <meta name="description" content="Give your friends, family, coworkers, and professional network a 20% discount to build with Bolt and get up to $50 per referral when they subscribe.">
+<!-- Theme resolution. Light is the site default; a visitor whose OS is set to
+     dark gets dark. The attribute is ALWAYS stamped (never absent) so the
+     ported production chrome rules — which key on html[data-theme='light'] —
+     match verbatim. Runs before paint to avoid a flash; with JS off the
+     document keeps the data-theme="light" it ships with. -->
+<script>
+(function () {
+  var root = document.documentElement, stored = null;
+  try { stored = localStorage.getItem('sc-theme'); } catch (e) {}
+  var t = stored || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  root.setAttribute('data-theme', t);
+  if (!stored && window.matchMedia) {
+    var mq = window.matchMedia('(prefers-color-scheme: dark)');
+    var onSys = function (e) {
+      var s = null; try { s = localStorage.getItem('sc-theme'); } catch (err) {}
+      if (s) return;                                  /* explicit choice wins */
+      root.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+      document.dispatchEvent(new CustomEvent('sc-themechange'));
+    };
+    if (mq.addEventListener) mq.addEventListener('change', onSys);
+    else if (mq.addListener) mq.addListener(onSys);
+  }
+})();
+</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400..900;1,400..900&family=Literata:ital,opsz,wght@0,7..72,200..900;1,7..72,200..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../shared-nav-footer.css?v=20260930b">
 <style>
+/* ═══ /platform/referral — sandbox mirror REBUILT from production (2026-09-30) ═══
+   Production is a CMS-built page: src/content/pages/platform-referral.json →
+   sections referral-hero / reward-cards / pixel-divider / how-it-works / faq /
+   footer-cta, styled by src/styles/built-page.css (= use-case-page.css + the
+   section library). This file inlines those section styles VERBATIM (dark
+   literals kept), adds the sandbox chrome (mkt-nav + site-footer), and ports
+   the page to the light default with an override block at the end of <style>.
+   Per Donald: the live CMS page is the source of truth — re-pull before
+   prototyping on it again. */
+
 /* ─── BASE ─────────────────────────────────────────────────────────────── */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
-body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; color: #fff; -webkit-font-smoothing: antialiased; }
+body { background: var(--sc-ground, #000); color: var(--sc-ink, #fff); font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif); overflow-x: hidden; overflow-x: clip; -webkit-font-smoothing: antialiased; }
 a { color: inherit; text-decoration: none; }
 
-/* ─── HERO (two-col left/right grid: content left, reward split right) ─── */
-.hero-section {
-  width: 100%;
-  min-height: min(80vh, 900px);
-  min-height: min(80dvh, 900px);
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: clamp(132px, 14vh, 184px) 0 clamp(72px, 8vh, 112px);
-  /* Ambient background glow — brand blue top-left, warm amber top-right.
-     Base is #000 (matches body/next section) so the hero's bottom fades
-     into the following section without a visible seam. */
-  background:
-    radial-gradient(ellipse 60% 55% at 22% 20%, rgba(20,60,120,0.42) 0%, transparent 65%),
-    radial-gradient(560px 620px at 95% 38%, rgba(255,170,110,0.22) 0%, transparent 62%),
-    radial-gradient(ellipse 70% 60% at 50% 100%, rgba(0,0,0,0.6) 0%, transparent 70%),
-    #000;
-}
-
-/* Subtle animated pixel field behind the hero content (above the bg glow). */
-#hero-pixel-canvas {
-  position: absolute; inset: 0;
-  width: 100%; height: 100%;
-  z-index: 0; pointer-events: none;
-  opacity: 0.4;
-}
-/* Gradient overlays that hide the pixels in spots (center vignette + edge/
-   bottom fades) — matches the other pages. Above the canvas, below content. */
-.hero-section::after {
-  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
-  background:
-    /* amber glow, top layer so the vignette below doesn't kill it */
-    radial-gradient(560px 560px at 96% 36%, rgba(255,170,110,0.28) 0%, transparent 58%),
-    radial-gradient(ellipse 60% 58% at 42% 45%, transparent 0%, transparent 38%, rgba(0,0,0,0.92) 100%),
-    /* Bottom fade to pure #000 so the hero seamlessly blends into the
-       body/next section (which is #000) — no visible color seam. */
-    linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 28%, transparent 55%, #000 100%);
-}
-.hero-content-area {
-  position: relative;
-  z-index: 5;
-  width: 100%;
-  padding: 0 min(80px, 5vw);
-}
-.hero-inner {
-  width: min(1120px, calc(100vw - 160px));
-  margin: 0 auto;
-  /* Two-column: text left, 3D "b" visual right. Text column is intentionally
-     wider than the text content max-width so the text ends well before the
-     visual, creating a comfortable gap. */
-  display: grid;
-  grid-template-columns: 60% 40%;
-  align-items: center;
-}
-.hero-text { display: flex; flex-direction: column; align-items: flex-start; gap: 20px; }
-.hero-text .section-eyebrow { margin-bottom: 0; }
-.hero-h1 {
-  /* Two-column hero uses a narrower text column, so cap H1 at 60px (a step
-     below the canonical 66px on the full-width heroes) — feels right for
-     this layout. Tablet/mobile step-downs match the canonical 51/40 caps. */
-  font-size: clamp(38px, 4.2vw, 60px);
-  font-weight: 500;
-  color: #fff;
-  line-height: 1.12;
-  letter-spacing: normal;
-  margin: 0;
-  max-width: 560px;
-}
-.hero-h1 .accent {
+/* ─── PRIMITIVES (use-case-page.css — the built-page base) ─────────────── */
+.hero-section { width: 100%; height: 90vh; position: relative; overflow: hidden; }
+.hero-h1 { font-size: 66px; font-weight: 500; color: #fff; text-align: center; line-height: 1.1; letter-spacing: normal; margin: 0; }
+.hero-subtitle { font-size: clamp(16px,1.4vw,20px); font-weight: 400; color: #ABABAB; text-align: center; line-height: 1.4; margin: 0; }
+.hero-h1-kw {
   background: linear-gradient(105deg, #fff 0%, #fff 34%, #1488FC 45%, #7FDDC1 55%, #fff 66%, #fff 100%);
   background-size: 220% 100%;
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent; color: transparent;
-  animation: accentShimmer 2.9s cubic-bezier(0.45,0,0.25,1) infinite;
+  animation: kwShimmer 2.9s cubic-bezier(0.45,0,0.25,1) infinite;
 }
-@keyframes accentShimmer { 0% { background-position: 120% 50%; } 83%, 100% { background-position: -20% 50%; } }
-@media (prefers-reduced-motion: reduce) {
-  .hero-h1 .accent { animation: none; -webkit-text-fill-color: #fff; color: #fff; }
-}
-.hero-subtitle {
-  font-size: clamp(16px, 1.4vw, 18px);
-  font-weight: 400;
-  color: #ABABAB;
-  line-height: 1.55;
-  max-width: 480px;
-  margin: 0;
-}
-.hero-cta-row { display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap; }
+@keyframes kwShimmer { 0% { background-position: 120% 50%; } 83%, 100% { background-position: -20% 50%; } }
+@media (prefers-reduced-motion: reduce) { .hero-h1-kw { animation: none; -webkit-text-fill-color: #fff; color: #fff; } }
+.section { padding: clamp(80px,12vh,140px) 0; position: relative; }
+.section--bordered { border-top: 1px solid rgba(255,255,255,0.06); }
+.section-inner { width: min(1200px, calc(100vw - 160px)); margin: 0 auto; }
+.section-header { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; margin-bottom: clamp(48px, 6vh, 72px); }
+.section-header > *, .how-header > * { margin: 0; }
+.section-headline { font-size: clamp(40px,4vw,52px); font-weight: 500; color: #fff; line-height: 1.15; letter-spacing: -1px; margin: 0; }
+@media (max-width: 768px) { .section-headline { font-size: clamp(28px, 8vw, 40px); } }
+.section-sub { font-size: clamp(15px,1.1vw,17px); font-weight: 400; color: rgba(255,255,255,0.5); line-height: 1.65; max-width: 620px; }
+.inline-link { color: #7FDDC1; font-weight: 600; text-decoration: none; transition: color 0.2s ease; }
+.inline-link:hover { color: #A5EBD8; }
 
-/* ─── HERO VISUAL — referral loop stage (right column) ─────────────────────
-   Layered inside a square-ish positioning stage:
-   1. Main "b" (right/center)  — the referrer / user
-   2. Small companion "b" (lower-left) — the friend who joined
-   3. Dashed mint arc connecting them (dashes crawl along the path)
-   4. "+$50" credit chip that rides the arc periodically, right → user
-   Together this reads: friend joined via your link → you earned. */
-.hero-visual { display: flex; align-items: center; justify-content: flex-end; }
-.hero-visual-stage {
-  position: relative;
-  width: 100%;
-  max-width: 480px;
-  aspect-ratio: 5 / 6;   /* taller than wide — matches the b's tall aspect */
-  /* Hold the whole stage hidden until the b PNGs are decoded, then fade in
-     together — otherwise the instant CSS/SVG light tube paints ~a second
-     before the images load. JS adds .is-ready; a timeout fallback guarantees
-     reveal even if the images error or JS is slow. */
-  opacity: 0;
-  transition: opacity 0.5s ease;
+@media (max-width: 1024px) {
+  .section { padding: 64px 0; }
+  .section-inner, .ms-faq-inner { width: min(900px, calc(100vw - 80px)); }
 }
-.hero-visual-stage.is-ready { opacity: 1; }
-@media (prefers-reduced-motion: reduce) {
-  .hero-visual-stage { transition: none; }
-}
-.hero-visual-img {
-  position: absolute;
-  right: -12%;
-  top: 18%;
-  width: 72%;
-  height: auto;
-  display: block;
-  z-index: 4;
-  /* Very soft/diffuse drop-shadow that moves with the b as it floats.
-     High blur (120px) makes the shadow read as an ambient dark glow rather
-     than a letter-shaped outline. */
-  filter: drop-shadow(0 50px 120px rgba(0,0,0,0.4));
-  animation: heroFloat 6s ease-in-out infinite;
-}
-@keyframes heroFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-.hero-visual-b-mini {
-  position: absolute;
-  left: 2%;
-  bottom: 10%;
-  width: 42%;
-  height: auto;
-  display: block;
-  z-index: 2;
-  filter: brightness(0.55) saturate(0.7) blur(0.3px) drop-shadow(0 34px 80px rgba(0,0,0,0.4));
-  /* Shimmer synced to the main b's 6s float cycle — brightness/saturation
-     peak at 50% (when main b is at its highest lift), sits dim otherwise.
-     The two b's breathe in coordination. */
-  animation: miniShimmer 6s ease-in-out infinite;
-}
-@keyframes miniShimmer {
-  0%, 100% {
-    transform: translateY(0);
-    filter: brightness(0.55) saturate(0.7) blur(0.3px) drop-shadow(0 34px 80px rgba(0,0,0,0.4));
-  }
-  50% {
-    transform: translateY(-2px);
-    filter: brightness(0.95) saturate(1) blur(0.3px) drop-shadow(0 34px 80px rgba(0,0,0,0.4));
-  }
+@media (max-width: 768px) {
+  .section { padding: 48px 0; }
+  .section-inner, .ms-faq-inner { width: calc(100vw - 32px); }
+  .footer-section { padding: 56px 16px 0; }
 }
 
-/* ── Metallic shimmer glint ──────────────────────────────────────────────────
-   A soft light band sweeps diagonally across each b, clipped to the letter
-   shape by using the b PNG as a mask (same cached image — no extra download).
-   Subtle: low peak opacity + screen blend. Each overlay carries its b's float
-   so it stays aligned; the two glints are time-offset so they don't fire at
-   once. The box uses the PNG's aspect-ratio so the mask lines up with the img. */
-.hero-b-shimmer {
-  position: absolute;
-  aspect-ratio: 1696 / 2192;
-  pointer-events: none;
-  -webkit-mask: url(../../../images/referral-hero-b.png) center / contain no-repeat;
-          mask: url(../../../images/referral-hero-b.png) center / contain no-repeat;
-  background-image: linear-gradient(108deg, transparent 32%, rgba(255,255,255,0.9) 50%, transparent 68%);
-  background-size: 300% 100%;
-  background-repeat: no-repeat;
-  background-position: 160% 0;
-  mix-blend-mode: screen;
-  opacity: 0;
-}
-.hero-b-shimmer--main {
-  right: -12%; top: 18%; width: 72%; z-index: 5;
-  animation: heroFloat 6s ease-in-out infinite, bShimmer 10s ease-in-out infinite 0.8s;
-}
-.hero-b-shimmer--mini {
-  left: 2%; bottom: 10%; width: 42%; z-index: 3;
-  animation: bFloatMini 6s ease-in-out infinite, bShimmer 10s ease-in-out infinite 5.8s;
-}
-@keyframes bFloatMini { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
-@keyframes bShimmer {
-  0%   { background-position: 160% 0; opacity: 0; }
-  6%   { opacity: 0.4; }
-  50%  { background-position: -60% 0; opacity: 0.4; }
-  58%, 100% { background-position: -60% 0; opacity: 0; }
-}
-
-/* Cylindrical tube of light connecting the two b's through their holes.
-   The 4 stacked stroked lines each have a different width + blur, building
-   up a proper 3D-cylinder cross-section (bright thin core -> softer body ->
-   mint mid-glow -> wide blue aurora halo). Behind both b's (z-index 1) so
-   the b's porthole masks reveal the tube endpoints inside each hole. */
-.hero-visual-tube {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-  pointer-events: none;
-  overflow: visible;
-}
-/* Each tube layer is its own full-stage SVG (position: absolute, inset:0)
-   so applying CSS filter blur uses the SVG root's bounds — the whole stage
-   — as the filter effect region. That eliminates the rectangular halo cut-
-   off around the line's tight stroke bounding box. */
-.hero-visual-tube { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; overflow: visible; }
-/* Tube pulse synced to the 6s heroFloat / miniShimmer cycle. All three
-   elements (main b float, mini b shimmer, tube glow) now breathe together
-   with the same ease-in-out curve. Opacity range widened slightly for a
-   more perceptible pulse. */
-.tube-halo { filter: blur(7px);   animation: tubePulse 6s ease-in-out infinite; }
-.tube-glow { filter: blur(3px);   animation: tubePulse 6s ease-in-out infinite; }
-.tube-body { filter: blur(1.4px); animation: tubePulse 6s ease-in-out infinite; }
-@keyframes tubePulse {
-  0%, 100% { opacity: 0.65; }
-  50%      { opacity: 1;    }
-}
-@media (prefers-reduced-motion: reduce) {
-  .hero-visual-img, .hero-visual-b-mini, .tube-halo, .tube-glow, .tube-body,
-  .hero-b-shimmer { animation: none; }
-}
-
-/* ─── REWARDS — friendly "You get / They get" pair (horizontal) ─────────── */
-.rewards-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-.reward-card {
-  position: relative;
-  border: 1px solid rgba(255,255,255,0.10);
-  border-radius: 4px;
-  padding: 32px 32px 34px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.035) 0%, rgba(255,255,255,0.008) 100%);
-  overflow: hidden;
-  transition: border-color 0.3s ease, transform 0.3s ease;
-}
-.reward-card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.20); }
-/* Subtle per-variant background tint (no colored border). */
-.reward-card--you::before {
-  content: ""; position: absolute; inset: 0; z-index: 0;
-  background: radial-gradient(ellipse 90% 70% at 15% 0%, rgba(20,136,252,0.12) 0%, transparent 62%);
-  pointer-events: none;
-}
-.reward-card--them::before {
-  content: ""; position: absolute; inset: 0; z-index: 0;
-  background: radial-gradient(ellipse 90% 70% at 15% 0%, rgba(127,221,193,0.10) 0%, transparent 62%);
-  pointer-events: none;
-}
-/* Hover pixel field (injected by JS) — fades in on hover, tinted per variant. */
-.reward-hover-canvas {
-  position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;
-  opacity: 0; transition: opacity 0.45s ease; z-index: 0;
-}
-.reward-card:hover .reward-hover-canvas { opacity: 1; }
-.reward-card > *:not(.reward-hover-canvas) { position: relative; z-index: 1; }
-/* Pill badge — eyebrow font (Silkscreen), bare icon (no circle chip) */
-.reward-badge {
-  display: inline-flex; align-items: center; gap: 9px;
-  padding: 8px 16px;
-  border-radius: 999px;
-  font-family: 'Silkscreen', monospace;
-  font-size: 12px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase;
-  margin-bottom: 22px;
-}
-.reward-badge-icon {
-  display: inline-flex; align-items: center; justify-content: center;
-}
-.reward-card--you .reward-badge { background: rgba(20,136,252,0.12); color: #67b0ff; }
-.reward-card--you .reward-badge-icon { color: #1488FC; }
-.reward-card--them .reward-badge { background: rgba(127,221,193,0.12); color: #9fe6d0; }
-.reward-card--them .reward-badge-icon { color: #7FDDC1; }
-.reward-card-value {
-  font-size: clamp(28px, 2.6vw, 34px);
-  font-weight: 600;
-  color: #fff;
-  line-height: 1.2;
-  letter-spacing: -0.5px;
-  margin-bottom: 12px;
-}
-.reward-card-desc { font-size: 15px; color: rgba(255,255,255,0.6); line-height: 1.6; max-width: 42ch; }
-
-/* ─── MID-SECTION DIVIDER (taller animated pixel field: rewards → how) ───── */
-.section-divider {
-  position: relative;
-  width: min(1120px, calc(100vw - 160px));
-  margin: -80px auto -152px;
-  height: 260px;
-  pointer-events: none;
-  overflow: hidden;
-  z-index: 1;
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 30%, #000 76%, transparent 100%);
-          mask-image: linear-gradient(to bottom, transparent 0%, #000 30%, #000 76%, transparent 100%);
-}
-#mid-divider-canvas { display: block; width: 100%; height: 100%; }
-@media (max-width: 1024px) { .section-divider { width: min(900px, calc(100vw - 80px)); height: 200px; margin: -64px auto -122px; } }
-@media (max-width: 768px)  { .section-divider { width: calc(100vw - 32px); height: 140px; margin: -48px auto -94px; } }
-
-/* ─── SECTIONS (canonical .section + .section-inner) ───────────────────── */
-.section { padding: clamp(80px, 12vh, 140px) 0; position: relative; }
-.section-inner { width: min(1120px, calc(100vw - 160px)); margin: 0 auto; }
-
-.section-header {
-  display: flex; flex-direction: column;
-  align-items: center; text-align: center;
-  gap: 10px;
-  margin-bottom: clamp(48px, 6vh, 72px);
-}
-.section-header > * { margin: 0; }
-.section-headline { font-size: clamp(32px, 4vw, 52px); font-weight: 500; color: #fff; line-height: 1.2; letter-spacing: -1px; }
-.section-sub { font-size: clamp(15px, 1.1vw, 17px); font-weight: 400; color: rgba(255,255,255,0.5); line-height: 1.65; max-width: 620px; }
-
-/* Eyebrows (.section-eyebrow / .ms-faq-eyebrow / .footer-eyebrow) come from
-   shared-components.css — no local redefinition. Eyebrow→headline spacing is
-   handled by the flex `gap` on .hero-text and .section-header. */
-
-/* ─── HOW IT WORKS — canonical horizontal timeline (line-draw + node pop +
-   blur-in text on scroll). Ported verbatim from the shared how-it-works
-   component (solutions/smb, microsoft, bolt-cli). Header is left-aligned. ── */
-.how-header { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; margin-bottom: clamp(40px,6vh,72px); }
-.how-header > * { margin: 0; }
+/* how-it-works — synced with solutions/_template (the use-case-page.css pair) */
+.how-section { border-top: 1px solid rgba(255,255,255,0.06); }
+.how-header { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; margin-bottom: clamp(40px,6vh,72px); }
 .how-steps-wrap { position: relative; }
 .how-line-track { position: absolute; top: 19px; left: 0; right: 0; height: 1px; background: rgba(255,255,255,0.07); pointer-events: none; z-index: 0; }
 .how-line-fill { position: absolute; top: 19px; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, rgba(20,136,252,0.25), rgba(20,136,252,0.8) 20%, rgba(20,136,252,0.8) 80%, rgba(20,136,252,0.25)); pointer-events: none; z-index: 1; transform: scaleX(0); transform-origin: left center; }
@@ -350,12 +103,9 @@ a { color: inherit; text-decoration: none; }
 .how-steps-wrap.line-active .how-step:nth-child(2) .how-step-node { animation: nodePop 0.45s cubic-bezier(0.34,1.56,0.64,1) 0.65s both; }
 .how-steps-wrap.line-active .how-step:nth-child(3) .how-step-node { animation: nodePop 0.45s cubic-bezier(0.34,1.56,0.64,1) 1.15s both; }
 @keyframes nodePop { from { transform: scale(0); } to { transform: scale(1); } }
-.how-step-number { font-family: 'Silkscreen', monospace; font-size: 10px; color: #1488FC; }
+.how-step-number { font-family: var(--sc-font-label, 'Schibsted Grotesk', sans-serif); font-weight: var(--sc-label-weight, 700); font-size: 10px; color: #1488FC; }
 .how-step-title { font-size: 18px; font-weight: 600; color: #fff; margin: 0 0 10px; letter-spacing: -0.2px; line-height: 1.35; opacity: 0; transform: translateY(14px); filter: blur(10px); }
 .how-step-desc { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.55; margin: 0; opacity: 0; transform: translateY(14px); filter: blur(10px); }
-/* Inline text link — brand mint green, used in body copy (e.g. How-it-works step). */
-.inline-link { color: #7FDDC1; font-weight: 600; text-decoration: none; transition: color 0.2s ease; }
-.inline-link:hover { color: #A5EBD8; }
 @keyframes howStepIn { from { opacity:0; transform:translateY(14px); filter:blur(10px); } to { opacity:1; transform:translateY(0); filter:blur(0); } }
 .how-steps-wrap.line-active .how-step:nth-child(1) .how-step-title { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 0.28s both; }
 .how-steps-wrap.line-active .how-step:nth-child(1) .how-step-desc  { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 0.40s both; }
@@ -363,388 +113,798 @@ a { color: inherit; text-decoration: none; }
 .how-steps-wrap.line-active .how-step:nth-child(2) .how-step-desc  { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 0.90s both; }
 .how-steps-wrap.line-active .how-step:nth-child(3) .how-step-title { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 1.28s both; }
 .how-steps-wrap.line-active .how-step:nth-child(3) .how-step-desc  { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 1.40s both; }
-
-/* ─── FAQ ───────────────────────────────────────────────────────────────
-   The accordion itself (.ms-faq-list / .ms-faq-item / .ms-faq-q / .ms-faq-icon
-   / .ms-faq-a / .ms-faq-open-canvas) is 100% canonical — styled by
-   shared-components.css and the per-item open-canvas is injected + animated by
-   shared-components.js. Only page-level layout is defined here: the section
-   wrapper (so the section-level #faq-pixel-canvas can position), a readable
-   max-width on the list, and z-index layering above that canvas. */
-.ms-faq { position: relative; overflow: hidden; }
-.ms-faq-list { max-width: 820px; margin: 0 auto; }
-#faq-pixel-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; opacity: 0.8; }
-.ms-faq .section-inner { position: relative; z-index: 1; }
-
-/* ─── FOOTER assembly ──────────────────────────────────────────────────────
-   The footer-section flex skeleton + CTA wrapper + bolt wordmark are page
-   assembly. Type styles (.footer-headline / .footer-subtitle / .footer-eyebrow),
-   the canonical padding/gap, and ALL footer responsive behavior come from
-   shared-components.css — not redefined here. */
-.footer-section {
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-  box-sizing: border-box;
-  border-top: 1px solid rgba(255,255,255,0.06);
+/* .how-header is not in shared's rhythm selector list — net it here (16/12, mobile 10/6) */
+@media (max-width: 1024px) { .how-header { gap: 12px; } }
+@media (max-width: 768px) {
+  .how-header { gap: 6px; } .how-header > .section-eyebrow { margin-bottom: 4px; }
+  .how-steps { grid-template-columns: 1fr; gap: 40px; }
+  .how-step { padding: 0; }
+  .how-line-track, .how-line-fill, .how-line-glow { display: none; }
 }
-.footer-cta-wrap { position: relative; width: 100%; max-width: 700px; margin-top: -152px; display: flex; flex-direction: column; align-items: center; }
-#footer-pixel-canvas { display: block; width: 100%; height: 192px; pointer-events: none; opacity: 1; }
-.footer-cta-anchor { position: relative; z-index: 1; margin-top: -16px; }
-.footer-section > .footer-eyebrow,
-.footer-section > .footer-headline,
-.footer-section > .footer-subtitle { position: relative; z-index: 1; }
+
+/* FAQ — the accordion itself is shared-components.*; this is the section shell */
+.ms-faq-section { background: #000; border-top: 1px solid rgba(255,255,255,0.06); position: relative; overflow: hidden; }
+#faq-pixel-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; min-height: 600px; pointer-events: none; z-index: 0; }
+.ms-faq-inner { width: min(1200px, calc(100vw - 160px)); margin: 0 auto; position: relative; z-index: 1; }
+
+/* footer CTA — assembly (type comes from shared-components.css) */
+.footer-section { background: #000; padding: 90px 40px 0; border-top: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; align-items: center; gap: 24px; text-align: center; position: relative; overflow: hidden; }
+.footer-section > .footer-eyebrow, .footer-section > .footer-headline, .footer-section > .footer-subtitle { position: relative; z-index: 1; }
+.footer-section > .footer-eyebrow { margin-bottom: 0; }
+.footer-cta-wrap { margin-top: -150px; }
+@media (max-width: 768px) {
+  .footer-cta-wrap { margin-top: -175px; }
+  .footer-cta-wrap #footer-pixel-canvas { height: 185px !important; }
+}
+.footer-subtitle-wide { max-width: none; white-space: nowrap; }
+@media (max-width: 1024px) { .footer-subtitle-wide { white-space: normal; max-width: 560px; } }
+.footer-spacer { display: none; }   /* retired in the sandbox: the CTA→divider gap is the 88px standard on the divider */
 .bolt-image-wrap { margin-top: 0; width: 100%; overflow: hidden; position: relative; height: 32vw; max-height: 32vw; }
-.bolt-image-wrap img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; opacity: 0.20; }
 
-/* Buttons (.hero-btn-primary / .hero-btn-ghost), their slide-up + pixel-fill
-   hover, and .btn-pixel-canvas all come from shared-components.css/js — no local
-   redefinition. Only the standalone-CTA equalizing min-width is added here,
-   scoped to the hero CTA row so it never touches shared's base button. */
-.hero-cta-row .hero-btn-primary,
-.hero-cta-row .hero-btn-ghost,
-.footer-cta-wrap .hero-btn-primary,
-.footer-cta-wrap .hero-btn-ghost { min-width: 180px; }
+/* ─── SECTION LIBRARY: referral-hero (src/sections/referral-hero/styles.css) ── */
+/* Referral hero — ported from src/content/referral-body.html (MKT-479).
+   The --referral modifier owns the backdrop and sizing so the base
+   .hero-section rules in use-case-page.css stay untouched; everything
+   referral-specific is rf- prefixed (keyframes included) so nothing can
+   collide with other pages' hero styles. */
 
-/* Helper line under the hero CTAs — clarifies which button each audience needs.
-   Left-aligned on desktop (under the left-aligned text), centered when the
-   hero centers on tablet/mobile (inherits text-align from .hero-text). */
-.hero-cta-help { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.45); line-height: 1.5; margin: 0; }
-.hero-cta-help-em { color: #7FDDC1; font-weight: 600; transition: color 0.2s ease; }
-.hero-cta-help-em:hover { color: #A5EBD8; }
+.hero-section.hero-section--referral {
+  height: auto;
+  min-height: min(80vh, 900px);
+  min-height: min(80dvh, 900px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(132px, 14vh, 184px) 0 clamp(72px, 8vh, 112px);
+  background:
+    radial-gradient(ellipse 60% 55% at 22% 20%, rgba(20, 60, 120, 0.42) 0%, transparent 65%),
+    radial-gradient(560px 620px at 95% 38%, rgba(255, 170, 110, 0.22) 0%, transparent 62%),
+    radial-gradient(ellipse 70% 60% at 50% 100%, rgba(0, 0, 0, 0.6) 0%, transparent 70%),
+    #000;
+}
+.rf-hero-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.4;
+}
+/* vignette + edge fades above the pixel field, below the content */
+.hero-section.hero-section--referral::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(560px 560px at 96% 36%, rgba(255, 170, 110, 0.28) 0%, transparent 58%),
+    radial-gradient(ellipse 60% 58% at 42% 45%, transparent 0%, transparent 38%, rgba(0, 0, 0, 0.92) 100%),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.55) 0%, transparent 28%, transparent 55%, #000 100%);
+}
+.rf-hero-content {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  padding: 0 min(80px, 5vw);
+}
+.rf-hero-inner {
+  width: min(1200px, calc(100vw - 160px));
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 60% 40%;
+  align-items: center;
+}
+.rf-hero-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+}
+.rf-hero-text .section-eyebrow {
+  margin-bottom: 0;
+}
+.hero-section.hero-section--referral .hero-h1 {
+  font-size: clamp(38px, 4.2vw, 60px);
+  line-height: 1.12;
+  margin: 0;
+  max-width: 560px;
+  white-space: normal;
+  text-align: left;
+}
+.hero-section.hero-section--referral .hero-subtitle {
+  font-size: clamp(16px, 1.4vw, 18px);
+  line-height: 1.55;
+  max-width: 480px;
+  margin: 0;
+  text-align: left;
+}
+.rf-cta-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+.rf-cta-row .hero-btn-primary {
+  min-width: 180px;
+}
+.rf-cta-help {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.45);
+  line-height: 1.5;
+  margin: 0;
+}
 
-/* ─── RESPONSIVE (page-specific layout only) ───────────────────────────── */
+/* ── the 3D b referral-loop visual ── */
+.rf-visual {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+.rf-visual-stage {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  aspect-ratio: 5 / 6;
+  /* hidden until both b PNGs decode (JS adds .is-ready) so the light tube
+     doesn't paint before the letters */
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.rf-visual-stage.is-ready {
+  opacity: 1;
+}
+.rf-b-main {
+  position: absolute;
+  right: -12%;
+  top: 18%;
+  width: 72%;
+  height: auto;
+  display: block;
+  z-index: 4;
+  filter: drop-shadow(0 50px 120px rgba(0, 0, 0, 0.4));
+  animation: rfFloat 6s ease-in-out infinite;
+}
+@keyframes rfFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+.rf-b-mini {
+  position: absolute;
+  left: 2%;
+  bottom: 10%;
+  width: 42%;
+  height: auto;
+  display: block;
+  z-index: 2;
+  filter: brightness(0.55) saturate(0.7) blur(0.3px) drop-shadow(0 34px 80px rgba(0, 0, 0, 0.4));
+  animation: rfMiniShimmer 6s ease-in-out infinite;
+}
+@keyframes rfMiniShimmer {
+  0%, 100% {
+    transform: translateY(0);
+    filter: brightness(0.55) saturate(0.7) blur(0.3px) drop-shadow(0 34px 80px rgba(0, 0, 0, 0.4));
+  }
+  50% {
+    transform: translateY(-2px);
+    filter: brightness(0.95) saturate(1) blur(0.3px) drop-shadow(0 34px 80px rgba(0, 0, 0, 0.4));
+  }
+}
+/* metallic glint sweeping each b, clipped by the letter-shaped mask */
+.rf-b-shimmer {
+  position: absolute;
+  aspect-ratio: 1696 / 2192;
+  pointer-events: none;
+  -webkit-mask: url(../../../images/referral-hero-b.png) center / contain no-repeat;
+          mask: url(../../../images/referral-hero-b.png) center / contain no-repeat;
+  background-image: linear-gradient(108deg, transparent 32%, rgba(255, 255, 255, 0.9) 50%, transparent 68%);
+  background-size: 300% 100%;
+  background-repeat: no-repeat;
+  background-position: 160% 0;
+  mix-blend-mode: screen;
+  opacity: 0;
+}
+.rf-b-shimmer--main {
+  right: -12%;
+  top: 18%;
+  width: 72%;
+  z-index: 5;
+  animation: rfFloat 6s ease-in-out infinite, rfGlint 10s ease-in-out infinite 0.8s;
+}
+.rf-b-shimmer--mini {
+  left: 2%;
+  bottom: 10%;
+  width: 42%;
+  z-index: 3;
+  animation: rfFloatMini 6s ease-in-out infinite, rfGlint 10s ease-in-out infinite 5.8s;
+}
+@keyframes rfFloatMini {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+@keyframes rfGlint {
+  0% { background-position: 160% 0; opacity: 0; }
+  6% { opacity: 0.4; }
+  50% { background-position: -60% 0; opacity: 0.4; }
+  58%, 100% { background-position: -60% 0; opacity: 0; }
+}
+/* light tube layers — per-layer SVGs so CSS blur uses the whole stage as its
+   filter region (no rectangular halo cutoff) */
+.rf-tube {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  overflow: visible;
+}
+.rf-tube--halo { filter: blur(7px); animation: rfTubePulse 6s ease-in-out infinite; }
+.rf-tube--glow { filter: blur(3px); animation: rfTubePulse 6s ease-in-out infinite; }
+.rf-tube--body { filter: blur(1.4px); animation: rfTubePulse 6s ease-in-out infinite; }
+@keyframes rfTubePulse {
+  0%, 100% { opacity: 0.65; }
+  50% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rf-b-main, .rf-b-mini, .rf-tube--halo, .rf-tube--glow, .rf-tube--body, .rf-b-shimmer {
+    animation: none;
+  }
+  .rf-visual-stage { transition: none; }
+}
+
 @media (max-width: 1024px) {
-  .hero-content-area { padding: 0 40px; }
-  .hero-inner { width: min(900px, calc(100vw - 80px)); grid-template-columns: 1fr; }
-  /* Center the collapsed single-column hero, matching the other pages
-     (microsoft/bolt-cli/enterprise): eyebrow, H1, subtitle, CTA + visual all
-     stack centered instead of the desktop two-column left alignment. */
-  .hero-text { align-items: center; text-align: center; }
-  /* Tablet hero H1 — matches solutions/_template (the hero standard): flat
-     51px, line-height 1.1, full column width in the collapsed single column. */
-  .hero-h1 { font-size: 51px; line-height: 1.1; max-width: none; }
-  .hero-subtitle { font-size: 17px; }
-  /* Single-column hero: the visual stacks BELOW the text (was hidden). Centered
-     + scaled down; the section's overflow:hidden clips the main b's -12% right
-     bleed so it never causes horizontal scroll. */
-  .hero-visual { justify-content: center; margin-top: 16px; }
-  .hero-visual-stage { max-width: 340px; }
-  .section-inner { width: min(900px, calc(100vw - 80px)); }
-  .how-steps { grid-template-columns: repeat(3,1fr); }
-  .section { padding: 64px 0; }
+  .rf-hero-content { padding: 0 40px; }
+  .rf-hero-inner { width: min(900px, calc(100vw - 80px)); grid-template-columns: 1fr; }
+  .rf-hero-text { align-items: center; text-align: center; }
+  .hero-section.hero-section--referral .hero-h1 { font-size: 51px; line-height: 1.1; max-width: none; text-align: center; }
+  .hero-section.hero-section--referral .hero-subtitle { font-size: 17px; text-align: center; }
+  .rf-visual { justify-content: center; margin-top: 16px; }
+  .rf-visual-stage { max-width: 340px; }
 }
 @media (max-width: 768px) {
-  .hero-section { min-height: 0; padding: 92px 0 56px; }
-  .hero-content-area { padding: 0; }
-  .hero-inner { width: calc(100vw - 32px); }
-  /* Mobile hero H1 — matches solutions/_template (the hero standard). The
-     10.45vw term scales the H1 with the viewport (~41px on a 390px phone)
-     instead of flooring at 36px, so it reads larger and wraps to fewer lines;
-     line-height 1.1 per the template. */
-  .hero-h1 { font-size: clamp(37px, 10.45vw, 51px); line-height: 1.1; }
-  .hero-subtitle { font-size: 16px; }
-  /* Smaller stage on phones. */
-  .hero-visual { margin-top: 8px; }
-  .hero-visual-stage { max-width: 260px; }
-  /* Standalone hero CTA — canonical mobile spec (matches microsoft/bolt-cli):
-     contained, NOT full-bleed — min-width 260, max-width 100%, 52px, 16px,
-     26px side padding. Centered to match the now-centered hero text. */
-  .hero-cta-row { flex-direction: column; align-items: center; }
-  .hero-cta-row .hero-btn-primary,
-  .hero-cta-row .hero-btn-ghost { min-width: 260px; max-width: 100%; height: 52px; padding: 0 26px; font-size: 16px; justify-content: center; }
-  /* Constrain the helper line to the stacked buttons' width so it reads as
-     contained within them (wraps to more lines, centered). */
-  .hero-cta-help { max-width: 260px; margin-left: auto; margin-right: auto; }
-  .rewards-grid { grid-template-columns: 1fr; gap: 16px; }
-  .reward-card { padding: 26px 24px 28px; }
-  .section-inner { width: calc(100vw - 32px); }
-  .how-steps { grid-template-columns: 1fr; gap: 40px; }
-  .how-step { padding: 0; }   /* stacked — drop the desktop right gutter so desc uses full width */
-  .how-line-track, .how-line-fill, .how-line-glow { display: none; }
-  .section { padding: 48px 0; }
-  /* Footer CTA: match the hero CTA's mobile treatment (was a small natural-
-     width pill) — contained, min 260, 16px. Centered by .footer-section. */
-  .footer-cta-wrap .hero-btn-primary,
-  .footer-cta-wrap .hero-btn-ghost { min-width: 260px; max-width: 100%; font-size: 16px; }
+  .hero-section.hero-section--referral { min-height: 0; padding: 92px 0 56px; }
+  .rf-hero-content { padding: 0; }
+  .rf-hero-inner { width: calc(100vw - 32px); }
+  .hero-section.hero-section--referral .hero-h1 { font-size: clamp(37px, 10.45vw, 51px); line-height: 1.1; }
+  .hero-section.hero-section--referral .hero-subtitle { font-size: 16px; }
+  .rf-visual { margin-top: 8px; }
+  .rf-visual-stage { max-width: 260px; }
+  .rf-cta-row { flex-direction: column; align-items: center; width: 100%; }
+  .rf-cta-row .hero-btn-primary { min-width: 260px; max-width: 100%; height: 52px; padding: 0 26px; font-size: 16px; justify-content: center; }
+  .rf-cta-help { max-width: 260px; margin-left: auto; margin-right: auto; }
 }
+
+/* sandbox chrome: the over-hero nav pulls itself up by --sc-nav-overlap, so the
+   hero adds the same amount back (0 in dark, 69px in light) — else the H1
+   sits a nav-height higher on light */
+.hero-section.hero-section--referral {
+  min-height: calc(min(80vh, 900px) + var(--sc-nav-overlap, 0px));
+  min-height: calc(min(80dvh, 900px) + var(--sc-nav-overlap, 0px));
+  padding-top: calc(clamp(132px, 14vh, 184px) + var(--sc-nav-overlap, 0px));
+}
+@media (max-width: 768px) { .hero-section.hero-section--referral { padding-top: calc(92px + var(--sc-nav-overlap, 0px)); } }
+
+/* ─── SECTION LIBRARY: reward-cards ───────────────────────────────────── */
+/* Reward cards — ported from the referral page (MKT-479). Tones renamed from
+   --you/--them to --blue/--mint so the section reads generically. */
+
+.rewards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+.reward-card {
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  padding: 32px 32px 34px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.035) 0%, rgba(255, 255, 255, 0.008) 100%);
+  overflow: hidden;
+  transition: border-color 0.3s ease, transform 0.3s ease;
+}
+.reward-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+.reward-card--blue::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(ellipse 90% 70% at 15% 0%, rgba(20, 136, 252, 0.12) 0%, transparent 62%);
+  pointer-events: none;
+}
+.reward-card--mint::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(ellipse 90% 70% at 15% 0%, rgba(127, 221, 193, 0.1) 0%, transparent 62%);
+  pointer-events: none;
+}
+.reward-hover-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.45s ease;
+  z-index: 0;
+}
+.reward-card:hover .reward-hover-canvas {
+  opacity: 1;
+}
+.reward-card > *:not(.reward-hover-canvas) {
+  position: relative;
+  z-index: 1;
+}
+.reward-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-family: var(--sc-font-label, 'Schibsted Grotesk', sans-serif);   /* label face standard (sandbox) — production still says Silkscreen */
+  font-size: 12px;
+  font-weight: var(--sc-label-weight, 700);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 22px;
+}
+.reward-badge-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.reward-card--blue .reward-badge {
+  background: rgba(20, 136, 252, 0.12);
+  color: #67b0ff;
+}
+.reward-card--blue .reward-badge-icon {
+  color: #1488fc;
+}
+.reward-card--mint .reward-badge {
+  background: rgba(127, 221, 193, 0.12);
+  color: #9fe6d0;
+}
+.reward-card--mint .reward-badge-icon {
+  color: #7fddc1;
+}
+.reward-card-value {
+  font-size: clamp(28px, 2.6vw, 34px);
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+  margin: 0 0 12px;
+}
+.reward-card-desc {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.6;
+  max-width: 42ch;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .rewards-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .reward-card {
+    padding: 26px 24px 28px;
+  }
+}
+
+/* ─── SECTION LIBRARY: pixel-divider ──────────────────────────────────── */
+/* Animated pixel divider — height + top/bottom mask + negative margins pull
+   the strip into both neighbouring sections so it reads as a bleed, not a bar.
+   (Ported from the Enterprise prototype security page.) */
+.pixel-divider {
+  position: relative;
+  height: 210px;
+  width: min(1200px, calc(100vw - 160px));
+  margin: -100px auto -160px;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 30%, #000 76%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 30%, #000 76%, transparent 100%);
+}
+.pixel-divider canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 1024px) {
+  .pixel-divider {
+    height: 160px;
+    width: min(900px, calc(100vw - 80px));
+    margin: -80px auto -110px;
+  }
+}
+@media (max-width: 768px) {
+  .pixel-divider {
+    height: 110px;
+    width: calc(100vw - 32px);
+    margin: -50px auto -60px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pixel-divider {
+    display: none;
+  }
+}
+
+/* tall variant — the referral page's rewards→how-it-works field */
+.pixel-divider--tall {
+  height: 260px;
+  margin: -80px auto -152px;
+}
+@media (max-width: 1024px) {
+  .pixel-divider--tall {
+    height: 200px;
+    margin: -64px auto -122px;
+  }
+}
+@media (max-width: 768px) {
+  .pixel-divider--tall {
+    height: 140px;
+    margin: -48px auto -94px;
+  }
+}
+
+/* ─── SECTION LIBRARY: footer-cta ─────────────────────────────────────── */
+/* Footer CTA — two-button row (the `button` variant with a secondary button).
+   Only these rules are co-located; everything else the section needs comes from
+   the classic primitives in built-page.css. */
+.footer-cta-btns {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  flex-wrap: wrap;
+}
+/* standalone-CTA min-width floor, so a short label doesn't read undersized */
+.footer-cta-btns .hero-btn-primary,
+.footer-cta-btns .hero-btn-ghost { min-width: 180px; }
+/* White-border ghost — brighter than the 0.22 default, but NOT solid #fff:
+   a 1px hairline at full white on black blooms and reads as a 2px border.
+   Scoped to the row: a bare `.hero-btn-ghost--white` ties on specificity with
+   built-page.css's `.hero-btn-ghost`, which loads after the section styles. */
+.footer-cta-btns .hero-btn-ghost--white { border-color: rgba(255,255,255,0.6); color: #fff; }
+.footer-cta-btns .hero-btn-ghost--white:hover { border-color: rgba(255,255,255,0.85); color: #fff; }
+
+@media (max-width: 768px) {
+  /* standalone-CTA mobile rule: 260px floor + max-width 100%, centred and
+     contained — NOT full-bleed. */
+  .footer-cta-btns { flex-direction: column; }
+  .footer-cta-btns .hero-btn-primary,
+  .footer-cta-btns .hero-btn-ghost {
+    min-width: 260px; max-width: 100%;
+    height: 52px !important; font-size: 16px !important;
+  }
+}
+
+/* mobile CTA floor: the sandbox standard is 220 (Gary) — production's 260 stays in the library copy above; this wins by order */
+@media (max-width: 768px) {
+  .rf-cta-row .hero-btn-primary, .footer-cta-btns .hero-btn-primary, .footer-cta-btns .hero-btn-ghost, .footer-cta-wrap .hero-btn-primary { min-width: var(--cta-min-w, 220px); max-width: 100%; }
+  .rf-cta-help { max-width: 220px; }
+}
+
+/* ═══ LIGHT — the page's light-mode values. Dark literals above are untouched;
+   this block keys on the stamped html[data-theme="light"] and reads the
+   --sc-* tokens from shared-components.css. ══════════════════════════════ */
+/* hero: the family's light hero — the blue dome (--sc-hero-bg: near-black crown
+   → vivid blue → cyan rim → ground) with WHITE copy, exactly as security/trust.
+   That is also what keeps the over-hero nav legible (white ink on the crown).
+   The double-b's warm glow STAYS on light (Gary — it's tied to the art), layered
+   over the dome; the black vignettes go. */
+html[data-theme="light"] .hero-section.hero-section--referral {
+  background:
+    radial-gradient(560px 620px at 95% 38%, rgba(255, 170, 110, 0.38) 0%, transparent 62%),
+    var(--sc-hero-bg);
+  /* The dome's ramp is authored for the family's short hero (white by ~72% of
+     the box). This hero is 80vh with a 440px copy stack that ends at ~90%, so
+     the dome is stretched to 132% of the box: the rim lands under the CTA and
+     the box still bottoms out on the ground colour. One size applies to every
+     layer of the token. */
+  background-size: 100% 132%;
+  background-position: center top;
+  background-repeat: no-repeat;
+}
+html[data-theme="light"] .hero-section.hero-section--referral::after {
+  background: radial-gradient(560px 560px at 96% 36%, rgba(255, 170, 110, 0.42) 0%, transparent 58%);
+}
+html[data-theme="light"] .hero-section.hero-section--referral .hero-subtitle { color: rgba(255,255,255,0.94); }   /* security's light hero value */
+html[data-theme="light"] .rf-cta-help { color: var(--sc-text-muted); }              /* desktop: the line sits on the dome's rim/ramp */
+html[data-theme="light"] .rf-cta-help .inline-link { color: #0d9b7a; }
+html[data-theme="light"] .rf-cta-help .inline-link:hover { color: #0b7f64; }
+@media (max-width: 1024px) {                                                          /* stacked hero: the copy sits high in the crown */
+  html[data-theme="light"] .rf-cta-help { color: rgba(255,255,255,0.7); }
+  html[data-theme="light"] .rf-cta-help .inline-link { color: #7FDDC1; }
+  html[data-theme="light"] .rf-cta-help .inline-link:hover { color: #A5EBD8; }
+}
+html[data-theme="light"] .inline-link { color: #0d9b7a; }
+html[data-theme="light"] .inline-link:hover { color: #0b7f64; }
+/* sections */
+html[data-theme="light"] .section--bordered, html[data-theme="light"] .how-section, html[data-theme="light"] .ms-faq-section, html[data-theme="light"] .footer-section { background: var(--sc-ground); border-color: var(--sc-line-soft); }
+html[data-theme="light"] .section-headline, html[data-theme="light"] .ms-faq-headline, html[data-theme="light"] .footer-headline { color: var(--sc-ink); }
+html[data-theme="light"] .section-sub { color: var(--sc-text-muted); }
+/* reward cards: the outlined light card (compliance treatment) — tone washes stay */
+html[data-theme="light"] .reward-card { border-color: rgba(var(--sc-ink-rgb), 0.10); background: linear-gradient(180deg, rgba(var(--sc-ink-rgb), 0.03) 0%, rgba(var(--sc-ink-rgb), 0.005) 100%), #fff; }
+html[data-theme="light"] .reward-card:hover { border-color: rgba(20,136,252,0.45); }
+html[data-theme="light"] .reward-card--blue .reward-badge { background: rgba(20,136,252,0.10); color: #0a5aa8; }
+html[data-theme="light"] .reward-card--mint .reward-badge { background: rgba(13,155,122,0.10); color: #0b6e57; }
+html[data-theme="light"] .reward-card--mint .reward-badge-icon { color: #0d9b7a; }
+html[data-theme="light"] .reward-card-value { color: var(--sc-ink); }
+html[data-theme="light"] .reward-card-desc { color: var(--sc-text-desc); }
+/* how it works */
+html[data-theme="light"] .how-line-track { background: rgba(var(--sc-ink-rgb),0.08); }
+html[data-theme="light"] .how-step-node { background: var(--sc-ground); }
+html[data-theme="light"] .how-step-title { color: var(--sc-ink); }
+html[data-theme="light"] .how-step-desc { color: var(--sc-text-desc); }
+/* FAQ */
+html[data-theme="light"] .ms-faq-item, html[data-theme="light"] .ms-faq-item:last-child { border-color: var(--sc-line-soft); }
+html[data-theme="light"] .ms-faq-q { color: rgba(var(--sc-ink-rgb),0.72); }
+html[data-theme="light"] .ms-faq-q:hover, html[data-theme="light"] .ms-faq-item.is-open .ms-faq-q { color: var(--sc-ink); }
+html[data-theme="light"] .ms-faq-a-inner { color: var(--sc-text-muted); }
+/* footer */
+html[data-theme="light"] .footer-subtitle { color: var(--sc-text-sub); }
 </style>
 </head>
 <body>
 
-<!-- NAV: Astro-injected in production -->
-
-<!-- ─── HERO ─────────────────────────────────────────────────────────────── -->
-<section class="hero-section">
-  <canvas id="hero-pixel-canvas"></canvas>
-  <div class="hero-content-area">
-    <div class="hero-inner">
-
-      <!-- LEFT: eyebrow, H1, description, CTA -->
-      <div class="hero-text">
-        <p class="section-eyebrow eyebrow-scramble">Referral Program</p>
-        <h1 class="hero-h1">Give a 20% discount, get up to <span class="accent">$50/referral</span></h1>
-        <p class="hero-subtitle">Give your friends, family, coworkers, and professional network a 20% discount to build with Bolt and get up to $50 per referral when they subscribe.</p>
-        <div class="hero-cta-row">
-          <!-- Main CTA — grabs the referral link via Scott's confirmed URL
-               (?autosubmit=true&cello-open=true): auth for logged-out users,
-               then the Cello referral module. -->
-          <a href="https://bolt.new/?autosubmit=true&cello-open=true" class="hero-btn-primary" id="hero-cta">
-            <div class="btn-bg-hover"></div>
-            <div class="btn-text-wrap">
-              <div class="btn-text-inner">
-                <span>Get Referral Link</span>
-                <span>Get Referral Link</span>
-              </div>
-            </div>
-          </a>
-        </div>
-        <!-- Secondary CTA for new users → sign-up flow (get_started). -->
-        <p class="hero-cta-help">New to Bolt? <a href="https://bolt.new/?get_started=true" class="hero-cta-help-em">Sign up</a> free.</p>
-      </div>
-
-      <!-- RIGHT: 3D bolt "b" visual — referral loop stage.
-           Main b (right), small companion b (lower-left, "your friend"),
-           dashed arc between them, and a "+$50" credit chip that rides the
-           arc from the small b toward the main b, cycling every ~7s. -->
-      <div class="hero-visual">
-        <div class="hero-visual-stage" aria-hidden="true">
-          <!-- Cylindrical tube of light BEHIND both b's connecting their
-               holes. Four stacked stroked lines with progressively smaller
-               widths and less blur build a proper 3D tube: outer blue aurora
-               halo → mint glow → mint-white body → bright cyan core. Round
-               linecaps land at each hole; b portholes reveal the ends. -->
-          <!-- Cylindrical light tube — split into 3 separate SVGs (one per
-               layer) so each SVG spans the whole stage. CSS filter: blur() is
-               then applied to each SVG root; its filter effect region is the
-               SVG's box (whole stage), NOT the individual line's tight bounds
-               — so the blur doesn't get clipped at a rectangular halo edge. -->
-          <!-- Tube endpoints extended 5 vb units past each hole center so
-               the round linecap "dot" is buried inside each b's opaque body
-               (mini b's stem, main b's belly-right). Only the straight
-               middle section of the tube is visible through the porthole
-               masks. Hole centers in viewBox: mini (23,77), main (71,65). -->
-          <!-- Cylindrical beam: outer brand-blue aurora halo -> mint glow ->
-               mint-white body. Layered stroked lines give a natural glowing
-               cylinder without any explicit flowing/animated shimmer. -->
-          <svg class="hero-visual-tube tube-halo" viewBox="0 0 100 120" preserveAspectRatio="none" fill="none">
-            <line x1="24" y1="82" x2="90" y2="69" stroke="rgba(20,136,252,0.78)"  stroke-width="19" stroke-linecap="round"/>
-          </svg>
-          <svg class="hero-visual-tube tube-glow" viewBox="0 0 100 120" preserveAspectRatio="none" fill="none">
-            <line x1="24" y1="82" x2="90" y2="69" stroke="rgba(115,235,190,0.85)" stroke-width="9.5" stroke-linecap="round"/>
-          </svg>
-          <svg class="hero-visual-tube tube-body" viewBox="0 0 100 120" preserveAspectRatio="none" fill="none">
-            <line x1="24" y1="82" x2="90" y2="69" stroke="rgba(190,245,220,0.82)" stroke-width="4.6" stroke-linecap="round"/>
-          </svg>
-          <img src="../../../images/referral-hero-b.png" alt="" class="hero-visual-b-mini" loading="eager">
-          <img src="../../../images/referral-hero-b.png" alt="Bolt" class="hero-visual-img" loading="eager">
-          <!-- Metallic shimmer glints — masked to each b's letter shape, sweep
-               diagonally at offset times. Purely decorative. -->
-          <span class="hero-b-shimmer hero-b-shimmer--mini" aria-hidden="true"></span>
-          <span class="hero-b-shimmer hero-b-shimmer--main" aria-hidden="true"></span>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- ─── REWARDS — You get / They get (horizontal pair) ───────────────────── -->
-<section class="section rewards-section">
-  <div class="section-inner">
-    <div class="section-header">
-      <p class="section-eyebrow eyebrow-scramble">The rewards</p>
-      <h2 class="section-headline">Everyone comes out ahead</h2>
-      <p class="section-sub">Share Bolt and you both win — they save on their subscription, you earn cash back.</p>
-    </div>
-    <div class="rewards-grid">
-      <div class="reward-card reward-card--you">
-        <span class="reward-badge">
-          <span class="reward-badge-icon">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M14.5 9.2c-.4-.9-1.4-1.5-2.5-1.5-1.5 0-2.6 1-2.6 2.1 0 2.6 5.3 1.3 5.3 4.1 0 1.2-1.2 2.1-2.7 2.1-1.2 0-2.2-.6-2.6-1.5M12 6.3v1.4M12 16.3v1.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-          </span>
-          You get
-        </span>
-        <p class="reward-card-value">Up to $50/referral</p>
-        <p class="reward-card-desc">Earn 15% of their subscription for the first three months — capped at $50 per successful referral.</p>
-      </div>
-      <div class="reward-card reward-card--them">
-        <span class="reward-badge">
-          <span class="reward-badge-icon">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 11h16v9a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-9ZM3 7.5h18V11H3V7.5ZM12 21V7.5M12 7.5H8.2a2.2 2.2 0 0 1 0-4.4c2.6 0 3.8 4.4 3.8 4.4ZM12 7.5h3.8a2.2 2.2 0 0 0 0-4.4C13.2 3.1 12 7.5 12 7.5Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </span>
-          They get
-        </span>
-        <p class="reward-card-value">20% off for 3 months</p>
-        <p class="reward-card-desc">A 20% discount on their Bolt subscription for the first three months when they sign up with your link.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ─── REWARDS→HOW-IT-WORKS DIVIDER (tall animated pixel field) ──────────── -->
-<div class="section-divider">
-  <canvas id="mid-divider-canvas"></canvas>
-</div>
-
-<!-- ─── HOW IT WORKS ─────────────────────────────────────────────────────── -->
-<section class="section how-section" id="how-it-works">
-  <div class="section-inner">
-    <div class="how-header dsa-reveal">
-      <p class="section-eyebrow eyebrow-scramble">Referral Program</p>
-      <h2 class="section-headline">How it works</h2>
-    </div>
-    <div class="how-steps-wrap">
-      <div class="how-line-track"></div>
-      <div class="how-line-fill"></div>
-      <div class="how-line-glow"></div>
-      <div class="how-steps">
-        <div class="how-step">
-          <div class="how-step-node"><span class="how-step-number">01</span></div>
-          <h3 class="how-step-title">Get your referral link</h3>
-          <p class="how-step-desc"><a href="https://bolt.new/?get_started=true" class="inline-link">Sign up</a> or <a href="https://bolt.new/?autosubmit=true&cello-open=true" class="inline-link">log in</a> to your Bolt account and grab your unique referral link.</p>
-        </div>
-        <div class="how-step">
-          <div class="how-step-node"><span class="how-step-number">02</span></div>
-          <h3 class="how-step-title">Share it with your network</h3>
-          <p class="how-step-desc">Send it to friends, colleagues, and across your socials. They save 20% for three months.</p>
-        </div>
-        <div class="how-step">
-          <div class="how-step-node"><span class="how-step-number">03</span></div>
-          <h3 class="how-step-title">Earn rewards</h3>
-          <p class="how-step-desc">When they subscribe, you earn 15% of their subscription — up to $50 per referral.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ─── FAQ ──────────────────────────────────────────────────────────────── -->
-<section class="section ms-faq">
-  <canvas id="faq-pixel-canvas"></canvas>
-  <div class="section-inner">
-    <div class="section-header">
-      <p class="ms-faq-eyebrow eyebrow-scramble">FAQ</p>
-      <h2 class="section-headline">Referral Program FAQ</h2>
-    </div>
-
-    <div class="ms-faq-list">
-
-      <!-- Canonical FAQ markup: .ms-faq-q is a <button>; the +/- icon and the
-           per-item open-canvas are styled/injected by shared-components.*. -->
-      <div class="ms-faq-item">
-        <button class="ms-faq-q" type="button">
-          <span>Does my referral link expire?</span>
-          <span class="ms-faq-icon">
-            <svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none">
-              <line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-              <line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
-            <svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none">
-              <line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
-          </span>
-        </button>
-        <div class="ms-faq-a">
-          <div class="ms-faq-a-inner">
-            <p>Your referral link doesn't expire — keep sharing it as long as you'd like. Every valid signup that follows your link earns you a reward, no matter how long after you first shared it.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="ms-faq-item">
-        <button class="ms-faq-q" type="button">
-          <span>How do I keep track of my referrals?</span>
-          <span class="ms-faq-icon">
-            <svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none">
-              <line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-              <line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
-            <svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none">
-              <line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
-          </span>
-        </button>
-        <div class="ms-faq-a">
-          <div class="ms-faq-a-inner">
-            <p>The earned amounts will be displayed in your earned-rewards widget. You'll see each new signup appear as soon as it happens, with rewards clearing 30 days after the person subscribes.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="ms-faq-item">
-        <button class="ms-faq-q" type="button">
-          <span>How do I claim my rewards?</span>
-          <span class="ms-faq-icon">
-            <svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none">
-              <line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-              <line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
-            <svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none">
-              <line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
-          </span>
-        </button>
-        <div class="ms-faq-a">
-          <div class="ms-faq-a-inner">
-            <p>As soon as you have earned your first reward, you can choose your favorite reward pay-out option in our widget. You will receive your first reward after we have processed your input. All future rewards will be automatically transferred to you.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="ms-faq-item">
-        <button class="ms-faq-q" type="button">
-          <span>Can I promote it through paid ads?</span>
-          <span class="ms-faq-icon">
-            <svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none">
-              <line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-              <line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
-            <svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none">
-              <line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
-          </span>
-        </button>
-        <div class="ms-faq-a">
-          <div class="ms-faq-a-inner">
-            <p>Paid advertising (e.g., search ads, PPC, social media ads) to promote referral links is prohibited without prior written approval. Please refer to program terms for more information.</p>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- ─── FOOTER CTA ───────────────────────────────────────────────────────── -->
-<section class="footer-section">
-  <p class="footer-eyebrow eyebrow-scramble">Ready?</p>
-  <h2 class="footer-headline">Start earning rewards today</h2>
-  <p class="footer-subtitle"><a href="https://bolt.new/?get_started=true" class="inline-link">Sign up</a> or <a href="https://bolt.new/?autosubmit=true&cello-open=true" class="inline-link">log in</a> to grab your unique referral link.</p>
-  <div class="footer-cta-wrap">
-    <canvas id="footer-pixel-canvas"></canvas>
-    <a href="https://bolt.new/?autosubmit=true&cello-open=true" class="hero-btn-primary footer-cta-anchor">
-      <div class="btn-bg-hover"></div>
-      <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Referral Link</span><span>Get Referral Link</span></div></div>
+<nav class="mkt-nav mkt-nav--over-hero" aria-label="Primary">
+  <div class="mkt-nav-inner">
+    <!-- Nav-bar Back button — only appears on mobile when a submenu is active (JS toggles .is-on-submenu on .mkt-nav). Replaces the logo in the same slot. -->
+    <button class="mkt-nav-back" data-mobile-back aria-label="Back to main menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+      Back
+    </button>
+    <a href="../../../" class="mkt-nav-logo" aria-label="bolt.new home">
+      <!-- Canonical bolt.new wordmark (from images/bolt-new.svg) — inlined so the nav renders without an extra network request. -->
+      <svg viewBox="0 0 85 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M26.1121 20.9491C21.0582 20.9491 18.4869 17.9995 18.4869 14.3126C18.4869 9.9472 21.9744 5.99476 27.0283 5.99476C32.0822 5.99476 34.6535 8.94434 34.6535 12.6313C34.6535 16.9967 31.166 20.9491 26.1121 20.9491ZM26.319 16.2593C28.0923 16.2593 29.2154 14.6665 29.2154 12.8968C29.2154 11.481 28.2992 10.6846 26.8214 10.6846C25.0481 10.6846 23.925 12.2774 23.925 14.0471C23.925 15.4629 24.8412 16.2593 26.319 16.2593Z" fill="#fff"/>
+        <path d="M40.0368 20.5952H34.717L39.0615 0.921487H44.3814L40.0368 20.5952Z" fill="#fff"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M10.4272 20.9491C8.80168 20.9491 7.20572 20.3592 6.28951 19.0909L5.96635 20.5867L0 23.75L0.644095 20.5867L4.9891 0.921487H10.309L8.77213 7.853C10.0134 6.49619 11.1661 5.99476 12.6438 5.99476C15.8358 5.99476 17.9637 8.08896 17.9637 11.9234C17.9637 15.8758 15.5107 20.9491 10.4272 20.9491ZM12.4665 13.0443C12.4665 14.873 11.1661 16.2593 9.48145 16.2593C8.53569 16.2593 7.6786 15.9053 7.11705 15.2859L7.94459 11.658C8.56524 11.0385 9.27456 10.6846 10.1021 10.6846C11.373 10.6846 12.4665 11.6285 12.4665 13.0443Z" fill="#fff"/>
+        <path d="M49.9163 20.9491C46.8426 20.9491 44.6555 19.8283 44.6555 17.3506C44.6555 17.1442 44.6851 16.6427 44.7737 16.2298L45.9264 10.9501H43.562L44.5964 6.34871H46.9608L47.8179 2.45527L53.7735 0L53.1378 2.46127L52.2807 6.34871H55.1771L54.1426 10.9501H51.2462L50.4778 14.4306C50.4187 14.696 50.3892 14.991 50.3892 15.109C50.3892 15.7874 50.8029 16.2593 51.7191 16.2593C51.9851 16.2593 52.3693 16.1708 52.458 16.1118V20.3592C51.8965 20.7427 50.8916 20.9491 49.9163 20.9491Z" fill="#fff"/>
+        <path d="M56.461 21.0087C55.7527 21.0087 55.1886 20.4196 55.1886 19.7127C55.1886 18.8879 55.897 18.1941 56.7234 18.1941C57.4317 18.1941 57.9958 18.7832 57.9958 19.4901C57.9958 20.3149 57.2875 21.0087 56.461 21.0087Z" fill="#fff"/>
+        <path d="M65.3576 20.8386H62.9964L63.7309 17.5133C63.7572 17.3955 63.8097 17.186 63.8097 17.0289C63.8097 16.5969 63.4292 16.4398 63.0488 16.4398C62.5372 16.4398 62.183 16.7016 61.9338 16.9242L61.068 20.8386H58.7068L60.1104 14.5153H62.4716L62.3011 15.2354C62.7602 14.8164 63.3374 14.3582 64.295 14.3582C65.6199 14.3582 66.3807 15.0783 66.3807 16.0209C66.3807 16.1256 66.3414 16.4136 66.3151 16.5314L65.3576 20.8386Z" fill="#fff"/>
+        <path d="M70.256 20.9956C68.2096 20.9956 66.7929 19.9745 66.7929 18.1155C66.7929 16.0994 68.3408 14.3582 70.5577 14.3582C72.1319 14.3582 73.5223 15.3139 73.5223 17.2384C73.5223 17.6704 73.4436 18.1679 73.3781 18.4035H69.1279V18.4166C69.1279 18.5083 69.5083 19.2021 70.4265 19.2021C70.925 19.2021 71.5153 19.0843 71.8039 18.8879L72.5254 20.4196C71.8826 20.8255 71.0169 20.9956 70.256 20.9956ZM69.3509 16.9111H71.4366V16.8718C71.4366 16.6885 71.2136 16.1518 70.4659 16.1518C69.8363 16.1518 69.4296 16.6362 69.3509 16.9111Z" fill="#fff"/>
+        <path d="M81.7599 20.8386H79.1888L78.9265 17.3038L77.1293 20.8386H74.5582L74.1254 14.5153H76.4866L76.5521 17.9977L78.4411 14.5153H80.5531L80.881 17.9977L82.4945 14.5153H85L81.7599 20.8386Z" fill="#fff"/>
+      </svg>
     </a>
+
+    <ul class="mkt-nav-items">
+      <li data-menu="solutions">
+        <!-- Real link, not a button: clicking goes to the Solutions page, hovering
+             still opens the panel. The nav JS binds on '.mkt-nav-link[data-menu]'
+             (class + attribute, not tag), so the dropdown behaviour is unchanged. -->
+        <a href="https://garyliusf.github.io/Enterprise/marketing/solutions.html" class="mkt-nav-link" data-menu="solutions" aria-haspopup="true" aria-expanded="false">
+          Solutions
+          <svg class="mkt-nav-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </a>
+      </li>
+      <li data-menu="resources">
+        <button class="mkt-nav-link" data-menu="resources" aria-haspopup="true" aria-expanded="false">
+          Resources
+          <svg class="mkt-nav-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </li>
+      <li><a href="https://bolt.new/careers" class="mkt-nav-link">Careers</a></li>
+      <li><a href="../../pricing.html" class="mkt-nav-link">Pricing</a></li>
+    </ul>
+
+    <div class="mkt-nav-right">
+      <div class="mkt-nav-actions">
+        <a href="https://bolt.new/signin" class="mkt-nav-signin">Sign in</a>
+        <a href="https://bolt.new/" target="_blank" rel="noopener" class="mkt-nav-cta hero-btn-primary">
+          <div class="btn-bg-hover"></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Started</span><span>Get Started</span></div></div>
+        </a>
+      </div>
+      <button class="mkt-nav-burger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
   </div>
-  <div class="bolt-image-wrap" style="margin-top:0;width:100%;overflow:hidden;position:relative;height:32vw;max-height:32vw;">
-    <img src="../../../images/bolt-bottom.png" alt="bolt" loading="lazy" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;opacity:0.20;">
-    <canvas id="bolt-shimmer-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;mix-blend-mode:screen;"></canvas>
-    <div style="position:absolute;inset:0;background:linear-gradient(to bottom, #000 0%, transparent 22%, transparent 88%, #000 100%);z-index:3;"></div>
+
+  <!-- Mega panels — one per top-level menu, JS toggles .is-open on the matching data-panel -->
+
+  <div class="mkt-nav-panel" data-panel="solutions" aria-hidden="true">
+    <div class="mkt-nav-panel-inner">
+      <a href="https://garyliusf.github.io/Enterprise/solutions/smb/" class="mkt-nav-panel-feature">
+        <div class="mkt-nav-panel-feature-visual" aria-hidden="true"></div>
+        <p class="mkt-nav-panel-feature-eyebrow">Featured</p>
+        <p class="mkt-nav-panel-feature-title">AI for Small Business</p>
+        <p class="mkt-nav-panel-feature-desc">Custom apps for your business, built in an afternoon — no code, no developer, no $100K project.</p>
+      </a>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Top Use Cases</p>
+        <a href="https://bolt.new/use-cases/ai-app-builder">AI App Builder</a>
+        <a href="https://bolt.new/use-cases/ai-website-builder">AI Website Builder</a>
+        <a href="https://bolt.new/use-cases/custom-crm-software">SaaS Dev</a>
+        <a href="https://bolt.new/use-cases/ai-prototyping-tools">Prototyping</a>
+      </div>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Business Type</p>
+        <a href="https://garyliusf.github.io/Enterprise/solutions/smb/">Small Business</a>
+        <a href="https://bolt.new/enterprise">Enterprise</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="mkt-nav-panel" data-panel="resources" aria-hidden="true">
+    <div class="mkt-nav-panel-inner">
+      <a href="https://bolt.new/resources/templates" class="mkt-nav-panel-feature">
+        <div class="mkt-nav-panel-feature-visual" aria-hidden="true"></div>
+        <p class="mkt-nav-panel-feature-eyebrow">Featured collection</p>
+        <p class="mkt-nav-panel-feature-title">Bolt Templates</p>
+        <p class="mkt-nav-panel-feature-desc">Production-ready starting points — dashboards, storefronts, portfolios, and more. Fork one and make it yours.</p>
+      </a>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Support</p>
+        <a href="https://discord.com/invite/stackblitz" target="_blank" rel="noopener">Community</a>
+        <a href="https://support.bolt.new/" target="_blank" rel="noopener">Help Center</a>
+        <a href="https://bolt.new/platform/security">Security &amp; Trust</a>
+      </div>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Build and Learn</p>
+        <a href="https://bolt.new/blog">Blog</a>
+        <a href="https://bolt.new/resources/templates">Templates</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main>
+<section class="hero-section hero-section--referral"> <canvas id="rf-hero-canvas" class="js-rf-hero-canvas rf-hero-canvas" aria-hidden="true"></canvas> <div class="rf-hero-content"> <div class="rf-hero-inner"> <div class="rf-hero-text"> <p class="section-eyebrow eyebrow-scramble">Referral Program</p> <h1 class="hero-h1">Give a 20% discount, get up to <span class="hero-h1-kw">$50/referral</span></h1> <p class="hero-subtitle">Give your friends, family, coworkers, and professional network a 20% discount to build with Bolt and get up to $50 per referral when they subscribe.</p> <div class="rf-cta-row"> <a href="https://bolt.new/?autosubmit=true&cello-open=true" class="hero-btn-primary"> <div class="btn-bg-hover"></div> <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Referral Link</span><span>Get Referral Link</span></div></div> </a> </div> <p class="rf-cta-help">New to Bolt? <a href="https://bolt.new/?get_started=true" class="inline-link">Sign up</a> free.</p> </div> <div class="rf-visual"> <div class="rf-visual-stage js-rf-stage" aria-hidden="true">  <svg class="rf-tube rf-tube--halo" viewBox="0 0 100 120" preserveAspectRatio="none" fill="none"> <line x1="24" y1="82" x2="90" y2="69" stroke="rgba(20,136,252,0.78)" stroke-width="19" stroke-linecap="round"></line> </svg> <svg class="rf-tube rf-tube--glow" viewBox="0 0 100 120" preserveAspectRatio="none" fill="none"> <line x1="24" y1="82" x2="90" y2="69" stroke="rgba(115,235,190,0.85)" stroke-width="9.5" stroke-linecap="round"></line> </svg> <svg class="rf-tube rf-tube--body" viewBox="0 0 100 120" preserveAspectRatio="none" fill="none"> <line x1="24" y1="82" x2="90" y2="69" stroke="rgba(190,245,220,0.82)" stroke-width="4.6" stroke-linecap="round"></line> </svg> <img src="../../../images/referral-hero-b.png" alt="" class="rf-b-mini" loading="eager"> <img src="../../../images/referral-hero-b.png" alt="Bolt" class="rf-b-main" loading="eager">  <span class="rf-b-shimmer rf-b-shimmer--mini"></span> <span class="rf-b-shimmer rf-b-shimmer--main"></span> </div> </div> </div> </div> </section><section class="section rewards-section"> <div class="section-inner"> <div class="section-header"> <p class="section-eyebrow eyebrow-scramble">The rewards</p> <h2 class="section-headline">Everyone comes out ahead</h2> <p class="section-sub">Share Bolt and you both win — they save on their subscription, you earn cash back.</p> </div> <div class="rewards-grid"> <div class="reward-card reward-card--blue"> <canvas class="reward-hover-canvas js-reward-canvas" aria-hidden="true"></canvas> <span class="reward-badge"> <span class="reward-badge-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M14.5 9.2c-.4-.9-1.4-1.5-2.5-1.5-1.5 0-2.6 1-2.6 2.1 0 2.6 5.3 1.3 5.3 4.1 0 1.2-1.2 2.1-2.7 2.1-1.2 0-2.2-.6-2.6-1.5M12 6.3v1.4M12 16.3v1.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span> You get </span> <p class="reward-card-value">Up to $50/referral</p> <p class="reward-card-desc">Earn 15% of their subscription for the first three months — capped at $50 per successful referral.</p> </div><div class="reward-card reward-card--mint"> <canvas class="reward-hover-canvas js-reward-canvas" aria-hidden="true"></canvas> <span class="reward-badge"> <span class="reward-badge-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 11h16v9a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-9ZM3 7.5h18V11H3V7.5ZM12 21V7.5M12 7.5H8.2a2.2 2.2 0 0 1 0-4.4c2.6 0 3.8 4.4 3.8 4.4ZM12 7.5h3.8a2.2 2.2 0 0 0 0-4.4C13.2 3.1 12 7.5 12 7.5Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span> They get </span> <p class="reward-card-value">20% off for 3 months</p> <p class="reward-card-desc">A 20% discount on their Bolt subscription for the first three months when they sign up with your link.</p> </div> </div> </div> </section><div class="pixel-divider pixel-divider--tall" aria-hidden="true"> <canvas id="pixel-divider-canvas" class="js-pixel-divider-canvas"></canvas> </div><section class="section how-section" id="how-it-works"> <div class="section-inner"> <div class="how-header dsa-reveal"> <p class="section-eyebrow eyebrow-scramble">Referral Program</p> <h2 class="section-headline">How it works</h2> <p class="section-sub">Your expertise and experience shapes the app or website. You describe it, AI builds it. There&#39;s no agency or freelance developer between you and the build.</p> </div> <div class="how-steps-wrap"> <div class="how-line-track"></div> <div class="how-line-fill"></div> <div class="how-line-glow"></div> <div class="how-steps"> <div class="how-step"> <div class="how-step-node"><span class="how-step-number">01</span></div> <h3 class="how-step-title">Get your referral link</h3> <p class="how-step-desc"><a href="https://bolt.new/?get_started=true" class="inline-link">Sign up</a> or <a href="https://bolt.new/?autosubmit=true&amp;cello-open=true" class="inline-link">log in</a> to your Bolt account and grab your unique referral link.</p> </div><div class="how-step"> <div class="how-step-node"><span class="how-step-number">02</span></div> <h3 class="how-step-title">Share it with your network</h3> <p class="how-step-desc">Send it to friends, colleagues, and across your socials. They save 20% for three months.</p> </div><div class="how-step"> <div class="how-step-node"><span class="how-step-number">03</span></div> <h3 class="how-step-title">Earn rewards</h3> <p class="how-step-desc">When they subscribe, you earn 15% of their subscription — up to $50 per referral.</p> </div> </div> </div> </div> </section><section class="section ms-faq-section"> <canvas id="faq-pixel-canvas" class="js-faq-pixel-canvas" aria-hidden="true"></canvas> <div class="ms-faq-inner"> <div class="dsa-reveal"> <p class="ms-faq-eyebrow eyebrow-scramble">FAQ</p> <h2 class="ms-faq-headline">Referral Program FAQ</h2> </div> <div class="ms-faq-list"> <div class="ms-faq-item"> <button class="ms-faq-q">Does my referral link expire?<span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>  <div class="ms-faq-a"><div class="ms-faq-a-inner"><p>Your referral link doesn&#39;t expire, keep sharing it as long as you&#39;d like. Every valid signup that follows your link earns you a reward, no matter how long after you first shared it.</p>
+</div></div> </div><div class="ms-faq-item"> <button class="ms-faq-q">How do I keep track of my referrals?<span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>  <div class="ms-faq-a"><div class="ms-faq-a-inner"><p>The earned amounts will be displayed in your earned-rewards widget. You&#39;ll see each new signup appear as soon as it happens, with rewards clearing 30 days after the person subscribes.</p>
+</div></div> </div><div class="ms-faq-item"> <button class="ms-faq-q">How do I claim my rewards?<span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>  <div class="ms-faq-a"><div class="ms-faq-a-inner"><p>As soon as you have earned your first reward, you can choose your favorite reward pay-out option in our widget. You will receive your first reward after we have processed your input. All future rewards will be automatically transferred to you.</p>
+</div></div> </div><div class="ms-faq-item"> <button class="ms-faq-q">Can I promote it through paid ads?<span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>  <div class="ms-faq-a"><div class="ms-faq-a-inner"><p>Paid advertising (e.g., search ads, PPC, social media ads) to promote referral links is prohibited without prior written approval. Please refer to program terms for more information.</p>
+</div></div> </div> </div> </div> </section><section class="footer-section"> <p class="footer-eyebrow eyebrow-scramble">Ready?</p> <div class="dsa-reveal"> <h2 class="footer-headline">Start earning rewards today</h2> </div> <p class="footer-subtitle footer-subtitle-wide"><a href="https://bolt.new/?get_started=true" class="inline-link">Sign up</a> or <a href="https://bolt.new/?autosubmit=true&amp;cello-open=true" class="inline-link">log in</a> to grab your unique referral link.</p> <div class="footer-cta-wrap" style="position:relative;width:100%;max-width:700px;display:flex;flex-direction:column;align-items:center;"> <canvas id="footer-pixel-canvas" class="js-footer-pixel-canvas" style="display:block;width:100%;height:175px;pointer-events:none;opacity:1;"></canvas> <a href="https://bolt.new/?autosubmit=true&cello-open=true" class="hero-btn-primary" style="position:relative;z-index:1;margin-top:-16px;height:52px;padding:0 28px;font-size:15px;"> <div class="btn-bg-hover"></div> <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Referral Link</span><span>Get Referral Link</span></div></div> </a> </div>  <div class="footer-spacer"></div>  </section>
+</main>
+
+<!-- Subtle divider between the prompt-box CTA and the footer columns -->
+<div class="site-footer-divider" style="max-width:1200px;margin:88px auto 0;padding:0 min(80px, 5vw);box-sizing:border-box;"></div>
+
+<!-- ─── SITE FOOTER (link columns, ported from the Retool footer pattern) ── -->
+<!-- SITE FOOTER — migrated verbatim from the Forge Lite page
+     (bolt.new/bolt-lite SSR output, 2026-09-18). Class names already
+     matched this fork; the only markup deltas were production's finer
+     social icons + .site-footer-social-icon. Two hrefs are deliberately
+     NOT production's: Small Business -> the staging SMB page, and
+     Pricing -> the local sandbox pricing.html. -->
+<footer class="site-footer">
+<div class="site-footer-cols">
+<div class="site-footer-col">
+<p class="site-footer-label">Solutions</p>
+<ul class="site-footer-links">
+<li>
+<a href="https://bolt.new/use-cases/ai-app-builder">AI App Builder</a>
+</li>
+<li>
+<a href="https://bolt.new/use-cases/ai-website-builder">AI Website Builder</a>
+</li>
+<li>
+<a href="https://bolt.new/use-cases/custom-crm-software">SaaS Dev</a>
+</li>
+<li>
+<a href="https://bolt.new/use-cases/ai-prototyping-tools">Prototyping</a>
+</li>
+<li>
+<a href="https://garyliusf.github.io/Enterprise/solutions/smb/">Small Business</a>
+</li>
+<li>
+<a href="https://bolt.new/enterprise">Enterprise</a>
+</li>
+</ul>
+</div>
+<div class="site-footer-col">
+<p class="site-footer-label">Resources</p>
+<ul class="site-footer-links">
+<li>
+<a href="https://bolt.new/blog">Blog</a>
+</li>
+<li>
+<a href="https://discord.com/invite/stackblitz" target="_blank" rel="noopener">Community</a>
+</li>
+<li>
+<a href="https://support.bolt.new" target="_blank" rel="noopener">Help Center</a>
+</li>
+<li>
+<a href="https://bolt.new/platform/security">Security &amp; Trust</a>
+</li>
+<li>
+<a href="https://bolt.new/resources/templates">Templates</a>
+</li>
+</ul>
+</div>
+<div class="site-footer-col">
+<p class="site-footer-label">More</p>
+<ul class="site-footer-links">
+<li>
+<a href="https://bolt.new/careers">Careers</a>
+</li>
+<li>
+<a href="../../pricing.html">Pricing</a>
+</li>
+<li>
+<a href="https://stackblitz.com/terms-of-service" target="_blank" rel="noopener">Terms of Use</a>
+</li>
+<li>
+<a href="https://stackblitz.com/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>
+</li>
+</ul>
+</div>
+<div class="site-footer-col site-footer-col--connect">
+<p class="site-footer-label">Connect</p>
+<div class="site-footer-social site-footer-social--col">
+<a href="https://x.com/boltdotnew" target="_blank" rel="noopener" aria-label="X (Twitter)">
+<svg viewBox="0 0 14 15" fill="none" class="site-footer-social-icon" aria-hidden="true">
+<path fill="currentColor" d="M10.62 1.813h1.93L8.332 6.63l4.96 6.556H9.409L6.368 9.212l-3.48 3.976H.956l4.509-5.153L.709 1.812H4.69l2.75 3.635 3.18-3.635Zm-.678 10.22h1.07L4.11 2.907H2.962l6.98 9.126Z">
+</path>
+</svg>
+</a>
+<a href="https://www.linkedin.com/company/boltdotnew/" target="_blank" rel="noopener" aria-label="LinkedIn">
+<svg viewBox="0 0 529.6 529.6" class="site-footer-social-icon" aria-hidden="true">
+<path fill="currentColor" d="M451.2 451.2h-78.5V328.3c0-29.3-.5-67-40.8-67s-47.1 31.9-47.1 64.9v125h-78.5V198.5h75.3V233h1.1c15.4-26.3 43.9-41.9 74.3-40.8 79.5 0 94.2 52.3 94.2 120.4v138.6ZM117.8 164c-25.1 0-45.5-20.4-45.5-45.5S92.7 73 117.8 73s45.5 20.4 45.5 45.5-20.4 45.5-45.5 45.5m39.3 287.2H78.5V198.5h78.6v252.7ZM490.4 0H39.1C17.8-.2.3 16.9 0 38.2v453.2c.3 21.3 17.7 38.4 39.1 38.2h451.3c21.4.3 38.9-16.8 39.2-38.2V38.2C529.3 16.8 511.7-.3 490.4 0">
+</path>
+</svg>
+</a>
+<a href="https://discord.com/invite/stackblitz" target="_blank" rel="noopener" aria-label="Discord">
+<svg viewBox="0 0 21 20" fill="none" class="site-footer-social-icon" aria-hidden="true">
+<path fill="currentColor" d="M16.246 4.442a14.154 14.154 0 0 0-3.559-1.108.083.083 0 0 0-.058.025c-.15.275-.325.633-.442.908-1.325-.2-2.674-.2-4 0a8.355 8.355 0 0 0-.45-.908c-.008-.017-.033-.025-.058-.025a14.26 14.26 0 0 0-3.558 1.108c-.009 0-.017.009-.025.017-2.267 3.392-2.892 6.692-2.584 9.958 0 .017.009.034.025.042 1.5 1.1 2.942 1.767 4.367 2.208.025.009.05 0 .058-.016.334-.459.634-.942.892-1.45.017-.034 0-.067-.033-.075-.475-.184-.925-.4-1.367-.65-.033-.017-.033-.067-.008-.092.091-.067.183-.142.275-.208a.051.051 0 0 1 .058-.009c2.867 1.309 5.958 1.309 8.792 0a.051.051 0 0 1 .058.009c.092.075.183.141.275.216.033.025.033.075-.008.092a8.935 8.935 0 0 1-1.367.65c-.033.008-.042.05-.033.075.266.508.566.992.891 1.45.025.008.05.017.075.008a14.416 14.416 0 0 0 4.375-2.208.046.046 0 0 0 .025-.042c.367-3.775-.608-7.05-2.583-9.958-.008-.008-.017-.017-.033-.017Zm-8.959 7.984c-.858 0-1.575-.792-1.575-1.767 0-.975.7-1.767 1.575-1.767.884 0 1.584.8 1.575 1.767 0 .975-.7 1.767-1.575 1.767Zm5.809 0c-.859 0-1.575-.792-1.575-1.767 0-.975.7-1.767 1.575-1.767.883 0 1.583.8 1.575 1.767 0 .975-.692 1.767-1.575 1.767Z">
+</path>
+</svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+
+<!-- bolt wordmark — moved out of .footer-section so the site-footer link
+     columns sit above it (matches the templates pages' footer order) -->
+<section class="footer-image-section">
+  <div class="bolt-image-wrap">
+    <img id="bolt-wordmark-img" src="../../../images/bolt-bottom-light.webp" alt="bolt" decoding="async" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;opacity:0.20;">
+    <canvas id="bolt-shimmer-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;"></canvas>
+    <div style="position:absolute;inset:0;background:linear-gradient(to bottom, var(--sc-ground) 0%, transparent 22%, transparent 88%, var(--sc-ground) 100%);z-index:3;"></div>
   </div>
 </section>
 
 <script>
-/* ─── PIXEL-CANVAS UTILITY (canonical — verbatim from microsoft.html and the
-   other marketing pages: CSS-pixel sizing, square dots, per-cell random phase
-   passed as the 4th waveFn arg). ──────────────────────────────────────────── */
+// ── Generic pixel canvas helper (verbatim security-agent) ────────────────────
 function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
-  color = color || '20,136,252';
   const canvas = document.getElementById(id);
   if (!canvas) return;
+  /* Pass 'theme' (or nothing) to follow the --sc-dot-rgb token instead of a
+     hard-coded triplet: the dots then re-tint with the theme, and a canvas
+     inside a .sc-on-dark section reads that section's value rather than the
+     page's. Anything else is taken literally — effects painted over dark art
+     (the hero field, the footer wave) keep their own colour in both themes. */
+  const fixed = (color && color !== 'theme') ? color : null;
+  let dotRGB = fixed || '20,136,252';
+  function readDot() {
+    if (fixed) return;
+    /* shared-components.css is linked at the END of <body>, so the token can
+       still be unresolved when this runs — readDot() is re-called from
+       resize(), which fires on 'load' when the stylesheet is definitely in. */
+    const v = getComputedStyle(canvas).getPropertyValue('--sc-dot-rgb').trim();
+    if (v) dotRGB = v;
+  }
+  readDot();
+  if (!fixed && window.matchMedia) {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const onChange = function () { readDot(); };
+    if (mq.addEventListener) mq.addEventListener('change', onChange);
+    else if (mq.addListener) mq.addListener(onChange);
+    document.addEventListener('sc-themechange', onChange);
+  }
   let phases = [];
   function buildPhases(cols, rows) {
     phases = Array.from({ length: rows }, () => Array.from({ length: cols }, () => Math.random() * Math.PI * 2));
@@ -755,6 +915,7 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
     const h = parent.offsetHeight || parent.getBoundingClientRect().height;
     if (!w || !h) return;
     canvas.width = Math.round(w); canvas.height = Math.round(h);
+    readDot();
     buildPhases(Math.ceil(w / spacing), Math.ceil(h / spacing));
   }
   window.addEventListener('load', resize); window.addEventListener('resize', resize);
@@ -771,7 +932,7 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
         const phase = (phases[r] && phases[r][c]) || 0;
         const op = waveFn(c, r, t, phase) * opacity;
         if (op < 0.04) continue;
-        ctx.fillStyle = `rgba(${color},${op.toFixed(3)})`;
+        ctx.fillStyle = `rgba(${dotRGB},${op.toFixed(3)})`;
         ctx.fillRect(c * spacing, r * spacing, dot, dot);
       }
     }
@@ -780,92 +941,107 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
   requestAnimationFrame(draw);
 }
 
-/* ─── HERO BACKGROUND PIXEL FIELD (square-pixel diagonal wave, mimics the
-   other pages: use-cases/launch). Blue-tinted, fades toward the bottom. ─── */
-makePixelCanvas('hero-pixel-canvas', 11, 3,
-  function(c, r, t, p) {
-    const el = document.getElementById('hero-pixel-canvas');
-    const H = el ? el.height : 800;
-    const py = r * 11;
-    const vFade = Math.max(0, 1 - py / (H * 1.25));  // fade toward the content/bottom
-    const w1 = Math.sin(c * 0.18 + r * 0.22 - t * 0.0018 + p);
-    const w2 = Math.sin(c * 0.09 - r * 0.14 + t * 0.0012 + p * 0.6);
-    return vFade * Math.max(0, (w1 + w2) * 0.5) * 0.55;
-  }, 1.0, '160,185,230');
 
-/* ─── MID-SECTION DIVIDER CANVAS (same traveling shimmer, taller field) ──── */
-makePixelCanvas('mid-divider-canvas', 11, 2,
-  function(c, r, t, p) {
-    const px = c * 11, py = r * 11;
-    const phase = (px * 0.012 + py * 0.018) - t * 0.0018 + 1.0;
-    const band = Math.sin(phase) * 0.5 + 0.5;
-    const highlight = Math.pow(band, 3) * 0.32;
-    const twinkle = (Math.sin(p * 53.7 + t * 0.004) * 0.5 + 0.5) * 0.07;
+/* ── Referral hero field (section-page.js, class-first there; by id here).
+   Fixed pale blue: both themes put the field over the dark crown. */
+makePixelCanvas('rf-hero-canvas', 11, 3, function (c, r, t, p) {
+  var el = document.getElementById('rf-hero-canvas');
+  var H = el ? el.height : 800;
+  var py = r * 11;
+  var vFade = Math.max(0, 1 - py / (H * 1.25));
+  var w1 = Math.sin(c * 0.18 + r * 0.22 - t * 0.0018 + p);
+  var w2 = Math.sin(c * 0.09 - r * 0.14 + t * 0.0012 + p * 0.6);
+  return vFade * Math.max(0, (w1 + w2) * 0.5) * 0.55;
+}, 1.0, '160,185,230');
+
+/* ── Pixel divider (section-page.js) ── */
+if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  makePixelCanvas('pixel-divider-canvas', 11, 2, function (c, r, t, p) {
+    var px = c * 11, py = r * 11;
+    var phase = (px * 0.012 + py * 0.018) - t * 0.0018 + 1.0;
+    var band = Math.sin(phase) * 0.5 + 0.5;
+    var highlight = Math.pow(band, 3) * 0.32;
+    var twinkle = (Math.sin(p * 53.7 + t * 0.004) * 0.5 + 0.5) * 0.07;
     return 0.06 + highlight + twinkle;
-  }, 1.0, '170,185,210');
+  }, 1.0, 'theme');
+}
 
-/* ─── FAQ SECTION-LEVEL PIXEL CANVAS (breathing brand-blue wave) ───────── */
-makePixelCanvas('faq-pixel-canvas', 9, 2,
-  function(c, r, t, p) {
-    var el = document.getElementById('faq-pixel-canvas');
-    if (!el) return 0;
-    var H = el.height, W = el.width;
-    var px = c * 9, py = r * 9;
-    var cx = W / 2, cy = H * 1.22;
-    var dx = px - cx, dy = py - cy;
-    var dist = Math.sqrt(dx*dx + dy*dy) / (Math.max(W, H) * 0.9);
-    var breath = Math.sin(t * 0.0006) * 0.5 + 0.5;
-    var ripple = Math.sin(dist * 10 - t * 0.0012) * 0.5 + 0.5;
-    var fade = Math.max(0, 1 - dist * 1.4);
-    return fade * (0.08 + breath * 0.06 + ripple * 0.12);
-  }, 1.0, '20,136,252');
+/* ── FAQ section field — breathing brand-blue wave, both themes ── */
+makePixelCanvas('faq-pixel-canvas', 9, 2, function (c, r, t, p) {
+  var el = document.getElementById('faq-pixel-canvas');
+  if (!el) return 0;
+  var H = el.height, W = el.width;
+  var px = c * 9, py = r * 9;
+  var cx = W / 2, cy = H * 1.22;
+  var dx = px - cx, dy = py - cy;
+  var dist = Math.sqrt(dx*dx + dy*dy) / (Math.max(W, H) * 0.9);
+  var breath = Math.sin(t * 0.0006) * 0.5 + 0.5;
+  var ripple = Math.sin(dist * 10 - t * 0.0012) * 0.5 + 0.5;
+  var fade = Math.max(0, 1 - dist * 1.4);
+  return fade * (0.08 + breath * 0.06 + ripple * 0.12);
+}, 1.0, '20,136,252');
 
-/* ─── FOOTER PIXEL CANVAS (rotating multi-wave, cool white) ────────────────
-   Canonical footer field — matches microsoft.html and the other marketing
-   pages: 4 rotating wave layers gated by a per-dot rand threshold so it
-   renders as a sparse, breathing pixel field (not a solid block). */
-makePixelCanvas('footer-pixel-canvas', 6, 2,
-  function(c, r, t, p) {
-    const px = c * 6, py = r * 6;
-    const el = document.getElementById('footer-pixel-canvas');
-    const H = el ? el.height : 260, W = el ? el.width : 700;
-    const vFade = Math.max(0, 1 - py / (H * 0.85));
-    const cx = W / 2, hFade = Math.max(0, 1 - Math.abs(px - cx) / (W * 0.55));
-    const fade = vFade * hFade; if (fade <= 0) return 0;
-    const speedMod = 0.05 + (Math.sin(t * 0.00070 + 2.2) * 0.5 + 0.5) * 0.22;
-    function rwave(scale, rotRate, phase, tMult) {
-      const angle = t * rotRate + phase;
-      const u = (px * Math.cos(angle) + py * Math.sin(angle)) / scale;
-      const v = (-px * Math.sin(angle) + py * Math.cos(angle)) / scale;
-      return Math.sin(u * Math.PI * 2 + t * tMult * speedMod) * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7 * speedMod);
-    }
-    const s1 = rwave(300,0.00012,0.3,0.00030), s2 = rwave(160,0.00025,1.6,0.00065);
-    const s3 = rwave(80,0.00042,2.9,0.00130), s4 = rwave(220,0.00018,4.2,0.00048);
-    const wf = s1 * 0.5 + 0.5, det = s2 * 0.45 + s3 * 0.30 + s4 * 0.25;
-    const raw = wf * (det * 0.5 + 0.5), density = Math.pow(Math.max(0, raw), 0.7) * fade;
-    const rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
-    return density > rand ? density * 0.85 : 0;
-  }, 1.0, '220,230,245');
+/* ── Footer field — rotating multi-wave; theme colour ── */
+makePixelCanvas('footer-pixel-canvas', 6, 2, function (c, r, t, p) {
+  var px = c * 6, py = r * 6;
+  var el = document.getElementById('footer-pixel-canvas');
+  var H = el ? el.height : 260, W = el ? el.width : 700;
+  var vFade = Math.max(0, 1 - py / (H * 0.85));
+  var cx = W / 2, hFade = Math.max(0, 1 - Math.abs(px - cx) / (W * 0.55));
+  var fade = vFade * hFade; if (fade <= 0) return 0;
+  var speedMod = 0.05 + (Math.sin(t * 0.00070 + 2.2) * 0.5 + 0.5) * 0.22;
+  function rwave(scale, rotRate, phase, tMult) {
+    var angle = t * rotRate + phase;
+    var u = (px * Math.cos(angle) + py * Math.sin(angle)) / scale;
+    var v = (-px * Math.sin(angle) + py * Math.cos(angle)) / scale;
+    return Math.sin(u * Math.PI * 2 + t * tMult * speedMod) * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7 * speedMod);
+  }
+  var s1 = rwave(300,0.00012,0.3,0.00030), s2 = rwave(160,0.00025,1.6,0.00065);
+  var s3 = rwave(80,0.00042,2.9,0.00130), s4 = rwave(220,0.00018,4.2,0.00048);
+  var wf = s1 * 0.5 + 0.5, det = s2 * 0.45 + s3 * 0.30 + s4 * 0.25;
+  var raw = wf * (det * 0.5 + 0.5), density = Math.pow(Math.max(0, raw), 0.7) * fade;
+  var rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
+  return density > rand ? density * 0.85 : 0;
+}, 1.0, 'theme');
 
-/* ─── REWARD CARD HOVER PIXEL FIELD (rotating wave, tinted per variant) ──── */
+/* ── Referral hero stage reveal (section-page.js) — wait for both b PNGs ── */
 (function () {
-  var cards = document.querySelectorAll('.reward-card');
-  if (!cards.length) return;
-  var dpr = window.devicePixelRatio || 1;
+  document.querySelectorAll('.js-rf-stage').forEach(function (stage) {
+    var imgs = stage.querySelectorAll('img');
+    var pending = imgs.length;
+    function reveal() { stage.classList.add('is-ready'); }
+    if (!pending) { reveal(); return; }
+    function one() { if (--pending <= 0) reveal(); }
+    imgs.forEach(function (img) {
+      if (img.complete && img.naturalWidth) one();
+      else { img.addEventListener('load', one); img.addEventListener('error', one); }
+    });
+    setTimeout(reveal, 3000);
+  });
+})();
+
+/* ── Reward-card hover field (section-page.js) + light-theme tones ── */
+(function () {
   var objs = [];
-  cards.forEach(function (card, idx) {
-    var canvas = document.createElement('canvas');
-    canvas.className = 'reward-hover-canvas';
-    card.insertBefore(canvas, card.firstChild);
-    var color = card.classList.contains('reward-card--them') ? '127,221,193' : '104,176,255';
-    var obj = { canvas: canvas, card: card, phase: idx * 2.1, hover: false, color: color };
+  function tone(card) {
+    var light = document.documentElement.getAttribute('data-theme') !== 'dark';
+    var mint = card.classList.contains('reward-card--mint');
+    return light ? (mint ? '13,155,122' : '20,136,252') : (mint ? '127,221,193' : '104,176,255');
+  }
+  document.querySelectorAll('.reward-card').forEach(function (card, idx) {
+    var canvas = card.querySelector('.js-reward-canvas');
+    if (!canvas) return;
+    var obj = { canvas: canvas, card: card, phase: idx * 2.1, hover: false, color: tone(card) };
     card.addEventListener('mouseenter', function () { obj.hover = true; });
     card.addEventListener('mouseleave', function () { obj.hover = false; });
     objs.push(obj);
   });
+  if (!objs.length) return;
+  document.addEventListener('sc-themechange', function () { objs.forEach(function (o) { o.color = tone(o.card); }); });
+  var dpr = window.devicePixelRatio || 1;
   function resizeAll() {
     objs.forEach(function (o) {
-      o.canvas.width  = o.card.offsetWidth  * dpr;
+      o.canvas.width = o.card.offsetWidth * dpr;
       o.canvas.height = o.card.offsetHeight * dpr;
     });
   }
@@ -889,8 +1065,8 @@ makePixelCanvas('footer-pixel-canvas', 6, 2,
           var v1 = (-px * Math.sin(angle1) + py * Math.cos(angle1)) / (220 * dpr);
           var angle2 = t * 0.00022 + o.phase + 1.5;
           var u2 = (px * Math.cos(angle2) + py * Math.sin(angle2)) / (180 * dpr);
-          var wave = (Math.sin(u1 * Math.PI * 2 + t * 0.00030) * Math.cos(v1 * Math.PI * 1.5))
-                   * 0.55 + (Math.sin(u2 * Math.PI * 2 + t * 0.00060) * 0.45);
+          var wave = (Math.sin(u1 * Math.PI * 2 + t * 0.00030) * Math.cos(v1 * Math.PI * 1.5)) * 0.55 +
+                     (Math.sin(u2 * Math.PI * 2 + t * 0.00060) * 0.45);
           var density = Math.pow(Math.max(0, wave * 0.5 + 0.5), 0.8);
           var rand = (Math.sin(c * 127.1 + r * 311.7 + o.phase * 50) * 0.5 + 0.5) * 0.9;
           if (density > rand) {
@@ -907,7 +1083,7 @@ makePixelCanvas('footer-pixel-canvas', 6, 2,
   requestAnimationFrame(draw);
 })();
 
-/* ─── HOW IT WORKS — line-draw + node/text reveal on scroll (canonical) ──── */
+/* ── How it works — line-draw + node/text reveal on scroll ── */
 (function () {
   var wrap = document.querySelector('.how-steps-wrap');
   if (!wrap) return;
@@ -917,46 +1093,276 @@ makePixelCanvas('footer-pixel-canvas', 6, 2,
     });
   }, { threshold: 0.3 });
   io.observe(wrap);
-  /* set glow travel distance to the full track width */
   wrap.style.setProperty('--glow-dist', wrap.offsetWidth + 'px');
 })();
 
-/* ─── HERO VISUAL reveal — wait for the b PNGs to decode, then fade the whole
-   stage (tube + both b's) in together so the light beam doesn't flash in
-   ~1s before the images. Fallback timeout guarantees it never stays hidden. */
-(function () {
-  var stage = document.querySelector('.hero-visual-stage');
-  if (!stage) return;
-  var imgs = stage.querySelectorAll('img');
-  var pending = imgs.length;
-  function reveal() { stage.classList.add('is-ready'); }
-  if (!pending) { reveal(); return; }
-  function one() { if (--pending <= 0) reveal(); }
-  imgs.forEach(function (img) {
-    if (img.complete && img.naturalWidth) { one(); }
-    else { img.addEventListener('load', one); img.addEventListener('error', one); }
-  });
-  setTimeout(reveal, 3000);   // safety net — reveal regardless
-})();
-
-/* ─── FAQ ACCORDION toggle — shared-components.js injects/animates the per-item
-   open-canvas and styles the accordion, but does NOT wire the click-to-open.
-   That toggle is the one page-level behavior the FAQ needs. ─────────────── */
+/* ── FAQ accordion toggle — shared-components.js styles/animates but does not wire the click ── */
 (function () {
   document.querySelectorAll('.ms-faq-item').forEach(function (item) {
     var q = item.querySelector('.ms-faq-q');
     if (!q) return;
-    q.addEventListener('click', function () {
-      item.classList.toggle('is-open');
-    });
+    q.addEventListener('click', function () { item.classList.toggle('is-open'); });
   });
 })();
 
+// ── Bolt strip shimmer ───────────────────────────────────────────────────────
+// Faithful vanilla port of production's FooterWordmark
+// (bolt-public-pages src/components/chrome/FooterWordmark.tsx), which is the
+// component the Forge Lite footer uses. The sandbox had a FORK of this that
+// drifted; every difference between them turned out to be a bug. Re-port from
+// the component, do not hand-tune here.
+//
+// Deltas from production, both deliberate:
+//   · theme switching: production picks light/dark once per render, this
+//     re-initialises on sc-themechange so the preview toggle works.
+//   · window.__shimmer debug hook.
+(function () {
+  var canvas = document.getElementById('bolt-shimmer-canvas');
+  if (!canvas) return;
+  var wrap = canvas.parentElement;
+  var img = wrap.querySelector('img');
+  var ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  var WORDMARK_SRC = '../../../images/bolt-bottom.png';
+  var WORDMARK_LIGHT_SRC = '../../../images/bolt-bottom-light.webp';
+  var SAMPLE_WIDTH = 400, SAMPLE_HEIGHT = 200, SAMPLE_WIDTH_FINE = 1600;
+  var STRIP_BRIGHTNESS_THRESHOLD = 28;
+  var HOVER_SPLASH_DURATION_MS = 300, TOUCH_SPLASH_DURATION_MS = 1500;
+
+  /* production bails entirely under reduced motion */
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+  var splashDuration = isTouch ? TOUCH_SPLASH_DURATION_MS : HOVER_SPLASH_DURATION_MS;
+
+  var strips = [], inView = false, width = 0, height = 0;
+  var time = Math.random() * 80, hoverAmount = 0, isHovered = false;
+  var splashStart, frame, light = false, frames = 0, lastError = null;
+
+  function isLight() { return document.documentElement.getAttribute('data-theme') !== 'dark'; }
+
+  function sampleStrips(image) {
+    var sampleWidth = light ? SAMPLE_WIDTH_FINE : SAMPLE_WIDTH;
+    var scratch = document.createElement('canvas');
+    scratch.width = sampleWidth; scratch.height = SAMPLE_HEIGHT;
+    var c = scratch.getContext('2d', { willReadFrequently: true });
+    if (!c) return [];
+    c.drawImage(image, 0, 0, sampleWidth, SAMPLE_HEIGHT);
+    var data = c.getImageData(0, 0, sampleWidth, SAMPLE_HEIGHT).data;
+    var out = [], inStrip = false, stripStart = 0;
+    for (var x = 0; x < sampleWidth; x++) {
+      var brightness = 0;
+      for (var y = 20; y < SAMPLE_HEIGHT - 20; y++) {
+        var i = (y * sampleWidth + x) * 4;
+        var lum = (data[i] + data[i + 1] + data[i + 2]) / 3;
+        brightness += light ? 255 - lum : lum;   /* light art is ink-on-white */
+      }
+      brightness /= SAMPLE_HEIGHT - 40;
+      if (brightness > STRIP_BRIGHTNESS_THRESHOLD && !inStrip) { inStrip = true; stripStart = x; }
+      else if (brightness <= STRIP_BRIGHTNESS_THRESHOLD && inStrip) {
+        inStrip = false;
+        out.push({ centerX: (stripStart + x) / 2 / sampleWidth, width: (x - stripStart) / sampleWidth,
+                   phase: Math.random() * Math.PI * 2, frequency: 0.5 + Math.random() * 1.2,
+                   yPhase: Math.random() * Math.PI * 2, yFrequency: 0.35 + Math.random() * 0.7,
+                   speedMultiplier: 0.6 + Math.random() * 0.8 });
+      }
+    }
+    return out;
+  }
+
+  function resize() {
+    var rect = wrap.getBoundingClientRect();
+    width = canvas.width = Math.round(rect.width);
+    height = canvas.height = Math.round(rect.height);
+  }
+
+  function tick() {
+    if (!inView) { frame = undefined; return; }
+    frames++;
+    try {
+      var splashRaw = splashStart ? Math.max(0, 1 - (Date.now() - splashStart) / splashDuration) : 0;
+      var splash = splashRaw * splashRaw * splashRaw;
+      time += 0.028 + hoverAmount * 0.016;
+      hoverAmount += ((isHovered ? 1 : 0) - hoverAmount) * (isHovered ? 0.07 : 0.025);
+      ctx.clearRect(0, 0, width, height);
+      for (var i = 0; i < strips.length; i++) {
+        var strip = strips[i];
+        var brightness = Math.sin(time * strip.frequency * strip.speedMultiplier + strip.phase) * 0.5 + 0.5;
+        if (brightness < 0.01) continue;
+        var x = strip.centerX * width;
+        var stripWidth = Math.max(strip.width * width, light ? 2 : 3);
+        var centerY = (Math.sin(time * strip.yFrequency * strip.speedMultiplier + strip.yPhase) * 0.5 + 0.5) * height;
+        var spread = height * (0.55 + hoverAmount * 0.25);
+        var boost = Math.max(hoverAmount, splash);
+        var alpha = brightness * 0.11 + (brightness * 0.28 - brightness * 0.11) * boost;
+        var peakAlpha = alpha * 1.4;
+        var edge = light ? '35,40,55' : '220,225,240';
+        var peak = light ? '10,12,20' : '255,255,255';
+        var g = ctx.createLinearGradient(0, centerY - spread, 0, centerY + spread);
+        g.addColorStop(0, 'rgba(' + edge + ',0)');
+        g.addColorStop(0.3, 'rgba(' + edge + ',' + alpha.toFixed(3) + ')');
+        g.addColorStop(0.5, 'rgba(' + peak + ',' + peakAlpha.toFixed(3) + ')');
+        g.addColorStop(0.7, 'rgba(' + edge + ',' + alpha.toFixed(3) + ')');
+        g.addColorStop(1, 'rgba(' + edge + ',0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(x - stripWidth / 2, 0, stripWidth, height);
+      }
+    } catch (e) { lastError = (e && e.message) || String(e); }
+    frame = requestAnimationFrame(tick);
+  }
+
+  /* Production gates the loop on inView from an IntersectionObserver. That is
+     correct but it is also a single point of failure: if the observer has not
+     reported by the time the art decodes, nothing ever starts. Compute
+     visibility directly as a fallback so start() can never be stranded. */
+  function computeInView() {
+    var r = wrap.getBoundingClientRect();
+    var vh = window.innerHeight || document.documentElement.clientHeight;
+    return r.bottom > 0 && r.top < vh;
+  }
+  function run() { if (frame === undefined && inView) frame = requestAnimationFrame(tick); }
+  function start() {
+    resize();
+    strips = sampleStrips(img);
+    if (!inView && computeInView()) { inView = true; if (!splashStart) splashStart = Date.now(); }
+    run();
+  }
+
+  /* Theme art. Production picks this once; we re-apply on the preview toggle.
+     NOTE: mix-blend-mode is set HERE, never authored in the markup — `screen`
+     on a white ground is invisible, so an authored default is a trap. */
+  var appliedTheme = null;
+  function applyTheme() {
+    light = isLight();
+    var now = light ? 'light' : 'dark';
+    if (now === appliedTheme) return;
+    appliedTheme = now;
+    canvas.style.mixBlendMode = light ? 'multiply' : 'screen';
+    img.style.opacity = light ? '0.32' : '0.20';
+    var want = light ? WORDMARK_LIGHT_SRC : WORDMARK_SRC;
+    if (img.getAttribute('src') !== want) {
+      img.setAttribute('src', want);
+      img.addEventListener('load', start, { once: true });
+    } else if (img.complete && img.naturalWidth) {
+      start();
+    } else {
+      /* src already correct but the image hasn't finished loading — without
+         this branch the shimmer never starts on pages that ship the themed
+         asset statically (the press race, Gary's "not animating") */
+      img.addEventListener('load', start, { once: true });
+    }
+  }
+  document.addEventListener('sc-themechange', applyTheme);
+
+  new ResizeObserver(resize).observe(wrap);
+  new IntersectionObserver(function (entries) {
+    setInView(entries[0].isIntersecting);
+  }, { threshold: 0.1 }).observe(wrap);
+
+  /* The observer is the efficient path, but it is not the only one: it can fail
+     to report (nested browsing contexts, some restored-scroll cases), and then
+     the loop never starts at all — which is exactly the failure mode being
+     chased here. A throttled scroll/resize check keeps inView honest
+     regardless, and costs one getBoundingClientRect per frame while scrolling. */
+  function setInView(v) {
+    if (v === inView) return;
+    inView = v;
+    if (inView) { if (!splashStart) splashStart = Date.now(); run(); }
+  }
+  var pending = false;
+  function onScroll() {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(function () { pending = false; setInView(computeInView()); });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+
+  if (!isTouch) {
+    wrap.addEventListener('mouseenter', function () { isHovered = true; });
+    wrap.addEventListener('mouseleave', function () { isHovered = false; });
+  }
+
+  window.__shimmer = {
+    get strips()  { return strips.length; },
+    get light()   { return light; },
+    get running() { return frame !== undefined; },
+    get inView()  { return inView; },
+    get frames()  { return frames; },
+    get err()     { return lastError; },
+    get t()       { return Math.round(time * 100) / 100; },
+    get src()     { return (img.currentSrc || img.getAttribute('src') || '').split('/').pop(); },
+    get canvas()  { return canvas.width + 'x' + canvas.height; },
+    get blend()   { return getComputedStyle(canvas).mixBlendMode; }
+  };
+
+  applyTheme();
+  if (img.complete && img.naturalWidth) start(); else img.addEventListener('load', start, { once: true });
+})();
 </script>
 
-<!-- Shared standardized components (canonical source — wins the cascade) -->
-<link rel="stylesheet" href="../../../marketing/shared-components.css?v=20260930c">
-<script src="../../../marketing/shared-components.js?v=20260930b"></script>
+<script src="../../shared-nav-footer.js?v=20260929h"></script>
+<!-- shared components load LAST so they win the cascade (buttons, eyebrows, FAQ, footer type, tokens) -->
+<link rel="stylesheet" href="../../shared-components.css?v=20260930c">
+<script src="../../shared-components.js?v=20260930c"></script>
+
+<!-- ╔═══ PROTOTYPE ONLY — THEME REVIEW TOGGLE ═══════════════════════════════╗
+     Light is the site default; "System" follows the OS, so a visitor whose
+     machine is set to dark sees dark — that is the agreed behaviour, not a
+     fallback to a dark default. Normally there is nothing to click. This switcher exists so the two themes can be compared
+     without changing System Settings. REMOVE BEFORE PORTING TO PRODUCTION —
+     delete this whole block, nothing else references it.
+     ╚════════════════════════════════════════════════════════════════════════╝ -->
+<style id="theme-review-toggle-style">
+  .sc-theme-switch {
+    position: fixed; right: 16px; bottom: 16px; z-index: 10000;
+    display: flex; gap: 2px; padding: 3px;
+    background: var(--sc-surface); border: 1px solid var(--sc-line);
+    border-radius: 2px; box-shadow: 0 6px 20px var(--sc-shadow);
+    font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif);
+  }
+  .sc-theme-switch button {
+    appearance: none; border: 0; cursor: pointer; border-radius: 2px;
+    padding: 6px 11px; font-size: 11px; font-weight: 500; letter-spacing: 0.3px;
+    background: transparent; color: var(--sc-text-muted);
+  }
+  .sc-theme-switch button:hover { color: var(--sc-ink); }
+  .sc-theme-switch button[aria-pressed="true"] { background: var(--sc-blue); color: #fff; }
+  @media print { .sc-theme-switch { display: none; } }
+</style>
+<div class="sc-theme-switch" role="group" aria-label="Theme preview">
+  <button type="button" data-theme-set="">System</button>
+  <button type="button" data-theme-set="light">Light</button>
+  <button type="button" data-theme-set="dark">Dark</button>
+</div>
+<script>
+(function () {
+  var root = document.documentElement;
+  var btns = document.querySelectorAll('[data-theme-set]');
+  function sysTheme() {
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function apply(v, persist) {
+    /* '' = System: drop the stored choice and follow the OS. The attribute is
+       still stamped — it is never absent. */
+    root.setAttribute('data-theme', v || sysTheme());
+    btns.forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-theme-set') === v));
+    });
+    if (persist) {
+      try { if (v) localStorage.setItem('sc-theme', v); else localStorage.removeItem('sc-theme'); } catch (e) {}
+    }
+    /* canvases cache their dot colour — tell them to re-read the token */
+    document.dispatchEvent(new CustomEvent('sc-themechange'));
+  }
+  btns.forEach(function (b) {
+    b.addEventListener('click', function () { apply(b.getAttribute('data-theme-set'), true); });
+  });
+  var saved = ''; try { saved = localStorage.getItem('sc-theme') || ''; } catch (e) {}
+  apply(saved, false);
+})();
+</script>
 
 </body>
 </html>
