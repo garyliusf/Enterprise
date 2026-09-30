@@ -1282,13 +1282,13 @@
        it. Sized in px (the token's stops are % of the box). */
     html[data-theme="light"] .pricing-hero-glow { background: var(--sc-hero-bg); height: calc(640px + var(--sc-nav-overlap, 0px)); -webkit-mask-image: none; mask-image: none; }
     html[data-theme="light"] .page-header p { color: rgba(255,255,255,0.94); }
-    /* light pixel field = the solutions.html hero dither (white Bayer squares
-       on the dome, Gary) in place of the dark-only skyline noise */
-    #hero-dither { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 100vw; height: calc(640px + var(--sc-nav-overlap, 0px)); z-index: 1; pointer-events: none; display: none;
+    /* hero pixel field = the family's ordered Bayer dither in BOTH themes
+       (Gary, 2026-09-30): white squares on the light dome, the pale crown on
+       dark — the old skyline noise field is retired. */
+    #hero-dither { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 100vw; height: calc(640px + var(--sc-nav-overlap, 0px)); z-index: 1; pointer-events: none;
       -webkit-mask-image: linear-gradient(180deg, #000 55%, rgba(0,0,0,0) 90%);
               mask-image: linear-gradient(180deg, #000 55%, rgba(0,0,0,0) 90%); }
-    html[data-theme="light"] #hero-dither { display: block; }
-    html[data-theme="light"] #pricing-pixel-skyline { display: none; }
+    #pricing-pixel-skyline { display: none; }
     /* term switch: white pill on the dome (trust's chip inversion) */
     html[data-theme="light"] .term-switch .billing-toggle { background: #fff; border-color: #fff; box-shadow: 0 4px 16px rgba(15,26,42,0.10); }
     html[data-theme="light"] .term-switch .billing-btn { color: rgba(var(--sc-ink-rgb),0.6); }
@@ -3780,8 +3780,8 @@
 
 
 <script>
-// ── Hero dither (LIGHT) — solutions.html's ordered Bayer field: white
-//    squares over the dome, dense at the crown and thinning to the release.
+// ── Hero dither (BOTH themes) — the family's ordered Bayer field. Light:
+//    white squares over the dome. Dark: the pale crown (integrations' params).
 (function () {
   var canvas = document.getElementById('hero-dither');
   if (!canvas) return;
@@ -3793,8 +3793,10 @@
     cols = Math.ceil(canvas.width / CELL) + 1;
     rows = Math.ceil(canvas.height / CELL) + 1;
   }
-  window.addEventListener('resize', init); init();
-  document.addEventListener('sc-themechange', init);
+  var light = true;
+  function readTheme() { light = document.documentElement.getAttribute('data-theme') !== 'dark'; }
+  readTheme(); window.addEventListener('resize', init); init();
+  document.addEventListener('sc-themechange', function () { readTheme(); init(); });
   var start = null;
   function draw(ts) {
     if (!start) start = ts;
@@ -3804,9 +3806,9 @@
     ctx.clearRect(0, 0, W, H);
     for (var r = 0; r < rows; r++) {
       var gy = r / rows;
-      var base = 1 - gy / 0.98;
+      var base = 1 - gy / (light ? 0.98 : 0.85);
       if (base <= 0) continue;
-      base = Math.pow(base, 0.75);
+      base = light ? Math.pow(base, 0.75) : base * base;
       for (var c = 0; c < cols; c++) {
         var gx = c / cols;
         var wave = Math.sin(gx * 4.1 + gy * 6.3 - t * 0.95) * 0.5
@@ -3816,7 +3818,7 @@
         var th = (BAYER[r & 3][c & 3] + 0.5) / 16;
         if (level <= th) continue;
         var a = 0.085 + base * 0.13;
-        ctx.fillStyle = 'rgba(255,255,255,' + a.toFixed(3) + ')';
+        ctx.fillStyle = 'rgba(' + (light ? '255,255,255' : '160,185,230') + ',' + a.toFixed(3) + ')';
         ctx.fillRect(c * CELL, r * CELL, SQ, SQ);
       }
     }
