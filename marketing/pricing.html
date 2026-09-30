@@ -48,7 +48,8 @@
     .page {
       width: min(1200px, calc(100vw - 160px));
       margin: 0 auto;
-      padding: clamp(90px, calc(24px + 8.5vh), 148px) 0 100px; /* below-nav gap, height-fluid — same formula as templates hero */
+      padding: clamp(90px, calc(24px + 8.5vh), 148px) 0 clamp(24px, 4vh, 48px); /* below-nav gap, height-fluid — same formula as templates hero */
+      /* bottom: the FAQ->footer-CTA seam is same-ground, so ONE unit total (CLAUDE.md seam rule): the footer's own 90px + this (was 100px + 40px FAQ pad = ~230px; Gary, 2026-09-30) */
     }
     @media (max-width: 1024px) {
       .page { width: min(900px, calc(100vw - 80px)); }
@@ -1133,7 +1134,7 @@
        desktops; anything narrower stacks. */
     .faq-section {
       margin-top: 100px;
-      padding-bottom: 40px;
+      padding-bottom: 0;
       display: grid;
       grid-template-columns: 1fr;
       gap: 40px;
@@ -1281,6 +1282,13 @@
        it. Sized in px (the token's stops are % of the box). */
     html[data-theme="light"] .pricing-hero-glow { background: var(--sc-hero-bg); height: 640px; -webkit-mask-image: none; mask-image: none; }
     html[data-theme="light"] .page-header p { color: rgba(255,255,255,0.94); }
+    /* light pixel field = the solutions.html hero dither (white Bayer squares
+       on the dome, Gary) in place of the dark-only skyline noise */
+    #hero-dither { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 100vw; height: 640px; z-index: 1; pointer-events: none; display: none;
+      -webkit-mask-image: linear-gradient(180deg, #000 55%, rgba(0,0,0,0) 90%);
+              mask-image: linear-gradient(180deg, #000 55%, rgba(0,0,0,0) 90%); }
+    html[data-theme="light"] #hero-dither { display: block; }
+    html[data-theme="light"] #pricing-pixel-skyline { display: none; }
     /* term switch: white pill on the dome (trust's chip inversion) */
     html[data-theme="light"] .term-switch .billing-toggle { background: #fff; border-color: #fff; box-shadow: 0 4px 16px rgba(15,26,42,0.10); }
     html[data-theme="light"] .term-switch .billing-btn { color: rgba(var(--sc-ink-rgb),0.6); }
@@ -2456,6 +2464,7 @@
 
     <div class="pricing-hero-glow"></div>
     <canvas id="pricing-pixel-skyline"></canvas>
+    <canvas id="hero-dither" aria-hidden="true"></canvas>
 
     <div class="pricing-hero">
       <div class="page-header">
@@ -3770,6 +3779,52 @@
 
 
 
+<script>
+// ── Hero dither (LIGHT) — solutions.html's ordered Bayer field: white
+//    squares over the dome, dense at the crown and thinning to the release.
+(function () {
+  var canvas = document.getElementById('hero-dither');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var CELL = 5, SQ = 2, cols, rows;
+  var BAYER = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]];
+  function init() {
+    canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
+    cols = Math.ceil(canvas.width / CELL) + 1;
+    rows = Math.ceil(canvas.height / CELL) + 1;
+  }
+  window.addEventListener('resize', init); init();
+  document.addEventListener('sc-themechange', init);
+  var start = null;
+  function draw(ts) {
+    if (!start) start = ts;
+    var t = (ts - start) / 1000;
+    var W = canvas.width, H = canvas.height;
+    if (!W || !H) { init(); requestAnimationFrame(draw); return; }
+    ctx.clearRect(0, 0, W, H);
+    for (var r = 0; r < rows; r++) {
+      var gy = r / rows;
+      var base = 1 - gy / 0.98;
+      if (base <= 0) continue;
+      base = Math.pow(base, 0.75);
+      for (var c = 0; c < cols; c++) {
+        var gx = c / cols;
+        var wave = Math.sin(gx * 4.1 + gy * 6.3 - t * 0.95) * 0.5
+                 + Math.sin(gx * 7.7 - gy * 3.1 + t * 0.62) * 0.28;
+        var hm = 1 - Math.pow(Math.abs(gx - 0.5) * 2, 2.2) * 0.85;
+        var level = base * hm + wave * 0.38;
+        var th = (BAYER[r & 3][c & 3] + 0.5) / 16;
+        if (level <= th) continue;
+        var a = 0.085 + base * 0.13;
+        ctx.fillStyle = 'rgba(255,255,255,' + a.toFixed(3) + ')';
+        ctx.fillRect(c * CELL, r * CELL, SQ, SQ);
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+</script>
 <script>
 // ── Bolt strip shimmer ───────────────────────────────────────────────────────
 // Faithful vanilla port of production's FooterWordmark
