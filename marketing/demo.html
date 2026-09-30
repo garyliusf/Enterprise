@@ -268,6 +268,14 @@ body { background: var(--sc-ground, #000); font-family: var(--sc-font-sans, 'Sch
     position: absolute; inset: 0; width: 100%; height: 100%;
     z-index: 1; pointer-events: none;
   }
+  /* Pixel design (Gary, 2026-09-30): the family's ordered Bayer dither (the
+     security/integrations hero field) in BOTH themes replaces the faint wave
+     dots and the static 22px grid — dramatic on light (blue on the ground). */
+  #hero-dither { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none;
+    /* dissolve before the section's foot so the squares don't end on a line */
+    -webkit-mask-image: linear-gradient(180deg, #000 55%, rgba(0,0,0,0) 90%);
+            mask-image: linear-gradient(180deg, #000 55%, rgba(0,0,0,0) 90%); }
+  #hero-pixel-dots, .demo-section::before { display: none; }
   .demo-inner {
     position: relative; z-index: 3;
     width: min(1200px, calc(100vw - 160px)); margin: 0 auto;
@@ -418,6 +426,7 @@ body { background: var(--sc-ground, #000); font-family: var(--sc-font-sans, 'Sch
 <!-- ─── DEMO HERO — copy left, request-a-demo form right ─────────────────── -->
 <section class="demo-section">
   <canvas id="hero-pixel-dots"></canvas>
+  <canvas id="hero-dither" aria-hidden="true"></canvas>
   <div class="demo-inner">
 
     <div class="demo-copy">
@@ -598,6 +607,58 @@ body { background: var(--sc-ground, #000); font-family: var(--sc-font-sans, 'Sch
         if (op < 0.015) continue;
         ctx.fillStyle = 'rgba(' + rgb + ',' + op.toFixed(3) + ')';
         ctx.fillRect(x - DOT, y - DOT, DOT * 2, DOT * 2);
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+
+// ── Hero dither (BOTH themes) — the family's ordered Bayer field, ported from
+//    integrations/index.html. Light: brand blue on the ground, full-height
+//    falloff and a high alpha (Gary: "make it dramatic"). Dark: the family's
+//    pale crown, unchanged from the other heroes.
+(function () {
+  var canvas = document.getElementById('hero-dither');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var CELL = 5, SQ = 2, cols, rows;
+  var BAYER = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]];
+  var light = false, rgb = '160,185,230';
+  function readTheme() {
+    light = document.documentElement.getAttribute('data-theme') !== 'dark';
+    rgb = light ? (getComputedStyle(canvas).getPropertyValue('--sc-dot-rgb').trim() || '20,136,252') : '160,185,230';
+  }
+  function init() {
+    canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
+    cols = Math.ceil(canvas.width / CELL) + 1;
+    rows = Math.ceil(canvas.height / CELL) + 1;
+  }
+  readTheme(); window.addEventListener('resize', init); init();
+  document.addEventListener('sc-themechange', function () { readTheme(); init(); });
+  var start = null;
+  function draw(ts) {
+    if (!start) start = ts;
+    var t = (ts - start) / 1000;
+    var W = canvas.width, H = canvas.height;
+    if (!W || !H) { init(); requestAnimationFrame(draw); return; }
+    ctx.clearRect(0, 0, W, H);
+    for (var r = 0; r < rows; r++) {
+      var gy = r / rows;
+      var base = 1 - gy / (light ? 0.98 : 0.85);
+      if (base <= 0) continue;
+      base = light ? Math.pow(base, 0.75) : base * base;
+      for (var c = 0; c < cols; c++) {
+        var gx = c / cols;
+        var wave = Math.sin(gx * 4.1 + gy * 6.3 - t * 0.95) * 0.5
+                 + Math.sin(gx * 7.7 - gy * 3.1 + t * 0.62) * 0.28;
+        var hm = 1 - Math.pow(Math.abs(gx - 0.5) * 2, 2.2) * 0.85;
+        var level = base * hm + wave * 0.38;
+        var th = (BAYER[r & 3][c & 3] + 0.5) / 16;
+        if (level <= th) continue;
+        var a = light ? 0.14 + base * 0.26 : 0.085 + base * 0.13;   /* light: dramatic */
+        ctx.fillStyle = 'rgba(' + rgb + ',' + a.toFixed(3) + ')';
+        ctx.fillRect(c * CELL, r * CELL, SQ, SQ);
       }
     }
     requestAnimationFrame(draw);
