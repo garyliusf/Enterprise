@@ -4021,7 +4021,7 @@
     function draw(flicker) {
       if (!canvas.width) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = color;
+      ctx.fillStyle = (typeof color === 'function') ? color() : color;
       var threshold = progress * 1.3;
       for (var y = 0; y < rows; y++) {
         for (var x = 0; x < cols; x++) {
@@ -4050,7 +4050,7 @@
       attach(b, '#0a5aa8');
     });
     document.querySelectorAll('.slider-learn-more').forEach(function(b){
-      attach(b, 'rgba(255,255,255,0.2)');
+      attach(b, function () { return getComputedStyle(document.documentElement).getPropertyValue('--sc-btn-pixel-ghost').trim() || 'rgba(255,255,255,0.2)'; });   /* sandbox: shared's ghost pixel token, per theme */
     });
   }
   if (document.readyState === 'loading') {
@@ -4276,21 +4276,26 @@
 .support-inner::before { display: none; }
 /* more of the cards, less of the white edge fade (Gary): tighter mask stops
    and a wider ticker column now that the illustration is gone */
-.support-inner { grid-template-columns: 68fr 32fr; }
-.support-col-ticker { -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 7%, #000 93%, transparent 100%); mask-image: linear-gradient(to right, transparent 0%, #000 7%, #000 93%, transparent 100%); }
-@media (max-width: 768px) { .support-inner { grid-template-columns: 78fr 22fr; } }
-.support-col-image { position: relative; overflow: hidden; min-height: 320px; }
+/* the ticker runs the FULL card width; the corner field floats over its
+   right end, so the cards only dissolve in the last ~14% instead of stopping
+   at a column boundary + fade (Gary: "show more of the cards") */
+.support-inner { grid-template-columns: 1fr; }
+.support-col-ticker { border-right: none; -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 4%, #000 86%, transparent 100%); mask-image: linear-gradient(to right, transparent 0%, #000 4%, #000 86%, transparent 100%); }
+.support-col-image { position: absolute; right: 0; bottom: 0; width: 34%; height: 100%; min-height: 0; pointer-events: none; z-index: 2; }
+@media (max-width: 768px) { .support-inner { grid-template-columns: 1fr; } .support-col-image { width: 45%; } }
+.support-col-image { overflow: hidden; }
 #support-corner-dither {
   position: absolute; right: -46px; bottom: -48px; width: min(520px, 96%); aspect-ratio: 1 / 0.85;
   z-index: 0; pointer-events: none;
   -webkit-mask-image: radial-gradient(ellipse at 72% 82%, #000 34%, transparent 68%);
           mask-image: radial-gradient(ellipse at 72% 82%, #000 34%, transparent 68%);
 }
-@media (max-width: 768px) { .support-col-image { min-height: 0; } #support-corner-dither { width: 140%; right: -30px; bottom: -30px; } }
+@media (max-width: 768px) { #support-corner-dither { width: 140%; right: -30px; bottom: -30px; } }
 .perk-label { color: #4DA6FF; }   /* dark: blue callouts too (was the library's peach #FFD4C4) */
 .perk-icon-wrap { opacity: 1; }
 .perk-icon-wrap svg path { fill: #4DA6FF; }
 .footer-spacer { display: none; }
+html .footer-section { padding-bottom: 48px; }   /* the strip's soft shadow needs room inside overflow:hidden; the divider's margin drops by the same 48 so CTA→divider stays 88 */
 .bolt-image-wrap { margin-top: 0; width: 100%; overflow: hidden; position: relative; height: 32vw; max-height: 32vw; }
 
 /* ─── LIGHT ──────────────────────────────────────────────────────────── */
@@ -4391,7 +4396,7 @@ html[data-theme="light"] .footer-btn-noise { mix-blend-mode: multiply; }
 </style>
 
 <!-- Subtle divider between the prompt-box CTA and the footer columns -->
-<div class="site-footer-divider" style="max-width:1200px;margin:88px auto 0;padding:0 min(80px, 5vw);box-sizing:border-box;"></div>
+<div class="site-footer-divider" style="max-width:1200px;margin:40px auto 0;padding:0 min(80px, 5vw);box-sizing:border-box;"></div>
 
 <!-- ─── SITE FOOTER (link columns, ported from the Retool footer pattern) ── -->
 <!-- SITE FOOTER — migrated verbatim from the Forge Lite page
