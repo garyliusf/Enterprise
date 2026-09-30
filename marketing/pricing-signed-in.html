@@ -4736,9 +4736,19 @@ window.__pageOwnsScrollAnims = true;
         var stacked = window.matchMedia('(max-width: 640px)').matches;
         ledes.forEach(function (l) { l.style.minHeight = ''; });
         if (stacked) return;
-        var max = 0;
-        ledes.forEach(function (l) { max = Math.max(max, l.getBoundingClientRect().height); });
-        ledes.forEach(function (l) { l.style.minHeight = Math.ceil(max) + 'px'; });
+        /* Equalise the DIVIDER's offset from the card top, not just the lede's
+           height: at 2-up the MOST POPULAR chip drops in-flow above Teams'
+           plan name and pushes everything in that card ~35px down, so the
+           lede alone matching still left its divider lower. */
+        var rows = [], target = 0;
+        ledes.forEach(function (l) {
+          var card = l.closest('.card');
+          var pre = l.getBoundingClientRect().top - card.getBoundingClientRect().top;
+          var h = l.getBoundingClientRect().height;
+          rows.push({ l: l, pre: pre, h: h });
+          target = Math.max(target, pre + h);
+        });
+        rows.forEach(function (r) { r.l.style.minHeight = Math.ceil(target - r.pre) + 'px'; });
       }
       equalise();
       window.addEventListener('resize', equalise);
