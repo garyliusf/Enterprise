@@ -2206,6 +2206,7 @@
   </video>
   <div class="hero-video-overlay"></div>
   <canvas id="hero-pixel-dots"></canvas>
+  <canvas class="hero-dither" aria-hidden="true"></canvas>
 
   <!-- Main content area (fills all space above logo train) -->
   <div class="hero-content-area">
@@ -4237,7 +4238,17 @@
 /* hero: the family construction. The library fixes 84vh and (≤900px tall)
    parks the H1 at 80px; the sandbox pads so the H1 lands on the family line
    (215 at 1440×900) and adds the over-hero nav's overlap. */
-.hero-section { height: auto; min-height: calc(min(84vh, 920px) + var(--sc-nav-overlap, 0px)); }
+.hero-section {
+  height: auto; min-height: calc(min(84vh, 920px) + var(--sc-nav-overlap, 0px));
+  /* dark: the family's standard hero backdrop (security/trust/compliance) — the
+     blue crown gradient under the pixel field — instead of the library's bokeh
+     photo (Gary, 2026-09-30). The light rule below swaps in the dome. */
+  background:
+    radial-gradient(1100px 640px at 50% 0%, rgba(24,96,190,0.40), transparent 62%),
+    radial-gradient(760px 640px at 6% 22%, rgba(18,52,124,0.34), transparent 62%),
+    #04060c;
+}
+.hero-video-overlay { display: none; }   /* the photo's darkener — no photo, no overlay (either theme) */
 .hero-content-area { align-items: flex-start; padding-top: calc(clamp(136px, calc(24px + 13.5vh), 190px) + var(--sc-nav-overlap, 0px)); padding-bottom: clamp(56px, 8vh, 96px); }
 @media (max-height: 900px) and (min-width: 1025px) { .hero-content-area { padding-top: calc(clamp(136px, calc(24px + 13.5vh), 190px) + var(--sc-nav-overlap, 0px)); } }
 @media (max-height: 800px) and (min-width: 1025px) { .hero-content-area { padding-top: calc(clamp(136px, calc(24px + 13.5vh), 190px) + var(--sc-nav-overlap, 0px)); } }
@@ -4262,6 +4273,7 @@
 .perk-quote-text { font-style: var(--sc-serif-style, italic); }
 .strip-name { color: #FFB093; font-family: var(--sc-font-serif, 'Literata', Georgia, serif); font-weight: 400; font-style: italic; font-size: 1.25em; letter-spacing: 0.01em; }   /* the rotating-name's type, static (Gary: just Mason) */
 .feat-tab:hover .feat-hover-canvas { opacity: 1; }   /* the standard hover field draws its own alpha; the library's 0.12 was for film grain */
+.hero-dither { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }   /* family Bayer field over the hero (light: white squares on the dome; dark: the pale crown) */
 .footer-spacer { display: none; }
 .bolt-image-wrap { margin-top: 0; width: 100%; overflow: hidden; position: relative; height: 32vw; max-height: 32vw; }
 
@@ -4271,7 +4283,8 @@ html[data-theme="light"] .hero-section { background: var(--sc-hero-bg); backgrou
 html[data-theme="light"] .hero-video-overlay { display: none; }
 html[data-theme="light"] .hero-section::after { background: linear-gradient(to bottom, rgba(255,255,255,0) 66%, var(--sc-ground) 100%); }
 html[data-theme="light"] .hero-subtitle { color: rgba(255,255,255,0.94); }
-html[data-theme="light"] .hero-form-card { border-color: rgba(255,255,255,0.22); box-shadow: 0 24px 64px rgba(15,26,42,0.28); }
+html[data-theme="light"] .hero-form-card { border-color: rgba(255,255,255,0.35); box-shadow: 0 24px 64px rgba(15,26,42,0.28); }
+html[data-theme="light"] .hero-form-card .card-form-strip { border-top-color: rgba(var(--sc-ink-rgb), 0.10); }
 /* logos */
 html[data-theme="light"] .logos-section { background: var(--sc-ground); }
 html[data-theme="light"] .logos-label { color: var(--sc-text-faint, rgba(var(--sc-ink-rgb),0.45)); }
@@ -4335,13 +4348,13 @@ html[data-theme="light"] .star-badge { border-color: rgba(154,79,34,0.3); backgr
 /* footer CTA */
 html[data-theme="light"] .footer-headline { color: var(--sc-ink); }
 html[data-theme="light"] .footer-subtitle { color: var(--sc-text-sub); }
-html[data-theme="light"] .footer-section .card-form-strip { background: var(--sc-surface); border-color: rgba(var(--sc-ink-rgb), 0.12) !important; box-shadow: 0 8px 28px rgba(15,26,42,0.06); }
-html[data-theme="light"] .footer-section .card-strip-headline, html[data-theme="light"] .footer-section .card-strip-sub { color: var(--sc-ink); }
-html[data-theme="light"] .footer-section .strip-name { color: #b5522a; }
-html[data-theme="light"] .footer-section .hero-form-row { background: rgba(var(--sc-ink-rgb), 0.05); border: 1px solid rgba(var(--sc-ink-rgb), 0.10); }
-html[data-theme="light"] .footer-section .hero-email-input { color: var(--sc-ink); }
-html[data-theme="light"] .footer-section .hero-email-input::placeholder { color: var(--sc-text-muted); }
-html[data-theme="light"] .footer-section .footer-btn-noise { mix-blend-mode: multiply; }
+html[data-theme="light"] .card-form-strip { background: var(--sc-surface); border-color: rgba(var(--sc-ink-rgb), 0.12) !important; box-shadow: 0 8px 28px rgba(15,26,42,0.06); }
+html[data-theme="light"] .card-strip-headline, html[data-theme="light"] .card-strip-sub { color: var(--sc-ink); }
+html[data-theme="light"] .strip-name { color: #b5522a; }
+html[data-theme="light"] .hero-form-row { background: rgba(var(--sc-ink-rgb), 0.05); border: 1px solid rgba(var(--sc-ink-rgb), 0.10); }
+html[data-theme="light"] .hero-email-input { color: var(--sc-ink); }
+html[data-theme="light"] .hero-email-input::placeholder { color: var(--sc-text-muted); }
+html[data-theme="light"] .footer-btn-noise { mix-blend-mode: multiply; }
 </style>
 
 <!-- Subtle divider between the prompt-box CTA and the footer columns -->
@@ -4496,6 +4509,40 @@ html[data-theme="light"] .footer-section .footer-btn-noise { mix-blend-mode: mul
   }
   document.querySelectorAll('.feat-tab').forEach(function (tab, i) {
     var cv = tab.querySelector('.feat-hover-canvas'); if (cv) attachHoverField(tab, cv, i);
+  });
+})();
+// ── Hero dither (BOTH themes, every hero variant) — the family's ordered Bayer
+//    field. Light: white squares over the dome. Dark: the pale crown.
+(function () {
+  var BAYER = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]];
+  var light = true;
+  function readTheme() { light = document.documentElement.getAttribute('data-theme') !== 'dark'; }
+  readTheme(); document.addEventListener('sc-themechange', readTheme);
+  document.querySelectorAll('.hero-dither').forEach(function (canvas) {
+    var ctx = canvas.getContext('2d'), CELL = 5, SQ = 2, cols, rows, start = null;
+    function init() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; cols = Math.ceil(canvas.width / CELL) + 1; rows = Math.ceil(canvas.height / CELL) + 1; }
+    window.addEventListener('resize', init); init(); document.addEventListener('sc-themechange', init);
+    function draw(ts) {
+      if (!start) start = ts;
+      var t = (ts - start) / 1000, W = canvas.width, H = canvas.height;
+      if (!W || !H) { init(); requestAnimationFrame(draw); return; }
+      ctx.clearRect(0, 0, W, H);
+      for (var r = 0; r < rows; r++) {
+        var gy = r / rows, base = 1 - gy / (light ? 0.98 : 0.85);
+        if (base <= 0) continue;
+        base = light ? Math.pow(base, 0.75) : base * base;
+        for (var c = 0; c < cols; c++) {
+          var gx = c / cols;
+          var wave = Math.sin(gx * 4.1 + gy * 6.3 - t * 0.95) * 0.5 + Math.sin(gx * 7.7 - gy * 3.1 + t * 0.62) * 0.28;
+          var hm = 1 - Math.pow(Math.abs(gx - 0.5) * 2, 2.2) * 0.85;
+          if (base * hm + wave * 0.38 <= (BAYER[r & 3][c & 3] + 0.5) / 16) continue;
+          ctx.fillStyle = 'rgba(' + (light ? '255,255,255' : '160,185,230') + ',' + (0.085 + base * 0.13).toFixed(3) + ')';
+          ctx.fillRect(c * CELL, r * CELL, SQ, SQ);
+        }
+      }
+      requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
   });
 })();
 // ── Bolt strip shimmer ───────────────────────────────────────────────────────
