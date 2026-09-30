@@ -3895,7 +3895,7 @@
     // Draw after layout settles
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
-        document.querySelectorAll('.feat-hover-canvas').forEach(drawHoverNoise);
+        /* sandbox: the hover noise is replaced by the standard hover pixel field (attachHoverField, appended after the body) */
       });
     });
   })();
@@ -4261,6 +4261,7 @@
 .success-pull-quote-text { font-style: var(--sc-serif-style, italic); font-weight: 400; color: var(--sc-ink, #fff); }   /* serif display standard: Literata italic 400; ink, not the library's beige #EDDCC6 (Gary: our grey or white) */
 .perk-quote-text { font-style: var(--sc-serif-style, italic); }
 .strip-name { color: #FFB093; font-family: var(--sc-font-serif, 'Literata', Georgia, serif); font-weight: 400; font-style: italic; font-size: 1.25em; letter-spacing: 0.01em; }   /* the rotating-name's type, static (Gary: just Mason) */
+.feat-tab:hover .feat-hover-canvas { opacity: 1; }   /* the standard hover field draws its own alpha; the library's 0.12 was for film grain */
 .footer-spacer { display: none; }
 .bolt-image-wrap { margin-top: 0; width: 100%; overflow: hidden; position: relative; height: 32vw; max-height: 32vw; }
 
@@ -4452,6 +4453,51 @@ html[data-theme="light"] .footer-section .footer-btn-noise { mix-blend-mode: mul
 </section>
 
 <script>
+/* ── Feature-tab hover = the standard hover pixel field (compliance / unlock
+   cards): rotating blue dot wave fading in from the left, both themes. ── */
+(function () {
+  function attachHoverField(tile, canvas, idx) {
+    var ctx = canvas.getContext('2d');
+    var SPACING = 9, DOT = 2, cols = 0, rows = 0, phases = [], hovered = false, t = 0;
+    var phase = idx * 1.7;
+    function resize() {
+      var w = tile.offsetWidth, h = tile.offsetHeight; if (!w || !h) return;
+      canvas.width = w; canvas.height = h;
+      cols = Math.ceil(w / SPACING) + 1; rows = Math.ceil(h / SPACING) + 1;
+      phases = Array.from({ length: rows }, function() { return Array.from({ length: cols }, function() { return Math.random() * Math.PI * 2; }); });
+    }
+    try { new ResizeObserver(resize).observe(tile); } catch(e) {}
+    requestAnimationFrame(resize);
+    tile.addEventListener('mouseenter', function() { hovered = true; });
+    tile.addEventListener('mouseleave', function() { hovered = false; });
+    function draw() {
+      if (!hovered || !cols) { requestAnimationFrame(draw); return; }
+      t += 0.03;
+      var W = canvas.width, H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+      var angle = t * 0.16 + phase;
+      var ca = Math.cos(angle), sa = Math.sin(angle);
+      for (var r = 0; r < rows; r++) {
+        for (var c = 0; c < cols; c++) {
+          var px = c * SPACING, py = r * SPACING;
+          var ph = (phases[r] && phases[r][c]) || 0;
+          var u = (px * ca + py * sa) / 58;
+          var wave = Math.sin(u + t + ph) * Math.cos((px * -sa + py * ca) / 90 + t * 0.6);
+          var hFade = px / W;
+          var op = Math.max(0, wave) * 0.55 * hFade;
+          if (op < 0.04) continue;
+          ctx.fillStyle = 'rgba(60,140,235,' + op.toFixed(3) + ')';
+          ctx.fillRect(px, py, DOT, DOT);
+        }
+      }
+      requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
+  }
+  document.querySelectorAll('.feat-tab').forEach(function (tab, i) {
+    var cv = tab.querySelector('.feat-hover-canvas'); if (cv) attachHoverField(tab, cv, i);
+  });
+})();
 // ── Bolt strip shimmer ───────────────────────────────────────────────────────
 // Faithful vanilla port of production's FooterWordmark
 // (bolt-public-pages src/components/chrome/FooterWordmark.tsx), which is the
