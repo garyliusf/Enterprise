@@ -77,8 +77,9 @@
        white by the hero's foot, 300px pinned the subtitle's last line onto
        the pale tail regardless of ramp depth (Gary). Still the compact
        browsing hero — not the 684px standard. */
-    min-height: min(42vh, 430px);       /* fallback */
-    min-height: min(42dvh, 430px);      /* mobile-viewport correct */
+    /* + the over-hero nav's overlap (69px on light, 0 dark): the nav is pulled over the page, so the hero grows by the same amount and the copy stays put (2026-09-30) */
+    min-height: calc(min(42vh, 430px) + var(--sc-nav-overlap, 0px));       /* fallback */
+    min-height: calc(min(42dvh, 430px) + var(--sc-nav-overlap, 0px));      /* mobile-viewport correct */
     position: relative;
     overflow: hidden;
     display: flex;
@@ -90,7 +91,7 @@
        calc(base + Nvh) rather than a bare Nvh so it stays ABOVE the clamp floor
        through the real laptop range; a bare vh would pin to the floor on short
        screens and stop changing. Floor still clears the 69px fixed nav. */
-    padding: clamp(90px, calc(24px + 8.5vh), 148px) 0 clamp(8px, 1.1vh, 26px);
+    padding: calc(clamp(90px, calc(24px + 8.5vh), 148px) + var(--sc-nav-overlap, 0px)) 0 clamp(8px, 1.1vh, 26px);  /* + the over-hero nav overlap */
     /* Glows layered bottom-up. The blue was centred at 50% 30% — right on the
        headline — so it read as a halo behind the text. Anchoring it above the
        top edge (50% -18%) turns it into ambient light spilling down from the
@@ -211,7 +212,7 @@ html[data-theme="light"] .hero-section {
        than the H1+subtitle stack turned into dead centering space above the
        headline and below the subtitle. Padding-top is a flat 80px (nav 68px +
        12px breathing room); bottom padding stays tight. */
-    .hero-section { min-height: 0; padding: 80px 0 20px; }
+    .hero-section { min-height: 0; padding: calc(80px + var(--sc-nav-overlap, 0px)) 0 20px; }
     .hero-inner { gap: 16px; width: calc(100vw - 32px); }
   }
   .hero-inner {
@@ -1861,7 +1862,7 @@ html[data-theme="light"] .hero-section {
 <body>
 
 <!-- ─── NAVBAR ────────────────────────────────────────────────────────────── -->
-<nav class="mkt-nav" aria-label="Primary">
+<nav class="mkt-nav mkt-nav--over-hero" aria-label="Primary">
   <div class="mkt-nav-inner">
     <!-- Nav-bar Back button — only appears on mobile when a submenu is active (JS toggles .is-on-submenu on .mkt-nav). Replaces the logo in the same slot. -->
     <button class="mkt-nav-back" data-mobile-back aria-label="Back to main menu">

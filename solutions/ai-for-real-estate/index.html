@@ -47,9 +47,319 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400..900;1,400..900&family=Literata:ital,opsz,wght@0,7..72,200..900;1,7..72,200..900&display=swap" rel="stylesheet">
 <style>
+/* ─── --sc-* THEME TOKENS — inlined verbatim from marketing/shared-components.css
+   (2026-09-30 light port). This page is self-contained by design (synced with
+   production, which has no shared-components), so the palette lives here. Keep
+   in sync with shared when tokens change. ── */
+:root,
+.sc-on-light {
+  /* ink — the text/border colour, as an RGB triplet for free alpha */
+  --sc-ink-rgb: 10, 12, 20;
+  --sc-ink: #0a0a0a;                      /* solid primary text / headlines */
+
+  /* ground + surfaces */
+  --sc-ground: #fff;                      /* page background */
+  --sc-ground-rgb: 255, 255, 255;         /* for translucent grounds/scrims */
+  --sc-surface: #fafbfd;                  /* cards, panels, tiles */
+  /* On LIGHT the band is the ground — Gary: the templates section should stay
+     white, not sit a step darker. Dark keeps its #050508 lift, where a band
+     off pure black is what separates the section. Only .tmpl-section and its
+     rail fade consume this. */
+  --sc-band: #fff;
+  --sc-band-rgb: 255, 255, 255;
+  --sc-surface-strong: #f1f3f7;           /* deeper surface — strips, table heads */
+  --sc-recess: rgba(10, 12, 20, 0.05);    /* panel RECESSED into a surface */
+  --sc-hover-tint: rgba(20, 136, 252, 0.06);/* card hover: a blue lean, not a wash */
+  --sc-flash-tint: rgba(20, 136, 252, 0.16);/* cursor flashlight centre */
+  --sc-hover-filter: brightness(0.97);    /* light DARKENS on hover */
+
+  /* standard text roles (see CLAUDE.md typography table) */
+  --sc-text-sub: #5b5b66;                 /* hero subtitle   (dark: #ABABAB) */
+  --sc-text-muted: rgba(10, 12, 20, 0.61);/* section subtitle  — 5.35:1 (dark: 5.28) */
+  --sc-text-desc: rgba(10, 12, 20, 0.65); /* card/body copy    — 6.18:1 (dark: 6.27) */
+  --sc-text-faint: rgba(10, 12, 20, 0.58);/* small caps labels — 4.80:1 (dark: 3.66) */
+
+  /* lines */
+  --sc-line: rgba(10, 12, 20, 0.10);      /* standard card/panel border */
+  --sc-line-soft: rgba(10, 12, 20, 0.07); /* hairlines, FAQ item rules */
+  --sc-line-strong: rgba(10, 12, 20, 0.22);/* ghost-button border */
+  --sc-icon-border: rgba(10, 12, 20, 0.18);/* icon tiles: 0.08 vanishes on light (Gary) */
+  /* Company logos ship with #A8ADB5 baked in (picked for the dark theme) and
+     read washed-out on white. Flatten to ink and carry the weight in alpha,
+     so they sit at the same darkness as the stroked UI icons above. */
+  --sc-logo-filter: brightness(0) opacity(0.85);
+  /* Pixel-fill hover on ghost buttons — white dots are invisible on a light
+     ground, so the dot colour flips with the theme. */
+  --sc-btn-pixel-ghost: rgba(10, 12, 20, 0.22);
+
+  /* brand blue — identical in both themes except as text on the ground */
+  --sc-blue: #1488FC;                     /* button fills, icons, eyebrows */
+  --sc-blue-hover: #0f6fd0;
+  --sc-blue-ink: #0a5aa8;                 /* blue TEXT on the ground (AA) */
+
+  /* effects */
+  --sc-dot-rgb: 20, 136, 252;             /* pixel-canvas dots — blue on light */
+  --sc-shadow: rgba(10, 12, 20, 0.14);
+  --sc-accent-warm: #b1502a;             /* warm serif accent (dark: #FFB093) */
+  --sc-logo-invert: 0;                    /* logo trains ship BLACK artwork */
+  --sc-hero-art: 0;                       /* dark-only hero photo + scrim: hidden on light */
+  --sc-hero-art-display: none;            /* for art whose KEYFRAMES animate opacity */
+  /* Light hero: an inverted aurora — deep navy arcing down through brand blue
+     into the page ground, with a fine halftone over it. Replaces the photo,
+     which is lit for a black scrim and cannot invert. */
+  /* Static base — also the reduced-motion and no-JS state. The animated
+     layers (.hero-aurora) sit on top of this and drift. Stops are deliberately
+     LARGE: the dark dome owns the top ~40%, reaching white around 72%, which
+     is the proportion in the reference. An earlier, tighter ramp read as a
+     clipped band across the top. */
+  --sc-hero-bg:
+    /* Very WIDE, modest height: the blue must reach the left and right edges at
+       the top so only the BOTTOM arcs. A squarer ellipse curves on all sides
+       and reads as a half-moon (Gary). */
+    /* Matched to the reference by measurement, not feel: the crown is
+       NEAR-BLACK and holds to ~37%, then a TIGHT ramp through vivid blue to a
+       bright cyan rim at 64%, releasing to white by ~71%. An even ramp across
+       the full height reads as flat mid-blue and loses the depth entirely. */
+    /* ONE dome with a TIGHT BRIGHT RIM hugging its arc — that rim is the whole
+       effect. The reference's apparent glow at the lower left and right is not
+       two corner lights, it is the rim itself, which sits lower at the sides
+       where the arc sweeps down. Corner glows were tried and were the wrong
+       mechanism: they lit the bottom without ever producing the edge.
+       The bright stops are deliberately NARROW (60% -> 67%); spreading them
+       is what made every earlier pass read as flat mid-blue. */
+    /* Taller now that the drift layers are gone — they had been padding the
+       mid-band, so without them the ramp has to carry the whole height itself
+       or white arrives before the copy clears. */
+    /* LINEAR vertical ramp — Gary's reference is not a radial dome at all.
+       Deep navy at the crown straight down through royal blue, pale blue and
+       into white. Every radial construction before this fought the fact that
+       the reference has no arc in it. */
+    linear-gradient(180deg,
+      #021a57 0%, #04246c 14%, #072f86 26%, #0a3f9e 38%,
+      #1259c3 50%, #3b82cf 60%, #6ba6da 68%,
+      #a3c8e6 76%, #cfe0ee 83%, #e8eff6 89%,
+      #f6f8fb 95%, #fff 100%),
+    #fff;
+  --sc-aurora-on: 1;
+  /* 0: the copy stack must NOT move (Gary). Covering the subtitle and CTA is
+     the gradient's job — lifting the stack also moved the H1 up ~51px, which
+     was a side effect of the fix, not the intent. */
+  --sc-hero-lift: 0px;
+  --sc-hero-grid: rgba(10, 30, 70, 0.10);
+  /* ── CHROME (nav + site footer). Light values are Forge Lite's, lifted from
+     bolt-public-pages src/styles/marketing-nav-footer.css; dark values are the
+     sandbox's existing ones, so dark renders exactly as before. ── */
+  --sc-nav-bg: #fff;                      /* AT REST: solid — the hero aurora is vivid blue and glass muddies it (Gary) */
+  --sc-nav-bg-scrolled: rgba(255, 254, 254, 0.82);/* once scrolled: the glass treatment */
+  --sc-nav-bg-solid: #fffefe;              /* OPAQUE: an open menu must never leave the bar translucent (prod #335); 0.88 let the page bleed through as a grey band (Gary) */
+  --sc-nav-hairline: rgba(10, 12, 20, 0.06);
+  --sc-nav-menu-divider: rgba(10, 12, 20, 0.10);  /* bar/panel seam while a menu is open — 0.06 vanished against the white panel (Gary); production light nav uses 0.1 here */
+  --sc-nav-ink: rgba(0, 0, 0, 0.7);
+  --sc-nav-ink-hover: #000;
+  --sc-nav-ink-hover-bg: rgba(0, 0, 0, 0.05);
+  --sc-nav-logo: #0a0a0a;
+  /* Over-hero nav variant (.mkt-nav--over-hero, opt-in per page). AT REST
+     the bar sits transparently on the blue hero with white ink; past the
+     scroll threshold it falls back to the regular tokens above. Overlap is
+     how far the hero is pulled up under the bar. (Gary, 2026-09-28) */
+  --sc-nav-over-bg: transparent;
+  --sc-nav-over-bg-scrolled: #fff;       /* solid, not glass: glass over the blue hero reads blue-grey */
+  --sc-nav-over-blur: none;              /* blur would smear the dither under the bar */
+  --sc-nav-over-hairline: transparent;
+  --sc-nav-over-ink: #fff;                /* pure white — any alpha lets the blue through and reads faded (Gary) */
+  --sc-nav-over-ink-hover: #fff;
+  --sc-nav-over-ink-hover-bg: rgba(255, 255, 255, 0.1);
+  --sc-nav-over-logo: #fff;
+  --sc-nav-overlap: 69px;                /* the BOX height: 68px bar + the 1px hairline border — 68 left a white 1px row at the very top */
+  --sc-panel-bg: #fffefe;
+  --sc-panel-shadow: 0 24px 40px -16px rgba(10, 12, 20, 0.12);  /* soft; the negative spread keeps it off the bar above (the dark one read as a drop shadow on the bar) */
+  --sc-panel-heading: #73737b;
+  --sc-panel-link: #525258;
+  --sc-panel-link-hover: #0c0c0f;
+  --sc-feature-bg: rgba(17, 17, 20, 0.04);
+  --sc-feature-bg-hover: #eef6ff;          /* light brand-blue tint — was lavender #f3f0f5 (Gary) */
+  --sc-feature-border: #EFEDF3;
+  --sc-feature-border-hover: #bfdcfd;      /* blue to match the fill — the old grey-purple clashed */
+  --sc-scrim: rgba(17, 17, 20, 0.25);
+  --sc-drawer-bg: #fffefe;
+  --sc-dim: 0.6;
+}
+
+/* DARK — system preference. The :not([data-theme="light"]) guard lets a page
+   pin itself light even on a dark-set machine. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --sc-ink-rgb: 255, 255, 255;
+    --sc-ink: #fff;
+
+    --sc-ground: #000;
+    --sc-ground-rgb: 0, 0, 0;
+    --sc-surface: #09090b;
+    --sc-band: #050508;
+    --sc-band-rgb: 5, 5, 8;
+    --sc-surface-strong: #060606;
+    --sc-recess: rgba(0, 0, 0, 0.35);
+    --sc-hover-tint: rgba(20, 136, 252, 0.08);
+    --sc-flash-tint: rgba(150, 185, 255, 0.14);
+    --sc-hover-filter: brightness(1.25);    /* dark BRIGHTENS on hover */
+
+    --sc-text-sub: #ABABAB;
+    --sc-text-muted: rgba(255, 255, 255, 0.5);
+    --sc-text-desc: rgba(255, 255, 255, 0.55);
+    --sc-text-faint: rgba(255, 255, 255, 0.4);
+
+    --sc-line: rgba(255, 255, 255, 0.10);
+    --sc-line-soft: rgba(255, 255, 255, 0.07);
+    --sc-line-strong: rgba(255, 255, 255, 0.22);
+    --sc-icon-border: rgba(255, 255, 255, 0.08);
+    --sc-logo-filter: none;
+    --sc-btn-pixel-ghost: rgba(255, 255, 255, 0.18);
+
+    --sc-blue: #1488FC;
+    --sc-blue-hover: #0f6fd0;
+    --sc-blue-ink: #1488FC;               /* full brand blue reads fine on black */
+
+    --sc-dot-rgb: 180, 185, 195;
+    --sc-shadow: rgba(0, 0, 0, 0.5);
+    --sc-accent-warm: #FFB093;
+    --sc-logo-invert: 1;                  /* black wordmarks inverted to white */
+    --sc-hero-art: 1;
+    --sc-hero-art-display: block;
+    --sc-hero-bg: #000;
+    --sc-aurora-on: 0;
+    --sc-hero-lift: 0px;
+    --sc-hero-grid: rgba(255, 255, 255, 0.05);
+    --sc-nav-bg: rgba(5, 5, 7, 0.72);
+    --sc-nav-bg-scrolled: rgba(5, 5, 7, 0.72);  /* dark keeps glass in both states */
+    --sc-nav-bg-solid: #050507;
+    --sc-nav-hairline: transparent;
+    --sc-nav-menu-divider: transparent;
+    --sc-nav-ink: rgba(255, 255, 255, 0.75);
+    --sc-nav-ink-hover: #fff;
+    --sc-nav-ink-hover-bg: rgba(255, 255, 255, 0.05);
+    --sc-nav-logo: #fff;
+    /* over-hero at rest = the regular dark bar; overlap 0 so dark never moves */
+    --sc-nav-over-bg: rgba(5, 5, 7, 0.72);
+    --sc-nav-over-bg-scrolled: rgba(5, 5, 7, 0.72);
+    --sc-nav-over-blur: saturate(140%) blur(18px);
+    --sc-nav-over-hairline: transparent;
+    --sc-nav-over-ink: rgba(255, 255, 255, 0.75);
+    --sc-nav-over-ink-hover: #fff;
+    --sc-nav-over-ink-hover-bg: rgba(255, 255, 255, 0.05);
+    --sc-nav-over-logo: #fff;
+    --sc-nav-overlap: 0px;
+    --sc-panel-bg: rgba(8, 8, 12, 0.98);
+    --sc-panel-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+    --sc-panel-heading: rgba(255, 255, 255, 0.4);
+    --sc-panel-link: rgba(255, 255, 255, 0.55);
+    --sc-panel-link-hover: #fff;
+    --sc-feature-bg: rgba(255, 255, 255, 0.03);
+    --sc-feature-bg-hover: rgba(255, 255, 255, 0.045);
+    --sc-feature-border: rgba(255, 255, 255, 0.08);
+    --sc-feature-border-hover: rgba(255, 255, 255, 0.22);
+    --sc-scrim: rgba(0, 0, 0, 0.5);
+    --sc-drawer-bg: #000;
+    --sc-dim: 0.5;
+  }
+}
+
+/* DARK — explicitly pinned. SYNC PAIR with the media-query block above: these
+   two carry the same values and must be edited together. (Kept as plain CSS
+   rather than light-dark() so the tokens resolve on every browser, not just
+   Baseline-2024 ones.) */
+:root[data-theme="dark"],
+.sc-on-dark {
+  --sc-ink-rgb: 255, 255, 255;
+  --sc-ink: #fff;
+
+  --sc-ground: #000;
+  --sc-ground-rgb: 0, 0, 0;
+  --sc-surface: #09090b;
+  --sc-band: #050508;
+  --sc-band-rgb: 5, 5, 8;
+  --sc-surface-strong: #060606;
+  --sc-recess: rgba(0, 0, 0, 0.35);
+  --sc-hover-tint: rgba(20, 136, 252, 0.08);
+  --sc-flash-tint: rgba(150, 185, 255, 0.14);
+  --sc-hover-filter: brightness(1.25);    /* dark BRIGHTENS on hover */
+
+  --sc-text-sub: #ABABAB;
+  --sc-text-muted: rgba(255, 255, 255, 0.5);
+  --sc-text-desc: rgba(255, 255, 255, 0.55);
+  --sc-text-faint: rgba(255, 255, 255, 0.4);
+
+  --sc-line: rgba(255, 255, 255, 0.10);
+  --sc-line-soft: rgba(255, 255, 255, 0.07);
+  --sc-line-strong: rgba(255, 255, 255, 0.22);
+  --sc-icon-border: rgba(255, 255, 255, 0.08);
+  --sc-logo-filter: none;
+  --sc-btn-pixel-ghost: rgba(255, 255, 255, 0.18);
+
+  --sc-blue: #1488FC;
+  --sc-blue-hover: #0f6fd0;
+  --sc-blue-ink: #1488FC;
+
+  --sc-dot-rgb: 180, 185, 195;
+  --sc-shadow: rgba(0, 0, 0, 0.5);
+  --sc-accent-warm: #FFB093;
+  --sc-logo-invert: 1;
+  --sc-hero-art: 1;
+  --sc-hero-art-display: block;
+  --sc-hero-bg: #000;
+  --sc-aurora-on: 0;
+  --sc-hero-lift: 0px;
+  --sc-hero-grid: rgba(255, 255, 255, 0.05);
+  --sc-nav-bg: rgba(5, 5, 7, 0.72);
+  --sc-nav-bg-scrolled: rgba(5, 5, 7, 0.72);  /* dark keeps glass in both states */
+  --sc-nav-bg-solid: #050507;
+  --sc-nav-hairline: transparent;
+  --sc-nav-menu-divider: transparent;
+  --sc-nav-ink: rgba(255, 255, 255, 0.75);
+  --sc-nav-ink-hover: #fff;
+  --sc-nav-ink-hover-bg: rgba(255, 255, 255, 0.05);
+  --sc-nav-logo: #fff;
+  /* over-hero at rest = the regular dark bar; overlap 0 so dark never moves */
+  --sc-nav-over-bg: rgba(5, 5, 7, 0.72);
+  --sc-nav-over-bg-scrolled: rgba(5, 5, 7, 0.72);
+  --sc-nav-over-blur: saturate(140%) blur(18px);
+  --sc-nav-over-hairline: transparent;
+  --sc-nav-over-ink: rgba(255, 255, 255, 0.75);
+  --sc-nav-over-ink-hover: #fff;
+  --sc-nav-over-ink-hover-bg: rgba(255, 255, 255, 0.05);
+  --sc-nav-over-logo: #fff;
+  --sc-nav-overlap: 0px;
+  --sc-panel-bg: rgba(8, 8, 12, 0.98);
+  --sc-panel-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+  --sc-panel-heading: rgba(255, 255, 255, 0.4);
+  --sc-panel-link: rgba(255, 255, 255, 0.55);
+  --sc-panel-link-hover: #fff;
+  --sc-feature-bg: rgba(255, 255, 255, 0.03);
+  --sc-feature-bg-hover: rgba(255, 255, 255, 0.045);
+  --sc-feature-border: rgba(255, 255, 255, 0.08);
+  --sc-feature-border-hover: rgba(255, 255, 255, 0.22);
+  --sc-scrim: rgba(0, 0, 0, 0.5);
+  --sc-drawer-bg: #000;
+  --sc-dim: 0.5;
+}
+
+/* ─── TYPE FAMILIES (Gary, 2026-09-28) ─────────────────────────────────────
+   Theme-independent, so they live outside the three synced palette blocks.
+   Each chain falls back to the family it replaced: the retired mirrors
+   (microsoft, bolt-cli, referral, forrester, share) link this
+   file but still load only their legacy fonts, so they keep rendering exactly
+   as before without being edited. */
+:root {
+  --sc-font-sans:  'Schibsted Grotesk', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --sc-font-label: 'Schibsted Grotesk', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;   /* eyebrows, tags, small uppercase labels — sans now (Gary, 2026-09-29; was Literata) */
+  --sc-font-serif: 'Literata', 'Cormorant Garamond', Georgia, serif;   /* quotes, serif display (was Cormorant) */
+  --sc-serif-style: italic;              /* Gary: the serif role is Literata ITALIC — flip here for upright */
+  --sc-eyebrow-size: 13px;              /* eyebrows — was 16px, too big in Literata (Gary) */
+  --sc-label-weight: 700;               /* labels at Bold (Gary, 2026-09-29: 600 still read thin at 13px in Schibsted) */
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
-body { background: #000; font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif); overflow-x: hidden; overflow-x: clip; /* clip not hidden — hidden makes body a scroll container and breaks the sticky nav */ color: #fff; }
+body { background: var(--sc-ground, #000); font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif); overflow-x: hidden; overflow-x: clip; /* clip not hidden — hidden makes body a scroll container and breaks the sticky nav */ color: var(--sc-ink, #fff); }
 
 /* ─── PROMO ANNOUNCEMENT BANNER (BiggerPockets) ──────────────────────────── */
 .bp-page { --bp-banner-h: 44px; }
@@ -1108,6 +1418,78 @@ body.bp-page { padding-top: var(--bp-banner-h); }
 .footer-link:hover { color: #999; }
 .footer-copyright { font-size: 12px; color: #444; padding-bottom: 24px; }
 
+/* ─── LIGHT (2026-09-30 port) — dark literals above are untouched; light values
+   are the --sc-* tokens so the page tracks the family. ─────────────────── */
+/* hero: the family dome replaces the aurora photo + black cover; white copy on
+   the crown. The over-hero nav is pulled over the page by --sc-nav-overlap on
+   light (0 on dark), so the hero pads by the same amount. */
+.hero-section { padding-top: var(--sc-nav-overlap, 0px); }
+html[data-theme="light"] .hero-section { background: var(--sc-hero-bg); }
+html[data-theme="light"] .hero-overlay, html[data-theme="light"] .hero-pixel-cover { display: none; }
+html[data-theme="light"] .hero-subtitle { color: rgba(255,255,255,0.94); }
+/* hero pixel field = the family's ordered Bayer dither (both themes); the old
+   microsoft-style dots are retired */
+#hero-dither { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none;
+  -webkit-mask-image: linear-gradient(180deg, #000 55%, rgba(0,0,0,0) 90%); mask-image: linear-gradient(180deg, #000 55%, rgba(0,0,0,0) 90%); }
+#hero-pixel-dots { display: none; }
+/* hero prompt shell (comet outline): white card on light, use-cases treatment */
+html[data-theme="light"] .hero-prompt-shell { background: rgba(255,255,255,0.55); }
+html[data-theme="light"] .hero-prompt-inner { background: #fff; }
+html[data-theme="light"] .hero-prompt-shell .re-prompt-input { color: var(--sc-ink); }
+html[data-theme="light"] .hero-prompt-example, html[data-theme="light"] .re-prompt-input::placeholder { color: rgba(var(--sc-ink-rgb),0.4); }
+html[data-theme="light"] .hero-pills { background: #fff; border-color: #fff; box-shadow: 0 4px 16px rgba(15,26,42,0.10); }
+html[data-theme="light"] .hero-pills li { color: #0d9b7a; }
+html[data-theme="light"] .hero-pills li::before { background: #0d9b7a; }
+/* sections */
+html[data-theme="light"] .section--bordered, html[data-theme="light"] .why-section, html[data-theme="light"] .how-section, html[data-theme="light"] .ms-faq-section, html[data-theme="light"] .footer-section { border-top-color: var(--sc-line-soft); }
+html[data-theme="light"] .section-headline, html[data-theme="light"] .ms-faq-headline, html[data-theme="light"] .footer-headline, html[data-theme="light"] .template-create-headline { color: var(--sc-ink); }
+html[data-theme="light"] .section-sub { color: var(--sc-text-muted); }
+/* why stats */
+html[data-theme="light"] .why-stat-cell { border-color: var(--sc-line); }
+html[data-theme="light"] .why-stat-eyebrow { color: var(--sc-text-faint); }
+html[data-theme="light"] .why-stat-number { color: var(--sc-ink); }
+/* who / unlocks */
+html[data-theme="light"] .unlocks-visual { background: var(--sc-surface-strong); border-color: var(--sc-line); box-shadow: 0 8px 28px rgba(15,26,42,0.06), inset 0 1px 0 #fff; }
+html[data-theme="light"] .unlock-card { background: #fff; border: 1px solid var(--sc-line); }
+html[data-theme="light"] .unlock-card:hover { border-color: var(--sc-line-strong); }
+html[data-theme="light"] .unlock-icon { background: rgba(var(--sc-ink-rgb),0.05); border-color: var(--sc-icon-border); color: rgba(var(--sc-ink-rgb),0.85); }
+html[data-theme="light"] .unlock-title { color: var(--sc-ink); }
+html[data-theme="light"] .unlock-desc { color: var(--sc-text-desc); }
+/* templates */
+html[data-theme="light"] .template-card { background: #fff; border: 1px solid var(--sc-line); }
+html[data-theme="light"] .template-card:hover { border-color: var(--sc-line-strong); }
+html[data-theme="light"] .template-card-image img { filter: none; }
+html[data-theme="light"] .template-card-title { color: var(--sc-ink); }
+html[data-theme="light"] .template-card-desc { color: var(--sc-text-muted); }
+html[data-theme="light"] .re-prompt-shell { background: #fff; border-color: var(--sc-line); box-shadow: 0 4px 16px rgba(15,26,42,0.05); }
+html[data-theme="light"] .re-prompt-shell:focus-within { border-color: #1488FC; box-shadow: 0 0 0 1px #1488FC, 0 4px 16px rgba(15,26,42,0.05); }
+html[data-theme="light"] .re-prompt-input { color: var(--sc-ink); }
+/* how it works */
+html[data-theme="light"] .how-line-track { background: rgba(var(--sc-ink-rgb),0.08); }
+html[data-theme="light"] .how-step-node { background: var(--sc-ground); }
+html[data-theme="light"] .how-step-title { color: var(--sc-ink); }
+html[data-theme="light"] .how-step-desc { color: var(--sc-text-desc); }
+/* quote card */
+html[data-theme="light"] .quote-card { background: var(--sc-surface); border-color: var(--sc-line); }
+html[data-theme="light"] .quote-text { color: rgba(var(--sc-ink-rgb),0.72); }
+html[data-theme="light"] .quote-name { color: rgba(var(--sc-ink-rgb),0.7); }
+html[data-theme="light"] .quote-role { color: rgba(var(--sc-ink-rgb),0.45); }
+html[data-theme="light"] .quote-bottom { border-top-color: var(--sc-line); }
+html[data-theme="light"] .quote-stat-num { color: var(--sc-ink); }
+html[data-theme="light"] .quote-stat-label { color: rgba(var(--sc-ink-rgb),0.55); }
+/* FAQ */
+html[data-theme="light"] .ms-faq-section { background: var(--sc-ground); }
+html[data-theme="light"] .ms-faq-item, html[data-theme="light"] .ms-faq-item:last-child { border-color: var(--sc-line-soft); }
+html[data-theme="light"] .ms-faq-q { color: rgba(var(--sc-ink-rgb),0.72); }
+html[data-theme="light"] .ms-faq-q:hover, html[data-theme="light"] .ms-faq-item.is-open .ms-faq-q { color: var(--sc-ink); }
+html[data-theme="light"] .ms-faq-a-inner { color: var(--sc-text-muted); }
+/* footer CTA + buttons */
+html[data-theme="light"] .footer-section { background: var(--sc-ground); }
+html[data-theme="light"] .footer-subtitle { color: var(--sc-text-sub); }
+html[data-theme="light"] .hero-btn-ghost { border-color: var(--sc-line-strong); color: rgba(var(--sc-ink-rgb),0.8); }
+html[data-theme="light"] .hero-btn-ghost:hover { border-color: rgba(var(--sc-ink-rgb),0.4); color: var(--sc-ink); }
+html[data-theme="light"] .bolt-shimmer { mix-blend-mode: normal; }
+
 /* ─── RESPONSIVE ─────────────────────────────────────────────────────────── */
 /* ─── UNLOCKS VISUAL (paper grid container — from bolt-cli.html) ─────────── */
 .unlocks-visual {
@@ -1181,10 +1563,10 @@ body.bp-page { padding-top: var(--bp-banner-h); }
 .template-sub { max-width: 680px; }
 .footer-subtitle-wide { max-width: 720px; }
 .footer-cta-btn-top { margin-top: 8px; }
-.bolt-wrap { margin-top: 0; width: 100%; overflow: hidden; position: relative; height: 32vw; max-height: 32vw; }
+.bolt-wrap { margin-top: 0; width: 100%; overflow: hidden; position: relative; height: 32vw; max-height: 32vw; isolation: isolate; background: var(--sc-ground, #000); }
 .bolt-wrap img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; opacity: 0.20; }
 .bolt-shimmer { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; mix-blend-mode: screen; }
-.bolt-fade { position: absolute; inset: 0; background: linear-gradient(to bottom, #000 0%, transparent 22%, transparent 88%, #000 100%); z-index: 3; }
+.bolt-fade { position: absolute; inset: 0; background: linear-gradient(to bottom, var(--sc-ground, #000) 0%, transparent 22%, transparent 88%, var(--sc-ground, #000) 100%); z-index: 3; }
 
 /* ─── WHY SECTION ────────────────────────────────────────────────────────── */
 .why-section { border-top: 1px solid rgba(255,255,255,0.06); }
@@ -1546,7 +1928,7 @@ body.bp-page { padding-top: var(--bp-banner-h); }
 
 
 <!-- ─── NAVBAR ────────────────────────────────────────────────────────────── -->
-<nav class="mkt-nav" aria-label="Primary">
+<nav class="mkt-nav mkt-nav--over-hero" aria-label="Primary">
   <div class="mkt-nav-inner">
     <!-- Nav-bar Back button — only appears on mobile when a submenu is active (JS toggles .is-on-submenu on .mkt-nav). Replaces the logo in the same slot. -->
     <button class="mkt-nav-back" data-mobile-back aria-label="Back to main menu">
@@ -1759,6 +2141,7 @@ body.bp-page { padding-top: var(--bp-banner-h); }
 <section class="hero-section">
   <div class="hero-overlay"></div>
   <canvas id="hero-pixel-dots"></canvas>
+  <canvas id="hero-dither" aria-hidden="true"></canvas>
   <div class="hero-pixel-cover"></div>
 
 
@@ -2271,7 +2654,7 @@ body.bp-page { padding-top: var(--bp-banner-h); }
 <section class="footer-image-section">
   <!-- bolt wordmark with shimmer — exact bolt-cli.html implementation -->
   <div class="bolt-wrap">
-    <img src="../../images/bolt-bottom.png" alt="bolt" class="">
+    <img id="bolt-wordmark-img" src="../../images/bolt-bottom-light.webp" alt="bolt" decoding="async">
     <canvas id="bolt-shimmer-canvas" class="bolt-shimmer"></canvas>
     <div class="bolt-fade"></div>
   </div>
@@ -2524,7 +2907,7 @@ body.bp-page { padding-top: var(--bp-banner-h); }
   }
   function init() {
     document.querySelectorAll('.hero-btn-primary').forEach(function (b) { attach(b, '#0a5aa8'); });
-    document.querySelectorAll('.hero-btn-ghost').forEach(function (b) { attach(b, 'rgba(255,255,255,0.18)'); });
+    document.querySelectorAll('.hero-btn-ghost').forEach(function (b) { attach(b, (getComputedStyle(document.documentElement).getPropertyValue('--sc-btn-pixel-ghost').trim() || 'rgba(255,255,255,0.18)')); });
     document.querySelectorAll('.footer-cta-btn').forEach(function (b) { attach(b, '#0a5aa8'); });
   }
   if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); }
@@ -2585,80 +2968,252 @@ body.bp-page { padding-top: var(--bp-banner-h); }
 })();
 
 
-/* ── Bolt strip shimmer — exact bolt-cli.html implementation ─────────────── */
+/* ── Bolt strip shimmer — security.html's theme-aware copy (light asset + load-race fix) ── */
+// ── Bolt strip shimmer ───────────────────────────────────────────────────────
+// Faithful vanilla port of production's FooterWordmark
+// (bolt-public-pages src/components/chrome/FooterWordmark.tsx), which is the
+// component the Forge Lite footer uses. The sandbox had a FORK of this that
+// drifted; every difference between them turned out to be a bug. Re-port from
+// the component, do not hand-tune here.
+//
+// Deltas from production, both deliberate:
+//   · theme switching: production picks light/dark once per render, this
+//     re-initialises on sc-themechange so the preview toggle works.
+//   · window.__shimmer debug hook.
 (function () {
   var canvas = document.getElementById('bolt-shimmer-canvas');
   if (!canvas) return;
   var wrap = canvas.parentElement;
-  var ctx = canvas.getContext('2d');
   var img = wrap.querySelector('img');
-  var W, H, strips = [], t = 0;
-  var hoverT = 0, isHovered = false, splashT = 0, splashStart = null, splashDuration = 300;
-  var observer = new IntersectionObserver(function (entries) {
-    if (entries[0].isIntersecting && !splashStart) { splashStart = Date.now(); observer.disconnect(); }
-  }, { threshold: 0.1 });
-  observer.observe(wrap);
-  function sampleStrips() {
-    var SW = 400, SH = 200;
-    var s = document.createElement('canvas'); s.width = SW; s.height = SH;
-    var sc = s.getContext('2d');
-    try { sc.drawImage(img, 0, 0, SW, SH); } catch (e) { return; }
-    var data; try { data = sc.getImageData(0, 0, SW, SH).data; } catch (e) { return; }
-    strips = []; var inStrip = false, stripStart = 0;
-    for (var x = 0; x < SW; x++) {
-      var b = 0;
-      for (var y = 20; y < SH - 20; y++) { var idx = (y * SW + x) * 4; b += (data[idx] + data[idx + 1] + data[idx + 2]) / 3; }
-      b /= (SH - 40);
-      if (b > 28 && !inStrip) { inStrip = true; stripStart = x; }
-      else if (b <= 28 && inStrip) {
+  var ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  var WORDMARK_SRC = '../../images/bolt-bottom.png';
+  var WORDMARK_LIGHT_SRC = '../../images/bolt-bottom-light.webp';
+  var SAMPLE_WIDTH = 400, SAMPLE_HEIGHT = 200, SAMPLE_WIDTH_FINE = 1600;
+  var STRIP_BRIGHTNESS_THRESHOLD = 28;
+  var HOVER_SPLASH_DURATION_MS = 300, TOUCH_SPLASH_DURATION_MS = 1500;
+
+  /* production bails entirely under reduced motion */
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+  var splashDuration = isTouch ? TOUCH_SPLASH_DURATION_MS : HOVER_SPLASH_DURATION_MS;
+
+  var strips = [], inView = false, width = 0, height = 0;
+  var time = Math.random() * 80, hoverAmount = 0, isHovered = false;
+  var splashStart, frame, light = false, frames = 0, lastError = null;
+
+  function isLight() { return document.documentElement.getAttribute('data-theme') !== 'dark'; }
+
+  function sampleStrips(image) {
+    var sampleWidth = light ? SAMPLE_WIDTH_FINE : SAMPLE_WIDTH;
+    var scratch = document.createElement('canvas');
+    scratch.width = sampleWidth; scratch.height = SAMPLE_HEIGHT;
+    var c = scratch.getContext('2d', { willReadFrequently: true });
+    if (!c) return [];
+    c.drawImage(image, 0, 0, sampleWidth, SAMPLE_HEIGHT);
+    var data = c.getImageData(0, 0, sampleWidth, SAMPLE_HEIGHT).data;
+    var out = [], inStrip = false, stripStart = 0;
+    for (var x = 0; x < sampleWidth; x++) {
+      var brightness = 0;
+      for (var y = 20; y < SAMPLE_HEIGHT - 20; y++) {
+        var i = (y * sampleWidth + x) * 4;
+        var lum = (data[i] + data[i + 1] + data[i + 2]) / 3;
+        brightness += light ? 255 - lum : lum;   /* light art is ink-on-white */
+      }
+      brightness /= SAMPLE_HEIGHT - 40;
+      if (brightness > STRIP_BRIGHTNESS_THRESHOLD && !inStrip) { inStrip = true; stripStart = x; }
+      else if (brightness <= STRIP_BRIGHTNESS_THRESHOLD && inStrip) {
         inStrip = false;
-        strips.push({ cx: (stripStart + x) / 2 / SW, w: (x - stripStart) / SW,
-          phase: Math.random() * Math.PI * 2, freq: 0.5 + Math.random() * 1.2,
-          yPhase: Math.random() * Math.PI * 2, yFreq: 0.35 + Math.random() * 0.7,
-          speedMult: 0.6 + Math.random() * 0.8 });
+        out.push({ centerX: (stripStart + x) / 2 / sampleWidth, width: (x - stripStart) / sampleWidth,
+                   phase: Math.random() * Math.PI * 2, frequency: 0.5 + Math.random() * 1.2,
+                   yPhase: Math.random() * Math.PI * 2, yFrequency: 0.35 + Math.random() * 0.7,
+                   speedMultiplier: 0.6 + Math.random() * 0.8 });
       }
     }
+    return out;
   }
-  function init() {
-    var r = wrap.getBoundingClientRect(); W = canvas.width = r.width; H = canvas.height = r.height;
-    t = Math.random() * 80; sampleStrips();
-    var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
-    if (isTouch) { splashDuration = 1500; }
-    else {
-      wrap.addEventListener('mouseenter', function () { isHovered = true; });
-      wrap.addEventListener('mouseleave', function () { isHovered = false; });
-    }
-    requestAnimationFrame(tick);
+
+  function resize() {
+    var rect = wrap.getBoundingClientRect();
+    width = canvas.width = Math.round(rect.width);
+    height = canvas.height = Math.round(rect.height);
   }
+
   function tick() {
-    var splashRaw = splashStart ? Math.max(0, 1 - (Date.now() - splashStart) / splashDuration) : 0;
-    splashT = splashRaw * splashRaw * splashRaw;
-    t += 0.012 + hoverT * 0.008;
-    hoverT += ((isHovered ? 1 : 0) - hoverT) * (isHovered ? 0.07 : 0.025);
-    ctx.clearRect(0, 0, W, H);
-    for (var i = 0; i < strips.length; i++) {
-      var st = strips[i];
-      var brightness = (Math.sin(t * st.freq * st.speedMult + st.phase) * 0.5 + 0.5);
-      if (brightness < 0.01) continue;
-      var x = st.cx * W, w = Math.max(st.w * W, 3);
-      var centerY = (Math.sin(t * st.yFreq * st.speedMult + st.yPhase) * 0.5 + 0.5) * H;
-      var spread = H * (0.55 + hoverT * 0.25);
-      var baseA = brightness * 0.11, peakA = brightness * 0.28;
-      var boost = Math.max(hoverT, splashT);
-      var a = (baseA + (peakA - baseA) * boost).toFixed(3);
-      var a2 = (parseFloat(a) * 1.4).toFixed(3);
-      var grad = ctx.createLinearGradient(0, centerY - spread, 0, centerY + spread);
-      grad.addColorStop(0,   'rgba(220,225,240,0)');
-      grad.addColorStop(0.3, 'rgba(220,225,240,' + a + ')');
-      grad.addColorStop(0.5, 'rgba(255,255,255,' + a2 + ')');
-      grad.addColorStop(0.7, 'rgba(220,225,240,' + a + ')');
-      grad.addColorStop(1,   'rgba(220,225,240,0)');
-      ctx.fillStyle = grad; ctx.fillRect(x - w / 2, 0, w, H);
-    }
-    requestAnimationFrame(tick);
+    if (!inView) { frame = undefined; return; }
+    frames++;
+    try {
+      var splashRaw = splashStart ? Math.max(0, 1 - (Date.now() - splashStart) / splashDuration) : 0;
+      var splash = splashRaw * splashRaw * splashRaw;
+      time += 0.028 + hoverAmount * 0.016;
+      hoverAmount += ((isHovered ? 1 : 0) - hoverAmount) * (isHovered ? 0.07 : 0.025);
+      ctx.clearRect(0, 0, width, height);
+      for (var i = 0; i < strips.length; i++) {
+        var strip = strips[i];
+        var brightness = Math.sin(time * strip.frequency * strip.speedMultiplier + strip.phase) * 0.5 + 0.5;
+        if (brightness < 0.01) continue;
+        var x = strip.centerX * width;
+        var stripWidth = Math.max(strip.width * width, light ? 2 : 3);
+        var centerY = (Math.sin(time * strip.yFrequency * strip.speedMultiplier + strip.yPhase) * 0.5 + 0.5) * height;
+        var spread = height * (0.55 + hoverAmount * 0.25);
+        var boost = Math.max(hoverAmount, splash);
+        var alpha = brightness * 0.11 + (brightness * 0.28 - brightness * 0.11) * boost;
+        var peakAlpha = alpha * 1.4;
+        var edge = light ? '35,40,55' : '220,225,240';
+        var peak = light ? '10,12,20' : '255,255,255';
+        var g = ctx.createLinearGradient(0, centerY - spread, 0, centerY + spread);
+        g.addColorStop(0, 'rgba(' + edge + ',0)');
+        g.addColorStop(0.3, 'rgba(' + edge + ',' + alpha.toFixed(3) + ')');
+        g.addColorStop(0.5, 'rgba(' + peak + ',' + peakAlpha.toFixed(3) + ')');
+        g.addColorStop(0.7, 'rgba(' + edge + ',' + alpha.toFixed(3) + ')');
+        g.addColorStop(1, 'rgba(' + edge + ',0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(x - stripWidth / 2, 0, stripWidth, height);
+      }
+    } catch (e) { lastError = (e && e.message) || String(e); }
+    frame = requestAnimationFrame(tick);
   }
-  if (img.complete) init(); else img.addEventListener('load', init);
-  window.addEventListener('resize', function () { var r = wrap.getBoundingClientRect(); W = canvas.width = r.width; H = canvas.height = r.height; });
+
+  /* Production gates the loop on inView from an IntersectionObserver. That is
+     correct but it is also a single point of failure: if the observer has not
+     reported by the time the art decodes, nothing ever starts. Compute
+     visibility directly as a fallback so start() can never be stranded. */
+  function computeInView() {
+    var r = wrap.getBoundingClientRect();
+    var vh = window.innerHeight || document.documentElement.clientHeight;
+    return r.bottom > 0 && r.top < vh;
+  }
+  function run() { if (frame === undefined && inView) frame = requestAnimationFrame(tick); }
+  function start() {
+    resize();
+    strips = sampleStrips(img);
+    if (!inView && computeInView()) { inView = true; if (!splashStart) splashStart = Date.now(); }
+    run();
+  }
+
+  /* Theme art. Production picks this once; we re-apply on the preview toggle.
+     NOTE: mix-blend-mode is set HERE, never authored in the markup — `screen`
+     on a white ground is invisible, so an authored default is a trap. */
+  var appliedTheme = null;
+  function applyTheme() {
+    light = isLight();
+    var now = light ? 'light' : 'dark';
+    if (now === appliedTheme) return;
+    appliedTheme = now;
+    canvas.style.mixBlendMode = light ? 'multiply' : 'screen';
+    img.style.opacity = light ? '0.32' : '0.20';
+    var want = light ? WORDMARK_LIGHT_SRC : WORDMARK_SRC;
+    if (img.getAttribute('src') !== want) {
+      img.setAttribute('src', want);
+      img.addEventListener('load', start, { once: true });
+    } else if (img.complete && img.naturalWidth) {
+      start();
+    } else {
+      /* src already correct but the image hasn't finished loading — without
+         this branch the shimmer never starts on pages that ship the themed
+         asset statically (the press race, Gary's "not animating") */
+      img.addEventListener('load', start, { once: true });
+    }
+  }
+  document.addEventListener('sc-themechange', applyTheme);
+
+  new ResizeObserver(resize).observe(wrap);
+  new IntersectionObserver(function (entries) {
+    setInView(entries[0].isIntersecting);
+  }, { threshold: 0.1 }).observe(wrap);
+
+  /* The observer is the efficient path, but it is not the only one: it can fail
+     to report (nested browsing contexts, some restored-scroll cases), and then
+     the loop never starts at all — which is exactly the failure mode being
+     chased here. A throttled scroll/resize check keeps inView honest
+     regardless, and costs one getBoundingClientRect per frame while scrolling. */
+  function setInView(v) {
+    if (v === inView) return;
+    inView = v;
+    if (inView) { if (!splashStart) splashStart = Date.now(); run(); }
+  }
+  var pending = false;
+  function onScroll() {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(function () { pending = false; setInView(computeInView()); });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+
+  if (!isTouch) {
+    wrap.addEventListener('mouseenter', function () { isHovered = true; });
+    wrap.addEventListener('mouseleave', function () { isHovered = false; });
+  }
+
+  window.__shimmer = {
+    get strips()  { return strips.length; },
+    get light()   { return light; },
+    get running() { return frame !== undefined; },
+    get inView()  { return inView; },
+    get frames()  { return frames; },
+    get err()     { return lastError; },
+    get t()       { return Math.round(time * 100) / 100; },
+    get src()     { return (img.currentSrc || img.getAttribute('src') || '').split('/').pop(); },
+    get canvas()  { return canvas.width + 'x' + canvas.height; },
+    get blend()   { return getComputedStyle(canvas).mixBlendMode; }
+  };
+
+  applyTheme();
+  if (img.complete && img.naturalWidth) start(); else img.addEventListener('load', start, { once: true });
+})();
+
+// ── Hero pixel dots — uniform field, no skyline seam
+//    Center-focused Gaussian fade + top/bottom soft fade + two decoherent waves.
+(function () {
+  var canvas = document.getElementById('hero-pixel-dots');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var SPACING = 11, DOT = 2, cols, rows, phases;
+  function init() {
+    canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
+    cols = Math.ceil(canvas.width / SPACING) + 1;
+    rows = Math.ceil(canvas.height / SPACING) + 1;
+    phases = Array.from({ length: rows }, function () { return Float32Array.from({ length: cols }, function () { return Math.random() * Math.PI * 2; }); });
+  }
+  window.addEventListener('resize', init); init();
+  var start = null;
+  function draw(ts) {
+    if (!start) start = ts; var t = ts - start;
+    var W = canvas.width, H = canvas.height;
+    if (!W || !H) { requestAnimationFrame(draw); return; }
+    ctx.clearRect(0, 0, W, H);
+    for (var c = 0; c < cols; c++) {
+      var cf = c / cols;
+      // tighter horizontal Gaussian — dots only faintly present, and mostly around center
+      var hm = Math.exp(-Math.pow(cf - 0.5, 2) / (2 * 0.18 * 0.18));
+      if (hm < 0.04) continue;
+      for (var r = 0; r < rows; r++) {
+        var rf = r / rows;
+        // longer top/bottom fades so the visible band is thin
+        var vTop = Math.min(1, rf / 0.30);
+        var vBot = Math.min(1, (1 - rf) / 0.30);
+        var vm = vTop * vBot;
+        if (vm < 0.08) continue;
+        var x = c * SPACING, y = r * SPACING;
+        var ph = phases[r][c];
+        // decoherent waves — different scales/directions so no visible horizontal bands
+        var w1 = Math.sin(c * 0.13 + r * 0.29 - t * 0.0012 + ph);
+        var w2 = Math.sin(c * 0.07 - r * 0.11 + t * 0.0008 + ph * 0.6);
+        var w3 = Math.sin((c - r) * 0.05 + t * 0.0006 + ph * 1.3);
+        var wave = (w1 + w2 + w3) / 3;
+        // opacity cut sharply — barely-there ambient texture
+        var op = hm * vm * Math.max(0, wave) * 0.28;
+        if (op < 0.015) continue;
+        ctx.fillStyle = 'rgba(160,185,230,' + op.toFixed(3) + ')';
+        ctx.fillRect(x - DOT, y - DOT, DOT * 2, DOT * 2);
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
 })();
 
 /* ── makePixelCanvas helper (from bolt-cli.html) ─────────────────────────── */
@@ -2666,6 +3221,18 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
   color = color || '20,136,252';
   var canvas = document.getElementById(id);
   if (!canvas) return;
+  /* Light mode: an explicit triplet is this canvas's DARK colour — pale dots
+     vanish on a light ground — so light follows --sc-dot-rgb, unless the
+     canvas sits in a .sc-on-dark scope. Dark keeps the literal. */
+  var darkColor = color;
+  function pickColor() {
+    var light = document.documentElement.getAttribute('data-theme') === 'light';
+    if (!light || canvas.closest('.sc-on-dark')) { color = darkColor; return; }
+    var v = getComputedStyle(canvas).getPropertyValue('--sc-dot-rgb').trim();
+    color = v || '20,136,252';
+  }
+  pickColor();
+  document.addEventListener('sc-themechange', pickColor);
   var phases = [];
   function buildPhases(cols, rows) {
     phases = Array.from({ length: rows }, function() {
@@ -2798,7 +3365,7 @@ window.addEventListener('load', function () {
       var W = canvas.width, H = canvas.height;
       if (!W || !H) { init(); if (inView) requestAnimationFrame(draw); return; }
       ctx.clearRect(0, 0, W, H);
-      ctx.fillStyle = 'rgba(205, 218, 242, 0.42)';
+      ctx.fillStyle = document.documentElement.getAttribute('data-theme') === 'light' ? 'rgba(' + (getComputedStyle(document.documentElement).getPropertyValue('--sc-dot-rgb').trim() || '20,136,252') + ', 0.42)' : 'rgba(205, 218, 242, 0.42)';
       var pockets = [
         { x: W*(0.5+0.45*Math.sin(t*0.00015)*Math.cos(t*0.00011)), y: H*(0.5+0.45*Math.cos(t*0.00013+0.8)*Math.sin(t*0.00017)), r: 200+70*Math.sin(t*0.00021), a: 0.5+0.5*Math.sin(t*0.00032+1.2) },
         { x: W*(0.5-0.50*Math.cos(t*0.00011+1.7)*Math.sin(t*0.00019)), y: H*(0.5-0.45*Math.sin(t*0.00014+2.3)*Math.cos(t*0.00008)), r: 240+90*Math.cos(t*0.00017+0.5), a: 0.5+0.5*Math.sin(t*0.00027+3.1) },
@@ -2954,7 +3521,7 @@ window.addEventListener('load', function () {
             var alpha = density * 0.22;
             ctx.beginPath();
             ctx.arc(px, py, maxR * density, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(180,185,195,' + alpha.toFixed(2) + ')';
+            ctx.fillStyle = 'rgba(' + (document.documentElement.getAttribute('data-theme') === 'light' ? (getComputedStyle(document.documentElement).getPropertyValue('--sc-dot-rgb').trim() || '20,136,252') : '180,185,195') + ',' + alpha.toFixed(2) + ')';
             ctx.fill();
           }
         }
@@ -3085,7 +3652,7 @@ window.addEventListener('load', function () {
             var alpha = density * 0.25;
             ctx.beginPath();
             ctx.arc(px, py, maxR * density, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(180,185,195,' + alpha.toFixed(2) + ')';
+            ctx.fillStyle = 'rgba(' + (document.documentElement.getAttribute('data-theme') === 'light' ? (getComputedStyle(document.documentElement).getPropertyValue('--sc-dot-rgb').trim() || '20,136,252') : '180,185,195') + ',' + alpha.toFixed(2) + ')';
             ctx.fill();
           }
         }
@@ -3259,6 +3826,129 @@ window.addEventListener('load', function () {
     requestAnimationFrame(draw);
   }
   requestAnimationFrame(draw);
+})();
+</script>
+<script>
+// ── Hero dither (BOTH themes) — the family's ordered Bayer field. Light: white
+//    squares over the dome. Dark: the pale crown (integrations' params).
+(function () {
+  var canvas = document.getElementById('hero-dither');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var CELL = 5, SQ = 2, cols, rows;
+  var BAYER = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]];
+  var light = true;
+  function readTheme() { light = document.documentElement.getAttribute('data-theme') !== 'dark'; }
+  function init() {
+    canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
+    cols = Math.ceil(canvas.width / CELL) + 1;
+    rows = Math.ceil(canvas.height / CELL) + 1;
+  }
+  readTheme(); window.addEventListener('resize', init); init();
+  document.addEventListener('sc-themechange', function () { readTheme(); init(); });
+  var start = null;
+  function draw(ts) {
+    if (!start) start = ts;
+    var t = (ts - start) / 1000;
+    var W = canvas.width, H = canvas.height;
+    if (!W || !H) { init(); requestAnimationFrame(draw); return; }
+    ctx.clearRect(0, 0, W, H);
+    for (var r = 0; r < rows; r++) {
+      var gy = r / rows;
+      var base = 1 - gy / (light ? 0.98 : 0.85);
+      if (base <= 0) continue;
+      base = light ? Math.pow(base, 0.75) : base * base;
+      for (var c = 0; c < cols; c++) {
+        var gx = c / cols;
+        var wave = Math.sin(gx * 4.1 + gy * 6.3 - t * 0.95) * 0.5
+                 + Math.sin(gx * 7.7 - gy * 3.1 + t * 0.62) * 0.28;
+        var hm = 1 - Math.pow(Math.abs(gx - 0.5) * 2, 2.2) * 0.85;
+        var level = base * hm + wave * 0.38;
+        var th = (BAYER[r & 3][c & 3] + 0.5) / 16;
+        if (level <= th) continue;
+        var a = 0.085 + base * 0.13;
+        ctx.fillStyle = 'rgba(' + (light ? '255,255,255' : '160,185,230') + ',' + a.toFixed(3) + ')';
+        ctx.fillRect(c * CELL, r * CELL, SQ, SQ);
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+</script>
+<script>
+/* REVIEW-ONLY page navigator — inlined from marketing/shared-components.js (this
+   page doesn't link the shared JS; it owns its animations). Strip before any
+   production port, same as the theme toggle. */
+/* ═══ REVIEW-ONLY: page navigator (Gary, 2026-09-29) ════════════════════════
+   A small "Pages" button pinned above the theme review toggle; opens a
+   drop-UP listing every page in the light-mode workstream so review can hop
+   between them. Links resolve against the repo root (works on GitHub Pages
+   and localhost) and carry a fresh ?fresh= stamp to dodge the 10-min HTML
+   cache. STRIP THIS WHOLE BLOCK (like the toggle) before any production
+   port. */
+(function () {
+  if (!document.body) return;
+  var PAGES = [
+    ['Solutions',        'marketing/solutions.html'],
+    ['Security',         'marketing/security.html'],
+    ['Security Agent',   'marketing/security-agent.html'],
+    ['Compliance',       'marketing/compliance.html'],
+    ['Trust',            'marketing/trust.html'],
+    ['Trust v2',         'marketing/trust-v2.html'],
+    ['Demo',             'marketing/demo.html'],
+    ['Integrations',     'marketing/integrations/'],
+    ['Use Cases',        'marketing/use-cases/'],
+    ['Templates',        'marketing/templates/'],
+    ['Template Detail',  'marketing/templates/detail/'],
+    ['Customers',        'marketing/customers.html'],
+    ['Customer Story',   'marketing/customers-detail.html'],
+    ['Press',            'marketing/press.html'],
+    ['Careers',          'marketing/careers.html'],
+    ['Pricing',          'marketing/pricing.html'],
+    ['Blog (preview)',   'https://blog-light-navbar.bolt-public-pages.pages.dev/blog']
+  ];
+  /* repo base = everything before /marketing/ or /solutions/ in the path */
+  var base = location.pathname.replace(/(marketing|solutions)\/.*$/, '');
+  var css = document.createElement('style');
+  css.id = 'sc-page-nav-style';
+  css.textContent =
+    '.sc-page-nav { position: fixed; right: 16px; bottom: 58px; z-index: 10001; font-family: var(--sc-font-sans, sans-serif); }' +
+    '.sc-page-nav-btn { display: flex; align-items: center; gap: 6px; padding: 7px 12px;' +
+    '  background: var(--sc-surface, #111); color: var(--sc-ink, #fff); border: 1px solid var(--sc-line, rgba(255,255,255,0.14));' +
+    '  border-radius: 2px; box-shadow: 0 6px 20px var(--sc-shadow, rgba(0,0,0,0.35)); cursor: pointer;' +
+    '  font-size: 11px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; font-family: inherit; }' +
+    '.sc-page-nav-btn::after { content: ""; width: 7px; height: 7px; margin-top: 3px;' +
+    '  border-left: 1.5px solid currentColor; border-top: 1.5px solid currentColor; transform: rotate(45deg); transition: transform 0.2s ease, margin 0.2s ease; }' +
+    '.sc-page-nav.is-open .sc-page-nav-btn::after { transform: rotate(225deg); margin-top: -3px; }' +
+    '.sc-page-nav-panel { position: absolute; right: 0; bottom: calc(100% + 8px); min-width: 210px; max-height: min(60vh, 520px); overflow-y: auto;' +
+    '  background: var(--sc-surface, #111); border: 1px solid var(--sc-line, rgba(255,255,255,0.14)); border-radius: 2px;' +
+    '  box-shadow: 0 12px 32px var(--sc-shadow, rgba(0,0,0,0.45)); padding: 6px;' +
+    '  opacity: 0; transform: translateY(6px); pointer-events: none; transition: opacity 0.18s ease, transform 0.22s cubic-bezier(0.22,1,0.36,1); }' +
+    '.sc-page-nav.is-open .sc-page-nav-panel { opacity: 1; transform: translateY(0); pointer-events: auto; }' +
+    '.sc-page-nav-panel a { display: block; padding: 8px 10px; border-radius: 2px; text-decoration: none;' +
+    '  font-size: 13px; font-weight: 500; color: var(--sc-text-desc, rgba(255,255,255,0.55)); }' +
+    '.sc-page-nav-panel a:hover { background: rgba(20,136,252,0.10); color: var(--sc-ink, #fff); }' +
+    '.sc-page-nav-panel a.is-current { color: #1488FC; pointer-events: none; }';
+  document.head.appendChild(css);
+  var root = document.createElement('div');
+  root.className = 'sc-page-nav';
+  var here = location.pathname.replace(/index\.html$/, '');
+  root.innerHTML = '<div class="sc-page-nav-panel" role="menu">' + PAGES.map(function (p) {
+    var external = /^https?:/.test(p[1]);
+    var href = external ? p[1] : base + p[1];
+    var current = !external && (base + p[1]).replace(/index\.html$/, '') === here;
+    return '<a role="menuitem" href="' + href + (external ? '' : (p[1].indexOf('?') < 0 ? '?fresh=' : '&fresh=') + Date.now()) + '"' +
+      (external ? ' target="_blank" rel="noopener"' : '') + (current ? ' class="is-current"' : '') + '>' + p[0] + '</a>';
+  }).join('') + '</div><button type="button" class="sc-page-nav-btn" aria-haspopup="menu" aria-expanded="false">Pages</button>';
+  document.body.appendChild(root);
+  var btn = root.querySelector('.sc-page-nav-btn');
+  btn.addEventListener('click', function () {
+    var open = root.classList.toggle('is-open');
+    btn.setAttribute('aria-expanded', String(open));
+  });
+  document.addEventListener('click', function (e) { if (!root.contains(e.target)) { root.classList.remove('is-open'); btn.setAttribute('aria-expanded', 'false'); } });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { root.classList.remove('is-open'); btn.setAttribute('aria-expanded', 'false'); } });
 })();
 </script>
 <script src="../../marketing/shared-nav-footer.js?v=20260929h"></script>
