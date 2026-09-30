@@ -858,7 +858,17 @@ html { scroll-behavior: smooth; }
   html[data-theme="light"] .gallery-item { background: var(--sc-surface-strong); }
   html[data-theme="light"] .gallery-item img { opacity: 1; }
   /* testimonials */
-  html[data-theme="light"] .testi-slider::after { background: linear-gradient(to right, rgba(var(--sc-ground-rgb),0), rgba(var(--sc-ground-rgb),0.22) 50%, rgba(var(--sc-ground-rgb),0.6) 82%, var(--sc-ground)); }
+  /* LIGHT edge cue: a white overlay over a grey photo read as a hard wash, so
+     the SCROLLER itself dissolves via a mask (the tab-bar pattern) — the
+     cards fade into whatever the ground is, no painted block. Wider and
+     eased; JS's .is-end lifts it once fully scrolled. */
+  html[data-theme="light"] .testi-slider::after { display: none; }
+  html[data-theme="light"] .testi-stack {
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 150px), rgba(0,0,0,0.6) calc(100% - 84px), rgba(0,0,0,0.18) calc(100% - 30px), rgba(0,0,0,0) 100%);
+            mask-image: linear-gradient(to right, #000 calc(100% - 150px), rgba(0,0,0,0.6) calc(100% - 84px), rgba(0,0,0,0.18) calc(100% - 30px), rgba(0,0,0,0) 100%);
+    transition: -webkit-mask-image 0.3s ease, mask-image 0.3s ease;
+  }
+  html[data-theme="light"] .testi-slider.is-end .testi-stack { -webkit-mask-image: none; mask-image: none; }
   html[data-theme="light"] .testi-arrow { border-color: var(--sc-line-strong); color: rgba(var(--sc-ink-rgb),0.8); }
   html[data-theme="light"] .testi-arrow:hover { border-color: rgba(var(--sc-ink-rgb),0.4); color: var(--sc-ink); }
   html[data-theme="light"] .testi-panel { background: var(--sc-surface); border-color: var(--sc-line); }
