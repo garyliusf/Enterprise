@@ -1,16 +1,352 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
+<!-- Theme resolution. Light is the site default; a visitor whose OS is set to
+     dark gets dark. The attribute is ALWAYS stamped (never absent) so the
+     ported production chrome rules — which key on html[data-theme='light'] —
+     match verbatim. Runs before paint to avoid a flash; with JS off the
+     document keeps the data-theme="light" it ships with. -->
+<script>
+(function () {
+  var root = document.documentElement, stored = null;
+  try { stored = localStorage.getItem('sc-theme'); } catch (e) {}
+  var t = stored || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  root.setAttribute('data-theme', t);
+  if (!stored && window.matchMedia) {
+    var mq = window.matchMedia('(prefers-color-scheme: dark)');
+    var onSys = function (e) {
+      var s = null; try { s = localStorage.getItem('sc-theme'); } catch (err) {}
+      if (s) return;                                  /* explicit choice wins */
+      root.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+      document.dispatchEvent(new CustomEvent('sc-themechange'));
+    };
+    if (mq.addEventListener) mq.addEventListener('change', onSys);
+    else if (mq.addListener) mq.addListener(onSys);
+  }
+})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Portfolio Website Builder — Bolt</title>
 <link rel="preconnect" href="https://www.tella.tv">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Silkscreen:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400..900;1,400..900&family=Literata:ital,opsz,wght@0,7..72,200..900;1,7..72,200..900&display=swap" rel="stylesheet">
 <style>
+/* ─── --sc-* THEME TOKENS — inlined verbatim from marketing/shared-components.css
+   (2026-09-30 light port). The template is self-contained by design (synced to
+   production, which has no shared-components), so the palette lives here. ── */
+:root,
+.sc-on-light {
+  /* ink — the text/border colour, as an RGB triplet for free alpha */
+  --sc-ink-rgb: 10, 12, 20;
+  --sc-ink: #0a0a0a;                      /* solid primary text / headlines */
+
+  /* ground + surfaces */
+  --sc-ground: #fff;                      /* page background */
+  --sc-ground-rgb: 255, 255, 255;         /* for translucent grounds/scrims */
+  --sc-surface: #fafbfd;                  /* cards, panels, tiles */
+  /* On LIGHT the band is the ground — Gary: the templates section should stay
+     white, not sit a step darker. Dark keeps its #050508 lift, where a band
+     off pure black is what separates the section. Only .tmpl-section and its
+     rail fade consume this. */
+  --sc-band: #fff;
+  --sc-band-rgb: 255, 255, 255;
+  --sc-surface-strong: #f1f3f7;           /* deeper surface — strips, table heads */
+  --sc-recess: rgba(10, 12, 20, 0.05);    /* panel RECESSED into a surface */
+  --sc-hover-tint: rgba(20, 136, 252, 0.06);/* card hover: a blue lean, not a wash */
+  --sc-flash-tint: rgba(20, 136, 252, 0.16);/* cursor flashlight centre */
+  --sc-hover-filter: brightness(0.97);    /* light DARKENS on hover */
+
+  /* standard text roles (see CLAUDE.md typography table) */
+  --sc-text-sub: #5b5b66;                 /* hero subtitle   (dark: #ABABAB) */
+  --sc-text-muted: rgba(10, 12, 20, 0.61);/* section subtitle  — 5.35:1 (dark: 5.28) */
+  --sc-text-desc: rgba(10, 12, 20, 0.65); /* card/body copy    — 6.18:1 (dark: 6.27) */
+  --sc-text-faint: rgba(10, 12, 20, 0.58);/* small caps labels — 4.80:1 (dark: 3.66) */
+
+  /* lines */
+  --sc-line: rgba(10, 12, 20, 0.10);      /* standard card/panel border */
+  --sc-line-soft: rgba(10, 12, 20, 0.07); /* hairlines, FAQ item rules */
+  --sc-line-strong: rgba(10, 12, 20, 0.22);/* ghost-button border */
+  --sc-icon-border: rgba(10, 12, 20, 0.18);/* icon tiles: 0.08 vanishes on light (Gary) */
+  /* Company logos ship with #A8ADB5 baked in (picked for the dark theme) and
+     read washed-out on white. Flatten to ink and carry the weight in alpha,
+     so they sit at the same darkness as the stroked UI icons above. */
+  --sc-logo-filter: brightness(0) opacity(0.85);
+  /* Pixel-fill hover on ghost buttons — white dots are invisible on a light
+     ground, so the dot colour flips with the theme. */
+  --sc-btn-pixel-ghost: rgba(10, 12, 20, 0.22);
+
+  /* brand blue — identical in both themes except as text on the ground */
+  --sc-blue: #1488FC;                     /* button fills, icons, eyebrows */
+  --sc-blue-hover: #0f6fd0;
+  --sc-blue-ink: #0a5aa8;                 /* blue TEXT on the ground (AA) */
+
+  /* effects */
+  --sc-dot-rgb: 20, 136, 252;             /* pixel-canvas dots — blue on light */
+  --sc-shadow: rgba(10, 12, 20, 0.14);
+  --sc-accent-warm: #b1502a;             /* warm serif accent (dark: #FFB093) */
+  --sc-logo-invert: 0;                    /* logo trains ship BLACK artwork */
+  --sc-hero-art: 0;                       /* dark-only hero photo + scrim: hidden on light */
+  --sc-hero-art-display: none;            /* for art whose KEYFRAMES animate opacity */
+  /* Light hero: an inverted aurora — deep navy arcing down through brand blue
+     into the page ground, with a fine halftone over it. Replaces the photo,
+     which is lit for a black scrim and cannot invert. */
+  /* Static base — also the reduced-motion and no-JS state. The animated
+     layers (.hero-aurora) sit on top of this and drift. Stops are deliberately
+     LARGE: the dark dome owns the top ~40%, reaching white around 72%, which
+     is the proportion in the reference. An earlier, tighter ramp read as a
+     clipped band across the top. */
+  --sc-hero-bg:
+    /* Very WIDE, modest height: the blue must reach the left and right edges at
+       the top so only the BOTTOM arcs. A squarer ellipse curves on all sides
+       and reads as a half-moon (Gary). */
+    /* Matched to the reference by measurement, not feel: the crown is
+       NEAR-BLACK and holds to ~37%, then a TIGHT ramp through vivid blue to a
+       bright cyan rim at 64%, releasing to white by ~71%. An even ramp across
+       the full height reads as flat mid-blue and loses the depth entirely. */
+    /* ONE dome with a TIGHT BRIGHT RIM hugging its arc — that rim is the whole
+       effect. The reference's apparent glow at the lower left and right is not
+       two corner lights, it is the rim itself, which sits lower at the sides
+       where the arc sweeps down. Corner glows were tried and were the wrong
+       mechanism: they lit the bottom without ever producing the edge.
+       The bright stops are deliberately NARROW (60% -> 67%); spreading them
+       is what made every earlier pass read as flat mid-blue. */
+    /* Taller now that the drift layers are gone — they had been padding the
+       mid-band, so without them the ramp has to carry the whole height itself
+       or white arrives before the copy clears. */
+    /* LINEAR vertical ramp — Gary's reference is not a radial dome at all.
+       Deep navy at the crown straight down through royal blue, pale blue and
+       into white. Every radial construction before this fought the fact that
+       the reference has no arc in it. */
+    linear-gradient(180deg,
+      #021a57 0%, #04246c 14%, #072f86 26%, #0a3f9e 38%,
+      #1259c3 50%, #3b82cf 60%, #6ba6da 68%,
+      #a3c8e6 76%, #cfe0ee 83%, #e8eff6 89%,
+      #f6f8fb 95%, #fff 100%),
+    #fff;
+  --sc-aurora-on: 1;
+  /* 0: the copy stack must NOT move (Gary). Covering the subtitle and CTA is
+     the gradient's job — lifting the stack also moved the H1 up ~51px, which
+     was a side effect of the fix, not the intent. */
+  --sc-hero-lift: 0px;
+  --sc-hero-grid: rgba(10, 30, 70, 0.10);
+  /* ── CHROME (nav + site footer). Light values are Forge Lite's, lifted from
+     bolt-public-pages src/styles/marketing-nav-footer.css; dark values are the
+     sandbox's existing ones, so dark renders exactly as before. ── */
+  --sc-nav-bg: #fff;                      /* AT REST: solid — the hero aurora is vivid blue and glass muddies it (Gary) */
+  --sc-nav-bg-scrolled: rgba(255, 254, 254, 0.82);/* once scrolled: the glass treatment */
+  --sc-nav-bg-solid: #fffefe;              /* OPAQUE: an open menu must never leave the bar translucent (prod #335); 0.88 let the page bleed through as a grey band (Gary) */
+  --sc-nav-hairline: rgba(10, 12, 20, 0.06);
+  --sc-nav-menu-divider: rgba(10, 12, 20, 0.10);  /* bar/panel seam while a menu is open — 0.06 vanished against the white panel (Gary); production light nav uses 0.1 here */
+  --sc-nav-ink: rgba(0, 0, 0, 0.7);
+  --sc-nav-ink-hover: #000;
+  --sc-nav-ink-hover-bg: rgba(0, 0, 0, 0.05);
+  --sc-nav-logo: #0a0a0a;
+  /* Over-hero nav variant (.mkt-nav--over-hero, opt-in per page). AT REST
+     the bar sits transparently on the blue hero with white ink; past the
+     scroll threshold it falls back to the regular tokens above. Overlap is
+     how far the hero is pulled up under the bar. (Gary, 2026-09-28) */
+  --sc-nav-over-bg: transparent;
+  --sc-nav-over-bg-scrolled: #fff;       /* solid, not glass: glass over the blue hero reads blue-grey */
+  --sc-nav-over-blur: none;              /* blur would smear the dither under the bar */
+  --sc-nav-over-hairline: transparent;
+  --sc-nav-over-ink: #fff;                /* pure white — any alpha lets the blue through and reads faded (Gary) */
+  --sc-nav-over-ink-hover: #fff;
+  --sc-nav-over-ink-hover-bg: rgba(255, 255, 255, 0.1);
+  --sc-nav-over-logo: #fff;
+  --sc-nav-overlap: 69px;                /* the BOX height: 68px bar + the 1px hairline border — 68 left a white 1px row at the very top */
+  --sc-panel-bg: #fffefe;
+  --sc-panel-shadow: 0 24px 40px -16px rgba(10, 12, 20, 0.12);  /* soft; the negative spread keeps it off the bar above (the dark one read as a drop shadow on the bar) */
+  --sc-panel-heading: #73737b;
+  --sc-panel-link: #525258;
+  --sc-panel-link-hover: #0c0c0f;
+  --sc-feature-bg: rgba(17, 17, 20, 0.04);
+  --sc-feature-bg-hover: #eef6ff;          /* light brand-blue tint — was lavender #f3f0f5 (Gary) */
+  --sc-feature-border: #EFEDF3;
+  --sc-feature-border-hover: #bfdcfd;      /* blue to match the fill — the old grey-purple clashed */
+  --sc-scrim: rgba(17, 17, 20, 0.25);
+  --sc-drawer-bg: #fffefe;
+  --sc-dim: 0.6;
+}
+
+/* DARK — system preference. The :not([data-theme="light"]) guard lets a page
+   pin itself light even on a dark-set machine. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --sc-ink-rgb: 255, 255, 255;
+    --sc-ink: #fff;
+
+    --sc-ground: #000;
+    --sc-ground-rgb: 0, 0, 0;
+    --sc-surface: #09090b;
+    --sc-band: #050508;
+    --sc-band-rgb: 5, 5, 8;
+    --sc-surface-strong: #060606;
+    --sc-recess: rgba(0, 0, 0, 0.35);
+    --sc-hover-tint: rgba(20, 136, 252, 0.08);
+    --sc-flash-tint: rgba(150, 185, 255, 0.14);
+    --sc-hover-filter: brightness(1.25);    /* dark BRIGHTENS on hover */
+
+    --sc-text-sub: #ABABAB;
+    --sc-text-muted: rgba(255, 255, 255, 0.5);
+    --sc-text-desc: rgba(255, 255, 255, 0.55);
+    --sc-text-faint: rgba(255, 255, 255, 0.4);
+
+    --sc-line: rgba(255, 255, 255, 0.10);
+    --sc-line-soft: rgba(255, 255, 255, 0.07);
+    --sc-line-strong: rgba(255, 255, 255, 0.22);
+    --sc-icon-border: rgba(255, 255, 255, 0.08);
+    --sc-logo-filter: none;
+    --sc-btn-pixel-ghost: rgba(255, 255, 255, 0.18);
+
+    --sc-blue: #1488FC;
+    --sc-blue-hover: #0f6fd0;
+    --sc-blue-ink: #1488FC;               /* full brand blue reads fine on black */
+
+    --sc-dot-rgb: 180, 185, 195;
+    --sc-shadow: rgba(0, 0, 0, 0.5);
+    --sc-accent-warm: #FFB093;
+    --sc-logo-invert: 1;                  /* black wordmarks inverted to white */
+    --sc-hero-art: 1;
+    --sc-hero-art-display: block;
+    --sc-hero-bg: #000;
+    --sc-aurora-on: 0;
+    --sc-hero-lift: 0px;
+    --sc-hero-grid: rgba(255, 255, 255, 0.05);
+    --sc-nav-bg: rgba(5, 5, 7, 0.72);
+    --sc-nav-bg-scrolled: rgba(5, 5, 7, 0.72);  /* dark keeps glass in both states */
+    --sc-nav-bg-solid: #050507;
+    --sc-nav-hairline: transparent;
+    --sc-nav-menu-divider: transparent;
+    --sc-nav-ink: rgba(255, 255, 255, 0.75);
+    --sc-nav-ink-hover: #fff;
+    --sc-nav-ink-hover-bg: rgba(255, 255, 255, 0.05);
+    --sc-nav-logo: #fff;
+    /* over-hero at rest = the regular dark bar; overlap 0 so dark never moves */
+    --sc-nav-over-bg: rgba(5, 5, 7, 0.72);
+    --sc-nav-over-bg-scrolled: rgba(5, 5, 7, 0.72);
+    --sc-nav-over-blur: saturate(140%) blur(18px);
+    --sc-nav-over-hairline: transparent;
+    --sc-nav-over-ink: rgba(255, 255, 255, 0.75);
+    --sc-nav-over-ink-hover: #fff;
+    --sc-nav-over-ink-hover-bg: rgba(255, 255, 255, 0.05);
+    --sc-nav-over-logo: #fff;
+    --sc-nav-overlap: 0px;
+    --sc-panel-bg: rgba(8, 8, 12, 0.98);
+    --sc-panel-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+    --sc-panel-heading: rgba(255, 255, 255, 0.4);
+    --sc-panel-link: rgba(255, 255, 255, 0.55);
+    --sc-panel-link-hover: #fff;
+    --sc-feature-bg: rgba(255, 255, 255, 0.03);
+    --sc-feature-bg-hover: rgba(255, 255, 255, 0.045);
+    --sc-feature-border: rgba(255, 255, 255, 0.08);
+    --sc-feature-border-hover: rgba(255, 255, 255, 0.22);
+    --sc-scrim: rgba(0, 0, 0, 0.5);
+    --sc-drawer-bg: #000;
+    --sc-dim: 0.5;
+  }
+}
+
+/* DARK — explicitly pinned. SYNC PAIR with the media-query block above: these
+   two carry the same values and must be edited together. (Kept as plain CSS
+   rather than light-dark() so the tokens resolve on every browser, not just
+   Baseline-2024 ones.) */
+:root[data-theme="dark"],
+.sc-on-dark {
+  --sc-ink-rgb: 255, 255, 255;
+  --sc-ink: #fff;
+
+  --sc-ground: #000;
+  --sc-ground-rgb: 0, 0, 0;
+  --sc-surface: #09090b;
+  --sc-band: #050508;
+  --sc-band-rgb: 5, 5, 8;
+  --sc-surface-strong: #060606;
+  --sc-recess: rgba(0, 0, 0, 0.35);
+  --sc-hover-tint: rgba(20, 136, 252, 0.08);
+  --sc-flash-tint: rgba(150, 185, 255, 0.14);
+  --sc-hover-filter: brightness(1.25);    /* dark BRIGHTENS on hover */
+
+  --sc-text-sub: #ABABAB;
+  --sc-text-muted: rgba(255, 255, 255, 0.5);
+  --sc-text-desc: rgba(255, 255, 255, 0.55);
+  --sc-text-faint: rgba(255, 255, 255, 0.4);
+
+  --sc-line: rgba(255, 255, 255, 0.10);
+  --sc-line-soft: rgba(255, 255, 255, 0.07);
+  --sc-line-strong: rgba(255, 255, 255, 0.22);
+  --sc-icon-border: rgba(255, 255, 255, 0.08);
+  --sc-logo-filter: none;
+  --sc-btn-pixel-ghost: rgba(255, 255, 255, 0.18);
+
+  --sc-blue: #1488FC;
+  --sc-blue-hover: #0f6fd0;
+  --sc-blue-ink: #1488FC;
+
+  --sc-dot-rgb: 180, 185, 195;
+  --sc-shadow: rgba(0, 0, 0, 0.5);
+  --sc-accent-warm: #FFB093;
+  --sc-logo-invert: 1;
+  --sc-hero-art: 1;
+  --sc-hero-art-display: block;
+  --sc-hero-bg: #000;
+  --sc-aurora-on: 0;
+  --sc-hero-lift: 0px;
+  --sc-hero-grid: rgba(255, 255, 255, 0.05);
+  --sc-nav-bg: rgba(5, 5, 7, 0.72);
+  --sc-nav-bg-scrolled: rgba(5, 5, 7, 0.72);  /* dark keeps glass in both states */
+  --sc-nav-bg-solid: #050507;
+  --sc-nav-hairline: transparent;
+  --sc-nav-menu-divider: transparent;
+  --sc-nav-ink: rgba(255, 255, 255, 0.75);
+  --sc-nav-ink-hover: #fff;
+  --sc-nav-ink-hover-bg: rgba(255, 255, 255, 0.05);
+  --sc-nav-logo: #fff;
+  /* over-hero at rest = the regular dark bar; overlap 0 so dark never moves */
+  --sc-nav-over-bg: rgba(5, 5, 7, 0.72);
+  --sc-nav-over-bg-scrolled: rgba(5, 5, 7, 0.72);
+  --sc-nav-over-blur: saturate(140%) blur(18px);
+  --sc-nav-over-hairline: transparent;
+  --sc-nav-over-ink: rgba(255, 255, 255, 0.75);
+  --sc-nav-over-ink-hover: #fff;
+  --sc-nav-over-ink-hover-bg: rgba(255, 255, 255, 0.05);
+  --sc-nav-over-logo: #fff;
+  --sc-nav-overlap: 0px;
+  --sc-panel-bg: rgba(8, 8, 12, 0.98);
+  --sc-panel-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+  --sc-panel-heading: rgba(255, 255, 255, 0.4);
+  --sc-panel-link: rgba(255, 255, 255, 0.55);
+  --sc-panel-link-hover: #fff;
+  --sc-feature-bg: rgba(255, 255, 255, 0.03);
+  --sc-feature-bg-hover: rgba(255, 255, 255, 0.045);
+  --sc-feature-border: rgba(255, 255, 255, 0.08);
+  --sc-feature-border-hover: rgba(255, 255, 255, 0.22);
+  --sc-scrim: rgba(0, 0, 0, 0.5);
+  --sc-drawer-bg: #000;
+  --sc-dim: 0.5;
+}
+
+/* ─── TYPE FAMILIES (Gary, 2026-09-28) ─────────────────────────────────────
+   Theme-independent, so they live outside the three synced palette blocks.
+   Each chain falls back to the family it replaced: the retired mirrors
+   (microsoft, bolt-cli, referral, forrester, share) link this
+   file but still load only their legacy fonts, so they keep rendering exactly
+   as before without being edited. */
+:root {
+  --sc-font-sans:  'Schibsted Grotesk', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --sc-font-label: 'Schibsted Grotesk', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;   /* eyebrows, tags, small uppercase labels — sans now (Gary, 2026-09-29; was Literata) */
+  --sc-font-serif: 'Literata', 'Cormorant Garamond', Georgia, serif;   /* quotes, serif display (was Cormorant) */
+  --sc-serif-style: italic;              /* Gary: the serif role is Literata ITALIC — flip here for upright */
+  --sc-eyebrow-size: 13px;              /* eyebrows — was 16px, too big in Literata (Gary) */
+  --sc-label-weight: 700;               /* labels at Bold (Gary, 2026-09-29: 600 still read thin at 13px in Schibsted) */
+}
+/* This template renders WITHOUT the site nav (Astro injects it in production),
+   so the over-hero overlap the tokens carry on light does not apply here. */
+:root { --sc-nav-overlap: 0px; }
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
-body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; color: #fff; }
+body { background: var(--sc-ground, #000); font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif); overflow-x: hidden; overflow-x: clip; color: var(--sc-ink, #fff); }
 
 /* ─── WORD REVEAL ANIMATION ─────────────────────────────────────────────── */
 .dsa-reveal .word {
@@ -223,11 +559,11 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 .hero-play-btn.clicked  { animation: play-ripple 0.55s cubic-bezier(0.22,1,0.36,1) forwards; }
 .hero-play-btn.returning { animation: play-fadein 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards; }
 .hero-card-strip-text { font-size: 14px; color: rgba(255,255,255,0.7); flex-shrink: 0; }
-.hero-card-strip-text em { font-style: italic; color: #FFB093; font-family: 'Cormorant Garamond', serif; font-size: 16px; }
+.hero-card-strip-text em { font-style: italic; color: #FFB093; font-family: var(--sc-font-serif, 'Literata', serif); font-size: 16px; }
 .hero-card-form { display: flex; gap: 0; flex: 1; max-width: 340px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; }
-.hero-card-input { flex: 1; height: 44px; background: transparent; border: none; padding: 0 14px; font-size: 14px; font-family: 'Inter', sans-serif; color: #fff; outline: none; }
+.hero-card-input { flex: 1; height: 44px; background: transparent; border: none; padding: 0 14px; font-size: 14px; font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif); color: #fff; outline: none; }
 .hero-card-input::placeholder { color: rgba(255,255,255,0.4); }
-.hero-card-submit { height: 44px; padding: 0 18px; background: #1488FC; border: none; border-radius: 0 2px 2px 0; color: #fff; font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; white-space: nowrap; transition: background 0.2s; }
+.hero-card-submit { height: 44px; padding: 0 18px; background: #1488FC; border: none; border-radius: 0 2px 2px 0; color: #fff; font-size: 14px; font-weight: 600; font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif); cursor: pointer; white-space: nowrap; transition: background 0.2s; }
 .hero-card-submit:hover { background: #0f6fd0; }
 /* video modal */
 .video-modal { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.88); align-items: center; justify-content: center; }
@@ -260,7 +596,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   height: 52px; padding: 0 28px;
   background: #1488FC; border: none; border-radius: 2px;
   color: #fff; font-size: 15px; font-weight: 600;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif);
   cursor: pointer; text-decoration: none;
   position: relative; overflow: hidden;
   transition: opacity 0.2s;
@@ -285,7 +621,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   background: transparent;
   border: 1px solid rgba(255,255,255,0.22); border-radius: 2px;
   color: rgba(255,255,255,0.8); font-size: 15px; font-weight: 500;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif);
   cursor: pointer; text-decoration: none;
   position: relative; overflow: hidden;
   transition: border-color 0.25s, color 0.25s;
@@ -375,9 +711,9 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 .ms-faq-eyebrow,
 .footer-eyebrow,
 .success-eyebrow {
-  font-family: 'Silkscreen', monospace;
-  font-size: 16px;
-  font-weight: 400;
+  font-family: var(--sc-font-label, 'Schibsted Grotesk', sans-serif);
+  font-size: var(--sc-eyebrow-size, 13px);
+  font-weight: var(--sc-label-weight, 700);
   letter-spacing: 2px;
   text-transform: uppercase;
   color: #1488FC;
@@ -596,12 +932,12 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   gap: 40px;
 }
 .success-pull-quote-text {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--sc-font-serif, 'Literata', serif);
   font-size: 26px;
   font-weight: 300;
   color: #EDDCC6;
   line-height: 1.55;
-  font-style: normal;
+  font-style: var(--sc-serif-style, italic);
 }
 .success-pull-quote-attr { display: flex; flex-direction: column; gap: 5px; }
 .success-pull-quote-name { font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.65); }
@@ -760,7 +1096,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   gap: 16px; padding: 28px 16px;
   background: none; border: none;
   color: rgba(255,255,255,0.7);
-  font-family: 'Inter', sans-serif;
+  font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif);
   font-size: 18px; font-weight: 500;
   text-align: left; cursor: pointer;
   transition: color 0.2s;
@@ -811,12 +1147,12 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 /* CTA footnote — reuses the green-dot .hero-pills component; sits just below the prompt box */
 .hero-pills.footer-cta-pills { margin-top: 0; }
 /* rotating-name (Schedule a 1:1 with X) — from solutions.html, not in shared-components.css */
-.rotating-name { display: inline-block; vertical-align: baseline; overflow: hidden; line-height: 1.2; height: 1.2em; position: relative; color: #FFB093; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.25em; font-weight: 400; font-style: italic; letter-spacing: 0.01em; text-align: left; transform: translateZ(0); -webkit-backface-visibility: hidden; backface-visibility: hidden; contain: paint; }
+.rotating-name { display: inline-block; vertical-align: baseline; overflow: hidden; line-height: 1.2; height: 1.2em; position: relative; color: #FFB093; font-family: var(--sc-font-serif, 'Literata', serif); font-size: 1.25em; font-weight: 400; font-style: italic; letter-spacing: 0.01em; text-align: left; transform: translateZ(0); -webkit-backface-visibility: hidden; backface-visibility: hidden; contain: paint; }
 .rotating-name-track { display: block; line-height: 1.2; will-change: transform; text-align: left; }
 .rotating-name-item { display: block; line-height: 1.2; white-space: nowrap; text-align: left; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 /* CTA strip — duplicated verbatim from shared-components.css */
-.hero-cta-button { width: auto; padding: 0 24px; height: 52px; flex-shrink: 0; background: #1488FC; border: none; border-radius: 0 2px 2px 0; color: #fff; font-size: 15px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; position: relative; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; }
+.hero-cta-button { width: auto; padding: 0 24px; height: 52px; flex-shrink: 0; background: #1488FC; border: none; border-radius: 0 2px 2px 0; color: #fff; font-size: 15px; font-weight: 600; font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif); cursor: pointer; position: relative; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; }
 .hero-cta-button .btn-bg-hover { position: absolute; inset: 0; background: #0f6fd0; z-index: 1; transform: translateY(101%); transition: transform 0.45s cubic-bezier(0.165,0.84,0.44,1); }
 .hero-cta-button .btn-text-wrap { position: relative; z-index: 3; overflow: hidden; height: 1.2em; }
 .hero-cta-button .btn-text-inner { display: flex; flex-direction: column; transition: transform 0.45s cubic-bezier(0.165,0.84,0.44,1); }
@@ -828,7 +1164,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 .card-strip-text { display: flex; flex-direction: column; gap: 3px; flex-shrink: 0; }
 .card-strip-sub { font-size: 16px; font-weight: 500; color: #fff; margin: 0; line-height: 1.2; display: inline-flex; align-items: baseline; gap: 0.25em; }
 .hero-form-row { display: flex; gap: 0; flex: 1 1 320px; max-width: 420px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; }
-.hero-email-input { flex: 1; height: 52px; background: transparent; border: none; padding: 0 18px; font-size: 15px; font-family: 'Inter', sans-serif; color: #fff; outline: none; }
+.hero-email-input { flex: 1; height: 52px; background: transparent; border: none; padding: 0 18px; font-size: 15px; font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif); color: #fff; outline: none; }
 .hero-email-input::placeholder { color: rgba(255,255,255,0.45); }
 @media (max-width: 768px) {
   .card-form-strip { flex-direction: column; align-items: center; gap: 12px; padding: 16px 12px; }
@@ -857,7 +1193,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   color: #fff;
   font-size: 15px;
   line-height: 1.5;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif);
   padding: 22px 22px 8px;
   outline: none;
 }
@@ -873,7 +1209,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   color: #fff;
   font-size: 14px;
   font-weight: 500;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif);
   text-decoration: none;
   display: inline-flex;
   align-items: center;
@@ -899,7 +1235,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   flex: 1; height: 52px;
   background: transparent; border: none;
   padding: 0 18px;
-  font-size: 15px; font-family: 'Inter', sans-serif;
+  font-size: 15px; font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif);
   color: #fff; outline: none;
 }
 .footer-email-input::placeholder { color: rgba(255,255,255,0.45); }
@@ -908,7 +1244,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   background: #1488FC; border: none;
   border-radius: 0 2px 2px 0;
   color: #fff; font-size: 15px; font-weight: 600;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif);
   cursor: pointer; position: relative; overflow: hidden;
 }
 .footer-cta-btn .btn-bg-hover { position: absolute; inset: 0; background: #0f6fd0; z-index: 1; transform: translateY(101%); transition: transform 0.45s cubic-bezier(0.165,0.84,0.44,1); }
@@ -917,7 +1253,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 .footer-cta-btn .btn-text-inner span { display: block; line-height: 1.2; }
 .footer-cta-btn:hover .btn-bg-hover   { transform: translateY(0); }
 .footer-cta-btn:hover .btn-text-inner { transform: translateY(-50%); }
-.footer-spacer { height: 60px; width: 100%; }
+.footer-spacer { display: none; }  /* retired (2026-09-30): CTA->divider is the divider's own 88px */
 .footer-links { display: flex; gap: 32px; flex-wrap: wrap; align-items: center; justify-content: center; }
 .footer-link { font-size: 13px; color: #666; text-decoration: none; transition: color 0.15s; }
 .footer-link:hover { color: #999; }
@@ -1005,7 +1341,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   z-index: 0;
 }
 .unlock-card:hover .unlock-hover-canvas { opacity: 0.10; }
-.unlock-card > *:not(.unlock-hover-canvas) { position: relative; z-index: 1; }
+.unlock-card > *:not(.unlock-hover-canvas, .unlock-field-canvas, .unlock-num) { position: relative; z-index: 1; }
 .unlock-icon {
   width: 44px; height: 44px;
   border-radius: 4px;
@@ -1027,10 +1363,10 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 .footer-subtitle-wide { max-width: none; white-space: nowrap; }
 @media (max-width: 1024px) { .footer-subtitle-wide { white-space: normal; max-width: 560px; } }
 .footer-cta-btn-top { margin-top: 8px; }
-.bolt-wrap { margin-top: 0; width: 100%; overflow: hidden; position: relative; height: 32vw; max-height: 32vw; }
+.bolt-wrap { margin-top: 0; width: 100%; overflow: hidden; position: relative; height: 32vw; max-height: 32vw; isolation: isolate; background: var(--sc-ground, #000); }
 .bolt-wrap img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; opacity: 0.20; }
 .bolt-shimmer { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; mix-blend-mode: screen; }
-.bolt-fade { position: absolute; inset: 0; background: linear-gradient(to bottom, #000 0%, transparent 22%, transparent 88%, #000 100%); z-index: 3; }
+.bolt-fade { position: absolute; inset: 0; background: linear-gradient(to bottom, var(--sc-ground, #000) 0%, transparent 22%, transparent 88%, var(--sc-ground, #000) 100%); z-index: 3; }
 
 /* ─── WHY SECTION ────────────────────────────────────────────────────────── */
 .why-section { border-top: 1px solid rgba(255,255,255,0.06); }
@@ -1101,7 +1437,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 .how-steps-wrap.line-active .how-step:nth-child(2) .how-step-node { animation: nodePop 0.45s cubic-bezier(0.34,1.56,0.64,1) 0.65s both; }
 .how-steps-wrap.line-active .how-step:nth-child(3) .how-step-node { animation: nodePop 0.45s cubic-bezier(0.34,1.56,0.64,1) 1.15s both; }
 @keyframes nodePop { from { transform: scale(0); } to { transform: scale(1); } }
-.how-step-number { font-family: 'Silkscreen', monospace; font-size: 10px; color: #1488FC; }
+.how-step-number { font-family: var(--sc-font-label, 'Schibsted Grotesk', sans-serif); font-weight: var(--sc-label-weight, 700); font-size: 10px; color: #1488FC; }
 .how-step-title { font-size: 18px; font-weight: 600; color: #fff; margin: 0 0 10px; letter-spacing: -0.2px; line-height: 1.35; opacity: 0; transform: translateY(14px); filter: blur(10px); }
 .how-step-desc { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.55; margin: 0; opacity: 0; transform: translateY(14px); filter: blur(10px); }
 @keyframes howStepIn { from { opacity:0; transform:translateY(14px); filter:blur(10px); } to { opacity:1; transform:translateY(0); filter:blur(0); } }
@@ -1141,20 +1477,20 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 }
 .quote-card > * { position: relative; z-index: 1; }
 .quote-card-eyebrow {
-  font-family: 'Silkscreen', monospace;
-  font-size: 16px;
-  font-weight: 400;
+  font-family: var(--sc-font-label, 'Schibsted Grotesk', sans-serif);
+  font-size: var(--sc-eyebrow-size, 13px);
+  font-weight: var(--sc-label-weight, 700);
   letter-spacing: 2px;
   text-transform: uppercase;
   color: #1488FC;
 }
 .quote-text {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--sc-font-serif, 'Literata', serif);
   font-size: clamp(22px,2.2vw,30px);
   font-weight: 300;
   color: rgba(255,255,255,0.65);
   line-height: 1.4;
-  font-style: normal;
+  font-style: var(--sc-serif-style, italic);
   max-width: 820px;
 }
 .quote-bottom {
@@ -1362,10 +1698,13 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 }
 /* ─── SIMPLE HERO (no video): eyebrow, button group, feature pills ───────── */
 /* Ported from solution-page.css — same rule that makes /solutions/ai-for-real-estate "perfect": single min-height with vh-cap + dvh upgrade, no px floor, no conditional variant. Content grows past the floor when needed; justify-content:center centers short content within the section. */
-.hero-section--simple { height: auto; min-height: min(80vh, 900px); min-height: min(80dvh, 900px); justify-content: center; }
+/* Same construction as the security/solutions heroes (65vh box, family pad,
+   centred copy) + an allowance for this hero's taller stack (prompt box + pills)
+   so the H1 sits on the siblings' line at every window height (Gary, 2026-09-30). */
+.hero-section--simple { --hero-stack-allowance: 182px;  /* = the room the family heroes leave around a 1-line H1 stack; tuned so THIS sample (3-line H1 + prompt box + pills) lands its H1 on security's line. A clone with a shorter H1 sits a little lower — retune here, never the pad. */ height: auto; min-height: calc(min(65vh, 684px) + var(--hero-stack-allowance) + var(--sc-nav-overlap, 0px)); min-height: calc(min(65dvh, 684px) + var(--hero-stack-allowance) + var(--sc-nav-overlap, 0px)); padding: calc(clamp(90px, calc(24px + 8.5vh), 148px) + var(--sc-nav-overlap, 0px)) 0 clamp(72px, 9vh, 120px); justify-content: center; }
 .hero-eyebrow {
-  font-family: 'Silkscreen', monospace;
-  font-size: 16px; font-weight: 400; letter-spacing: 2px;
+  font-family: var(--sc-font-label, 'Schibsted Grotesk', sans-serif);
+  font-size: var(--sc-eyebrow-size, 13px); font-weight: var(--sc-label-weight, 700); letter-spacing: 2px;
   text-transform: uppercase; color: #1488FC; margin: 0 0 4px;
 }
 /* SEO keyword highlight in the H1 — animated blue→mint gradient text */
@@ -1447,7 +1786,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   padding: 16px 22px 8px;
   font-size: 15px;
   line-height: 1.5;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif);
   color: rgba(255, 255, 255, 0.25);
   pointer-events: none;
   z-index: 1;
@@ -1495,7 +1834,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 .included-item:hover { border-color: rgba(255,255,255,0.22); transform: translateY(-3px); }
 .included-item .unlock-hover-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity 0.3s ease; image-rendering: pixelated; z-index: 0; }
 .included-item:hover .unlock-hover-canvas { opacity: 0.10; }
-.included-item > *:not(.unlock-hover-canvas) { position: relative; z-index: 1; }
+.included-item > *:not(.unlock-hover-canvas, .unlock-field-canvas, .unlock-num) { position: relative; z-index: 1; }
 .included-icon {
   flex-shrink: 0; width: 40px; height: 40px; border-radius: 4px;
   background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
@@ -1534,12 +1873,12 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 /* graph-paper overlay removed (solutions.html card standard, Gary 2026-08-07) */
 .testi-card > * { position: relative; z-index: 1; }
 .testi-card:hover { border-color: rgba(255,255,255,0.22); transform: translateY(-3px); }
-.testi-card-meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-family: 'Silkscreen', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; }
+.testi-card-meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-family: var(--sc-font-label, 'Schibsted Grotesk', sans-serif); font-weight: var(--sc-label-weight, 700); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; }
 .testi-card-stars { color: #F5A623; letter-spacing: 2px; }
 .testi-card-tag { color: rgba(255,255,255,0.32); }
-.testi-card-quote { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400; color: rgba(255,255,255,0.7); line-height: 1.5; letter-spacing: 0; margin: 24px 0 0; }
+.testi-card-quote { font-family: var(--sc-font-serif, 'Literata', serif); font-style: var(--sc-serif-style, italic); font-size: 22px; font-weight: 400; color: rgba(255,255,255,0.7); line-height: 1.5; letter-spacing: 0; margin: 24px 0 0; }
 .testi-card-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
-.testi-chip { font-family: 'Silkscreen', monospace; font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; padding: 7px 11px; border-radius: 4px; line-height: 1; }
+.testi-chip { font-family: var(--sc-font-label, 'Schibsted Grotesk', sans-serif); font-weight: var(--sc-label-weight, 700); font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; padding: 7px 11px; border-radius: 4px; line-height: 1; }
 .testi-chip--outline { color: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.18); }
 .testi-chip--fill { color: #06121a; background: #1488FC; }
 .testi-card:nth-child(2) .testi-chip--fill { background: #7FDDC1; }
@@ -1565,14 +1904,14 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 }
 .prompt-card:hover { border-color: #1488FC; box-shadow: 0 0 0 1px #1488FC; }
 .prompt-card .template-card-body { gap: 14px; min-height: 156px; justify-content: flex-start; padding: 24px 22px 12px; }
-.prompt-card-quote { font-family: 'Inter', sans-serif; font-size: 17px; font-weight: 400; font-style: normal; color: rgba(255,255,255,0.82); line-height: 1.55; margin: 0; }
+.prompt-card-quote { font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif); font-size: 17px; font-weight: 400; font-style: normal; color: rgba(255,255,255,0.82); line-height: 1.55; margin: 0; }
 .prompt-card-label { font-size: 11px; font-weight: 600; letter-spacing: 1.4px; text-transform: uppercase; color: rgba(255,255,255,0.4); }
 /* bottom action row — pill "Use this prompt →" */
 .prompt-card .template-card-footer { padding: 0 16px 16px; display: flex; justify-content: flex-end; }
 .prompt-card-use {
   display: inline-flex; align-items: center; gap: 8px;
   height: 38px; padding: 0 18px; border-radius: 999px;
-  font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500;
+  font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif); font-size: 14px; font-weight: 500;
   color: #fff; background: #1488FC; border: 0;
   text-decoration: none; cursor: pointer;
   transition: filter 0.2s ease, transform 0.2s ease;
@@ -1585,7 +1924,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 @media (max-width: 1024px) { .hero-eyebrow { font-size: 13px; } }
 @media (max-width: 768px) {
   /* Mobile hero floor — CMS-driven H1 lengths vary and the base rule (min-height: min(80dvh, 900px)) can drop to ~512px on typical 640-800px phone viewports, letting a short-H1 hero collapse against the next section. min(100dvh, 720px) fills the viewport up to a 720px cap regardless of H1 length. Mirrored to production in a separate PR. */
-  .hero-section--simple { min-height: min(100dvh, 720px); padding: 92px 0 56px; }
+  .hero-section--simple { min-height: 0; padding: calc(100px + var(--sc-nav-overlap, 0px)) 0 56px; }  /* security's mobile hero rule */
   .hero-section--simple .hero-text { gap: 18px; max-width: none; }
   .hero-section--simple .hero-h1 { font-size: clamp(37px, 10.45vw, 51px); line-height: 1.1; }
   .hero-section--simple .hero-subtitle { font-size: 15px; margin-top: 2px; }
@@ -1648,7 +1987,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 }
 .plat-tab {
   background: none; border: none; padding: 0 0 20px; cursor: pointer;
-  font-family: 'Inter', sans-serif; font-size: 19px; font-weight: 500;
+  font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif); font-size: 19px; font-weight: 500;
   color: rgba(255,255,255,0.4); position: relative; white-space: nowrap;
   transition: color 0.25s ease;
 }
@@ -1959,7 +2298,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
    field as the centered hero, copy left / live panel right. Keep ONE hero per
    page — this or .hero-section--simple, not both. Heights follow the tall
    simple-hero rule so the two variants are interchangeable. */
-.hero-section--split { height: auto; min-height: min(80vh, 900px); min-height: min(80dvh, 900px); justify-content: center; }
+.hero-section--split { height: auto; min-height: calc(min(65vh, 684px) + 92px + var(--sc-nav-overlap, 0px)); min-height: calc(min(65dvh, 684px) + 92px + var(--sc-nav-overlap, 0px)); justify-content: center; }
 /* .hero-content-area stops flexing (flex:1 + align-items:center made it centre
    its own box regardless of the section's justify-content). */
 .hero-section--split .hero-content-area { flex: 0 0 auto; align-items: flex-start; padding: 0; }
@@ -2079,8 +2418,8 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   padding: 18px 24px;
   background: rgba(255,255,255,0.025);
   border-bottom: 1px solid rgba(255,255,255,0.10);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 12px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase;
+  font-family: var(--sc-font-label, 'Schibsted Grotesk', sans-serif);
+  font-size: 12px; font-weight: var(--sc-label-weight, 700); letter-spacing: 2px; text-transform: uppercase;
   color: rgba(255,255,255,0.4);
 }
 .compare-head th.compare-col-ours { color: #1488FC; }
@@ -2123,6 +2462,128 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   .compare-feat-desc { font-size: 13px; margin-top: 6px; }
   .compare-mark svg { width: 15px; height: 15px; }
 }
+
+/* ─── HEADER RHYTHM 16/12 (mobile 10/6) + mobile subtitle leading (family standard) ── */
+.footer-eyebrow + .dsa-reveal { margin-top: -8px; }   /* nets the footer's 24px flex gap to 16 (eyebrow->H2); the media blocks below step it to 12/10 */
+@media (max-width: 1024px) {
+  .section-header, .how-header, .feat-header { gap: 12px; }
+  .unlocks-header > .section-eyebrow, .ms-faq-eyebrow { margin-bottom: 12px; }
+  .unlocks-header > .sc-section-h2 { margin-bottom: 12px; }
+  .footer-subtitle { margin-top: -12px; }
+  .footer-eyebrow + .dsa-reveal { margin-top: -12px; }
+}
+@media (max-width: 768px) {
+  .section-header, .how-header, .feat-header { gap: 6px; }
+  :is(.section-header, .how-header, .feat-header) > .section-eyebrow { margin-bottom: 4px; }
+  .unlocks-header > .section-eyebrow, .ms-faq-eyebrow { margin-bottom: 10px; }
+  .unlocks-header > .sc-section-h2 { margin-bottom: 6px; }
+  .footer-subtitle { margin-top: -18px; line-height: 1.4; }
+  .footer-eyebrow + .dsa-reveal { margin-top: -14px; }
+  .section-sub, .feat-subheadline { line-height: 1.4; }
+}
+/* hero dither (BOTH themes) — the family's ordered Bayer field over the hero */
+.hero-dither { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none;
+  -webkit-mask-image: linear-gradient(180deg, #000 55%, rgba(0,0,0,0) 90%); mask-image: linear-gradient(180deg, #000 55%, rgba(0,0,0,0) 90%); }
+#hero-pixel-dots, .hero-pixel-canvas { display: none; }
+/* numbered corner label + light hover field on unlock cards (compliance treatment) */
+.unlock-card > .unlock-num, .included-item > .unlock-num { position: absolute; top: 24px; right: 24px; z-index: 2;
+  font-family: var(--sc-font-label, 'Schibsted Grotesk', sans-serif); font-weight: var(--sc-label-weight, 700);
+  font-size: 13px; letter-spacing: 1px; color: rgba(var(--sc-ink-rgb), 0.22); transition: color 0.35s ease; }
+.unlock-card:hover .unlock-num { color: #1488FC; }
+.unlock-card > .unlock-field-canvas, .included-item > .unlock-field-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; opacity: 0; transition: opacity 0.45s ease; pointer-events: none; display: none; }
+
+/* ─── LIGHT (2026-09-30 port) — dark literals above are untouched; light values
+   are the --sc-* tokens so the template tracks the family. ────────────── */
+html[data-theme="light"] .hero-section { background: var(--sc-hero-bg); }
+html[data-theme="light"] .hero-overlay, html[data-theme="light"] .hero-pixel-cover { display: none; }
+html[data-theme="light"] .hero-subtitle { color: rgba(255,255,255,0.94); }
+html[data-theme="light"] .hero-prompt-shell { background: rgba(255,255,255,0.55); }
+html[data-theme="light"] .hero-prompt-inner { background: #fff; }
+html[data-theme="light"] .hero-prompt-shell .re-prompt-input { color: var(--sc-ink); }
+html[data-theme="light"] .hero-prompt-example, html[data-theme="light"] .re-prompt-input::placeholder { color: rgba(var(--sc-ink-rgb),0.4); }
+html[data-theme="light"] .hero-pills { background: #fff; border-color: #fff; box-shadow: 0 4px 16px rgba(15,26,42,0.05); }
+html[data-theme="light"] .hero-pills li { color: #0d9b7a; }
+html[data-theme="light"] .hero-pills li::before { background: #0d9b7a; }
+/* split hero: the terminal panel stays dark art on the dome */
+html[data-theme="light"] .hero-section--split .split-panel { background: rgba(9,9,12,0.78); border-color: rgba(255,255,255,0.18); }
+/* sections */
+html[data-theme="light"] .section--bordered, html[data-theme="light"] .why-section, html[data-theme="light"] .how-section, html[data-theme="light"] .ms-faq-section, html[data-theme="light"] .footer-section, html[data-theme="light"] .stats-section, html[data-theme="light"] .feat-section { border-top-color: var(--sc-line-soft); }
+html[data-theme="light"] .sc-section-h2, html[data-theme="light"] .ms-faq-headline, html[data-theme="light"] .footer-headline, html[data-theme="light"] .template-create-headline, html[data-theme="light"] .plat-h3 { color: var(--sc-ink); }
+html[data-theme="light"] .section-sub, html[data-theme="light"] .feat-subheadline { color: var(--sc-text-muted); }
+/* why stats */
+html[data-theme="light"] .why-stat-cell { border-color: var(--sc-line); }
+html[data-theme="light"] .why-stat-eyebrow { color: var(--sc-text-faint); }
+html[data-theme="light"] .why-stat-number { color: var(--sc-ink); }
+/* who / unlocks (compliance-card treatment, Gary) */
+html[data-theme="light"] .unlocks-visual, html[data-theme="light"] .included-visual { background: var(--sc-surface-strong); border-color: var(--sc-line); box-shadow: 0 8px 28px rgba(15,26,42,0.06), inset 0 1px 0 #fff; }
+html[data-theme="light"] .unlock-card, html[data-theme="light"] .included-item { border: 1px solid rgba(var(--sc-ink-rgb), 0.10); background: linear-gradient(180deg, rgba(var(--sc-ink-rgb), 0.03) 0%, rgba(var(--sc-ink-rgb), 0.005) 100%), #fff; transition: border-color 0.35s ease, transform 0.3s cubic-bezier(0.22,1,0.36,1); }
+html[data-theme="light"] .unlock-card:hover, html[data-theme="light"] .included-item:hover { border-color: rgba(20,136,252,0.45); }
+html[data-theme="light"] .unlock-hover-canvas { display: none; }
+html[data-theme="light"] .unlock-card > .unlock-field-canvas, html[data-theme="light"] .included-item > .unlock-field-canvas { display: block; }
+html[data-theme="light"] .unlock-card:hover > .unlock-field-canvas, html[data-theme="light"] .included-item:hover > .unlock-field-canvas { opacity: 1; }
+html[data-theme="light"] .unlock-icon, html[data-theme="light"] .included-icon { background: rgba(var(--sc-ink-rgb),0.05); border-color: var(--sc-icon-border); color: rgba(var(--sc-ink-rgb),0.85); }
+html[data-theme="light"] .unlock-title { color: var(--sc-ink); }
+html[data-theme="light"] .unlock-desc { color: var(--sc-text-desc); }
+html[data-theme="light"] .included-label { color: rgba(var(--sc-ink-rgb),0.82); }
+/* audience tabs (plat) */
+html[data-theme="light"] .plat-tabbar { border-bottom-color: var(--sc-line); }
+html[data-theme="light"] .plat-tab { color: rgba(var(--sc-ink-rgb),0.45); }
+html[data-theme="light"] .plat-tab:hover { color: rgba(var(--sc-ink-rgb),0.75); }
+html[data-theme="light"] .plat-tab.active { color: var(--sc-ink); }
+html[data-theme="light"] .plat-stage { background: var(--sc-surface); border: 1px solid var(--sc-line); }
+html[data-theme="light"] .plat-body { color: var(--sc-text-desc); }
+html[data-theme="light"] .plat-list li { color: rgba(var(--sc-ink-rgb),0.78); }
+html[data-theme="light"] .plat-browser { border-color: var(--sc-line); }
+@media (max-width: 768px) { html[data-theme="light"] .plat-tabbar-wrap::after { background: linear-gradient(to right, rgba(var(--sc-ground-rgb),0) 0%, rgba(var(--sc-ground-rgb),0.55) 30%, rgba(var(--sc-ground-rgb),0.88) 60%, var(--sc-surface) 85%); } }
+/* how it works */
+html[data-theme="light"] .how-line-track { background: rgba(var(--sc-ink-rgb),0.08); }
+html[data-theme="light"] .how-step-node { background: var(--sc-ground); }
+html[data-theme="light"] .how-step-title { color: var(--sc-ink); }
+html[data-theme="light"] .how-step-desc { color: var(--sc-text-desc); }
+/* example prompts */
+html[data-theme="light"] .prompt-card { background: #fff; border-color: var(--sc-line); box-shadow: 0 4px 16px rgba(15,26,42,0.05); }
+html[data-theme="light"] .prompt-card:hover { border-color: #1488FC; box-shadow: 0 0 0 1px #1488FC, 0 4px 16px rgba(15,26,42,0.05); }
+html[data-theme="light"] .prompt-card-quote { color: rgba(var(--sc-ink-rgb),0.82); }
+html[data-theme="light"] .prompt-card-label { color: var(--sc-text-faint); }
+html[data-theme="light"] .re-prompt-shell { background: #fff; border-color: var(--sc-line); box-shadow: 0 4px 16px rgba(15,26,42,0.05); }
+html[data-theme="light"] .re-prompt-shell:focus-within { border-color: #1488FC; box-shadow: 0 0 0 1px #1488FC, 0 4px 16px rgba(15,26,42,0.05); }
+html[data-theme="light"] .re-prompt-input { color: var(--sc-ink); }
+/* compare panel */
+html[data-theme="light"] .compare-panel { background: var(--sc-surface); border-color: var(--sc-line); }
+html[data-theme="light"] .compare-table th, html[data-theme="light"] .compare-table td { border-bottom-color: var(--sc-line-soft); }
+html[data-theme="light"] .compare-head th { background: rgba(var(--sc-ink-rgb),0.03); border-bottom-color: var(--sc-line); color: var(--sc-text-faint); }
+html[data-theme="light"] .compare-head th.compare-col-ours { color: #1488FC; }
+html[data-theme="light"] .compare-logo { filter: brightness(0); }
+html[data-theme="light"] .compare-feat-title { color: var(--sc-ink); }
+html[data-theme="light"] .compare-feat-desc { color: var(--sc-text-muted); }
+html[data-theme="light"] .compare-mark--neutral { color: rgba(var(--sc-ink-rgb),0.7); }
+html[data-theme="light"] .compare-mark--no { color: rgba(var(--sc-ink-rgb),0.28); }
+html[data-theme="light"] .compare-table:has(tr > :nth-child(2):hover) tr > :nth-child(2), html[data-theme="light"] .compare-table:has(tr > :nth-child(3):hover) tr > :nth-child(3) { background-color: rgba(var(--sc-ink-rgb),0.04); }
+/* split sections: the terminal / URL panels stay dark art (a code block on the page) */
+html[data-theme="light"] .split-section::before { background: radial-gradient(80% 60% at 82% 12%, rgba(20,136,252,0.06) 0%, rgba(255,255,255,0) 60%); }
+html[data-theme="light"] .split-panel { box-shadow: 0 24px 60px rgba(15,26,42,0.18); }
+/* testimonials */
+html[data-theme="light"] .testi-card { background: #fff; border-color: var(--sc-line); }
+html[data-theme="light"] .testi-card:hover { border-color: var(--sc-line-strong); }
+html[data-theme="light"] .testi-card-tag { color: var(--sc-text-faint); }
+html[data-theme="light"] .testi-card-quote { color: rgba(var(--sc-ink-rgb),0.75); }
+html[data-theme="light"] .testi-card-avatar { border-color: var(--sc-line); }
+html[data-theme="light"] .testi-card-name { color: var(--sc-ink); }
+html[data-theme="light"] .testi-card-role { color: var(--sc-text-muted); }
+/* FAQ */
+html[data-theme="light"] .ms-faq-section { background: var(--sc-ground); }
+html[data-theme="light"] .ms-faq-item, html[data-theme="light"] .ms-faq-item:last-child { border-color: var(--sc-line-soft); }
+html[data-theme="light"] .ms-faq-q { color: rgba(var(--sc-ink-rgb),0.72); }
+html[data-theme="light"] .ms-faq-q:hover, html[data-theme="light"] .ms-faq-item.is-open .ms-faq-q { color: var(--sc-ink); }
+html[data-theme="light"] .ms-faq-a-inner { color: var(--sc-text-muted); }
+/* footer CTAs + buttons */
+html[data-theme="light"] .footer-section { background: var(--sc-ground); }
+html[data-theme="light"] .footer-subtitle { color: var(--sc-text-sub); }
+html[data-theme="light"] .hero-btn-ghost { border-color: var(--sc-line-strong); color: rgba(var(--sc-ink-rgb),0.8); }
+html[data-theme="light"] .hero-btn-ghost:hover { border-color: rgba(var(--sc-ink-rgb),0.4); color: var(--sc-ink); }
+html[data-theme="light"] .hero-btn-ghost--white { border-color: rgba(var(--sc-ink-rgb),0.6); color: var(--sc-ink); }
+html[data-theme="light"] .hero-btn-ghost--white:hover { border-color: rgba(var(--sc-ink-rgb),0.85); color: var(--sc-ink); }
+html[data-theme="light"] .bolt-shimmer { mix-blend-mode: normal; }
 </style>
 </head>
 <body>
@@ -2131,6 +2592,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 <section class="hero-section hero-section--simple">
   <div class="hero-overlay"></div>
   <canvas id="hero-pixel-dots" class="hero-pixel-canvas"></canvas>
+  <canvas class="hero-dither" aria-hidden="true"></canvas>
   <div class="hero-pixel-cover"></div>
 
   <div class="hero-content-area">
@@ -2175,6 +2637,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 <section class="hero-section hero-section--split">
   <div class="hero-overlay"></div>
   <canvas id="hero-pixel-dots-split" class="hero-pixel-canvas"></canvas>
+  <canvas class="hero-dither" aria-hidden="true"></canvas>
   <div class="hero-pixel-cover"></div>
 
   <div class="hero-content-area">
@@ -2270,6 +2733,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
       <div class="unlocks-grid">
 
         <div class="unlock-card"><canvas class="unlock-hover-canvas" aria-hidden="true"></canvas>
+          <span class="unlock-num">01</span>
           <div class="unlock-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
           </div>
@@ -2278,6 +2742,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
         </div>
 
         <div class="unlock-card"><canvas class="unlock-hover-canvas" aria-hidden="true"></canvas>
+          <span class="unlock-num">02</span>
           <div class="unlock-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
           </div>
@@ -2286,6 +2751,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
         </div>
 
         <div class="unlock-card"><canvas class="unlock-hover-canvas" aria-hidden="true"></canvas>
+          <span class="unlock-num">03</span>
           <div class="unlock-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
           </div>
@@ -2294,6 +2760,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
         </div>
 
         <div class="unlock-card"><canvas class="unlock-hover-canvas" aria-hidden="true"></canvas>
+          <span class="unlock-num">04</span>
           <div class="unlock-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
           </div>
@@ -2302,6 +2769,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
         </div>
 
         <div class="unlock-card"><canvas class="unlock-hover-canvas" aria-hidden="true"></canvas>
+          <span class="unlock-num">05</span>
           <div class="unlock-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 16l-4-4-4 4"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
           </div>
@@ -2310,6 +2778,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
         </div>
 
         <div class="unlock-card"><canvas class="unlock-hover-canvas" aria-hidden="true"></canvas>
+          <span class="unlock-num">06</span>
           <div class="unlock-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></svg>
           </div>
@@ -2938,7 +3407,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   <div class="footer-spacer"></div>
   <!-- bolt wordmark with shimmer — exact bolt-cli.html implementation -->
   <div class="bolt-wrap">
-    <img src="../../images/bolt-bottom.png" alt="bolt" class="">
+    <img id="bolt-wordmark-img" src="../../images/bolt-bottom-light.webp" alt="bolt" decoding="async">
     <canvas id="bolt-shimmer-canvas" class="bolt-shimmer"></canvas>
     <div class="bolt-fade"></div>
   </div>
@@ -3242,7 +3711,7 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
   }
   function init() {
     document.querySelectorAll('.hero-btn-primary').forEach(function (b) { attach(b, '#0a5aa8'); });
-    document.querySelectorAll('.hero-btn-ghost').forEach(function (b) { attach(b, 'rgba(255,255,255,0.18)'); });
+    document.querySelectorAll('.hero-btn-ghost').forEach(function (b) { attach(b, (getComputedStyle(document.documentElement).getPropertyValue('--sc-btn-pixel-ghost').trim() || 'rgba(255,255,255,0.18)')); });
     document.querySelectorAll('.footer-cta-btn').forEach(function (b) { attach(b, '#0a5aa8'); });
   }
   if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); }
@@ -3303,80 +3772,252 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; c
 })();
 
 
-/* ── Bolt strip shimmer — exact bolt-cli.html implementation ─────────────── */
+/* ── Bolt strip shimmer — security.html's theme-aware copy (light asset + load-race fix) ── */
+// ── Bolt strip shimmer ───────────────────────────────────────────────────────
+// Faithful vanilla port of production's FooterWordmark
+// (bolt-public-pages src/components/chrome/FooterWordmark.tsx), which is the
+// component the Forge Lite footer uses. The sandbox had a FORK of this that
+// drifted; every difference between them turned out to be a bug. Re-port from
+// the component, do not hand-tune here.
+//
+// Deltas from production, both deliberate:
+//   · theme switching: production picks light/dark once per render, this
+//     re-initialises on sc-themechange so the preview toggle works.
+//   · window.__shimmer debug hook.
 (function () {
   var canvas = document.getElementById('bolt-shimmer-canvas');
   if (!canvas) return;
   var wrap = canvas.parentElement;
-  var ctx = canvas.getContext('2d');
   var img = wrap.querySelector('img');
-  var W, H, strips = [], t = 0;
-  var hoverT = 0, isHovered = false, splashT = 0, splashStart = null, splashDuration = 300;
-  var observer = new IntersectionObserver(function (entries) {
-    if (entries[0].isIntersecting && !splashStart) { splashStart = Date.now(); observer.disconnect(); }
-  }, { threshold: 0.1 });
-  observer.observe(wrap);
-  function sampleStrips() {
-    var SW = 400, SH = 200;
-    var s = document.createElement('canvas'); s.width = SW; s.height = SH;
-    var sc = s.getContext('2d');
-    try { sc.drawImage(img, 0, 0, SW, SH); } catch (e) { return; }
-    var data; try { data = sc.getImageData(0, 0, SW, SH).data; } catch (e) { return; }
-    strips = []; var inStrip = false, stripStart = 0;
-    for (var x = 0; x < SW; x++) {
-      var b = 0;
-      for (var y = 20; y < SH - 20; y++) { var idx = (y * SW + x) * 4; b += (data[idx] + data[idx + 1] + data[idx + 2]) / 3; }
-      b /= (SH - 40);
-      if (b > 28 && !inStrip) { inStrip = true; stripStart = x; }
-      else if (b <= 28 && inStrip) {
+  var ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  var WORDMARK_SRC = '../../images/bolt-bottom.png';
+  var WORDMARK_LIGHT_SRC = '../../images/bolt-bottom-light.webp';
+  var SAMPLE_WIDTH = 400, SAMPLE_HEIGHT = 200, SAMPLE_WIDTH_FINE = 1600;
+  var STRIP_BRIGHTNESS_THRESHOLD = 28;
+  var HOVER_SPLASH_DURATION_MS = 300, TOUCH_SPLASH_DURATION_MS = 1500;
+
+  /* production bails entirely under reduced motion */
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+  var splashDuration = isTouch ? TOUCH_SPLASH_DURATION_MS : HOVER_SPLASH_DURATION_MS;
+
+  var strips = [], inView = false, width = 0, height = 0;
+  var time = Math.random() * 80, hoverAmount = 0, isHovered = false;
+  var splashStart, frame, light = false, frames = 0, lastError = null;
+
+  function isLight() { return document.documentElement.getAttribute('data-theme') !== 'dark'; }
+
+  function sampleStrips(image) {
+    var sampleWidth = light ? SAMPLE_WIDTH_FINE : SAMPLE_WIDTH;
+    var scratch = document.createElement('canvas');
+    scratch.width = sampleWidth; scratch.height = SAMPLE_HEIGHT;
+    var c = scratch.getContext('2d', { willReadFrequently: true });
+    if (!c) return [];
+    c.drawImage(image, 0, 0, sampleWidth, SAMPLE_HEIGHT);
+    var data = c.getImageData(0, 0, sampleWidth, SAMPLE_HEIGHT).data;
+    var out = [], inStrip = false, stripStart = 0;
+    for (var x = 0; x < sampleWidth; x++) {
+      var brightness = 0;
+      for (var y = 20; y < SAMPLE_HEIGHT - 20; y++) {
+        var i = (y * sampleWidth + x) * 4;
+        var lum = (data[i] + data[i + 1] + data[i + 2]) / 3;
+        brightness += light ? 255 - lum : lum;   /* light art is ink-on-white */
+      }
+      brightness /= SAMPLE_HEIGHT - 40;
+      if (brightness > STRIP_BRIGHTNESS_THRESHOLD && !inStrip) { inStrip = true; stripStart = x; }
+      else if (brightness <= STRIP_BRIGHTNESS_THRESHOLD && inStrip) {
         inStrip = false;
-        strips.push({ cx: (stripStart + x) / 2 / SW, w: (x - stripStart) / SW,
-          phase: Math.random() * Math.PI * 2, freq: 0.5 + Math.random() * 1.2,
-          yPhase: Math.random() * Math.PI * 2, yFreq: 0.35 + Math.random() * 0.7,
-          speedMult: 0.6 + Math.random() * 0.8 });
+        out.push({ centerX: (stripStart + x) / 2 / sampleWidth, width: (x - stripStart) / sampleWidth,
+                   phase: Math.random() * Math.PI * 2, frequency: 0.5 + Math.random() * 1.2,
+                   yPhase: Math.random() * Math.PI * 2, yFrequency: 0.35 + Math.random() * 0.7,
+                   speedMultiplier: 0.6 + Math.random() * 0.8 });
       }
     }
+    return out;
   }
-  function init() {
-    var r = wrap.getBoundingClientRect(); W = canvas.width = r.width; H = canvas.height = r.height;
-    t = Math.random() * 80; sampleStrips();
-    var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
-    if (isTouch) { splashDuration = 1500; }
-    else {
-      wrap.addEventListener('mouseenter', function () { isHovered = true; });
-      wrap.addEventListener('mouseleave', function () { isHovered = false; });
-    }
-    requestAnimationFrame(tick);
+
+  function resize() {
+    var rect = wrap.getBoundingClientRect();
+    width = canvas.width = Math.round(rect.width);
+    height = canvas.height = Math.round(rect.height);
   }
+
   function tick() {
-    var splashRaw = splashStart ? Math.max(0, 1 - (Date.now() - splashStart) / splashDuration) : 0;
-    splashT = splashRaw * splashRaw * splashRaw;
-    t += 0.012 + hoverT * 0.008;
-    hoverT += ((isHovered ? 1 : 0) - hoverT) * (isHovered ? 0.07 : 0.025);
-    ctx.clearRect(0, 0, W, H);
-    for (var i = 0; i < strips.length; i++) {
-      var st = strips[i];
-      var brightness = (Math.sin(t * st.freq * st.speedMult + st.phase) * 0.5 + 0.5);
-      if (brightness < 0.01) continue;
-      var x = st.cx * W, w = Math.max(st.w * W, 3);
-      var centerY = (Math.sin(t * st.yFreq * st.speedMult + st.yPhase) * 0.5 + 0.5) * H;
-      var spread = H * (0.55 + hoverT * 0.25);
-      var baseA = brightness * 0.11, peakA = brightness * 0.28;
-      var boost = Math.max(hoverT, splashT);
-      var a = (baseA + (peakA - baseA) * boost).toFixed(3);
-      var a2 = (parseFloat(a) * 1.4).toFixed(3);
-      var grad = ctx.createLinearGradient(0, centerY - spread, 0, centerY + spread);
-      grad.addColorStop(0,   'rgba(220,225,240,0)');
-      grad.addColorStop(0.3, 'rgba(220,225,240,' + a + ')');
-      grad.addColorStop(0.5, 'rgba(255,255,255,' + a2 + ')');
-      grad.addColorStop(0.7, 'rgba(220,225,240,' + a + ')');
-      grad.addColorStop(1,   'rgba(220,225,240,0)');
-      ctx.fillStyle = grad; ctx.fillRect(x - w / 2, 0, w, H);
-    }
-    requestAnimationFrame(tick);
+    if (!inView) { frame = undefined; return; }
+    frames++;
+    try {
+      var splashRaw = splashStart ? Math.max(0, 1 - (Date.now() - splashStart) / splashDuration) : 0;
+      var splash = splashRaw * splashRaw * splashRaw;
+      time += 0.028 + hoverAmount * 0.016;
+      hoverAmount += ((isHovered ? 1 : 0) - hoverAmount) * (isHovered ? 0.07 : 0.025);
+      ctx.clearRect(0, 0, width, height);
+      for (var i = 0; i < strips.length; i++) {
+        var strip = strips[i];
+        var brightness = Math.sin(time * strip.frequency * strip.speedMultiplier + strip.phase) * 0.5 + 0.5;
+        if (brightness < 0.01) continue;
+        var x = strip.centerX * width;
+        var stripWidth = Math.max(strip.width * width, light ? 2 : 3);
+        var centerY = (Math.sin(time * strip.yFrequency * strip.speedMultiplier + strip.yPhase) * 0.5 + 0.5) * height;
+        var spread = height * (0.55 + hoverAmount * 0.25);
+        var boost = Math.max(hoverAmount, splash);
+        var alpha = brightness * 0.11 + (brightness * 0.28 - brightness * 0.11) * boost;
+        var peakAlpha = alpha * 1.4;
+        var edge = light ? '35,40,55' : '220,225,240';
+        var peak = light ? '10,12,20' : '255,255,255';
+        var g = ctx.createLinearGradient(0, centerY - spread, 0, centerY + spread);
+        g.addColorStop(0, 'rgba(' + edge + ',0)');
+        g.addColorStop(0.3, 'rgba(' + edge + ',' + alpha.toFixed(3) + ')');
+        g.addColorStop(0.5, 'rgba(' + peak + ',' + peakAlpha.toFixed(3) + ')');
+        g.addColorStop(0.7, 'rgba(' + edge + ',' + alpha.toFixed(3) + ')');
+        g.addColorStop(1, 'rgba(' + edge + ',0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(x - stripWidth / 2, 0, stripWidth, height);
+      }
+    } catch (e) { lastError = (e && e.message) || String(e); }
+    frame = requestAnimationFrame(tick);
   }
-  if (img.complete) init(); else img.addEventListener('load', init);
-  window.addEventListener('resize', function () { var r = wrap.getBoundingClientRect(); W = canvas.width = r.width; H = canvas.height = r.height; });
+
+  /* Production gates the loop on inView from an IntersectionObserver. That is
+     correct but it is also a single point of failure: if the observer has not
+     reported by the time the art decodes, nothing ever starts. Compute
+     visibility directly as a fallback so start() can never be stranded. */
+  function computeInView() {
+    var r = wrap.getBoundingClientRect();
+    var vh = window.innerHeight || document.documentElement.clientHeight;
+    return r.bottom > 0 && r.top < vh;
+  }
+  function run() { if (frame === undefined && inView) frame = requestAnimationFrame(tick); }
+  function start() {
+    resize();
+    strips = sampleStrips(img);
+    if (!inView && computeInView()) { inView = true; if (!splashStart) splashStart = Date.now(); }
+    run();
+  }
+
+  /* Theme art. Production picks this once; we re-apply on the preview toggle.
+     NOTE: mix-blend-mode is set HERE, never authored in the markup — `screen`
+     on a white ground is invisible, so an authored default is a trap. */
+  var appliedTheme = null;
+  function applyTheme() {
+    light = isLight();
+    var now = light ? 'light' : 'dark';
+    if (now === appliedTheme) return;
+    appliedTheme = now;
+    canvas.style.mixBlendMode = light ? 'multiply' : 'screen';
+    img.style.opacity = light ? '0.32' : '0.20';
+    var want = light ? WORDMARK_LIGHT_SRC : WORDMARK_SRC;
+    if (img.getAttribute('src') !== want) {
+      img.setAttribute('src', want);
+      img.addEventListener('load', start, { once: true });
+    } else if (img.complete && img.naturalWidth) {
+      start();
+    } else {
+      /* src already correct but the image hasn't finished loading — without
+         this branch the shimmer never starts on pages that ship the themed
+         asset statically (the press race, Gary's "not animating") */
+      img.addEventListener('load', start, { once: true });
+    }
+  }
+  document.addEventListener('sc-themechange', applyTheme);
+
+  new ResizeObserver(resize).observe(wrap);
+  new IntersectionObserver(function (entries) {
+    setInView(entries[0].isIntersecting);
+  }, { threshold: 0.1 }).observe(wrap);
+
+  /* The observer is the efficient path, but it is not the only one: it can fail
+     to report (nested browsing contexts, some restored-scroll cases), and then
+     the loop never starts at all — which is exactly the failure mode being
+     chased here. A throttled scroll/resize check keeps inView honest
+     regardless, and costs one getBoundingClientRect per frame while scrolling. */
+  function setInView(v) {
+    if (v === inView) return;
+    inView = v;
+    if (inView) { if (!splashStart) splashStart = Date.now(); run(); }
+  }
+  var pending = false;
+  function onScroll() {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(function () { pending = false; setInView(computeInView()); });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+
+  if (!isTouch) {
+    wrap.addEventListener('mouseenter', function () { isHovered = true; });
+    wrap.addEventListener('mouseleave', function () { isHovered = false; });
+  }
+
+  window.__shimmer = {
+    get strips()  { return strips.length; },
+    get light()   { return light; },
+    get running() { return frame !== undefined; },
+    get inView()  { return inView; },
+    get frames()  { return frames; },
+    get err()     { return lastError; },
+    get t()       { return Math.round(time * 100) / 100; },
+    get src()     { return (img.currentSrc || img.getAttribute('src') || '').split('/').pop(); },
+    get canvas()  { return canvas.width + 'x' + canvas.height; },
+    get blend()   { return getComputedStyle(canvas).mixBlendMode; }
+  };
+
+  applyTheme();
+  if (img.complete && img.naturalWidth) start(); else img.addEventListener('load', start, { once: true });
+})();
+
+// ── Hero pixel dots — uniform field, no skyline seam
+//    Center-focused Gaussian fade + top/bottom soft fade + two decoherent waves.
+(function () {
+  var canvas = document.getElementById('hero-pixel-dots');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var SPACING = 11, DOT = 2, cols, rows, phases;
+  function init() {
+    canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
+    cols = Math.ceil(canvas.width / SPACING) + 1;
+    rows = Math.ceil(canvas.height / SPACING) + 1;
+    phases = Array.from({ length: rows }, function () { return Float32Array.from({ length: cols }, function () { return Math.random() * Math.PI * 2; }); });
+  }
+  window.addEventListener('resize', init); init();
+  var start = null;
+  function draw(ts) {
+    if (!start) start = ts; var t = ts - start;
+    var W = canvas.width, H = canvas.height;
+    if (!W || !H) { requestAnimationFrame(draw); return; }
+    ctx.clearRect(0, 0, W, H);
+    for (var c = 0; c < cols; c++) {
+      var cf = c / cols;
+      // tighter horizontal Gaussian — dots only faintly present, and mostly around center
+      var hm = Math.exp(-Math.pow(cf - 0.5, 2) / (2 * 0.18 * 0.18));
+      if (hm < 0.04) continue;
+      for (var r = 0; r < rows; r++) {
+        var rf = r / rows;
+        // longer top/bottom fades so the visible band is thin
+        var vTop = Math.min(1, rf / 0.30);
+        var vBot = Math.min(1, (1 - rf) / 0.30);
+        var vm = vTop * vBot;
+        if (vm < 0.08) continue;
+        var x = c * SPACING, y = r * SPACING;
+        var ph = phases[r][c];
+        // decoherent waves — different scales/directions so no visible horizontal bands
+        var w1 = Math.sin(c * 0.13 + r * 0.29 - t * 0.0012 + ph);
+        var w2 = Math.sin(c * 0.07 - r * 0.11 + t * 0.0008 + ph * 0.6);
+        var w3 = Math.sin((c - r) * 0.05 + t * 0.0006 + ph * 1.3);
+        var wave = (w1 + w2 + w3) / 3;
+        // opacity cut sharply — barely-there ambient texture
+        var op = hm * vm * Math.max(0, wave) * 0.28;
+        if (op < 0.015) continue;
+        ctx.fillStyle = 'rgba(160,185,230,' + op.toFixed(3) + ')';
+        ctx.fillRect(x - DOT, y - DOT, DOT * 2, DOT * 2);
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
 })();
 
 /* ── makePixelCanvas helper (from bolt-cli.html) ─────────────────────────── */
@@ -3384,6 +4025,17 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
   color = color || '20,136,252';
   var canvas = document.getElementById(id);
   if (!canvas) return;
+  /* Light: an explicit triplet is this canvas's DARK colour (pale dots vanish
+     on a light ground) — light follows --sc-dot-rgb. Dark keeps the literal. */
+  var darkColor = color;
+  function pickColor() {
+    var light = document.documentElement.getAttribute('data-theme') === 'light';
+    if (!light || canvas.closest('.sc-on-dark')) { color = darkColor; return; }
+    var v = getComputedStyle(canvas).getPropertyValue('--sc-dot-rgb').trim();
+    color = v || '20,136,252';
+  }
+  pickColor();
+  document.addEventListener('sc-themechange', pickColor);
   var phases = [];
   function buildPhases(cols, rows) {
     phases = Array.from({ length: rows }, function() {
@@ -3614,7 +4266,7 @@ window.addEventListener('load', function () {
             var alpha = density * 0.22;
             ctx.beginPath();
             ctx.arc(px, py, maxR * density, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(180,185,195,' + alpha.toFixed(2) + ')';
+            ctx.fillStyle = 'rgba(' + (document.documentElement.getAttribute('data-theme') === 'light' ? (getComputedStyle(document.documentElement).getPropertyValue('--sc-dot-rgb').trim() || '20,136,252') : '180,185,195') + ',' + alpha.toFixed(2) + ')';
             ctx.fill();
           }
         }
@@ -3745,7 +4397,7 @@ window.addEventListener('load', function () {
             var alpha = density * 0.25;
             ctx.beginPath();
             ctx.arc(px, py, maxR * density, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(180,185,195,' + alpha.toFixed(2) + ')';
+            ctx.fillStyle = 'rgba(' + (document.documentElement.getAttribute('data-theme') === 'light' ? (getComputedStyle(document.documentElement).getPropertyValue('--sc-dot-rgb').trim() || '20,136,252') : '180,185,195') + ',' + alpha.toFixed(2) + ')';
             ctx.fill();
           }
         }
@@ -3976,6 +4628,216 @@ window.addEventListener('load', function () {
     }, { threshold: 0.35 });
     io.observe(term);
   });
+})();
+</script>
+<script>
+// ── Hero dither (BOTH themes, every hero variant) — the family's ordered Bayer
+//    field. Light: white squares over the dome. Dark: the pale crown.
+(function () {
+  var BAYER = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]];
+  var light = true;
+  function readTheme() { light = document.documentElement.getAttribute('data-theme') !== 'dark'; }
+  readTheme(); document.addEventListener('sc-themechange', readTheme);
+  document.querySelectorAll('.hero-dither').forEach(function (canvas) {
+    var ctx = canvas.getContext('2d'), CELL = 5, SQ = 2, cols, rows, start = null;
+    function init() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; cols = Math.ceil(canvas.width / CELL) + 1; rows = Math.ceil(canvas.height / CELL) + 1; }
+    window.addEventListener('resize', init); init(); document.addEventListener('sc-themechange', init);
+    function draw(ts) {
+      if (!start) start = ts;
+      var t = (ts - start) / 1000, W = canvas.width, H = canvas.height;
+      if (!W || !H) { init(); requestAnimationFrame(draw); return; }
+      ctx.clearRect(0, 0, W, H);
+      for (var r = 0; r < rows; r++) {
+        var gy = r / rows, base = 1 - gy / (light ? 0.98 : 0.85);
+        if (base <= 0) continue;
+        base = light ? Math.pow(base, 0.75) : base * base;
+        for (var c = 0; c < cols; c++) {
+          var gx = c / cols;
+          var wave = Math.sin(gx * 4.1 + gy * 6.3 - t * 0.95) * 0.5 + Math.sin(gx * 7.7 - gy * 3.1 + t * 0.62) * 0.28;
+          var hm = 1 - Math.pow(Math.abs(gx - 0.5) * 2, 2.2) * 0.85;
+          if (base * hm + wave * 0.38 <= (BAYER[r & 3][c & 3] + 0.5) / 16) continue;
+          ctx.fillStyle = 'rgba(' + (light ? '255,255,255' : '160,185,230') + ',' + (0.085 + base * 0.13).toFixed(3) + ')';
+          ctx.fillRect(c * CELL, r * CELL, SQ, SQ);
+        }
+      }
+      requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
+  });
+})();
+</script>
+<script>
+/* Light: the compliance family's rotating blue dot field on hover, on the
+   unlock cards + included items (attachHoverField from marketing/compliance.html).
+   The canvas is injected here and display:none on dark, where the page's own
+   hover-noise runs. */
+(function () {
+  function attachHoverField(tile, canvas, idx) {
+    var ctx = canvas.getContext('2d');
+    var SPACING = 9, DOT = 2, cols = 0, rows = 0, phases = [], hovered = false, t = 0;
+    var phase = idx * 1.7;
+    function resize() {
+      var w = tile.offsetWidth, h = tile.offsetHeight; if (!w || !h) return;
+      canvas.width = w; canvas.height = h;
+      cols = Math.ceil(w / SPACING) + 1; rows = Math.ceil(h / SPACING) + 1;
+      phases = Array.from({ length: rows }, function() { return Array.from({ length: cols }, function() { return Math.random() * Math.PI * 2; }); });
+    }
+    try { new ResizeObserver(resize).observe(tile); } catch(e) {}
+    requestAnimationFrame(resize);
+    tile.addEventListener('mouseenter', function() { hovered = true; });
+    tile.addEventListener('mouseleave', function() { hovered = false; });
+    function draw() {
+      if (!hovered || !cols) { requestAnimationFrame(draw); return; }
+      t += 0.03;
+      var W = canvas.width, H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+      var angle = t * 0.16 + phase, ca = Math.cos(angle), sa = Math.sin(angle);
+      for (var r = 0; r < rows; r++) for (var c = 0; c < cols; c++) {
+        var px = c * SPACING, py = r * SPACING, ph = (phases[r] && phases[r][c]) || 0;
+        var wave = Math.sin((px * ca + py * sa) / 58 + t + ph) * Math.cos((px * -sa + py * ca) / 90 + t * 0.6);
+        var op = Math.max(0, wave) * 0.55 * (px / W);
+        if (op < 0.04) continue;
+        ctx.fillStyle = 'rgba(60,140,235,' + op.toFixed(3) + ')';
+        ctx.fillRect(px, py, DOT, DOT);
+      }
+      requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
+  }
+  document.querySelectorAll('.unlock-card, .included-item').forEach(function (el, i) {
+    var cv = document.createElement('canvas'); cv.className = 'unlock-field-canvas'; cv.setAttribute('aria-hidden', 'true');
+    el.insertBefore(cv, el.firstChild); attachHoverField(el, cv, i);
+  });
+})();
+</script>
+<script>
+/* REVIEW-ONLY page navigator — inlined from marketing/shared-components.js.
+   Strip before any production port, same as the theme toggle below. */
+/* ═══ REVIEW-ONLY: page navigator (Gary, 2026-09-29) ════════════════════════
+   A small "Pages" button pinned above the theme review toggle; opens a
+   drop-UP listing every page in the light-mode workstream so review can hop
+   between them. Links resolve against the repo root (works on GitHub Pages
+   and localhost) and carry a fresh ?fresh= stamp to dodge the 10-min HTML
+   cache. STRIP THIS WHOLE BLOCK (like the toggle) before any production
+   port. */
+(function () {
+  if (!document.body) return;
+  var PAGES = [
+    ['Solutions',        'marketing/solutions.html'],
+    ['Security',         'marketing/security.html'],
+    ['Security Agent',   'marketing/security-agent.html'],
+    ['Compliance',       'marketing/compliance.html'],
+    ['Trust',            'marketing/trust.html'],
+    ['Trust v2',         'marketing/trust-v2.html'],
+    ['Demo',             'marketing/demo.html'],
+    ['Integrations',     'marketing/integrations/'],
+    ['Use Cases',        'marketing/use-cases/'],
+    ['Templates',        'marketing/templates/'],
+    ['Template Detail',  'marketing/templates/detail/'],
+    ['Customers',        'marketing/customers.html'],
+    ['Customer Story',   'marketing/customers-detail.html'],
+    ['Press',            'marketing/press.html'],
+    ['Careers',          'marketing/careers.html'],
+    ['Pricing',          'marketing/pricing.html'],
+    ['Blog (preview)',   'https://blog-light-navbar.bolt-public-pages.pages.dev/blog']
+  ];
+  /* repo base = everything before /marketing/ or /solutions/ in the path */
+  var base = location.pathname.replace(/(marketing|solutions)\/.*$/, '');
+  var css = document.createElement('style');
+  css.id = 'sc-page-nav-style';
+  css.textContent =
+    '.sc-page-nav { position: fixed; right: 16px; bottom: 58px; z-index: 10001; font-family: var(--sc-font-sans, sans-serif); }' +
+    '.sc-page-nav-btn { display: flex; align-items: center; gap: 6px; padding: 7px 12px;' +
+    '  background: var(--sc-surface, #111); color: var(--sc-ink, #fff); border: 1px solid var(--sc-line, rgba(255,255,255,0.14));' +
+    '  border-radius: 2px; box-shadow: 0 6px 20px var(--sc-shadow, rgba(0,0,0,0.35)); cursor: pointer;' +
+    '  font-size: 11px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; font-family: inherit; }' +
+    '.sc-page-nav-btn::after { content: ""; width: 7px; height: 7px; margin-top: 3px;' +
+    '  border-left: 1.5px solid currentColor; border-top: 1.5px solid currentColor; transform: rotate(45deg); transition: transform 0.2s ease, margin 0.2s ease; }' +
+    '.sc-page-nav.is-open .sc-page-nav-btn::after { transform: rotate(225deg); margin-top: -3px; }' +
+    '.sc-page-nav-panel { position: absolute; right: 0; bottom: calc(100% + 8px); min-width: 210px; max-height: min(60vh, 520px); overflow-y: auto;' +
+    '  background: var(--sc-surface, #111); border: 1px solid var(--sc-line, rgba(255,255,255,0.14)); border-radius: 2px;' +
+    '  box-shadow: 0 12px 32px var(--sc-shadow, rgba(0,0,0,0.45)); padding: 6px;' +
+    '  opacity: 0; transform: translateY(6px); pointer-events: none; transition: opacity 0.18s ease, transform 0.22s cubic-bezier(0.22,1,0.36,1); }' +
+    '.sc-page-nav.is-open .sc-page-nav-panel { opacity: 1; transform: translateY(0); pointer-events: auto; }' +
+    '.sc-page-nav-panel a { display: block; padding: 8px 10px; border-radius: 2px; text-decoration: none;' +
+    '  font-size: 13px; font-weight: 500; color: var(--sc-text-desc, rgba(255,255,255,0.55)); }' +
+    '.sc-page-nav-panel a:hover { background: rgba(20,136,252,0.10); color: var(--sc-ink, #fff); }' +
+    '.sc-page-nav-panel a.is-current { color: #1488FC; pointer-events: none; }';
+  document.head.appendChild(css);
+  var root = document.createElement('div');
+  root.className = 'sc-page-nav';
+  var here = location.pathname.replace(/index\.html$/, '');
+  root.innerHTML = '<div class="sc-page-nav-panel" role="menu">' + PAGES.map(function (p) {
+    var external = /^https?:/.test(p[1]);
+    var href = external ? p[1] : base + p[1];
+    var current = !external && (base + p[1]).replace(/index\.html$/, '') === here;
+    return '<a role="menuitem" href="' + href + (external ? '' : (p[1].indexOf('?') < 0 ? '?fresh=' : '&fresh=') + Date.now()) + '"' +
+      (external ? ' target="_blank" rel="noopener"' : '') + (current ? ' class="is-current"' : '') + '>' + p[0] + '</a>';
+  }).join('') + '</div><button type="button" class="sc-page-nav-btn" aria-haspopup="menu" aria-expanded="false">Pages</button>';
+  document.body.appendChild(root);
+  var btn = root.querySelector('.sc-page-nav-btn');
+  btn.addEventListener('click', function () {
+    var open = root.classList.toggle('is-open');
+    btn.setAttribute('aria-expanded', String(open));
+  });
+  document.addEventListener('click', function (e) { if (!root.contains(e.target)) { root.classList.remove('is-open'); btn.setAttribute('aria-expanded', 'false'); } });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { root.classList.remove('is-open'); btn.setAttribute('aria-expanded', 'false'); } });
+})();
+</script>
+<!-- ╔═══ PROTOTYPE ONLY — THEME REVIEW TOGGLE ═══════════════════════════════╗
+     Light is the site default; "System" follows the OS, so a visitor whose
+     machine is set to dark sees dark — that is the agreed behaviour, not a
+     fallback to a dark default. Normally there is nothing to click. This switcher exists so the two themes can be compared
+     without changing System Settings. REMOVE BEFORE PORTING TO PRODUCTION —
+     delete this whole block, nothing else references it.
+     ╚════════════════════════════════════════════════════════════════════════╝ -->
+<style id="theme-review-toggle-style">
+  .sc-theme-switch {
+    position: fixed; right: 16px; bottom: 16px; z-index: 10000;
+    display: flex; gap: 2px; padding: 3px;
+    background: var(--sc-surface); border: 1px solid var(--sc-line);
+    border-radius: 2px; box-shadow: 0 6px 20px var(--sc-shadow);
+    font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif);
+  }
+  .sc-theme-switch button {
+    appearance: none; border: 0; cursor: pointer; border-radius: 2px;
+    padding: 6px 11px; font-size: 11px; font-weight: 500; letter-spacing: 0.3px;
+    background: transparent; color: var(--sc-text-muted);
+  }
+  .sc-theme-switch button:hover { color: var(--sc-ink); }
+  .sc-theme-switch button[aria-pressed="true"] { background: var(--sc-blue); color: #fff; }
+  @media print { .sc-theme-switch { display: none; } }
+</style>
+<div class="sc-theme-switch" role="group" aria-label="Theme preview">
+  <button type="button" data-theme-set="">System</button>
+  <button type="button" data-theme-set="light">Light</button>
+  <button type="button" data-theme-set="dark">Dark</button>
+</div>
+<script>
+(function () {
+  var root = document.documentElement;
+  var btns = document.querySelectorAll('[data-theme-set]');
+  function sysTheme() {
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function apply(v, persist) {
+    /* '' = System: drop the stored choice and follow the OS. The attribute is
+       still stamped — it is never absent. */
+    root.setAttribute('data-theme', v || sysTheme());
+    btns.forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-theme-set') === v));
+    });
+    if (persist) {
+      try { if (v) localStorage.setItem('sc-theme', v); else localStorage.removeItem('sc-theme'); } catch (e) {}
+    }
+    /* canvases cache their dot colour — tell them to re-read the token */
+    document.dispatchEvent(new CustomEvent('sc-themechange'));
+  }
+  btns.forEach(function (b) {
+    b.addEventListener('click', function () { apply(b.getAttribute('data-theme-set'), true); });
+  });
+  var saved = ''; try { saved = localStorage.getItem('sc-theme') || ''; } catch (e) {}
+  apply(saved, false);
 })();
 </script>
 </body>
