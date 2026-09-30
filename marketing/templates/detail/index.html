@@ -2422,16 +2422,31 @@ function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace
   document.getElementById('sb-name').textContent = item.name;
   document.getElementById('sb-sub').textContent = TAG_LABELS[item.tag] + ' · Free';
 
-  /* Reveal once the hero is mostly scrolled past so the banner doesn't compete with the hero CTAs */
+  /* Reveal once the hero is mostly scrolled past so the banner doesn't
+     compete with the hero CTAs — and slide back DOWN near the footer so it
+     never covers the wordmark animation (Gary; desktop only — on phones the
+     bar is compact and the footer strip is short). */
   var hero = document.querySelector('.detail-hero');
+  var footerZone = document.querySelector('.footer-image-section');
+  var pastHero = false, nearFooter = false;
+  var desktopMq = window.matchMedia('(min-width: 1025px)');
+  function syncBanner() {
+    banner.classList.toggle('is-visible', pastHero && !(nearFooter && desktopMq.matches));
+  }
   if (hero && 'IntersectionObserver' in window) {
     var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        if (e.intersectionRatio < 0.25) banner.classList.add('is-visible');
-        else banner.classList.remove('is-visible');
-      });
+      entries.forEach(function (e) { pastHero = e.intersectionRatio < 0.25; });
+      syncBanner();
     }, { threshold: [0, 0.25, 0.5, 1] });
     io.observe(hero);
+    if (footerZone) {
+      var ioF = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) { nearFooter = e.isIntersecting; });
+        syncBanner();
+      }, { rootMargin: '0px 0px -40px 0px' });
+      ioF.observe(footerZone);
+    }
+    desktopMq.addEventListener ? desktopMq.addEventListener('change', syncBanner) : desktopMq.addListener(syncBanner);
   } else {
     banner.classList.add('is-visible');
   }
