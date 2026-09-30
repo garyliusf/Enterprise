@@ -547,6 +547,7 @@
     ['Press',            'marketing/press.html'],
     ['Careers',          'marketing/careers.html'],
     ['Pricing',          'marketing/pricing.html'],
+    ['Pricing (signed in)', 'marketing/pricing-signed-in.html'],
     ['Blog (preview)',   'https://blog-light-navbar.bolt-public-pages.pages.dev/blog']
   ];
   /* repo base = everything before /marketing/ or /solutions/ in the path */

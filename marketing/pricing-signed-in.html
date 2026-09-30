@@ -36,8 +36,8 @@
 
     body {
       font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif);
-      background: #000;
-      color: #fff;
+      background: var(--sc-ground, #000);
+      color: var(--sc-ink, #fff);
       min-height: 100vh;
     }
 
@@ -48,7 +48,8 @@
     .page {
       width: min(1200px, calc(100vw - 160px));
       margin: 0 auto;
-      padding: clamp(90px, calc(24px + 8.5vh), 148px) 0 100px; /* below-nav gap, height-fluid — same formula as templates hero */
+      padding: calc(clamp(90px, calc(24px + 8.5vh), 148px) + var(--sc-nav-overlap, 0px)) 0 clamp(24px, 4vh, 48px); /* + the over-hero nav's overlap (69px on light, 0 dark), so the H1 lands where it does in dark */ /* below-nav gap, height-fluid — same formula as templates hero */
+      /* bottom: the FAQ->footer-CTA seam is same-ground, so ONE unit total (CLAUDE.md seam rule): the footer's own 90px + this (was 100px + 40px FAQ pad = ~230px; Gary, 2026-09-30) */
     }
     @media (max-width: 1024px) {
       .page { width: min(900px, calc(100vw - 80px)); }
@@ -62,9 +63,7 @@
       text-align: center;
       gap: 28px;
       /* the term switch sits between the hero and the cards on this variant,
-         so the hero holds only the gap down to it — same as signed-out C.
-         (The 80px this replaced was sized for the workspace row, which has
-         since moved to the nav.) */
+         so the hero holds only the gap down to it */
       margin-bottom: 52px;
     }
 
@@ -150,8 +149,8 @@
     .billing-btn:hover { color: rgba(255,255,255,0.85); }
     .billing-btn.active { color: #fff; font-weight: 600; }
 
-    /* The toggle sits under the price, left-aligned with the rest of the
-       card, with the SAVE% trailing it on the same row. */
+    /* The toggle sits below the annual-total note, left-aligned with the
+       rest of the card, with the SAVE% trailing it on the same row. */
     .billing-row {
       display: flex;
       flex-direction: row;
@@ -208,13 +207,7 @@
       /* stacked cards align to nothing — drop the equal-height reserves so a
          1-line note doesn't leave 40px of dead air above the button */
       .cards .price-note { min-height: 0; }
-      /* stacked cards: the 44/48 signed-in band exists to keep four cards
-         level around the Teams picker — pointless in a single column, and it
-         read as dead air. Match the signed-out 12/24; the picker keeps just
-         enough margin for its floated label (8+15px above) and current-plan
-         line (10+15px below). */
-      .cards .card .card-cta { margin-top: 12px; margin-bottom: 24px; }
-      .cards .token-picker { margin: 36px 0 44px; }
+      .cards .card .card-cta { margin-top: 12px; }
       .card:last-child { border-bottom: none; }
       /* On mobile cards stack and size to their content — drop the equal-height
          alignment trick but keep the 36px breathing room above the CTA. */
@@ -233,9 +226,9 @@
     @media (max-width: 768px) {
       .page {
         width: 100%;
-        padding: 64px 16px 48px;
+        padding: calc(64px + var(--sc-nav-overlap, 0px)) 16px 48px;
       }
-      .pricing-hero { margin-bottom: 56px; gap: 28px; }
+      .pricing-hero { margin-bottom: 48px; gap: 28px; }
       .page-header { margin-bottom: 0; }
       .page-header h1 { font-size: clamp(37px, 10.45vw, 51px); margin-bottom: 8px; }
       .page-header p  { font-size: 16px; white-space: normal; max-width: 100%; }
@@ -295,7 +288,7 @@
     }
 
     @media (max-width: 480px) {
-      .page { padding: 48px 16px 40px; }
+      .page { padding: calc(48px + var(--sc-nav-overlap, 0px)) 16px 40px; }
       .card { --cd-pt: 22px; --cd-px: 18px; padding: var(--cd-pt) var(--cd-px) 12px; }
       .cert-badge { width: 55px; height: 55px; }
     }
@@ -408,10 +401,10 @@
       gap: 6px;
       row-gap: 8px;
       margin-bottom: 12px;  /* matches B: 12px from the price to the note */
-      /* matches the signed-out pages: the row keeps the 30px it had when the
-         toggle lived here, which reads as ~8px of air under the price glyphs.
-         Dropping it to 0 was what pulled the annual total visibly tighter to
-         the price on every signed-in variant. */
+      /* reserve the badge+toggle stack on every card (Pro/Teams carry one,
+         Free/Enterprise don't) so all four CTAs — and the divider below them —
+         land on the same line. 30px = the toggle's real height (28px box,
+         baseline-aligned and nudged -2px, so it overhangs 2.5px). */
       min-height: 30px;
     }
     .price-amount-wrap {
@@ -479,9 +472,9 @@
       color: rgba(255,255,255,0.55);
     }
     .price-total strong { font-weight: 600; color: #fff; }
-    /* Enterprise pitch (adopted from production/PR #4868, MKT-520). Two
-       lines, so the Enterprise CTA sits below the aligned row — same as the
-       eng build; deliberate. */
+    /* Enterprise pitch (adopted from production/PR #4868, MKT-520). Moved
+       BELOW the CTA (2026-09-30, Gary) so all four buttons share one row;
+       it now follows the card description, above the divider. */
     .ent-pitch {
       font-size: 14px;
       line-height: 1.55;
@@ -501,6 +494,106 @@
       color: rgba(255,255,255,0.55);
     }
 
+
+
+    /* ── Variant C: one term switch above the grid ──
+       Form borrowed from the reference: a single dark pill, uppercase
+       letter-spaced labels, the saving stated as a chip inside Yearly.
+       Yearly leads because it's the term being recommended. The fill is the
+       brand blue rather than the reference's lime, which is off-palette. */
+    .term-switch {
+      display: flex;
+      justify-content: center;
+      /* nothing protrudes above the grid on this variant, so this is the
+         whole gap rather than tab-height plus gap */
+      margin-bottom: 44px;
+    }
+    .term-switch .billing-toggle {
+      padding: 6px;
+      border-radius: 2px;
+      background: #0d0d0f;
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+    .term-switch .billing-thumb {
+      top: 6px;
+      bottom: 6px;
+      border-radius: 2px;
+    }
+    .term-switch .billing-btn {
+      width: auto;
+      gap: 9px;
+      padding: 9px 20px;
+      border-radius: 2px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1.3px;
+      text-transform: uppercase;
+    }
+    .billing-coupon {
+      width: 15px;
+      height: 15px;
+      flex-shrink: 0;
+      color: #1488FC;
+      transition: color 0.25s ease;
+    }
+    /* the active segment's fill IS #1488FC, so a blue tag would vanish on it */
+    .billing-btn.active .billing-coupon { color: #fff; }
+
+    .term-chip {
+      padding: 2px 8px;
+      border: 1px solid currentColor;
+      border-radius: 2px;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.9px;
+      white-space: nowrap;
+      opacity: 0.7;
+      transition: opacity 0.25s ease;
+    }
+    .billing-btn.active .term-chip { opacity: 1; }
+
+    @media (max-width: 768px) {
+      .term-switch .billing-btn { padding: 10px 15px; font-size: 12px; letter-spacing: 1.1px; gap: 7px; }
+      .term-chip { padding: 2px 7px; font-size: 9px; letter-spacing: 0.6px; }
+    }
+
+
+    /* ── Bolt Forge bullet (Pro) — compact lockup of the forge.html hero
+       mark: canonical bolt letterpaths + italic gradient "forge". Leads the
+       list while the promo runs (included until Oct 14). ── */
+    .forge-mark {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      margin-right: 1px;
+      vertical-align: -2px;
+    }
+    .forge-mark-bolt { width: 27px; height: 12px; flex-shrink: 0; }
+    .forge-mark-forge {
+      font-style: italic;      /* real Schibsted Grotesk italic, same as the forge page */
+      font-weight: 500;
+      font-size: 14px;
+      letter-spacing: -0.3px;
+      line-height: 1.3;        /* paint box must cover the g descender */
+      padding-right: 0.06em;   /* italic overhang */
+      background: linear-gradient(90deg, #4D9AFB 0%, #7FB2F7 55%, #B9D2F5 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+    }
+    .forge-learn {
+      display: block;
+      width: fit-content;
+      margin-top: 3px;
+      color: #1488FC;
+      font-weight: 500;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    .forge-learn:hover { color: #4DA6FF; }
+    /* the site's thin shafted arrow mask (Gary, 2026-09-30) — was a typed → glyph */
+    .forge-learn span[aria-hidden] { display: inline-block; width: 14px; height: 12px; margin-left: 4px; vertical-align: -1px; background: currentColor; -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 14' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 7h13M9 2l5 5-5 5'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 14' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 7h13M9 2l5 5-5 5'/%3E%3C/svg%3E") center / contain no-repeat; }
 
     /* ═══ Signed-in additions ═══════════════════════════════════════════
        Everything below is what separates this page from the public pricing
@@ -761,102 +854,23 @@
 
 
 
-    /* ── Variant C: one term switch above the grid ──
-       Form borrowed from the reference: a single dark pill, uppercase
-       letter-spaced labels, the saving stated as a chip inside Yearly.
-       Yearly leads because it's the term being recommended. The fill is the
-       brand blue rather than the reference's lime, which is off-palette. */
-    .term-switch {
-      display: flex;
-      justify-content: center;
-      /* nothing protrudes above the grid on this variant, so this is the
-         whole gap rather than tab-height plus gap */
-      margin-bottom: 44px;
-    }
-    .term-switch .billing-toggle {
-      padding: 6px;
-      border-radius: 2px;
-      background: #0d0d0f;
-      border: 1px solid rgba(255,255,255,0.10);
-    }
-    .term-switch .billing-thumb {
-      top: 6px;
-      bottom: 6px;
-      border-radius: 2px;
-    }
-    .term-switch .billing-btn {
-      width: auto;
-      gap: 9px;
-      padding: 9px 20px;
-      border-radius: 2px;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 1.3px;
-      text-transform: uppercase;
-    }
-    .billing-coupon {
-      width: 15px;
-      height: 15px;
-      flex-shrink: 0;
-      color: #1488FC;
-      transition: color 0.25s ease;
-    }
-    /* the active segment's fill IS #1488FC, so a blue tag would vanish on it */
-    .billing-btn.active .billing-coupon { color: #fff; }
 
-    .term-chip {
-      padding: 2px 8px;
-      border: 1px solid currentColor;
-      border-radius: 2px;
-      font-size: 9px;
-      font-weight: 600;
-      letter-spacing: 0.9px;
-      white-space: nowrap;
-      opacity: 0.7;
-      transition: opacity 0.25s ease;
-    }
-    .billing-btn.active .term-chip { opacity: 1; }
-
-    @media (max-width: 768px) {
-      .term-switch .billing-btn { padding: 10px 15px; font-size: 12px; letter-spacing: 1.1px; gap: 7px; }
-      .term-chip { padding: 2px 7px; font-size: 9px; letter-spacing: 0.6px; }
-    }
-
-
-    /* ── Bolt Forge bullet (Pro) — compact lockup of the forge.html hero
-       mark: canonical bolt letterpaths + italic gradient "forge". Leads the
-       list while the promo runs (included until Oct 14). ── */
-    .forge-mark {
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
-      margin-right: 1px;
-      vertical-align: -2px;
-    }
-    .forge-mark-bolt { width: 27px; height: 12px; flex-shrink: 0; }
-    .forge-mark-forge {
-      font-style: italic;      /* real Schibsted Grotesk italic, same as the forge page */
-      font-weight: 500;
-      font-size: 14px;
-      letter-spacing: -0.3px;
-      line-height: 1.3;        /* paint box must cover the g descender */
-      padding-right: 0.06em;   /* italic overhang */
-      background: linear-gradient(90deg, #4D9AFB 0%, #7FB2F7 55%, #B9D2F5 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-      color: transparent;
-    }
-    .forge-learn {
-      display: block;
-      width: fit-content;
-      margin-top: 3px;
-      color: #1488FC;
-      font-weight: 500;
-      text-decoration: none;
-      transition: color 0.2s ease;
-    }
-    .forge-learn:hover { color: #4DA6FF; }
+    /* ─── LIGHT — signed-in components (2026-09-30) ─────────────────────── */
+    html[data-theme="light"] .workspace-btn { background: #fff; border-color: var(--sc-line); color: var(--sc-ink); box-shadow: 0 1px 2px rgba(15,26,42,0.06); }
+    html[data-theme="light"] .workspace-btn:hover { border-color: var(--sc-line-strong); }
+    html[data-theme="light"] .workspace-caret, html[data-theme="light"] .token-caret { color: rgba(var(--sc-ink-rgb),0.5); }
+    html[data-theme="light"] .workspace-menu, html[data-theme="light"] .token-menu { background: #fff; border-color: var(--sc-line); box-shadow: 0 12px 32px rgba(15,26,42,0.14); }
+    html[data-theme="light"] .workspace-menu li, html[data-theme="light"] .token-menu li { color: rgba(var(--sc-ink-rgb),0.75); }
+    html[data-theme="light"] .workspace-menu li:hover, html[data-theme="light"] .token-menu li:hover { background: rgba(var(--sc-ink-rgb),0.05); color: var(--sc-ink); }
+    html[data-theme="light"] .workspace-menu li[aria-selected="true"], html[data-theme="light"] .token-menu li[aria-selected="true"] { color: var(--sc-ink); background: rgba(20,136,252,0.08); }
+    html[data-theme="light"] .token-label, html[data-theme="light"] .token-current { color: var(--sc-text-muted); }
+    html[data-theme="light"] .token-current strong { color: var(--sc-ink); }
+    html[data-theme="light"] .token-btn { background: #fff; border-color: rgba(var(--sc-ink-rgb),0.14); color: var(--sc-ink); }
+    html[data-theme="light"] .token-btn:hover { border-color: rgba(var(--sc-ink-rgb),0.3); }
+    html[data-theme="light"] .token-menu .token-opt-price { color: var(--sc-text-muted); }
+    html[data-theme="light"] .card .card-cta--current { border-color: rgba(var(--sc-ink-rgb),0.14); color: rgba(var(--sc-ink-rgb),0.5); background: transparent; }
+    html[data-theme="light"] .admin-note { color: var(--sc-ink); }
+    html[data-theme="light"] .switch-note { color: var(--sc-text-muted); }
 
     /* ── Divider ── */
     .divider {
@@ -1027,16 +1041,7 @@
        aligned for equal-height cards). */
     /* 24px below matches the divider's own margin, so CTA → description →
        rule → list all breathe on the same rhythm */
-    /* 20/32 is the "band" between a card's price row and its description.
-       Teams' token picker matches it exactly (see .token-picker) so all four
-       descriptions and dividers land on the same line. The bottom is 48 so
-       the picker's floated label and "current plan" line sit in these margins
-       rather than adding height. 44/48 (vs 20/24 signed out) is deliberate:
-       every signed-in card carries the taller band so the Teams picker
-       breathes and the four stay level — the whole block just sits lower
-       than signed out, which is fine; it's the TOP of the card (label /
-       price / total) that must match the signed-out pages, and does. */
-    .card .card-cta { width: 100%; margin: 44px 0 48px; }
+    .card .card-cta { width: 100%; margin: 20px 0 24px; }
 
 
     /* ── Compare features table ── */
@@ -1089,10 +1094,10 @@
 
     /* Column hover highlight (skips Features column) */
     .compare-table td, .compare-table th { transition: background-color 0.3s cubic-bezier(0.22, 1, 0.36, 1); }
-    .compare-table:has(tr > :nth-child(2):hover) tr > :nth-child(2):not([colspan]),
-    .compare-table:has(tr > :nth-child(3):hover) tr > :nth-child(3):not([colspan]),
-    .compare-table:has(tr > :nth-child(4):hover) tr > :nth-child(4):not([colspan]),
-    .compare-table:has(tr > :nth-child(5):hover) tr > :nth-child(5):not([colspan]) {
+    .compare-table:has(tr:not(.compare-group) > :nth-child(2):hover) tr:not(.compare-group) > :nth-child(2):not([colspan]),
+    .compare-table:has(tr:not(.compare-group) > :nth-child(3):hover) tr:not(.compare-group) > :nth-child(3):not([colspan]),
+    .compare-table:has(tr:not(.compare-group) > :nth-child(4):hover) tr:not(.compare-group) > :nth-child(4):not([colspan]),
+    .compare-table:has(tr:not(.compare-group) > :nth-child(5):hover) tr:not(.compare-group) > :nth-child(5):not([colspan]) {
       background-color: rgba(255,255,255,0.08) !important;
     }
 
@@ -1162,8 +1167,11 @@
 
     .compare-tier-switch { display: none; }
 
-    /* H1 tablet standard: 66px desktop -> 51px <=1024 (matches enterprise) */
-    @media (max-width: 1024px) {
+    /* H1 tablet standard: 66px desktop -> 51px on TABLET ONLY. This block sits
+       after the <=768 rule in source, so an open-ended max-width:1024 also
+       matched phones and overrode the mobile clamp — the H1 rendered 51px on
+       a 390px screen (Gary, 2026-09-30). */
+    @media (min-width: 769px) and (max-width: 1024px) {
       .page-header h1 { font-size: 51px; }
       .page-header p { font-size: 18px; }
     }
@@ -1406,7 +1414,7 @@
        desktops; anything narrower stacks. */
     .faq-section {
       margin-top: 100px;
-      padding-bottom: 40px;
+      padding-bottom: 0;
       display: grid;
       grid-template-columns: 1fr;
       gap: 40px;
@@ -1482,6 +1490,7 @@
       position: relative;
       height: 32vw;
       max-height: 32vw;
+      isolation: isolate; background: var(--sc-ground);
     }
     .bolt-image-wrap img {
       width: 100%;
@@ -1545,6 +1554,94 @@
       z-index: 1;
     }
 
+
+    /* ─── LIGHT (2026-09-30 port) — dark literals above are untouched; light
+       values are --sc-* tokens so the page tracks the family. ─────────── */
+    /* hero: the family dome sits behind the H1 + term switch and releases to
+       the ground right where the cards begin, so the white cards rise out of
+       it. Sized in px (the token's stops are % of the box). */
+    html[data-theme="light"] .pricing-hero-glow { background: var(--sc-hero-bg); height: calc(640px + var(--sc-nav-overlap, 0px)); -webkit-mask-image: none; mask-image: none; }
+    html[data-theme="light"] .page-header p { color: rgba(255,255,255,0.94); }
+    /* hero pixel field = the family's ordered Bayer dither in BOTH themes
+       (Gary, 2026-09-30): white squares on the light dome, the pale crown on
+       dark — the old skyline noise field is retired. */
+    #hero-dither { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 100vw; height: calc(640px + var(--sc-nav-overlap, 0px)); z-index: 1; pointer-events: none;
+      -webkit-mask-image: linear-gradient(180deg, #000 55%, rgba(0,0,0,0) 90%);
+              mask-image: linear-gradient(180deg, #000 55%, rgba(0,0,0,0) 90%); }
+    #pricing-pixel-skyline { display: none; }
+    /* term switch: white pill on the dome (trust's chip inversion) */
+    html[data-theme="light"] .term-switch .billing-toggle { background: #fff; border-color: #fff; box-shadow: 0 4px 16px rgba(15,26,42,0.10); }
+    html[data-theme="light"] .term-switch .billing-btn { color: rgba(var(--sc-ink-rgb),0.6); }
+    html[data-theme="light"] .term-switch .billing-btn:hover { color: var(--sc-ink); }
+    html[data-theme="light"] .term-switch .billing-btn.active { color: #fff; }
+    html[data-theme="light"] .card .billing-toggle { background: rgba(var(--sc-ink-rgb),0.07); }
+    html[data-theme="light"] .card .billing-btn { color: rgba(var(--sc-ink-rgb),0.5); }
+    html[data-theme="light"] .card .billing-btn:hover { color: rgba(var(--sc-ink-rgb),0.85); }
+    html[data-theme="light"] .card .billing-btn.active { color: #fff; }
+    html[data-theme="light"] .billing-save-badge { color: rgba(var(--sc-ink-rgb),0.3); }
+    /* cards */
+    html[data-theme="light"] .cards { border-color: var(--sc-line); box-shadow: 0 8px 28px rgba(15,26,42,0.08); }
+    html[data-theme="light"] .card { background: #fff; border-right-color: var(--sc-line); }
+    html[data-theme="light"] .card-teams { background: linear-gradient(180deg, rgba(20,136,252,0.16) 0%, rgba(20,136,252,0.05) 55%, rgba(20,136,252,0.10) 100%), #fff; border-right-color: var(--sc-line); }
+    @media (max-width: 1100px) { html[data-theme="light"] .card:nth-child(1), html[data-theme="light"] .card:nth-child(2) { border-bottom-color: var(--sc-line); } }
+    @media (max-width: 640px) { html[data-theme="light"] .card { border-bottom-color: var(--sc-line); } }
+    html[data-theme="light"] .plan-label, html[data-theme="light"] .price-amount, html[data-theme="light"] .price-amount--custom, html[data-theme="light"] .card-description, html[data-theme="light"] .price-total strong { color: var(--sc-ink); }
+    html[data-theme="light"] .price-period, html[data-theme="light"] .price-total, html[data-theme="light"] .price-save, html[data-theme="light"] .feature-item { color: var(--sc-text-desc); }
+    html[data-theme="light"] .price-total s { color: rgba(var(--sc-ink-rgb),0.32); }
+    html[data-theme="light"] .ent-pitch { color: rgba(var(--sc-ink-rgb),0.62); }
+    html[data-theme="light"] .divider { border-top-color: var(--sc-line-soft); }
+    html[data-theme="light"] .everything-note { color: rgba(var(--sc-ink-rgb),0.25); }
+    html[data-theme="light"] .check-icon { color: rgba(var(--sc-ink-rgb),0.5); }
+    html[data-theme="light"] .check-icon.blue, html[data-theme="light"] .check-icon.purple, html[data-theme="light"] .check-icon.orange, html[data-theme="light"] .check-icon.green { color: rgba(var(--sc-ink-rgb),0.35); }
+    html[data-theme="light"] .feature-link { border-bottom-color: rgba(var(--sc-ink-rgb),0.22); }
+    html[data-theme="light"] .feature-link:hover, html[data-theme="light"] .feature-link:focus-visible { color: var(--sc-ink); border-bottom-color: rgba(var(--sc-ink-rgb),0.5); }
+    html[data-theme="light"] .tip-mark { border-color: rgba(var(--sc-ink-rgb),0.28); color: rgba(var(--sc-ink-rgb),0.5); }
+    html[data-theme="light"] .tip:hover .tip-mark, html[data-theme="light"] .tip:focus-visible .tip-mark { color: var(--sc-ink); border-color: rgba(var(--sc-ink-rgb),0.6); }
+    html[data-theme="light"] .tip-bubble { background: #fff; border-color: var(--sc-line); box-shadow: 0 8px 24px rgba(15,26,42,0.14); color: var(--sc-text-desc); }
+    html[data-theme="light"] .forge-learn { color: var(--sc-blue-ink); }
+    html[data-theme="light"] .forge-learn:hover { color: #1488FC; }
+    html[data-theme="light"] .forge-mark-bolt, html[data-theme="light"] .forge-mark-bolt path { fill: var(--sc-ink); }
+
+    /* logos: the extracted wordmarks are black — no invert on light */
+    html[data-theme="light"] .logos-label { color: var(--sc-text-faint); }
+    html[data-theme="light"] .logo-item img { filter: none; opacity: 0.55; }
+    /* compliance banner */
+    html[data-theme="light"] .compliance-banner { background: var(--sc-surface); border-color: var(--sc-line); }
+    html[data-theme="light"] .compliance-title { color: var(--sc-ink); }
+    html[data-theme="light"] .compliance-sub { color: var(--sc-text-muted); }
+    html[data-theme="light"] .cert-badge svg circle { stroke: rgba(var(--sc-ink-rgb),0.3); }
+    html[data-theme="light"] .cert-badge svg text, html[data-theme="light"] .cert-badge svg polygon { fill: rgba(var(--sc-ink-rgb),0.8); }
+    html[data-theme="light"] .cert-badge svg image { filter: invert(1); }
+    /* compare table */
+    html[data-theme="light"] .compare-section { color: var(--sc-ink); }
+    html[data-theme="light"] .compare-table th, html[data-theme="light"] .compare-table td,
+    html[data-theme="light"] .compare-table th:first-child, html[data-theme="light"] .compare-table td:first-child { border-bottom-color: var(--sc-line-soft); color: rgba(var(--sc-ink-rgb),0.75); }
+    html[data-theme="light"] .compare-tier-head th, html[data-theme="light"] .compare-table .compare-tier-head th:first-child { background: var(--sc-ground); color: var(--sc-ink); border-top-color: var(--sc-line-soft); border-bottom-color: var(--sc-line); box-shadow: 0 1px 0 rgba(var(--sc-ink-rgb),0.05); }
+    html[data-theme="light"] .compare-tier-head th { background: rgba(255,255,255,0) !important; }
+    html[data-theme="light"] .compare-tier-head.is-stuck th { background: rgba(255,255,255,0.72) !important; }
+    html[data-theme="light"] .compare-table:has(tr:not(.compare-group) > :nth-child(2):hover) tr:not(.compare-group) > :nth-child(2):not([colspan]),
+    html[data-theme="light"] .compare-table:has(tr:not(.compare-group) > :nth-child(3):hover) tr:not(.compare-group) > :nth-child(3):not([colspan]),
+    html[data-theme="light"] .compare-table:has(tr:not(.compare-group) > :nth-child(4):hover) tr:not(.compare-group) > :nth-child(4):not([colspan]),
+    html[data-theme="light"] .compare-table:has(tr:not(.compare-group) > :nth-child(5):hover) tr:not(.compare-group) > :nth-child(5):not([colspan]) { background-color: rgba(var(--sc-ink-rgb),0.05) !important; }
+    html[data-theme="light"] .compare-table .compare-group td, html[data-theme="light"] .compare-table .compare-group td:first-child { color: var(--sc-ink); border-bottom-color: rgba(var(--sc-ink-rgb),0.18); }
+    html[data-theme="light"] .compare-check { color: rgba(var(--sc-ink-rgb),0.75); }
+    html[data-theme="light"] .compare-dash { color: rgba(var(--sc-ink-rgb),0.35); }
+    html[data-theme="light"] .compare-emph, html[data-theme="light"] .compare-table-title { color: var(--sc-ink); }
+    @media (max-width: 768px) {
+      html[data-theme="light"] .compare-tier-switch { background: var(--sc-ground); border-color: var(--sc-line); }
+      html[data-theme="light"] .compare-tier-switch button { color: rgba(var(--sc-ink-rgb),0.5); }
+      html[data-theme="light"] .compare-tier-switch button::after { background: rgba(var(--sc-ink-rgb),0.14); }
+      html[data-theme="light"] .compare-tier-switch button.is-active, html[data-theme="light"] .compare-tier-switch button.is-active:hover, html[data-theme="light"] .compare-tier-switch button.is-active:focus { color: var(--sc-ink) !important; }
+      html[data-theme="light"] .compare-tier-switch button.is-active::after { background: #1488FC; }
+      html[data-theme="light"] .compare-tier-head th, html[data-theme="light"] .compare-table .compare-tier-head th:first-child { background: var(--sc-ground); }
+      html[data-theme="light"] .compare-group td { background: var(--sc-ground); }
+    }
+    /* FAQ + footer */
+    html[data-theme="light"] .faq-sub { color: var(--sc-text-muted); }
+    html[data-theme="light"] .faq-section .ms-faq-a-inner strong { color: var(--sc-ink); }
+    html[data-theme="light"] .footer-section { background: var(--sc-ground); }
+    html[data-theme="light"] #bolt-shimmer-canvas { mix-blend-mode: normal; }
+
     /* ── Popular badge ── */
 
 
@@ -1559,7 +1656,7 @@
     top: 0;
     z-index: 100;
     width: 100%;
-    background: rgba(5,5,7,0.72);
+    background: var(--sc-nav-bg, rgba(5,5,7,0.72));
     -webkit-backdrop-filter: saturate(140%) blur(18px);
             backdrop-filter: saturate(140%) blur(18px);
     /* no divider line under the nav in any state (prod nav-footer-ia-sync, #335) */
@@ -1567,9 +1664,33 @@
   }
   /* an open dropdown/drawer must never leave the bar translucent (prod #335) */
   .mkt-nav.has-menu-open {
-    background: #050507;
+    background: var(--sc-nav-bg-solid, #050507);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
+  }
+  /* Light-page variant (beige blog-family pages: customers, press): the default
+     72%-alpha black composites with the beige page behind it and reads GREY —
+     these pages opt into a solid ground so the nav stays true black. Dark pages
+     keep the translucent glass look. */
+  /* beige-page bar: SOLID in both themes — opaque white on light, #050507 on
+     dark. The glass either way composites with the beige and reads grey. */
+  .mkt-nav--on-light {
+    background: var(--sc-nav-bg-solid, #050507);
+    /* fade, don't snap, between the at-rest transparent and the scrolled solid (Gary) */
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+  }
+  /* keep it solid black when scrolled too: .mkt-nav.is-scrolled (0,2,0) otherwise
+     swaps in the translucent glass, which reads grey over the beige page (Gary) */
+  .mkt-nav.mkt-nav--on-light.is-scrolled { background: var(--sc-nav-bg-solid, #050507); }
+  /* On LIGHT the beige pages start with no bar at all — the beige runs under
+     the logo/links — and the solid white only arrives on scroll (Gary,
+     2026-09-29; supersedes the earlier always-solid call). Dark keeps the
+     solid black bar in every state. */
+  html[data-theme="light"] .mkt-nav--on-light:not(.is-scrolled):not(.has-menu-open) {
+    background: transparent;
+    border-bottom-color: transparent;
+    -webkit-backdrop-filter: none;
+            backdrop-filter: none;
   }
   .mkt-nav-inner {
     /* 3-column grid with equal 1fr outer columns: the middle nav group is then
@@ -1644,12 +1765,15 @@
     pointer-events: none;
   }
   .mkt-nav-back svg { width: 16px; height: 16px;
-    /* +1px: align-items:center centers the LINE BOXES, but the label face
-       (Literata: ascent 1177 / descent 308 / cap 700 per 1000) puts its
-       caps-only ink 0.0845em = ~1px BELOW the line-box centre at 12px, while
-       the chevron ink is dead centre in its 16px box. Nudge the chevron to
-       match. (Was +0.75px, derived the same way for Silkscreen.) */
-    transform: translateY(1px); }
+    /* -5px: the chevron's INK starts ~5px into its 16px viewBox (polyline
+       x=9..15 of 24 + stroke) — pull the box left so the ink edge, not the
+       box edge, sits on the shared 40/16px gutter line with the drawer text */
+    margin-left: -5px;
+    /* No nudge: align-items:center centers the LINE BOXES, and Schibsted
+       Grotesk (asc 2000 / desc 528 / cap 1440 per 2048) puts its caps-only
+       ink 0.008em = 0.09px from the line-box centre at 12px — dead centre.
+       The old +1px was derived for Literata and sat the chevron 1px low. */
+    transform: translateY(0); }
   .mkt-nav-logo { position: relative; }
   .mkt-nav.is-on-submenu .mkt-nav-logo {
     /* Logo rolls up and out as it fades. */
@@ -1684,7 +1808,7 @@
     font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif);
     font-size: 14px;
     font-weight: 500;
-    color: rgba(255,255,255,0.75);
+    color: var(--sc-nav-ink, rgba(255,255,255,0.75));
     background: none;
     border: none;
     border-radius: 4px;
@@ -1692,15 +1816,15 @@
     text-decoration: none;
     transition: color 0.15s ease, background 0.15s ease;
   }
-  .mkt-nav-link:hover { color: #fff; background: rgba(255,255,255,0.05); }
-  .mkt-nav-link.is-active { color: #fff; }
+  .mkt-nav-link:hover { color: var(--sc-nav-ink-hover, #fff); background: var(--sc-nav-ink-hover-bg, rgba(255,255,255,0.05)); }
+  .mkt-nav-link.is-active { color: var(--sc-nav-ink-hover, #fff); }
   .mkt-nav-link { position: relative; }
   .mkt-nav-link .mkt-nav-chev {
     width: 12px; height: 12px;
     transition: transform 0.2s ease;
   }
   .mkt-nav-link.is-open .mkt-nav-chev { transform: rotate(180deg); }
-  .mkt-nav-link.is-open { color: #fff; background: rgba(255,255,255,0.05); }
+  .mkt-nav-link.is-open { color: var(--sc-nav-ink-hover, #fff); background: var(--sc-nav-ink-hover-bg, rgba(255,255,255,0.05)); }
   /* Right-side actions */
   .mkt-nav-actions {
     display: flex;
@@ -1712,11 +1836,11 @@
     font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif);
     font-size: 14px;
     font-weight: 500;
-    color: rgba(255,255,255,0.75);
+    color: var(--sc-nav-ink, rgba(255,255,255,0.75));
     text-decoration: none;
     transition: color 0.15s ease;
   }
-  .mkt-nav-signin:hover { color: #fff; }
+  .mkt-nav-signin:hover { color: var(--sc-nav-ink-hover, #fff); }
   /* Nav CTA extends .hero-btn-primary so shared-components.js attaches the pixel-fill canvas hover — same as every other primary button on the site. These overrides shrink it to the compact nav pill size. */
   .mkt-nav-cta.hero-btn-primary {
     height: 38px;
@@ -1754,7 +1878,7 @@
     left: 9px;
     width: 22px;
     height: 1.5px;
-    background: #fff;
+    background: var(--sc-nav-logo, #fff);
     border-radius: 1px;
     transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
                 width 0.28s ease,
@@ -1777,11 +1901,11 @@
     top: 100%;
     left: 0;
     right: 0;
-    background: rgba(8,8,12,0.98);
+    background: var(--sc-panel-bg, rgba(8,8,12,0.98));
     -webkit-backdrop-filter: saturate(140%) blur(24px);
             backdrop-filter: saturate(140%) blur(24px);
     border-bottom: 1px solid rgba(255,255,255,0.08);
-    box-shadow: 0 24px 60px rgba(0,0,0,0.55);
+    box-shadow: var(--sc-panel-shadow, 0 24px 60px rgba(0,0,0,0.55));
     opacity: 0;
     transform: translateY(-6px);
     pointer-events: none;
@@ -1820,12 +1944,12 @@
     display: none;
     padding: 14px;
     border-radius: 6px;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.08);
+    background: var(--sc-feature-bg, rgba(255,255,255,0.03));
+    border: 1px solid var(--sc-feature-border, rgba(255,255,255,0.08));
     text-decoration: none;
     transition: border-color 0.2s ease, background 0.2s ease;
   }
-  .mkt-nav-panel-feature:hover { border-color: rgba(255,255,255,0.22); background: rgba(255,255,255,0.045); }
+  .mkt-nav-panel-feature:hover { border-color: var(--sc-feature-border-hover, rgba(255,255,255,0.22)); background: var(--sc-feature-bg-hover, rgba(255,255,255,0.045)); }
   .mkt-nav-panel-feature-visual {
     /* 7/4 matches the nav art (both cards are 700x400). At 3/2 the wider
        image was cover-cropped ~14% off the left and right edges. */
@@ -1904,7 +2028,7 @@
     font-size: 11px;
     letter-spacing: 1.5px;
     text-transform: uppercase;
-    color: rgba(255,255,255,0.4);
+    color: var(--sc-panel-heading, rgba(255,255,255,0.4));
     margin: 0 0 16px;
   }
   .mkt-nav-panel-col a {
@@ -1932,7 +2056,7 @@
     transform: translateX(-4px);
     transition: opacity 0.18s ease, transform 0.18s ease;
   }
-  .mkt-nav-panel-col a:hover { color: #fff; }
+  .mkt-nav-panel-col a:hover { color: var(--sc-panel-link-hover, #fff); }
   .mkt-nav-panel-col a:hover::after { opacity: 1; transform: translateX(0); }
   /* Focus-mode dim: when a specific link inside the panel is being hovered, dim every other link so the hovered item pops. Column headings (ROLES / SUPPORT / etc.) stay visible so the user always knows which category the highlighted link belongs to. */
   .mkt-nav-panel:has(.mkt-nav-panel-col a:hover) .mkt-nav-panel-col a { opacity: 0.32; }
@@ -2012,7 +2136,7 @@
     position: absolute;
     inset: 0;
     overflow-y: auto;
-    padding: 28px clamp(16px, 4vw, 40px) 28px;
+    padding: 28px 40px;  /* match .mkt-nav-inner's gutter exactly (40 tablet / 16 mobile below) — the old 4vw clamp only coincided at exact widths, so drawer text sat off the bar's Back chevron */
     opacity: 0;
     /* Off-screen to the left when not active — slides in from the left as it fades in, matching the logo/back header animation direction. */
     transform: translateX(-24px);
@@ -2040,7 +2164,7 @@
     text-decoration: none;
     cursor: pointer;
   }
-  .mkt-nav-mobile-item svg { width: 16px; height: 16px; color: rgba(255,255,255,0.4); }
+  .mkt-nav-mobile-item svg { width: 16px; height: 16px; color: var(--sc-panel-heading, rgba(255,255,255,0.4)); }  /* token, not the white literal: 0.4-white is invisible on the light drawer sheet (Gary) — dark value is the same 0.4 white */
   .mkt-nav-mobile-heading {
     font-family: var(--sc-font-label, 'Literata', serif); font-weight: var(--sc-label-weight, 500);
     font-size: 10px;
@@ -2140,7 +2264,7 @@
 
   /* ─── SITE FOOTER (link columns, ported from the Retool footer pattern) ── */
   .site-footer {
-    background: #000;
+    background: var(--sc-ground, #000);
     width: 100%;
     box-sizing: border-box;
     padding: 92px min(80px, 5vw) 40px; /* was 132px — divider-to-links gap; synced with shared-nav-footer.css */
@@ -2165,7 +2289,7 @@
     font-weight: var(--sc-label-weight, 500);
     letter-spacing: 1.5px;
     text-transform: uppercase;
-    color: rgba(255,255,255,0.4);
+    color: rgba(var(--sc-ink-rgb, 255,255,255),0.45);
     margin: 0 0 16px;
   }
   /* gap:0 + per-link vertical padding so adjacent links touch (no dead pixels
@@ -2177,7 +2301,7 @@
     display: inline-flex; align-items: center; gap: 6px;
     align-self: flex-start;
     padding: 10px 0;
-    font-size: 16px; color: rgba(255,255,255,0.7); text-decoration: none;
+    font-size: 16px; color: rgba(var(--sc-ink-rgb, 255,255,255),0.72); text-decoration: none;
     transition: color 0.18s ease, opacity 0.18s ease;
   }
   /* Slide-in arrow on the hovered link — hidden until hover (matches the nav). */
@@ -2188,11 +2312,31 @@
   }
   .site-footer-links a:hover { color: var(--sc-ink, #fff); }   /* was a literal #fff: white-on-white on light */
   .site-footer-links a:hover::after { opacity: 1; transform: translateX(0); }
+
+/* Simple thin arrow (Gary, 2026-09-29): every nav/footer '→' pseudo swaps the
+   text glyph — whose head renders heavy in Schibsted — for the site's thin
+   shafted arrow (1.5px stroke, small open head — Gary's pick 2026-09-30, replacing the bare chevron) as a currentColor mask.
+   Appended last so it overrides only the glyph + box; each site keeps its
+   own colour, opacity, transform and transition behaviour. */
+.mkt-nav-panel-feature-title::after,
+.mkt-nav-mobile-feature-title::after,   /* the drawer's feature cards carried a typed '→' (Gary, 2026-09-30) */
+.mkt-nav-panel-col a::after,
+.mkt-nav-mobile-links a::after,
+.site-footer-links a::after {
+  content: '';
+  display: inline-block;
+  width: 14px; height: 12px;
+  margin-left: 6px;
+  vertical-align: -1px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 14' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 7h13M9 2l5 5-5 5'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 14' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 7h13M9 2l5 5-5 5'/%3E%3C/svg%3E") center / contain no-repeat;
+}
   /* Focus-mode dim: driven by hovering an actual link (:has(a:hover)) so the
      overlay is off in the empty space beside/between columns and only turns on
      over the links themselves. The padding trick above keeps it stable while
      moving down a column. The hovered link stays lit; labels stay visible. */
-  .site-footer-cols:has(a:hover) a { opacity: 0.5; }
+  .site-footer-cols:has(a:hover) a { opacity: var(--sc-dim, 0.5); }
   .site-footer-cols:has(a:hover) a:hover { opacity: 1; }
 
   .site-footer-col--connect { flex: 0 0 auto; min-width: 0; }
@@ -2201,17 +2345,22 @@
   .site-footer-social--col { flex-direction: column; align-items: flex-start; gap: 12px; margin-top: 0; }
   .site-footer-social a {
     width: 30px; height: 30px; border-radius: 50%;
-    background: rgba(255,255,255,0.06);
+    background: rgba(var(--sc-ink-rgb, 255,255,255),0.06);
     display: inline-flex; align-items: center; justify-content: center;
-    color: rgba(255,255,255,0.7);
+    color: rgba(var(--sc-ink-rgb, 255,255,255),0.72);
     transition: background 0.2s ease, color 0.2s ease;
   }
-  .site-footer-social a:hover { background: rgba(255,255,255,0.12); color: #fff; }
+  .site-footer-social a:hover { background: rgba(var(--sc-ink-rgb, 255,255,255),0.12); color: var(--sc-ink, #fff); }
+  /* production sizes the icon by class; this fork sized the bare svg */
+  .site-footer-social-icon { width: 14px; height: 14px; }
   .site-footer-social svg { width: 14px; height: 14px; }
 
   /* Tail bar (logo + legal + copyright) — lives below the bolt animation to end the page, so it carries its own gutter. */
   .site-footer-tail { background: #000; padding: 0 min(80px, 5vw) 40px; }
-  .site-footer-divider { width: 100%; max-width: 1200px; margin: 0 auto; border-top: 1px solid rgba(255,255,255,0.2); }
+    /* ink-composed so it survives the theme: rgba(10,12,20,0.2) over white is a
+     soft grey (~#cecfd0) and dark keeps exactly the rgba(255,255,255,0.2) it
+     had. A hard-coded white rule was invisible on the light page. */
+  .site-footer-divider { width: 100%; max-width: 1200px; margin: 0 auto; border-top: 1px solid rgba(var(--sc-ink-rgb, 255,255,255),0.2); }
   .site-footer-bottom {
     width: 100%; max-width: 1200px; margin: 0 auto;
     padding-top: 24px;
@@ -2265,12 +2414,137 @@
     @media (max-width: 480px) {
       .cert-badge { width: 71px; height: 71px; } /* +15% mobile-only */
     }
-  </style>
+  
+
+
+
+
+/* ╔══════════════════════════════════════════════════════════════════════════╗
+   ║ CHROME THEME RULES — token-driven, one rule set for BOTH themes.          ║
+   ║ Light values are Forge Lite's (bolt.new/bolt-lite), carried in the        ║
+   ║ --sc-* chrome tokens in shared-components.css; dark values are the        ║
+   ║ sandbox's originals, so dark renders exactly as it did before.            ║
+   ║                                                                          ║
+   ║ These replace the verbatim html[data-theme='light'] port: that block      ║
+   ║ targeted production's class names (.mkt-nav-viewport, .mkt-nav-content),  ║
+   ║ which this fork of the nav does not use — the dropdown shell rule never   ║
+   ║ matched, so the panel stayed dark while its text went light.              ║
+   ╚══════════════════════════════════════════════════════════════════════════╝ */
+.mkt-nav { border-bottom: 1px solid var(--sc-nav-hairline, transparent); }
+/* Bar/panel seam while a menu is open (Gary). NOT the border: the panel is a
+   child at top:100% and children paint over the parent's border, which is why
+   the first attempt never showed. A pseudo laid over the panel's top edge. */
+.mkt-nav.has-menu-open::after {
+  content: ''; position: absolute; left: 0; right: 0; top: 100%; height: 1px;
+  background: var(--sc-nav-menu-divider, transparent); z-index: 300; pointer-events: none;
+}
+.mkt-nav.is-switching .mkt-nav-panel { transition: none; }  /* direct menu-to-menu swap: no crossfade flash (see setOpen) */
+.mkt-nav.is-scrolled { background: var(--sc-nav-bg-scrolled, rgba(5,5,7,0.72)); }
+/* scrolled AND a menu open: .is-scrolled (0,2,0) sits later than the has-menu-open
+   rule and was winning, so the open bar went back to glass with its blur off —
+   see-through text (Gary). This outranks both. */
+.mkt-nav.is-scrolled.has-menu-open { background: var(--sc-nav-bg-solid, #050507); -webkit-backdrop-filter: none; backdrop-filter: none; }
+/* the wordmark ships fill="#fff" as a markup attribute, so CSS has to win */
+.mkt-nav-logo svg path { fill: var(--sc-nav-logo, #fff); }
+/* Over-hero variant — opt-in per page via a class on <nav>. Only for pages
+   whose hero is dark enough for white ink; on a white-topped page (pricing,
+   customers, press, templates) the at-rest ink would vanish. The bar is
+   pulled over the hero by --sc-nav-overlap and the page adds the same amount
+   back to its hero's top padding + min-height, so the copy does not move.
+   Tokens carry the theme difference rather than a light-only selector: on
+   dark every --sc-nav-over-* equals its regular token and the overlap is 0,
+   so dark renders exactly as before. */
+.mkt-nav--over-hero {
+  margin-bottom: calc(-1 * var(--sc-nav-overlap, 0px));
+  transition: background-color 0.25s ease;
+}
+.mkt-nav--over-hero:not(.is-scrolled):not(.has-menu-open) {
+  --sc-nav-bg: var(--sc-nav-over-bg);
+  --sc-nav-hairline: var(--sc-nav-over-hairline);
+  --sc-nav-ink: var(--sc-nav-over-ink);
+  --sc-nav-ink-hover: var(--sc-nav-over-ink-hover);
+  --sc-nav-ink-hover-bg: var(--sc-nav-over-ink-hover-bg);
+  --sc-nav-logo: var(--sc-nav-over-logo);
+  -webkit-backdrop-filter: var(--sc-nav-over-blur);
+          backdrop-filter: var(--sc-nav-over-blur);
+}
+.mkt-nav--over-hero .mkt-nav-logo svg path { transition: fill 0.25s ease; }
+.mkt-nav--over-hero.is-scrolled { background: var(--sc-nav-over-bg-scrolled, var(--sc-nav-bg-scrolled)); }
+/* Blend variant — opt-in per page. For light pages whose ground is NOT white
+   (the beige customers pages): at rest the bar is transparent so it takes the
+   page's own ground, and it turns solid once scrolled. Unlike over-hero it
+   keeps the normal ink and sits in flow, so it needs no overlap. (Gary) */
+.mkt-nav--blend:not(.is-scrolled):not(.has-menu-open) {
+  --sc-nav-bg: transparent;
+  --sc-nav-hairline: transparent;
+  -webkit-backdrop-filter: none;
+          backdrop-filter: none;
+}
+.mkt-nav.mkt-nav--blend.is-scrolled { background: var(--sc-ground, #fff); }
+.mkt-nav-scrim { background: var(--sc-scrim, rgba(0,0,0,0.5)); }
+
+/* dropdown panel */
+.mkt-nav-panel { background: var(--sc-panel-bg, rgba(8,8,12,0.98)); }
+.mkt-nav-panel-feature-eyebrow { color: var(--sc-panel-heading, rgba(255,255,255,0.4)); }
+.mkt-nav-panel-feature-title { color: var(--sc-panel-link-hover, #fff); }
+.mkt-nav-panel-feature-desc { color: var(--sc-panel-link, rgba(255,255,255,0.55)); }
+.mkt-nav-panel-col a { color: var(--sc-panel-link, rgba(255,255,255,0.55)); }
+.mkt-nav-panel-col a:hover { color: var(--sc-panel-link-hover, #fff); }
+.mkt-nav-content:has(.mkt-nav-panel-col a:hover) .mkt-nav-panel-col a,
+.mkt-nav-panel-inner:has(.mkt-nav-panel-col a:hover) .mkt-nav-panel-col a { opacity: var(--sc-dim, 0.5); }
+.mkt-nav-content:has(.mkt-nav-panel-col a:hover) .mkt-nav-panel-col a:hover,
+.mkt-nav-panel-inner:has(.mkt-nav-panel-col a:hover) .mkt-nav-panel-col a:hover { opacity: 1; }
+
+/* mobile drawer */
+.mkt-nav-mobile { background: var(--sc-drawer-bg, #000); }
+.mkt-nav-mobile-close, .mkt-nav-mobile-back, .mkt-nav-mobile-item,
+.mkt-nav-mobile-links a, .mkt-nav-mobile-feature-title { color: var(--sc-panel-link-hover, #fff); }
+.mkt-nav-mobile-chev, .mkt-nav-mobile-feature-desc,
+.mkt-nav-mobile-signin { color: var(--sc-panel-link, rgba(255,255,255,0.55)); }
+.mkt-nav-mobile-heading { color: var(--sc-panel-heading, rgba(255,255,255,0.4)); }
+.mkt-nav-mobile-feature { border-bottom-color: var(--sc-feature-border, rgba(255,255,255,0.08)); }
+.mkt-nav-mobile-footer { border-top-color: var(--sc-feature-border, rgba(255,255,255,0.08)); }
+@media (max-width: 1024px) {
+  /* drawer open: the bar strip above it must flip too, or a dark band is left */
+  .mkt-nav.has-menu-open { background: var(--sc-drawer-bg, #050507); }
+  .mkt-nav.has-menu-open .mkt-nav-burger span { background: var(--sc-nav-logo, #fff); }
+  .mkt-nav.has-menu-open .mkt-nav-logo svg path { fill: var(--sc-nav-logo, #fff); }
+  .mkt-nav.has-menu-open .mkt-nav-back { color: var(--sc-panel-link-hover, #fff); }
+  /* LIGHT (Gary, 2026-09-29): while the drawer is open the bar wears the
+     hero navy in BOTH views — it flipped to white on the home view and
+     jumped to navy on drill-in, an abrupt switch. The faint dot grid echoes
+     the hero dither. Dark keeps the drawer-bg flip above. */
+  html[data-theme="light"] .mkt-nav.has-menu-open {
+    background: radial-gradient(rgba(255,255,255,0.13) 1px, transparent 1.6px) 0 0 / 13px 13px, #0b2163;
+  }
+  html[data-theme="light"] .mkt-nav.has-menu-open .mkt-nav-logo svg path { fill: #fff; }
+  html[data-theme="light"] .mkt-nav.has-menu-open .mkt-nav-burger span { background: #fff; }
+  html[data-theme="light"] .mkt-nav.has-menu-open .mkt-nav-back { color: #fff; }
+  /* Divider under the bar while the drawer is open (Gary) — the desktop
+     seam token is transparent in dark and would vanish on the light navy
+     bar, so the drawer state carries its own colours. Same ::after overlay
+     as the desktop seam, so it needs no new element. */
+  .mkt-nav.has-menu-open::after { background: rgba(255,255,255,0.14); }
+  html[data-theme="light"] .mkt-nav.has-menu-open::after { background: rgba(255,255,255,0.22); }
+  /* Home view: the 28px view padding + 4px list margin left ~46px between
+     the divider and "Solutions", vs ~14px between the bar content and the
+     divider. Tightened so the two gaps read equal; submenu views keep 28px
+     (their header block wants the air). */
+    @media (max-width: 768px) {
+      .mkt-nav-mobile-view { padding-left: 16px; padding-right: 16px; }  /* nav-inner's mobile gutter */
+    }
+  .mkt-nav-mobile-view[data-view="home"] { padding-top: 10px; }  /* 2px sat the first link too close to the divider (Gary) */
+  .mkt-nav-mobile-view[data-view="home"] .mkt-nav-mobile-links { margin-top: 0; }
+}
+
+/* site footer + wordmark strip follow the page ground */
+.footer-image-section { background: var(--sc-ground, #000); }
+</style>
 </head>
 <body>
 
 <!-- ─── NAVBAR ────────────────────────────────────────────────────────────── -->
-<nav class="mkt-nav" aria-label="Primary">
+<nav class="mkt-nav mkt-nav--over-hero" aria-label="Primary">
   <div class="mkt-nav-inner">
     <!-- Nav-bar Back button — only appears on mobile when a submenu is active (JS toggles .is-on-submenu on .mkt-nav). Replaces the logo in the same slot. -->
     <button class="mkt-nav-back" data-mobile-back aria-label="Back to main menu">
@@ -2309,8 +2583,6 @@
     </ul>
 
     <div class="mkt-nav-right">
-      <!-- Workspace selector — the signed-in nav's right-hand slot, where the
-           account control lives. -->
       <div class="mkt-nav-actions">
       <div class="workspace-picker">
         <span class="workspace-anchor">
@@ -2463,14 +2735,7 @@
     </div>
   </div>
 
-  <div class="mkt-nav-mobile-footer">
-    <a href="https://bolt.new/" target="_blank" rel="noopener" class="hero-btn-primary">
-      <div class="btn-bg-hover"></div>
-      <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Started</span><span>Get Started</span></div></div>
-    </a>
-  </div>
 </div>
-
 
 
 
@@ -2482,6 +2747,7 @@
 
     <div class="pricing-hero-glow"></div>
     <canvas id="pricing-pixel-skyline"></canvas>
+    <canvas id="hero-dither" aria-hidden="true"></canvas>
 
     <div class="pricing-hero">
       <div class="page-header">
@@ -2567,6 +2833,8 @@
           <div class="btn-text-wrap"><div class="btn-text-inner"><span>You're on Teams</span><span>You're on Teams</span></div></div>
         </button>
 
+        <p class="switch-note">For personal plans, switch to your personal workspace using the selector in the top right.</p>
+
         <p class="card-description">Everything in Free, plus real app capacity and your own domain.</p>
 
         <hr class="divider" />
@@ -2576,7 +2844,7 @@
           <li class="feature-item">
             <svg class="check-icon blue" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
             <span class="feature-text"><span class="forge-mark" role="img" aria-label="Bolt Forge"><svg class="forge-mark-bolt" viewBox="0 0 56 24" fill="#fff" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.4272 20.9491C8.80168 20.9491 7.20572 20.3592 6.28951 19.0909L5.96635 20.5867L0 23.75L0.644095 20.5867L4.9891 0.921487H10.309L8.77213 7.853C10.0134 6.49619 11.1661 5.99476 12.6438 5.99476C15.8358 5.99476 17.9637 8.08896 17.9637 11.9234C17.9637 15.8758 15.5107 20.9491 10.4272 20.9491ZM12.4665 13.0443C12.4665 14.873 11.1661 16.2593 9.48145 16.2593C8.53569 16.2593 7.6786 15.9053 7.11705 15.2859L7.94459 11.658C8.56524 11.0385 9.27456 10.6846 10.1021 10.6846C11.373 10.6846 12.4665 11.6285 12.4665 13.0443Z"/><path d="M26.1121 20.9491C21.0582 20.9491 18.4869 17.9995 18.4869 14.3126C18.4869 9.9472 21.9744 5.99476 27.0283 5.99476C32.0822 5.99476 34.6535 8.94434 34.6535 12.6313C34.6535 16.9967 31.166 20.9491 26.1121 20.9491ZM26.319 16.2593C28.0923 16.2593 29.2154 14.6665 29.2154 12.8968C29.2154 11.481 28.2992 10.6846 26.8214 10.6846C25.0481 10.6846 23.925 12.2774 23.925 14.0471C23.925 15.4629 24.8412 16.2593 26.319 16.2593Z"/><path d="M40.0368 20.5952H34.717L39.0615 0.921487H44.3814L40.0368 20.5952Z"/><path d="M49.9163 20.9491C46.8426 20.9491 44.6555 19.8283 44.6555 17.3506C44.6555 17.1442 44.6851 16.6427 44.7737 16.2298L45.9264 10.9501H43.562L44.5964 6.34871H46.9608L47.8179 2.45527L53.7735 0L53.1378 2.46127L52.2807 6.34871H55.1771L54.1426 10.9501H51.2462L50.4778 14.4306C50.4187 14.696 50.3892 14.991 50.3892 15.109C50.3892 15.7874 50.8029 16.2593 51.7191 16.2593C51.9851 16.2593 52.3693 16.1708 52.458 16.1118V20.3592C51.8965 20.7427 50.8916 20.9491 49.9163 20.9491Z"/></svg><em class="forge-mark-forge">forge</em></span> included until Oct 14
-            <a class="forge-learn" href="https://bolt.new/blog/what-is-bolt-forge" target="_blank" rel="noopener">Learn more <span aria-hidden="true">&rarr;</span></a></span>
+            <a class="forge-learn" href="https://bolt.new/blog/what-is-bolt-forge" target="_blank" rel="noopener">Learn more <span aria-hidden="true"></span></a></span>
           </li>
           <li class="feature-item">
             <svg class="check-icon blue" viewBox="0 0 24 24" fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>
@@ -2617,7 +2885,6 @@
           </li>
         </ul>
         </div>
-        <p class="switch-note">For personal plans, switch to your personal workspace using the selector in the top right.</p>
       </div>
 
       <!-- Teams -->
@@ -2633,7 +2900,7 @@
           <p class="price-total" id="teams-total"></p>
           <p class="price-save" id="teams-save"></p>
         </div>
-        <div class="token-picker">
+                <div class="token-picker">
           <span class="token-label">Monthly tokens per member</span>
           <button class="token-btn" id="token-btn" aria-haspopup="listbox" aria-expanded="false">
             <span class="token-mark" aria-hidden="true">
@@ -2645,6 +2912,8 @@
           <ul class="token-menu" id="token-menu" role="listbox"></ul>
           <p class="token-current">Your current plan: <strong>10M tokens</strong>.</p>
         </div>
+
+
         <p class="card-description">Everything in Pro, plus shared capacity and team controls.</p>
 
         <hr class="divider" />
@@ -2698,13 +2967,13 @@
         <div class="price-note">
           <p class="price-total">Custom annual contract, billed by consumption</p>
         </div>
-        <p class="ent-pitch">Get advanced security, compliance, and 24/7 support. Customized to your team’s exact needs.</p>
         <button class="hero-btn-primary card-cta">
           <div class="btn-bg-hover"></div>
           <div class="btn-text-wrap"><div class="btn-text-inner"><span>See a Demo</span><span>See a Demo</span></div></div>
         </button>
 
         <p class="card-description">Everything in Teams, built for scale, security, and compliance.</p>
+        <p class="ent-pitch"><!-- below the CTA so all four buttons share a row (Gary, 2026-09-30) -->Get advanced security, compliance, and 24/7 support. Customized to your team’s exact needs.</p>
 
         <hr class="divider" />
 
@@ -3163,9 +3432,9 @@
 
 <section class="footer-image-section">
     <div class="bolt-image-wrap">
-      <img src="../images/bolt-bottom.png" alt="" aria-hidden="true" loading="lazy" decoding="async">
+      <img id="bolt-wordmark-img" src="../images/bolt-bottom-light.webp" alt="" aria-hidden="true" decoding="async">
       <canvas id="bolt-shimmer-canvas"></canvas>
-      <div style="position:absolute;inset:0;background:linear-gradient(to bottom, #000 0%, transparent 22%, transparent 88%, #000 100%);z-index:3;pointer-events:none;"></div>
+      <div style="position:absolute;inset:0;background:linear-gradient(to bottom, var(--sc-ground) 0%, transparent 22%, transparent 88%, var(--sc-ground) 100%);z-index:3;pointer-events:none;"></div>
     </div>
 </section>
 
@@ -3175,6 +3444,18 @@
       color = color || '20,136,252';
       var canvas = document.getElementById(id);
       if (!canvas) return;
+      /* Light mode: an explicit triplet is this canvas's DARK colour — pale dots
+         vanish on a light ground — so light follows --sc-dot-rgb. Dark keeps
+         the literal, so dark renders exactly as before. */
+      var darkColor = color;
+      function pickColor() {
+        var light = document.documentElement.getAttribute('data-theme') === 'light';
+        if (!light || canvas.closest('.sc-on-dark')) { color = darkColor; return; }
+        var v = getComputedStyle(canvas).getPropertyValue('--sc-dot-rgb').trim();
+        color = v || '20,136,252';
+      }
+      pickColor();
+      document.addEventListener('sc-themechange', pickColor);
       var phases = [];
 
       function buildPhases(cols, rows) {
@@ -3715,113 +3996,299 @@
 
 
 <script>
-// ── Bolt strip shimmer (warm glowing vertical bars across the BOLT image) ──
-(function() {
+// ── Hero dither (BOTH themes) — the family's ordered Bayer field. Light:
+//    white squares over the dome. Dark: the pale crown (integrations' params).
+(function () {
+  var canvas = document.getElementById('hero-dither');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var CELL = 5, SQ = 2, cols, rows;
+  var BAYER = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]];
+  function init() {
+    canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
+    cols = Math.ceil(canvas.width / CELL) + 1;
+    rows = Math.ceil(canvas.height / CELL) + 1;
+  }
+  var light = true;
+  function readTheme() { light = document.documentElement.getAttribute('data-theme') !== 'dark'; }
+  readTheme(); window.addEventListener('resize', init); init();
+  document.addEventListener('sc-themechange', function () { readTheme(); init(); });
+  var start = null;
+  function draw(ts) {
+    if (!start) start = ts;
+    var t = (ts - start) / 1000;
+    var W = canvas.width, H = canvas.height;
+    if (!W || !H) { init(); requestAnimationFrame(draw); return; }
+    ctx.clearRect(0, 0, W, H);
+    for (var r = 0; r < rows; r++) {
+      var gy = r / rows;
+      var base = 1 - gy / (light ? 0.98 : 0.85);
+      if (base <= 0) continue;
+      base = light ? Math.pow(base, 0.75) : base * base;
+      for (var c = 0; c < cols; c++) {
+        var gx = c / cols;
+        var wave = Math.sin(gx * 4.1 + gy * 6.3 - t * 0.95) * 0.5
+                 + Math.sin(gx * 7.7 - gy * 3.1 + t * 0.62) * 0.28;
+        var hm = 1 - Math.pow(Math.abs(gx - 0.5) * 2, 2.2) * 0.85;
+        var level = base * hm + wave * 0.38;
+        var th = (BAYER[r & 3][c & 3] + 0.5) / 16;
+        if (level <= th) continue;
+        var a = 0.085 + base * 0.13;
+        ctx.fillStyle = 'rgba(' + (light ? '255,255,255' : '160,185,230') + ',' + a.toFixed(3) + ')';
+        ctx.fillRect(c * CELL, r * CELL, SQ, SQ);
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+</script>
+<script>
+// ── Bolt strip shimmer ───────────────────────────────────────────────────────
+// Faithful vanilla port of production's FooterWordmark
+// (bolt-public-pages src/components/chrome/FooterWordmark.tsx), which is the
+// component the Forge Lite footer uses. The sandbox had a FORK of this that
+// drifted; every difference between them turned out to be a bug. Re-port from
+// the component, do not hand-tune here.
+//
+// Deltas from production, both deliberate:
+//   · theme switching: production picks light/dark once per render, this
+//     re-initialises on sc-themechange so the preview toggle works.
+//   · window.__shimmer debug hook.
+(function () {
   var canvas = document.getElementById('bolt-shimmer-canvas');
   if (!canvas) return;
   var wrap = canvas.parentElement;
-  var ctx = canvas.getContext('2d');
   var img = wrap.querySelector('img');
-  var W, H, strips = [], t = 0;
-  var hoverT = 0, isHovered = false, splashT = 0, splashStart = null, splashDuration = 300;
+  var ctx = canvas.getContext('2d');
+  if (!ctx) return;
 
-  // Trigger splash when section enters viewport
-  var observer = new IntersectionObserver(function(entries) {
-    if (entries[0].isIntersecting && !splashStart) {
-      splashStart = Date.now();
-      observer.disconnect();
-    }
-  }, { threshold: 0.1 });
-  observer.observe(wrap);
+  var WORDMARK_SRC = '../images/bolt-bottom.png';
+  var WORDMARK_LIGHT_SRC = '../images/bolt-bottom-light.webp';
+  var SAMPLE_WIDTH = 400, SAMPLE_HEIGHT = 200, SAMPLE_WIDTH_FINE = 1600;
+  var STRIP_BRIGHTNESS_THRESHOLD = 28;
+  var HOVER_SPLASH_DURATION_MS = 300, TOUCH_SPLASH_DURATION_MS = 1500;
 
-  function sampleStrips() {
-    var SW = 400, SH = 200;
-    var s = document.createElement('canvas');
-    s.width = SW; s.height = SH;
-    var sc = s.getContext('2d');
-    try { sc.drawImage(img, 0, 0, SW, SH); } catch (e) { return; }
-    var data;
-    try { data = sc.getImageData(0, 0, SW, SH).data; } catch (e) { return; }
-    strips = [];
-    var inStrip = false, stripStart = 0;
-    for (var x = 0; x < SW; x++) {
-      var b = 0;
-      for (var y = 20; y < SH - 20; y++) {
-        var idx = (y * SW + x) * 4;
-        b += (data[idx] + data[idx+1] + data[idx+2]) / 3;
+  /* production bails entirely under reduced motion */
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+  var splashDuration = isTouch ? TOUCH_SPLASH_DURATION_MS : HOVER_SPLASH_DURATION_MS;
+
+  var strips = [], inView = false, width = 0, height = 0;
+  var time = Math.random() * 80, hoverAmount = 0, isHovered = false;
+  var splashStart, frame, light = false, frames = 0, lastError = null;
+
+  function isLight() { return document.documentElement.getAttribute('data-theme') !== 'dark'; }
+
+  function sampleStrips(image) {
+    var sampleWidth = light ? SAMPLE_WIDTH_FINE : SAMPLE_WIDTH;
+    var scratch = document.createElement('canvas');
+    scratch.width = sampleWidth; scratch.height = SAMPLE_HEIGHT;
+    var c = scratch.getContext('2d', { willReadFrequently: true });
+    if (!c) return [];
+    c.drawImage(image, 0, 0, sampleWidth, SAMPLE_HEIGHT);
+    var data = c.getImageData(0, 0, sampleWidth, SAMPLE_HEIGHT).data;
+    var out = [], inStrip = false, stripStart = 0;
+    for (var x = 0; x < sampleWidth; x++) {
+      var brightness = 0;
+      for (var y = 20; y < SAMPLE_HEIGHT - 20; y++) {
+        var i = (y * sampleWidth + x) * 4;
+        var lum = (data[i] + data[i + 1] + data[i + 2]) / 3;
+        brightness += light ? 255 - lum : lum;   /* light art is ink-on-white */
       }
-      b /= (SH - 40);
-      if (b > 28 && !inStrip) { inStrip = true; stripStart = x; }
-      else if (b <= 28 && inStrip) {
+      brightness /= SAMPLE_HEIGHT - 40;
+      if (brightness > STRIP_BRIGHTNESS_THRESHOLD && !inStrip) { inStrip = true; stripStart = x; }
+      else if (brightness <= STRIP_BRIGHTNESS_THRESHOLD && inStrip) {
         inStrip = false;
-        var cx = (stripStart + x) / 2 / SW;
-        var w = (x - stripStart) / SW;
-        strips.push({
-          cx: cx, w: w,
-          phase: Math.random() * Math.PI * 2,
-          freq: 0.5 + Math.random() * 1.2,
-          yPhase: Math.random() * Math.PI * 2,
-          yFreq: 0.35 + Math.random() * 0.7,
-          speedMult: 0.6 + Math.random() * 0.8,
-        });
+        out.push({ centerX: (stripStart + x) / 2 / sampleWidth, width: (x - stripStart) / sampleWidth,
+                   phase: Math.random() * Math.PI * 2, frequency: 0.5 + Math.random() * 1.2,
+                   yPhase: Math.random() * Math.PI * 2, yFrequency: 0.35 + Math.random() * 0.7,
+                   speedMultiplier: 0.6 + Math.random() * 0.8 });
       }
     }
+    return out;
   }
 
-  function init() {
-    var r = wrap.getBoundingClientRect();
-    W = canvas.width = r.width; H = canvas.height = r.height;
-    t = Math.random() * 80;
-    sampleStrips();
-    var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
-    if (isTouch) {
-      splashDuration = 1500;
-    } else {
-      wrap.addEventListener('mouseenter', function() { isHovered = true; });
-      wrap.addEventListener('mouseleave', function() { isHovered = false; });
-    }
-    requestAnimationFrame(tick);
+  function resize() {
+    var rect = wrap.getBoundingClientRect();
+    width = canvas.width = Math.round(rect.width);
+    height = canvas.height = Math.round(rect.height);
   }
 
   function tick() {
-    var splashRaw = splashStart ? Math.max(0, 1 - (Date.now() - splashStart) / splashDuration) : 0;
-    splashT = splashRaw * splashRaw * splashRaw;
-    t += 0.012 + hoverT * 0.008;
-    hoverT += ((isHovered ? 1 : 0) - hoverT) * (isHovered ? 0.07 : 0.025);
-
-    ctx.clearRect(0, 0, W, H);
-    for (var i = 0; i < strips.length; i++) {
-      var st = strips[i];
-      var brightness = (Math.sin(t * st.freq * st.speedMult + st.phase) * 0.5 + 0.5);
-      if (brightness < 0.01) continue;
-      var x = st.cx * W;
-      var w = Math.max(st.w * W, 3);
-      var centerY = (Math.sin(t * st.yFreq * st.speedMult + st.yPhase) * 0.5 + 0.5) * H;
-      var spread = H * (0.55 + hoverT * 0.25);
-
-      var baseA  = brightness * 0.11;
-      var peakA  = brightness * 0.28;
-      var boost  = Math.max(hoverT, splashT);
-      var a  = (baseA + (peakA - baseA) * boost).toFixed(3);
-      var a2 = (parseFloat(a) * 1.4).toFixed(3);
-
-      var grad = ctx.createLinearGradient(0, centerY - spread, 0, centerY + spread);
-      grad.addColorStop(0,    'rgba(220,225,240,0)');
-      grad.addColorStop(0.3,  'rgba(220,225,240,' + a + ')');
-      grad.addColorStop(0.5,  'rgba(255,255,255,'  + a2 + ')');
-      grad.addColorStop(0.7,  'rgba(220,225,240,' + a + ')');
-      grad.addColorStop(1,    'rgba(220,225,240,0)');
-      ctx.fillStyle = grad;
-      ctx.fillRect(x - w / 2, 0, w, H);
-    }
-    requestAnimationFrame(tick);
+    if (!inView) { frame = undefined; return; }
+    frames++;
+    try {
+      var splashRaw = splashStart ? Math.max(0, 1 - (Date.now() - splashStart) / splashDuration) : 0;
+      var splash = splashRaw * splashRaw * splashRaw;
+      time += 0.028 + hoverAmount * 0.016;
+      hoverAmount += ((isHovered ? 1 : 0) - hoverAmount) * (isHovered ? 0.07 : 0.025);
+      ctx.clearRect(0, 0, width, height);
+      for (var i = 0; i < strips.length; i++) {
+        var strip = strips[i];
+        var brightness = Math.sin(time * strip.frequency * strip.speedMultiplier + strip.phase) * 0.5 + 0.5;
+        if (brightness < 0.01) continue;
+        var x = strip.centerX * width;
+        var stripWidth = Math.max(strip.width * width, light ? 2 : 3);
+        var centerY = (Math.sin(time * strip.yFrequency * strip.speedMultiplier + strip.yPhase) * 0.5 + 0.5) * height;
+        var spread = height * (0.55 + hoverAmount * 0.25);
+        var boost = Math.max(hoverAmount, splash);
+        var alpha = brightness * 0.11 + (brightness * 0.28 - brightness * 0.11) * boost;
+        var peakAlpha = alpha * 1.4;
+        var edge = light ? '35,40,55' : '220,225,240';
+        var peak = light ? '10,12,20' : '255,255,255';
+        var g = ctx.createLinearGradient(0, centerY - spread, 0, centerY + spread);
+        g.addColorStop(0, 'rgba(' + edge + ',0)');
+        g.addColorStop(0.3, 'rgba(' + edge + ',' + alpha.toFixed(3) + ')');
+        g.addColorStop(0.5, 'rgba(' + peak + ',' + peakAlpha.toFixed(3) + ')');
+        g.addColorStop(0.7, 'rgba(' + edge + ',' + alpha.toFixed(3) + ')');
+        g.addColorStop(1, 'rgba(' + edge + ',0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(x - stripWidth / 2, 0, stripWidth, height);
+      }
+    } catch (e) { lastError = (e && e.message) || String(e); }
+    frame = requestAnimationFrame(tick);
   }
 
-  if (img.complete) init(); else img.addEventListener('load', init);
-  window.addEventListener('resize', function() {
+  /* Production gates the loop on inView from an IntersectionObserver. That is
+     correct but it is also a single point of failure: if the observer has not
+     reported by the time the art decodes, nothing ever starts. Compute
+     visibility directly as a fallback so start() can never be stranded. */
+  function computeInView() {
     var r = wrap.getBoundingClientRect();
-    W = canvas.width = r.width; H = canvas.height = r.height;
-  });
+    var vh = window.innerHeight || document.documentElement.clientHeight;
+    return r.bottom > 0 && r.top < vh;
+  }
+  function run() { if (frame === undefined && inView) frame = requestAnimationFrame(tick); }
+  function start() {
+    resize();
+    strips = sampleStrips(img);
+    if (!inView && computeInView()) { inView = true; if (!splashStart) splashStart = Date.now(); }
+    run();
+  }
+
+  /* Theme art. Production picks this once; we re-apply on the preview toggle.
+     NOTE: mix-blend-mode is set HERE, never authored in the markup — `screen`
+     on a white ground is invisible, so an authored default is a trap. */
+  var appliedTheme = null;
+  function applyTheme() {
+    light = isLight();
+    var now = light ? 'light' : 'dark';
+    if (now === appliedTheme) return;
+    appliedTheme = now;
+    canvas.style.mixBlendMode = light ? 'multiply' : 'screen';
+    img.style.opacity = light ? '0.32' : '0.20';
+    var want = light ? WORDMARK_LIGHT_SRC : WORDMARK_SRC;
+    if (img.getAttribute('src') !== want) {
+      img.setAttribute('src', want);
+      img.addEventListener('load', start, { once: true });
+    } else if (img.complete && img.naturalWidth) {
+      start();
+    } else {
+      /* src already correct but the image hasn't finished loading — without
+         this branch the shimmer never starts on pages that ship the themed
+         asset statically (the press race, Gary's "not animating") */
+      img.addEventListener('load', start, { once: true });
+    }
+  }
+  document.addEventListener('sc-themechange', applyTheme);
+
+  new ResizeObserver(resize).observe(wrap);
+  new IntersectionObserver(function (entries) {
+    setInView(entries[0].isIntersecting);
+  }, { threshold: 0.1 }).observe(wrap);
+
+  /* The observer is the efficient path, but it is not the only one: it can fail
+     to report (nested browsing contexts, some restored-scroll cases), and then
+     the loop never starts at all — which is exactly the failure mode being
+     chased here. A throttled scroll/resize check keeps inView honest
+     regardless, and costs one getBoundingClientRect per frame while scrolling. */
+  function setInView(v) {
+    if (v === inView) return;
+    inView = v;
+    if (inView) { if (!splashStart) splashStart = Date.now(); run(); }
+  }
+  var pending = false;
+  function onScroll() {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(function () { pending = false; setInView(computeInView()); });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+
+  if (!isTouch) {
+    wrap.addEventListener('mouseenter', function () { isHovered = true; });
+    wrap.addEventListener('mouseleave', function () { isHovered = false; });
+  }
+
+  window.__shimmer = {
+    get strips()  { return strips.length; },
+    get light()   { return light; },
+    get running() { return frame !== undefined; },
+    get inView()  { return inView; },
+    get frames()  { return frames; },
+    get err()     { return lastError; },
+    get t()       { return Math.round(time * 100) / 100; },
+    get src()     { return (img.currentSrc || img.getAttribute('src') || '').split('/').pop(); },
+    get canvas()  { return canvas.width + 'x' + canvas.height; },
+    get blend()   { return getComputedStyle(canvas).mixBlendMode; }
+  };
+
+  applyTheme();
+  if (img.complete && img.naturalWidth) start(); else img.addEventListener('load', start, { once: true });
+})();
+
+// ── Hero pixel dots — uniform field, no skyline seam
+//    Center-focused Gaussian fade + top/bottom soft fade + two decoherent waves.
+(function () {
+  var canvas = document.getElementById('hero-pixel-dots');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var SPACING = 11, DOT = 2, cols, rows, phases;
+  function init() {
+    canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
+    cols = Math.ceil(canvas.width / SPACING) + 1;
+    rows = Math.ceil(canvas.height / SPACING) + 1;
+    phases = Array.from({ length: rows }, function () { return Float32Array.from({ length: cols }, function () { return Math.random() * Math.PI * 2; }); });
+  }
+  window.addEventListener('resize', init); init();
+  var start = null;
+  function draw(ts) {
+    if (!start) start = ts; var t = ts - start;
+    var W = canvas.width, H = canvas.height;
+    if (!W || !H) { requestAnimationFrame(draw); return; }
+    ctx.clearRect(0, 0, W, H);
+    for (var c = 0; c < cols; c++) {
+      var cf = c / cols;
+      // tighter horizontal Gaussian — dots only faintly present, and mostly around center
+      var hm = Math.exp(-Math.pow(cf - 0.5, 2) / (2 * 0.18 * 0.18));
+      if (hm < 0.04) continue;
+      for (var r = 0; r < rows; r++) {
+        var rf = r / rows;
+        // longer top/bottom fades so the visible band is thin
+        var vTop = Math.min(1, rf / 0.30);
+        var vBot = Math.min(1, (1 - rf) / 0.30);
+        var vm = vTop * vBot;
+        if (vm < 0.08) continue;
+        var x = c * SPACING, y = r * SPACING;
+        var ph = phases[r][c];
+        // decoherent waves — different scales/directions so no visible horizontal bands
+        var w1 = Math.sin(c * 0.13 + r * 0.29 - t * 0.0012 + ph);
+        var w2 = Math.sin(c * 0.07 - r * 0.11 + t * 0.0008 + ph * 0.6);
+        var w3 = Math.sin((c - r) * 0.05 + t * 0.0006 + ph * 1.3);
+        var wave = (w1 + w2 + w3) / 3;
+        // opacity cut sharply — barely-there ambient texture
+        var op = hm * vm * Math.max(0, wave) * 0.28;
+        if (op < 0.015) continue;
+        ctx.fillStyle = 'rgba(160,185,230,' + op.toFixed(3) + ')';
+        ctx.fillRect(x - DOT, y - DOT, DOT * 2, DOT * 2);
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
 })();
 </script>
 
@@ -3839,6 +4306,13 @@
   var hoverTimer = null;
 
   function setOpen(key) {
+    /* Moving straight from one open menu to another swaps the panels with NO
+       crossfade: mid-fade both panels are part-transparent, so on light the
+       page flashed through the white panel (Gary). Fresh opens and closes
+       still fade. */
+    var switching = !!(openKey && key && openKey !== key);
+    nav.classList.toggle('is-switching', switching);
+    if (switching) requestAnimationFrame(function () { requestAnimationFrame(function () { nav.classList.remove('is-switching'); }); });
     openKey = key;
     triggers.forEach(function (t) {
       var active = t.getAttribute('data-menu') === key;
@@ -3851,7 +4325,12 @@
       p.setAttribute('aria-hidden', active ? 'false' : 'true');
     });
     if (scrim) scrim.classList.toggle('is-open', !!key);
-    nav.classList.toggle('has-menu-open', !!key);
+    /* The mobile drawer ALSO owns this class (it paints the bar while the
+       drawer is open). iOS taps inside the drawer fire a synthetic mouseleave
+       on the nav, whose unguarded 120ms setOpen(null) was stripping it — the
+       bar flipped white on the first drill tap (Gary). Keep it while the
+       drawer is open. */
+    nav.classList.toggle('has-menu-open', !!key || document.body.classList.contains('mkt-nav-mobile-open'));
   }
 
   /* Hover listener lives on the parent <li> (which fills the full 68px nav height) rather than the button itself — small vertical cursor movements above/below the button text no longer exit the hover zone and don't cause the dropdown to flicker. Click stays on the button for accessibility. */
@@ -3977,7 +4456,7 @@
    Tell shared's scroll-animation module to stand down so the two never race. */
 window.__pageOwnsScrollAnims = true;
 </script>
-<script src="shared-components.js?v=20260930a"></script>
+<script src="shared-components.js?v=20260930b"></script>
 <script>
 (function () {
   function __genericRevealInit() {
@@ -4026,6 +4505,43 @@ window.__pageOwnsScrollAnims = true;
     }
   }
   if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', __genericRevealInit); } else { __genericRevealInit(); }
+})();
+</script>
+<script>
+/* ─── NAV SCROLL STATE ──────────────────────────────────────────────────────
+   Toggles .is-scrolled on the nav past a few pixels. The CSS for that state
+   already existed but NOTHING set the class, so it was dead. On light the nav
+   is solid at rest (it sits on the vivid blue hero aurora, where glass reads
+   muddy) and becomes glass once scrolled; dark keeps glass throughout.
+   ──────────────────────────────────────────────────────────────────────── */
+(function () {
+  var nav = document.querySelector('.mkt-nav');
+  if (!nav) return;
+  var pending = false;
+  /* Over-hero variant flips at 5% of the page's scroll distance (Gary) —
+     capped at the point where the hero's bottom edge reaches the bar, so the
+     white at-rest ink can never sit over white content on a long page. */
+  var overHero = nav.classList.contains('mkt-nav--over-hero');
+  var hero = overHero ? document.querySelector('.hero-section, [data-nav-hero]') : null;
+  function threshold() {
+    if (!overHero) return 8;
+    var doc = document.documentElement;
+    var t = Math.max(0, doc.scrollHeight - window.innerHeight) * 0.05;
+    if (hero) {
+      var heroBottom = hero.getBoundingClientRect().bottom + (window.pageYOffset || doc.scrollTop || 0);
+      t = Math.min(t, heroBottom - nav.offsetHeight);
+    }
+    return Math.max(8, t);
+  }
+  function sync() {
+    pending = false;
+    var y = window.pageYOffset || document.documentElement.scrollTop || 0;
+    nav.classList.toggle('is-scrolled', y > threshold());
+  }
+  function onScroll() { if (!pending) { pending = true; requestAnimationFrame(sync); } }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  sync();
 })();
 </script>
   <script>
