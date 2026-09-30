@@ -149,6 +149,18 @@
   /* wallpaper retired at ALL widths (Gary, 2026-09-29): the floating template
      tiles are gone from the hero. JS still populates it; it just never shows. */
   .hero-template-grid { display: none !important; }
+  /* LIGHT hero (family recipe): the port missed the hero bg — #050507 sits at
+     the END of a gradient shorthand the converter doesn't match — so light
+     rendered the dark hero and the ink "Bolt" vanished on it (Gary). The
+     compact hero takes the SHARED ramp (the deep bowl needs height), copy in
+     .sc-on-dark, and the ordered dither runs in BOTH themes. */
+  html[data-theme="light"] .hero-section { background: var(--sc-hero-bg); }
+  html[data-theme="light"] .hero-subtitle { color: rgba(255,255,255,0.94); }
+  #hero-dither-light {
+    position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none;
+    -webkit-mask-image: linear-gradient(180deg, #000 55%, rgba(0,0,0,0) 92%);
+            mask-image: linear-gradient(180deg, #000 55%, rgba(0,0,0,0) 92%);
+  }
   @media (max-width: 768px) {
     /* Mobile-only shrink of the hero. min-height is dropped to 0 so the section
        is purely content-driven — with justify-content:center a min-height taller
@@ -1982,11 +1994,12 @@
 
 <!-- ─── HERO ──────────────────────────────────────────────────────────────── -->
 <section class="hero-section">
-  <!-- Decorative template-tile wallpaper (populated by JS from PREVIEW_MOCKS) -->
+  <!-- Decorative template-tile wallpaper (retired 2026-09-29; kept for easy restore) -->
   <div class="hero-template-grid" aria-hidden="true">
     <div class="hero-template-grid-inner" id="hero-template-grid"></div>
   </div>
-  <div class="hero-inner">
+  <canvas id="hero-dither-light" aria-hidden="true"></canvas>
+  <div class="hero-inner sc-on-dark">
     <h1 class="hero-h1">Bolt <span class="hero-h1-kw">Templates</span></h1>
     <p class="hero-subtitle">Portfolios, landing pages, internal tools, MVPs, dashboards, ecommerce — clone a working template and customize it in Bolt.</p>
   </div>
@@ -2995,6 +3008,99 @@ window.addEventListener('load', function () {
   bar.addEventListener('scroll', update, { passive: true });
   window.addEventListener('resize', update);
   update();
+})();
+</script>
+<script>
+// ── Hero dither (BOTH themes — ported from the solutions.html pilot) ─────────────────────────────────────────────────────────────
+// Ordered (Bayer 4x4) dither over the aurora, matching Gary's reference: square
+// pixels, dense at the top and thinning downward, with the threshold pattern
+// giving the characteristic broken-checker edge rather than a smooth fade.
+// Animated — a slow wave pushes the density field around, so squares wink in
+// and out along the boundary instead of the whole field pulsing.
+(function () {
+  var canvas = document.getElementById('hero-dither-light');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var CELL = 5, SQ = 2;                 /* grid pitch and square size */
+  var cols, rows;
+  /* Bayer 4x4, normalised 0..1 — the classic ordered-dither threshold matrix */
+  var BAYER = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]];
+
+  var light = false, rgb = '255,255,255';
+  function readTheme() {
+    light = document.documentElement.getAttribute('data-theme') !== 'dark';
+    /* light: white squares over the deep-blue aurora. dark: the pale field. */
+    /* White reads on the navy crown; ink would be invisible there. The lower
+       half is pale enough that the same white still textures it, so one colour
+       carries the full ramp. */
+    rgb = light ? '255,255,255' : '160,185,230';
+  }
+  readTheme();
+  document.addEventListener('sc-themechange', readTheme);
+
+  function init() {
+    canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
+    cols = Math.ceil(canvas.width / CELL) + 1;
+    rows = Math.ceil(canvas.height / CELL) + 1;
+  }
+  window.addEventListener('resize', init); init();
+  document.addEventListener('sc-themechange', function () { readTheme(); init(); });
+
+  var start = null;
+  function draw(ts) {
+    if (!start) start = ts;
+    var t = (ts - start) / 1000;
+    var W = canvas.width, H = canvas.height;
+    if (!W || !H) { init(); requestAnimationFrame(draw); return; }
+    ctx.clearRect(0, 0, W, H);
+    for (var r = 0; r < rows; r++) {
+      var gy = r / rows;
+      /* density: full at the top, gone by ~70% where the aurora reaches white */
+      /* Light: the dither belongs on the DARK crown only. Spread across the
+         blue band it adds white to every cell and desaturates the ramp — which
+         is what read as washed out next to the reference. */
+      /* Gary's linear reference carries the halftone the WHOLE way down, so
+         the light falloff is near-full-height rather than crown-only. */
+      var base = 1 - gy / (light ? 0.98 : 0.85);
+      if (base <= 0) continue;
+      /* Squaring this collapsed the field fast — by mid-height base fell to
+         ~0.24, under the Bayer threshold for most cells, so the texture died
+         in the blue band. A gentle 0.75 power keeps it alive through the
+         middle and still thins toward the pale bottom (Gary). */
+      base = light ? Math.pow(base, 0.75) : base * base;
+      for (var c = 0; c < cols; c++) {
+        var gx = c / cols;
+        /* two slow waves so the dither edge keeps reorganising */
+        var wave = Math.sin(gx * 4.1 + gy * 6.3 - t * 0.95) * 0.5
+                 + Math.sin(gx * 7.7 - gy * 3.1 + t * 0.62) * 0.28;
+        /* edges thin out horizontally so the field doesn't end on a hard line */
+        var hm = 1 - Math.pow(Math.abs(gx - 0.5) * 2, 2.2) * 0.85;
+        /* The wave is what ANIMATES the field: cells cross the Bayer threshold
+           as it moves, so squares wink in and out. At 0.16 it barely shifted
+           `level` and almost nothing flipped — the dither rendered but sat
+           still. 0.38 gives it real travel. */
+        var level = base * hm + wave * 0.38;
+        var th = (BAYER[r & 3][c & 3] + 0.5) / 16;
+        if (level <= th) continue;              /* ordered-dither test */
+        /* The dither is densest at the crown, so a high ceiling here lifts a
+           near-black (2,11,24) ground to grey (56,61,65) — which is what made
+           every "make it darker" pass fail. Keep it faint; the reference's
+           texture is barely there in the dark region. */
+        /* Alpha comes from POSITION, not from (level - th). Deriving it from
+           the threshold margin meant every cell near the threshold — exactly
+           the ones the wave flips — drew at near-zero alpha, so flipping them
+           changed nothing (max delta 4-7). The threshold is now purely on/off,
+           which is how an ordered dither is supposed to work: a square is
+           either there at full strength or absent, so the wave reads as
+           squares winking in and out. */
+        var a = 0.085 + base * 0.13;
+        ctx.fillStyle = 'rgba(' + rgb + ',' + a.toFixed(3) + ')';
+        ctx.fillRect(c * CELL, r * CELL, SQ, SQ);
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
 })();
 </script>
 </body>
