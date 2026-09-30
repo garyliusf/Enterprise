@@ -875,6 +875,12 @@
     html[data-theme="light"] .admin-note { color: var(--sc-ink); }
     html[data-theme="light"] .switch-note { color: var(--sc-text-muted); }
 
+    /* ── Signed-in: the four dividers (and the bullet lists under them) share
+       one row. Each card's lede (notes + description) differs in length, so a
+       small equaliser sets every .card-lede to the tallest one at 4-up and
+       2-up; stacked cards size to content. (Gary, 2026-09-30) */
+    .card-lede { display: flex; flex-direction: column; box-sizing: border-box; }
+    .card-lede > .switch-note { margin-bottom: 10px; }
     /* ── Divider ── */
     .divider {
       border: none;
@@ -2789,8 +2795,10 @@
           <div class="btn-text-wrap"><div class="btn-text-inner"><span>You're on Teams</span><span>You're on Teams</span></div></div>
         </button>
 
+        <div class="card-lede">
         <p class="card-description">Try Bolt with daily limits. No credit card.</p>
 
+        </div>
         <hr class="divider" />
 
         <div class="card-body">
@@ -2836,10 +2844,12 @@
           <div class="btn-text-wrap"><div class="btn-text-inner"><span>You're on Teams</span><span>You're on Teams</span></div></div>
         </button>
 
+        <div class="card-lede">
         <p class="switch-note">For personal plans, switch to your personal workspace using the selector in the top right.</p>
 
         <p class="card-description">Everything in Free, plus real app capacity and your own domain.</p>
 
+        </div>
         <hr class="divider" />
 
         <div class="card-body">
@@ -2975,9 +2985,11 @@
           <div class="btn-text-wrap"><div class="btn-text-inner"><span>See a Demo</span><span>See a Demo</span></div></div>
         </button>
 
+        <div class="card-lede">
         <p class="card-description">Everything in Teams, built for scale, security, and compliance.</p>
         <p class="ent-pitch"><!-- below the CTA so all four buttons share a row (Gary, 2026-09-30) -->Get advanced security, compliance, and 24/7 support. Customized to your team’s exact needs.</p>
 
+        </div>
         <hr class="divider" />
 
         <div class="card-body">
@@ -4710,6 +4722,29 @@ window.__pageOwnsScrollAnims = true;
     })();
   </script>
 
+  <script>
+    /* Signed-in: equalise the lede band above each card's divider so the
+       dividers + bullet lists line up across the row. Re-runs on resize and
+       once webfonts settle (line wraps change the heights). */
+    (function () {
+      var ledes = document.querySelectorAll('.cards .card-lede');
+      if (!ledes.length) return;
+      function equalise() {
+        var stacked = window.matchMedia('(max-width: 640px)').matches;
+        ledes.forEach(function (l) { l.style.minHeight = ''; });
+        if (stacked) return;
+        var max = 0;
+        ledes.forEach(function (l) { max = Math.max(max, l.getBoundingClientRect().height); });
+        ledes.forEach(function (l) { l.style.minHeight = Math.ceil(max) + 'px'; });
+      }
+      equalise();
+      window.addEventListener('resize', equalise);
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(equalise);
+      document.addEventListener('sc-themechange', equalise);
+      /* the workspace switch toggles the Pro switch-note */
+      document.addEventListener('click', function () { setTimeout(equalise, 0); });
+    })();
+  </script>
 <!-- ╔═══ PROTOTYPE ONLY — THEME REVIEW TOGGLE ═══════════════════════════════╗
      Light is the site default; "System" follows the OS, so a visitor whose
      machine is set to dark sees dark — that is the agreed behaviour, not a
