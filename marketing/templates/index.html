@@ -154,7 +154,47 @@
      rendered the dark hero and the ink "Bolt" vanished on it (Gary). The
      compact hero takes the SHARED ramp (the deep bowl needs height), copy in
      .sc-on-dark, and the ordered dither runs in BOTH themes. */
-  html[data-theme="light"] .hero-section { background: var(--sc-hero-bg); }
+  /* trust's approved DEEP light hero (the darker variant): the shared ramp
+     went pale by mid-hero and the ghost CTA read illegibly (Gary). */
+html[data-theme="light"] .hero-section {
+    /* BOWL: a wide radial dome hangs from above — its curved lower edge lets
+       the light climb up from the corners — over the smooth light ramp.
+       Both layers carry dense stops so neither reintroduces the band. */
+    background:
+      /* Palette matched to Gary's second reference (moodier than the first
+         pass, which drifted toward the solutions cobalt): deep ink navy holds
+         most of the dome, a narrower steel-blue band, a soft cyan-steel edge,
+         white settling in the last fifth. Bowl geometry unchanged. */
+      radial-gradient(140% 150% at 50% -32%,
+        #04091a 0%, #061129 26%, #081b3f 38%, #0b2a58 48%, #0f3c78 56%,
+        #155a9e 62%, #1f74bd 67%, rgba(58,142,205,0.8) 72%,
+        rgba(108,178,224,0.45) 78%, rgba(150,205,238,0.15) 82.5%,
+        rgba(175,220,243,0) 86%),
+      /* the bowl must be FULLY transparent BEFORE the hero's bottom row,
+         which sits at 88% of the bowl's radius (center 50%/-32%, semi-axis
+         150%): the old 90% fade-out never completed there, compositing a
+         ~10%-alpha cyan tint over the flat-white foot — the faint seam line.
+         86% maps to y=97%, i.e. the fade finishes just above the seam
+         (extended from 84% at Gary's ask — the visible bowl reaches lower). */
+      linear-gradient(180deg,
+        #2f80c4 45%, #5da5d8 58%, #8ec6e8 68%, #bcdcf1 76%,
+        #d6e9f7 81.5%, #e6f1fa 85.5%, #f0f7fc 88.5%, #f7fbfe 91%,
+        #fbfdfe 93%, #fdfeff 94.5%, #fff 96%), #fff;
+      /* white lands at 94%, NOT 100%: when the fade ends exactly at the
+         section boundary the slope cuts to zero right on the seam and the eye
+         reads a line there even between identical whites. The last ~6% of the
+         hero is flat #fff, so the boundary sits inside a solid white field. */
+  }
+  .hero-section::before {
+    content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='256' height='256' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 256px 256px;
+    opacity: 0.05;
+    /* fade out before the hero's foot: at full bleed the 5% dim ended in a
+       visible line against the next section's pure white (Gary) */
+    -webkit-mask-image: linear-gradient(180deg, #000 65%, rgba(0,0,0,0) 95%);
+            mask-image: linear-gradient(180deg, #000 65%, rgba(0,0,0,0) 95%);
+  }
   html[data-theme="light"] .hero-subtitle { color: rgba(255,255,255,0.94); }
   #hero-dither-light {
     position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none;
