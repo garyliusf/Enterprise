@@ -1953,7 +1953,18 @@ body { background: var(--sc-ground, #000); font-family: var(--sc-font-sans, 'Sch
   padding: clamp(32px,3.5vw,56px);
 }
 /* graph-paper overlay removed (solutions.html card standard, Gary 2026-08-07) */
-.included-visual > * { position: relative; z-index: 1; }
+.included-visual > *:not(#incl-corner-dither) { position: relative; z-index: 1; }
+/* corner pixels (ported from compliance's controls panel, Gary): the hero's
+   ordered-dither squares, densest in the staggered grid's open bottom-left
+   corner and winking out radially. Colour follows --sc-dot-rgb (brand blue on
+   light, pale grey on dark); masked toward the panel. */
+#incl-corner-dither {
+  position: absolute; left: -46px; bottom: -48px; width: min(520px, 46%); aspect-ratio: 1 / 0.85;
+  z-index: 0; pointer-events: none;
+  -webkit-mask-image: radial-gradient(ellipse at 28% 82%, #000 34%, transparent 68%);
+          mask-image: radial-gradient(ellipse at 28% 82%, #000 34%, transparent 68%);
+}
+@media (max-width: 1024px) { #incl-corner-dither { display: none; } }   /* grid is no longer staggered — no open corner */
 .included-visual .included-grid { margin-top: 0; }
 /* staggered, uneven placement — bottom-left left open for the lantern */
 @media (min-width: 1025px) {
@@ -2584,6 +2595,43 @@ html[data-theme="light"] .hero-btn-ghost:hover { border-color: rgba(var(--sc-ink
 html[data-theme="light"] .hero-btn-ghost--white { border-color: rgba(var(--sc-ink-rgb),0.6); color: var(--sc-ink); }
 html[data-theme="light"] .hero-btn-ghost--white:hover { border-color: rgba(var(--sc-ink-rgb),0.85); color: var(--sc-ink); }
 html[data-theme="light"] .bolt-shimmer { mix-blend-mode: normal; }
+
+/* ─── WHAT'S INCLUDED = compliance's "Every control, documented" panel (Gary, 2026-09-30: "copy this") ─
+   graph-paper grid, borderless flat cards with the cursor-following blue tint, corner dither
+   bottom-left. Appended after the LIGHT block so it wins over the unlock-card treatment above. */
+.included-visual::after {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(var(--sc-ink-rgb), 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--sc-ink-rgb), 0.05) 1px, transparent 1px);
+  background-size: 48px 48px, 48px 48px;
+}
+.included-visual { border-color: rgba(var(--sc-ink-rgb), 0.12); }
+html[data-theme="light"] .included-visual { background: var(--sc-surface); box-shadow: none; }
+.included-item, html[data-theme="light"] .included-item {
+  border: none; border-radius: 2px;
+  background:
+    linear-gradient(180deg, rgba(var(--sc-ink-rgb),0.045) 0%, rgba(var(--sc-ink-rgb),0.012) 34%, rgba(var(--sc-ink-rgb),0) 62%),
+    var(--sc-surface);
+  transition: none;
+}
+.included-item::before {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), var(--sc-flash-tint), rgba(20,136,252,0) 62%);
+  opacity: 0; transition: opacity 0.3s ease;
+}
+.included-item:hover::before { opacity: 1; }
+.included-item:hover, html[data-theme="light"] .included-item:hover { border: none; transform: none; }
+/* LIGHT: the ink wash returns at the card's foot (4%) so the cards don't dissolve into the white panel */
+html[data-theme="light"] .included-item {
+  background:
+    linear-gradient(180deg,
+      rgba(var(--sc-ink-rgb),0.045) 0%, rgba(var(--sc-ink-rgb),0.012) 34%,
+      rgba(var(--sc-ink-rgb),0.01) 58%, rgba(var(--sc-ink-rgb),0.04) 100%),
+    var(--sc-surface);
+}
+.included-item > .unlock-field-canvas, html[data-theme="light"] .included-item > .unlock-field-canvas,
+.included-item > .unlock-hover-canvas { display: none; }
 </style>
 </head>
 <body>
@@ -3031,6 +3079,7 @@ html[data-theme="light"] .bolt-shimmer { mix-blend-mode: normal; }
 <section class="section section--bordered included-section">
   <div class="section-inner">
     <div class="included-visual">
+    <canvas id="incl-corner-dither" aria-hidden="true"></canvas>
     <div class="section-header dsa-reveal">
       <p class="section-eyebrow eyebrow-scramble">What's included</p>
       <h2 class="sc-section-h2">Every portfolio website comes with</h2>
@@ -4664,6 +4713,73 @@ window.addEventListener('load', function () {
     }
     requestAnimationFrame(draw);
   });
+})();
+
+// ── Cursor flashlight on the included cards (compliance) ──
+(function () {
+  document.querySelectorAll('.included-item').forEach(function (el) {
+    el.addEventListener('mousemove', function (e) {
+      var r = el.getBoundingClientRect();
+      el.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+      el.style.setProperty('--my', (e.clientY - r.top) + 'px');
+    });
+  });
+})();
+// ── Corner dither (what's-included panel) — ported from compliance: the hero's
+//    Bayer squares, densest at the open bottom-left corner, winking with the wave.
+(function () {
+  var canvas = document.getElementById('incl-corner-dither');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var CELL = 5, SQ = 2, cols, rows;
+  var BAYER = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]];
+  var rgb = '20,136,252', aBase = 0.16, aRamp = 0.24;
+  function readDot() {
+    var v = getComputedStyle(canvas).getPropertyValue('--sc-dot-rgb').trim();
+    if (v) rgb = v;
+    /* alpha-on-white and alpha-on-black are not symmetric: the blue squares
+       need far more ink on the light panel than the pale grey needs on dark */
+    var light = document.documentElement.getAttribute('data-theme') !== 'dark';
+    aBase = light ? 0.30 : 0.14;
+    aRamp = light ? 0.65 : 0.55;
+  }
+  document.addEventListener('sc-themechange', readDot);
+  function init() {
+    canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
+    cols = Math.ceil(canvas.width / CELL) + 1;
+    rows = Math.ceil(canvas.height / CELL) + 1;
+    readDot();
+  }
+  window.addEventListener('resize', init); init();
+  var start = null;
+  function draw(ts) {
+    if (!start) start = ts;
+    var t = (ts - start) / 1000;
+    var W = canvas.width, H = canvas.height;
+    if (!W || !H) { init(); requestAnimationFrame(draw); return; }
+    ctx.clearRect(0, 0, W, H);
+    for (var r = 0; r < rows; r++) {
+      var gy = r / rows;
+      for (var c = 0; c < cols; c++) {
+        var gx = c / cols;
+        /* density falls radially from the bottom-left corner */
+        var dx = gx, dy = 1 - gy;
+        var base = 1 - Math.sqrt(dx * dx + dy * dy) / 0.72;
+        if (base <= 0) continue;
+        base = Math.pow(base, 1.35);
+        var wave = Math.sin(gx * 4.3 + gy * 5.9 - t * 1.25) * 0.5
+                 + Math.sin(gx * 7.1 - gy * 3.3 + t * 0.85) * 0.28;
+        var level = base + wave * 0.38;
+        var th = (BAYER[r & 3][c & 3] + 0.5) / 16;
+        if (level <= th) continue;
+        var a = aBase + base * aRamp;
+        ctx.fillStyle = 'rgba(' + rgb + ',' + a.toFixed(3) + ')';
+        ctx.fillRect(c * CELL, r * CELL, SQ, SQ);
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
 })();
 </script>
 <script>
