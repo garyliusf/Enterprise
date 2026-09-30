@@ -406,9 +406,22 @@
        and `style="--i:0;">What` each get wrapped again — and the attribute text
        renders as visible copy in the heading. */
     if (el.querySelector('.word')) return;
+    /* DOM-based (same approach as wrapSubWords below): text nodes split into
+       .word spans, <br> kept as-is, other element children wrapped whole. The
+       old innerHTML regex (\S+) swallowed "production,<br>inside" as ONE word —
+       an inline-block with a line break inside it, which reordered the
+       microsoft slider headline (2026-09-30). */
     var i = 0;
-    el.innerHTML = el.innerHTML.replace(/\S+/g, function (w) {
-      return '<span class="word" style="--i:' + (i++) + '">' + w + '</span>';
+    var children = [].slice.call(el.childNodes);
+    el.textContent = '';
+    children.forEach(function (node) {
+      if (node.nodeType === 3) {
+        node.textContent.split(/(\s+)/).forEach(function (p) {
+          if (!p.trim().length) { if (p.length) el.appendChild(document.createTextNode(p)); return; }
+          var sp = document.createElement('span'); sp.className = 'word'; sp.style.setProperty('--i', i++); sp.textContent = p; el.appendChild(sp);
+        });
+      } else if (node.nodeName === 'BR') { el.appendChild(node); }
+      else { var w = document.createElement('span'); w.className = 'word'; w.style.setProperty('--i', i++); w.appendChild(node); el.appendChild(w); }
     });
   }
 
@@ -549,6 +562,7 @@
     ['Pricing',          'marketing/pricing.html'],
     ['Pricing (signed in)', 'marketing/pricing-signed-in.html'],
     ['Referral',         'marketing/platform/referral/'],
+    ['Microsoft',        'marketing/microsoft.html'],
     ['Solutions: Real Estate', 'solutions/ai-for-real-estate/'],
     ['Solutions: _template',   'solutions/_template/'],
     ['Blog (preview)',   'https://blog-light-navbar.bolt-public-pages.pages.dev/blog']
