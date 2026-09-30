@@ -1,774 +1,774 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Bolt CLI — Private Beta</title>
+<title>Bolt CLI — Bolt, from your terminal</title>
+<meta name="description" content="Push your local code into Bolt, pull it back down, and manage projects, design systems, and teams — all scriptable, all from the command line.">
+<!-- Theme resolution. Light is the site default; a visitor whose OS is set to
+     dark gets dark. The attribute is ALWAYS stamped (never absent) so the
+     ported production chrome rules — which key on html[data-theme='light'] —
+     match verbatim. Runs before paint to avoid a flash; with JS off the
+     document keeps the data-theme="light" it ships with. -->
+<script>
+(function () {
+  var root = document.documentElement, stored = null;
+  try { stored = localStorage.getItem('sc-theme'); } catch (e) {}
+  var t = stored || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  root.setAttribute('data-theme', t);
+  if (!stored && window.matchMedia) {
+    var mq = window.matchMedia('(prefers-color-scheme: dark)');
+    var onSys = function (e) {
+      var s = null; try { s = localStorage.getItem('sc-theme'); } catch (err) {}
+      if (s) return;                                  /* explicit choice wins */
+      root.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+      document.dispatchEvent(new CustomEvent('sc-themechange'));
+    };
+    if (mq.addEventListener) mq.addEventListener('change', onSys);
+    else if (mq.addListener) mq.addListener(onSys);
+  }
+})();
+</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Silkscreen:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400..900;1,400..900&family=Literata:ital,opsz,wght@0,7..72,200..900;1,7..72,200..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared-nav-footer.css?v=20260930b">
 <style>
+/* ═══ /platform/features/cli — sandbox mirror REBUILT from production (2026-09-30) ═══
+   Production is a CMS-built page: src/content/pages/platform-features-cli.json →
+   cli-hero / card-grid / how-it-works / faq / footer-cta(email), styled by
+   built-page.css. The cli-hero stylesheet is inlined VERBATIM (dark literals
+   kept); the card grid uses the unlock-card primitives synced from
+   solutions/_template; the light port is an override block at the end of
+   <style>. Still NOT a source of truth — re-pull before the next round. */
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+html { scroll-behavior: smooth; }
+body { background: var(--sc-ground, #000); color: var(--sc-ink, #fff); font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif); overflow-x: hidden; overflow-x: clip; -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration: none; }
+
+/* ─── PRIMITIVES (use-case-page.css) ──────────────────────────────────── */
+.hero-section { width: 100%; height: 90vh; position: relative; overflow: hidden; }
+.hero-h1 { font-size: 66px; font-weight: 500; color: #fff; text-align: center; line-height: 1.1; letter-spacing: normal; margin: 0; }
+.hero-subtitle { font-size: clamp(16px,1.4vw,20px); font-weight: 400; color: #ABABAB; text-align: center; line-height: 1.4; margin: 0; }
+.section { padding: clamp(80px,12vh,140px) 0; position: relative; }
+.section-inner { width: min(1200px, calc(100vw - 160px)); margin: 0 auto; }
+.section-header { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; margin-bottom: clamp(48px, 6vh, 72px); }
+.section-header > *, .how-header > * { margin: 0; }
+.section-headline { font-size: clamp(40px,4vw,52px); font-weight: 500; color: #fff; line-height: 1.15; letter-spacing: -1px; margin: 0; }
+@media (max-width: 768px) { .section-headline { font-size: clamp(28px, 8vw, 40px); } }
+.section-sub { font-size: clamp(15px,1.1vw,17px); font-weight: 400; color: rgba(255,255,255,0.5); line-height: 1.65; max-width: 620px; }
+@media (max-width: 1024px) {
+  .section { padding: 64px 0; }
+  .section-inner, .ms-faq-inner { width: min(900px, calc(100vw - 80px)); }
+}
+@media (max-width: 768px) {
+  .section { padding: 48px 0; }
+  .section-inner, .ms-faq-inner { width: calc(100vw - 32px); }
+  .footer-section { padding: 56px 16px 0; }
+}
+
+/* what it unlocks — unlock-card primitives synced from solutions/_template */
+.unlocks-visual {
+  position: relative;
+  width: 100%;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 4px;
+  background: radial-gradient(600px 320px at 22% 80%, rgba(14,28,40,0.55), transparent 60%),
+              linear-gradient(180deg, #050608 0%, #000000 100%);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.04);
+  overflow: hidden;
+  padding: clamp(32px,3.5vw,56px);
+}
+/* Graph-paper overlay removed (solutions.html card standard, Gary 2026-08-07):
+   cards now sit on the flat dark surface below — no field texture. */
+.unlocks-grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 20px;
+  position: relative;
+  z-index: 1;
+}
+/* unlock cards — exact bolt-cli.html .unlock-card */
+.unlock-card {
+  border: none;
+  border-radius: 4px;
+  padding: 24px 24px 28px;
+  /* solutions.html card surface: near-black base + subtle top light */
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.045) 0%, rgba(255,255,255,0.012) 34%, rgba(255,255,255,0) 62%),
+    #09090b;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 180px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s ease;
+}
+.unlock-card:hover { border-color: rgba(255,255,255,0.22); }
+/* pixel hover canvas — exact microsoft.html feat-hover-canvas */
+.unlock-hover-canvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  image-rendering: pixelated;
+  z-index: 0;
+}
+.unlock-card:hover .unlock-hover-canvas { opacity: 0.10; }
+.unlock-card > *:not(.unlock-hover-canvas, .unlock-field-canvas, .unlock-num) { position: relative; z-index: 1; }
+.unlock-icon {
+  width: 44px; height: 44px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  display: inline-flex; align-items: center; justify-content: center;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 6px;
+}
+.unlock-title { font-size: 18px; font-weight: 600; color: #fff; margin: 0; letter-spacing: -0.2px; line-height: 1.35; }
+.unlock-desc  { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.55; margin: 0; }
+
+.unlocks-header { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; margin-bottom: clamp(32px,5vh,52px); position: relative; z-index: 1; }   /* flex+gap like .section-header so shared's 12/6 (+4 eyebrow) media rules apply */
+.unlocks-header > * { margin: 0; }
+.unlocks-sub { max-width: 680px; }
+@media (max-width: 768px) { .unlocks-grid { grid-template-columns: 1fr; } .unlocks-visual { padding: 32px 18px; } }
+@media (max-width: 1024px) and (min-width: 769px) { .unlocks-grid { grid-template-columns: repeat(2, 1fr); } }
+.unlock-card > .unlock-num { position: absolute; top: 24px; right: 24px; z-index: 2;
+  font-family: var(--sc-font-label, 'Schibsted Grotesk', sans-serif); font-weight: var(--sc-label-weight, 700);
+  font-size: 13px; letter-spacing: 1px; color: rgba(var(--sc-ink-rgb), 0.22); transition: color 0.35s ease; }
+.unlock-card:hover .unlock-num { color: #1488FC; }
+.unlock-card > .unlock-field-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; opacity: 0; transition: opacity 0.45s ease; pointer-events: none; display: none; }
+
+/* how-it-works — synced with solutions/_template */
+.how-section { border-top: 1px solid rgba(255,255,255,0.06); }
+.how-header { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; margin-bottom: clamp(40px,6vh,72px); }
+.how-steps-wrap { position: relative; }
+.how-line-track { position: absolute; top: 19px; left: 0; right: 0; height: 1px; background: rgba(255,255,255,0.07); pointer-events: none; z-index: 0; }
+.how-line-fill { position: absolute; top: 19px; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, rgba(20,136,252,0.25), rgba(20,136,252,0.8) 20%, rgba(20,136,252,0.8) 80%, rgba(20,136,252,0.25)); pointer-events: none; z-index: 1; transform: scaleX(0); transform-origin: left center; }
+.how-line-glow { position: absolute; top: 16px; left: 0; height: 7px; width: 80px; background: radial-gradient(ellipse at center, rgba(120,200,255,0.9) 0%, transparent 70%); border-radius: 4px; pointer-events: none; z-index: 2; opacity: 0; }
+.how-steps-wrap.line-active .how-line-fill { animation: howLineDraw 1.4s cubic-bezier(0.4,0,0.2,1) 0.1s both; }
+.how-steps-wrap.line-active .how-line-glow { animation: howGlowTravel 1.4s cubic-bezier(0.4,0,0.2,1) 0.1s both; }
+@keyframes howLineDraw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes howGlowTravel { 0% { opacity:0; transform:translateX(0); } 8% { opacity:1; } 88% { opacity:1; } 100% { opacity:0; transform:translateX(var(--glow-dist,700px)); } }
+.how-steps { display: grid; grid-template-columns: repeat(3,1fr); gap: 0; position: relative; }
+.how-step { display: flex; flex-direction: column; padding: 0 28px 0 0; }
+.how-step:last-child { padding-right: 0; }
+.how-step-node { width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(20,136,252,0.5); background: #000; display: flex; align-items: center; justify-content: center; margin-bottom: 28px; position: relative; z-index: 1; flex-shrink: 0; transform: scale(0); }
+.how-steps-wrap.line-active .how-step:nth-child(1) .how-step-node { animation: nodePop 0.45s cubic-bezier(0.34,1.56,0.64,1) 0.15s both; }
+.how-steps-wrap.line-active .how-step:nth-child(2) .how-step-node { animation: nodePop 0.45s cubic-bezier(0.34,1.56,0.64,1) 0.65s both; }
+.how-steps-wrap.line-active .how-step:nth-child(3) .how-step-node { animation: nodePop 0.45s cubic-bezier(0.34,1.56,0.64,1) 1.15s both; }
+@keyframes nodePop { from { transform: scale(0); } to { transform: scale(1); } }
+.how-step-number { font-family: var(--sc-font-label, 'Schibsted Grotesk', sans-serif); font-weight: var(--sc-label-weight, 700); font-size: 10px; color: #1488FC; }
+.how-step-title { font-size: 18px; font-weight: 600; color: #fff; margin: 0 0 10px; letter-spacing: -0.2px; line-height: 1.35; opacity: 0; transform: translateY(14px); filter: blur(10px); }
+.how-step-desc { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.55; margin: 0; opacity: 0; transform: translateY(14px); filter: blur(10px); }
+@keyframes howStepIn { from { opacity:0; transform:translateY(14px); filter:blur(10px); } to { opacity:1; transform:translateY(0); filter:blur(0); } }
+.how-steps-wrap.line-active .how-step:nth-child(1) .how-step-title { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 0.28s both; }
+.how-steps-wrap.line-active .how-step:nth-child(1) .how-step-desc  { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 0.40s both; }
+.how-steps-wrap.line-active .how-step:nth-child(2) .how-step-title { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 0.78s both; }
+.how-steps-wrap.line-active .how-step:nth-child(2) .how-step-desc  { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 0.90s both; }
+.how-steps-wrap.line-active .how-step:nth-child(3) .how-step-title { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 1.28s both; }
+.how-steps-wrap.line-active .how-step:nth-child(3) .how-step-desc  { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 1.40s both; }
+/* ── how-it-works with 4 steps (microsoft/cli) — base grid is 3 columns ── */
+.how-steps.how-steps--four {
+  grid-template-columns: repeat(4, 1fr);
+}
+@media (max-width: 768px) {
+  .how-steps.how-steps--four {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── reveal-stagger word reveal (microsoft/cli) — mirrors .dsa-reveal .word,
+   but reveal-stagger elements must NOT also carry .dsa-reveal (one owner per
+   animation — DESIGN-README). ── */
+.reveal-stagger .word {
+  display: inline-block;
+  opacity: 0;
+  transform: translate(-10px, -7px);
+  filter: blur(5px);
+  will-change: opacity, transform, filter;
+}
+.reveal-stagger.is-revealed .word {
+  animation: dsa-word-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--i, 0) * 28ms);
+}
+/* fast-scroll catch-up (paired with .is-instant in the reveal JS): caught deep in view -> words are simply there */
+.reveal-stagger.is-instant .word { opacity: 1; transform: none; filter: none; animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .reveal-stagger .word {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+/* 4th how-it-works step reveal — the base sheet animates nodes/titles only
+   for nth-child(1..3) (use-case pages have three steps); a 4th step starts
+   at scale(0)/opacity 0 and never appeared. Delays verbatim from the
+   original microsoft page. */
+.how-steps-wrap.line-active .how-step:nth-child(4) .how-step-node {
+  animation: nodePop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 1.3s both;
+}
+.how-steps-wrap.line-active .how-step:nth-child(4) .how-step-title {
+  animation: howStepIn 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1.42s both;
+}
+.how-steps-wrap.line-active .how-step:nth-child(4) .how-step-desc {
+  animation: howStepIn 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1.54s both;
+}
+@media (max-width: 1024px) { .how-header { gap: 12px; } .how-steps.how-steps--four { grid-template-columns: repeat(2, 1fr); row-gap: 40px; } }
+@media (max-width: 768px) {
+  .how-header { gap: 6px; } .how-header > .section-eyebrow { margin-bottom: 4px; }
+  .how-steps, .how-steps.how-steps--four { grid-template-columns: 1fr; gap: 40px; }
+  .how-step { padding: 0; }
+  .how-line-track, .how-line-fill, .how-line-glow { display: none; }
+}
+
+/* FAQ shell (accordion = shared-components.*) */
+.ms-faq-section { background: #000; border-top: 1px solid rgba(255,255,255,0.06); position: relative; overflow: hidden; }
+#faq-pixel-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; min-height: 600px; pointer-events: none; z-index: 0; }
+.ms-faq-inner { width: min(1200px, calc(100vw - 160px)); margin: 0 auto; position: relative; z-index: 1; }
+
+/* footer CTA — email variant (card-form-strip primitives from use-case-page.css) */
+.footer-section { background: #000; padding: 90px 40px 0; border-top: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; align-items: center; gap: 24px; text-align: center; position: relative; overflow: hidden; }
+.footer-section > .footer-eyebrow, .footer-section > .footer-headline, .footer-section > .footer-subtitle { position: relative; z-index: 1; }
+.footer-section > .footer-eyebrow { margin-bottom: 0; }
+.footer-subtitle-wide { max-width: none; white-space: nowrap; }
+@media (max-width: 1024px) { .footer-subtitle-wide { white-space: normal; max-width: 560px; } }
+.card-form-strip { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; padding: 12px 28px; cursor: default; background: #000; }
+.card-form-strip.is-carded { border: 1px solid rgba(255,255,255,0.08); border-radius: 2px; }   /* 2px surfaces (sandbox standard; prod 8px) */
+.card-strip-text { display: flex; flex-direction: column; gap: 3px; flex-shrink: 0; }
+.card-strip-sub { font-size: 16px; font-weight: 500; color: #fff; margin: 0; line-height: 1.2; display: inline-flex; align-items: baseline; gap: 0.25em; }
+.hero-form-row { display: flex; gap: 0; flex: 1 1 320px; max-width: 420px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; }
+.hero-email-input { flex: 1; min-width: 0; height: 52px; background: transparent; border: none; padding: 0 18px; font-size: 15px; font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif); color: #fff; outline: none; }
+.hero-email-input::placeholder { color: rgba(255,255,255,0.45); }
+@media (max-width: 768px) {
+  .card-form-strip { flex-direction: column; align-items: center; gap: 12px; padding: 16px 12px; }
+  .card-form-strip .hero-form-row { width: 100%; max-width: none; flex-basis: auto; }
+}
+.footer-section > .footer-note { margin-top: -8px; font-size: 13px; font-weight: 600; color: #90F7D8; }
+.footer-spacer { display: none; }
+html .footer-section { padding-bottom: 48px; }   /* room for the strip's shadow; the divider margin drops by the same 48 */
+.bolt-image-wrap { margin-top: 0; width: 100%; overflow: hidden; position: relative; height: 32vw; max-height: 32vw; }
+
+/* ─── SECTION LIBRARY: cli-hero (verbatim + sandbox notes) ─────────────── */
+/* CLI hero — ported from cli-body.html (MKT-480), scoped under
+   .hero-section.hero-section--cli. Terminal mockup classes are unique to this section. */
+.hero-section.hero-section--cli {
+  width: 100%;
+  /* the base sheet fixes .hero-section at height:90vh with overflow:hidden —
+     the original page is min-height only, so the terminal + CTA stack must
+     be able to exceed it */
+  height: auto;
+  min-height: 80vh;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: #000;
+}
+.hero-section.hero-section--cli .js-cli-dots {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 80vh;
+  z-index: 2;
+  pointer-events: none;
+}
+.hero-section.hero-section--cli .hero-content-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 3;
+  padding: 120px 24px 80px;
+}
+.hero-section.hero-section--cli .hero-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  max-width: 860px;
+  width: 100%;
+  margin: 0 auto;
+}
+.cli-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(20, 136, 252, 0.1);
+  border: 1px solid rgba(20, 136, 252, 0.3);
+  border-radius: 20px;
+  padding: 5px 14px 5px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #1488FC;
+  font-family: var(--sc-font-label, 'Schibsted Grotesk', sans-serif); font-weight: var(--sc-label-weight, 700);   /* label face standard (sandbox) */
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.cli-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #1488FC;
+  animation: cliBlink 1.8s ease-in-out infinite;
+}
+@keyframes cliBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+.hero-section.hero-section--cli .hero-h1 {
+  font-size: clamp(44px, 5.5vw, 66px);
+  font-weight: 500;
+  color: #fff;
+  text-align: center;
+  line-height: 1.1;
+  max-width: 800px;
+  white-space: normal;
+}
+.hero-section.hero-section--cli .hero-subtitle {
+  font-size: clamp(16px, 1.4vw, 20px);
+  color: #ABABAB;
+  text-align: center;
+  max-width: 620px;
+  line-height: 1.4;
+}
+.cli-headline-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.hero-terminal {
+  width: 100%;
+  max-width: 680px;
+  background: #0d0d0d;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+.terminal-bar {
+  height: 36px;
+  background: #1a1a1a;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  gap: 8px;
+}
+.terminal-dot { width: 10px; height: 10px; border-radius: 50%; }
+.terminal-dot:nth-child(1) { background: #ff5f57; }
+.terminal-dot:nth-child(2) { background: #ffbd2e; }
+.terminal-dot:nth-child(3) { background: #27c93f; }
+.terminal-body {
+  padding: 20px 24px 24px;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 13.5px;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.7);
+}
+.terminal-body .cmd { color: #1488FC; }
+.terminal-body .arg { color: rgba(255, 255, 255, 0.85); }
+.terminal-body .out { color: rgba(255, 255, 255, 0.4); }
+.terminal-body .prompt { color: rgba(255, 255, 255, 0.3); margin-right: 4px; }
+.terminal-body .cursor {
+  display: inline-block;
+  width: 8px;
+  height: 14px;
+  background: #1488FC;
+  vertical-align: middle;
+  margin-left: 2px;
+  animation: cliCursorBlink 1.1s step-end infinite;
+}
+@keyframes cliCursorBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+.hero-section.hero-section--cli .hero-cta-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.hero-section.hero-section--cli .hero-cta-row .hero-btn-primary {
+  min-width: 180px;
+}
+.cli-footnote {
+  font-size: 13px;
+  font-weight: 500;
+  color: #90F7D8;
+  text-align: center;
+  margin: -10px 0 0;
+}
+@media (max-width: 1024px) {
+  .hero-section.hero-section--cli .hero-h1 { font-size: clamp(37px, 10.45vw, 51px); }
+}
+@media (max-width: 768px) {
+  .hero-section.hero-section--cli .hero-btn-primary { height: 52px; padding: 0 26px; font-size: 16px; min-width: 260px; max-width: 100%; justify-content: center; }
+  .hero-section.hero-section--cli .hero-h1 { letter-spacing: -1px; }
+  .hero-terminal { font-size: 12px; }
+  .terminal-body { font-size: 12px; padding: 16px 18px 20px; }
+}
+@media (max-width: 540px) {
+  .hero-section.hero-section--cli .hero-content-area { padding: 100px 16px 60px; }
+  .hero-terminal { max-width: 100%; }
+  .terminal-body { font-size: 11.5px; }
+}
+
+/* sandbox: family hero construction + nav overlap. The library's 80vh box
+   centres a badge + H1 + subtitle + terminal + CTA stack; here the box is
+   top-anchored on the family pad so the H1 lands on the family line. */
+.hero-section.hero-section--cli {
+  min-height: calc(min(65vh, 684px) + var(--sc-nav-overlap, 0px));
+  background:
+    radial-gradient(1100px 640px at 50% 0%, rgba(24,96,190,0.40), transparent 62%),
+    radial-gradient(760px 640px at 6% 22%, rgba(18,52,124,0.34), transparent 62%),
+    #04060c;   /* family dark hero backdrop (security) — the library's flat #000 */
+}
+.hero-section.hero-section--cli .hero-content-area { align-items: flex-start; padding: calc(clamp(90px, calc(24px + 8.5vh), 148px) + var(--sc-nav-overlap, 0px)) 24px clamp(56px, 8vh, 96px); }
+.hero-section.hero-section--cli .hero-inner { transform: translateY(-10px); }   /* the badge above the H1: measured so the H1 lands on the family line (215 at 1440×900) */
+.hero-section.hero-section--cli .js-cli-dots { height: 100%; }
+.hero-dither { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; -webkit-mask-image: linear-gradient(180deg, #000 55%, rgba(0,0,0,0) 90%); mask-image: linear-gradient(180deg, #000 55%, rgba(0,0,0,0) 90%); }
+.cli-headline-group { gap: 16px; }
+@media (max-width: 1024px) { .cli-headline-group { gap: 12px; } }
+@media (max-width: 768px) {
+  .hero-section.hero-section--cli { min-height: 0; }
+  .hero-section.hero-section--cli .hero-content-area { padding: calc(44px + var(--sc-nav-overlap, 0px)) 16px 56px; }   /* 100 − the badge stack, so the H1 hits 169 like the family */
+  .hero-section.hero-section--cli .hero-inner { transform: none; }
+  .cli-headline-group { gap: 6px; }
+  .hero-section.hero-section--cli .hero-btn-primary { min-width: var(--cta-min-w, 220px); }
+}
+
+/* ═══ LIGHT ═══ */
+html[data-theme="light"] .hero-section.hero-section--cli { background: var(--sc-hero-bg); }
+html[data-theme="light"] .hero-section.hero-section--cli .hero-subtitle { color: rgba(255,255,255,0.94); }
+html[data-theme="light"] .cli-badge { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.28); color: #fff; }
+html[data-theme="light"] .cli-badge-dot { background: #fff; }
+html[data-theme="light"] .hero-terminal { box-shadow: 0 24px 64px rgba(15,26,42,0.35), 0 0 0 1px rgba(255,255,255,0.10); }
+html[data-theme="light"] .cli-footnote { color: var(--sc-text-muted); }   /* sits in the dome's white foot on light */
+/* sections */
+html[data-theme="light"] .section, html[data-theme="light"] .how-section, html[data-theme="light"] .ms-faq-section, html[data-theme="light"] .footer-section { background: var(--sc-ground); border-color: var(--sc-line-soft); }
+html[data-theme="light"] .section-headline, html[data-theme="light"] .ms-faq-headline, html[data-theme="light"] .footer-headline { color: var(--sc-ink); }
+html[data-theme="light"] .section-sub { color: var(--sc-text-muted); }
+/* unlocks (compliance-card treatment, synced from _template) */
+html[data-theme="light"] .unlocks-visual { background: var(--sc-surface-strong); border-color: var(--sc-line); box-shadow: 0 8px 28px rgba(15,26,42,0.06), inset 0 1px 0 #fff; }
+html[data-theme="light"] .unlock-card { border: 1px solid rgba(var(--sc-ink-rgb), 0.10); background: linear-gradient(180deg, rgba(var(--sc-ink-rgb), 0.03) 0%, rgba(var(--sc-ink-rgb), 0.005) 100%), #fff; transition: border-color 0.35s ease, transform 0.3s cubic-bezier(0.22,1,0.36,1); }
+html[data-theme="light"] .unlock-card:hover { border-color: rgba(20,136,252,0.45); }
+html[data-theme="light"] .unlock-hover-canvas { display: none; }
+html[data-theme="light"] .unlock-card > .unlock-field-canvas { display: block; }
+html[data-theme="light"] .unlock-card:hover > .unlock-field-canvas { opacity: 1; }
+html[data-theme="light"] .unlock-icon { background: rgba(var(--sc-ink-rgb),0.05); border-color: var(--sc-icon-border, rgba(var(--sc-ink-rgb),0.08)); color: rgba(var(--sc-ink-rgb),0.85); }
+html[data-theme="light"] .unlock-title { color: var(--sc-ink); }
+html[data-theme="light"] .unlock-desc { color: var(--sc-text-desc); }
+/* how / faq */
+html[data-theme="light"] .how-line-track { background: rgba(var(--sc-ink-rgb),0.08); }
+html[data-theme="light"] .how-step-node { background: var(--sc-ground); }
+html[data-theme="light"] .how-step-title { color: var(--sc-ink); }
+html[data-theme="light"] .how-step-desc { color: var(--sc-text-desc); }
+html[data-theme="light"] .ms-faq-item, html[data-theme="light"] .ms-faq-item:last-child { border-color: var(--sc-line-soft); }
+html[data-theme="light"] .ms-faq-q { color: rgba(var(--sc-ink-rgb),0.72); }
+html[data-theme="light"] .ms-faq-q:hover, html[data-theme="light"] .ms-faq-item.is-open .ms-faq-q { color: var(--sc-ink); }
+html[data-theme="light"] .ms-faq-a-inner { color: var(--sc-text-muted); }
+/* footer email strip: white container + soft shadow (enterprise's) */
+html[data-theme="light"] .footer-subtitle { color: var(--sc-text-sub); }
+html[data-theme="light"] .card-form-strip { background: #fff; border-color: transparent !important; box-shadow: 0 6px 20px rgba(15,26,42,0.06), 0 1px 3px rgba(15,26,42,0.04); }
+html[data-theme="light"] .card-strip-sub { color: var(--sc-ink); }
+html[data-theme="light"] .hero-form-row { background: rgba(var(--sc-ink-rgb), 0.05); border: 1px solid rgba(var(--sc-ink-rgb), 0.10); }
+html[data-theme="light"] .hero-email-input { color: var(--sc-ink); }
+html[data-theme="light"] .hero-email-input::placeholder { color: var(--sc-text-muted); }
+html[data-theme="light"] .footer-section > .footer-note { color: #1488FC; }
 </style>
 </head>
 <body>
 
-<style>
-  /* ─── HERO ──────────────────────────────────────────────────────────────── */
-  .hero-section {
-    width: 100%; min-height: 80vh; position: relative; overflow: hidden;
-    display: flex; flex-direction: column; font-family: 'Inter', sans-serif;
-    background: #000;
-  }
-  #hero-pixel-dots {
-    position: absolute; bottom: 0; left: 0; width: 100%; height: 80vh;
-    z-index: 2; pointer-events: none;
-  }
-  .hero-content-area {
-    flex: 1; display: flex; align-items: center; justify-content: center;
-    position: relative; z-index: 3; padding: 120px 24px 80px;
-  }
-  .hero-inner {
-    display: flex; flex-direction: column; align-items: center; gap: 28px;
-    max-width: 860px; width: 100%;
-  }
-  .hero-badge {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: rgba(20,136,252,0.1); border: 1px solid rgba(20,136,252,0.3);
-    border-radius: 20px; padding: 5px 14px 5px 10px;
-    font-size: 12px; font-weight: 500; color: #1488FC;
-    font-family: 'Silkscreen', monospace; letter-spacing: 1px; text-transform: uppercase;
-  }
-  .hero-badge-dot {
-    width: 6px; height: 6px; border-radius: 50%; background: #1488FC;
-    animation: blink 1.8s ease-in-out infinite;
-  }
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-  .hero-h1 {
-    font-size: clamp(44px, 5.5vw, 66px); font-weight: 500; color: #fff;
-    text-align: center; line-height: 1.1; letter-spacing: normal; max-width: 800px;
-  }
-  .hero-h1 .accent { color: #1488FC; }
-  .hero-subtitle {
-    font-size: clamp(16px, 1.4vw, 20px); font-weight: 400; color: #ABABAB;
-    text-align: center; max-width: 620px; line-height: 1.4;
-  }
-  /* Terminal mockup */
-  .hero-terminal {
-    width: 100%; max-width: 680px;
-    background: #0d0d0d; border: 1px solid rgba(255,255,255,0.10);
-    border-radius: 4px; overflow: hidden;
-    box-shadow: 0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
-  }
-  .terminal-bar {
-    height: 36px; background: #1a1a1a; border-bottom: 1px solid rgba(255,255,255,0.07);
-    display: flex; align-items: center; padding: 0 14px; gap: 8px;
-  }
-  .terminal-dot { width: 10px; height: 10px; border-radius: 50%; }
-  .terminal-dot:nth-child(1) { background: #ff5f57; }
-  .terminal-dot:nth-child(2) { background: #ffbd2e; }
-  .terminal-dot:nth-child(3) { background: #27c93f; }
-  .terminal-body {
-    padding: 20px 24px 24px;
-    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace; font-size: 13.5px;
-    line-height: 1.8; color: rgba(255,255,255,0.7);
-  }
-  .terminal-body .cmd { color: #1488FC; }
-  .terminal-body .arg { color: rgba(255,255,255,0.85); }
-  .terminal-body .out { color: rgba(255,255,255,0.4); }
-  .terminal-body .ok  { color: #27c93f; }
-  .terminal-body .prompt { color: rgba(255,255,255,0.3); margin-right: 4px; }
-  .terminal-body .cursor {
-    display: inline-block; width: 8px; height: 14px;
-    background: #1488FC; vertical-align: middle; margin-left: 2px;
-    animation: cursor-blink 1.1s step-end infinite;
-  }
-  @keyframes cursor-blink { 0%,100%{opacity:1} 50%{opacity:0} }
-  .hero-cta-row {
-    display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: center;
-  }
-  .hero-cta-row .hero-btn-primary, .hero-cta-row .hero-btn-ghost { min-width: 180px; }
-  .hero-btn-primary {
-    display: inline-flex; align-items: center; justify-content: center;
-    height: 52px; padding: 0 28px; background: #1488FC; border: none; border-radius: 2px;
-    color: #fff; font-size: 15px; font-weight: 600; font-family: 'Inter', sans-serif;
-    cursor: pointer; position: relative; overflow: hidden; text-decoration: none;
-  }
-  .hero-btn-primary .btn-bg-hover { position: absolute; inset: 0; background: #0f6fd0; z-index: 1; transform: translateY(101%); transition: transform 0.45s cubic-bezier(0.165,0.84,0.44,1); }
-  .hero-btn-primary .btn-text-wrap { position: relative; z-index: 3; overflow: hidden; height: 1.2em; }
-  .hero-btn-primary .btn-text-inner { display: flex; flex-direction: column; transition: transform 0.45s cubic-bezier(0.165,0.84,0.44,1); }
-  .hero-btn-primary .btn-text-inner span { display: block; line-height: 1.2; }
-  .hero-btn-primary:hover .btn-bg-hover { transform: translateY(0); }
-  .hero-btn-primary:hover .btn-text-inner { transform: translateY(-50%); }
-  .hero-btn-primary.btn-pixelized .btn-bg-hover { display: none !important; }
-  .hero-btn-primary.btn-pixelized .btn-text-inner { transform: none !important; }
-  .hero-btn-primary.btn-pixelized .btn-text-inner span:nth-child(2) { display: none; }
-  .hero-btn-primary.btn-pixelized .btn-text-wrap { z-index: 3; }
-  .hero-btn-ghost {
-    display: inline-flex; align-items: center; justify-content: center;
-    height: 52px; padding: 0 28px; background: transparent;
-    border: 1px solid rgba(255,255,255,0.22); border-radius: 2px;
-    color: rgba(255,255,255,0.8); font-size: 15px; font-weight: 500;
-    font-family: 'Inter', sans-serif; cursor: pointer; text-decoration: none;
-    position: relative; overflow: hidden; transition: border-color 0.25s, color 0.25s;
-  }
-  .hero-btn-ghost:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
-  .hero-btn-ghost .btn-pixel-canvas { z-index: 1; border-radius: 2px; }
-  .btn-pixel-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; border-radius: 2px; }
-  .hero-footnote {
-    font-size: 13px; font-weight: 500; color: #90F7D8; text-align: center;
-    margin-top: -10px;
-  }
+<nav class="mkt-nav mkt-nav--over-hero" aria-label="Primary">
+  <div class="mkt-nav-inner">
+    <!-- Nav-bar Back button — only appears on mobile when a submenu is active (JS toggles .is-on-submenu on .mkt-nav). Replaces the logo in the same slot. -->
+    <button class="mkt-nav-back" data-mobile-back aria-label="Back to main menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+      Back
+    </button>
+    <a href="../" class="mkt-nav-logo" aria-label="bolt.new home">
+      <!-- Canonical bolt.new wordmark (from images/bolt-new.svg) — inlined so the nav renders without an extra network request. -->
+      <svg viewBox="0 0 85 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M26.1121 20.9491C21.0582 20.9491 18.4869 17.9995 18.4869 14.3126C18.4869 9.9472 21.9744 5.99476 27.0283 5.99476C32.0822 5.99476 34.6535 8.94434 34.6535 12.6313C34.6535 16.9967 31.166 20.9491 26.1121 20.9491ZM26.319 16.2593C28.0923 16.2593 29.2154 14.6665 29.2154 12.8968C29.2154 11.481 28.2992 10.6846 26.8214 10.6846C25.0481 10.6846 23.925 12.2774 23.925 14.0471C23.925 15.4629 24.8412 16.2593 26.319 16.2593Z" fill="#fff"/>
+        <path d="M40.0368 20.5952H34.717L39.0615 0.921487H44.3814L40.0368 20.5952Z" fill="#fff"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M10.4272 20.9491C8.80168 20.9491 7.20572 20.3592 6.28951 19.0909L5.96635 20.5867L0 23.75L0.644095 20.5867L4.9891 0.921487H10.309L8.77213 7.853C10.0134 6.49619 11.1661 5.99476 12.6438 5.99476C15.8358 5.99476 17.9637 8.08896 17.9637 11.9234C17.9637 15.8758 15.5107 20.9491 10.4272 20.9491ZM12.4665 13.0443C12.4665 14.873 11.1661 16.2593 9.48145 16.2593C8.53569 16.2593 7.6786 15.9053 7.11705 15.2859L7.94459 11.658C8.56524 11.0385 9.27456 10.6846 10.1021 10.6846C11.373 10.6846 12.4665 11.6285 12.4665 13.0443Z" fill="#fff"/>
+        <path d="M49.9163 20.9491C46.8426 20.9491 44.6555 19.8283 44.6555 17.3506C44.6555 17.1442 44.6851 16.6427 44.7737 16.2298L45.9264 10.9501H43.562L44.5964 6.34871H46.9608L47.8179 2.45527L53.7735 0L53.1378 2.46127L52.2807 6.34871H55.1771L54.1426 10.9501H51.2462L50.4778 14.4306C50.4187 14.696 50.3892 14.991 50.3892 15.109C50.3892 15.7874 50.8029 16.2593 51.7191 16.2593C51.9851 16.2593 52.3693 16.1708 52.458 16.1118V20.3592C51.8965 20.7427 50.8916 20.9491 49.9163 20.9491Z" fill="#fff"/>
+        <path d="M56.461 21.0087C55.7527 21.0087 55.1886 20.4196 55.1886 19.7127C55.1886 18.8879 55.897 18.1941 56.7234 18.1941C57.4317 18.1941 57.9958 18.7832 57.9958 19.4901C57.9958 20.3149 57.2875 21.0087 56.461 21.0087Z" fill="#fff"/>
+        <path d="M65.3576 20.8386H62.9964L63.7309 17.5133C63.7572 17.3955 63.8097 17.186 63.8097 17.0289C63.8097 16.5969 63.4292 16.4398 63.0488 16.4398C62.5372 16.4398 62.183 16.7016 61.9338 16.9242L61.068 20.8386H58.7068L60.1104 14.5153H62.4716L62.3011 15.2354C62.7602 14.8164 63.3374 14.3582 64.295 14.3582C65.6199 14.3582 66.3807 15.0783 66.3807 16.0209C66.3807 16.1256 66.3414 16.4136 66.3151 16.5314L65.3576 20.8386Z" fill="#fff"/>
+        <path d="M70.256 20.9956C68.2096 20.9956 66.7929 19.9745 66.7929 18.1155C66.7929 16.0994 68.3408 14.3582 70.5577 14.3582C72.1319 14.3582 73.5223 15.3139 73.5223 17.2384C73.5223 17.6704 73.4436 18.1679 73.3781 18.4035H69.1279V18.4166C69.1279 18.5083 69.5083 19.2021 70.4265 19.2021C70.925 19.2021 71.5153 19.0843 71.8039 18.8879L72.5254 20.4196C71.8826 20.8255 71.0169 20.9956 70.256 20.9956ZM69.3509 16.9111H71.4366V16.8718C71.4366 16.6885 71.2136 16.1518 70.4659 16.1518C69.8363 16.1518 69.4296 16.6362 69.3509 16.9111Z" fill="#fff"/>
+        <path d="M81.7599 20.8386H79.1888L78.9265 17.3038L77.1293 20.8386H74.5582L74.1254 14.5153H76.4866L76.5521 17.9977L78.4411 14.5153H80.5531L80.881 17.9977L82.4945 14.5153H85L81.7599 20.8386Z" fill="#fff"/>
+      </svg>
+    </a>
 
-  /* ─── SECTION SHARED ─────────────────────────────────────────────────────── */
-  .section-inner { width: min(1120px, calc(100vw - 160px)); margin: 0 auto; }
-  .section-eyebrow {
-    font-family: 'Silkscreen', monospace; font-size: 16px; font-weight: 400;
-    color: #1488FC; letter-spacing: 2px; text-transform: uppercase; margin: 0 0 20px;
-    display: block;
-  }
-  .section-headline {
-    font-size: clamp(32px, 4vw, 52px); font-weight: 500; color: #fff;
-    letter-spacing: -1px; line-height: 1.2; margin: 0 0 14px;
-  }
-  .section-sub {
-    font-size: clamp(15px, 1.15vw, 18px); color: #ABABAB;
-    line-height: 1.4; margin: 0; max-width: 560px;
-  }
+    <ul class="mkt-nav-items">
+      <li data-menu="solutions">
+        <!-- Real link, not a button: clicking goes to the Solutions page, hovering
+             still opens the panel. The nav JS binds on '.mkt-nav-link[data-menu]'
+             (class + attribute, not tag), so the dropdown behaviour is unchanged. -->
+        <a href="https://garyliusf.github.io/Enterprise/marketing/solutions.html" class="mkt-nav-link" data-menu="solutions" aria-haspopup="true" aria-expanded="false">
+          Solutions
+          <svg class="mkt-nav-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </a>
+      </li>
+      <li data-menu="resources">
+        <button class="mkt-nav-link" data-menu="resources" aria-haspopup="true" aria-expanded="false">
+          Resources
+          <svg class="mkt-nav-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </li>
+      <li><a href="https://bolt.new/careers" class="mkt-nav-link">Careers</a></li>
+      <li><a href="pricing.html" class="mkt-nav-link">Pricing</a></li>
+    </ul>
 
-  /* ─── UNLOCKS SECTION ────────────────────────────────────────────────────── */
-  .unlocks-section {
-    width: 100%; background: #000; padding: clamp(72px, 10vh, 128px) 0;
-    font-family: 'Inter', sans-serif;
-  }
-  .unlocks-visual {
-    margin-top: 0; position: relative;
-    width: 100%; border: 1px solid rgba(255,255,255,0.12); border-radius: 4px;
-    background: radial-gradient(600px 320px at 22% 80%, rgba(14,28,40,0.55), transparent 60%), linear-gradient(180deg, #050608 0%, #000000 100%);
-    box-shadow: 0 30px 80px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.04);
-    overflow: hidden; padding: clamp(32px, 3.5vw, 56px);
-  }
-  /* graph-paper overlay removed (solutions.html card standard, Gary 2026-08-07) */
-  .unlocks-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
-    position: relative; z-index: 1;
-  }
-  .unlock-card {
-    border: none; border-radius: 4px;
-    padding: 24px 24px 28px;
-    /* solutions.html card surface: near-black base + subtle top light */
-    background:
-      linear-gradient(180deg, rgba(255,255,255,0.045) 0%, rgba(255,255,255,0.012) 34%, rgba(255,255,255,0) 62%),
-      #09090b;
-    display: flex; flex-direction: column; gap: 10px; min-height: 180px;
-    position: relative; overflow: hidden;
-    transition: background 0.3s ease;
-  }
-  .unlock-card > * { position: relative; z-index: 2; }
-  .unlock-card:hover { background: linear-gradient(180deg, rgba(255,255,255,0.055) 0%, rgba(255,255,255,0.012) 100%); }
-  .unlock-icon {
-    width: 44px; height: 44px; border-radius: 4px;
-    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
-    display: inline-flex; align-items: center; justify-content: center;
-    color: rgba(255,255,255,0.85); margin-bottom: 20px; flex-shrink: 0;
-  }
-  .unlock-title {
-    font-size: 18px; font-weight: 600; color: #fff;
-    margin: 0; letter-spacing: -0.2px; line-height: 1.35;
-  }
-  .unlock-desc {
-    font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.55; margin: 0;
-  }
-  @media (max-width: 900px) {
-    .unlocks-grid { grid-template-columns: repeat(2, 1fr); }
-  }
-  @media (max-width: 540px) {
-    .unlocks-grid { grid-template-columns: 1fr; }
-    .unlocks-section { padding: 56px 0; }
-    .section-inner { width: calc(100vw - 32px); }
-  }
-
-  /* ─── HOW IT WORKS ───────────────────────────────────────────────────────── */
-  .how-section {
-    width: 100%; background: #000; padding: clamp(80px, 12vh, 140px) 0;
-    font-family: 'Inter', sans-serif;
-  }
-  .how-inner { width: min(1120px, calc(100vw - 160px)); margin: 0 auto; }
-  .how-header { margin-bottom: clamp(48px, 7vh, 80px); }
-  .how-eyebrow {
-    font-family: 'Silkscreen', monospace; font-size: 16px; font-weight: 400;
-    letter-spacing: 2px; text-transform: uppercase; color: #1488FC; margin: 0;
-    display: block; margin-bottom: 20px;
-  }
-  .how-title {
-    font-size: clamp(32px, 4vw, 52px); font-weight: 500; color: #fff;
-    letter-spacing: -1px; line-height: 1.2; margin: 0 0 14px;
-  }
-  .how-sub {
-    font-size: clamp(15px, 1.1vw, 17px); color: rgba(255,255,255,0.5);
-    line-height: 1.65; max-width: 560px; margin: 0;
-  }
-  .how-steps-wrap { position: relative; }
-  .how-line-track {
-    position: absolute; top: 19px; left: 0; right: 0; height: 1px;
-    background: rgba(255,255,255,0.07); pointer-events: none; z-index: 0;
-  }
-  .how-line-fill {
-    position: absolute; top: 19px; left: 0; right: 0; height: 1px;
-    background: linear-gradient(90deg, rgba(20,136,252,0.25), rgba(20,136,252,0.8) 20%, rgba(20,136,252,0.8) 80%, rgba(20,136,252,0.25));
-    pointer-events: none; z-index: 1; transform: scaleX(0); transform-origin: left center;
-  }
-  .how-line-glow {
-    position: absolute; top: 16px; left: 0; height: 7px; width: 80px;
-    background: radial-gradient(ellipse at center, rgba(120,200,255,0.9) 0%, transparent 70%);
-    border-radius: 4px; pointer-events: none; z-index: 2; opacity: 0;
-  }
-  @keyframes howLineDraw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-  @keyframes howGlowTravel {
-    0% { opacity:0; transform:translateX(0); } 8% { opacity:1; }
-    88% { opacity:1; } 100% { opacity:0; transform:translateX(var(--glow-dist,700px)); }
-  }
-  .how-steps-wrap.line-active .how-line-fill { animation: howLineDraw 1.4s cubic-bezier(0.4,0,0.2,1) 0.1s both; }
-  .how-steps-wrap.line-active .how-line-glow { animation: howGlowTravel 1.4s cubic-bezier(0.4,0,0.2,1) 0.1s both; }
-  .how-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; position: relative; }
-  .how-step { display: flex; flex-direction: column; padding: 0 28px 0 0; position: relative; }
-  .how-step:last-child { padding-right: 0; }
-  .how-step-node {
-    width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(20,136,252,0.5);
-    background: #000; display: flex; align-items: center; justify-content: center;
-    margin-bottom: 28px; position: relative; z-index: 1; flex-shrink: 0;
-    transform: scale(0);
-  }
-  @keyframes nodePop { from { transform:scale(0); } to { transform:scale(1); } }
-  .how-steps-wrap.line-active .how-step:nth-child(1) .how-step-node { animation: nodePop 0.45s cubic-bezier(0.34,1.56,0.64,1) 0.15s both; }
-  .how-steps-wrap.line-active .how-step:nth-child(2) .how-step-node { animation: nodePop 0.45s cubic-bezier(0.34,1.56,0.64,1) 0.55s both; }
-  .how-steps-wrap.line-active .how-step:nth-child(3) .how-step-node { animation: nodePop 0.45s cubic-bezier(0.34,1.56,0.64,1) 0.95s both; }
-  .how-steps-wrap.line-active .how-step:nth-child(4) .how-step-node { animation: nodePop 0.45s cubic-bezier(0.34,1.56,0.64,1) 1.30s both; }
-  .how-step-number {
-    font-family: 'Silkscreen', monospace; font-size: 10px; font-weight: 400;
-    letter-spacing: 1px; color: #1488FC; margin: 0;
-  }
-  .how-step-title {
-    font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 600; color: #fff;
-    margin: 0 0 10px; letter-spacing: -0.2px; line-height: 1.35;
-    opacity: 0; transform: translateY(14px); filter: blur(10px);
-  }
-  .how-step-desc {
-    font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.55; margin: 0;
-    opacity: 0; transform: translateY(14px); filter: blur(10px);
-  }
-  @keyframes howStepIn {
-    from { opacity: 0; transform: translateY(14px); filter: blur(10px); }
-    to   { opacity: 1; transform: translateY(0);    filter: blur(0);    }
-  }
-  .how-steps-wrap.line-active .how-step:nth-child(1) .how-step-title { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 0.28s both; }
-  .how-steps-wrap.line-active .how-step:nth-child(1) .how-step-desc  { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 0.40s both; }
-  .how-steps-wrap.line-active .how-step:nth-child(2) .how-step-title { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 0.68s both; }
-  .how-steps-wrap.line-active .how-step:nth-child(2) .how-step-desc  { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 0.80s both; }
-  .how-steps-wrap.line-active .how-step:nth-child(3) .how-step-title { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 1.08s both; }
-  .how-steps-wrap.line-active .how-step:nth-child(3) .how-step-desc  { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 1.20s both; }
-  .how-steps-wrap.line-active .how-step:nth-child(4) .how-step-title { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 1.42s both; }
-  .how-steps-wrap.line-active .how-step:nth-child(4) .how-step-desc  { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 1.54s both; }
-  @media (max-width: 760px) {
-    .how-steps { grid-template-columns: repeat(2, 1fr); gap: 40px 24px; }
-    .how-step { padding-right: 0; }
-    .how-line-track, .how-line-fill, .how-line-glow { display: none; }
-  }
-  @media (max-width: 540px) {
-    .how-steps { grid-template-columns: 1fr; }
-    .how-section { padding: 40px 0; }
-    .how-inner { width: calc(100vw - 32px); }
-    /* Reveal each step card with its blur-in animation as it scrolls into view */
-    .how-step.step-revealed .how-step-node  { animation: nodePop 0.45s cubic-bezier(0.34,1.56,0.64,1) both; }
-    .how-step.step-revealed .how-step-title { animation: howStepIn 0.7s cubic-bezier(0.25,0.46,0.45,0.94) 0.1s both; }
-    .how-step.step-revealed .how-step-desc  { animation: howStepIn 0.7s cubic-bezier(0.25,0.46,0.45,0.94) 0.2s both; }
-  }
-
-  /* ─── BETA NOTICE ────────────────────────────────────────────────────────── */
-  .beta-section {
-    width: 100%; background: #000; padding: 0 0 clamp(80px, 11vh, 130px);
-    font-family: 'Inter', sans-serif;
-  }
-  .beta-card {
-    width: min(1120px, calc(100vw - 160px)); margin: 0 auto;
-    border: 1px solid rgba(255,255,255,0.06); border-radius: 6px;
-    background: #111; overflow: hidden; position: relative;
-  }
-  .beta-card::before {
-    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
-    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 30%, rgba(255,255,255,0.08) 70%, transparent 100%);
-  }
-  .beta-card-inner {
-    padding: 20px 24px;
-    display: flex; flex-direction: column; gap: 10px;
-  }
-  .beta-badge {
-    display: inline-flex; align-items: center;
-    font-family: 'Silkscreen', monospace; font-size: 10px; letter-spacing: 2px;
-    color: #1488FC; background: rgba(20,136,252,0.12); border: 1px solid rgba(20,136,252,0.3);
-    border-radius: 3px; padding: 4px 10px; width: fit-content; text-transform: uppercase;
-  }
-  .beta-card-text {
-    font-size: 14px; color: rgba(255,255,255,0.55);
-    line-height: 1.65; margin: 0; max-width: 820px;
-  }
-  @media (max-width: 760px) {
-    .beta-section { padding: 0 0 56px; }
-  }
-
-  /* ─── FAQ ────────────────────────────────────────────────────────────────── */
-  .ms-faq-section {
-    width: 100%; background: #000;
-    padding: clamp(48px, 8vh, 140px) 0 clamp(40px, 6vh, 90px);
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-    position: relative; overflow: hidden;
-  }
-  #faq-pixel-canvas {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%; min-height: 600px;
-    pointer-events: none; z-index: 0;
-  }
-  .ms-faq-inner {
-    width: min(1120px, calc(100vw - 160px)); margin: 0 auto;
-    position: relative; z-index: 1;
-  }
-  .ms-faq-eyebrow {
-    font-family: 'Silkscreen', monospace; font-size: 16px; font-weight: 400;
-    letter-spacing: 2px; text-transform: uppercase; color: #1488FC; margin: 0 0 16px;
-  }
-  .ms-faq-headline { font-size: clamp(32px, 4vw, 52px); font-weight: 500; color: #fff; letter-spacing: -1px; line-height: 1.2; margin: 0 0 48px; }
-  .ms-faq-list { display: flex; flex-direction: column; }
-  .ms-faq-item { border-top: 1px solid rgba(255,255,255,0.08); transition: background 0.2s ease; }
-  .ms-faq-item:last-child { border-bottom: 1px solid rgba(255,255,255,0.08); }
-  @media (hover: hover) { .ms-faq-item:hover { background: rgba(255,255,255,0.07); } }
-  .ms-faq-q {
-    width: 100%; display: flex; align-items: center; justify-content: space-between;
-    gap: 24px; padding: 28px 16px; background: none; border: none;
-    color: #fff; font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 500;
-    text-align: left; cursor: pointer; transition: color 0.2s;
-  }
-  .ms-faq-q:hover { color: #fff; }
-  .ms-faq-chevron {
-    flex-shrink: 0; width: 20px; height: 20px; color: rgba(255,255,255,0.4);
-    transition: transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94), color 0.2s;
-  }
-  .ms-faq-item.is-open .ms-faq-chevron { transform: rotate(180deg); color: #fff; }
-  .ms-faq-a { overflow: hidden; max-height: 0; transition: max-height 0.25s ease-out; }
-  @media (max-width: 768px) {
-    .ms-faq-a { transition: max-height 0.2s ease-out; }
-    #faq-pixel-canvas { height: 100%; }
-  }
-  .ms-faq-a-inner {
-    padding: 0 16px 28px; font-size: 15px; line-height: 1.7;
-    color: rgba(255,255,255,0.65); max-width: 720px;
-  }
-  @media (max-width: 768px) {
-    .ms-faq-inner { width: calc(100vw - 32px); }
-    .ms-faq-q { font-size: 17px; padding: 22px 0; }
-    .ms-faq-a-inner { padding: 0 0 24px; font-size: 13px; }
-    /* Reserve space so opening an accordion (single-open) fills reserved height
-       instead of growing the section and pushing the footer down */
-    .ms-faq-list { min-height: 440px; }
-  }
-  @media (max-width: 540px) {
-    .ms-faq-inner { width: calc(100vw - 32px); }
-    .ms-faq-q { font-size: 16px; }
-    .ms-faq-a-inner { font-size: 13px; }
-  }
-
-  /* ─── FOOTER ─────────────────────────────────────────────────────────────── */
-  .footer-section {
-    width: 100%; background: #000; display: flex; flex-direction: column;
-    align-items: center; text-align: center; padding: clamp(80px, 12vh, 140px) 24px 0;
-    position: relative; overflow: hidden; font-family: 'Inter', sans-serif;
-  }
-  .footer-eyebrow {
-    font-size: 16px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase;
-    color: #1488FC; margin: 0; font-family: 'Silkscreen', monospace;
-  }
-  .footer-headline {
-    font-size: clamp(36px, 5vw, 64px); font-weight: 500; color: #fff;
-    letter-spacing: -2px; line-height: 1.1; margin: 16px 0 16px; max-width: 700px;
-  }
-  .footer-subtitle {
-    font-size: clamp(15px, 1.2vw, 18px); color: rgba(255,255,255,0.45);
-    line-height: 1.6; max-width: 520px; margin: 0 auto 24px;
-  }
-  .footer-form {
-    width: 100%; max-width: 460px;
-    background: rgba(255,255,255,0.08); border-radius: 4px;
-    display: flex; overflow: hidden; border: none;
-    margin-bottom: 0;
-  }
-  .footer-email {
-    flex: 1; height: 52px; background: transparent; border: none;
-    padding: 0 18px; font-size: 15px; font-family: 'Inter', sans-serif;
-    color: #fff; outline: none;
-  }
-  .footer-email::placeholder { color: rgba(255,255,255,0.4); }
-  .footer-submit {
-    height: 52px; padding: 0 24px; background: #0f6fd0; border: none;
-    border-radius: 0 2px 2px 0; color: #fff; font-size: 15px; font-weight: 600;
-    font-family: 'Inter', sans-serif; cursor: pointer; white-space: nowrap;
-    transition: background 0.2s;
-  }
-  .footer-submit:hover { background: #0f6fd0; }
-  .footer-note {
-    margin-top: 14px; font-size: 13px; color: rgba(255,255,255,0.25);
-  }
-  .footer-bottom-image {
-    width: 100%; margin-top: 60px; position: relative;
-    height: 32vw; max-height: 32vw; overflow: hidden;
-  }
-  .footer-bottom-image img {
-    width: 100%; height: 100%; object-fit: cover;
-    object-position: top; display: block; opacity: 0.20;
-  }
-  .footer-bottom-image::before {
-    content: ''; position: absolute; inset: 0;
-    background: linear-gradient(to bottom, #000 0%, transparent 22%, transparent 88%, #000 100%);
-    z-index: 1;
-  }
-
-  /* ─── ROTATING NAME ─────────────────────────────────────────────────────── */
-  .rotating-name {
-    display: inline-block; vertical-align: baseline;
-    overflow: hidden; line-height: 1.2; height: 1.2em;
-    position: relative; top: 0.22em;
-    color: #FFB093;
-    font-family: 'Cormorant Garamond', Georgia, serif;
-    font-weight: 400; font-style: italic; letter-spacing: 0.01em;
-    text-align: left; transform: translateZ(0);
-    -webkit-backface-visibility: hidden; backface-visibility: hidden; contain: paint;
-  }
-  .rotating-name-track { display: block; line-height: 1.2; will-change: transform; text-align: left; }
-  @media (min-width: 768px) { .rotating-name-track { transform: translateZ(0); } }
-  @media (max-width: 767px) { .rotating-name { top: 0.26em; } }
-  .rotating-name-item { display: block; line-height: 1.2; white-space: nowrap; text-align: left; }
-
-  /* ─── HERO CTA BUTTON ────────────────────────────────────────────────────── */
-  .hero-cta-button {
-    position: relative; overflow: hidden;
-    display: inline-flex; align-items: center; justify-content: center;
-  }
-  .hero-cta-button .btn-bg-hover {
-    position: absolute; inset: 0; background: #0f6fd0; z-index: 1;
-    transform: translateY(101%); transition: transform 0.45s cubic-bezier(0.165,0.84,0.44,1);
-  }
-  .hero-cta-button .btn-text-wrap {
-    position: relative; z-index: 3; overflow: hidden; height: 1.2em;
-  }
-  .hero-cta-button .btn-text-inner {
-    display: flex; flex-direction: column;
-    transition: transform 0.45s cubic-bezier(0.165,0.84,0.44,1);
-  }
-  .hero-cta-button .btn-text-inner span { display: block; line-height: 1.2; }
-  .hero-cta-button:hover .btn-bg-hover { transform: translateY(0); }
-  .hero-cta-button:hover .btn-text-inner { transform: translateY(-50%); }
-  .hero-cta-button.btn-pixelized .btn-bg-hover { display: none !important; }
-  .hero-cta-button.btn-pixelized .btn-text-inner { transform: none !important; }
-  .hero-cta-button.btn-pixelized .btn-text-inner span:nth-child(2) { display: none; }
-
-  /* ─── RESPONSIVE SHARED ──────────────────────────────────────────────────── */
-  @media (max-width: 1024px) {
-    .section-inner { width: min(900px, calc(100vw - 80px)); }
-    .how-inner { width: min(900px, calc(100vw - 80px)); }
-    .beta-card { width: min(900px, calc(100vw - 80px)); }
-    .ms-faq-inner { width: min(900px, calc(100vw - 80px)); }
-    .hero-h1 { font-size: clamp(37px, 10.45vw, 51px); }
-    .footer-headline { font-size: clamp(36px, 4.5vw, 52px); }
-    .section-eyebrow, .how-eyebrow, .ms-faq-eyebrow, .footer-eyebrow { font-size: 13px; }
-  }
-  @media (max-width: 768px) {
-    .section-inner { width: calc(100vw - 32px); }
-    .how-inner { width: calc(100vw - 32px); }
-    .beta-card { width: calc(100vw - 32px); }
-    /* Must re-declare here (after the 1024px block) so the mobile width wins the
-       cascade over the 1024px rule, which otherwise over-insets the FAQ */
-    .ms-faq-inner { width: calc(100vw - 32px); }
-    .unlocks-section { padding: 32px 0; }
-    .unlocks-visual { padding: 20px 16px; }
-    /* mobile hero buttons — standardized (contained, equal min-width) */
-    .hero-btn-primary, .hero-btn-ghost { height: 52px; padding: 0 26px; font-size: 16px; min-width: 260px; max-width: 100%; justify-content: center; }
-    /* beta email-strip submit: shrink text so "Request Access" doesn't clip */
-    .card-form-strip .hero-cta-button { font-size: 13px; padding: 0 14px; flex-shrink: 0; }
-    .card-form-strip .hero-cta-button span { white-space: nowrap; }
-    .hero-h1 { letter-spacing: -1px; }
-    .hero-terminal { font-size: 12px; }
-    .terminal-body { font-size: 12px; padding: 16px 18px 20px; }
-    .beta-notice { padding: 24px; }
-    .ms-faq-a-inner { padding: 0 0 24px; }
-    .section-eyebrow { font-size: 13px; }
-    .how-eyebrow { font-size: 13px; }
-    .ms-faq-eyebrow { font-size: 13px; }
-    .footer-eyebrow { font-size: 13px; }
-    .section-headline { margin: 0 0 8px; }
-    .how-header { gap: 10px; margin-bottom: 32px; }
-    /* Match Microsoft footer spacing/padding/subtitle/bolt on mobile */
-    .footer-section { padding: 48px 0 0; }
-    .footer-section > *:not(.bolt-image-wrap) { padding-left: 12px; padding-right: 12px; box-sizing: border-box; width: 100%; }
-    .bolt-image-wrap { width: 100vw !important; margin-left: 0 !important; height: 42vw !important; max-height: 42vw !important; }
-    .footer-headline { font-size: clamp(26px, 8vw, 36px); line-height: 1.1; margin: 12px 0; }
-    .footer-subtitle { font-size: 16px; max-width: 310px; }
-  }
-  @media (max-width: 540px) {
-    .section-inner { width: calc(100vw - 32px); }
-    .how-inner { width: calc(100vw - 32px); }
-    .beta-card { width: calc(100vw - 32px); }
-    .hero-content-area { padding: 100px 16px 60px; }
-    .hero-terminal { max-width: 100%; }
-    .terminal-body { font-size: 11.5px; }
-  }
-
-  /* ── dsa-reveal word animation ── */
-  .dsa-reveal .word { display: inline-block; opacity: 0; transform: translate(-10px, -7px); filter: blur(5px); will-change: opacity, transform, filter; }
-  .dsa-reveal.is-revealed .word { animation: dsa-word-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards; animation-delay: calc(var(--i, 0) * 28ms); }
-  @keyframes dsa-word-reveal { from { opacity: 0; transform: translate(-10px, -7px); filter: blur(5px); } to { opacity: 1; transform: translate(0, 0); filter: blur(0); } }
-</style>
-
-<!-- ─── HERO ──────────────────────────────────────────────────────────────── -->
-<section class="hero-section">
-  <canvas id="hero-pixel-dots"></canvas>
-  <div class="hero-content-area">
-    <div class="hero-inner">
-
-      <div class="hero-badge">
-        <span class="hero-badge-dot"></span>
-        Private Beta
-      </div>
-
-      <div style="display:flex;flex-direction:column;align-items:center;gap:14px;">
-        <h1 class="hero-h1">Bolt, from your terminal</h1>
-        <p class="hero-subtitle">Push your local code into Bolt, pull it back down, and manage projects, design systems, and teams — all scriptable, all from the command line.</p>
-      </div>
-
-      <!-- Terminal mockup -->
-      <div class="hero-terminal">
-        <div class="terminal-bar">
-          <span class="terminal-dot"></span>
-          <span class="terminal-dot"></span>
-          <span class="terminal-dot"></span>
-        </div>
-        <div class="terminal-body">
-          <div><span class="prompt">~</span> <span class="cmd">bolt</span> <span class="arg">push</span> <span style="color:rgba(255,255,255,0.55)">./my-project</span></div>
-          <div><span class="out">  ✓ Synced 24 files → bolt.new/project/a7f3c</span></div>
-          <div style="margin-top:4px"><span class="prompt">~</span> <span class="cmd">bolt</span> <span class="arg">pull</span> <span style="color:rgba(255,255,255,0.55)">project/a7f3c</span> <span style="color:rgba(255,255,255,0.3)">--out ./local</span></div>
-          <div><span class="out">  ✓ 24 files written to ./local</span></div>
-          <div style="margin-top:4px"><span class="prompt">~</span> <span class="cmd">bolt</span> <span class="arg">chat</span> <span style="color:rgba(255,255,255,0.3)">--project=a7f3c</span></div>
-          <div><span class="out">  Fetching chat history… 14 messages</span></div>
-          <div style="margin-top:4px"><span class="prompt">~</span> <span class="cursor"></span></div>
-        </div>
-      </div>
-
-      <div class="hero-cta-row">
-        <a href="#request" class="hero-btn-primary">
+    <div class="mkt-nav-right">
+      <div class="mkt-nav-actions">
+        <a href="https://bolt.new/signin" class="mkt-nav-signin">Sign in</a>
+        <a href="https://bolt.new/" target="_blank" rel="noopener" class="mkt-nav-cta hero-btn-primary">
           <div class="btn-bg-hover"></div>
-          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Request Access</span><span>Request Access</span></div></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Started</span><span>Get Started</span></div></div>
         </a>
       </div>
-      <p class="hero-footnote">Invite-Only. Spots Are Limited.</p>
-
+      <button class="mkt-nav-burger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </div>
-</section>
 
-<!-- ─── WHAT IT UNLOCKS ───────────────────────────────────────────────────── -->
-<section class="unlocks-section" id="unlocks">
-  <div class="section-inner">
-    <div class="unlocks-visual">
-      <div class="dsa-reveal" style="margin-bottom: clamp(32px,5vh,52px); position:relative; z-index:1;">
-        <span class="section-eyebrow eyebrow-scramble">What it unlocks</span>
-        <h2 class="section-headline">Stop bouncing to the browser</h2>
-        <p class="section-sub">Bring Bolt into the workflow you already have.</p>
+  <!-- Mega panels — one per top-level menu, JS toggles .is-open on the matching data-panel -->
+
+  <div class="mkt-nav-panel" data-panel="solutions" aria-hidden="true">
+    <div class="mkt-nav-panel-inner">
+      <a href="https://garyliusf.github.io/Enterprise/solutions/smb/" class="mkt-nav-panel-feature">
+        <div class="mkt-nav-panel-feature-visual" aria-hidden="true"></div>
+        <p class="mkt-nav-panel-feature-eyebrow">Featured</p>
+        <p class="mkt-nav-panel-feature-title">AI for Small Business</p>
+        <p class="mkt-nav-panel-feature-desc">Custom apps for your business, built in an afternoon — no code, no developer, no $100K project.</p>
+      </a>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Top Use Cases</p>
+        <a href="https://bolt.new/use-cases/ai-app-builder">AI App Builder</a>
+        <a href="https://bolt.new/use-cases/ai-website-builder">AI Website Builder</a>
+        <a href="https://bolt.new/use-cases/custom-crm-software">SaaS Dev</a>
+        <a href="https://bolt.new/use-cases/ai-prototyping-tools">Prototyping</a>
       </div>
-      <div class="unlocks-grid">
-
-        <div class="unlock-card">
-          <div class="unlock-icon">
-            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
-          </div>
-          <h3 class="unlock-title">Your code, in and out</h3>
-          <p class="unlock-desc">Send a local folder up to Bolt, and pull a project back down to your machine. Your editor, your git history, your terminal.</p>
-        </div>
-
-        <div class="unlock-card">
-          <div class="unlock-icon">
-            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42"/></svg>
-          </div>
-          <h3 class="unlock-title">Design systems</h3>
-          <p class="unlock-desc">Spin up design systems from your real sources and kick off generation — without leaving the keyboard.</p>
-        </div>
-
-        <div class="unlock-card">
-          <div class="unlock-icon">
-            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"/></svg>
-          </div>
-          <h3 class="unlock-title">Your chats, on tap</h3>
-          <p class="unlock-desc">Pull up the full history of any project's chat whenever you need it, ready to search, save, or hand to another tool.</p>
-        </div>
-
-        <div class="unlock-card">
-          <div class="unlock-icon">
-            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/></svg>
-          </div>
-          <h3 class="unlock-title">Built for teams</h3>
-          <p class="unlock-desc">Work in your personal account or your org. Set it once and everything follows, so teammates stay on the same page.</p>
-        </div>
-
-        <div class="unlock-card">
-          <div class="unlock-icon">
-            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
-          </div>
-          <h3 class="unlock-title">Secure sign-in</h3>
-          <p class="unlock-desc">One browser sign-in and you're in. No API keys to copy around, nothing secret living in your repo.</p>
-        </div>
-
-        <div class="unlock-card">
-          <div class="unlock-icon">
-            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0021 18V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25z"/></svg>
-          </div>
-          <h3 class="unlock-title">Automate anything</h3>
-          <p class="unlock-desc">It's a CLI, so it scripts. Wire Bolt into your pipelines, cron jobs, and one-off scripts however you like.</p>
-        </div>
-
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Business Type</p>
+        <a href="https://garyliusf.github.io/Enterprise/solutions/smb/">Small Business</a>
+        <a href="https://bolt.new/enterprise">Enterprise</a>
       </div>
     </div>
   </div>
-</section>
 
-<!-- ─── GETTING IN ────────────────────────────────────────────────────────── -->
-<section class="how-section" id="how">
-  <div class="how-inner">
-    <div class="how-header dsa-reveal">
-      <span class="how-eyebrow eyebrow-scramble">Getting in</span>
-      <h2 class="how-title">Four steps to your first push.</h2>
-      <p class="how-sub">We're letting people in a batch at a time. Here's what to expect once you request access.</p>
-    </div>
-
-    <div class="how-steps-wrap" id="how-steps-wrap">
-      <div class="how-line-track"></div>
-      <div class="how-line-fill"></div>
-      <div class="how-line-glow" id="how-line-glow"></div>
-      <div class="how-steps">
-
-        <div class="how-step">
-          <div class="how-step-node"><span class="how-step-number">01</span></div>
-          <h3 class="how-step-title">Request access</h3>
-          <p class="how-step-desc">Drop us your Bolt account email below. Spots in this round are limited.</p>
-        </div>
-
-        <div class="how-step">
-          <div class="how-step-node"><span class="how-step-number">02</span></div>
-          <h3 class="how-step-title">Get your invite</h3>
-          <p class="how-step-desc">We add you to the beta and send everything you need to set up in a couple of minutes.</p>
-        </div>
-
-        <div class="how-step">
-          <div class="how-step-node"><span class="how-step-number">03</span></div>
-          <h3 class="how-step-title">Sign in</h3>
-          <p class="how-step-desc">One browser sign-in connects the CLI to your Bolt account. No keys, no fuss.</p>
-        </div>
-
-        <div class="how-step">
-          <div class="how-step-node"><span class="how-step-number">04</span></div>
-          <h3 class="how-step-title">Start building</h3>
-          <p class="how-step-desc">Push, pull, automate. Then tell us what you love and what we should fix.</p>
-        </div>
-
+  <div class="mkt-nav-panel" data-panel="resources" aria-hidden="true">
+    <div class="mkt-nav-panel-inner">
+      <a href="https://bolt.new/resources/templates" class="mkt-nav-panel-feature">
+        <div class="mkt-nav-panel-feature-visual" aria-hidden="true"></div>
+        <p class="mkt-nav-panel-feature-eyebrow">Featured collection</p>
+        <p class="mkt-nav-panel-feature-title">Bolt Templates</p>
+        <p class="mkt-nav-panel-feature-desc">Production-ready starting points — dashboards, storefronts, portfolios, and more. Fork one and make it yours.</p>
+      </a>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Support</p>
+        <a href="https://discord.com/invite/stackblitz" target="_blank" rel="noopener">Community</a>
+        <a href="https://support.bolt.new/" target="_blank" rel="noopener">Help Center</a>
+        <a href="https://bolt.new/platform/security">Security &amp; Trust</a>
+      </div>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Build and Learn</p>
+        <a href="https://bolt.new/blog">Blog</a>
+        <a href="https://bolt.new/resources/templates">Templates</a>
       </div>
     </div>
   </div>
-</section>
+</nav>
 
+<main>
+<section class="hero-section hero-section--cli"> <canvas class="js-cli-dots" aria-hidden="true"></canvas>
+  <canvas class="hero-dither" aria-hidden="true"></canvas> <div class="hero-content-area"> <div class="hero-inner"> <div class="cli-badge"> <span class="cli-badge-dot"></span> Private Beta </div> <div class="cli-headline-group"> <h1 class="hero-h1">Bolt, from your terminal</h1> <p class="hero-subtitle">Push your local code into Bolt, pull it back down, and manage projects, design systems, and teams — all scriptable, all from the command line.</p> </div> <div class="hero-terminal" aria-hidden="true"> <div class="terminal-bar"> <span class="terminal-dot"></span> <span class="terminal-dot"></span> <span class="terminal-dot"></span> </div> <div class="terminal-body"> <div><span class="prompt">~</span> <span class="cmd">bolt</span> <span class="arg">push</span> <span style="color:rgba(255,255,255,0.55)">./my-project</span></div> <div><span class="out"> ✓ Synced 24 files → bolt.new/project/a7f3c</span></div> <div style="margin-top:4px"><span class="prompt">~</span> <span class="cmd">bolt</span> <span class="arg">pull</span> <span style="color:rgba(255,255,255,0.55)">project/a7f3c</span> <span style="color:rgba(255,255,255,0.3)">--out ./local</span></div> <div><span class="out"> ✓ 24 files written to ./local</span></div> <div style="margin-top:4px"><span class="prompt">~</span> <span class="cmd">bolt</span> <span class="arg">chat</span> <span style="color:rgba(255,255,255,0.3)">--project=a7f3c</span></div> <div><span class="out"> Fetching chat history… 14 messages</span></div> <div style="margin-top:4px"><span class="prompt">~</span> <span class="cursor"></span></div> </div> </div> <div class="hero-cta-row"> <a href="#request" class="hero-btn-primary"> <div class="btn-bg-hover"></div> <div class="btn-text-wrap"><div class="btn-text-inner"><span>Request Access</span><span>Request Access</span></div></div> </a> </div> <p class="cli-footnote">Invite-Only. Spots Are Limited.</p> </div> </div> </section><section class="section"> <div class="section-inner">   <div class="unlocks-visual"> <div class="dsa-reveal unlocks-header"> <p class="section-eyebrow eyebrow-scramble">What it unlocks</p> <h2 class="section-headline">Stop bouncing to the browser</h2> <p class="section-sub unlocks-sub">Bring Bolt into the workflow you already have.</p> </div> <div class="unlocks-grid"> <div class="unlock-card"> <canvas class="unlock-hover-canvas" aria-hidden="true"></canvas><span class="unlock-num" aria-hidden="true">01</span> <div class="unlock-icon"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg></div> <h3 class="unlock-title">Your code, in and out</h3> <p class="unlock-desc">Send a local folder up to Bolt, and pull a project back down to your machine. Your editor, your git history, your terminal.</p> </div><div class="unlock-card"> <canvas class="unlock-hover-canvas" aria-hidden="true"></canvas><span class="unlock-num" aria-hidden="true">02</span> <div class="unlock-icon"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42"/></svg></div> <h3 class="unlock-title">Design systems</h3> <p class="unlock-desc">Spin up design systems from your real sources and kick off generation — without leaving the keyboard.</p> </div><div class="unlock-card"> <canvas class="unlock-hover-canvas" aria-hidden="true"></canvas><span class="unlock-num" aria-hidden="true">03</span> <div class="unlock-icon"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"/></svg></div> <h3 class="unlock-title">Your chats, on tap</h3> <p class="unlock-desc">Pull up the full history of any project&#39;s chat whenever you need it, ready to search, save, or hand to another tool.</p> </div><div class="unlock-card"> <canvas class="unlock-hover-canvas" aria-hidden="true"></canvas><span class="unlock-num" aria-hidden="true">04</span> <div class="unlock-icon"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/></svg></div> <h3 class="unlock-title">Built for teams</h3> <p class="unlock-desc">Work in your personal account or your org. Set it once and everything follows, so teammates stay on the same page.</p> </div><div class="unlock-card"> <canvas class="unlock-hover-canvas" aria-hidden="true"></canvas><span class="unlock-num" aria-hidden="true">05</span> <div class="unlock-icon"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg></div> <h3 class="unlock-title">Secure sign-in</h3> <p class="unlock-desc">One browser sign-in and you&#39;re in. No API keys to copy around, nothing secret living in your repo.</p> </div><div class="unlock-card"> <canvas class="unlock-hover-canvas" aria-hidden="true"></canvas><span class="unlock-num" aria-hidden="true">06</span> <div class="unlock-icon"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0021 18V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25z"/></svg></div> <h3 class="unlock-title">Automate anything</h3> <p class="unlock-desc">It&#39;s a CLI, so it scripts. Wire Bolt into your pipelines, cron jobs, and one-off scripts however you like.</p> </div> </div> </div> </div> </section><section class="section how-section" id="how-it-works"> <div class="section-inner"> <div class="how-header dsa-reveal"> <p class="section-eyebrow eyebrow-scramble">Getting in</p> <h2 class="section-headline">Four steps to your first push.</h2> <p class="section-sub">We&#39;re letting people in a batch at a time. Here&#39;s what to expect once you request access.</p> </div> <div class="how-steps-wrap"> <div class="how-line-track"></div> <div class="how-line-fill"></div> <div class="how-line-glow"></div> <div class="how-steps how-steps--four"> <div class="how-step"> <div class="how-step-node"><span class="how-step-number">01</span></div> <h3 class="how-step-title">Request access</h3> <p class="how-step-desc">Drop us your Bolt account email below. Spots in this round are limited.</p> </div><div class="how-step"> <div class="how-step-node"><span class="how-step-number">02</span></div> <h3 class="how-step-title">Get your invite</h3> <p class="how-step-desc">We add you to the beta and send everything you need to set up in a couple of minutes.</p> </div><div class="how-step"> <div class="how-step-node"><span class="how-step-number">03</span></div> <h3 class="how-step-title">Sign in</h3> <p class="how-step-desc">One browser sign-in connects the CLI to your Bolt account. No keys, no fuss.</p> </div><div class="how-step"> <div class="how-step-node"><span class="how-step-number">04</span></div> <h3 class="how-step-title">Start building</h3> <p class="how-step-desc">Push, pull, automate. Then tell us what you love and what we should fix.</p> </div> </div> </div> </div> </section><section class="section ms-faq-section"> <canvas id="faq-pixel-canvas" class="js-faq-pixel-canvas" aria-hidden="true"></canvas> <div class="ms-faq-inner"> <div class="dsa-reveal"> <p class="ms-faq-eyebrow eyebrow-scramble">FAQ</p> <h2 class="ms-faq-headline">Everything you need to know</h2> </div> <div class="ms-faq-list"> <div class="ms-faq-item"> <button class="ms-faq-q">Who&#39;s it for?<span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>  <div class="ms-faq-a"><div class="ms-faq-a-inner"><p>People who&#39;d rather stay in the terminal than the browser, and anyone who wants to automate the Bolt work they do over and over.</p>
+</div></div> </div><div class="ms-faq-item"> <button class="ms-faq-q">How do I get an invite?<span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>  <div class="ms-faq-a"><div class="ms-faq-a-inner"><p>Request access below with the email on your Bolt account. We&#39;re letting people in a batch at a time and will reach out when your spot opens.</p>
+</div></div> </div><div class="ms-faq-item"> <button class="ms-faq-q">Does it cost anything?<span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>  <div class="ms-faq-a"><div class="ms-faq-a-inner"><p>No. The beta is free while we build it out with early users.</p>
+</div></div> </div><div class="ms-faq-item"> <button class="ms-faq-q">Will it work for my team?<span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>  <div class="ms-faq-a"><div class="ms-faq-a-inner"><p>Yes. You can work solo or scope everything to your organization, so it fits whether you&#39;re flying solo or rolling it out to the team.</p>
+</div></div> </div><div class="ms-faq-item"> <button class="ms-faq-q">What if I hit a bug?<span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>  <div class="ms-faq-a"><div class="ms-faq-a-inner"><p>Tell us. That&#39;s the whole point of a private beta, and it&#39;s the fastest way to get the rough edges smoothed out.</p>
+</div></div> </div> </div> </div> </section><section class="footer-section"> <p class="footer-eyebrow eyebrow-scramble">Want in?</p> <div class="dsa-reveal"> <h2 class="footer-headline">Save your seat</h2> </div> <p class="footer-subtitle footer-subtitle-wide">Spots are limited this round. Send the email on your Bolt account and we'll save you a seat.</p>  <div style="position:relative;width:100%;max-width:700px;margin-top:-152px;"> <canvas id="footer-pixel-canvas" class="js-footer-pixel-canvas" style="display:block;width:100%;height:192px;pointer-events:none;opacity:1;"></canvas>  <div class="card-form-strip is-carded js-hs-email-strip" data-hs-form="3037e821-dc14-44d5-9da4-86caa577e85d" style="position:relative;z-index:1;width:100%;margin-top:-32px;"> <div class="card-strip-text"><p class="card-strip-sub">Request private beta access</p></div> <div class="hero-form-row"> <input type="email" class="hero-email-input" placeholder="Your work email"> <button class="hero-cta-button" type="submit"> <div class="btn-bg-hover"></div> <div class="btn-text-wrap"><div class="btn-text-inner"><span>Request Access</span><span>Request Access</span></div></div> </button> </div> </div> </div> <p class="footer-note">Free During Beta · No API Keys Required</p>  <div class="footer-spacer"></div>  </section>
+</main>
 
-<!-- ─── FAQ ───────────────────────────────────────────────────────────────── -->
-<section class="ms-faq-section" id="faq">
-  <canvas id="faq-pixel-canvas" aria-hidden="true"></canvas>
-  <div class="ms-faq-inner">
-    <div class="dsa-reveal">
-      <p class="ms-faq-eyebrow eyebrow-scramble">FAQ</p>
-      <h2 class="ms-faq-headline">Everything you need to know</h2>
-    </div>
-    <div class="ms-faq-list">
+<!-- Subtle divider between the prompt-box CTA and the footer columns -->
+<div class="site-footer-divider" style="max-width:1200px;margin:88px auto 0;padding:0 min(80px, 5vw);box-sizing:border-box;"></div>
 
-      <div class="ms-faq-item">
-        <button class="ms-faq-q">
-          Who's it for?
-          <span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
-        </button>
-        <div class="ms-faq-a"><div class="ms-faq-a-inner">People who'd rather stay in the terminal than the browser, and anyone who wants to automate the Bolt work they do over and over.</div></div>
-      </div>
+<!-- ─── SITE FOOTER (link columns, ported from the Retool footer pattern) ── -->
+<!-- SITE FOOTER — migrated verbatim from the Forge Lite page
+     (bolt.new/bolt-lite SSR output, 2026-09-18). Class names already
+     matched this fork; the only markup deltas were production's finer
+     social icons + .site-footer-social-icon. Two hrefs are deliberately
+     NOT production's: Small Business -> the staging SMB page, and
+     Pricing -> the local sandbox pricing.html. -->
+<footer class="site-footer">
+<div class="site-footer-cols">
+<div class="site-footer-col">
+<p class="site-footer-label">Solutions</p>
+<ul class="site-footer-links">
+<li>
+<a href="https://bolt.new/use-cases/ai-app-builder">AI App Builder</a>
+</li>
+<li>
+<a href="https://bolt.new/use-cases/ai-website-builder">AI Website Builder</a>
+</li>
+<li>
+<a href="https://bolt.new/use-cases/custom-crm-software">SaaS Dev</a>
+</li>
+<li>
+<a href="https://bolt.new/use-cases/ai-prototyping-tools">Prototyping</a>
+</li>
+<li>
+<a href="https://garyliusf.github.io/Enterprise/solutions/smb/">Small Business</a>
+</li>
+<li>
+<a href="https://bolt.new/enterprise">Enterprise</a>
+</li>
+</ul>
+</div>
+<div class="site-footer-col">
+<p class="site-footer-label">Resources</p>
+<ul class="site-footer-links">
+<li>
+<a href="https://bolt.new/blog">Blog</a>
+</li>
+<li>
+<a href="https://discord.com/invite/stackblitz" target="_blank" rel="noopener">Community</a>
+</li>
+<li>
+<a href="https://support.bolt.new" target="_blank" rel="noopener">Help Center</a>
+</li>
+<li>
+<a href="https://bolt.new/platform/security">Security &amp; Trust</a>
+</li>
+<li>
+<a href="https://bolt.new/resources/templates">Templates</a>
+</li>
+</ul>
+</div>
+<div class="site-footer-col">
+<p class="site-footer-label">More</p>
+<ul class="site-footer-links">
+<li>
+<a href="https://bolt.new/careers">Careers</a>
+</li>
+<li>
+<a href="pricing.html">Pricing</a>
+</li>
+<li>
+<a href="https://stackblitz.com/terms-of-service" target="_blank" rel="noopener">Terms of Use</a>
+</li>
+<li>
+<a href="https://stackblitz.com/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>
+</li>
+</ul>
+</div>
+<div class="site-footer-col site-footer-col--connect">
+<p class="site-footer-label">Connect</p>
+<div class="site-footer-social site-footer-social--col">
+<a href="https://x.com/boltdotnew" target="_blank" rel="noopener" aria-label="X (Twitter)">
+<svg viewBox="0 0 14 15" fill="none" class="site-footer-social-icon" aria-hidden="true">
+<path fill="currentColor" d="M10.62 1.813h1.93L8.332 6.63l4.96 6.556H9.409L6.368 9.212l-3.48 3.976H.956l4.509-5.153L.709 1.812H4.69l2.75 3.635 3.18-3.635Zm-.678 10.22h1.07L4.11 2.907H2.962l6.98 9.126Z">
+</path>
+</svg>
+</a>
+<a href="https://www.linkedin.com/company/boltdotnew/" target="_blank" rel="noopener" aria-label="LinkedIn">
+<svg viewBox="0 0 529.6 529.6" class="site-footer-social-icon" aria-hidden="true">
+<path fill="currentColor" d="M451.2 451.2h-78.5V328.3c0-29.3-.5-67-40.8-67s-47.1 31.9-47.1 64.9v125h-78.5V198.5h75.3V233h1.1c15.4-26.3 43.9-41.9 74.3-40.8 79.5 0 94.2 52.3 94.2 120.4v138.6ZM117.8 164c-25.1 0-45.5-20.4-45.5-45.5S92.7 73 117.8 73s45.5 20.4 45.5 45.5-20.4 45.5-45.5 45.5m39.3 287.2H78.5V198.5h78.6v252.7ZM490.4 0H39.1C17.8-.2.3 16.9 0 38.2v453.2c.3 21.3 17.7 38.4 39.1 38.2h451.3c21.4.3 38.9-16.8 39.2-38.2V38.2C529.3 16.8 511.7-.3 490.4 0">
+</path>
+</svg>
+</a>
+<a href="https://discord.com/invite/stackblitz" target="_blank" rel="noopener" aria-label="Discord">
+<svg viewBox="0 0 21 20" fill="none" class="site-footer-social-icon" aria-hidden="true">
+<path fill="currentColor" d="M16.246 4.442a14.154 14.154 0 0 0-3.559-1.108.083.083 0 0 0-.058.025c-.15.275-.325.633-.442.908-1.325-.2-2.674-.2-4 0a8.355 8.355 0 0 0-.45-.908c-.008-.017-.033-.025-.058-.025a14.26 14.26 0 0 0-3.558 1.108c-.009 0-.017.009-.025.017-2.267 3.392-2.892 6.692-2.584 9.958 0 .017.009.034.025.042 1.5 1.1 2.942 1.767 4.367 2.208.025.009.05 0 .058-.016.334-.459.634-.942.892-1.45.017-.034 0-.067-.033-.075-.475-.184-.925-.4-1.367-.65-.033-.017-.033-.067-.008-.092.091-.067.183-.142.275-.208a.051.051 0 0 1 .058-.009c2.867 1.309 5.958 1.309 8.792 0a.051.051 0 0 1 .058.009c.092.075.183.141.275.216.033.025.033.075-.008.092a8.935 8.935 0 0 1-1.367.65c-.033.008-.042.05-.033.075.266.508.566.992.891 1.45.025.008.05.017.075.008a14.416 14.416 0 0 0 4.375-2.208.046.046 0 0 0 .025-.042c.367-3.775-.608-7.05-2.583-9.958-.008-.008-.017-.017-.033-.017Zm-8.959 7.984c-.858 0-1.575-.792-1.575-1.767 0-.975.7-1.767 1.575-1.767.884 0 1.584.8 1.575 1.767 0 .975-.7 1.767-1.575 1.767Zm5.809 0c-.859 0-1.575-.792-1.575-1.767 0-.975.7-1.767 1.575-1.767.883 0 1.583.8 1.575 1.767 0 .975-.692 1.767-1.575 1.767Z">
+</path>
+</svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
 
-      <div class="ms-faq-item">
-        <button class="ms-faq-q">
-          How do I get an invite?
-          <span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
-        </button>
-        <div class="ms-faq-a"><div class="ms-faq-a-inner">Request access below with the email on your Bolt account. We're letting people in a batch at a time and will reach out when your spot opens.</div></div>
-      </div>
-
-      <div class="ms-faq-item">
-        <button class="ms-faq-q">
-          Does it cost anything?
-          <span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
-        </button>
-        <div class="ms-faq-a"><div class="ms-faq-a-inner">No. The beta is free while we build it out with early users.</div></div>
-      </div>
-
-      <div class="ms-faq-item">
-        <button class="ms-faq-q">
-          Will it work for my team?
-          <span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
-        </button>
-        <div class="ms-faq-a"><div class="ms-faq-a-inner">Yes. You can work solo or scope everything to your organization, so it fits whether you're flying solo or rolling it out to the team.</div></div>
-      </div>
-
-      <div class="ms-faq-item">
-        <button class="ms-faq-q">
-          What if I hit a bug?
-          <span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
-        </button>
-        <div class="ms-faq-a"><div class="ms-faq-a-inner">Tell us. That's the whole point of a private beta, and it's the fastest way to get the rough edges smoothed out.</div></div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- ─── FOOTER ────────────────────────────────────────────────────────────── -->
-<section class="footer-section" id="request">
-  <p class="footer-eyebrow eyebrow-scramble">Want in?</p>
-  <div class="dsa-reveal"><!-- footer H2 + subtitle join the word reveal -->
-    <h2 class="footer-headline">Save your seat</h2>
-    <p class="footer-subtitle">Spots are limited this round. Send the email on your Bolt account and we'll save you a seat.</p>
-  </div>
-
-  <div style="position:relative;width:100%;max-width:700px;margin-top:-152px;">
-    <canvas id="footer-pixel-canvas" style="display:block;width:100%;height:192px;pointer-events:none;opacity:1;"></canvas>
-    <div class="card-form-strip is-carded footer-cta-strip" style="position:relative;z-index:1;width:100%;">
-      <div class="card-strip-text"><p class="card-strip-sub">Request private beta access</p></div>
-      <form class="hero-form-row" id="cli-beta-form">
-        <input type="email" name="email" class="hero-email-input" placeholder="Your work email" required />
-        <button class="hero-cta-button" type="submit">
-          <div class="btn-bg-hover"></div>
-          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Request Access</span><span>Request Access</span></div></div>
-        </button>
-      </form>
-      <p class="card-strip-success" style="display:none;font-size:14px;font-weight:500;color:#90F7D8;margin:0;flex:1 1 320px;text-align:center;">Thanks — you're on the list. We'll be in touch.</p>
-    </div>
-  </div>
-  <p style="margin-top:-8px;font-size:13px;font-weight:600;color:#90F7D8;">Free During Beta &nbsp;·&nbsp; No API Keys Required</p>
-
-  <div class="bolt-image-wrap" style="margin-top:0;width:100%;overflow:hidden;position:relative;height:32vw;max-height:32vw;">
-    <img src="../images/bolt-bottom.png" alt="bolt" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;opacity:0.20;">
-    <canvas id="bolt-shimmer-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;mix-blend-mode:screen;"></canvas>
-    <div style="position:absolute;inset:0;background:linear-gradient(to bottom, #000 0%, transparent 22%, transparent 88%, #000 100%);z-index:3;"></div>
+<!-- bolt wordmark — moved out of .footer-section so the site-footer link
+     columns sit above it (matches the templates pages' footer order) -->
+<section class="footer-image-section">
+  <div class="bolt-image-wrap">
+    <img id="bolt-wordmark-img" src="../images/bolt-bottom-light.webp" alt="bolt" decoding="async" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;opacity:0.20;">
+    <canvas id="bolt-shimmer-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;"></canvas>
+    <div style="position:absolute;inset:0;background:linear-gradient(to bottom, var(--sc-ground) 0%, transparent 22%, transparent 88%, var(--sc-ground) 100%);z-index:3;"></div>
   </div>
 </section>
 
 <script>
-// ── Hero pixel dots ───────────────────────────────────────────────────────────
-(function() {
-  const canvas = document.getElementById('hero-pixel-dots');
+// ── Generic pixel canvas helper (verbatim security-agent) ────────────────────
+function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
+  const canvas = document.getElementById(id);
+  if (!canvas) return;
+  /* Pass 'theme' (or nothing) to follow the --sc-dot-rgb token instead of a
+     hard-coded triplet: the dots then re-tint with the theme, and a canvas
+     inside a .sc-on-dark section reads that section's value rather than the
+     page's. Anything else is taken literally — effects painted over dark art
+     (the hero field, the footer wave) keep their own colour in both themes. */
+  const fixed = (color && color !== 'theme') ? color : null;
+  let dotRGB = fixed || '20,136,252';
+  function readDot() {
+    if (fixed) return;
+    /* shared-components.css is linked at the END of <body>, so the token can
+       still be unresolved when this runs — readDot() is re-called from
+       resize(), which fires on 'load' when the stylesheet is definitely in. */
+    const v = getComputedStyle(canvas).getPropertyValue('--sc-dot-rgb').trim();
+    if (v) dotRGB = v;
+  }
+  readDot();
+  if (!fixed && window.matchMedia) {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const onChange = function () { readDot(); };
+    if (mq.addEventListener) mq.addEventListener('change', onChange);
+    else if (mq.addListener) mq.addListener(onChange);
+    document.addEventListener('sc-themechange', onChange);
+  }
+  let phases = [];
+  function buildPhases(cols, rows) {
+    phases = Array.from({ length: rows }, () => Array.from({ length: cols }, () => Math.random() * Math.PI * 2));
+  }
+  function resize() {
+    const parent = canvas.parentElement;
+    const w = parent.offsetWidth || parent.getBoundingClientRect().width;
+    const h = parent.offsetHeight || parent.getBoundingClientRect().height;
+    if (!w || !h) return;
+    canvas.width = Math.round(w); canvas.height = Math.round(h);
+    readDot();
+    buildPhases(Math.ceil(w / spacing), Math.ceil(h / spacing));
+  }
+  window.addEventListener('load', resize); window.addEventListener('resize', resize);
+  new ResizeObserver(function() { resize(); }).observe(canvas.parentElement);
+  requestAnimationFrame(function() { resize(); });
+  function draw(t) {
+    const w = canvas.width, h = canvas.height;
+    if (!w || !h) { requestAnimationFrame(draw); return; }
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, w, h);
+    const cols = Math.ceil(w / spacing); const rows = Math.ceil(h / spacing);
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const phase = (phases[r] && phases[r][c]) || 0;
+        const op = waveFn(c, r, t, phase) * opacity;
+        if (op < 0.04) continue;
+        ctx.fillStyle = `rgba(${dotRGB},${op.toFixed(3)})`;
+        ctx.fillRect(c * spacing, r * spacing, dot, dot);
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+}
+
+
+function attachSkylineDots(canvas) {
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   const SPACING = 11, DOT = 2;
@@ -817,462 +817,508 @@ body { background: #000; font-family: 'Inter', sans-serif; overflow-x: hidden; }
     requestAnimationFrame(draw);
   }
   requestAnimationFrame(draw);
-})();
+}
+document.querySelectorAll('.js-msh-dots, .js-cli-dots').forEach(attachSkylineDots);
 
-// ── How-it-works line ─────────────────────────────────────────────────────────
-(function() {
-  var wrap = document.getElementById('how-steps-wrap');
-  if (!wrap) return;
-  var isMobile = window.innerWidth <= 540;
-
-  if (isMobile) {
-    // Reveal each step card with its own blur-in animation as it scrolls into view
-    wrap.querySelectorAll('.how-step').forEach(function(step) {
-      var stepObs = new IntersectionObserver(function(entries) {
-        if (entries[0].isIntersecting) {
-          step.classList.add('step-revealed');
-          stepObs.disconnect();
-        }
-      }, { threshold: 0.2 });
-      stepObs.observe(step);
-    });
-  } else {
-    function activate() {
-      wrap.style.setProperty('--glow-dist', (wrap.offsetWidth - 80) + 'px');
-      wrap.classList.add('line-active');
+/* ── Unlock card hover noise — exact microsoft.html feat-hover-canvas ───── */
+(function () {
+  var dpr = window.devicePixelRatio || 1;
+  function drawHoverNoise(canvas) {
+    var w = Math.round(canvas.offsetWidth * dpr);
+    var h = Math.round(canvas.offsetHeight * dpr);
+    if (!w || !h) return;
+    canvas.width = w; canvas.height = h;
+    canvas.style.width = canvas.offsetWidth + 'px';
+    canvas.style.height = canvas.offsetHeight + 'px';
+    var ctx = canvas.getContext('2d');
+    var imgData = ctx.createImageData(w, h);
+    for (var i = 0; i < imgData.data.length; i += 4) {
+      var v = Math.floor(Math.random() * 80 + 30);
+      imgData.data[i] = v; imgData.data[i+1] = v; imgData.data[i+2] = v; imgData.data[i+3] = 255;
     }
-    var obs = new IntersectionObserver(function(entries) {
-      if (entries[0].isIntersecting) { activate(); obs.disconnect(); }
-    }, { threshold: 0.15 });
-    obs.observe(wrap);
+    ctx.putImageData(imgData, 0, 0);
   }
-})();
-
-// ── Eyebrow scramble ──────────────────────────────────────────────────────────
-(function() {
-  var CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  function scrambleEyebrow(el) {
-    var original = el.textContent; var chars = original.split(''); var total = chars.length;
-    el.style.whiteSpace = 'nowrap'; el.style.display = 'inline-block';
-    el.style.minWidth = el.getBoundingClientRect().width + 'px';
-    var locked = new Array(total).fill(false); var startTime = null; var duration = 500;
-    function phase1(ts) {
-      if (!startTime) startTime = ts;
-      var progress = Math.min((ts - startTime) / duration, 1);
-      var result = '', allDone = true;
-      for (var i = 0; i < total; i++) {
-        if (chars[i] === ' ') { locked[i] = true; result += ' '; continue; }
-        if (!locked[i] && progress >= (i / total) * 0.85) locked[i] = true;
-        if (locked[i]) { result += chars[i]; } else { allDone = false; result += CHARS[Math.floor(Math.random() * CHARS.length)]; }
-      }
-      el.textContent = result;
-      if (!allDone || progress < 1) { requestAnimationFrame(phase1); }
-      else { el.textContent = original; setTimeout(function() { locked = new Array(total).fill(false); startTime = null; requestAnimationFrame(phase1); }, 4000 + Math.random() * 1000); }
-    }
-    requestAnimationFrame(phase1);
-  }
-  var observer = new IntersectionObserver(function(entries) {
-    entries.forEach(function(entry) {
-      if (entry.isIntersecting) { observer.unobserve(entry.target); setTimeout(function() { scrambleEyebrow(entry.target); }, 80); }
-    });
-  }, { threshold: 0.5 });
-  document.querySelectorAll('.eyebrow-scramble, .footer-eyebrow').forEach(function(el) { observer.observe(el); });
-})();
-
-// ── FAQ halftone half-sun ─────────────────────────────────────────────────────
-(function() {
-  var canvas = document.getElementById('faq-pixel-canvas');
-  if (!canvas) return;
-  var ctx = canvas.getContext('2d');
-  var SPACING = 9, W, H, cx, cy, maxR, intensity, t = 0, resizeTimer;
-  function resize() {
-    var r = canvas.parentElement.getBoundingClientRect();
-    W = canvas.width = Math.round(r.width);
-    H = canvas.height = Math.round(r.height);
-    cx = W * 0.5;
-    /* On mobile, anchor the glow to width (identical across pages regardless of
-       section height) and pin its center just below the section bottom so the
-       glow size/position matches between pages that differ only in question count.
-       Keep it a faint bottom accent: smaller disc pushed further below the edge,
-       so it never washes up into the FAQ text and hurts readability. */
-    var isMobile = W <= 768;
-    cy        = isMobile ? (H + W * 0.30) : (H * 1.22);
-    maxR      = isMobile ? (W * 0.50)     : (H * 0.42);
-    intensity = isMobile ? 0.78           : 0.78;
-  }
-  window.addEventListener('resize', function() { clearTimeout(resizeTimer); resizeTimer = setTimeout(resize, 200); });
-  resize();
-  function draw() {
-    t += 0.028;
-    var breathe = 0.80 + Math.sin(t)*0.07 + Math.sin(t*2.7)*0.04 + Math.sin(t*0.53)*0.04;
-    if (!W || !H) { requestAnimationFrame(draw); return; }
-    ctx.clearRect(0, 0, W, H);
-    var cols = Math.ceil(W / SPACING) + 1;
-    var rows = Math.ceil(H / SPACING) + 1;
-    for (var r = 0; r < rows; r++) {
-      for (var c = 0; c < cols; c++) {
-        var px = c * SPACING, py = r * SPACING;
-        var dx = px - cx, dy = py - cy;
-        var dist = Math.sqrt(dx*dx + dy*dy);
-        if (dist > maxR) continue;
-        var norm = dist / maxR;
-        var seed = Math.sin(c * 127.1 + r * 311.7) * 43758.5453;
-        var noise = (seed - Math.floor(seed)) - 0.5;
-        var ripple = Math.sin(t * 1.8 - norm * 6.0 + noise * 2.0) * 0.06;
-        var localBreath = breathe + ripple + noise * 0.05;
-        var dotSize = SPACING * Math.pow(Math.max(0, 1 - norm), 0.9) * localBreath;
-        if (dotSize < 0.5) continue;
-        dotSize = Math.min(dotSize, SPACING);
-        var op = Math.pow(Math.max(0, 1 - norm), 0.6) * localBreath * intensity;
-        if (op < 0.02) continue;
-        var rr, gg, bb, p;
-        if (norm < 0.28) {
-          p = norm / 0.28;
-          rr = Math.round(255 + (127-255)*p); gg = Math.round(176 + (221-176)*p); bb = Math.round(147 + (193-147)*p);
-        } else if (norm < 0.58) {
-          p = (norm-0.28)/0.30;
-          rr = Math.round(127 + (20-127)*p); gg = Math.round(221 + (136-221)*p); bb = Math.round(193 + (252-193)*p);
-        } else {
-          p = (norm-0.58)/0.42;
-          rr = Math.round(20 + (255-20)*p*0.25); gg = Math.round(136 + (176-136)*p*0.25); bb = Math.round(252 + (147-252)*p*0.25);
-        }
-        var half = dotSize * 0.5;
-        ctx.fillStyle = 'rgba('+rr+','+gg+','+bb+','+op.toFixed(3)+')';
-        ctx.fillRect(px - half, py - half, dotSize, dotSize);
-      }
-    }
-    requestAnimationFrame(draw);
-  }
-  requestAnimationFrame(draw);
-})();
-
-// ── FAQ accordion ─────────────────────────────────────────────────────────────
-(function() {
-  document.querySelectorAll('.ms-faq-item').forEach(function(item) {
-    var btn = item.querySelector('.ms-faq-q');
-    btn.addEventListener('click', function() {
-      var isOpen = item.classList.contains('is-open');
-      // single-open accordion; CSS grid-template-rows handles the smooth expand
-      document.querySelectorAll('.ms-faq-item.is-open').forEach(function(o) { o.classList.remove('is-open'); });
-      if (!isOpen) item.classList.add('is-open');
+  requestAnimationFrame(function () {
+    requestAnimationFrame(function () {
+      document.querySelectorAll('.unlock-hover-canvas').forEach(drawHoverNoise);
     });
   });
 })();
 
-// ── Generic pixel canvas helper ───────────────────────────────────────────────
-function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
-  color = color || '20,136,252';
-  const canvas = document.getElementById(id);
-  if (!canvas) return;
-  let phases = [];
-  function buildPhases(cols, rows) {
-    phases = Array.from({ length: rows }, () => Array.from({ length: cols }, () => Math.random() * Math.PI * 2));
-  }
-  function resize() {
-    const parent = canvas.parentElement;
-    const w = parent.offsetWidth || parent.getBoundingClientRect().width;
-    const h = parent.offsetHeight || parent.getBoundingClientRect().height;
-    if (!w || !h) return;
-    canvas.width = Math.round(w); canvas.height = Math.round(h);
-    buildPhases(Math.ceil(w / spacing), Math.ceil(h / spacing));
-  }
-  window.addEventListener('load', resize); window.addEventListener('resize', resize);
-  new ResizeObserver(function() { resize(); }).observe(canvas.parentElement);
-  requestAnimationFrame(function() { resize(); });
-  function draw(t) {
-    const w = canvas.width, h = canvas.height;
-    if (!w || !h) { requestAnimationFrame(draw); return; }
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, w, h);
-    const cols = Math.ceil(w / spacing); const rows = Math.ceil(h / spacing);
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        const phase = (phases[r] && phases[r][c]) || 0;
-        const op = waveFn(c, r, t, phase) * opacity;
-        if (op < 0.04) continue;
-        ctx.fillStyle = `rgba(${color},${op.toFixed(3)})`;
-        ctx.fillRect(c * spacing, r * spacing, dot, dot);
+/* Light: the compliance family's hover dot field on each unlock card
+   (attachHoverField from marketing/compliance.html). The canvas is injected
+   here and display:none on dark, where the page's own hover-noise runs. */
+(function () {
+  function attachHoverField(tile, canvas, idx) {
+    var ctx = canvas.getContext('2d');
+    var SPACING = 9, DOT = 2, cols = 0, rows = 0, phases = [], hovered = false, t = 0;
+    var phase = idx * 1.7;
+    function resize() {
+      var w = tile.offsetWidth, h = tile.offsetHeight; if (!w || !h) return;
+      canvas.width = w; canvas.height = h;
+      cols = Math.ceil(w / SPACING) + 1; rows = Math.ceil(h / SPACING) + 1;
+      phases = Array.from({ length: rows }, function() { return Array.from({ length: cols }, function() { return Math.random() * Math.PI * 2; }); });
+    }
+    try { new ResizeObserver(resize).observe(tile); } catch(e) {}
+    requestAnimationFrame(resize);
+    tile.addEventListener('mouseenter', function() { hovered = true; });
+    tile.addEventListener('mouseleave', function() { hovered = false; });
+    function draw() {
+      if (!hovered || !cols) { requestAnimationFrame(draw); return; }
+      t += 0.03;
+      var W = canvas.width, H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+      var angle = t * 0.16 + phase;
+      var ca = Math.cos(angle), sa = Math.sin(angle);
+      for (var r = 0; r < rows; r++) {
+        for (var c = 0; c < cols; c++) {
+          var px = c * SPACING, py = r * SPACING;
+          var ph = (phases[r] && phases[r][c]) || 0;
+          var u = (px * ca + py * sa) / 58;
+          var wave = Math.sin(u + t + ph) * Math.cos((px * -sa + py * ca) / 90 + t * 0.6);
+          var hFade = px / W;
+          var op = Math.max(0, wave) * 0.55 * hFade;
+          if (op < 0.04) continue;
+          ctx.fillStyle = 'rgba(60,140,235,' + op.toFixed(3) + ')';
+          ctx.fillRect(px, py, DOT, DOT);
+        }
       }
+      requestAnimationFrame(draw);
     }
     requestAnimationFrame(draw);
   }
-  requestAnimationFrame(draw);
-}
-
-// ── Footer pixel canvas ───────────────────────────────────────────────────────
-window.addEventListener('load', function() {
-  makePixelCanvas('footer-pixel-canvas', 6, 2,
-    function(c, r, t, p) {
-      const px = c * 6, py = r * 6;
-      const el = document.getElementById('footer-pixel-canvas');
-      const H = el ? el.height : 260, W = el ? el.width : 700;
-      const vFade = Math.max(0, 1 - py / (H * 0.85));
-      const cx = W / 2, hFade = Math.max(0, 1 - Math.abs(px - cx) / (W * 0.55));
-      const fade = vFade * hFade; if (fade <= 0) return 0;
-      const speedMod = 0.05 + (Math.sin(t * 0.00070 + 2.2) * 0.5 + 0.5) * 0.22;
-      function rwave(scale, rotRate, phase, tMult) {
-        const angle = t * rotRate + phase;
-        const u = (px * Math.cos(angle) + py * Math.sin(angle)) / scale;
-        const v = (-px * Math.sin(angle) + py * Math.cos(angle)) / scale;
-        return Math.sin(u * Math.PI * 2 + t * tMult * speedMod) * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7 * speedMod);
-      }
-      const s1 = rwave(300,0.00012,0.3,0.00030), s2 = rwave(160,0.00025,1.6,0.00065);
-      const s3 = rwave(80,0.00042,2.9,0.00130), s4 = rwave(220,0.00018,4.2,0.00048);
-      const wf = s1 * 0.5 + 0.5, det = s2 * 0.45 + s3 * 0.30 + s4 * 0.25;
-      const raw = wf * (det * 0.5 + 0.5), density = Math.pow(Math.max(0, raw), 0.7) * fade;
-      const rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
-      return density > rand ? density * 0.85 : 0;
-    }, 1.0, '220,230,245');
-});
-
-// ── Pixel-fill button hover ───────────────────────────────────────────────────
-(function() {
-  function attach(btn, color) {
-    if (btn.__pixelized) return; btn.__pixelized = true; btn.classList.add('btn-pixelized');
-    var canvas = document.createElement('canvas'); canvas.className = 'btn-pixel-canvas';
-    btn.insertBefore(canvas, btn.firstChild);
-    var ctx = canvas.getContext('2d'); var spacing = 4, dot = 2; var cols = 0, rows = 0, noise = [];
-    function resize() {
-      var r = btn.getBoundingClientRect(); if (!r.width || !r.height) return;
-      canvas.width = Math.round(r.width); canvas.height = Math.round(r.height);
-      cols = Math.ceil(canvas.width / spacing); rows = Math.ceil(canvas.height / spacing);
-      noise = new Array(rows);
-      for (var y = 0; y < rows; y++) { noise[y] = new Array(cols); for (var x = 0; x < cols; x++) { var bias = 1 - (y / Math.max(1, rows - 1)); noise[y][x] = bias * 0.55 + Math.random() * 0.55; } }
-      draw();
-    }
-    try { new ResizeObserver(resize).observe(btn); } catch(e) {}
-    window.addEventListener('resize', resize); requestAnimationFrame(resize);
-    var progress = 0, target = 0, raf = null, last = 0;
-    function tick(t) {
-      if (!last) last = t; var dt = Math.min(0.05, (t - last) / 1000); last = t;
-      progress += (target - progress) * Math.min(1, dt * 8);
-      if (Math.abs(target - progress) < 0.003) progress = target;
-      draw();
-      if (progress !== target) { raf = requestAnimationFrame(tick); } else { raf = null; last = 0; if (target === 1) flickerLoop(); }
-    }
-    function flickerLoop() { requestAnimationFrame(function step() { if (target !== 1) return; draw(true); setTimeout(function() { requestAnimationFrame(step); }, 120); }); }
-    function draw(flicker) {
-      if (!canvas.width) return; ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.fillStyle = color;
-      var threshold = progress * 1.3;
-      for (var y = 0; y < rows; y++) {
-        for (var x = 0; x < cols; x++) {
-          var n = noise[y][x]; if (n < threshold) {
-            if (flicker && target === 1 && Math.random() < 0.015) continue;
-            var edge = threshold - n; if (edge < 0.08 && Math.random() < 0.45) continue;
-            ctx.fillRect(x * spacing, y * spacing, dot, dot);
-          }
-        }
-      }
-    }
-    btn.addEventListener('mouseenter', function() { target = 1; if (!raf) { last = 0; raf = requestAnimationFrame(tick); } });
-    btn.addEventListener('mouseleave', function() { target = 0; if (!raf) { last = 0; raf = requestAnimationFrame(tick); } });
-  }
-  function init() {
-    document.querySelectorAll('.hero-cta-button').forEach(function(b) { attach(b, '#0a5aa8'); });
-    document.querySelectorAll('.hero-btn-primary').forEach(function(b) { attach(b, '#0a5aa8'); });
-    document.querySelectorAll('.hero-btn-ghost').forEach(function(b) { attach(b, 'rgba(255,255,255,0.18)'); });
-  }
-  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); }
+  document.querySelectorAll('.unlock-card').forEach(function (el, i) {
+    var cv = document.createElement('canvas'); cv.className = 'unlock-field-canvas'; cv.setAttribute('aria-hidden', 'true');
+    el.insertBefore(cv, el.firstChild); attachHoverField(el, cv, i);
+  });
 })();
 
-// ── Bolt strip shimmer ────────────────────────────────────────────────────────
-(function() {
+// ── Hero dither (BOTH themes, every hero variant) — the family's ordered Bayer
+//    field. Light: white squares over the dome. Dark: the pale crown.
+(function () {
+  var BAYER = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]];
+  var light = true;
+  function readTheme() { light = document.documentElement.getAttribute('data-theme') !== 'dark'; }
+  readTheme(); document.addEventListener('sc-themechange', readTheme);
+  document.querySelectorAll('.hero-dither').forEach(function (canvas) {
+    var ctx = canvas.getContext('2d'), CELL = 5, SQ = 2, cols, rows, start = null;
+    function init() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; cols = Math.ceil(canvas.width / CELL) + 1; rows = Math.ceil(canvas.height / CELL) + 1; }
+    window.addEventListener('resize', init); init(); document.addEventListener('sc-themechange', init);
+    function draw(ts) {
+      if (!start) start = ts;
+      var t = (ts - start) / 1000, W = canvas.width, H = canvas.height;
+      if (!W || !H) { init(); requestAnimationFrame(draw); return; }
+      ctx.clearRect(0, 0, W, H);
+      for (var r = 0; r < rows; r++) {
+        var gy = r / rows, base = 1 - gy / (light ? 0.98 : 0.85);
+        if (base <= 0) continue;
+        base = light ? Math.pow(base, 0.75) : base * base;
+        for (var c = 0; c < cols; c++) {
+          var gx = c / cols;
+          var wave = Math.sin(gx * 4.1 + gy * 6.3 - t * 0.95) * 0.5 + Math.sin(gx * 7.7 - gy * 3.1 + t * 0.62) * 0.28;
+          var hm = 1 - Math.pow(Math.abs(gx - 0.5) * 2, 2.2) * 0.85;
+          if (base * hm + wave * 0.38 <= (BAYER[r & 3][c & 3] + 0.5) / 16) continue;
+          ctx.fillStyle = 'rgba(' + (light ? '255,255,255' : '160,185,230') + ',' + (0.085 + base * 0.13).toFixed(3) + ')';
+          ctx.fillRect(c * CELL, r * CELL, SQ, SQ);
+        }
+      }
+      requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
+  });
+})();
+
+/* ── Email-capture strip → HubSpot (.js-hs-email-strip[data-hs-form]) ─────────
+   Restores the CLI page's access-request submission (the handler lived in the
+   deleted standalone route's wrapper — MKT-480 regression, caught in review).
+   Ported verbatim from that wrapper, class-first + per-strip form GUID so the
+   footer-cta email variant works on any page with its own HubSpot form. */
+(function () {
+  var HUBSPOT_PORTAL = '45403856';
+  function setButtonText(button, text) {
+    button.querySelectorAll('.btn-text-inner span').forEach(function (s) { s.textContent = text; });
+  }
+  function showSuccess(row, message) {
+    if (row.style.position !== 'relative') row.style.position = 'relative';
+    var overlay = row.querySelector('.ep-form-overlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.className = 'ep-form-overlay';
+      overlay.style.cssText =
+        'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;' +
+        'background:#000;color:#fff;font-size:15px;font-weight:500;font-family:Inter,sans-serif;' +
+        'text-align:center;padding:0 16px;z-index:5;border-radius:inherit;';
+      row.appendChild(overlay);
+    }
+    overlay.textContent = message;
+  }
+  function wireStrip(strip) {
+    var formId = strip.getAttribute('data-hs-form');
+    var row = strip.querySelector('.hero-form-row');
+    if (!formId || !row || row.dataset.wired) return;
+    var input = row.querySelector('input[type="email"]');
+    var button = row.querySelector('.hero-cta-button');
+    if (!input || !button) return;
+    row.dataset.wired = '1';
+    button.setAttribute('type', 'button');
+    var endpoint = 'https://api.hsforms.com/submissions/v3/integration/submit/' + HUBSPOT_PORTAL + '/' + formId;
+    function submitToHubspot(email) {
+      var hutk = (document.cookie.match(/hubspotutk=([^;]+)/) || [])[1];
+      var context = { pageUri: window.location.href, pageName: document.title };
+      if (hutk) context.hutk = hutk;
+      return fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fields: [{ name: 'email', value: email }], context: context }),
+      }).then(function (res) { return res.ok; });
+    }
+    var inFlight = false;
+    var done = false;
+    function handleSubmit() {
+      // the Enter-key path doesn't respect button.disabled — a single flag
+      // guards both entry points against double POSTs (review: greptile P1)
+      if (inFlight || done) return;
+      var email = (input.value || '').trim();
+      if (!/^\S+@\S+\.\S+$/.test(email)) { input.focus(); return; }
+      var first = button.querySelector('.btn-text-inner span');
+      var original = (first && first.textContent) || 'Request Access';
+      inFlight = true;
+      button.disabled = true;
+      setButtonText(button, 'Submitting…');
+      submitToHubspot(email).catch(function () { return false; }).then(function (ok) {
+        if (ok) {
+          done = true;
+          showSuccess(row, "Thanks — you're on the list. We'll be in touch.");
+          input.value = '';
+        } else {
+          setButtonText(button, 'Try again');
+          setTimeout(function () { button.disabled = false; setButtonText(button, original); inFlight = false; }, 2000);
+        }
+      });
+    }
+    button.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); handleSubmit(); }, true);
+    input.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); handleSubmit(); } });
+  }
+  document.querySelectorAll('.js-hs-email-strip').forEach(wireStrip);
+})();
+
+/* ── FAQ section field — breathing brand-blue wave, both themes ── */
+makePixelCanvas('faq-pixel-canvas', 9, 2, function (c, r, t, p) {
+  var el = document.getElementById('faq-pixel-canvas');
+  if (!el) return 0;
+  var H = el.height, W = el.width;
+  var px = c * 9, py = r * 9;
+  var cx = W / 2, cy = H * 1.22;
+  var dx = px - cx, dy = py - cy;
+  var dist = Math.sqrt(dx*dx + dy*dy) / (Math.max(W, H) * 0.9);
+  var breath = Math.sin(t * 0.0006) * 0.5 + 0.5;
+  var ripple = Math.sin(dist * 10 - t * 0.0012) * 0.5 + 0.5;
+  var fade = Math.max(0, 1 - dist * 1.4);
+  return fade * (0.08 + breath * 0.06 + ripple * 0.12);
+}, 1.0, '20,136,252');
+
+/* ── Footer field — rotating multi-wave; theme colour ── */
+makePixelCanvas('footer-pixel-canvas', 6, 2, function (c, r, t, p) {
+  var px = c * 6, py = r * 6;
+  var el = document.getElementById('footer-pixel-canvas');
+  var H = el ? el.height : 260, W = el ? el.width : 700;
+  var vFade = Math.max(0, 1 - py / (H * 0.85));
+  var cx = W / 2, hFade = Math.max(0, 1 - Math.abs(px - cx) / (W * 0.55));
+  var fade = vFade * hFade; if (fade <= 0) return 0;
+  var speedMod = 0.05 + (Math.sin(t * 0.00070 + 2.2) * 0.5 + 0.5) * 0.22;
+  function rwave(scale, rotRate, phase, tMult) {
+    var angle = t * rotRate + phase;
+    var u = (px * Math.cos(angle) + py * Math.sin(angle)) / scale;
+    var v = (-px * Math.sin(angle) + py * Math.cos(angle)) / scale;
+    return Math.sin(u * Math.PI * 2 + t * tMult * speedMod) * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7 * speedMod);
+  }
+  var s1 = rwave(300,0.00012,0.3,0.00030), s2 = rwave(160,0.00025,1.6,0.00065);
+  var s3 = rwave(80,0.00042,2.9,0.00130), s4 = rwave(220,0.00018,4.2,0.00048);
+  var wf = s1 * 0.5 + 0.5, det = s2 * 0.45 + s3 * 0.30 + s4 * 0.25;
+  var raw = wf * (det * 0.5 + 0.5), density = Math.pow(Math.max(0, raw), 0.7) * fade;
+  var rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
+  return density > rand ? density * 0.85 : 0;
+}, 1.0, 'theme');
+
+/* ── How it works — line-draw + node/text reveal on scroll ── */
+(function () {
+  var wrap = document.querySelector('.how-steps-wrap');
+  if (!wrap) return;
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) { wrap.classList.add('line-active'); io.unobserve(wrap); }
+    });
+  }, { threshold: 0.3 });
+  io.observe(wrap);
+  wrap.style.setProperty('--glow-dist', wrap.offsetWidth + 'px');
+})();
+
+/* ── FAQ accordion toggle ── */
+(function () {
+  document.querySelectorAll('.ms-faq-item').forEach(function (item) {
+    var q = item.querySelector('.ms-faq-q');
+    if (!q) return;
+    q.addEventListener('click', function () { item.classList.toggle('is-open'); });
+  });
+})();
+
+// ── Bolt strip shimmer ───────────────────────────────────────────────────────
+// Faithful vanilla port of production's FooterWordmark
+// (bolt-public-pages src/components/chrome/FooterWordmark.tsx), which is the
+// component the Forge Lite footer uses. The sandbox had a FORK of this that
+// drifted; every difference between them turned out to be a bug. Re-port from
+// the component, do not hand-tune here.
+//
+// Deltas from production, both deliberate:
+//   · theme switching: production picks light/dark once per render, this
+//     re-initialises on sc-themechange so the preview toggle works.
+//   · window.__shimmer debug hook.
+(function () {
   var canvas = document.getElementById('bolt-shimmer-canvas');
   if (!canvas) return;
   var wrap = canvas.parentElement;
-  var ctx = canvas.getContext('2d');
   var img = wrap.querySelector('img');
-  var W, H, strips = [], t = 0;
-  var hoverT = 0, isHovered = false, splashT = 0, splashStart = null, splashDuration = 300;
-  var observer = new IntersectionObserver(function(entries) {
-    if (entries[0].isIntersecting && !splashStart) { splashStart = Date.now(); observer.disconnect(); }
-  }, { threshold: 0.1 });
-  observer.observe(wrap);
-  function sampleStrips() {
-    var SW = 400, SH = 200;
-    var s = document.createElement('canvas'); s.width = SW; s.height = SH;
-    var sc = s.getContext('2d');
-    try { sc.drawImage(img, 0, 0, SW, SH); } catch(e) { return; }
-    var data; try { data = sc.getImageData(0, 0, SW, SH).data; } catch(e) { return; }
-    strips = []; var inStrip = false, stripStart = 0;
-    for (var x = 0; x < SW; x++) {
-      var b = 0;
-      for (var y = 20; y < SH - 20; y++) { var idx = (y * SW + x) * 4; b += (data[idx] + data[idx+1] + data[idx+2]) / 3; }
-      b /= (SH - 40);
-      if (b > 28 && !inStrip) { inStrip = true; stripStart = x; }
-      else if (b <= 28 && inStrip) {
+  var ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  var WORDMARK_SRC = '../images/bolt-bottom.png';
+  var WORDMARK_LIGHT_SRC = '../images/bolt-bottom-light.webp';
+  var SAMPLE_WIDTH = 400, SAMPLE_HEIGHT = 200, SAMPLE_WIDTH_FINE = 1600;
+  var STRIP_BRIGHTNESS_THRESHOLD = 28;
+  var HOVER_SPLASH_DURATION_MS = 300, TOUCH_SPLASH_DURATION_MS = 1500;
+
+  /* production bails entirely under reduced motion */
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+  var splashDuration = isTouch ? TOUCH_SPLASH_DURATION_MS : HOVER_SPLASH_DURATION_MS;
+
+  var strips = [], inView = false, width = 0, height = 0;
+  var time = Math.random() * 80, hoverAmount = 0, isHovered = false;
+  var splashStart, frame, light = false, frames = 0, lastError = null;
+
+  function isLight() { return document.documentElement.getAttribute('data-theme') !== 'dark'; }
+
+  function sampleStrips(image) {
+    var sampleWidth = light ? SAMPLE_WIDTH_FINE : SAMPLE_WIDTH;
+    var scratch = document.createElement('canvas');
+    scratch.width = sampleWidth; scratch.height = SAMPLE_HEIGHT;
+    var c = scratch.getContext('2d', { willReadFrequently: true });
+    if (!c) return [];
+    c.drawImage(image, 0, 0, sampleWidth, SAMPLE_HEIGHT);
+    var data = c.getImageData(0, 0, sampleWidth, SAMPLE_HEIGHT).data;
+    var out = [], inStrip = false, stripStart = 0;
+    for (var x = 0; x < sampleWidth; x++) {
+      var brightness = 0;
+      for (var y = 20; y < SAMPLE_HEIGHT - 20; y++) {
+        var i = (y * sampleWidth + x) * 4;
+        var lum = (data[i] + data[i + 1] + data[i + 2]) / 3;
+        brightness += light ? 255 - lum : lum;   /* light art is ink-on-white */
+      }
+      brightness /= SAMPLE_HEIGHT - 40;
+      if (brightness > STRIP_BRIGHTNESS_THRESHOLD && !inStrip) { inStrip = true; stripStart = x; }
+      else if (brightness <= STRIP_BRIGHTNESS_THRESHOLD && inStrip) {
         inStrip = false;
-        strips.push({ cx: (stripStart + x) / 2 / SW, w: (x - stripStart) / SW,
-          phase: Math.random() * Math.PI * 2, freq: 0.5 + Math.random() * 1.2,
-          yPhase: Math.random() * Math.PI * 2, yFreq: 0.35 + Math.random() * 0.7,
-          speedMult: 0.6 + Math.random() * 0.8 });
+        out.push({ centerX: (stripStart + x) / 2 / sampleWidth, width: (x - stripStart) / sampleWidth,
+                   phase: Math.random() * Math.PI * 2, frequency: 0.5 + Math.random() * 1.2,
+                   yPhase: Math.random() * Math.PI * 2, yFrequency: 0.35 + Math.random() * 0.7,
+                   speedMultiplier: 0.6 + Math.random() * 0.8 });
       }
     }
+    return out;
   }
-  function init() {
-    var r = wrap.getBoundingClientRect(); W = canvas.width = r.width; H = canvas.height = r.height;
-    t = Math.random() * 80; sampleStrips();
-    var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
-    if (isTouch) { splashDuration = 1500; }
-    else { wrap.addEventListener('mouseenter', function() { isHovered = true; }); wrap.addEventListener('mouseleave', function() { isHovered = false; }); }
-    requestAnimationFrame(tick);
+
+  function resize() {
+    var rect = wrap.getBoundingClientRect();
+    width = canvas.width = Math.round(rect.width);
+    height = canvas.height = Math.round(rect.height);
   }
+
   function tick() {
-    var splashRaw = splashStart ? Math.max(0, 1 - (Date.now() - splashStart) / splashDuration) : 0;
-    splashT = splashRaw * splashRaw * splashRaw;
-    t += 0.012 + hoverT * 0.008;
-    hoverT += ((isHovered ? 1 : 0) - hoverT) * (isHovered ? 0.07 : 0.025);
-    ctx.clearRect(0, 0, W, H);
-    for (var i = 0; i < strips.length; i++) {
-      var st = strips[i];
-      var brightness = (Math.sin(t * st.freq * st.speedMult + st.phase) * 0.5 + 0.5);
-      if (brightness < 0.01) continue;
-      var x = st.cx * W; var w = Math.max(st.w * W, 3);
-      var centerY = (Math.sin(t * st.yFreq * st.speedMult + st.yPhase) * 0.5 + 0.5) * H;
-      var spread = H * (0.55 + hoverT * 0.25);
-      var baseA = brightness * 0.11, peakA = brightness * 0.28;
-      var boost = Math.max(hoverT, splashT);
-      var a = (baseA + (peakA - baseA) * boost).toFixed(3);
-      var a2 = (parseFloat(a) * 1.4).toFixed(3);
-      var grad = ctx.createLinearGradient(0, centerY - spread, 0, centerY + spread);
-      grad.addColorStop(0,   'rgba(220,225,240,0)');
-      grad.addColorStop(0.3, 'rgba(220,225,240,' + a + ')');
-      grad.addColorStop(0.5, 'rgba(255,255,255,' + a2 + ')');
-      grad.addColorStop(0.7, 'rgba(220,225,240,' + a + ')');
-      grad.addColorStop(1,   'rgba(220,225,240,0)');
-      ctx.fillStyle = grad; ctx.fillRect(x - w / 2, 0, w, H);
-    }
-    requestAnimationFrame(tick);
+    if (!inView) { frame = undefined; return; }
+    frames++;
+    try {
+      var splashRaw = splashStart ? Math.max(0, 1 - (Date.now() - splashStart) / splashDuration) : 0;
+      var splash = splashRaw * splashRaw * splashRaw;
+      time += 0.028 + hoverAmount * 0.016;
+      hoverAmount += ((isHovered ? 1 : 0) - hoverAmount) * (isHovered ? 0.07 : 0.025);
+      ctx.clearRect(0, 0, width, height);
+      for (var i = 0; i < strips.length; i++) {
+        var strip = strips[i];
+        var brightness = Math.sin(time * strip.frequency * strip.speedMultiplier + strip.phase) * 0.5 + 0.5;
+        if (brightness < 0.01) continue;
+        var x = strip.centerX * width;
+        var stripWidth = Math.max(strip.width * width, light ? 2 : 3);
+        var centerY = (Math.sin(time * strip.yFrequency * strip.speedMultiplier + strip.yPhase) * 0.5 + 0.5) * height;
+        var spread = height * (0.55 + hoverAmount * 0.25);
+        var boost = Math.max(hoverAmount, splash);
+        var alpha = brightness * 0.11 + (brightness * 0.28 - brightness * 0.11) * boost;
+        var peakAlpha = alpha * 1.4;
+        var edge = light ? '35,40,55' : '220,225,240';
+        var peak = light ? '10,12,20' : '255,255,255';
+        var g = ctx.createLinearGradient(0, centerY - spread, 0, centerY + spread);
+        g.addColorStop(0, 'rgba(' + edge + ',0)');
+        g.addColorStop(0.3, 'rgba(' + edge + ',' + alpha.toFixed(3) + ')');
+        g.addColorStop(0.5, 'rgba(' + peak + ',' + peakAlpha.toFixed(3) + ')');
+        g.addColorStop(0.7, 'rgba(' + edge + ',' + alpha.toFixed(3) + ')');
+        g.addColorStop(1, 'rgba(' + edge + ',0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(x - stripWidth / 2, 0, stripWidth, height);
+      }
+    } catch (e) { lastError = (e && e.message) || String(e); }
+    frame = requestAnimationFrame(tick);
   }
-  if (img.complete) init(); else img.addEventListener('load', init);
-  window.addEventListener('resize', function() { var r = wrap.getBoundingClientRect(); W = canvas.width = r.width; H = canvas.height = r.height; });
-})();
 
-// ── Rotating name ─────────────────────────────────────────────────────────────
-(function() {
-  var rotators = document.querySelectorAll('.rotating-name');
-  if (!rotators.length) return;
-  rotators.forEach(function(root) {
-    var track = root.querySelector('.rotating-name-track'); if (!track) return;
-    var names; try { names = JSON.parse(root.getAttribute('data-names') || '[]'); } catch(e) { names = []; }
-    if (!Array.isArray(names) || names.length < 2) return;
-    track.innerHTML = '';
-    names.concat(names[0]).forEach(function(n) { var s = document.createElement('span'); s.className = 'rotating-name-item'; s.textContent = n; track.appendChild(s); });
-    function itemHeightPx() { var first = track.querySelector('.rotating-name-item'); return Math.round(first ? first.getBoundingClientRect().height : 0); }
-    function offsetForIdx(i) { return (i * itemHeightPx()) + 'px'; }
-    function lockWidth() {
-      var probe = document.createElement('span'); probe.style.cssText = 'visibility:hidden;position:absolute;white-space:nowrap;'; root.appendChild(probe);
-      var maxW = 0;
-      for (var i = 0; i < names.length; i++) { probe.textContent = names[i]; var w = probe.getBoundingClientRect().width; if (w > maxW) maxW = w; }
-      probe.remove(); if (maxW > 0) root.style.minWidth = Math.ceil(maxW) + 'px';
-    }
-    if (document.fonts && document.fonts.ready) { document.fonts.ready.then(lockWidth); } else { setTimeout(lockWidth, 200); }
-    window.addEventListener('load', lockWidth);
-    var idx = 0;
-    function tick() {
-      idx += 1; track.style.transition = 'transform 0.5s cubic-bezier(0.22, 1, 0.36, 1)'; track.style.transform = 'translateY(-' + offsetForIdx(idx) + ')';
-      if (idx === names.length) {
-        track.addEventListener('transitionend', function onEnd() { track.removeEventListener('transitionend', onEnd); track.style.transition = 'none'; track.style.transform = 'translateY(0)'; idx = 0; }, { once: true });
-      }
-    }
-    var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReduced) { setInterval(function() { idx = (idx + 1) % names.length; track.style.transition = 'none'; track.style.transform = 'translateY(-' + offsetForIdx(idx) + ')'; }, 2500); return; }
-    setInterval(tick, 2500);
-  });
-})();
+  /* Production gates the loop on inView from an IntersectionObserver. That is
+     correct but it is also a single point of failure: if the observer has not
+     reported by the time the art decodes, nothing ever starts. Compute
+     visibility directly as a fallback so start() can never be stranded. */
+  function computeInView() {
+    var r = wrap.getBoundingClientRect();
+    var vh = window.innerHeight || document.documentElement.clientHeight;
+    return r.bottom > 0 && r.top < vh;
+  }
+  function run() { if (frame === undefined && inView) frame = requestAnimationFrame(tick); }
+  function start() {
+    resize();
+    strips = sampleStrips(img);
+    if (!inView && computeInView()) { inView = true; if (!splashStart) splashStart = Date.now(); }
+    run();
+  }
 
-// ── dsa-reveal word animation ─────────────────────────────────────────────────
-(function () {
-  var headers = document.querySelectorAll('.dsa-reveal');
-  if (!headers.length) return;
-  headers.forEach(function(header) {
-    var nodes = header.querySelectorAll('.ms-faq-headline, .section-headline, .section-sub, .how-title, .how-sub, .footer-headline, .footer-subtitle');
-    var idx = 0;
-    nodes.forEach(function(el) {
-      var children = Array.prototype.slice.call(el.childNodes);
-      el.textContent = '';
-      children.forEach(function(node) {
-        if (node.nodeType === 3) {
-          var parts = node.textContent.split(/(\s+)/);
-          parts.forEach(function(p) {
-            if (!p.trim().length) { if (p.length) el.appendChild(document.createTextNode(p)); return; }
-            var span = document.createElement('span'); span.className = 'word'; span.style.setProperty('--i', idx); span.textContent = p; el.appendChild(span); idx++;
-          });
-        } else if (node.nodeName === 'BR') { el.appendChild(node); }
-        else { var wrap = document.createElement('span'); wrap.className = 'word'; wrap.style.setProperty('--i', idx); wrap.appendChild(node); el.appendChild(wrap); idx++; }
-      });
-      /* Mark as already wrapped so shared-components.js .dsa-reveal IO doesn't re-wrap and corrupt the HTML */
-      el.dataset.wrapped = '1';
-    });
-  });
-  if ('IntersectionObserver' in window) {
-    var io = new IntersectionObserver(function(entries) {
-      entries.forEach(function(e) {
-        if (!e.isIntersecting) return;
-        /* fast-scroll catch-up: already deep in view -> skip the cascade */
-        var vh = window.innerHeight || document.documentElement.clientHeight;
-        if (e.boundingClientRect.top < vh * 0.45) e.target.classList.add('is-instant');
-        e.target.classList.add('is-revealed'); io.unobserve(e.target);
-      });
-    }, { threshold: 0 });
-    headers.forEach(function(h) { io.observe(h); });
-  } else { headers.forEach(function(h) { h.classList.add('is-revealed'); }); }
+  /* Theme art. Production picks this once; we re-apply on the preview toggle.
+     NOTE: mix-blend-mode is set HERE, never authored in the markup — `screen`
+     on a white ground is invisible, so an authored default is a trap. */
+  var appliedTheme = null;
+  function applyTheme() {
+    light = isLight();
+    var now = light ? 'light' : 'dark';
+    if (now === appliedTheme) return;
+    appliedTheme = now;
+    canvas.style.mixBlendMode = light ? 'multiply' : 'screen';
+    img.style.opacity = light ? '0.32' : '0.20';
+    var want = light ? WORDMARK_LIGHT_SRC : WORDMARK_SRC;
+    if (img.getAttribute('src') !== want) {
+      img.setAttribute('src', want);
+      img.addEventListener('load', start, { once: true });
+    } else if (img.complete && img.naturalWidth) {
+      start();
+    } else {
+      /* src already correct but the image hasn't finished loading — without
+         this branch the shimmer never starts on pages that ship the themed
+         asset statically (the press race, Gary's "not animating") */
+      img.addEventListener('load', start, { once: true });
+    }
+  }
+  document.addEventListener('sc-themechange', applyTheme);
+
+  new ResizeObserver(resize).observe(wrap);
+  new IntersectionObserver(function (entries) {
+    setInView(entries[0].isIntersecting);
+  }, { threshold: 0.1 }).observe(wrap);
+
+  /* The observer is the efficient path, but it is not the only one: it can fail
+     to report (nested browsing contexts, some restored-scroll cases), and then
+     the loop never starts at all — which is exactly the failure mode being
+     chased here. A throttled scroll/resize check keeps inView honest
+     regardless, and costs one getBoundingClientRect per frame while scrolling. */
+  function setInView(v) {
+    if (v === inView) return;
+    inView = v;
+    if (inView) { if (!splashStart) splashStart = Date.now(); run(); }
+  }
+  var pending = false;
+  function onScroll() {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(function () { pending = false; setInView(computeInView()); });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+
+  if (!isTouch) {
+    wrap.addEventListener('mouseenter', function () { isHovered = true; });
+    wrap.addEventListener('mouseleave', function () { isHovered = false; });
+  }
+
+  window.__shimmer = {
+    get strips()  { return strips.length; },
+    get light()   { return light; },
+    get running() { return frame !== undefined; },
+    get inView()  { return inView; },
+    get frames()  { return frames; },
+    get err()     { return lastError; },
+    get t()       { return Math.round(time * 100) / 100; },
+    get src()     { return (img.currentSrc || img.getAttribute('src') || '').split('/').pop(); },
+    get canvas()  { return canvas.width + 'x' + canvas.height; },
+    get blend()   { return getComputedStyle(canvas).mixBlendMode; }
+  };
+
+  applyTheme();
+  if (img.complete && img.naturalWidth) start(); else img.addEventListener('load', start, { once: true });
 })();
 </script>
 
-<script>
-/* CLI footer email form → HubSpot Forms API (keeps the custom styled strip) */
-(function () {
-  var form = document.getElementById('cli-beta-form');
-  if (!form) return;
-  var input = form.querySelector('input[name="email"]');
-  var btn = form.querySelector('.hero-cta-button');
-  var success = form.parentElement.querySelector('.card-strip-success');
-  var PORTAL_ID = '45403856';
-  var FORM_ID = '3037e821-dc14-44d5-9da4-86caa577e85d';
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    var email = (input.value || '').trim();
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { input.focus(); return; }
-    if (btn) btn.style.pointerEvents = 'none';
-    // HubSpot visitor token (set by the hs-scripts tracking code) for attribution
-    var hutkMatch = document.cookie.match(/hubspotutk=([^;]+)/);
-    var context = { pageUri: location.href, pageName: document.title };
-    if (hutkMatch) context.hutk = hutkMatch[1];
-    fetch('https://api.hsforms.com/submissions/v3/integration/submit/' + PORTAL_ID + '/' + FORM_ID, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        fields: [{ objectTypeId: '0-1', name: 'email', value: email }],
-        context: context
-      })
-    }).then(function (r) {
-      if (r.ok) {
-        form.style.display = 'none';
-        if (success) success.style.display = 'block';
-      } else {
-        if (btn) btn.style.pointerEvents = '';
-        input.setAttribute('placeholder', 'Something went wrong — try again');
-      }
-    }).catch(function () {
-      if (btn) btn.style.pointerEvents = '';
-      input.setAttribute('placeholder', 'Something went wrong — try again');
-    });
-  });
-})();
-</script>
-
-<!-- HubSpot tracking (portal 45403856) — sets hubspotutk for form attribution, matches enterprise page -->
-<script type="text/javascript" id="hs-script-loader" async defer src="//js.hs-scripts.com/45403856.js"></script>
-
-<!-- Shared standardized components (single source of truth) -->
+<script src="shared-nav-footer.js?v=20260929h"></script>
 <link rel="stylesheet" href="shared-components.css?v=20260930c">
-<script>
-/* This page ships its own word-reveal (pre-wraps + own IntersectionObserver
-   adds is-revealed) and its own eyebrow scramble. Tell shared's
-   scroll-animation module to stand down so the two never race. */
-window.__pageOwnsScrollAnims = true;
-</script>
 <script src="shared-components.js?v=20260930d"></script>
+
+<!-- ╔═══ PROTOTYPE ONLY — THEME REVIEW TOGGLE ═══════════════════════════════╗
+     Light is the site default; "System" follows the OS, so a visitor whose
+     machine is set to dark sees dark — that is the agreed behaviour, not a
+     fallback to a dark default. Normally there is nothing to click. This switcher exists so the two themes can be compared
+     without changing System Settings. REMOVE BEFORE PORTING TO PRODUCTION —
+     delete this whole block, nothing else references it.
+     ╚════════════════════════════════════════════════════════════════════════╝ -->
+<style id="theme-review-toggle-style">
+  .sc-theme-switch {
+    position: fixed; right: 16px; bottom: 16px; z-index: 10000;
+    display: flex; gap: 2px; padding: 3px;
+    background: var(--sc-surface); border: 1px solid var(--sc-line);
+    border-radius: 2px; box-shadow: 0 6px 20px var(--sc-shadow);
+    font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif);
+  }
+  .sc-theme-switch button {
+    appearance: none; border: 0; cursor: pointer; border-radius: 2px;
+    padding: 6px 11px; font-size: 11px; font-weight: 500; letter-spacing: 0.3px;
+    background: transparent; color: var(--sc-text-muted);
+  }
+  .sc-theme-switch button:hover { color: var(--sc-ink); }
+  .sc-theme-switch button[aria-pressed="true"] { background: var(--sc-blue); color: #fff; }
+  @media print { .sc-theme-switch { display: none; } }
+</style>
+<div class="sc-theme-switch" role="group" aria-label="Theme preview">
+  <button type="button" data-theme-set="">System</button>
+  <button type="button" data-theme-set="light">Light</button>
+  <button type="button" data-theme-set="dark">Dark</button>
+</div>
+<script>
+(function () {
+  var root = document.documentElement;
+  var btns = document.querySelectorAll('[data-theme-set]');
+  function sysTheme() {
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function apply(v, persist) {
+    /* '' = System: drop the stored choice and follow the OS. The attribute is
+       still stamped — it is never absent. */
+    root.setAttribute('data-theme', v || sysTheme());
+    btns.forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-theme-set') === v));
+    });
+    if (persist) {
+      try { if (v) localStorage.setItem('sc-theme', v); else localStorage.removeItem('sc-theme'); } catch (e) {}
+    }
+    /* canvases cache their dot colour — tell them to re-read the token */
+    document.dispatchEvent(new CustomEvent('sc-themechange'));
+  }
+  btns.forEach(function (b) {
+    b.addEventListener('click', function () { apply(b.getAttribute('data-theme-set'), true); });
+  });
+  var saved = ''; try { saved = localStorage.getItem('sc-theme') || ''; } catch (e) {}
+  apply(saved, false);
+})();
+</script>
+
 </body>
 </html>

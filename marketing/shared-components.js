@@ -563,6 +563,7 @@
     ['Pricing (signed in)', 'marketing/pricing-signed-in.html'],
     ['Referral',         'marketing/platform/referral/'],
     ['Microsoft',        'marketing/microsoft.html'],
+    ['Bolt CLI',         'marketing/bolt-cli.html'],
     ['Enterprise (staging)', 'staging/enterprise.html'],
     ['Solutions: Real Estate', 'solutions/ai-for-real-estate/'],
     ['Solutions: _template',   'solutions/_template/'],
