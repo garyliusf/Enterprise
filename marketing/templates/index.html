@@ -452,27 +452,16 @@
   .catalog-filters-wrap {
     position: relative;
   }
-  .catalog-filters-wrap::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 1px;                 /* sit just above the border-bottom underline */
-    width: 110px;
-    pointer-events: none;
-    background: linear-gradient(90deg, rgba(5,5,8,0) 0%, rgba(5,5,8,0.55) 42%, rgba(5,5,8,0.9) 76%, #050508 100%);
-    /* The mask ramps BOTH the darkening and the backdrop blur in from the left,
-       so the last visible tab dissolves into a frosted fade — a clear "there's
-       more, scroll →" affordance rather than a hard blurred edge. */
-    -webkit-backdrop-filter: blur(2.5px);
-            backdrop-filter: blur(2.5px);
-    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 58%);
-            mask-image: linear-gradient(90deg, transparent 0%, #000 58%);
-    z-index: 2;
+  /* Overflow cue (solutions tab-bar pattern, both themes — Gary): the
+     scroller itself is masked so the cut-off category's OWN glyphs dissolve
+     toward the edge. No overlay element exists, so nothing can render as a
+     box — the old dark-gradient + backdrop-blur ::after read as a black
+     slab on light. at-end lifts the mask so the last category reads fully. */
+  .catalog-filters {
+    -webkit-mask-image: linear-gradient(to right, #000 0%, #000 calc(100% - 176px), rgba(0,0,0,0.5) calc(100% - 104px), rgba(0,0,0,0.14) calc(100% - 52px), rgba(0,0,0,0) calc(100% - 10px));
+            mask-image: linear-gradient(to right, #000 0%, #000 calc(100% - 176px), rgba(0,0,0,0.5) calc(100% - 104px), rgba(0,0,0,0.14) calc(100% - 52px), rgba(0,0,0,0) calc(100% - 10px));
   }
-  /* Extend the fade on phones (where the row is most cramped) instead of
-     shrinking it — a wider band reads more clearly as scrollable. */
-  @media (max-width: 640px) { .catalog-filters-wrap::after { width: 120px; } }
+  .catalog-filters-wrap.at-end .catalog-filters { -webkit-mask-image: none; mask-image: none; }
   /* Icon-row filter bar — vertical icon+label cells, horizontal scroll on overflow */
   .catalog-filters {
     display: flex;
@@ -2977,6 +2966,22 @@ window.addEventListener('load', function () {
 
   applyTheme();
   if (img.complete && img.naturalWidth) start(); else img.addEventListener('load', start, { once: true });
+})();
+</script>
+
+<script>
+/* filter-bar overflow cue: lift the dissolve mask once scrolled fully right */
+(function () {
+  var bar = document.querySelector('.catalog-filters');
+  var wrap = document.querySelector('.catalog-filters-wrap');
+  if (!bar || !wrap) return;
+  function update() {
+    var atEnd = bar.scrollLeft + bar.clientWidth >= bar.scrollWidth - 4;
+    wrap.classList.toggle('at-end', atEnd);
+  }
+  bar.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
+  update();
 })();
 </script>
 </body>
