@@ -526,7 +526,7 @@ html { scroll-behavior: smooth; }
     content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 72px;
     background: linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,0.22) 50%, rgba(0,0,0,0.6) 82%, #000);
     pointer-events: none; z-index: 3; transform: translateZ(0);
-    opacity: 1; transition: opacity 0.3s ease;
+    opacity: 1; transition: opacity 0.18s ease;
   }
   .testi-slider.is-end::after { opacity: 0; }
   /* prev/next — ghost-button DNA (0.22 border → 0.4 + white on hover) */
@@ -1582,6 +1582,11 @@ makePixelCanvas('faq-pixel-canvas', 9, 2,
     var to = Math.max(0, Math.min(stack.scrollWidth - stack.clientWidth, from + delta));
     if (to === from) return;
     if (gliding) cancelAnimationFrame(gliding);
+    /* Flip the edge cue as the glide STARTS, not when it lands: waiting for
+       update() at the end stacked the 380ms glide on the fade's own
+       transition, so the cue lingered after the last card was already in
+       view (Gary, 2026-09-30). */
+    slider.classList.toggle('is-end', to >= stack.scrollWidth - stack.clientWidth - 1);
     stack.style.scrollSnapType = 'none';
     var t0 = null;
     var DUR = 380;
