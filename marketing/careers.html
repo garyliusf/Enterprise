@@ -526,7 +526,7 @@ html { scroll-behavior: smooth; }
     content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 72px;
     background: linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,0.22) 50%, rgba(0,0,0,0.6) 82%, #000);
     pointer-events: none; z-index: 3; transform: translateZ(0);
-    opacity: 1; transition: opacity 0.18s ease;
+    opacity: 1; transition: opacity 0.12s ease;
   }
   .testi-slider.is-end::after { opacity: 0; }
   /* prev/next — ghost-button DNA (0.22 border → 0.4 + white on hover) */
@@ -866,7 +866,6 @@ html { scroll-behavior: smooth; }
   html[data-theme="light"] .testi-stack {
     -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 110px), rgba(0,0,0,0.8) calc(100% - 64px), rgba(0,0,0,0.45) calc(100% - 22px), rgba(0,0,0,0.22) 100%);
             mask-image: linear-gradient(to right, #000 calc(100% - 110px), rgba(0,0,0,0.8) calc(100% - 64px), rgba(0,0,0,0.45) calc(100% - 22px), rgba(0,0,0,0.22) 100%);
-    transition: -webkit-mask-image 0.3s ease, mask-image 0.3s ease;
   }
   html[data-theme="light"] .testi-slider.is-end .testi-stack { -webkit-mask-image: none; mask-image: none; }
   html[data-theme="light"] .testi-arrow { border-color: var(--sc-line-strong); color: rgba(var(--sc-ink-rgb),0.8); }
@@ -1563,7 +1562,12 @@ makePixelCanvas('faq-pixel-canvas', 9, 2,
     var max = stack.scrollWidth - stack.clientWidth - 1;
     if (prev) prev.disabled = stack.scrollLeft <= 0;
     if (next) next.disabled = stack.scrollLeft >= max;
-    slider.classList.toggle('is-end', stack.scrollLeft >= max);
+    /* The cue lifts once the LAST card is mostly in view (past the midpoint
+       of the final step), not only at the exact end — waiting for the last
+       pixel made the fade linger over a card the reader could already see
+       (Gary, 2026-09-30). Trackpad/touch scrolls hit this path; the arrow
+       glide flips it at click time below. */
+    slider.classList.toggle('is-end', stack.scrollLeft >= max - step() * 0.5);
   }
   /* Hand-rolled glide: scrollBy/scrollTo with behavior:'smooth' silently
      no-op on this element in Chrome (instant scrolls work fine), so the
