@@ -37,7 +37,7 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 /* `clip` NOT `hidden`: overflow-x:hidden makes body a scroll container, which
    breaks `position: sticky` on descendants — it stops the navbar sticking. */
-body { background: #000; font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif); overflow-x: hidden; overflow-x: clip; }
+body { background: var(--sc-ground, #000); font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif); overflow-x: hidden; overflow-x: clip; }
 html { scroll-behavior: smooth; }
 </style>
 </head>
@@ -827,13 +827,71 @@ html { scroll-behavior: smooth; }
   }
 
   /* ─── FOOTER ──────────────────────────────────────────────────────────── */
-  .footer-image-section { width: 100%; background: #000; }
-  .bolt-image-wrap { margin-top: 0; width: 100%; overflow: hidden; position: relative; height: 32vw; max-height: 32vw; }
+  .footer-image-section { width: 100%; background: var(--sc-ground, #000); }
+  .bolt-image-wrap { margin-top: 0; width: 100%; overflow: hidden; position: relative; height: 32vw; max-height: 32vw; isolation: isolate; background: var(--sc-ground); }
 
   /* Local H2 word-reveal — fires at ~50% viewport */
   .reveal-h .word { display: inline-block; opacity: 0; transform: translate(-10px, -7px); filter: blur(5px); will-change: opacity, transform, filter; }
   .reveal-h.is-revealed .word { animation: dsa-word-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards; animation-delay: calc(var(--i, 0) * 28ms); }
   .reveal-h.is-instant .word { opacity: 1; transform: none; filter: none; animation: none; }
+
+
+  /* ─── LIGHT (2026-09-30 port) — dark literals above are untouched; every
+     light value is a --sc-* token so the page tracks the family. ────────── */
+  html[data-theme="light"] .section-sub { color: var(--sc-text-muted); }
+  /* hero: the family dome (security's), white copy stays on the navy crown */
+  html[data-theme="light"] .hero-section { background: var(--sc-hero-bg); }
+  html[data-theme="light"] .hero-subtitle { color: rgba(255,255,255,0.94); }
+  /* the meta line sits on the dome's pale release, so ink not white */
+  html[data-theme="light"] .hero-meta { color: rgba(var(--sc-ink-rgb),0.62); }
+  /* values */
+  html[data-theme="light"] .value-card { border-color: var(--sc-line); background: var(--sc-surface); }
+  html[data-theme="light"] .value-card:hover { border-color: var(--sc-line-strong); }
+  html[data-theme="light"] .value-title { color: var(--sc-ink); }
+  html[data-theme="light"] .value-desc { color: var(--sc-text-desc); }
+  /* film */
+  html[data-theme="light"] .film-card { border-color: var(--sc-line); }
+  /* gallery */
+  html[data-theme="light"] .gallery-item { background: var(--sc-surface-strong); }
+  html[data-theme="light"] .gallery-item img { opacity: 1; }
+  /* testimonials */
+  html[data-theme="light"] .testi-slider::after { background: linear-gradient(to right, rgba(var(--sc-ground-rgb),0), rgba(var(--sc-ground-rgb),0.22) 50%, rgba(var(--sc-ground-rgb),0.6) 82%, var(--sc-ground)); }
+  html[data-theme="light"] .testi-arrow { border-color: var(--sc-line-strong); color: rgba(var(--sc-ink-rgb),0.8); }
+  html[data-theme="light"] .testi-arrow:hover { border-color: rgba(var(--sc-ink-rgb),0.4); color: var(--sc-ink); }
+  html[data-theme="light"] .testi-panel { background: var(--sc-surface); border-color: var(--sc-line); }
+  html[data-theme="light"] .testi-photo { background: var(--sc-surface-strong); }
+  html[data-theme="light"] .testi-photo::after { background: linear-gradient(to bottom, transparent 55%, rgba(250,251,253,0.85) 100%); }
+  html[data-theme="light"] .testi-panel .testi-eyebrow { color: var(--sc-text-faint); }
+  html[data-theme="light"] .testi-quote, html[data-theme="light"] .testi-name { color: var(--sc-text-sub); }
+  html[data-theme="light"] .testi-role { color: var(--sc-text-muted); }
+  /* perks */
+  html[data-theme="light"] .perk-card { background: var(--sc-surface); border: 1px solid var(--sc-line); }
+  html[data-theme="light"] .perk-card::before { background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), var(--sc-flash-tint), rgba(20,136,252,0) 60%); }
+  html[data-theme="light"] .perk-icon { background: rgba(var(--sc-ink-rgb),0.05); border-color: var(--sc-icon-border); color: rgba(var(--sc-ink-rgb),0.85); }
+  html[data-theme="light"] .perk-title { color: var(--sc-ink); }
+  html[data-theme="light"] .perk-desc { color: var(--sc-text-desc); }
+  /* open roles */
+  html[data-theme="light"] .roles-select { background-color: #fff; border-color: rgba(var(--sc-ink-rgb),0.14); color: var(--sc-ink); }
+  html[data-theme="light"] .roles-select option { background: #fff; color: var(--sc-ink); }
+  html[data-theme="light"] .roles-pills-wrap::after { background: linear-gradient(to right, rgba(var(--sc-ground-rgb),0) 0%, rgba(var(--sc-ground-rgb),0.55) 35%, rgba(var(--sc-ground-rgb),0.88) 65%, var(--sc-ground) 88%); }
+  html[data-theme="light"] .roles-pills-wrap.is-scrollable .roles-pills::-webkit-scrollbar-track { background: rgba(var(--sc-ink-rgb),0.06); }
+  html[data-theme="light"] .roles-pills-wrap.is-scrollable .roles-pills::-webkit-scrollbar-thumb { background: rgba(var(--sc-ink-rgb),0.22); }
+  html[data-theme="light"] .role-pill { background: #fff; border-color: var(--sc-line); color: rgba(var(--sc-ink-rgb),0.65); }
+  html[data-theme="light"] .role-pill:hover { color: var(--sc-ink); border-color: rgba(var(--sc-ink-rgb),0.28); }
+  html[data-theme="light"] .role-pill.is-active { background: #1488FC; border-color: #1488FC; color: #fff; }
+  html[data-theme="light"] .roles-group-label { color: var(--sc-text-faint); }
+  html[data-theme="light"] .roles-list { border-color: var(--sc-line); background: var(--sc-surface); }
+  html[data-theme="light"] .role-row { border-bottom-color: var(--sc-line); }
+  html[data-theme="light"] .role-row:hover { background: var(--sc-hover-tint); }
+  html[data-theme="light"] .role-title, html[data-theme="light"] .role-row:hover .role-title { color: var(--sc-ink); }
+  html[data-theme="light"] .role-loc { color: var(--sc-text-desc); }
+  html[data-theme="light"] .role-row:hover .role-apply { border-color: rgba(var(--sc-ink-rgb),0.4); color: var(--sc-ink); }
+  html[data-theme="light"] .roles-state, html[data-theme="light"] .roles-note { color: var(--sc-text-faint); }
+  html[data-theme="light"] .roles-state a, html[data-theme="light"] .roles-note a { color: var(--sc-blue-ink); }
+  /* FAQ process rail */
+  html[data-theme="light"] .faq-steps::before { background: rgba(var(--sc-ink-rgb),0.08); }
+  html[data-theme="light"] .faq-step-n { background: var(--sc-ground); }
+  html[data-theme="light"] .faq-step-t { color: var(--sc-ink); }
 
   /* ─── RESPONSIVE ──────────────────────────────────────────────────────── */
   @media (max-width: 1024px) {
@@ -1327,9 +1385,9 @@ html { scroll-behavior: smooth; }
 
 <section class="footer-image-section">
   <div class="bolt-image-wrap">
-    <img src="../images/bolt-bottom.png" alt="bolt" loading="lazy" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;opacity:0.20;">
-    <canvas id="bolt-shimmer-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;mix-blend-mode:screen;"></canvas>
-    <div style="position:absolute;inset:0;background:linear-gradient(to bottom, #000 0%, transparent 22%, transparent 88%, #000 100%);z-index:3;"></div>
+    <img id="bolt-wordmark-img" src="../images/bolt-bottom-light.webp" alt="bolt" decoding="async" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;opacity:0.20;">
+    <canvas id="bolt-shimmer-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;"></canvas>
+    <div style="position:absolute;inset:0;background:linear-gradient(to bottom, var(--sc-ground) 0%, transparent 22%, transparent 88%, var(--sc-ground) 100%);z-index:3;"></div>
   </div>
 </section>
 
@@ -1341,6 +1399,19 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
   color = color || '20,136,252';
   const canvas = document.getElementById(id);
   if (!canvas) return;
+  /* Light mode: an explicit triplet is this canvas's DARK colour — pale dots
+     vanish on a light ground — so light follows --sc-dot-rgb, unless the
+     canvas sits in a .sc-on-dark scope (dark art in both themes). Dark keeps
+     the literal, so dark renders exactly as before. */
+  const darkColor = color;
+  function pickColor() {
+    const light = document.documentElement.getAttribute('data-theme') === 'light';
+    if (!light || canvas.closest('.sc-on-dark')) { color = darkColor; return; }
+    const v = getComputedStyle(canvas).getPropertyValue('--sc-dot-rgb').trim();
+    color = v || '20,136,252';
+  }
+  pickColor();
+  document.addEventListener('sc-themechange', pickColor);
   let phases = [];
   function buildPhases(cols, rows) {
     phases = Array.from({ length: rows }, () => Array.from({ length: cols }, () => Math.random() * Math.PI * 2));
@@ -1891,7 +1962,7 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
             var alpha = density * 0.22;
             ctx.beginPath();
             ctx.arc(px, py, maxR * density, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(180,185,195,' + alpha.toFixed(2) + ')';
+            ctx.fillStyle = 'rgba(' + (document.documentElement.getAttribute('data-theme') === 'light' ? (getComputedStyle(document.documentElement).getPropertyValue('--sc-dot-rgb').trim() || '20,136,252') : '180,185,195') + ',' + alpha.toFixed(2) + ')';
             ctx.fill();
           }
         }
@@ -2164,6 +2235,257 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
 })();
 </script>
 
+<!-- Bolt strip shimmer: the page shipped an inert canvas (no driver) — this is
+     security.html's theme-aware copy, incl. the load-race fix. -->
+<script>
+// ── Bolt strip shimmer ───────────────────────────────────────────────────────
+// Faithful vanilla port of production's FooterWordmark
+// (bolt-public-pages src/components/chrome/FooterWordmark.tsx), which is the
+// component the Forge Lite footer uses. The sandbox had a FORK of this that
+// drifted; every difference between them turned out to be a bug. Re-port from
+// the component, do not hand-tune here.
+//
+// Deltas from production, both deliberate:
+//   · theme switching: production picks light/dark once per render, this
+//     re-initialises on sc-themechange so the preview toggle works.
+//   · window.__shimmer debug hook.
+(function () {
+  var canvas = document.getElementById('bolt-shimmer-canvas');
+  if (!canvas) return;
+  var wrap = canvas.parentElement;
+  var img = wrap.querySelector('img');
+  var ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  var WORDMARK_SRC = '../images/bolt-bottom.png';
+  var WORDMARK_LIGHT_SRC = '../images/bolt-bottom-light.webp';
+  var SAMPLE_WIDTH = 400, SAMPLE_HEIGHT = 200, SAMPLE_WIDTH_FINE = 1600;
+  var STRIP_BRIGHTNESS_THRESHOLD = 28;
+  var HOVER_SPLASH_DURATION_MS = 300, TOUCH_SPLASH_DURATION_MS = 1500;
+
+  /* production bails entirely under reduced motion */
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+  var splashDuration = isTouch ? TOUCH_SPLASH_DURATION_MS : HOVER_SPLASH_DURATION_MS;
+
+  var strips = [], inView = false, width = 0, height = 0;
+  var time = Math.random() * 80, hoverAmount = 0, isHovered = false;
+  var splashStart, frame, light = false, frames = 0, lastError = null;
+
+  function isLight() { return document.documentElement.getAttribute('data-theme') !== 'dark'; }
+
+  function sampleStrips(image) {
+    var sampleWidth = light ? SAMPLE_WIDTH_FINE : SAMPLE_WIDTH;
+    var scratch = document.createElement('canvas');
+    scratch.width = sampleWidth; scratch.height = SAMPLE_HEIGHT;
+    var c = scratch.getContext('2d', { willReadFrequently: true });
+    if (!c) return [];
+    c.drawImage(image, 0, 0, sampleWidth, SAMPLE_HEIGHT);
+    var data = c.getImageData(0, 0, sampleWidth, SAMPLE_HEIGHT).data;
+    var out = [], inStrip = false, stripStart = 0;
+    for (var x = 0; x < sampleWidth; x++) {
+      var brightness = 0;
+      for (var y = 20; y < SAMPLE_HEIGHT - 20; y++) {
+        var i = (y * sampleWidth + x) * 4;
+        var lum = (data[i] + data[i + 1] + data[i + 2]) / 3;
+        brightness += light ? 255 - lum : lum;   /* light art is ink-on-white */
+      }
+      brightness /= SAMPLE_HEIGHT - 40;
+      if (brightness > STRIP_BRIGHTNESS_THRESHOLD && !inStrip) { inStrip = true; stripStart = x; }
+      else if (brightness <= STRIP_BRIGHTNESS_THRESHOLD && inStrip) {
+        inStrip = false;
+        out.push({ centerX: (stripStart + x) / 2 / sampleWidth, width: (x - stripStart) / sampleWidth,
+                   phase: Math.random() * Math.PI * 2, frequency: 0.5 + Math.random() * 1.2,
+                   yPhase: Math.random() * Math.PI * 2, yFrequency: 0.35 + Math.random() * 0.7,
+                   speedMultiplier: 0.6 + Math.random() * 0.8 });
+      }
+    }
+    return out;
+  }
+
+  function resize() {
+    var rect = wrap.getBoundingClientRect();
+    width = canvas.width = Math.round(rect.width);
+    height = canvas.height = Math.round(rect.height);
+  }
+
+  function tick() {
+    if (!inView) { frame = undefined; return; }
+    frames++;
+    try {
+      var splashRaw = splashStart ? Math.max(0, 1 - (Date.now() - splashStart) / splashDuration) : 0;
+      var splash = splashRaw * splashRaw * splashRaw;
+      time += 0.028 + hoverAmount * 0.016;
+      hoverAmount += ((isHovered ? 1 : 0) - hoverAmount) * (isHovered ? 0.07 : 0.025);
+      ctx.clearRect(0, 0, width, height);
+      for (var i = 0; i < strips.length; i++) {
+        var strip = strips[i];
+        var brightness = Math.sin(time * strip.frequency * strip.speedMultiplier + strip.phase) * 0.5 + 0.5;
+        if (brightness < 0.01) continue;
+        var x = strip.centerX * width;
+        var stripWidth = Math.max(strip.width * width, light ? 2 : 3);
+        var centerY = (Math.sin(time * strip.yFrequency * strip.speedMultiplier + strip.yPhase) * 0.5 + 0.5) * height;
+        var spread = height * (0.55 + hoverAmount * 0.25);
+        var boost = Math.max(hoverAmount, splash);
+        var alpha = brightness * 0.11 + (brightness * 0.28 - brightness * 0.11) * boost;
+        var peakAlpha = alpha * 1.4;
+        var edge = light ? '35,40,55' : '220,225,240';
+        var peak = light ? '10,12,20' : '255,255,255';
+        var g = ctx.createLinearGradient(0, centerY - spread, 0, centerY + spread);
+        g.addColorStop(0, 'rgba(' + edge + ',0)');
+        g.addColorStop(0.3, 'rgba(' + edge + ',' + alpha.toFixed(3) + ')');
+        g.addColorStop(0.5, 'rgba(' + peak + ',' + peakAlpha.toFixed(3) + ')');
+        g.addColorStop(0.7, 'rgba(' + edge + ',' + alpha.toFixed(3) + ')');
+        g.addColorStop(1, 'rgba(' + edge + ',0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(x - stripWidth / 2, 0, stripWidth, height);
+      }
+    } catch (e) { lastError = (e && e.message) || String(e); }
+    frame = requestAnimationFrame(tick);
+  }
+
+  /* Production gates the loop on inView from an IntersectionObserver. That is
+     correct but it is also a single point of failure: if the observer has not
+     reported by the time the art decodes, nothing ever starts. Compute
+     visibility directly as a fallback so start() can never be stranded. */
+  function computeInView() {
+    var r = wrap.getBoundingClientRect();
+    var vh = window.innerHeight || document.documentElement.clientHeight;
+    return r.bottom > 0 && r.top < vh;
+  }
+  function run() { if (frame === undefined && inView) frame = requestAnimationFrame(tick); }
+  function start() {
+    resize();
+    strips = sampleStrips(img);
+    if (!inView && computeInView()) { inView = true; if (!splashStart) splashStart = Date.now(); }
+    run();
+  }
+
+  /* Theme art. Production picks this once; we re-apply on the preview toggle.
+     NOTE: mix-blend-mode is set HERE, never authored in the markup — `screen`
+     on a white ground is invisible, so an authored default is a trap. */
+  var appliedTheme = null;
+  function applyTheme() {
+    light = isLight();
+    var now = light ? 'light' : 'dark';
+    if (now === appliedTheme) return;
+    appliedTheme = now;
+    canvas.style.mixBlendMode = light ? 'multiply' : 'screen';
+    img.style.opacity = light ? '0.32' : '0.20';
+    var want = light ? WORDMARK_LIGHT_SRC : WORDMARK_SRC;
+    if (img.getAttribute('src') !== want) {
+      img.setAttribute('src', want);
+      img.addEventListener('load', start, { once: true });
+    } else if (img.complete && img.naturalWidth) {
+      start();
+    } else {
+      /* src already correct but the image hasn't finished loading — without
+         this branch the shimmer never starts on pages that ship the themed
+         asset statically (the press race, Gary's "not animating") */
+      img.addEventListener('load', start, { once: true });
+    }
+  }
+  document.addEventListener('sc-themechange', applyTheme);
+
+  new ResizeObserver(resize).observe(wrap);
+  new IntersectionObserver(function (entries) {
+    setInView(entries[0].isIntersecting);
+  }, { threshold: 0.1 }).observe(wrap);
+
+  /* The observer is the efficient path, but it is not the only one: it can fail
+     to report (nested browsing contexts, some restored-scroll cases), and then
+     the loop never starts at all — which is exactly the failure mode being
+     chased here. A throttled scroll/resize check keeps inView honest
+     regardless, and costs one getBoundingClientRect per frame while scrolling. */
+  function setInView(v) {
+    if (v === inView) return;
+    inView = v;
+    if (inView) { if (!splashStart) splashStart = Date.now(); run(); }
+  }
+  var pending = false;
+  function onScroll() {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(function () { pending = false; setInView(computeInView()); });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+
+  if (!isTouch) {
+    wrap.addEventListener('mouseenter', function () { isHovered = true; });
+    wrap.addEventListener('mouseleave', function () { isHovered = false; });
+  }
+
+  window.__shimmer = {
+    get strips()  { return strips.length; },
+    get light()   { return light; },
+    get running() { return frame !== undefined; },
+    get inView()  { return inView; },
+    get frames()  { return frames; },
+    get err()     { return lastError; },
+    get t()       { return Math.round(time * 100) / 100; },
+    get src()     { return (img.currentSrc || img.getAttribute('src') || '').split('/').pop(); },
+    get canvas()  { return canvas.width + 'x' + canvas.height; },
+    get blend()   { return getComputedStyle(canvas).mixBlendMode; }
+  };
+
+  applyTheme();
+  if (img.complete && img.naturalWidth) start(); else img.addEventListener('load', start, { once: true });
+})();
+
+// ── Hero pixel dots — uniform field, no skyline seam
+//    Center-focused Gaussian fade + top/bottom soft fade + two decoherent waves.
+(function () {
+  var canvas = document.getElementById('hero-pixel-dots');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var SPACING = 11, DOT = 2, cols, rows, phases;
+  function init() {
+    canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
+    cols = Math.ceil(canvas.width / SPACING) + 1;
+    rows = Math.ceil(canvas.height / SPACING) + 1;
+    phases = Array.from({ length: rows }, function () { return Float32Array.from({ length: cols }, function () { return Math.random() * Math.PI * 2; }); });
+  }
+  window.addEventListener('resize', init); init();
+  var start = null;
+  function draw(ts) {
+    if (!start) start = ts; var t = ts - start;
+    var W = canvas.width, H = canvas.height;
+    if (!W || !H) { requestAnimationFrame(draw); return; }
+    ctx.clearRect(0, 0, W, H);
+    for (var c = 0; c < cols; c++) {
+      var cf = c / cols;
+      // tighter horizontal Gaussian — dots only faintly present, and mostly around center
+      var hm = Math.exp(-Math.pow(cf - 0.5, 2) / (2 * 0.18 * 0.18));
+      if (hm < 0.04) continue;
+      for (var r = 0; r < rows; r++) {
+        var rf = r / rows;
+        // longer top/bottom fades so the visible band is thin
+        var vTop = Math.min(1, rf / 0.30);
+        var vBot = Math.min(1, (1 - rf) / 0.30);
+        var vm = vTop * vBot;
+        if (vm < 0.08) continue;
+        var x = c * SPACING, y = r * SPACING;
+        var ph = phases[r][c];
+        // decoherent waves — different scales/directions so no visible horizontal bands
+        var w1 = Math.sin(c * 0.13 + r * 0.29 - t * 0.0012 + ph);
+        var w2 = Math.sin(c * 0.07 - r * 0.11 + t * 0.0008 + ph * 0.6);
+        var w3 = Math.sin((c - r) * 0.05 + t * 0.0006 + ph * 1.3);
+        var wave = (w1 + w2 + w3) / 3;
+        // opacity cut sharply — barely-there ambient texture
+        var op = hm * vm * Math.max(0, wave) * 0.28;
+        if (op < 0.015) continue;
+        ctx.fillStyle = 'rgba(160,185,230,' + op.toFixed(3) + ')';
+        ctx.fillRect(x - DOT, y - DOT, DOT * 2, DOT * 2);
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+</script>
+</script>
 <!-- Canonical component CSS (buttons, eyebrows, FAQ). Linked at end of body so
      it wins the cascade — standard order, same as solutions/pricing/press. -->
 <link rel="stylesheet" href="shared-components.css?v=20260930b">
