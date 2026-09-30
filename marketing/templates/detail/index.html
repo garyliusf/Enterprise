@@ -295,7 +295,7 @@
     left: 0; right: 0; bottom: 0;
     height: 190px;
     pointer-events: none;
-    background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.72) 58%, var(--sc-ground) 100%);
+    background: linear-gradient(to bottom, rgba(var(--sc-ground-rgb),0) 0%, rgba(var(--sc-ground-rgb),0.72) 58%, var(--sc-ground) 100%);  /* ground fog, not literal black — read as a black band on light (Gary) */
     -webkit-backdrop-filter: blur(2px);
             backdrop-filter: blur(2px);
     -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 55%);
@@ -466,6 +466,10 @@
   }
   /* graph-paper overlay removed (solutions.html card standard, Gary 2026-08-07) */
   .unlocks-visual > * { position: relative; z-index: 1; }
+  html[data-theme="light"] .unlocks-visual {
+    background: var(--sc-surface);
+    box-shadow: 0 6px 20px rgba(15,26,42,0.05), inset 0 1px 0 rgba(255,255,255,0.6);
+  }
   .unlocks-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -481,7 +485,7 @@
     /* solutions.html card surface: near-black base + subtle top light */
     background:
       linear-gradient(180deg, rgba(var(--sc-ink-rgb), 0.045) 0%, rgba(var(--sc-ink-rgb), 0.012) 34%, rgba(var(--sc-ink-rgb), 0) 62%),
-      #09090b;
+      var(--sc-surface);  /* was #09090b — end-of-shorthand hex the converter can't reach */
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -540,6 +544,9 @@
     transition: border-color 0.25s ease;
   }
   .catalog-card:hover .catalog-card-preview { border-color: rgba(var(--sc-ink-rgb), 0.22); }
+  html[data-theme="light"] .catalog-card-preview,
+  html[data-theme="light"] .detail-preview,
+  html[data-theme="light"] .sticky-banner-thumb { background: var(--sc-surface); }
   .catalog-card-preview { position: relative; }
   .catalog-card-preview svg { width: 100%; height: 100%; display: block; }
   /* Real-shot rendering — mirrors the catalog grid so related cards show the
@@ -605,6 +612,7 @@
     transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
   }
   .sticky-banner.is-visible { transform: translateY(0); }
+  html[data-theme="light"] .sticky-banner { background: rgba(255,254,254,0.9); }  /* light glass; the dark bar read as a grey slab on light (Gary) */
   /* Mirrors .detail-shell's box so the banner content lines up with the page
      and the navbar. Same width formula + 1024/768 steps. */
   .sticky-banner-inner {
