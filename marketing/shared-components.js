@@ -520,3 +520,73 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
   else bind();
 })();
+
+/* ═══ REVIEW-ONLY: page navigator (Gary, 2026-09-29) ════════════════════════
+   A small "Pages" button pinned above the theme review toggle; opens a
+   drop-UP listing every page in the light-mode workstream so review can hop
+   between them. Links resolve against the repo root (works on GitHub Pages
+   and localhost) and carry a fresh ?fresh= stamp to dodge the 10-min HTML
+   cache. STRIP THIS WHOLE BLOCK (like the toggle) before any production
+   port. */
+(function () {
+  if (!document.body) return;
+  var PAGES = [
+    ['Solutions',        'marketing/solutions.html'],
+    ['Security',         'marketing/security.html'],
+    ['Security Agent',   'marketing/security-agent.html'],
+    ['Compliance',       'marketing/compliance.html'],
+    ['Trust',            'marketing/trust.html'],
+    ['Trust v2',         'marketing/trust-v2.html'],
+    ['Integrations',     'marketing/integrations/'],
+    ['Use Cases',        'marketing/use-cases/'],
+    ['Templates',        'marketing/templates/'],
+    ['Template Detail',  'marketing/templates/detail/'],
+    ['Customers',        'marketing/customers.html'],
+    ['Customer Story',   'marketing/customers-detail.html'],
+    ['Press',            'marketing/press.html'],
+    ['Careers',          'marketing/careers.html'],
+    ['Pricing',          'marketing/pricing.html'],
+    ['Blog (preview)',   'https://blog-light-navbar.bolt-public-pages.pages.dev/blog']
+  ];
+  /* repo base = everything before /marketing/ or /solutions/ in the path */
+  var base = location.pathname.replace(/(marketing|solutions)\/.*$/, '');
+  var css = document.createElement('style');
+  css.id = 'sc-page-nav-style';
+  css.textContent =
+    '.sc-page-nav { position: fixed; right: 16px; bottom: 58px; z-index: 10001; font-family: var(--sc-font-sans, sans-serif); }' +
+    '.sc-page-nav-btn { display: flex; align-items: center; gap: 6px; padding: 7px 12px;' +
+    '  background: var(--sc-surface, #111); color: var(--sc-ink, #fff); border: 1px solid var(--sc-line, rgba(255,255,255,0.14));' +
+    '  border-radius: 2px; box-shadow: 0 6px 20px var(--sc-shadow, rgba(0,0,0,0.35)); cursor: pointer;' +
+    '  font-size: 11px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; font-family: inherit; }' +
+    '.sc-page-nav-btn::after { content: ""; width: 7px; height: 7px; margin-top: 3px;' +
+    '  border-left: 1.5px solid currentColor; border-top: 1.5px solid currentColor; transform: rotate(45deg); transition: transform 0.2s ease, margin 0.2s ease; }' +
+    '.sc-page-nav.is-open .sc-page-nav-btn::after { transform: rotate(225deg); margin-top: -3px; }' +
+    '.sc-page-nav-panel { position: absolute; right: 0; bottom: calc(100% + 8px); min-width: 210px; max-height: min(60vh, 520px); overflow-y: auto;' +
+    '  background: var(--sc-surface, #111); border: 1px solid var(--sc-line, rgba(255,255,255,0.14)); border-radius: 2px;' +
+    '  box-shadow: 0 12px 32px var(--sc-shadow, rgba(0,0,0,0.45)); padding: 6px;' +
+    '  opacity: 0; transform: translateY(6px); pointer-events: none; transition: opacity 0.18s ease, transform 0.22s cubic-bezier(0.22,1,0.36,1); }' +
+    '.sc-page-nav.is-open .sc-page-nav-panel { opacity: 1; transform: translateY(0); pointer-events: auto; }' +
+    '.sc-page-nav-panel a { display: block; padding: 8px 10px; border-radius: 2px; text-decoration: none;' +
+    '  font-size: 13px; font-weight: 500; color: var(--sc-text-desc, rgba(255,255,255,0.55)); }' +
+    '.sc-page-nav-panel a:hover { background: rgba(20,136,252,0.10); color: var(--sc-ink, #fff); }' +
+    '.sc-page-nav-panel a.is-current { color: #1488FC; pointer-events: none; }';
+  document.head.appendChild(css);
+  var root = document.createElement('div');
+  root.className = 'sc-page-nav';
+  var here = location.pathname.replace(/index\.html$/, '');
+  root.innerHTML = '<div class="sc-page-nav-panel" role="menu">' + PAGES.map(function (p) {
+    var external = /^https?:/.test(p[1]);
+    var href = external ? p[1] : base + p[1];
+    var current = !external && (base + p[1]).replace(/index\.html$/, '') === here;
+    return '<a role="menuitem" href="' + href + (external ? '' : (p[1].indexOf('?') < 0 ? '?fresh=' : '&fresh=') + Date.now()) + '"' +
+      (external ? ' target="_blank" rel="noopener"' : '') + (current ? ' class="is-current"' : '') + '>' + p[0] + '</a>';
+  }).join('') + '</div><button type="button" class="sc-page-nav-btn" aria-haspopup="menu" aria-expanded="false">Pages</button>';
+  document.body.appendChild(root);
+  var btn = root.querySelector('.sc-page-nav-btn');
+  btn.addEventListener('click', function () {
+    var open = root.classList.toggle('is-open');
+    btn.setAttribute('aria-expanded', String(open));
+  });
+  document.addEventListener('click', function (e) { if (!root.contains(e.target)) { root.classList.remove('is-open'); btn.setAttribute('aria-expanded', 'false'); } });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { root.classList.remove('is-open'); btn.setAttribute('aria-expanded', 'false'); } });
+})();
