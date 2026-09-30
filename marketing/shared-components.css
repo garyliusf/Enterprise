@@ -619,7 +619,10 @@
 /* FAQ eyebrow -> H2 on the 16/12/6 header rhythm (audit 2026-09-30): the security-family pages carried a flat margin: 0 0 16px */
 .ms-faq-eyebrow { margin: 0 0 16px; }
 @media (max-width: 1024px) { .ms-faq-eyebrow { margin-bottom: 12px; } }
-@media (max-width: 768px) { .ms-faq-eyebrow { margin-bottom: 6px; } }
+@media (max-width: 768px) { .ms-faq-eyebrow { margin-bottom: 10px; } }   /* mobile eyebrow->H2 is 10, H2->sub stays 6 (Gary, 2026-09-30) */
+/* pages that wrap the FAQ eyebrow in a .section-header already get the gap from
+   the header — the eyebrow's own margin would stack on top (careers read 32/24/16) */
+.section-header > .ms-faq-eyebrow { margin-bottom: 0; }
 @media (max-width: 1024px) {
   .ms-faq-eyebrow, .footer-eyebrow, .how-eyebrow, .section-eyebrow,
   .slider-section-eyebrow, .feat-eyebrow, .success-eyebrow,
@@ -672,6 +675,14 @@
 @media (max-width: 1024px) { .section-header, .unlocks-header { gap: 12px; } }
 @media (max-width: 768px)  {
   .section-header, .unlocks-header { gap: 6px; }   /* unlocks-header is solutions' header stack; a plain margin wrapper elsewhere, where gap is inert */
+  /* Mobile rhythm is 10 / 6 (Gary, 2026-09-30): a 13px caps label 6px above a
+     36-40px headline read cramped, while 6 under the headline is right. The
+     gap stays 6 for H2->sub; the eyebrow adds 4 to reach 10. */
+  :is(.section-header, .unlocks-header, .feat-header) > :is(.section-eyebrow, .feat-eyebrow, .how-eyebrow, .slider-section-eyebrow, .success-eyebrow, .ms-faq-eyebrow) { margin-bottom: 4px; }
+  /* the security family's .eyebrow-pill stacks (builtin / detail / aiblock / docs) sit on
+     sibling netting rather than a header gap — same +4 so they land on 10 */
+  .eyebrow-pill { margin-bottom: 4px; }
+  .hero-section .eyebrow-pill, .hero-inner .eyebrow-pill { margin-bottom: 0; }
   /* subtitle leading 1.65 -> 1.4 on phones (Gary): the desktop measure is
      ~640px wide where 1.65 breathes; at phone width the same leading reads
      loose between its own wrapped lines and against the H2 above. */
@@ -743,7 +754,7 @@ html[data-theme="dark"] :hover > :is(.int-card-hover-canvas, .builtin-hover-canv
 @media (max-width: 768px) {
   .footer-section { padding: 48px 0 0; }
   .footer-subtitle { margin-top: -18px; line-height: 1.4; }  /* nets the 24px footer gap to 6; 1.4 restated here because the base .footer-subtitle rule below (1.65) is later in the file than the ≤768 rule above and was winning on phones (audit 2026-09-30) */
-  .footer-eyebrow + .dsa-reveal, .footer-eyebrow + .footer-headline { margin-top: -18px; }
+  .footer-eyebrow + .dsa-reveal, .footer-eyebrow + .footer-headline { margin-top: -14px; }  /* nets the 24px footer gap to 10 (mobile eyebrow->H2; sub stays 6) */
   /* 380px (not the old per-page 310px) so typical footer copy wraps to 2 lines,
      not 3, on phones. Wins over each page's .footer-subtitle { max-width: 310px }
      by specificity + load order. */
