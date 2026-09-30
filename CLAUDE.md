@@ -139,6 +139,8 @@ rendered the desktop values; it now carries these.
 - **Subtitle leading**: 1.65 desktop/tablet, **1.4 on mobile** (`.section-sub, .feat-subheadline, .footer-subtitle` in shared's ≤768 block).
 - **Nav/footer arrows**: the bare chevron (no shaft) as a currentColor mask — a utility rule appended last in `shared-nav-footer.css` + the 3 inline copies (and the blog branch). Never `content: '→'` (heavy head in Schibsted).
 - **Chevron/icon baseline nudges**: Schibsted centres its caps 0.09px from the line-box centre — the correct nudge next to a Schibsted label is **0**. The old +1px/+0.75px values were Literata/Silkscreen metrics.
+- **Blog family is light-only by design** (blog, customers, customers-detail, press — Gary, 2026-09-30): the editorial body stays `#EFEDF3` in dark mode; only the nav + footer chrome flip to black. Not a converter miss — do not port the body to dark or "fix" the black nav on the light page.
+- **Drawer feature cards** (`.mkt-nav-mobile-feature-title`) use the chevron mask `::after` like the desktop mega-panel — never a typed `→` in the text (24 nav copies were carrying one until 2026-09-30). The careers `Apply →` glyph is a deliberate keep (Gary).
 
 ### Section H2 — ONE canonical class: `.sc-section-h2` (RULE)
 
@@ -331,7 +333,7 @@ Other pricing standardizations from the same pass: FAQ = shared `.ms-faq-*` comp
 
 ### Pricing Page Typography
 - Matches bolt.new/enterprise: H1 `66px`/`51px` tablet (≤1024)/`clamp(37px,10.45vw,51px)` mobile, weight `500`; hero subtitle `clamp(16px,1.4vw,20px)`; H2 = `.sc-section-h2`; section subtitles (`.faq-sub`) = `clamp(15px,1.1vw,17px)` `rgba(255,255,255,0.5)` (2026-08-06 audit)
-- Deliberate page-local variants kept by the audit: card/banner surfaces `#0a0a0a` (page-consistent, vs the `#111` token), `.plan-label` card eyebrows 13px Silkscreen, `.compliance-title` 28px panel h3 (a `.sc-panel-h2`-class case), `.page` wrapper owns vertical rhythm (140px top) instead of per-section clamp padding
+- Deliberate page-local variants kept by the audit: card/banner surfaces `#0a0a0a` (page-consistent, vs the `#111` token), `.plan-label` card eyebrows 13px (label face = the sans since 2026-09-29; pricing still unported), `.compliance-title` 28px panel h3 (a `.sc-panel-h2`-class case), `.page` wrapper owns vertical rhythm (140px top) instead of per-section clamp padding
 
 ---
 
@@ -456,7 +458,7 @@ Contentful-backed SSR blog (`/blog` renders on-demand, reading PUBLISHED content
 |------|--------|-------|
 | Headings / titles | **Cormorant Garamond** (serif), Georgia fallback | `--font-serif` |
 | Body / UI | **Inter** | `--font-sans` |
-| Eyebrows / labels (pixel style) | **Silkscreen** (mono) | `--font-mono` |
+| Eyebrows / labels | **Schibsted Grotesk** at 700 (the `--font-mono` token now carries the sans stack — Silkscreen retired 2026-09-29) | `--font-mono` |
 
 ### Blog color tokens
 | Token | Value | Usage |
