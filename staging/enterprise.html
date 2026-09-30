@@ -3140,10 +3140,7 @@
   </div>
 
   <!-- Col 2: Rollercoaster image (static) -->
-  <div class="support-col-image">
-    <img src="assets/public-page-assets/enterprise/redesign/navigate.webp" alt="Navigate sketch" loading="lazy" decoding="async">
-    <canvas class="support-col-noise" id="support-noise-canvas"></canvas>
-  </div>
+  <div class="support-col-image"><canvas id="support-corner-dither" aria-hidden="true"></canvas></div>
 
   </div><!-- /.support-inner -->
 </section>
@@ -3168,7 +3165,7 @@
       <button class="hero-cta-button">
         <canvas class="footer-btn-noise" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:0.12;mix-blend-mode:screen;z-index:2;"></canvas>
         <div class="btn-bg-hover"></div>
-        <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Started</span><span>Get Started</span></div></div>
+        <div class="btn-text-wrap"><div class="btn-text-inner"><span>Book a 1:1</span><span>Book a 1:1</span></div></div>
       </button>
     </div>
   </div>
@@ -4274,6 +4271,17 @@
 .strip-name { color: #FFB093; font-family: var(--sc-font-serif, 'Literata', Georgia, serif); font-weight: 400; font-style: italic; font-size: 1.25em; letter-spacing: 0.01em; }   /* the rotating-name's type, static (Gary: just Mason) */
 .feat-tab:hover .feat-hover-canvas { opacity: 1; }   /* the standard hover field draws its own alpha; the library's 0.12 was for film grain */
 .hero-dither { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }   /* family Bayer field over the hero (light: white squares on the dome; dark: the pale crown) */
+/* support card: no illustration, no lantern glow — the corner pixel field sits
+   in the right column's open bottom-right, colour from --sc-dot-rgb */
+.support-inner::before { display: none; }
+.support-col-image { position: relative; overflow: hidden; min-height: 320px; }
+#support-corner-dither {
+  position: absolute; right: -46px; bottom: -48px; width: min(520px, 96%); aspect-ratio: 1 / 0.85;
+  z-index: 0; pointer-events: none;
+  -webkit-mask-image: radial-gradient(ellipse at 72% 82%, #000 34%, transparent 68%);
+          mask-image: radial-gradient(ellipse at 72% 82%, #000 34%, transparent 68%);
+}
+@media (max-width: 768px) { .support-col-image { min-height: 0; } #support-corner-dither { width: 140%; right: -30px; bottom: -30px; } }
 .footer-spacer { display: none; }
 .bolt-image-wrap { margin-top: 0; width: 100%; overflow: hidden; position: relative; height: 32vw; max-height: 32vw; }
 
@@ -4525,6 +4533,63 @@ html[data-theme="light"] .footer-btn-noise { mix-blend-mode: multiply; }
   document.querySelectorAll('.feat-tab').forEach(function (tab, i) {
     var cv = tab.querySelector('.feat-hover-canvas'); if (cv) attachHoverField(tab, cv, i);
   });
+})();
+// ── Corner dither (support card — bottom-RIGHT mirror of compliance; replaces the mine-cart illustration, Gary) — the hero's Bayer squares,
+//    densest at the open bottom-left corner, winking with the same wave. ──
+(function () {
+  var canvas = document.getElementById('support-corner-dither');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var CELL = 5, SQ = 2, cols, rows;
+  var BAYER = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]];
+  var rgb = '20,136,252', aBase = 0.16, aRamp = 0.24;
+  function readDot() {
+    var v = getComputedStyle(canvas).getPropertyValue('--sc-dot-rgb').trim();
+    if (v) rgb = v;
+    /* alpha-on-white and alpha-on-black are not symmetric: the blue squares
+       need far more ink on the light panel than the pale grey needs on dark */
+    var light = document.documentElement.getAttribute('data-theme') !== 'dark';
+    /* light needs the ink; dark at the same strength read overwhelming (Gary) */
+    aBase = light ? 0.30 : 0.14;
+    aRamp = light ? 0.65 : 0.55;   /* size stays; the corner burns brighter (Gary) */
+  }
+  document.addEventListener('sc-themechange', readDot);
+  function init() {
+    canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
+    cols = Math.ceil(canvas.width / CELL) + 1;
+    rows = Math.ceil(canvas.height / CELL) + 1;
+    readDot();
+  }
+  window.addEventListener('resize', init); init();
+  var start = null;
+  function draw(ts) {
+    if (!start) start = ts;
+    var t = (ts - start) / 1000;
+    var W = canvas.width, H = canvas.height;
+    if (!W || !H) { init(); requestAnimationFrame(draw); return; }
+    ctx.clearRect(0, 0, W, H);
+    for (var r = 0; r < rows; r++) {
+      var gy = r / rows;
+      for (var c = 0; c < cols; c++) {
+        var gx = c / cols;
+        /* density falls radially from the bottom-left corner */
+        var dx = 1 - gx, dy = 1 - gy;   /* density falls from the bottom-RIGHT corner */
+        var base = 1 - Math.sqrt(dx * dx + dy * dy) / 0.72;   /* tighter field */
+        if (base <= 0) continue;
+        base = Math.pow(base, 1.35);   /* steeper: the corner pops, the tail thins fast */
+        var wave = Math.sin(gx * 4.3 + gy * 5.9 - t * 1.25) * 0.5
+                 + Math.sin(gx * 7.1 - gy * 3.3 + t * 0.85) * 0.28;
+        var level = base + wave * 0.38;
+        var th = (BAYER[r & 3][c & 3] + 0.5) / 16;
+        if (level <= th) continue;               /* on/off, like the hero */
+        var a = aBase + base * aRamp;
+        ctx.fillStyle = 'rgba(' + rgb + ',' + a.toFixed(3) + ')';
+        ctx.fillRect(c * CELL, r * CELL, SQ, SQ);
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
 })();
 // ── Hero dither (BOTH themes, every hero variant) — the family's ordered Bayer
 //    field. Light: white squares over the dome. Dark: the pale crown.
