@@ -537,6 +537,7 @@
     ['Compliance',       'marketing/compliance.html'],
     ['Trust',            'marketing/trust.html'],
     ['Trust v2',         'marketing/trust-v2.html'],
+    ['Demo',             'marketing/demo.html'],
     ['Integrations',     'marketing/integrations/'],
     ['Use Cases',        'marketing/use-cases/'],
     ['Templates',        'marketing/templates/'],
