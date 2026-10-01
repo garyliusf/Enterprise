@@ -1129,15 +1129,10 @@
             backdrop-filter: blur(24px);
     display: flex;
     flex-direction: column;
-    opacity: 0;
-    transition: opacity 0.28s ease, visibility 0s linear 0.28s;
-    visibility: hidden;
+    opacity: 0; transform: translateY(-8px); /* fade + settle both ways, 320ms = the JS unlock delay (mirror of bolt-public-pages#496) */ transition: opacity 0.32s ease, transform 0.32s cubic-bezier(0.2,0.7,0.2,1), visibility 0s linear 0.32s; visibility: hidden;
   }
-  .mkt-nav-mobile.is-open {
-    opacity: 1;
-    visibility: visible;
-    transition: opacity 0.28s ease, visibility 0s;
-  }
+  .mkt-nav-mobile.is-open { opacity: 1; transform: none; visibility: visible; transition: opacity 0.32s ease, transform 0.32s cubic-bezier(0.2,0.7,0.2,1), visibility 0s; }
+  @media (prefers-reduced-motion: reduce) { .mkt-nav-mobile, .mkt-nav-mobile.is-open { transform: none; transition: opacity 0.2s ease, visibility 0s linear 0.2s; } .mkt-nav-mobile.is-open { transition: opacity 0.2s ease, visibility 0s; } }
   .mkt-nav-mobile-header { display: none; }
   .mkt-nav-mobile-close,
   .mkt-nav-mobile-back {
@@ -2746,15 +2741,18 @@ window.addEventListener('load', function () {
   var views = drawer.querySelectorAll('.mkt-nav-mobile-view');
   var drills = drawer.querySelectorAll('[data-drill]');
 
-  var lockedScrollY = 0;
+  var lockedScrollY = 0, unlockTimer;
   function openDrawer() {
     drawer.classList.add('is-open');
     drawer.setAttribute('aria-hidden', 'false');
     /* iOS-proof scroll lock (mirror of bolt-public-pages#496): pin the body at
        its scroll offset — overflow:hidden alone is not a lock on iOS Safari */
-    lockedScrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
-    document.body.style.top = '-' + lockedScrollY + 'px';
-    document.body.classList.add('mkt-nav-mobile-open');
+    clearTimeout(unlockTimer);
+    if (!document.body.classList.contains('mkt-nav-mobile-open')) {
+      lockedScrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+      document.body.style.top = '-' + lockedScrollY + 'px';
+      document.body.classList.add('mkt-nav-mobile-open');
+    }
     if (navEl) navEl.classList.add('has-menu-open');
     if (burger) {
       burger.classList.add('is-open');
@@ -2766,9 +2764,13 @@ window.addEventListener('load', function () {
   function closeDrawer() {
     drawer.classList.remove('is-open');
     drawer.setAttribute('aria-hidden', 'true');
-    document.body.classList.remove('mkt-nav-mobile-open');
-    document.body.style.top = '';
-    window.scrollTo(0, lockedScrollY);
+    /* unlock only once the fade-out is done (320ms = the CSS transition), with
+       an instant restore — a smooth scroll slid the page under the fading drawer */
+    unlockTimer = setTimeout(function () {
+      document.body.classList.remove('mkt-nav-mobile-open');
+      document.body.style.top = '';
+      window.scrollTo({ top: lockedScrollY, left: 0, behavior: 'instant' });
+    }, 320);
     if (navEl) navEl.classList.remove('has-menu-open');
     if (navEl) navEl.classList.remove('is-on-submenu');
     if (burger) {
