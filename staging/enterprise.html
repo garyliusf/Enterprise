@@ -2099,6 +2099,11 @@
     .success-pull-quote-attr { margin-top: auto; }
     .success-pull-quote-name { font-size: 14px; }
     .success-pull-quote-role { font-size: 13px; }
+    /* Phones (Gary, 2026-10-01; mirror of bolt-public-pages#494): the card hugs its
+       content, the attribution row is sized to the photo band */
+    .success-pull-quote { min-height: 0; }
+    .success-pull-quote-content { padding-bottom: 28px; gap: 24px; }
+    .success-pull-quote-attr { margin-top: 0; min-height: clamp(180px, 50vw, 260px); padding-right: clamp(150px, 42vw, 220px); display: flex; flex-direction: column; justify-content: flex-end; }
     .success-company-name { font-size: clamp(24px, 7vw, 32px); }
     .success-dv-name { font-size: 22px; }
     .success-stats { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 1fr; }
@@ -2515,14 +2520,19 @@
       setTimeout(function () {
         if (subEl) subEl.textContent = slideSub[index] || '';
         header.classList.remove('transitioning');
-        scrambleText(taglineEl, text, function() {
-          animateBlueLetters(taglineEl);
-        });
+        /* plain swap, no letter scramble (Gary, 2026-10-01) — the crossfade
+           on .transitioning is the whole transition */
+        setTagline(taglineEl, text);
+        animateBlueLetters(taglineEl);
       }, 400);
     }
 
     var scrambleChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&';
 
+    function setTagline(el, text) {
+      if (!el) return;
+      if (text.indexOf('<') !== -1) el.innerHTML = text; else el.textContent = text;
+    }
     function scrambleText(el, finalText, onDone) {
       var chars = finalText.split('');
       var total = chars.length;
@@ -2672,12 +2682,12 @@
     });
 
     setActiveSlide(1, true);
-    // Scramble + animate on initial load
+    // Initial load: the tagline renders as-is (no scramble); only the blue
+    // letters animate in
     setTimeout(function () {
       var taglineEl = document.getElementById('slider-inner-tagline');
-      scrambleText(taglineEl, slideText[1], function() {
-        animateBlueLetters(taglineEl);
-      });
+      setTagline(taglineEl, slideText[1]);
+      animateBlueLetters(taglineEl);
     }, 100);
   })();
 </script>
