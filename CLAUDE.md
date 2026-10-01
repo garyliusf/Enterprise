@@ -473,6 +473,8 @@ Contentful-backed SSR blog (`/blog` renders on-demand, reading PUBLISHED content
 - **Actual post content** (new articles, edits, tags/categories): that's in Contentful itself, not in either repo.
 - Cloudflare Pages branch previews work too, but haven't been confirmed to have Contentful credentials wired into the **Preview** environment scope (separate from Production) — verify before relying on a preview link to share a WIP blog change.
 
+**Blog redesign lives on `blog/light-navbar` (Gary, 2026-10-01)** — not on main. That branch carries the new blog (Schibsted + Literata, light overlay nav, blue cards, review toggle, and since 2026-10-01 a white `#ffffff` ground with solid sticky sub-nav/filter bar); preview https://blog-light-navbar.bolt-public-pages.pages.dev/blog. main's `blog.css` is still the old beige/Inter/Cormorant blog. Blog changes go on that branch; restart the dev server after checking it out (main-only files are missing there). The font/colour tables below describe the OLD blog on main.
+
 ### Blog fonts
 | Role | Family | Token |
 |------|--------|-------|
