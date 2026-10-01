@@ -172,21 +172,11 @@
   var nav = document.querySelector('.mkt-nav');
   if (!nav) return;
   var pending = false;
-  /* Over-hero variant flips at 5% of the page's scroll distance (Gary) —
-     capped at the point where the hero's bottom edge reaches the bar, so the
-     white at-rest ink can never sit over white content on a long page. */
-  var overHero = nav.classList.contains('mkt-nav--over-hero');
-  var hero = overHero ? document.querySelector('.hero-section, [data-nav-hero]') : null;
-  function threshold() {
-    if (!overHero) return 8;
-    var doc = document.documentElement;
-    var t = Math.max(0, doc.scrollHeight - window.innerHeight) * 0.05;
-    if (hero) {
-      var heroBottom = hero.getBoundingClientRect().bottom + (window.pageYOffset || doc.scrollTop || 0);
-      t = Math.min(t, heroBottom - nav.offsetHeight);
-    }
-    return Math.max(8, t);
-  }
+  /* Flips as soon as the user scrolls — a few pixels, no variant-specific
+     threshold. The over-hero bar used to wait for 5% of the page's scroll
+     distance; Gary (2026-09-30): the ground should change the moment the
+     page moves, on phones especially. */
+  function threshold() { return 8; }
   function sync() {
     pending = false;
     var y = window.pageYOffset || document.documentElement.scrollTop || 0;
