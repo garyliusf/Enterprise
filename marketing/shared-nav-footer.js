@@ -111,9 +111,14 @@
   var views = drawer.querySelectorAll('.mkt-nav-mobile-view');
   var drills = drawer.querySelectorAll('[data-drill]');
 
+  var lockedScrollY = 0;
   function openDrawer() {
     drawer.classList.add('is-open');
     drawer.setAttribute('aria-hidden', 'false');
+    /* iOS-proof scroll lock (mirror of bolt-public-pages#496): pin the body at
+       its scroll offset — overflow:hidden alone is not a lock on iOS Safari */
+    lockedScrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+    document.body.style.top = '-' + lockedScrollY + 'px';
     document.body.classList.add('mkt-nav-mobile-open');
     if (navEl) navEl.classList.add('has-menu-open');
     if (burger) {
@@ -127,6 +132,8 @@
     drawer.classList.remove('is-open');
     drawer.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('mkt-nav-mobile-open');
+    document.body.style.top = '';
+    window.scrollTo(0, lockedScrollY);
     if (navEl) navEl.classList.remove('has-menu-open');
     /* Reset submenu state so the next open lands on home. */
     if (navEl) navEl.classList.remove('is-on-submenu');

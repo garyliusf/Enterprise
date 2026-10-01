@@ -1282,7 +1282,15 @@
     flex-shrink: 0;
   }
   @media (min-width: 1025px) { .mkt-nav-mobile { display: none; } }
-  body.mkt-nav-mobile-open { overflow: hidden; }
+  /* Scroll lock while the drawer is open (iOS-proof, mirror of bolt-public-pages#496):
+     overflow:hidden alone is not a lock on iOS Safari — the page kept scrolling
+     under the drawer and carried the sticky header away. The body is pinned at
+     its scroll offset (JS sets top:-scrollY inline, restores on close), the nav
+     shell is pinned to the viewport next to the fixed drawer, and the drawer
+     contains its own scrolling. */
+  body.mkt-nav-mobile-open { overflow: hidden; position: fixed; left: 0; right: 0; width: 100%; touch-action: none; }
+  body.mkt-nav-mobile-open .mkt-nav-shell { position: fixed; top: 0; left: 0; right: 0; }
+  .mkt-nav-mobile { overscroll-behavior: contain; touch-action: pan-y; }
 
   /* ═══════════════════════════════════════════════════════════════════════
      FOOTER — ported from marketing/templates/index.html
@@ -2731,9 +2739,14 @@ window.addEventListener('load', function () {
   var views = drawer.querySelectorAll('.mkt-nav-mobile-view');
   var drills = drawer.querySelectorAll('[data-drill]');
 
+  var lockedScrollY = 0;
   function openDrawer() {
     drawer.classList.add('is-open');
     drawer.setAttribute('aria-hidden', 'false');
+    /* iOS-proof scroll lock (mirror of bolt-public-pages#496): pin the body at
+       its scroll offset — overflow:hidden alone is not a lock on iOS Safari */
+    lockedScrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+    document.body.style.top = '-' + lockedScrollY + 'px';
     document.body.classList.add('mkt-nav-mobile-open');
     if (navEl) navEl.classList.add('has-menu-open');
     if (burger) {
@@ -2747,6 +2760,8 @@ window.addEventListener('load', function () {
     drawer.classList.remove('is-open');
     drawer.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('mkt-nav-mobile-open');
+    document.body.style.top = '';
+    window.scrollTo(0, lockedScrollY);
     if (navEl) navEl.classList.remove('has-menu-open');
     if (navEl) navEl.classList.remove('is-on-submenu');
     if (burger) {
