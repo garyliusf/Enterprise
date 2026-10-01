@@ -2265,21 +2265,10 @@
   }
   @media (min-width: 1025px) { .mkt-nav-mobile { display: none; } }
   /* When the mobile drawer is open, lock body scroll. Class added by JS. */
-  /* Scroll lock while the drawer is open (iOS-proof, mirror of bolt-public-pages#496):
-     overflow:hidden alone is not a lock on iOS Safari — the page kept scrolling
-     under the drawer and carried the sticky header away. The body is pinned at
-     its scroll offset (JS sets top:-scrollY inline, restores on close), the nav
-     shell is pinned to the viewport next to the fixed drawer, and the drawer
-     contains its own scrolling. */
-  /* Burger/X + Back chevron alignment (Gary, 2026-09-30; mirror of bolt-public-pages#496):
-     the X's ink sat 6px left of the drawer chevron tips and the Back chevron's
-     stroke 5px right of the drawer text edge. Buttons keep their tap size. */
-  @media (max-width: 1024px) {
-    .mkt-nav-burger { margin-right: -6px; }
-    .mkt-nav-back { left: -5px; }
-  }
-  body.mkt-nav-mobile-open { overflow: hidden; position: fixed; left: 0; right: 0; width: 100%; touch-action: none; }
-  body.mkt-nav-mobile-open .mkt-nav { position: fixed; top: 0; left: 0; right: 0; }   /* the sandbox bar is the sticky element itself (no shell) */
+  /* Scroll lock while the drawer is open (mirror of bolt-public-pages#496): overflow:hidden
+     covers the mouse; iOS ignores it for touch panning, which the JS cancels with a
+     touchmove handler while open — no layout change (pinning the body shifted the page). */
+  body.mkt-nav-mobile-open { overflow: hidden; touch-action: none; }
   .mkt-nav-mobile { overscroll-behavior: contain; touch-action: pan-y; }
 
   /* ─── SITE FOOTER (link columns, ported from the Retool footer pattern) ── */
@@ -4425,18 +4414,25 @@
   var views = drawer.querySelectorAll('.mkt-nav-mobile-view');
   var drills = drawer.querySelectorAll('[data-drill]');
 
-  var lockedScrollY = 0, unlockTimer;
+  var lockStartY = 0;
+  function lockTouchStart(e) { lockStartY = e.touches[0] ? e.touches[0].clientY : 0; }
+  function lockTouchMove(e) {
+    var scroller = e.target && e.target.closest ? e.target.closest('.mkt-nav-mobile-view') : null;
+    if (!scroller || scroller.scrollHeight <= scroller.clientHeight) { e.preventDefault(); return; }
+    var dy = (e.touches[0] ? e.touches[0].clientY : 0) - lockStartY;
+    var atTop = scroller.scrollTop <= 0, atBottom = scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 1;
+    if ((atTop && dy > 0) || (atBottom && dy < 0)) e.preventDefault();   /* an edge: the pan would chain to the page */
+  }
   function openDrawer() {
     drawer.classList.add('is-open');
     drawer.setAttribute('aria-hidden', 'false');
-    /* iOS-proof scroll lock (mirror of bolt-public-pages#496): pin the body at
-       its scroll offset — overflow:hidden alone is not a lock on iOS Safari */
-    clearTimeout(unlockTimer);
-    if (!document.body.classList.contains('mkt-nav-mobile-open')) {
-      lockedScrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
-      document.body.style.top = '-' + lockedScrollY + 'px';
-      document.body.classList.add('mkt-nav-mobile-open');
-    }
+    /* scroll lock (mirror of bolt-public-pages#496): overflow:hidden covers the
+       mouse; iOS ignores it for touch panning, so cancel touchmove outside the
+       drawer's own scroll view while open — no layout change (pinning the body
+       shifted the page by the bar height) */
+    document.body.classList.add('mkt-nav-mobile-open');
+    document.addEventListener('touchstart', lockTouchStart, { passive: true });
+    document.addEventListener('touchmove', lockTouchMove, { passive: false });
     if (navEl) navEl.classList.add('has-menu-open');
     if (burger) {
       burger.classList.add('is-open');
@@ -4448,13 +4444,9 @@
   function closeDrawer() {
     drawer.classList.remove('is-open');
     drawer.setAttribute('aria-hidden', 'true');
-    /* unlock only once the fade-out is done (320ms = the CSS transition), with
-       an instant restore — a smooth scroll slid the page under the fading drawer */
-    unlockTimer = setTimeout(function () {
-      document.body.classList.remove('mkt-nav-mobile-open');
-      document.body.style.top = '';
-      window.scrollTo({ top: lockedScrollY, left: 0, behavior: 'instant' });
-    }, 320);
+    document.body.classList.remove('mkt-nav-mobile-open');
+    document.removeEventListener('touchstart', lockTouchStart);
+    document.removeEventListener('touchmove', lockTouchMove);
     if (navEl) navEl.classList.remove('has-menu-open');
     /* Reset submenu state so the next open lands on home. */
     if (navEl) navEl.classList.remove('is-on-submenu');
