@@ -364,6 +364,11 @@
     flex-direction: column;
   }
 
+  /* the poster painted behind the <video>: iOS drops the element's frames
+
+     after the YouTube modal plays, which left a blank card (Gary, 2026-10-01) */
+
+  .card-video-area { background: #050507 url("assets/public-page-assets/enterprise/redesign/hero-video-preview-poster.webp") center / cover no-repeat; }
   .card-video-area {
     position: relative;
     aspect-ratio: 16 / 9;
@@ -3501,8 +3506,17 @@
       // Removing the iframe is the cleanest way to stop YouTube playback
       // and any audio that might still be playing.
       modalVideo.innerHTML = '';
-      // Resume the background card video
-      if (cardVideo) try { cardVideo.play(); } catch (_) {}
+      // Resume the background card video. On iOS the YouTube playback evicts
+      // this element's decoded frames, so a plain play() came back as a blank
+      // card (Gary, 2026-10-01): reload it (poster shows, autoplay restarts the
+      // muted loop) and swallow the promise — autoplay is allowed muted+inline.
+      if (cardVideo) {
+        try {
+          cardVideo.load();
+          var p = cardVideo.play();
+          if (p && typeof p.catch === 'function') p.catch(function () {});
+        } catch (_) {}
+      }
       setTimeout(function() {
         modal.classList.remove('open', 'closing');
         playBtn.classList.remove('clicked');
