@@ -1035,7 +1035,12 @@
     flex: 1;
     display: flex;
     align-items: center;
-  }
+  
+    /* caps (Gary, 2026-10-01: "cap all the letters here and see") */
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;   /* the caps-label weight — 600 reads thin at 13px */
+}
 
   .slider-tab.active .slider-tab-text {
     color: #ffffff;
@@ -2286,8 +2291,25 @@
   const train = track.parentElement;
 
   function setupMarquee() {
-    // Tear down any previous wrapper
+    // How many copies fill one viewport width? Before the SVGs have loaded
+    // the set measures narrow (or 0), so fall back to a conservative estimate
+    // — the -50% loop is seamless at any width, extra copies are just cheap.
+    // (track.scrollWidth is the set's own width whether or not it already
+    // sits inside the wrapper: flex-shrink is 0 on it.)
+    const logoCount = track.querySelectorAll('.logo-item').length || 6;
+    const setWidth = Math.max(track.scrollWidth, logoCount * 150);
+    const copiesPerHalf = Math.ceil(window.innerWidth / setWidth) + 1;
+    const speed = (setWidth * copiesPerHalf) / 30;
+
+    // Already built with this many copies? Only refresh the speed — any DOM
+    // rebuild restarts the animation at 0 and reads as a jump.
     const old = document.getElementById('logo-wrapper');
+    if (old && Number(old.dataset.copies) === copiesPerHalf) {
+      old.style.animationDuration = speed + 's';
+      return;
+    }
+
+    // Tear down any previous wrapper
     if (old) {
       train.insertBefore(track, old);
       old.remove();
@@ -2295,14 +2317,11 @@
     track.style.animation = 'none';
     track.style.flexShrink = '0';
 
-    // How many copies fill one viewport width?
-    const setWidth = track.scrollWidth;
-    const copiesPerHalf = Math.ceil(window.innerWidth / setWidth) + 1;
-
     // Build wrapper: (copiesPerHalf × 2) copies total — first half = second half
     // Animating by -50% always equals exactly one half, so the loop is seamless
     const wrapper = document.createElement('div');
     wrapper.id = 'logo-wrapper';
+    wrapper.dataset.copies = String(copiesPerHalf);
     wrapper.style.cssText = 'display:flex;align-items:center;will-change:transform;flex-shrink:0;';
 
     for (let i = 0; i < copiesPerHalf * 2; i++) {
@@ -2314,8 +2333,6 @@
     }
     train.appendChild(wrapper);
 
-    // Speed based on one half width (= copiesPerHalf sets)
-    const speed = (setWidth * copiesPerHalf) / 30;
     let styleEl = document.getElementById('marquee-keyframe');
     if (!styleEl) {
       styleEl = document.createElement('style');
@@ -2345,10 +2362,12 @@
     });
   }
 
-  // Wait for images so layout is fully settled before first run
-  if (document.readyState === 'complete') {
-    setupMarquee();
-  } else {
+  // Build NOW (the script sits right after the markup) so the strip never
+  // shows the single half-empty set while the rest of the page loads (Gary,
+  // 2026-10-01); re-run on load to correct the copy count once the SVGs have
+  // their real widths — a no-op unless the count changed.
+  setupMarquee();
+  if (document.readyState !== 'complete') {
     window.addEventListener('load', setupMarquee);
   }
   // Only re-setup on width changes — height changes (Safari scroll bar show/hide) cause stutter
