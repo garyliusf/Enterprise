@@ -2382,5 +2382,25 @@ html[data-theme="light"] #bolt-wordmark-img { mix-blend-mode: multiply; }  /* li
   requestAnimationFrame(draw);
 })();
 </script>
+<script>
+/* iOS status-bar strip (mirror of bolt-public-pages#496): Safari paints it from
+   the document background once scrolled (theme-color meta otherwise), so both
+   follow the bar — the page ground while see-through, white once solid. */
+(function () {
+  var nav = document.querySelector('.mkt-nav');
+  if (!nav) return;
+  var meta = document.createElement('meta');
+  meta.setAttribute('name', 'theme-color');
+  document.head.appendChild(meta);
+  function sync() {
+    var solid = nav.classList.contains('is-scrolled') || nav.classList.contains('has-menu-open');
+    var color = solid ? '#fffefe' : '#EFEDF3';
+    meta.setAttribute('content', color);
+    document.documentElement.style.backgroundColor = color;
+  }
+  new MutationObserver(sync).observe(nav, { attributes: true, attributeFilter: ['class'] });
+  sync();
+})();
+</script>
 </body>
 </html>
