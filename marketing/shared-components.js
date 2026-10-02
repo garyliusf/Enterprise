@@ -546,8 +546,6 @@
   var PAGES = [
     ['Solutions',        'marketing/solutions.html'],
     ['Security',         'marketing/security.html'],
-    ['Security Agent',   'marketing/security-agent.html'],
-    ['Compliance',       'marketing/compliance.html'],
     ['Trust',            'marketing/trust.html'],
     ['Trust v2',         'marketing/trust-v2.html'],
     ['Demo',             'marketing/demo.html'],
