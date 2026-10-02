@@ -2488,6 +2488,26 @@
           backdrop-filter: var(--sc-nav-over-blur);
 }
 .mkt-nav--over-hero .mkt-nav-logo svg path { transition: fill 0.12s ease; }
+/* Menu open = ONE fade, in step (Gary, 2026-10-02 — frame-by-frame from his
+   recording). The panel's opacity fade runs on the compositor and started two
+   frames before the bar, whose background-color change is a main-thread
+   repaint (and repainted every other frame under the hero canvases). So the
+   bar gets its own solid layer that fades with the SAME property, duration
+   and easing as the panel. And the ink flips at the midpoint instead of
+   crossfading: white→dark text over a clear→white bar met in the middle as
+   grey on grey (the links vanished for two frames — the "flash"). Desktop
+   only; the drawer paints its own bar. */
+@media (min-width: 1025px) {
+  .mkt-nav::before {
+    content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+    background: var(--sc-nav-bg-solid, #050507);
+    opacity: 0; transition: opacity 0.12s ease; will-change: opacity;
+  }
+  .mkt-nav.has-menu-open::before { opacity: 1; }
+  .mkt-nav .mkt-nav-link { transition: color 0s linear 0.06s, background 0.15s ease; }
+  .mkt-nav .mkt-nav-signin { transition: color 0s linear 0.06s; }
+  .mkt-nav .mkt-nav-logo svg path { transition: fill 0s linear 0.06s; }
+}
 .mkt-nav--over-hero.is-scrolled { background: var(--sc-nav-over-bg-scrolled, var(--sc-nav-bg-scrolled)); }
 /* Blend variant — opt-in per page. For light pages whose ground is NOT white
    (the beige customers pages): at rest the bar is transparent so it takes the
