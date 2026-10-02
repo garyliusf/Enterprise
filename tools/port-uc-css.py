@@ -28,7 +28,7 @@ out_path = pathlib.Path(sys.argv[1]).expanduser()
 tpl = (ROOT / 'solutions/_template/index.html').read_text()
 
 PFX = '.use-case-page.use-case-page[data-page="use-case"]'   # (0,3,0): outranks every base rule at equal structure
-DEMO = re.compile(r'\.(?:plat-|compare-|split-|hero-section--split|footer-section--buttons|footer-cta-wrap--buttons|hero-video|video-modal|template-create|pvideo|hero-card|hero-play|hero-strip|bolt-wrap|bolt-fade|bolt-shimmer|bolt-image-wrap|rotating-name|hero-cta-button|hero-form-row|hero-email-input|logo-train|logo-track|logo-item|logos-section|logos-label|hero-aurora|re-prompt-input::placeholder)|#bolt-wordmark-img|#bolt-shimmer-canvas|#plat-|#compare-|#footer-pixel-canvas-b')
+DEMO = re.compile(r'\.(?:plat-|compare-|split-|hero-section--split|footer-section--buttons|footer-cta-wrap--buttons|hero-video|video-modal|template-create|pvideo|hero-card|hero-play|hero-strip|bolt-wrap|bolt-fade|bolt-shimmer|bolt-image-wrap|rotating-name|hero-cta-button|hero-form-row|hero-email-input|logo-train|logo-track|logo-item|logos-section|logos-label|hero-aurora)|#bolt-wordmark-img|#bolt-shimmer-canvas|#plat-|#compare-|#footer-pixel-canvas-b')
 DROP_WHOLE = re.compile(r'^(?::root|\*|html|\.sr-only)$')
 
 # ── 1. collect the template's style blocks (every <style> before <body>) ──
