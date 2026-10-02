@@ -44,6 +44,14 @@ i=shared_js.index('/* ═══ REVIEW-ONLY: page navigator'); shared_js=shared_
 i=shared_js.index("bolt-shimmer-canvas"); a0=shared_js.rfind('/* ====',0,i); a1=shared_js.index('})();',i)+5
 shared_js=shared_js[:a0]+'/* (wordmark shimmer module removed: Layout Footer renders FooterWordmark) */'+shared_js[a1:]
 assert 'sc-page-nav' not in shared_js and 'bolt-shimmer-canvas' not in shared_js
+# Scope every document-wide lookup to the page body. The site Header/Footer are
+# React islands: the shared script pixel-fills every .hero-btn-primary, which
+# includes the nav's "Get Started" button, and mutating it before hydration
+# throws React #418 (hydration mismatch) in the production build.
+SCOPE="(document.querySelector('main.compliance-main') || document)"
+n=shared_js.count('document.querySelectorAll('); shared_js=shared_js.replace('document.querySelectorAll(',SCOPE+'.querySelectorAll(')
+js=[blk.replace('document.querySelectorAll(',SCOPE+'.querySelectorAll(') for blk in js]
+print('scoped',n,'shared lookups')
 # the footer wordmark belongs to Layout's Footer (FooterWordmark): drop the sandbox's
 # own .bolt-image-wrap / #bolt-shimmer-canvas rules so they cannot restyle it
 def drop_wordmark(blob):
