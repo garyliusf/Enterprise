@@ -732,6 +732,8 @@ body { background: var(--sc-ground, #000); font-family: var(--sc-font-sans, 'Sch
   letter-spacing: -1px;
   margin: 0 0 14px;
 }
+/* the included/features header is a block stack (no flex gap): H2→subtitle on the 16px rhythm, like every flex header */
+.unlocks-header > .sc-section-h2 { margin-bottom: 16px; }
 @media (max-width: 768px) { .sc-section-h2 { font-size: clamp(28px, 8vw, 40px); } }
 /* section subtitle */
 .section-sub {
@@ -1128,13 +1130,13 @@ body { background: var(--sc-ground, #000); font-family: var(--sc-font-sans, 'Sch
 }
 /* footer headline — canonical section-H2 type (was fixed 52px / lh 1.2) */
 .footer-headline { font-size: clamp(40px,4vw,52px); font-weight: 500; color: #fff; line-height: 1.15; letter-spacing: -1px; margin: 0; }
-.footer-subtitle { font-size: 18px; color: #ABABAB; max-width: 560px; line-height: 1.6; margin: -8px 0 0; }
+.footer-subtitle { font-size: clamp(15px, 1.1vw, 17px); color: #ABABAB; max-width: 560px; line-height: 1.65; margin: -8px 0 0; }   /* the section-subtitle canon (was a one-off 18 / 1.6) */
 /* keep the footer headings above the (now taller) pixel field so text stays crisp */
 .footer-section > .footer-eyebrow, .footer-section > .footer-headline, .footer-section > .footer-subtitle { position: relative; z-index: 1; }
 /* eyebrow→headline: rely on the 24px flex gap (matches other solutions pages); previous -8px margin pulled the H2 too close */
 .footer-section > .footer-eyebrow { margin-bottom: 0; }
 /* footer pixel field + prompt box wrapper — desktop offset (tuned) */
-.footer-cta-wrap { margin-top: -150px; }
+.footer-cta-wrap { margin-top: -157px; }   /* subtitle→prompt box 32 */
 /* mobile: the heading stack is taller (headline wraps), so raise the field
    further (and grow the canvas the same amount) to keep it behind the headline
    while the prompt box stays put */
@@ -1419,7 +1421,7 @@ body { background: var(--sc-ground, #000); font-family: var(--sc-font-sans, 'Sch
 .why-stats-grid--centered .why-stat-eyebrow { margin: 18px 0 0; max-width: 280px; }
 
 /* ─── HOW IT WORKS ───────────────────────────────────────────────────────── */
-.how-section { border-top: 1px solid rgba(255,255,255,0.06); }
+.how-section { border-top: 1px solid rgba(255,255,255,0.06); overflow-x: clip; }   /* the travelling line glow runs 40px past the track's end; at tablet widths that reached past the viewport and gave the page a horizontal scroll */
 .how-header { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; margin-bottom: clamp(40px,6vh,72px); }
 .how-steps-wrap { position: relative; }
 .how-line-track { position: absolute; top: 19px; left: 0; right: 0; height: 1px; background: rgba(255,255,255,0.07); pointer-events: none; z-index: 0; }
@@ -1629,7 +1631,7 @@ body { background: var(--sc-ground, #000); font-family: var(--sc-font-sans, 'Sch
   /* hero gutters match the section standard (40px each side on tablet/iPad) */
   .hero-content-area { padding-left: 40px; padding-right: 40px; }
   .section-sub, .feat-subheadline { font-size: 16px; }
-  .footer-subtitle { font-size: 16px; }
+  .footer-subtitle { font-size: 15px; }
   .stats-grid { grid-template-columns: repeat(2,1fr); }
   .stats-grid .stat-cell:nth-child(2) { border-right: none; }
   .stats-grid .stat-cell:nth-child(-n+2) { border-bottom: 1px solid rgba(255,255,255,0.10); }
@@ -1660,7 +1662,7 @@ body { background: var(--sc-ground, #000); font-family: var(--sc-font-sans, 'Sch
   .hero-content-area { padding-left: 24px; padding-right: 24px; }
   /* CLAUDE.md: button mobile — 44px height, 0 18px padding, 14px font */
   .hero-btn-primary,
-  .hero-btn-ghost { height: 44px; padding: 0 18px; font-size: 14px; }
+  .hero-btn-ghost { height: 52px; padding: 0 26px; font-size: 16px; }
   .footer-cta-btn { height: 44px; font-size: 14px; }
   .footer-email-input { height: 44px; }
   .why-stats-grid { grid-template-columns: repeat(2,1fr); }
@@ -1724,14 +1726,14 @@ body { background: var(--sc-ground, #000); font-family: var(--sc-font-sans, 'Sch
 .hero-section--simple .hero-subtitle { margin-top: 4px; }
 .hero-section--simple .hero-btn-group { justify-content: center; margin-top: 16px; }
 .hero-section--simple .hero-btn-primary,
-.hero-section--simple .hero-btn-ghost { font-size: 16px; min-width: 180px; }
+.hero-section--simple .hero-btn-ghost { font-size: 15px; min-width: 180px; }
 /* Hero prompt box — bolt-app style animated "comet" outline. Ported from the
    bolt app's .PromptStreamingContainer: a brand-blue radial glow orbits the
    rounded border via CSS motion path, while an opaque inner panel hides the
    centre so only the edge lights up. */
 .hero-prompt-shell {
   max-width: 600px;
-  margin: 4px auto 0;
+  margin: 8px auto 0;   /* + the hero-text 24px gap = the 32px subtitle→CTA standard */
   text-align: left;
   position: relative;
   overflow: hidden;
@@ -1927,10 +1929,11 @@ body { background: var(--sc-ground, #000); font-family: var(--sc-font-sans, 'Sch
   .hero-section--simple { min-height: 0; padding: calc(100px + var(--sc-nav-overlap, 0px)) 0 56px; }  /* security's mobile hero rule */
   .hero-section--simple .hero-text { gap: 18px; max-width: none; }
   .hero-section--simple .hero-h1 { font-size: clamp(37px, 10.45vw, 51px); line-height: 1.1; }
-  .hero-section--simple .hero-subtitle { font-size: 15px; margin-top: 2px; }
+  .hero-section--simple .hero-subtitle { font-size: 16px; margin-top: 2px; }   /* the phone hero-subtitle standard is 16 */
+  .hero-section--simple .hero-prompt-shell { margin-top: 6px; }   /* + the 18px phone gap = 24 */
   .hero-section--simple .hero-btn-group { width: auto; gap: 12px; margin-top: 10px; flex-wrap: wrap; justify-content: center; }
   .hero-section--simple .hero-btn-group .hero-btn-primary,
-  .hero-section--simple .hero-btn-group .hero-btn-ghost { flex: 0 0 auto; width: auto; min-width: 260px; max-width: 100%; height: 52px; padding: 0 26px; font-size: 16px; justify-content: center; }
+  .hero-section--simple .hero-btn-group .hero-btn-ghost { flex: 0 0 auto; width: auto; min-width: 220px; max-width: 100%; height: 52px; padding: 0 26px; font-size: 16px; justify-content: center; }
   /* Show only 2 pills on mobile — long CMS labels made 3 in a nowrap row overflow 100vw and cause horizontal page scroll. */
   /* +6px tops up the mobile hero stack's 18px gap → 24px, matching the footer pills */
   .hero-pills { flex-direction: row; flex-wrap: nowrap; justify-content: center; align-items: center; gap: 0 12px; border-radius: 999px; padding: 10px 16px; margin-top: 6px; max-width: 100%; }
@@ -2153,7 +2156,7 @@ body { background: var(--sc-ground, #000); font-family: var(--sc-font-sans, 'Sch
    needs and delete the other; the bolt wordmark stays on the LAST one only. */
 .footer-section--buttons { padding-bottom: clamp(72px, 10vh, 110px); }
 /* same field offset as the prompt variant so the pixels sit behind the heading */
-.footer-cta-wrap--buttons { margin-top: -150px; }
+.footer-cta-wrap--buttons { margin-top: -157px; }
 .footer-cta-btns {
   position: relative; z-index: 1; margin-top: -10px;
   display: flex; align-items: center; justify-content: center; gap: 12px;
@@ -2174,7 +2177,7 @@ body { background: var(--sc-ground, #000); font-family: var(--sc-font-sans, 'Sch
   .footer-cta-btns { flex-direction: column; }
   .footer-cta-btns .hero-btn-primary,
   .footer-cta-btns .hero-btn-ghost {
-    min-width: 260px; max-width: 100%;
+    min-width: 220px; max-width: 100%;
     height: 52px; font-size: 16px;
   }
 }
@@ -2195,7 +2198,7 @@ body { background: var(--sc-ground, #000); font-family: var(--sc-font-sans, 'Sch
 .split-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
 .split-section--flip .split-copy { order: 2; }
 
-.split-copy { display: flex; flex-direction: column; align-items: flex-start; gap: 22px; }
+.split-copy { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }   /* the header rhythm (eyebrow→H2→subtitle 16) */
 .split-copy > * { margin: 0; }
 /* OPTIONAL dot eyebrow — no longer in the markup. To label a clone's section,
    add <p class="section-eyebrow split-eyebrow eyebrow-scramble">Label</p> as the
@@ -2209,7 +2212,7 @@ body { background: var(--sc-ground, #000); font-family: var(--sc-font-sans, 'Sch
 .split-copy .section-sub { max-width: 500px; }
 /* CTA sits a token gap below the copy (--sub-to-cta equivalent: 32/24) */
 .split-copy .hero-btn-primary,
-.split-copy .hero-btn-ghost { margin-top: 10px; min-width: 180px; }
+.split-copy .hero-btn-ghost { margin-top: 16px; min-width: 180px; }   /* + the 16px gap = 32 */
 
 /* ── Terminal panel ── */
 .split-panel {
@@ -2285,21 +2288,21 @@ body { background: var(--sc-ground, #000); font-family: var(--sc-font-sans, 'Sch
   .split-copy { display: contents; }
   .split-copy > .section-eyebrow { order: 1; }
   .split-copy > h1, .split-copy > h2 { order: 2; }
-  .split-copy > p { order: 3; margin-top: 18px; }
+  .split-copy > p { order: 3; margin-top: 12px; }
   .split-panel { order: 4; margin-top: 36px; }
   .split-copy > .hero-btn-primary,
   .split-copy > .hero-btn-ghost { order: 5; margin-top: 30px; justify-self: start; }
   .split-terminal { min-height: 0; }
 }
 @media (max-width: 768px) {
-  .split-copy > p { margin-top: 14px; }
+  .split-copy > p { margin-top: 8px; }
   .split-panel { margin-top: 30px; }
   /* panel → CTA needs a clear break: the button reads as attached to the panel
      at the copy's own rhythm, so it gets a bigger gap than the copy stack */
   .split-copy > .hero-btn-primary,
   .split-copy > .hero-btn-ghost { margin-top: 26px; }
   .split-copy .hero-btn-primary,
-  .split-copy .hero-btn-ghost { min-width: 260px; max-width: 100%; height: 52px; font-size: 16px; }
+  .split-copy .hero-btn-ghost { min-width: 220px; max-width: 100%; height: 52px; font-size: 16px; }
   .split-terminal { padding: 18px 16px 22px; line-height: 1.8; min-height: 0; }
   .split-tab { font-size: 12px; padding: 5px 10px; }
 }
@@ -2329,7 +2332,7 @@ body { background: var(--sc-ground, #000); font-family: var(--sc-font-sans, 'Sch
 /* hero copy is left-aligned and wraps (the base .hero-h1 is centered + nowrap) */
 .hero-section--split .hero-h1 { text-align: left; white-space: normal; max-width: 620px; }
 .hero-section--split .hero-subtitle { text-align: left; max-width: 520px; }
-.hero-section--split .split-copy .hero-btn-primary { margin-top: 8px; font-size: 16px; min-width: 180px; }
+.hero-section--split .split-copy .hero-btn-primary { margin-top: 8px; font-size: 15px; min-width: 180px; }
 /* panel sits ON the photo, so it takes a translucent fill instead of #0b0b0e */
 .hero-section--split .split-panel {
   background: rgba(9,9,12,0.78);
@@ -2361,7 +2364,7 @@ body { background: var(--sc-ground, #000); font-family: var(--sc-font-sans, 'Sch
   .hero-section--split .hero-subtitle { font-size: 15px; max-width: none; }
   /* margin-top restated: the base .hero-section--split rule (3 classes) beats
      the .split-copy > .hero-btn-primary margin in the stacked block */
-  .hero-section--split .split-copy .hero-btn-primary { min-width: 260px; max-width: 100%; height: 52px; margin-top: 26px; }
+  .hero-section--split .split-copy .hero-btn-primary { min-width: 220px; max-width: 100%; height: 52px; font-size: 16px; margin-top: 26px; }
 }
 
 /* ─── Split panel variant: URL rows (.split-panel--rows) ───────────────────
