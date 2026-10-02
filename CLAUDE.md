@@ -77,6 +77,7 @@ All buttons must use these exact specs. No inline overrides unless absolutely ne
 - Font size `16px` (1px LARGER than desktop's 15 — it is a touch target)
 - `min-width: 220px` via `--cta-min-w`, `max-width: 100%`, centered
 - Apply to: `.hero-btn-primary`, `.hero-btn-ghost`; form input height matches
+- **Source-order trap (fixed 2026-10-02):** shared's `.hero-btn-ghost` base rule sits AFTER the ≤768 block, so at equal specificity it won and ghost buttons rendered 15px / 0 28px on phones everywhere (solutions "Explore Platform Security"). The phone values are now restated right after the ghost base rule. Also: never size the footer `.footer-cta-btn` inline (`style="height:52px;padding:0 28px;font-size:15px"` was on 9 pages — stripped; shared owns it, and production's footer-cta section still needs the `!important` phone override). Footer CTA subtitle on phones = **15px** like every section subtitle (shared + page copies; was a one-off 16).
 
 **Corrected 2026-09-18.** This section previously read "height scales to 44px /
 padding 0 18px / font size 14px", which (a) nothing in either repo implemented
