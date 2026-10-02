@@ -62,7 +62,7 @@
       clearTimeout(hoverTimer);
       /* If a menu is already open, switch instantly — no delay. Fresh open uses a short defer to avoid triggering on incidental mouseovers. */
       if (openKey) setOpen(key);
-      else hoverTimer = setTimeout(function () { setOpen(key); }, 80);
+      else hoverTimer = setTimeout(function () { setOpen(key); }, 50);
     });
   });
   /* Plain items (Templates, Pricing) and the right-hand actions have no
