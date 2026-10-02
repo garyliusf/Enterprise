@@ -2488,25 +2488,43 @@
           backdrop-filter: var(--sc-nav-over-blur);
 }
 .mkt-nav--over-hero .mkt-nav-logo svg path { transition: fill 0.12s ease; }
-/* Menu open = ONE fade, in step (Gary, 2026-10-02 — frame-by-frame from his
-   recording). The panel's opacity fade runs on the compositor and started two
-   frames before the bar, whose background-color change is a main-thread
-   repaint (and repainted every other frame under the hero canvases). So the
-   bar gets its own solid layer that fades with the SAME property, duration
-   and easing as the panel. And the ink flips at the midpoint instead of
-   crossfading: white→dark text over a clear→white bar met in the middle as
-   grey on grey (the links vanished for two frames — the "flash"). Desktop
-   only; the drawer paints its own bar. */
+/* Menu open = ONE fade, in step (Gary, 2026-10-02). The panel fades with
+   opacity on the compositor; the bar's background-color change is a
+   main-thread repaint that started two frames late (his recording, frame by
+   frame). So on OPEN the bar is painted by this solid layer, which fades with
+   the same property, duration and easing as the panel — and the bar's own
+   background WAITS until the layer has covered it, then snaps underneath
+   (0s after 0.12s). Without that wait the two fades stacked and the bar ran
+   AHEAD of the panel (v1 of this fix — worse). The seam line fades with the
+   layer too. Ink and logo flip once, at the point where white and dark text
+   have equal contrast on the half-faded bar (~40ms), instead of crossfading
+   through grey on grey. On CLOSE the layer drops out instantly and the bar
+   fades back as it always did. Desktop only; the drawer paints its own bar. */
 @media (min-width: 1025px) {
   .mkt-nav::before {
-    content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+    content: ''; position: absolute; inset: 0 0 -1px 0; /* -1px: also backs the bar's 1px border strip, or the hero shows through it as a dark line until the bar's own background lands */ z-index: -1; pointer-events: none;
     background: var(--sc-nav-bg-solid, #050507);
-    opacity: 0; transition: opacity 0.12s ease; will-change: opacity;
+    opacity: 0; transition: opacity 0s; will-change: opacity;
   }
-  .mkt-nav.has-menu-open::before { opacity: 1; }
-  .mkt-nav .mkt-nav-link { transition: color 0s linear 0.06s, background 0.15s ease; }
-  .mkt-nav .mkt-nav-signin { transition: color 0s linear 0.06s; }
-  .mkt-nav .mkt-nav-logo svg path { transition: fill 0s linear 0.06s; }
+  .mkt-nav.has-menu-open::before { opacity: 1; transition: opacity 0.12s ease; }
+  .mkt-nav.has-menu-open {
+    transition: background-color 0s linear 0.12s, border-color 0s linear 0.12s,
+                -webkit-backdrop-filter 0s linear 0.12s, backdrop-filter 0s linear 0.12s;
+  }
+  .mkt-nav::after {
+    content: ''; position: absolute; left: 0; right: 0; top: 100%; height: 1px;
+    background: var(--sc-nav-menu-divider, transparent); z-index: 300; pointer-events: none;
+    opacity: 0; transition: opacity 0s;
+  }
+  .mkt-nav.has-menu-open::after { opacity: 1; transition: opacity 0.12s ease; }
+  /* no backdrop blur on the panel: its background is opaque (0.98 on dark), so
+     the 24px blur was invisible — but it is re-blurred on every frame of the
+     fade, and its edge row painted a dark line across the bottom of the bar
+     for the length of the fade (frozen-frame capture, both gone without it) */
+  .mkt-nav-panel { -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .mkt-nav .mkt-nav-link { transition: color 0s linear 0.04s, background 0.15s ease; }
+  .mkt-nav .mkt-nav-signin { transition: color 0s linear 0.04s; }
+  .mkt-nav .mkt-nav-logo svg path { transition: fill 0s linear 0.04s; }
 }
 .mkt-nav--over-hero.is-scrolled { background: var(--sc-nav-over-bg-scrolled, var(--sc-nav-bg-scrolled)); }
 /* Blend variant — opt-in per page. For light pages whose ground is NOT white
