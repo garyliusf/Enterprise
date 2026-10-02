@@ -2201,43 +2201,72 @@
           backdrop-filter: var(--sc-nav-over-blur);
 }
 .mkt-nav--over-hero .mkt-nav-logo svg path { transition: fill 0.12s ease; }
-/* Menu open = ONE fade, in step (Gary, 2026-10-02). The panel fades with
-   opacity on the compositor; the bar's background-color change is a
-   main-thread repaint that started two frames late (his recording, frame by
-   frame). So on OPEN the bar is painted by this solid layer, which fades with
-   the same property, duration and easing as the panel — and the bar's own
-   background WAITS until the layer has covered it, then snaps underneath
-   (0s after 0.12s). Without that wait the two fades stacked and the bar ran
-   AHEAD of the panel (v1 of this fix — worse). The seam line fades with the
-   layer too. Ink and logo flip once, at the point where white and dark text
-   have equal contrast on the half-faded bar (~40ms), instead of crossfading
-   through grey on grey. On CLOSE the layer drops out instantly and the bar
-   fades back as it always did. Desktop only; the drawer paints its own bar. */
+/* Desktop menu reveal — the Apple-style curtain (Gary, 2026-10-02: "more
+   smooth, like the apple desktop navbar animation"). Nothing fades THROUGH
+   anything, so there is no half-transparent stage to mismatch:
+     · the bar turns solid via its own layer (opacity, compositor — a
+       background-color change is a main-thread repaint that started two
+       frames late in his recording). The bar's own background waits until
+       the layer has covered it, then snaps underneath; without that wait the
+       two fades stack and the bar runs ahead (v1 — worse).
+     · the panel is opaque from the first frame and UNROLLS downward
+       (clip-path) over 0.32s on Apple's curve; it rolls back up in 0.22s.
+     · the content follows the curtain: each column fades in and settles 8px,
+       40ms apart.
+     · ink + logo flip once, where white and dark text have equal contrast on
+       the half-faded bar, instead of crossfading through grey on grey.
+     · no backdrop blur on the panel: invisible behind an opaque background,
+       re-blurred every frame, and its edge row drew a dark line under the bar.
+   Verify changes with the slow-motion frame capture (see CLAUDE.md), not by
+   sampling computed values. Desktop only; the drawer paints its own bar. */
 @media (min-width: 1025px) {
   .mkt-nav::before {
-    content: ''; position: absolute; inset: 0 0 -1px 0; /* -1px: also backs the bar's 1px border strip, or the hero shows through it as a dark line until the bar's own background lands */ z-index: -1; pointer-events: none;
+    content: ''; position: absolute; inset: 0 0 -1px 0; z-index: -1; pointer-events: none;
     background: var(--sc-nav-bg-solid, #050507);
-    opacity: 0; transition: opacity 0s; will-change: opacity;
+    opacity: 0; transition: opacity 0.18s ease 0.14s;   /* close: holds solid while the curtain rolls up, then clears */
+    will-change: opacity;
   }
-  .mkt-nav.has-menu-open::before { opacity: 1; transition: opacity 0.12s ease; }
+  .mkt-nav.has-menu-open::before { opacity: 1; transition: opacity 0.1s ease; }   /* solid well before the curtain has dropped: a half-faded bar over an opaque curtain reads two-tone */
   .mkt-nav.has-menu-open {
-    transition: background-color 0s linear 0.12s, border-color 0s linear 0.12s,
-                -webkit-backdrop-filter 0s linear 0.12s, backdrop-filter 0s linear 0.12s;
+    transition: background-color 0s linear 0.1s, border-color 0s linear 0.1s,
+                -webkit-backdrop-filter 0s linear 0.1s, backdrop-filter 0s linear 0.1s;
   }
   .mkt-nav::after {
     content: ''; position: absolute; left: 0; right: 0; top: 100%; height: 1px;
     background: var(--sc-nav-menu-divider, transparent); z-index: 300; pointer-events: none;
-    opacity: 0; transition: opacity 0s;
+    opacity: 0; transition: opacity 0.18s ease 0.14s;
   }
-  .mkt-nav.has-menu-open::after { opacity: 1; transition: opacity 0.12s ease; }
-  /* no backdrop blur on the panel: its background is opaque (0.98 on dark), so
-     the 24px blur was invisible — but it is re-blurred on every frame of the
-     fade, and its edge row painted a dark line across the bottom of the bar
-     for the length of the fade (frozen-frame capture, both gone without it) */
-  .mkt-nav-panel { -webkit-backdrop-filter: none; backdrop-filter: none; }
-  .mkt-nav .mkt-nav-link { transition: color 0s linear 0.04s, background 0.15s ease; }
-  .mkt-nav .mkt-nav-signin { transition: color 0s linear 0.04s; }
-  .mkt-nav .mkt-nav-logo svg path { transition: fill 0s linear 0.04s; }
+  .mkt-nav.has-menu-open::after { opacity: 1; transition: opacity 0.1s ease; }
+
+  .mkt-nav-panel {
+    opacity: 1; transform: none; visibility: hidden;
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+    clip-path: inset(0 0 100% 0);
+    transition: clip-path 0.22s cubic-bezier(0.4, 0, 0.6, 1), visibility 0s linear 0.22s;
+  }
+  .mkt-nav-panel.is-open {
+    opacity: 1; transform: none; visibility: visible;
+    clip-path: inset(0 0 -80px 0);   /* −80px: room for the panel's drop shadow */
+    transition: clip-path 0.32s cubic-bezier(0.4, 0, 0.6, 1) 0.03s, visibility 0s;
+  }
+  .mkt-nav-panel-inner > * { opacity: 0; transform: translateY(-8px); transition: opacity 0.1s ease, transform 0.1s ease; }
+  .mkt-nav-panel.is-open .mkt-nav-panel-inner > * {
+    opacity: 1; transform: none;
+    transition: opacity 0.28s ease 0.08s, transform 0.36s cubic-bezier(0.2, 0.7, 0.2, 1) 0.08s;
+  }
+  .mkt-nav-panel.is-open .mkt-nav-panel-inner > *:nth-child(2) { transition-delay: 0.12s; }
+  .mkt-nav-panel.is-open .mkt-nav-panel-inner > *:nth-child(n+3) { transition-delay: 0.16s; }
+  .mkt-nav.is-switching .mkt-nav-panel,
+  .mkt-nav.is-switching .mkt-nav-panel-inner > * { transition: none; }   /* menu-to-menu: instant swap */
+  .mkt-nav-scrim { transition: opacity 0.32s ease; }
+
+  /* ink: opening flips at ~30ms (bar half-solid); closing, at the top over the hero, at ~200ms */
+  .mkt-nav.has-menu-open .mkt-nav-link { transition: color 0s linear 0.03s, background 0.15s ease; }
+  .mkt-nav.has-menu-open .mkt-nav-signin { transition: color 0s linear 0.03s; }
+  .mkt-nav.has-menu-open .mkt-nav-logo svg path { transition: fill 0s linear 0.03s; }
+  .mkt-nav:not(.has-menu-open):not(.is-scrolled) .mkt-nav-link { transition: color 0s linear 0.2s, background 0.15s ease; }
+  .mkt-nav:not(.has-menu-open):not(.is-scrolled) .mkt-nav-signin { transition: color 0s linear 0.2s; }
+  .mkt-nav:not(.has-menu-open):not(.is-scrolled) .mkt-nav-logo svg path { transition: fill 0s linear 0.2s; }
 }
 .mkt-nav--over-hero.is-scrolled { background: var(--sc-nav-over-bg-scrolled, var(--sc-nav-bg-scrolled)); }
 /* Blend variant — opt-in per page. For light pages whose ground is NOT white
