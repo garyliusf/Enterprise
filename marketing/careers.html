@@ -581,9 +581,21 @@ html { scroll-behavior: smooth; }
      the image, so the moment isn't lost to a small target */
   .testi-panel:hover .testi-photo img { filter: grayscale(0%) contrast(1); }
   /* scrim fades the photo's lower edge into the copy below it */
+  /* The fade lands on the card surface at FULL strength with eased stops, so the photo dissolves into the copy panel.
+     It used to stop at 0.85 with a straight ramp, which left a visible step where the photo met the card (Gary, 2026-10-05).
+     --testi-fade-rgb is the card surface: #0d0d0d dark, the --sc-surface white on light. */
   .testi-photo::after {
-    content: ''; position: absolute; inset: 0;
-    background: linear-gradient(to bottom, transparent 55%, rgba(13,13,13,0.85) 100%);
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(to bottom,
+      rgba(var(--testi-fade-rgb, 13,13,13), 0) 40%,
+      rgba(var(--testi-fade-rgb, 13,13,13), 0.06) 50%,
+      rgba(var(--testi-fade-rgb, 13,13,13), 0.18) 59%,
+      rgba(var(--testi-fade-rgb, 13,13,13), 0.36) 68%,
+      rgba(var(--testi-fade-rgb, 13,13,13), 0.58) 77%,
+      rgba(var(--testi-fade-rgb, 13,13,13), 0.78) 85%,
+      rgba(var(--testi-fade-rgb, 13,13,13), 0.92) 92%,
+      rgba(var(--testi-fade-rgb, 13,13,13), 0.98) 97%,
+      rgb(var(--testi-fade-rgb, 13,13,13)) 100%);
   }
   /* Portrait not on disk yet: drop the photo and let the copy stand alone
      rather than leaving a dead block. Self-heals when the file exists. */
@@ -893,7 +905,7 @@ html { scroll-behavior: smooth; }
   html[data-theme="light"] .testi-arrow:hover { border-color: rgba(var(--sc-ink-rgb),0.4); color: var(--sc-ink); }
   html[data-theme="light"] .testi-panel { background: var(--sc-surface); border-color: var(--sc-line); }
   html[data-theme="light"] .testi-photo { background: var(--sc-surface-strong); }
-  html[data-theme="light"] .testi-photo::after { background: linear-gradient(to bottom, transparent 55%, rgba(250,251,253,0.85) 100%); }
+  html[data-theme="light"] .testi-photo { --testi-fade-rgb: 250,251,253; }   /* = --sc-surface, the light card */
   html[data-theme="light"] .testi-panel .testi-eyebrow { color: var(--sc-text-faint); }
   html[data-theme="light"] .testi-quote, html[data-theme="light"] .testi-name { color: var(--sc-text-sub); }
   html[data-theme="light"] .testi-role { color: var(--sc-text-muted); }
