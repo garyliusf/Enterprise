@@ -102,6 +102,7 @@ P .catalog-filters-wrap.at-end .catalog-filters { -webkit-mask-image: none; mask
 P .catalog-filter-btn { color: var(--sc-text-desc, rgba(255,255,255,0.55)); }
 P .catalog-filter-btn:hover { color: var(--sc-ink, #fff); }
 P .catalog-filter-btn.is-active { color: #7FDDC1; }
+html[data-theme="light"] P .catalog-filter-btn.is-active { color: var(--sc-blue-ink, #0a5aa8); }   /* the mint is a dark-ground colour; on white it barely registered (Gary) */
 P .catalog-search-wrap { background: transparent; border-color: rgba(var(--sc-ink-rgb, 255, 255, 255), 0.06); }
 P .catalog-search-wrap:hover { border-color: rgba(var(--sc-ink-rgb, 255, 255, 255), 0.18); }
 P .catalog-search-wrap:focus-within { border-color: rgba(20,136,252,0.55); background: transparent; }
