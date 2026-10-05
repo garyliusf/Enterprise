@@ -65,12 +65,17 @@ def rename_kf(text):
         text = re.sub(r'(?<![\w-])' + re.escape(k) + r'(?![\w-])', 'uc-' + k, text)
     return text
 
+BARE_BTN = re.compile(r'^\.(hero-btn-primary|hero-btn-ghost|footer-cta-btn)(?![\w-])')
 def scope(sel):
     sel = sel.replace('.sc-section-h2', '.section-headline')
     sel = re.sub(r'#how\b(?!-)', '#how-it-works', sel)
+    # the template has no navbar, so its button rules start at the bare class;
+    # on the route the navbar's "Get Started" (.mkt-nav-cta.hero-btn-primary)
+    # sits outside <main> and must keep the bar's 38px size
     m = re.match(r'^(html\[data-theme="light"\]|html\[data-theme=light\]|html body|html)\s+(.*)$', sel)
-    if m: return f'{m.group(1)} {PFX} {m.group(2)}'
-    return f'{PFX} {sel}'
+    head, rest = (m.group(1) + ' ', m.group(2)) if m else ('', sel)
+    if BARE_BTN.match(rest): rest = 'main ' + rest
+    return f'{head}{PFX} {rest}'
 
 def emit(items, depth=0):
     out = []
