@@ -101,6 +101,7 @@ P .catalog-filters {
 P .catalog-filters-wrap.at-end .catalog-filters { -webkit-mask-image: none; mask-image: none; }
 P .catalog-filter-btn { color: var(--sc-text-desc, rgba(255,255,255,0.55)); }
 P .catalog-filter-btn:hover { color: var(--sc-ink, #fff); }
+P .catalog-filter-btn::after { content: attr(aria-label); font-weight: 700; height: 0; overflow: hidden; visibility: hidden; pointer-events: none; }   /* reserves the bold width so selecting moves nothing (Gary) */
 P .catalog-filter-btn.is-active { color: #1488FC; font-weight: 700; }   /* brand blue a step bolder than the row, both themes (Gary): the mint barely registered on white, the AA navy read dull */
 html[data-theme="light"] P .catalog-filter-btn.is-active { color: #0f6fd0; }   /* the hover blue: brand #1488FC is 3.5:1 on white, an 11px label needs 4.5:1 (AA); #0f6fd0 is 4.99:1 and reads the same. Dark keeps brand (5.8:1). */
 P .catalog-search-wrap { background: transparent; border-color: rgba(var(--sc-ink-rgb, 255, 255, 255), 0.06); }
