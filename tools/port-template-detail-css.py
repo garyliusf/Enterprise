@@ -96,6 +96,10 @@ PFX { line-height: normal; }   /* the staging page is browser-normal; the site's
 /* the section script injects a hover dot-field canvas into every .unlock-card on themed pages; this design does not use it */
 PFX .unlock-field-canvas { display: none; }
 PFX .catalog-card-tag { padding-top: 0; }   /* built-page-variants pads it 2px */
+/* related cards on light: the catalog page's treatment (built-page-variants ships the dark scrim + bare label; the staging related grid has no overlay at all) */
+html[data-theme="light"] PFX .catalog-card-preview { background: var(--sc-surface); }
+html[data-theme="light"] PFX .catalog-card-overlay { background: linear-gradient(180deg, rgba(255,255,255,0) 60%, rgba(255,255,255,0.72) 88%, rgba(255,255,255,0.92) 100%); }
+html[data-theme="light"] PFX .catalog-card-overlay span { color: var(--sc-ink); background: #fff; padding: 9px 16px; border-radius: 999px; border: 1px solid rgba(var(--sc-ink-rgb), 0.08); box-shadow: 0 4px 14px rgba(15,26,42,0.12); }
 /* the sticky clone bar sits OUTSIDE <main> (after the site footer), so the reused `main .hero-btn-primary` rules miss it */
 PFX .sticky-banner .hero-btn-primary { color: #fff; font-family: var(--sc-font-sans, 'Inter', sans-serif); }
 /* footer-cta section (the catalog page's use-case variant; its own .footer-cta-wrap pull-up is in the reused rules): the staging footer measure + the 88px line */

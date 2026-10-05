@@ -141,7 +141,7 @@ html[data-theme="light"] P .tpl-hero {
 html[data-theme="light"] P .tpl-hero .hero-subtitle { color: rgba(255,255,255,0.94); }
 html[data-theme="light"] P .catalog-card-preview { background: var(--sc-surface); }   /* the near-black bg peeked around the thumb's rounded edges as a dark frame on light */
 /* the dark bottom scrim + bare ink label read muddy over the mostly-light shots: a white wash and a pill chip */
-html[data-theme="light"] P .catalog-card-overlay { background: linear-gradient(180deg, rgba(255,255,255,0) 40%, rgba(255,255,255,0.72) 82%, rgba(255,255,255,0.92) 100%); }
+html[data-theme="light"] P .catalog-card-overlay { background: linear-gradient(180deg, rgba(255,255,255,0) 60%, rgba(255,255,255,0.72) 88%, rgba(255,255,255,0.92) 100%); }   /* the wash starts at 60% (was 40%: it covered most of the shot — Gary) */
 html[data-theme="light"] P .catalog-card-overlay span { background: #fff; padding: 9px 16px; border-radius: 999px; border: 1px solid rgba(var(--sc-ink-rgb), 0.08); box-shadow: 0 4px 14px rgba(15,26,42,0.12); }
 '''
 css = CSS.replace('NAV', NAV).replace('HEAD', '').replace('NOISE', NOISE)
