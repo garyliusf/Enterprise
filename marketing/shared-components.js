@@ -151,6 +151,9 @@
     } catch (e) { return fallback; }
   }
   function attach(btn, varName, fallback) {
+    // Production: the Header/Footer are React islands that SSR a .hero-btn-primary and hydrate later; mutating that
+    // button here races React (#418/#423, BOLT-825). No-op on the static sandbox pages. Carried by tools/build-careers-body.py.
+    if (btn.closest && btn.closest('astro-island, .mkt-nav-shell')) return;
     if (btn.__pixelized) return;
     btn.__pixelized = true;
     btn.classList.add('btn-pixelized');
