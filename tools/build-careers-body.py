@@ -62,7 +62,10 @@ n0 = shared_js.index('/* ═══ REVIEW-ONLY: page navigator')
 shared_js_out = shared_js[:n0].rstrip() + '\n'
 must('sc-pages' not in shared_js_out, 'navigator code left in shared js')
 
-def assets(s): return s.replace('images/careers/', '/public-page-assets/careers/')
+def assets(s):
+    s = s.replace('images/careers/', '/public-page-assets/careers/')
+    # the film poster sits beside the page in the sandbox (marketing/careers-film-poster.jpg), not under images/careers/
+    return re.sub(r'''(?<![\w/.-])careers-film-poster\.jpg''', '/public-page-assets/careers/careers-film-poster.jpg', s)
 
 body = f'''<!-- ============================================================================
      CAREERS — page body.
@@ -110,5 +113,14 @@ body = f'''<!-- ================================================================
 <script>
 {shared_js_out}</script>
 '''
+# every local asset must be an absolute path that exists in the company repo — a relative one resolves against /careers
+# and 404s (the film poster shipped that way once, 2026-10-05: an empty card until the player loaded)
+local = set(re.findall(r'''(?:src|href|poster)=["']([^"'#][^"']*)["']''', body)) | set(re.findall(r'''url\(["']?([^"')]+)["']?\)''', body)) | set(re.findall(r'''["']([\w./-]+\.(?:jpe?g|png|webp|svg|mp4|gif))["']''', body))
+local = {x for x in local if not x.startswith(('http', 'data:', '//', 'mailto:')) and re.fullmatch(r'[\w./-]+', x)}   # real paths only (comments quote things like '…poster.webp')
+bad = sorted(x for x in local if not x.startswith('/'))
+must(not bad, f'relative asset references would 404 in production: {bad}')
+pub = out.parents[2] / 'public'
+missing = sorted(x for x in local if x.startswith('/public-page-assets/') and not (pub / x.lstrip('/')).exists())
+must(not missing, f'assets missing from the company repo: {missing}')
 out.write_text(body)
 print(f'wrote {out}: {len(body):,} chars; markup {len(markup):,}, page css {len(main_css):,}, shared css {len(shared_css_out):,}, page js {sum(map(len, keep)):,}, shared js {len(shared_js_out):,}')
