@@ -89,7 +89,7 @@
   /* ─── HERO (2-col: preview + info sidebar) ───────────────────────── */
   .detail-hero {
     display: grid;
-    grid-template-columns: 1fr 380px;
+    grid-template-columns: minmax(0, 1fr) 380px;   /* minmax(0,…): a bare 1fr takes the gallery's min-content (the real screenshots) and pushes the row past the page — found on the production port */
     gap: 48px;
     align-items: start;
     margin-bottom: clamp(64px, 9vh, 120px);
@@ -174,6 +174,7 @@
   .detail-gallery-dot.is-active:hover { transform: none; }
   .detail-info { display: flex; flex-direction: column; gap: 20px; }
   .detail-category {
+    margin: 0 0 -4px;   /* eyebrow→title 16 against the 20px stack gap (the header-rhythm standard; the p's default margins gave 33) */
     font-family: var(--sc-font-label, 'Literata', serif); font-weight: var(--sc-label-weight, 500);
     font-size: var(--sc-eyebrow-size, 13px);
     letter-spacing: 2px;
@@ -285,6 +286,7 @@
      Long-form prose, so the column is capped to a comfortable measure rather
      than running the full 1280px shell. */
   .about-body { max-width: 780px; }
+  .about-body p, .about-body li { font-size: 16px; line-height: 1.75; color: rgba(var(--sc-ink-rgb), 0.72); }   /* explicit: production's base sheet sets its own (dark) colour and a 17px phone size on these */
 
   /* Collapsed by JS only when the prose actually overflows — short copy is left
      alone and the button stays hidden. */
@@ -611,7 +613,7 @@
 
   /* ─── RESPONSIVE ─────────────────────────────────────────────────── */
   @media (max-width: 1024px) {
-    .detail-hero { grid-template-columns: 1fr; gap: 32px; }
+    .detail-hero { grid-template-columns: minmax(0, 1fr); gap: 32px; }
     .detail-info { max-width: 700px; }
     .unlocks-grid { grid-template-columns: repeat(2,1fr); }
     .related-grid { grid-template-columns: repeat(3, 1fr); gap: 44px 16px; }
@@ -619,6 +621,7 @@
   @media (max-width: 768px) {
     .detail-shell { width: calc(100vw - 32px); padding-top: 40px; padding-bottom: 40px; }
     .detail-name { font-size: 32px; }
+    .detail-category { margin-bottom: -8px; }   /* eyebrow→title 12 on phones */
     .unlocks-grid { grid-template-columns: 1fr; }
     .related-grid { grid-template-columns: repeat(2, 1fr); gap: 36px 12px; }
   }
