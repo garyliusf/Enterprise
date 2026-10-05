@@ -47,9 +47,319 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400..900;1,400..900&family=Literata:ital,opsz,wght@0,7..72,200..900;1,7..72,200..900&display=swap" rel="stylesheet">
 <style>
+/* ─── --sc-* THEME TOKENS — inlined verbatim from marketing/shared-components.css
+   (2026-09-30 light port). This page is self-contained by design (synced with
+   production, which has no shared-components), so the palette lives here. Keep
+   in sync with shared when tokens change. ── */
+:root,
+.sc-on-light {
+  /* ink — the text/border colour, as an RGB triplet for free alpha */
+  --sc-ink-rgb: 10, 12, 20;
+  --sc-ink: #0a0a0a;                      /* solid primary text / headlines */
+
+  /* ground + surfaces */
+  --sc-ground: #fff;                      /* page background */
+  --sc-ground-rgb: 255, 255, 255;         /* for translucent grounds/scrims */
+  --sc-surface: #fafbfd;                  /* cards, panels, tiles */
+  /* On LIGHT the band is the ground — Gary: the templates section should stay
+     white, not sit a step darker. Dark keeps its #050508 lift, where a band
+     off pure black is what separates the section. Only .tmpl-section and its
+     rail fade consume this. */
+  --sc-band: #fff;
+  --sc-band-rgb: 255, 255, 255;
+  --sc-surface-strong: #f1f3f7;           /* deeper surface — strips, table heads */
+  --sc-recess: rgba(10, 12, 20, 0.05);    /* panel RECESSED into a surface */
+  --sc-hover-tint: rgba(20, 136, 252, 0.06);/* card hover: a blue lean, not a wash */
+  --sc-flash-tint: rgba(20, 136, 252, 0.16);/* cursor flashlight centre */
+  --sc-hover-filter: brightness(0.97);    /* light DARKENS on hover */
+
+  /* standard text roles (see CLAUDE.md typography table) */
+  --sc-text-sub: #5b5b66;                 /* hero subtitle   (dark: #ABABAB) */
+  --sc-text-muted: rgba(10, 12, 20, 0.61);/* section subtitle  — 5.35:1 (dark: 5.28) */
+  --sc-text-desc: rgba(10, 12, 20, 0.65); /* card/body copy    — 6.18:1 (dark: 6.27) */
+  --sc-text-faint: rgba(10, 12, 20, 0.58);/* small caps labels — 4.80:1 (dark: 3.66) */
+
+  /* lines */
+  --sc-line: rgba(10, 12, 20, 0.10);      /* standard card/panel border */
+  --sc-line-soft: rgba(10, 12, 20, 0.07); /* hairlines, FAQ item rules */
+  --sc-line-strong: rgba(10, 12, 20, 0.22);/* ghost-button border */
+  --sc-icon-border: rgba(10, 12, 20, 0.18);/* icon tiles: 0.08 vanishes on light (Gary) */
+  /* Company logos ship with #A8ADB5 baked in (picked for the dark theme) and
+     read washed-out on white. Flatten to ink and carry the weight in alpha,
+     so they sit at the same darkness as the stroked UI icons above. */
+  --sc-logo-filter: brightness(0) opacity(0.85);
+  /* Pixel-fill hover on ghost buttons — white dots are invisible on a light
+     ground, so the dot colour flips with the theme. */
+  --sc-btn-pixel-ghost: rgba(10, 12, 20, 0.22);
+
+  /* brand blue — identical in both themes except as text on the ground */
+  --sc-blue: #1488FC;                     /* button fills, icons, eyebrows */
+  --sc-blue-hover: #0f6fd0;
+  --sc-blue-ink: #0a5aa8;                 /* blue TEXT on the ground (AA) */
+
+  /* effects */
+  --sc-dot-rgb: 20, 136, 252;             /* pixel-canvas dots — blue on light */
+  --sc-shadow: rgba(10, 12, 20, 0.14);
+  --sc-accent-warm: #b1502a;             /* warm serif accent (dark: #FFB093) */
+  --sc-logo-invert: 0;                    /* logo trains ship BLACK artwork */
+  --sc-hero-art: 0;                       /* dark-only hero photo + scrim: hidden on light */
+  --sc-hero-art-display: none;            /* for art whose KEYFRAMES animate opacity */
+  /* Light hero: an inverted aurora — deep navy arcing down through brand blue
+     into the page ground, with a fine halftone over it. Replaces the photo,
+     which is lit for a black scrim and cannot invert. */
+  /* Static base — also the reduced-motion and no-JS state. The animated
+     layers (.hero-aurora) sit on top of this and drift. Stops are deliberately
+     LARGE: the dark dome owns the top ~40%, reaching white around 72%, which
+     is the proportion in the reference. An earlier, tighter ramp read as a
+     clipped band across the top. */
+  --sc-hero-bg:
+    /* Very WIDE, modest height: the blue must reach the left and right edges at
+       the top so only the BOTTOM arcs. A squarer ellipse curves on all sides
+       and reads as a half-moon (Gary). */
+    /* Matched to the reference by measurement, not feel: the crown is
+       NEAR-BLACK and holds to ~37%, then a TIGHT ramp through vivid blue to a
+       bright cyan rim at 64%, releasing to white by ~71%. An even ramp across
+       the full height reads as flat mid-blue and loses the depth entirely. */
+    /* ONE dome with a TIGHT BRIGHT RIM hugging its arc — that rim is the whole
+       effect. The reference's apparent glow at the lower left and right is not
+       two corner lights, it is the rim itself, which sits lower at the sides
+       where the arc sweeps down. Corner glows were tried and were the wrong
+       mechanism: they lit the bottom without ever producing the edge.
+       The bright stops are deliberately NARROW (60% -> 67%); spreading them
+       is what made every earlier pass read as flat mid-blue. */
+    /* Taller now that the drift layers are gone — they had been padding the
+       mid-band, so without them the ramp has to carry the whole height itself
+       or white arrives before the copy clears. */
+    /* LINEAR vertical ramp — Gary's reference is not a radial dome at all.
+       Deep navy at the crown straight down through royal blue, pale blue and
+       into white. Every radial construction before this fought the fact that
+       the reference has no arc in it. */
+    linear-gradient(180deg,
+      #021a57 0%, #04246c 14%, #072f86 26%, #0a3f9e 38%,
+      #1259c3 50%, #3b82cf 60%, #6ba6da 68%,
+      #a3c8e6 76%, #cfe0ee 83%, #e8eff6 89%,
+      #f6f8fb 95%, #fff 100%),
+    #fff;
+  --sc-aurora-on: 1;
+  /* 0: the copy stack must NOT move (Gary). Covering the subtitle and CTA is
+     the gradient's job — lifting the stack also moved the H1 up ~51px, which
+     was a side effect of the fix, not the intent. */
+  --sc-hero-lift: 0px;
+  --sc-hero-grid: rgba(10, 30, 70, 0.10);
+  /* ── CHROME (nav + site footer). Light values are Forge Lite's, lifted from
+     bolt-public-pages src/styles/marketing-nav-footer.css; dark values are the
+     sandbox's existing ones, so dark renders exactly as before. ── */
+  --sc-nav-bg: #fff;                      /* AT REST: solid — the hero aurora is vivid blue and glass muddies it (Gary) */
+  --sc-nav-bg-scrolled: rgba(255, 254, 254, 0.82);/* once scrolled: the glass treatment */
+  --sc-nav-bg-solid: #fffefe;              /* OPAQUE: an open menu must never leave the bar translucent (prod #335); 0.88 let the page bleed through as a grey band (Gary) */
+  --sc-nav-hairline: rgba(10, 12, 20, 0.06);
+  --sc-nav-menu-divider: rgba(10, 12, 20, 0.10);  /* bar/panel seam while a menu is open — 0.06 vanished against the white panel (Gary); production light nav uses 0.1 here */
+  --sc-nav-ink: rgba(0, 0, 0, 0.7);
+  --sc-nav-ink-hover: #000;
+  --sc-nav-ink-hover-bg: rgba(0, 0, 0, 0.05);
+  --sc-nav-logo: #0a0a0a;
+  /* Over-hero nav variant (.mkt-nav--over-hero, opt-in per page). AT REST
+     the bar sits transparently on the blue hero with white ink; past the
+     scroll threshold it falls back to the regular tokens above. Overlap is
+     how far the hero is pulled up under the bar. (Gary, 2026-09-28) */
+  --sc-nav-over-bg: transparent;
+  --sc-nav-over-bg-scrolled: #fff;       /* solid, not glass: glass over the blue hero reads blue-grey */
+  --sc-nav-over-blur: none;              /* blur would smear the dither under the bar */
+  --sc-nav-over-hairline: transparent;
+  --sc-nav-over-ink: #fff;                /* pure white — any alpha lets the blue through and reads faded (Gary) */
+  --sc-nav-over-ink-hover: #fff;
+  --sc-nav-over-ink-hover-bg: rgba(255, 255, 255, 0.1);
+  --sc-nav-over-logo: #fff;
+  --sc-nav-overlap: 69px;                /* the BOX height: 68px bar + the 1px hairline border — 68 left a white 1px row at the very top */
+  --sc-panel-bg: #fffefe;
+  --sc-panel-shadow: 0 24px 40px -16px rgba(10, 12, 20, 0.12);  /* soft; the negative spread keeps it off the bar above (the dark one read as a drop shadow on the bar) */
+  --sc-panel-heading: #73737b;
+  --sc-panel-link: #525258;
+  --sc-panel-link-hover: #0c0c0f;
+  --sc-feature-bg: rgba(17, 17, 20, 0.04);
+  --sc-feature-bg-hover: #eef6ff;          /* light brand-blue tint — was lavender #f3f0f5 (Gary) */
+  --sc-feature-border: #EFEDF3;
+  --sc-feature-border-hover: #bfdcfd;      /* blue to match the fill — the old grey-purple clashed */
+  --sc-scrim: rgba(17, 17, 20, 0.25);
+  --sc-drawer-bg: #fffefe;
+  --sc-dim: 0.6;
+}
+
+/* DARK — system preference. The :not([data-theme="light"]) guard lets a page
+   pin itself light even on a dark-set machine. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --sc-ink-rgb: 255, 255, 255;
+    --sc-ink: #fff;
+
+    --sc-ground: #000;
+    --sc-ground-rgb: 0, 0, 0;
+    --sc-surface: #09090b;
+    --sc-band: #050508;
+    --sc-band-rgb: 5, 5, 8;
+    --sc-surface-strong: #060606;
+    --sc-recess: rgba(0, 0, 0, 0.35);
+    --sc-hover-tint: rgba(20, 136, 252, 0.08);
+    --sc-flash-tint: rgba(150, 185, 255, 0.14);
+    --sc-hover-filter: brightness(1.25);    /* dark BRIGHTENS on hover */
+
+    --sc-text-sub: #ABABAB;
+    --sc-text-muted: rgba(255, 255, 255, 0.5);
+    --sc-text-desc: rgba(255, 255, 255, 0.55);
+    --sc-text-faint: rgba(255, 255, 255, 0.4);
+
+    --sc-line: rgba(255, 255, 255, 0.10);
+    --sc-line-soft: rgba(255, 255, 255, 0.07);
+    --sc-line-strong: rgba(255, 255, 255, 0.22);
+    --sc-icon-border: rgba(255, 255, 255, 0.08);
+    --sc-logo-filter: none;
+    --sc-btn-pixel-ghost: rgba(255, 255, 255, 0.18);
+
+    --sc-blue: #1488FC;
+    --sc-blue-hover: #0f6fd0;
+    --sc-blue-ink: #1488FC;               /* full brand blue reads fine on black */
+
+    --sc-dot-rgb: 180, 185, 195;
+    --sc-shadow: rgba(0, 0, 0, 0.5);
+    --sc-accent-warm: #FFB093;
+    --sc-logo-invert: 1;                  /* black wordmarks inverted to white */
+    --sc-hero-art: 1;
+    --sc-hero-art-display: block;
+    --sc-hero-bg: #000;
+    --sc-aurora-on: 0;
+    --sc-hero-lift: 0px;
+    --sc-hero-grid: rgba(255, 255, 255, 0.05);
+    --sc-nav-bg: rgba(5, 5, 7, 0.72);
+    --sc-nav-bg-scrolled: rgba(5, 5, 7, 0.72);  /* dark keeps glass in both states */
+    --sc-nav-bg-solid: #050507;
+    --sc-nav-hairline: transparent;
+    --sc-nav-menu-divider: transparent;
+    --sc-nav-ink: rgba(255, 255, 255, 0.75);
+    --sc-nav-ink-hover: #fff;
+    --sc-nav-ink-hover-bg: rgba(255, 255, 255, 0.05);
+    --sc-nav-logo: #fff;
+    /* over-hero at rest = the regular dark bar; overlap 0 so dark never moves */
+    --sc-nav-over-bg: transparent;            /* over the hero: see-through at rest, like light (Gary, 2026-09-30) */
+    --sc-nav-over-bg-scrolled: #050507;       /* solid black once scrolled, the mirror of light's solid white */
+    --sc-nav-over-blur: none;                 /* nothing to blur over a transparent bar */
+    --sc-nav-over-hairline: transparent;
+    --sc-nav-over-ink: rgba(255, 255, 255, 0.75);
+    --sc-nav-over-ink-hover: #fff;
+    --sc-nav-over-ink-hover-bg: rgba(255, 255, 255, 0.05);
+    --sc-nav-over-logo: #fff;
+    --sc-nav-overlap: 69px;               /* same pull-over as light: 68px bar + 1px hairline */
+    --sc-panel-bg: rgba(8, 8, 12, 0.98);
+    --sc-panel-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+    --sc-panel-heading: rgba(255, 255, 255, 0.4);
+    --sc-panel-link: rgba(255, 255, 255, 0.55);
+    --sc-panel-link-hover: #fff;
+    --sc-feature-bg: rgba(255, 255, 255, 0.03);
+    --sc-feature-bg-hover: rgba(255, 255, 255, 0.045);
+    --sc-feature-border: rgba(255, 255, 255, 0.08);
+    --sc-feature-border-hover: rgba(255, 255, 255, 0.22);
+    --sc-scrim: rgba(0, 0, 0, 0.5);
+    --sc-drawer-bg: #050507;
+    --sc-dim: 0.5;
+  }
+}
+
+/* DARK — explicitly pinned. SYNC PAIR with the media-query block above: these
+   two carry the same values and must be edited together. (Kept as plain CSS
+   rather than light-dark() so the tokens resolve on every browser, not just
+   Baseline-2024 ones.) */
+:root[data-theme="dark"],
+.sc-on-dark {
+  --sc-ink-rgb: 255, 255, 255;
+  --sc-ink: #fff;
+
+  --sc-ground: #000;
+  --sc-ground-rgb: 0, 0, 0;
+  --sc-surface: #09090b;
+  --sc-band: #050508;
+  --sc-band-rgb: 5, 5, 8;
+  --sc-surface-strong: #060606;
+  --sc-recess: rgba(0, 0, 0, 0.35);
+  --sc-hover-tint: rgba(20, 136, 252, 0.08);
+  --sc-flash-tint: rgba(150, 185, 255, 0.14);
+  --sc-hover-filter: brightness(1.25);    /* dark BRIGHTENS on hover */
+
+  --sc-text-sub: #ABABAB;
+  --sc-text-muted: rgba(255, 255, 255, 0.5);
+  --sc-text-desc: rgba(255, 255, 255, 0.55);
+  --sc-text-faint: rgba(255, 255, 255, 0.4);
+
+  --sc-line: rgba(255, 255, 255, 0.10);
+  --sc-line-soft: rgba(255, 255, 255, 0.07);
+  --sc-line-strong: rgba(255, 255, 255, 0.22);
+  --sc-icon-border: rgba(255, 255, 255, 0.08);
+  --sc-logo-filter: none;
+  --sc-btn-pixel-ghost: rgba(255, 255, 255, 0.18);
+
+  --sc-blue: #1488FC;
+  --sc-blue-hover: #0f6fd0;
+  --sc-blue-ink: #1488FC;
+
+  --sc-dot-rgb: 180, 185, 195;
+  --sc-shadow: rgba(0, 0, 0, 0.5);
+  --sc-accent-warm: #FFB093;
+  --sc-logo-invert: 1;
+  --sc-hero-art: 1;
+  --sc-hero-art-display: block;
+  --sc-hero-bg: #000;
+  --sc-aurora-on: 0;
+  --sc-hero-lift: 0px;
+  --sc-hero-grid: rgba(255, 255, 255, 0.05);
+  --sc-nav-bg: rgba(5, 5, 7, 0.72);
+  --sc-nav-bg-scrolled: rgba(5, 5, 7, 0.72);  /* dark keeps glass in both states */
+  --sc-nav-bg-solid: #050507;
+  --sc-nav-hairline: transparent;
+  --sc-nav-menu-divider: transparent;
+  --sc-nav-ink: rgba(255, 255, 255, 0.75);
+  --sc-nav-ink-hover: #fff;
+  --sc-nav-ink-hover-bg: rgba(255, 255, 255, 0.05);
+  --sc-nav-logo: #fff;
+  /* over-hero at rest = the regular dark bar; overlap 0 so dark never moves */
+  --sc-nav-over-bg: transparent;            /* over the hero: see-through at rest, like light (Gary, 2026-09-30) */
+  --sc-nav-over-bg-scrolled: #050507;       /* solid black once scrolled, the mirror of light's solid white */
+  --sc-nav-over-blur: none;                 /* nothing to blur over a transparent bar */
+  --sc-nav-over-hairline: transparent;
+  --sc-nav-over-ink: rgba(255, 255, 255, 0.75);
+  --sc-nav-over-ink-hover: #fff;
+  --sc-nav-over-ink-hover-bg: rgba(255, 255, 255, 0.05);
+  --sc-nav-over-logo: #fff;
+  --sc-nav-overlap: 69px;               /* same pull-over as light: 68px bar + 1px hairline */
+  --sc-panel-bg: rgba(8, 8, 12, 0.98);
+  --sc-panel-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+  --sc-panel-heading: rgba(255, 255, 255, 0.4);
+  --sc-panel-link: rgba(255, 255, 255, 0.55);
+  --sc-panel-link-hover: #fff;
+  --sc-feature-bg: rgba(255, 255, 255, 0.03);
+  --sc-feature-bg-hover: rgba(255, 255, 255, 0.045);
+  --sc-feature-border: rgba(255, 255, 255, 0.08);
+  --sc-feature-border-hover: rgba(255, 255, 255, 0.22);
+  --sc-scrim: rgba(0, 0, 0, 0.5);
+  --sc-drawer-bg: #050507;
+  --sc-dim: 0.5;
+}
+
+/* ─── TYPE FAMILIES (Gary, 2026-09-28) ─────────────────────────────────────
+   Theme-independent, so they live outside the three synced palette blocks.
+   Each chain falls back to the family it replaced: the retired mirrors
+   (microsoft, bolt-cli, referral, forrester, share) link this
+   file but still load only their legacy fonts, so they keep rendering exactly
+   as before without being edited. */
+:root {
+  --sc-font-sans:  'Schibsted Grotesk', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --sc-font-label: 'Schibsted Grotesk', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;   /* eyebrows, tags, small uppercase labels — sans now (Gary, 2026-09-29; was Literata) */
+  --sc-font-serif: 'Literata', 'Cormorant Garamond', Georgia, serif;   /* quotes, serif display (was Cormorant) */
+  --sc-serif-style: italic;              /* Gary: the serif role is Literata ITALIC — flip here for upright */
+  --sc-eyebrow-size: 13px;              /* eyebrows — was 16px, too big in Literata (Gary) */
+  --sc-label-weight: 700;               /* labels at Bold (Gary, 2026-09-29: 600 still read thin at 13px in Schibsted) */
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
-body { background: #000; font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif); overflow-x: hidden; overflow-x: clip; /* clip not hidden — hidden makes body a scroll container and breaks the sticky nav */ color: #fff; }
+body { background: var(--sc-ground, #000); font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif); overflow-x: hidden; overflow-x: clip; /* clip not hidden — hidden makes body a scroll container and breaks the sticky nav */ color: var(--sc-ink, #fff); }
 
 /* ─── PROMO ANNOUNCEMENT BANNER (BiggerPockets) ──────────────────────────── */
 .bp-page { --bp-banner-h: 44px; }
@@ -135,8 +445,11 @@ body.bp-page { padding-top: var(--bp-banner-h); }
 /* ─── HERO — microsoft.html pixel bg, darker tint ───────────────────────── */
 .hero-section {
   width: 100%;
-  min-height: min(80vh, 900px); /* fallback */
-  min-height: min(80dvh, 900px); /* 80% of the visible viewport, capped at 900px so the hero doesn't dominate tall monitors; grows to fit taller content */
+  /* Same construction as the security/solutions heroes (65vh box, copy centred under the family pad) + --hero-stack-allowance for this
+     hero's taller stack (prompt box + pills) so the H1 sits on the siblings' line at every window height (the real-estate recipe). */
+  --hero-stack-allowance: 164px;  /* 92 for a 1-line H1 (real-estate); +72 for this page's 2-line H1 so it lands on the family H1 line (217 at 1440x900) */
+  min-height: calc(min(65vh, 684px) + var(--hero-stack-allowance) + var(--sc-nav-overlap, 0px)); /* fallback */
+  min-height: calc(min(65dvh, 684px) + var(--hero-stack-allowance) + var(--sc-nav-overlap, 0px)); /* 80% of the visible viewport, capped at 900px so the hero doesn't dominate tall monitors; grows to fit taller content */
   position: relative;
   overflow: hidden;
   display: flex;
@@ -961,11 +1274,111 @@ body.bp-page { padding-top: var(--bp-banner-h); }
 .footer-cta-btn .btn-text-inner span { display: block; line-height: 1.2; }
 .footer-cta-btn:hover .btn-bg-hover   { transform: translateY(0); }
 .footer-cta-btn:hover .btn-text-inner { transform: translateY(-50%); }
-.footer-spacer { height: 60px; width: 100%; }
+.footer-spacer { display: none; }  /* retired (Gary, 2026-09-30): the CTA→divider gap is the divider's own 88px */
 .footer-links { display: flex; gap: 32px; flex-wrap: wrap; align-items: center; justify-content: center; }
 .footer-link { font-size: 13px; color: #666; text-decoration: none; transition: color 0.15s; }
 .footer-link:hover { color: #999; }
 .footer-copyright { font-size: 12px; color: #444; padding-bottom: 24px; }
+
+/* hero: the family dome replaces the aurora photo + black cover; white copy on
+   the crown. The over-hero nav is pulled over the page by --sc-nav-overlap on
+   light (0 on dark), so the hero pads by the same amount. */
+.hero-section { padding: calc(clamp(90px, calc(24px + 8.5vh), 148px) + var(--sc-nav-overlap, 0px)) 0 clamp(72px, 9vh, 120px); }
+html[data-theme="light"] .hero-section { background: var(--sc-hero-bg); }
+html[data-theme="light"] .hero-overlay, html[data-theme="light"] .hero-pixel-cover { display: none; }
+html[data-theme="light"] .hero-subtitle { color: rgba(255,255,255,0.94); }
+/* hero pixel field = the family's ordered Bayer dither (both themes); the old
+   microsoft-style dots are retired */
+#hero-dither { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none;
+  -webkit-mask-image: linear-gradient(180deg, #000 55%, rgba(0,0,0,0) 90%); mask-image: linear-gradient(180deg, #000 55%, rgba(0,0,0,0) 90%); }
+#hero-pixel-dots { display: none; }
+/* hero prompt shell (comet outline): white card on light, use-cases treatment */
+html[data-theme="light"] .hero-prompt-shell { background: rgba(255,255,255,0.55); }
+html[data-theme="light"] .hero-prompt-inner { background: #fff; }
+html[data-theme="light"] .hero-prompt-shell .re-prompt-input { color: var(--sc-ink); }
+html[data-theme="light"] .hero-prompt-example, html[data-theme="light"] .re-prompt-input::placeholder { color: rgba(var(--sc-ink-rgb),0.4); }
+html[data-theme="light"] .hero-pills { background: #fff; border-color: #fff; box-shadow: 0 4px 16px rgba(15,26,42,0.05); }  /* the family card shadow — 0.10 read heavy (Gary) */
+html[data-theme="light"] .hero-pills li { color: #0d9b7a; }
+html[data-theme="light"] .hero-pills li::before { background: #0d9b7a; }
+/* sections */
+html[data-theme="light"] .section--bordered, html[data-theme="light"] .why-section, html[data-theme="light"] .how-section, html[data-theme="light"] .ms-faq-section, html[data-theme="light"] .footer-section { border-top-color: var(--sc-line-soft); }
+html[data-theme="light"] .section-headline, html[data-theme="light"] .ms-faq-headline, html[data-theme="light"] .footer-headline, html[data-theme="light"] .template-create-headline { color: var(--sc-ink); }
+html[data-theme="light"] .section-sub { color: var(--sc-text-muted); }
+/* why stats */
+html[data-theme="light"] .why-stat-cell { border-color: var(--sc-line); }
+html[data-theme="light"] .why-stat-eyebrow { color: var(--sc-text-faint); }
+html[data-theme="light"] .why-stat-number { color: var(--sc-ink); }
+/* who / unlocks */
+html[data-theme="light"] .unlocks-visual { background: var(--sc-surface-strong); border-color: var(--sc-line); box-shadow: 0 8px 28px rgba(15,26,42,0.06), inset 0 1px 0 #fff; }
+/* Compliance-card treatment on light (Gary, 2026-09-30 — the security family's
+   .builtin-card): hairline card with a faint top light, blue outline + a
+   rotating blue dot field on hover, and a numbered corner label. Dark keeps
+   its own card + hover-noise canvas. */
+html[data-theme="light"] .unlock-card {
+  border: 1px solid rgba(var(--sc-ink-rgb), 0.10);
+  background: linear-gradient(180deg, rgba(var(--sc-ink-rgb), 0.03) 0%, rgba(var(--sc-ink-rgb), 0.005) 100%);
+  transition: border-color 0.35s ease;
+}
+html[data-theme="light"] .unlock-card:hover { border-color: rgba(20,136,252,0.45); }
+html[data-theme="light"] .unlock-hover-canvas { display: none; }
+.unlock-card > .unlock-field-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; opacity: 0; transition: opacity 0.45s ease; pointer-events: none; display: none; }  /* child-combinator: outranks the card's generic `> *:not(.unlock-hover-canvas) { position: relative }` */
+html[data-theme="light"] .unlock-field-canvas { display: block; }
+html[data-theme="light"] .unlock-card:hover .unlock-field-canvas { opacity: 1; }
+.unlock-card > .unlock-num {
+  position: absolute; top: 24px; right: 24px; z-index: 2;
+  font-family: var(--sc-font-label, 'Schibsted Grotesk', sans-serif); font-weight: var(--sc-label-weight, 700);
+  font-size: 13px; letter-spacing: 1px; color: rgba(var(--sc-ink-rgb), 0.22); transition: color 0.35s ease;
+}
+.unlock-card:hover .unlock-num { color: #1488FC; }
+html[data-theme="light"] .unlock-icon { background: rgba(var(--sc-ink-rgb),0.05); border-color: var(--sc-icon-border); color: rgba(var(--sc-ink-rgb),0.85); }
+html[data-theme="light"] .unlock-title { color: var(--sc-ink); }
+html[data-theme="light"] .unlock-desc { color: var(--sc-text-desc); }
+/* templates */
+html[data-theme="light"] .template-card { background: #fff; border: 1px solid var(--sc-line); }
+html[data-theme="light"] .template-card:hover { border-color: var(--sc-line-strong); }
+html[data-theme="light"] .template-card-image img { filter: none; }
+html[data-theme="light"] .template-card-title { color: var(--sc-ink); }
+html[data-theme="light"] .template-card-desc { color: var(--sc-text-muted); }
+html[data-theme="light"] .re-prompt-shell { background: #fff; border-color: var(--sc-line); box-shadow: 0 4px 16px rgba(15,26,42,0.05); }
+html[data-theme="light"] .re-prompt-shell:focus-within { border-color: #1488FC; box-shadow: 0 0 0 1px #1488FC, 0 4px 16px rgba(15,26,42,0.05); }
+html[data-theme="light"] .re-prompt-input { color: var(--sc-ink); }
+/* how it works */
+html[data-theme="light"] .how-line-track { background: rgba(var(--sc-ink-rgb),0.08); }
+html[data-theme="light"] .how-step-node { background: var(--sc-ground); }
+html[data-theme="light"] .how-step-title { color: var(--sc-ink); }
+html[data-theme="light"] .how-step-desc { color: var(--sc-text-desc); }
+/* quote card */
+html[data-theme="light"] .quote-card { background: var(--sc-surface); border-color: var(--sc-line); }
+html[data-theme="light"] .quote-text { color: rgba(var(--sc-ink-rgb),0.72); }
+html[data-theme="light"] .quote-name { color: rgba(var(--sc-ink-rgb),0.7); }
+html[data-theme="light"] .quote-role { color: rgba(var(--sc-ink-rgb),0.45); }
+html[data-theme="light"] .quote-bottom { border-top-color: var(--sc-line); }
+html[data-theme="light"] .quote-stat-num { color: var(--sc-ink); }
+html[data-theme="light"] .quote-stat-label { color: rgba(var(--sc-ink-rgb),0.55); }
+/* FAQ */
+html[data-theme="light"] .ms-faq-section { background: var(--sc-ground); }
+html[data-theme="light"] .ms-faq-item, html[data-theme="light"] .ms-faq-item:last-child { border-color: var(--sc-line-soft); }
+html[data-theme="light"] .ms-faq-q { color: rgba(var(--sc-ink-rgb),0.72); }
+html[data-theme="light"] .ms-faq-q:hover, html[data-theme="light"] .ms-faq-item.is-open .ms-faq-q { color: var(--sc-ink); }
+html[data-theme="light"] .ms-faq-a-inner { color: var(--sc-text-muted); }
+/* footer CTA + buttons */
+html[data-theme="light"] .footer-section { background: var(--sc-ground); }
+html[data-theme="light"] .footer-subtitle { color: var(--sc-text-sub); }
+html[data-theme="light"] .hero-btn-ghost { border-color: var(--sc-line-strong); color: rgba(var(--sc-ink-rgb),0.8); }
+html[data-theme="light"] .hero-btn-ghost:hover { border-color: rgba(var(--sc-ink-rgb),0.4); color: var(--sc-ink); }
+html[data-theme="light"] .bolt-shimmer { mix-blend-mode: normal; }
+
+
+/* ── smb-only components on the tokens ── */
+html[data-theme="light"] .tmpl-card-preview { background: var(--sc-surface); border-color: var(--sc-line); }
+html[data-theme="light"] .tmpl-card:hover .tmpl-card-preview { border-color: var(--sc-line-strong); }
+/* the dark bottom scrim + bare label read muddy over the mostly-light shots: a white wash and a pill chip (templates catalog treatment) */
+html[data-theme="light"] .tmpl-card-overlay { background: linear-gradient(180deg, rgba(255,255,255,0) 40%, rgba(255,255,255,0.72) 82%, rgba(255,255,255,0.92) 100%); }
+html[data-theme="light"] .tmpl-card-overlay span { color: var(--sc-ink); background: #fff; padding: 9px 16px; border-radius: 999px; border: 1px solid rgba(var(--sc-ink-rgb), 0.08); box-shadow: 0 4px 14px rgba(15,26,42,0.12); }
+html[data-theme="light"] .tmpl-card-name { color: var(--sc-ink); }
+html[data-theme="light"] .tmpl-card-tag { color: var(--sc-text-faint); }
+html[data-theme="light"] .why-stat-cell:nth-child(-n+2) { border-bottom-color: var(--sc-line); }
+html[data-theme="light"] .unlock-card::before { background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), var(--sc-flash-tint), transparent 60%); }
 
 /* ─── RESPONSIVE ─────────────────────────────────────────────────────────── */
 /* ─── UNLOCKS VISUAL (paper grid container — from bolt-cli.html) ─────────── */
@@ -1010,7 +1423,7 @@ body.bp-page { padding-top: var(--bp-banner-h); }
 /* Flashlight hover — soft radial glow follows the cursor (solutions.html standard; JS sets --mx/--my) */
 .unlock-card::before {
   content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
-  background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), rgba(150,185,255,0.14), rgba(150,185,255,0) 60%);
+  background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), var(--sc-flash-tint, rgba(150,185,255,0.14)), transparent 60%);
   opacity: 0; transition: opacity 0.35s ease;
 }
 .unlock-card:hover::before { opacity: 1; }
@@ -1025,7 +1438,7 @@ body.bp-page { padding-top: var(--bp-banner-h); }
   z-index: 0;
 }
 .unlock-card:hover .unlock-hover-canvas { opacity: 0.10; }
-.unlock-card > *:not(.unlock-hover-canvas) { position: relative; z-index: 1; }
+.unlock-card > *:not(.unlock-hover-canvas, .unlock-field-canvas, .unlock-num) { position: relative; z-index: 1; }  /* the light field canvas + corner number are absolute: without the exclusions they fall into flow and the cards balloon */
 .unlock-icon {
   width: 44px; height: 44px;
   border-radius: 2px;
@@ -1046,10 +1459,10 @@ body.bp-page { padding-top: var(--bp-banner-h); }
 .template-sub { max-width: 680px; }
 .footer-subtitle-wide { max-width: 720px; }
 .footer-cta-btn-top { margin-top: 8px; }
-.bolt-wrap { margin-top: 0; width: 100%; overflow: hidden; position: relative; height: 32vw; max-height: 32vw; }
+.bolt-wrap { margin-top: 0; width: 100%; overflow: hidden; position: relative; height: 32vw; max-height: 32vw; isolation: isolate; background: var(--sc-ground, #000); }
 .bolt-wrap img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; opacity: 0.20; }
 .bolt-shimmer { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; mix-blend-mode: screen; }
-.bolt-fade { position: absolute; inset: 0; background: linear-gradient(to bottom, #000 0%, transparent 22%, transparent 88%, #000 100%); z-index: 3; }
+.bolt-fade { position: absolute; inset: 0; background: linear-gradient(to bottom, var(--sc-ground, #000) 0%, transparent 22%, transparent 88%, var(--sc-ground, #000) 100%); z-index: 3; }
 
 /* ─── WHY SECTION ────────────────────────────────────────────────────────── */
 .why-section { border-top: 1px solid rgba(255,255,255,0.06); padding: 64px 0; }
@@ -1157,7 +1570,7 @@ body.bp-page { padding-top: var(--bp-banner-h); }
    .section-inner at each breakpoint — the bleed math depends on it. */
 .tmpl-section {
   width: 100%;
-  background: #050508;
+  background: var(--sc-band, #050508);
   position: relative;
   overflow-x: clip;
   --rail-w: min(1200px, calc(100vw - 160px));
@@ -1223,9 +1636,9 @@ body.bp-page { padding-top: var(--bp-banner-h); }
   width: clamp(160px, 20vw, 280px); pointer-events: none;
   margin-right: calc((var(--rail-w) - 100vw) / 2);
   background: linear-gradient(to right,
-    rgba(5,5,8,0) 0%, rgba(5,5,8,0.06) 14%, rgba(5,5,8,0.18) 28%,
-    rgba(5,5,8,0.38) 44%, rgba(5,5,8,0.62) 60%, rgba(5,5,8,0.84) 76%,
-    rgba(5,5,8,0.96) 90%, #050508 100%);
+    rgba(var(--sc-band-rgb, 5,5,8),0) 0%, rgba(var(--sc-band-rgb, 5,5,8),0.06) 14%, rgba(var(--sc-band-rgb, 5,5,8),0.18) 28%,
+    rgba(var(--sc-band-rgb, 5,5,8),0.38) 44%, rgba(var(--sc-band-rgb, 5,5,8),0.62) 60%, rgba(var(--sc-band-rgb, 5,5,8),0.84) 76%,
+    rgba(var(--sc-band-rgb, 5,5,8),0.96) 90%, var(--sc-band, #050508) 100%);
   backdrop-filter: blur(1px); -webkit-backdrop-filter: blur(1px);
   -webkit-mask-image: linear-gradient(to right, transparent, #000 45%);
           mask-image: linear-gradient(to right, transparent, #000 45%);
@@ -1440,18 +1853,17 @@ body.bp-page { padding-top: var(--bp-banner-h); }
   /* CLAUDE.md: mobile section padding 40–48px 0 */
   .section { padding: 48px 0; }
   /* Mobile hero floor — matches PR #144 fix in production solution-page.css. Base rule ships min-height: min(80dvh, 900px) which can drop to ~512px on typical 640-800px phone viewports with no lower bound. min(100dvh, 720px) fills the viewport up to a 720px cap so the hero always reads as tall regardless of H1 length. */
-  .hero-section { min-height: min(100dvh, 720px); }
+  .hero-section { min-height: 0; padding: calc(100px + var(--sc-nav-overlap, 0px)) 0 56px; }  /* security's mobile hero rule */
   .hero-h1 { font-size: clamp(37px, 10.45vw, 51px); }
   .hero-subtitle { font-size: 16px; }
   .section-sub, .feat-subheadline { font-size: 15px; }
   .section-inner, .success-inner, .feat-header, .feat-inner, .ms-faq-inner { width: calc(100vw - 32px); }
   /* hero gutters match the section standard (16px each side on mobile) */
   .hero-content-area { padding-left: 24px; padding-right: 24px; }
-  /* CLAUDE.md: button mobile — 44px height, 0 18px padding, 14px font */
   .hero-btn-primary,
-  .hero-btn-ghost { height: 44px; padding: 0 18px; font-size: 14px; }
-  .footer-cta-btn { height: 44px; font-size: 14px; }
-  .footer-email-input { height: 44px; }
+  .hero-btn-ghost { height: 52px; padding: 0 26px; font-size: 16px; }   /* the phone button standard: height stays 52, padding 26, type 16 */
+  .footer-cta-btn { height: 52px; font-size: 16px; }
+  .footer-email-input { height: 52px; }
   .why-stats-grid { grid-template-columns: repeat(2,1fr); }
   /* Tall cells with the number top-aligned + label bottom-aligned (via .why-stat-eyebrow's margin: auto 0 0). The min-height increase creates real vertical separation between number and label — the earlier 160px was collapsing the two rows together. */
   .why-stat-cell { padding: 32px 20px; min-height: 220px; }
@@ -1528,6 +1940,28 @@ html .hero-text > .hero-subtitle { margin-top: 4px; }
   html .section-sub, html .footer-subtitle { line-height: 1.4; }
 }
 </style>
+<style id="header-rhythm-desktop">
+/* Header rhythm on DESKTOP + TABLET — the one standard (16 / 12 eyebrow→H2 and H2→subtitle). This page was on its
+   older gaps (16/14, 14/14, 10/10, footer 24/8); phones are handled by #mobile-rhythm-standard above. Hero + footer
+   subtitle→prompt box: 32 / 32 / 24. */
+@media (min-width: 769px) {
+  html .unlocks-header > .section-headline { margin-bottom: 16px; }
+  html .section-header, html .how-header { gap: 16px; }
+  html .footer-section > .footer-eyebrow + * { margin-top: -8px; }
+  html .footer-section > .footer-subtitle { margin-top: -8px; }
+}
+@media (min-width: 769px) and (max-width: 1024px) {
+  html .unlocks-header > .section-eyebrow { margin-bottom: 12px; }
+  html .unlocks-header > .section-headline { margin-bottom: 12px; }
+  html .section-header, html .how-header { gap: 12px; }
+  html .ms-faq-eyebrow { margin-bottom: 12px; }
+  html .footer-section > .footer-eyebrow + * { margin-top: -12px; }
+  html .footer-section > .footer-subtitle { margin-top: -12px; }
+}
+html .hero-inner > .hero-prompt-shell { margin-top: -4px; }                                   /* 36 gap → 32 */
+@media (max-width: 1024px) { html .hero-inner > .hero-prompt-shell { margin-top: 0; } html .hero-inner > .hero-pills { margin-top: -8px; } }   /* 32 gap; prompt→pills 24 */
+@media (max-width: 768px) { html .hero-inner > .hero-prompt-shell { margin-top: -8px; } html .footer-prompt-stack { margin-top: -150px !important; } }  /* 24 */
+</style>
 <style id="hero-stack-phone">
 /* Hero stack on PHONES: H1→subtitle 12px (Gary, 2026-10-02 — 20 read too tall
    on a phone; tablet and desktop stay 20). Subtitle→CTA is unchanged (24).
@@ -1540,7 +1974,7 @@ html .hero-text > .hero-subtitle { margin-top: 4px; }
 
 
 <!-- ─── NAVBAR ────────────────────────────────────────────────────────────── -->
-<nav class="mkt-nav" aria-label="Primary">
+<nav class="mkt-nav mkt-nav--over-hero" aria-label="Primary">
   <div class="mkt-nav-inner">
     <!-- Nav-bar Back button — only appears on mobile when a submenu is active (JS toggles .is-on-submenu on .mkt-nav). Replaces the logo in the same slot. -->
     <button class="mkt-nav-back" data-mobile-back aria-label="Back to main menu">
@@ -1738,6 +2172,7 @@ html .hero-text > .hero-subtitle { margin-top: 4px; }
 <section class="hero-section">
   <div class="hero-overlay"></div>
   <canvas id="hero-pixel-dots"></canvas>
+  <canvas id="hero-dither" aria-hidden="true"></canvas>
   <div class="hero-pixel-cover"></div>
 
 
@@ -1854,7 +2289,7 @@ html .hero-text > .hero-subtitle { margin-top: 4px; }
 
       <div class="unlocks-grid">
 
-        <div class="unlock-card"><canvas class="unlock-hover-canvas" aria-hidden="true"></canvas>
+        <div class="unlock-card"><canvas class="unlock-hover-canvas" aria-hidden="true"></canvas> <span class="unlock-num">01</span>
           <div class="unlock-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 9h20"/><circle cx="5.5" cy="6.5" r="0.6" fill="currentColor" stroke="none"/><circle cx="8" cy="6.5" r="0.6" fill="currentColor" stroke="none"/></svg>
           </div>
@@ -1862,7 +2297,7 @@ html .hero-text > .hero-subtitle { margin-top: 4px; }
           <p class="unlock-desc">Build a branded web presence that captures leads and showcases your products and services.</p>
         </div>
 
-        <div class="unlock-card"><canvas class="unlock-hover-canvas" aria-hidden="true"></canvas>
+        <div class="unlock-card"><canvas class="unlock-hover-canvas" aria-hidden="true"></canvas> <span class="unlock-num">02</span>
           <div class="unlock-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           </div>
@@ -1870,7 +2305,7 @@ html .hero-text > .hero-subtitle { margin-top: 4px; }
           <p class="unlock-desc">Customize a CRM that matches your business's sales process. Track the leads and customers that matter, with the fields you use.</p>
         </div>
 
-        <div class="unlock-card"><canvas class="unlock-hover-canvas" aria-hidden="true"></canvas>
+        <div class="unlock-card"><canvas class="unlock-hover-canvas" aria-hidden="true"></canvas> <span class="unlock-num">03</span>
           <div class="unlock-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
           </div>
@@ -1878,7 +2313,7 @@ html .hero-text > .hero-subtitle { margin-top: 4px; }
           <p class="unlock-desc">Take appointments around your hours, your services, and your pricing. Customers book themselves, and you stop playing phone tag.</p>
         </div>
 
-        <div class="unlock-card"><canvas class="unlock-hover-canvas" aria-hidden="true"></canvas>
+        <div class="unlock-card"><canvas class="unlock-hover-canvas" aria-hidden="true"></canvas> <span class="unlock-num">04</span>
           <div class="unlock-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
           </div>
@@ -1886,7 +2321,7 @@ html .hero-text > .hero-subtitle { margin-top: 4px; }
           <p class="unlock-desc">Send invoices, track what's paid, and chase what's late. You build it based on how you bill.</p>
         </div>
 
-        <div class="unlock-card"><canvas class="unlock-hover-canvas" aria-hidden="true"></canvas>
+        <div class="unlock-card"><canvas class="unlock-hover-canvas" aria-hidden="true"></canvas> <span class="unlock-num">05</span>
           <div class="unlock-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
           </div>
@@ -1894,7 +2329,7 @@ html .hero-text > .hero-subtitle { margin-top: 4px; }
           <p class="unlock-desc">Give customers one place to find their files, updates, and messages.</p>
         </div>
 
-        <div class="unlock-card"><canvas class="unlock-hover-canvas" aria-hidden="true"></canvas>
+        <div class="unlock-card"><canvas class="unlock-hover-canvas" aria-hidden="true"></canvas> <span class="unlock-num">06</span>
           <div class="unlock-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
           </div>
@@ -2150,7 +2585,7 @@ html .hero-text > .hero-subtitle { margin-top: 4px; }
     <h2 class="footer-headline">You can just build it.</h2>
   </div>
   <p class="footer-subtitle footer-subtitle-wide">Free to start. Pro plans from $20/month.</p>
-  <div style="position:relative;width:100%;max-width:600px;margin-top:-135px;">
+  <div class="footer-prompt-stack" style="position:relative;width:100%;max-width:600px;margin-top:-142px;">
     <canvas id="footer-pixel-canvas" style="display:block;width:100%;height:160px;pointer-events:none;opacity:1;"></canvas>
     <div class="re-prompt-shell" style="margin-top:-10px;position:relative;z-index:1;">
       <label class="sr-only" for="footer-prompt-input">Describe what you want to build</label>
@@ -2231,7 +2666,7 @@ html .hero-text > .hero-subtitle { margin-top: 4px; }
 <section class="footer-image-section">
   <!-- bolt wordmark with shimmer — exact bolt-cli.html implementation -->
   <div class="bolt-wrap">
-    <img src="../../images/bolt-bottom.png" alt="bolt" class="">
+    <img id="bolt-wordmark-img" src="../../images/bolt-bottom-light.webp" alt="bolt" decoding="async">
     <canvas id="bolt-shimmer-canvas" class="bolt-shimmer"></canvas>
     <div class="bolt-fade"></div>
   </div>
@@ -2364,6 +2799,9 @@ html .hero-text > .hero-subtitle { margin-top: 4px; }
         el.querySelectorAll('h1, h2, .quote-text').forEach(function (h) {
           if (!h.dataset.wrapped) { wrapWords(h); h.dataset.wrapped = '1'; }
         });
+        /* fast-scroll catch-up: already deep in view -> skip the cascade */
+        var vh = window.innerHeight || document.documentElement.clientHeight;
+        if (entry.boundingClientRect.top < vh * 0.45) el.classList.add('is-instant');
         el.classList.add('is-revealed');
       } else if (el.classList.contains('eyebrow-scramble')) {
         scrambleEl(el);
@@ -2449,7 +2887,7 @@ html .hero-text > .hero-subtitle { margin-top: 4px; }
   }
   function init() {
     document.querySelectorAll('.hero-btn-primary').forEach(function (b) { attach(b, '#0a5aa8'); });
-    document.querySelectorAll('.hero-btn-ghost').forEach(function (b) { attach(b, 'rgba(255,255,255,0.18)'); });
+    document.querySelectorAll('.hero-btn-ghost').forEach(function (b) { attach(b, (getComputedStyle(document.documentElement).getPropertyValue('--sc-btn-pixel-ghost').trim() || 'rgba(255,255,255,0.18)')); });
     document.querySelectorAll('.footer-cta-btn').forEach(function (b) { attach(b, '#0a5aa8'); });
   }
   if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); }
@@ -2510,80 +2948,252 @@ html .hero-text > .hero-subtitle { margin-top: 4px; }
 })();
 
 
-/* ── Bolt strip shimmer — exact bolt-cli.html implementation ─────────────── */
+/* ── Bolt strip shimmer — security.html's theme-aware copy (light asset + load-race fix) ── */
+// ── Bolt strip shimmer ───────────────────────────────────────────────────────
+// Faithful vanilla port of production's FooterWordmark
+// (bolt-public-pages src/components/chrome/FooterWordmark.tsx), which is the
+// component the Forge Lite footer uses. The sandbox had a FORK of this that
+// drifted; every difference between them turned out to be a bug. Re-port from
+// the component, do not hand-tune here.
+//
+// Deltas from production, both deliberate:
+//   · theme switching: production picks light/dark once per render, this
+//     re-initialises on sc-themechange so the preview toggle works.
+//   · window.__shimmer debug hook.
 (function () {
   var canvas = document.getElementById('bolt-shimmer-canvas');
   if (!canvas) return;
   var wrap = canvas.parentElement;
-  var ctx = canvas.getContext('2d');
   var img = wrap.querySelector('img');
-  var W, H, strips = [], t = 0;
-  var hoverT = 0, isHovered = false, splashT = 0, splashStart = null, splashDuration = 300;
-  var observer = new IntersectionObserver(function (entries) {
-    if (entries[0].isIntersecting && !splashStart) { splashStart = Date.now(); observer.disconnect(); }
-  }, { threshold: 0.1 });
-  observer.observe(wrap);
-  function sampleStrips() {
-    var SW = 400, SH = 200;
-    var s = document.createElement('canvas'); s.width = SW; s.height = SH;
-    var sc = s.getContext('2d');
-    try { sc.drawImage(img, 0, 0, SW, SH); } catch (e) { return; }
-    var data; try { data = sc.getImageData(0, 0, SW, SH).data; } catch (e) { return; }
-    strips = []; var inStrip = false, stripStart = 0;
-    for (var x = 0; x < SW; x++) {
-      var b = 0;
-      for (var y = 20; y < SH - 20; y++) { var idx = (y * SW + x) * 4; b += (data[idx] + data[idx + 1] + data[idx + 2]) / 3; }
-      b /= (SH - 40);
-      if (b > 28 && !inStrip) { inStrip = true; stripStart = x; }
-      else if (b <= 28 && inStrip) {
+  var ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  var WORDMARK_SRC = '../../images/bolt-bottom.png';
+  var WORDMARK_LIGHT_SRC = '../../images/bolt-bottom-light.webp';
+  var SAMPLE_WIDTH = 400, SAMPLE_HEIGHT = 200, SAMPLE_WIDTH_FINE = 1600;
+  var STRIP_BRIGHTNESS_THRESHOLD = 28;
+  var HOVER_SPLASH_DURATION_MS = 300, TOUCH_SPLASH_DURATION_MS = 1500;
+
+  /* production bails entirely under reduced motion */
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+  var splashDuration = isTouch ? TOUCH_SPLASH_DURATION_MS : HOVER_SPLASH_DURATION_MS;
+
+  var strips = [], inView = false, width = 0, height = 0;
+  var time = Math.random() * 80, hoverAmount = 0, isHovered = false;
+  var splashStart, frame, light = false, frames = 0, lastError = null;
+
+  function isLight() { return document.documentElement.getAttribute('data-theme') !== 'dark'; }
+
+  function sampleStrips(image) {
+    var sampleWidth = light ? SAMPLE_WIDTH_FINE : SAMPLE_WIDTH;
+    var scratch = document.createElement('canvas');
+    scratch.width = sampleWidth; scratch.height = SAMPLE_HEIGHT;
+    var c = scratch.getContext('2d', { willReadFrequently: true });
+    if (!c) return [];
+    c.drawImage(image, 0, 0, sampleWidth, SAMPLE_HEIGHT);
+    var data = c.getImageData(0, 0, sampleWidth, SAMPLE_HEIGHT).data;
+    var out = [], inStrip = false, stripStart = 0;
+    for (var x = 0; x < sampleWidth; x++) {
+      var brightness = 0;
+      for (var y = 20; y < SAMPLE_HEIGHT - 20; y++) {
+        var i = (y * sampleWidth + x) * 4;
+        var lum = (data[i] + data[i + 1] + data[i + 2]) / 3;
+        brightness += light ? 255 - lum : lum;   /* light art is ink-on-white */
+      }
+      brightness /= SAMPLE_HEIGHT - 40;
+      if (brightness > STRIP_BRIGHTNESS_THRESHOLD && !inStrip) { inStrip = true; stripStart = x; }
+      else if (brightness <= STRIP_BRIGHTNESS_THRESHOLD && inStrip) {
         inStrip = false;
-        strips.push({ cx: (stripStart + x) / 2 / SW, w: (x - stripStart) / SW,
-          phase: Math.random() * Math.PI * 2, freq: 0.5 + Math.random() * 1.2,
-          yPhase: Math.random() * Math.PI * 2, yFreq: 0.35 + Math.random() * 0.7,
-          speedMult: 0.6 + Math.random() * 0.8 });
+        out.push({ centerX: (stripStart + x) / 2 / sampleWidth, width: (x - stripStart) / sampleWidth,
+                   phase: Math.random() * Math.PI * 2, frequency: 0.5 + Math.random() * 1.2,
+                   yPhase: Math.random() * Math.PI * 2, yFrequency: 0.35 + Math.random() * 0.7,
+                   speedMultiplier: 0.6 + Math.random() * 0.8 });
       }
     }
+    return out;
   }
-  function init() {
-    var r = wrap.getBoundingClientRect(); W = canvas.width = r.width; H = canvas.height = r.height;
-    t = Math.random() * 80; sampleStrips();
-    var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
-    if (isTouch) { splashDuration = 1500; }
-    else {
-      wrap.addEventListener('mouseenter', function () { isHovered = true; });
-      wrap.addEventListener('mouseleave', function () { isHovered = false; });
-    }
-    requestAnimationFrame(tick);
+
+  function resize() {
+    var rect = wrap.getBoundingClientRect();
+    width = canvas.width = Math.round(rect.width);
+    height = canvas.height = Math.round(rect.height);
   }
+
   function tick() {
-    var splashRaw = splashStart ? Math.max(0, 1 - (Date.now() - splashStart) / splashDuration) : 0;
-    splashT = splashRaw * splashRaw * splashRaw;
-    t += 0.012 + hoverT * 0.008;
-    hoverT += ((isHovered ? 1 : 0) - hoverT) * (isHovered ? 0.07 : 0.025);
-    ctx.clearRect(0, 0, W, H);
-    for (var i = 0; i < strips.length; i++) {
-      var st = strips[i];
-      var brightness = (Math.sin(t * st.freq * st.speedMult + st.phase) * 0.5 + 0.5);
-      if (brightness < 0.01) continue;
-      var x = st.cx * W, w = Math.max(st.w * W, 3);
-      var centerY = (Math.sin(t * st.yFreq * st.speedMult + st.yPhase) * 0.5 + 0.5) * H;
-      var spread = H * (0.55 + hoverT * 0.25);
-      var baseA = brightness * 0.11, peakA = brightness * 0.28;
-      var boost = Math.max(hoverT, splashT);
-      var a = (baseA + (peakA - baseA) * boost).toFixed(3);
-      var a2 = (parseFloat(a) * 1.4).toFixed(3);
-      var grad = ctx.createLinearGradient(0, centerY - spread, 0, centerY + spread);
-      grad.addColorStop(0,   'rgba(220,225,240,0)');
-      grad.addColorStop(0.3, 'rgba(220,225,240,' + a + ')');
-      grad.addColorStop(0.5, 'rgba(255,255,255,' + a2 + ')');
-      grad.addColorStop(0.7, 'rgba(220,225,240,' + a + ')');
-      grad.addColorStop(1,   'rgba(220,225,240,0)');
-      ctx.fillStyle = grad; ctx.fillRect(x - w / 2, 0, w, H);
-    }
-    requestAnimationFrame(tick);
+    if (!inView) { frame = undefined; return; }
+    frames++;
+    try {
+      var splashRaw = splashStart ? Math.max(0, 1 - (Date.now() - splashStart) / splashDuration) : 0;
+      var splash = splashRaw * splashRaw * splashRaw;
+      time += 0.028 + hoverAmount * 0.016;
+      hoverAmount += ((isHovered ? 1 : 0) - hoverAmount) * (isHovered ? 0.07 : 0.025);
+      ctx.clearRect(0, 0, width, height);
+      for (var i = 0; i < strips.length; i++) {
+        var strip = strips[i];
+        var brightness = Math.sin(time * strip.frequency * strip.speedMultiplier + strip.phase) * 0.5 + 0.5;
+        if (brightness < 0.01) continue;
+        var x = strip.centerX * width;
+        var stripWidth = Math.max(strip.width * width, light ? 2 : 3);
+        var centerY = (Math.sin(time * strip.yFrequency * strip.speedMultiplier + strip.yPhase) * 0.5 + 0.5) * height;
+        var spread = height * (0.55 + hoverAmount * 0.25);
+        var boost = Math.max(hoverAmount, splash);
+        var alpha = brightness * 0.11 + (brightness * 0.28 - brightness * 0.11) * boost;
+        var peakAlpha = alpha * 1.4;
+        var edge = light ? '35,40,55' : '220,225,240';
+        var peak = light ? '10,12,20' : '255,255,255';
+        var g = ctx.createLinearGradient(0, centerY - spread, 0, centerY + spread);
+        g.addColorStop(0, 'rgba(' + edge + ',0)');
+        g.addColorStop(0.3, 'rgba(' + edge + ',' + alpha.toFixed(3) + ')');
+        g.addColorStop(0.5, 'rgba(' + peak + ',' + peakAlpha.toFixed(3) + ')');
+        g.addColorStop(0.7, 'rgba(' + edge + ',' + alpha.toFixed(3) + ')');
+        g.addColorStop(1, 'rgba(' + edge + ',0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(x - stripWidth / 2, 0, stripWidth, height);
+      }
+    } catch (e) { lastError = (e && e.message) || String(e); }
+    frame = requestAnimationFrame(tick);
   }
-  if (img.complete) init(); else img.addEventListener('load', init);
-  window.addEventListener('resize', function () { var r = wrap.getBoundingClientRect(); W = canvas.width = r.width; H = canvas.height = r.height; });
+
+  /* Production gates the loop on inView from an IntersectionObserver. That is
+     correct but it is also a single point of failure: if the observer has not
+     reported by the time the art decodes, nothing ever starts. Compute
+     visibility directly as a fallback so start() can never be stranded. */
+  function computeInView() {
+    var r = wrap.getBoundingClientRect();
+    var vh = window.innerHeight || document.documentElement.clientHeight;
+    return r.bottom > 0 && r.top < vh;
+  }
+  function run() { if (frame === undefined && inView) frame = requestAnimationFrame(tick); }
+  function start() {
+    resize();
+    strips = sampleStrips(img);
+    if (!inView && computeInView()) { inView = true; if (!splashStart) splashStart = Date.now(); }
+    run();
+  }
+
+  /* Theme art. Production picks this once; we re-apply on the preview toggle.
+     NOTE: mix-blend-mode is set HERE, never authored in the markup — `screen`
+     on a white ground is invisible, so an authored default is a trap. */
+  var appliedTheme = null;
+  function applyTheme() {
+    light = isLight();
+    var now = light ? 'light' : 'dark';
+    if (now === appliedTheme) return;
+    appliedTheme = now;
+    canvas.style.mixBlendMode = light ? 'multiply' : 'screen';
+    img.style.opacity = light ? '0.32' : '0.20';
+    var want = light ? WORDMARK_LIGHT_SRC : WORDMARK_SRC;
+    if (img.getAttribute('src') !== want) {
+      img.setAttribute('src', want);
+      img.addEventListener('load', start, { once: true });
+    } else if (img.complete && img.naturalWidth) {
+      start();
+    } else {
+      /* src already correct but the image hasn't finished loading — without
+         this branch the shimmer never starts on pages that ship the themed
+         asset statically (the press race, Gary's "not animating") */
+      img.addEventListener('load', start, { once: true });
+    }
+  }
+  document.addEventListener('sc-themechange', applyTheme);
+
+  new ResizeObserver(resize).observe(wrap);
+  new IntersectionObserver(function (entries) {
+    setInView(entries[0].isIntersecting);
+  }, { threshold: 0.1 }).observe(wrap);
+
+  /* The observer is the efficient path, but it is not the only one: it can fail
+     to report (nested browsing contexts, some restored-scroll cases), and then
+     the loop never starts at all — which is exactly the failure mode being
+     chased here. A throttled scroll/resize check keeps inView honest
+     regardless, and costs one getBoundingClientRect per frame while scrolling. */
+  function setInView(v) {
+    if (v === inView) return;
+    inView = v;
+    if (inView) { if (!splashStart) splashStart = Date.now(); run(); }
+  }
+  var pending = false;
+  function onScroll() {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(function () { pending = false; setInView(computeInView()); });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+
+  if (!isTouch) {
+    wrap.addEventListener('mouseenter', function () { isHovered = true; });
+    wrap.addEventListener('mouseleave', function () { isHovered = false; });
+  }
+
+  window.__shimmer = {
+    get strips()  { return strips.length; },
+    get light()   { return light; },
+    get running() { return frame !== undefined; },
+    get inView()  { return inView; },
+    get frames()  { return frames; },
+    get err()     { return lastError; },
+    get t()       { return Math.round(time * 100) / 100; },
+    get src()     { return (img.currentSrc || img.getAttribute('src') || '').split('/').pop(); },
+    get canvas()  { return canvas.width + 'x' + canvas.height; },
+    get blend()   { return getComputedStyle(canvas).mixBlendMode; }
+  };
+
+  applyTheme();
+  if (img.complete && img.naturalWidth) start(); else img.addEventListener('load', start, { once: true });
+})();
+
+// ── Hero pixel dots — uniform field, no skyline seam
+//    Center-focused Gaussian fade + top/bottom soft fade + two decoherent waves.
+(function () {
+  var canvas = document.getElementById('hero-pixel-dots');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var SPACING = 11, DOT = 2, cols, rows, phases;
+  function init() {
+    canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
+    cols = Math.ceil(canvas.width / SPACING) + 1;
+    rows = Math.ceil(canvas.height / SPACING) + 1;
+    phases = Array.from({ length: rows }, function () { return Float32Array.from({ length: cols }, function () { return Math.random() * Math.PI * 2; }); });
+  }
+  window.addEventListener('resize', init); init();
+  var start = null;
+  function draw(ts) {
+    if (!start) start = ts; var t = ts - start;
+    var W = canvas.width, H = canvas.height;
+    if (!W || !H) { requestAnimationFrame(draw); return; }
+    ctx.clearRect(0, 0, W, H);
+    for (var c = 0; c < cols; c++) {
+      var cf = c / cols;
+      // tighter horizontal Gaussian — dots only faintly present, and mostly around center
+      var hm = Math.exp(-Math.pow(cf - 0.5, 2) / (2 * 0.18 * 0.18));
+      if (hm < 0.04) continue;
+      for (var r = 0; r < rows; r++) {
+        var rf = r / rows;
+        // longer top/bottom fades so the visible band is thin
+        var vTop = Math.min(1, rf / 0.30);
+        var vBot = Math.min(1, (1 - rf) / 0.30);
+        var vm = vTop * vBot;
+        if (vm < 0.08) continue;
+        var x = c * SPACING, y = r * SPACING;
+        var ph = phases[r][c];
+        // decoherent waves — different scales/directions so no visible horizontal bands
+        var w1 = Math.sin(c * 0.13 + r * 0.29 - t * 0.0012 + ph);
+        var w2 = Math.sin(c * 0.07 - r * 0.11 + t * 0.0008 + ph * 0.6);
+        var w3 = Math.sin((c - r) * 0.05 + t * 0.0006 + ph * 1.3);
+        var wave = (w1 + w2 + w3) / 3;
+        // opacity cut sharply — barely-there ambient texture
+        var op = hm * vm * Math.max(0, wave) * 0.28;
+        if (op < 0.015) continue;
+        ctx.fillStyle = 'rgba(160,185,230,' + op.toFixed(3) + ')';
+        ctx.fillRect(x - DOT, y - DOT, DOT * 2, DOT * 2);
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
 })();
 
 /* ── makePixelCanvas helper (from bolt-cli.html) ─────────────────────────── */
@@ -2591,6 +3201,18 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
   color = color || '20,136,252';
   var canvas = document.getElementById(id);
   if (!canvas) return;
+  /* Light mode: an explicit triplet is this canvas's DARK colour — pale dots
+     vanish on a light ground — so light follows --sc-dot-rgb, unless the
+     canvas sits in a .sc-on-dark scope. Dark keeps the literal. */
+  var darkColor = color;
+  function pickColor() {
+    var light = document.documentElement.getAttribute('data-theme') === 'light';
+    if (!light || canvas.closest('.sc-on-dark')) { color = darkColor; return; }
+    var v = getComputedStyle(canvas).getPropertyValue('--sc-dot-rgb').trim();
+    color = v || '20,136,252';
+  }
+  pickColor();
+  document.addEventListener('sc-themechange', pickColor);
   var phases = [];
   function buildPhases(cols, rows) {
     phases = Array.from({ length: rows }, function() {
@@ -2629,7 +3251,7 @@ function makePixelCanvas(id, spacing, dot, waveFn, opacity, color) {
   requestAnimationFrame(draw);
 }
 
-/* ── Why -> Who transition pixel field (shimmerField — traveling diagonal band + twinkle) */
+/* ── Why -> Who transition pixel field (shimmerField) ──────────────────────── */
 window.addEventListener('load', function () {
   if (document.getElementById('why-who-pixel-canvas')) {
     makePixelCanvas('why-who-pixel-canvas', 11, 2,
@@ -2693,6 +3315,82 @@ window.addEventListener('load', function () {
       var rand = Math.sin(p * 127.1 + c * 311.7 + r * 173.3) * 0.5 + 0.5;
       return density > rand ? density * 0.85 : 0;
     }, 1.0, '220,230,245');
+
+  /* kygo-style edge-frame pixel canvas over the video — exact copy of bolt.conf #kygo-pixel-canvas */
+  (function () {
+    var canvas = document.getElementById('video-pixel-canvas');
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    var SPACING = 9, MAX_R = 3.6;
+    var cols, rows, phases;
+    function init() {
+      canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
+      cols = Math.ceil(canvas.width / SPACING) + 1;
+      rows = Math.ceil(canvas.height / SPACING) + 1;
+      phases = Array.from({ length: rows }, function () {
+        return Float32Array.from({ length: cols }, function () { return Math.random() * Math.PI * 2; });
+      });
+    }
+    window.addEventListener('resize', init); init();
+    function rwave(px, py, scale, rotRate, phase, tMult, t) {
+      var angle = t * rotRate + phase;
+      var u = (px * Math.cos(angle) + py * Math.sin(angle)) / scale;
+      var v = (-px * Math.sin(angle) + py * Math.cos(angle)) / scale;
+      return Math.sin(u * Math.PI * 2 + t * tMult) * Math.cos(v * Math.PI * 1.5 + t * tMult * 0.7);
+    }
+    var start = null;
+    function draw(ts) {
+      if (!start) start = ts;
+      var t = (ts - start) * 0.4;   // slow the motion so it's calmer / less drastic
+      var W = canvas.width, H = canvas.height;
+      if (!W || !H) { init(); if (inView) requestAnimationFrame(draw); return; }
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = document.documentElement.getAttribute('data-theme') === 'light' ? 'rgba(' + (getComputedStyle(document.documentElement).getPropertyValue('--sc-dot-rgb').trim() || '20,136,252') + ', 0.42)' : 'rgba(205, 218, 242, 0.42)';
+      var pockets = [
+        { x: W*(0.5+0.45*Math.sin(t*0.00015)*Math.cos(t*0.00011)), y: H*(0.5+0.45*Math.cos(t*0.00013+0.8)*Math.sin(t*0.00017)), r: 200+70*Math.sin(t*0.00021), a: 0.5+0.5*Math.sin(t*0.00032+1.2) },
+        { x: W*(0.5-0.50*Math.cos(t*0.00011+1.7)*Math.sin(t*0.00019)), y: H*(0.5-0.45*Math.sin(t*0.00014+2.3)*Math.cos(t*0.00008)), r: 240+90*Math.cos(t*0.00017+0.5), a: 0.5+0.5*Math.sin(t*0.00027+3.1) },
+        { x: W*(0.5+0.48*Math.sin(t*0.00009+2.9)*Math.cos(t*0.00022+1.1)), y: H*(0.5+0.48*Math.cos(t*0.00012+0.3)), r: 180+60*Math.sin(t*0.00029+2.2), a: 0.4+0.6*Math.sin(t*0.00019+0.7) }
+      ];
+      for (var r = 0; r < rows; r++) {
+        for (var c = 0; c < cols; c++) {
+          var px = c * SPACING, py = r * SPACING;
+          var phase = phases[r][c];
+          // edge-frame mask: pixels only in a thin band around all four edges,
+          // center fully clear so the whole video reads through
+          var band = 0.15;
+          var ed = Math.min(Math.min(px / W, 1 - px / W), Math.min(py / H, 1 - py / H));
+          var edge = Math.max(0, 1 - ed / band);
+          edge = edge * edge; // soft falloff into the interior
+          if (edge < 0.02) continue;
+          var s1 = rwave(px, py, 700, 0.00009, 0.5 + phase*0.2, 0.00022, t);
+          var s2 = rwave(px, py, 340, 0.00020, 1.8 + phase*0.3, 0.00050, t);
+          var s3 = rwave(px, py, 170, 0.00035, 3.1 + phase*0.4, 0.00085, t);
+          var wave = s1*0.40 + s2*0.32 + s3*0.22; wave = wave*0.5 + 0.5;
+          var activation = 0;
+          for (var i = 0; i < pockets.length; i++) {
+            var p = pockets[i]; var dx = px - p.x, dy = py - p.y;
+            activation += p.a * Math.exp(-(dx*dx + dy*dy) / (2*p.r*p.r));
+          }
+          activation = Math.min(1.1, activation);
+          var strength = Math.pow(Math.max(0, wave), 2.2);
+          var modulated = (0.30 + activation * strength * 0.55) * edge;
+          var radius = modulated * MAX_R;
+          if (radius < 0.22) continue;
+          ctx.beginPath(); ctx.arc(px, py, radius, 0, Math.PI * 2); ctx.fill();
+        }
+      }
+      if (inView) requestAnimationFrame(draw); else rafPaused = true;
+    }
+    var inView = true, rafPaused = false;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        inView = e.isIntersecting;
+        if (inView && rafPaused) { rafPaused = false; start = null; requestAnimationFrame(draw); }
+      });
+    }, { rootMargin: '100px' });
+    io.observe(canvas);
+    requestAnimationFrame(draw);
+  })();
 
   /* Animated pixel field behind the "Create your own" heading + prompt box */
   if (document.getElementById('create-pixel-canvas')) {
@@ -2803,7 +3501,7 @@ window.addEventListener('load', function () {
             var alpha = density * 0.22;
             ctx.beginPath();
             ctx.arc(px, py, maxR * density, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(180,185,195,' + alpha.toFixed(2) + ')';
+            ctx.fillStyle = 'rgba(' + (document.documentElement.getAttribute('data-theme') === 'light' ? (getComputedStyle(document.documentElement).getPropertyValue('--sc-dot-rgb').trim() || '20,136,252') : '180,185,195') + ',' + alpha.toFixed(2) + ')';
             ctx.fill();
           }
         }
@@ -2835,17 +3533,6 @@ window.addEventListener('load', function () {
   requestAnimationFrame(function () {
     requestAnimationFrame(function () {
       document.querySelectorAll('.unlock-hover-canvas').forEach(drawHoverNoise);
-    });
-  });
-})();
-
-/* ── Card hover "flashlight" — radial glow follows the cursor (solutions.html) ── */
-(function () {
-  document.querySelectorAll('.unlock-card').forEach(function (el) {
-    el.addEventListener('mousemove', function (e) {
-      var r = el.getBoundingClientRect();
-      el.style.setProperty('--mx', (e.clientX - r.left) + 'px');
-      el.style.setProperty('--my', (e.clientY - r.top) + 'px');
     });
   });
 })();
@@ -2945,7 +3632,7 @@ window.addEventListener('load', function () {
             var alpha = density * 0.25;
             ctx.beginPath();
             ctx.arc(px, py, maxR * density, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(180,185,195,' + alpha.toFixed(2) + ')';
+            ctx.fillStyle = 'rgba(' + (document.documentElement.getAttribute('data-theme') === 'light' ? (getComputedStyle(document.documentElement).getPropertyValue('--sc-dot-rgb').trim() || '20,136,252') : '180,185,195') + ',' + alpha.toFixed(2) + ')';
             ctx.fill();
           }
         }
@@ -3045,6 +3732,38 @@ window.addEventListener('load', function () {
   function arm() { setTimeout(nudge, 120); setTimeout(nudge, 600); }
   if (document.readyState === 'complete') arm();
   else window.addEventListener('load', arm);
+})();
+
+/* ── Promo banner: close button ───────────────────────────────────────── */
+(function () {
+  var btn = document.getElementById('promo-banner-close');
+  var bar = document.querySelector('.promo-banner');
+  if (!btn || !bar) return;
+  try { if (sessionStorage.getItem('bp-banner-dismissed') === '1') { bar.remove(); document.body.classList.remove('bp-page'); return; } } catch (e) {}
+  btn.addEventListener('click', function () {
+    bar.classList.add('is-closing');
+    document.body.classList.add('is-banner-closing');
+    try { sessionStorage.setItem('bp-banner-dismissed', '1'); } catch (e) {}
+    var done = false;
+    var finish = function () {
+      if (done) return; done = true;
+      bar.remove();
+      document.body.classList.remove('bp-page', 'is-banner-closing');
+    };
+    bar.addEventListener('transitionend', function (e) { if (e.propertyName === 'transform') finish(); });
+    setTimeout(finish, 500);
+  });
+})();
+
+/* ── Card hover "flashlight" — radial glow follows the cursor (solutions.html) ── */
+(function () {
+  document.querySelectorAll('.unlock-card').forEach(function (el) {
+    el.addEventListener('mousemove', function (e) {
+      var r = el.getBoundingClientRect();
+      el.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+      el.style.setProperty('--my', (e.clientY - r.top) + 'px');
+    });
+  });
 })();
 
 /* ── Templates rail — right-edge fade + click-drag panning (from solutions.html) ── */
@@ -3152,6 +3871,103 @@ window.addEventListener('load', function () {
       d[i+3] = 255;
     }
     ctx.putImageData(img, 0, 0);
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+</script>
+<script>
+/* Light: the compliance family's hover dot field on each unlock card
+   (attachHoverField from marketing/compliance.html). The canvas is injected
+   here and display:none on dark, where the page's own hover-noise runs. */
+(function () {
+  function attachHoverField(tile, canvas, idx) {
+    var ctx = canvas.getContext('2d');
+    var SPACING = 9, DOT = 2, cols = 0, rows = 0, phases = [], hovered = false, t = 0;
+    var phase = idx * 1.7;
+    function resize() {
+      var w = tile.offsetWidth, h = tile.offsetHeight; if (!w || !h) return;
+      canvas.width = w; canvas.height = h;
+      cols = Math.ceil(w / SPACING) + 1; rows = Math.ceil(h / SPACING) + 1;
+      phases = Array.from({ length: rows }, function() { return Array.from({ length: cols }, function() { return Math.random() * Math.PI * 2; }); });
+    }
+    try { new ResizeObserver(resize).observe(tile); } catch(e) {}
+    requestAnimationFrame(resize);
+    tile.addEventListener('mouseenter', function() { hovered = true; });
+    tile.addEventListener('mouseleave', function() { hovered = false; });
+    function draw() {
+      if (!hovered || !cols) { requestAnimationFrame(draw); return; }
+      t += 0.03;
+      var W = canvas.width, H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+      var angle = t * 0.16 + phase;
+      var ca = Math.cos(angle), sa = Math.sin(angle);
+      for (var r = 0; r < rows; r++) {
+        for (var c = 0; c < cols; c++) {
+          var px = c * SPACING, py = r * SPACING;
+          var ph = (phases[r] && phases[r][c]) || 0;
+          var u = (px * ca + py * sa) / 58;
+          var wave = Math.sin(u + t + ph) * Math.cos((px * -sa + py * ca) / 90 + t * 0.6);
+          var hFade = px / W;
+          var op = Math.max(0, wave) * 0.55 * hFade;
+          if (op < 0.04) continue;
+          ctx.fillStyle = 'rgba(60,140,235,' + op.toFixed(3) + ')';
+          ctx.fillRect(px, py, DOT, DOT);
+        }
+      }
+      requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
+  }
+  document.querySelectorAll('.unlock-card').forEach(function (el, i) {
+    var cv = document.createElement('canvas'); cv.className = 'unlock-field-canvas'; cv.setAttribute('aria-hidden', 'true');
+    el.insertBefore(cv, el.firstChild); attachHoverField(el, cv, i);
+  });
+})();
+</script>
+<script>
+// ── Hero dither (BOTH themes) — the family's ordered Bayer field. Light: white
+//    squares over the dome. Dark: the pale crown (integrations' params).
+(function () {
+  var canvas = document.getElementById('hero-dither');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var CELL = 5, SQ = 2, cols, rows;
+  var BAYER = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]];
+  var light = true;
+  function readTheme() { light = document.documentElement.getAttribute('data-theme') !== 'dark'; }
+  function init() {
+    canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
+    cols = Math.ceil(canvas.width / CELL) + 1;
+    rows = Math.ceil(canvas.height / CELL) + 1;
+  }
+  readTheme(); window.addEventListener('resize', init); init();
+  document.addEventListener('sc-themechange', function () { readTheme(); init(); });
+  var start = null;
+  function draw(ts) {
+    if (!start) start = ts;
+    var t = (ts - start) / 1000;
+    var W = canvas.width, H = canvas.height;
+    if (!W || !H) { init(); requestAnimationFrame(draw); return; }
+    ctx.clearRect(0, 0, W, H);
+    for (var r = 0; r < rows; r++) {
+      var gy = r / rows;
+      var base = 1 - gy / (light ? 0.98 : 0.85);
+      if (base <= 0) continue;
+      base = light ? Math.pow(base, 0.75) : base * base;
+      for (var c = 0; c < cols; c++) {
+        var gx = c / cols;
+        var wave = Math.sin(gx * 4.1 + gy * 6.3 - t * 0.95) * 0.5
+                 + Math.sin(gx * 7.7 - gy * 3.1 + t * 0.62) * 0.28;
+        var hm = 1 - Math.pow(Math.abs(gx - 0.5) * 2, 2.2) * 0.85;
+        var level = base * hm + wave * 0.38;
+        var th = (BAYER[r & 3][c & 3] + 0.5) / 16;
+        if (level <= th) continue;
+        var a = 0.085 + base * 0.13;
+        ctx.fillStyle = 'rgba(' + (light ? '255,255,255' : '160,185,230') + ',' + a.toFixed(3) + ')';
+        ctx.fillRect(c * CELL, r * CELL, SQ, SQ);
+      }
+    }
     requestAnimationFrame(draw);
   }
   requestAnimationFrame(draw);

@@ -439,6 +439,14 @@ Rebuilt from production 2026-09-30 (see Pages above) — the old drifted copy wi
 - **`.footer-spacer` is retired** (`display: none`); the CTA→divider gap is the 88px standard.
 - **Shimmer snippet pitfall**: pasting a `<script>`-terminated reference block inside an existing script kills everything after it (real-estate lost grain/hover/FAQ canvases). Paste bodies only.
 
+### `solutions/smb` light port (2026-10-05) — the design source for the `/solutions/<slug>` route
+`solutions/smb/index.html` is on the light recipe now (it was the last self-contained holdout). Its structure is the live `solutions/[slug]` route's one for one (prompt hero → why stats → bordered unlock cards → how → template rail → quote → FAQ → footer prompt), so it is the page the four live pages (`ai-for-small-business`, `-entrepreneurs`, `-agencies`, `-real-estate`) get ported from. That route (`SolutionPageBody` + `solution-page.css`) is still UNPORTED in production: solid black header, old dark design.
+- Recipe = real-estate's: the inlined `--sc-*` palette + the TYPE FAMILIES block (a separate `:root` after the pinned-dark block — copying only the palette leaves eyebrows on the Literata fallback), real-estate's light override block, its theme-aware main script (minus the video blocks, plus smb's own rail-drag and card-flashlight blocks) and the hover-field + hero-dither helper scripts. Over-hero nav, `#hero-dither`, numbered unlock cards, theme-aware wordmark (`#bolt-wordmark-img` + tokenised `.bolt-fade` / `.bolt-wrap` ground).
+- Hero: security construction with `--hero-stack-allowance: 164px` for the 2-line H1 (lands on the family line, 217 at 1440x900). 92 is the 1-line value.
+- Brought onto the standards in the same pass: header rhythm 16/16 and 12/12 at desktop/tablet (`<style id="header-rhythm-desktop">`; it was 16/14, 14/14, 10/10, footer 24/8), hero and footer subtitle→prompt 32 / 32 / 24, phone buttons 52 / 0 26 / 16 (the page still said 44 / 18 / 14), `.footer-spacer` retired.
+- The card-balloon trap hit again: the generic `.unlock-card > *:not(.unlock-hover-canvas) { position: relative }` must exclude `.unlock-field-canvas` and `.unlock-num`.
+- `solutions/ai-for-real-estate` still carries the old desktop/tablet rhythm and the 44px phone button rule — fix when that page is next touched.
+
 ### Simple-hero height rule
 **Canonical for `.hero-section--simple`** (used by `/use-cases/*` and the no-video `/solutions/*` pages). Ported from `src/styles/solution-page.css` so both page families render identical hero heights. Lives in `src/styles/use-case-page.css` in production and inline in `solutions/_template/index.html` in the sandbox. Landed via [bolt-public-pages#120](https://github.com/stackblitz/bolt-public-pages/pull/120) + [#121](https://github.com/stackblitz/bolt-public-pages/pull/121).
 
