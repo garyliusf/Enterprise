@@ -84,7 +84,7 @@ P .tpl-hero-inner > .hero-subtitle { margin-top: -4px; }   /* H1→subtitle 20 (
   P .tpl-hero .hero-subtitle { font-size: 18px; }
 }
 @media (max-width: 768px) {
-  P .tpl-hero { min-height: 0; padding: calc(80px + var(--sc-nav-overlap, 0px)) 0 20px; }
+  P .tpl-hero { min-height: 0; padding: calc(52px + var(--sc-nav-overlap, 0px)) 0 96px; }   /* family proportion: headline up, dome room below the copy so the subtitle ends at ~73% of the box, on blue (was 80/20: white on the white rim) */
   P .tpl-hero-inner { gap: 16px; }
   P .tpl-hero .hero-h1 { font-size: clamp(37px, 10.45vw, 51px); }
   P .tpl-hero .hero-subtitle { font-size: 16px; }
