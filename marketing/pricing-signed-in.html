@@ -360,6 +360,7 @@
        apart and the pair read as competing. Absolutely positioned, so it
        still costs no layout height and the four cards stay level. */
     .cards { margin-top: 0; }
+    .card-teams > .popular-banner[hidden] { display: none; }  /* the display rules below outrank the UA [hidden] default */
     .card-teams > .popular-banner {
       position: absolute;
       top: 36px;      /* centres on the plan name's line */
@@ -4714,11 +4715,12 @@ window.__pageOwnsScrollAnims = true;
        (the review-only Scenario switch, bottom right); everything derived
        from them follows the real rules:
 
-         • a workspace with a subscription opens its card on the NEXT tier
-           above the current one, so the button reads "Upgrade"; picking the
-           current tier turns it into "Manage subscription" (+ "Cancel
-           subscription" on Teams), a lower tier into "Downgrade", the same
-           tier on the other billing term into "Change commitment"
+         • a workspace with a subscription opens its card ON the current
+           tier (Gary, 2026-10-06 — production opened on the next tier up),
+           so the button reads "Manage subscription" (+ "Cancel subscription"
+           on Teams); sliding to a higher tier turns it into "Upgrade", a
+           lower one into "Downgrade", the same tier on the other billing
+           term into "Change commitment"
          • Free: "Your Current Plan" on a free account, "Downgrade to Free"
            on a paid one, "You're on Teams" while a team workspace is selected
          • Pro while a team workspace is selected: "You're on Teams" + the
@@ -4812,11 +4814,13 @@ window.__pageOwnsScrollAnims = true;
       }
       function hasSub(m) { return !!m && (m.tier || 0) > 0; }
 
-      /* the selected tier opens on the next one above the current (_initActiveState) */
+      /* the slider opens ON the subscribed tier (Gary, 2026-10-06) so the
+         card reads as your current plan first — production's _initActiveState
+         opened on the next tier up, which led with "Upgrade" */
       function defaultSel(plan) {
         var list = plan === 'pro' ? PRO_TIERS : TEAM_TIERS, m = membership(plan);
         if (!hasSub(m) || m.forge) return list[0];
-        return nextTier(list, m.tier) || findTier(list, m.tier);
+        return findTier(list, m.tier) || list[0];
       }
       function selected(plan) { return plan === 'pro' ? state.proSel : state.teamSel; }
 
@@ -4904,8 +4908,14 @@ window.__pageOwnsScrollAnims = true;
         var card = document.querySelector('.card[data-plan="' + plan + '"]');
         var picker = card.querySelector('[data-picker]'); if (!picker) return;
         var m = membership(plan), sel = selected(plan), list = plan === 'pro' ? PRO_TIERS : TEAM_TIERS;
-        /* PricingSelector renders for a signed-in viewer: Pro on the personal workspace, Teams anywhere */
-        var show = plan === 'teams' || state.workspace === 'personal';
+        /* Pro's picker lives on the personal workspace. Teams is its own
+           ORGANIZATION (Gary, 2026-10-06): its picker shows where it can be
+           configured or bought — on the team workspace, in the ?intent=teams
+           return state, or for a personal account with no subscription yet —
+           never beside an existing personal Pro/Lite subscription. */
+        var show;
+        if (plan === 'pro') show = state.workspace === 'personal';
+        else show = state.workspace === 'team' || state.intent === 'teams' || !hasSub(membership('pro'));
         picker.hidden = !show;
         if (!show) return;
         var idx = list.indexOf(sel), last = list.length - 1;
@@ -4927,7 +4937,7 @@ window.__pageOwnsScrollAnims = true;
           if (m.forge) {
             notes.push('<p class="token-current">Your current plan: <strong>Bolt Lite</strong></p>');
           } else if (sel.tier === m.tier) {
-            notes.push('<p class="token-current">Your current plan' + (m.left ? ' — <strong>' + m.left + '</strong> tokens left this month' : '') + '</p>');
+            notes.push('<p class="token-current"><strong>Your current plan</strong>' + (m.left ? ' — <strong>' + m.left + '</strong> tokens left this month' : '') + '</p>');
           } else {
             var cur = findTier(list, m.tier);
             var delta = state.interval === 'yearly' ? sel.year - cur.year : sel.month - cur.month;
@@ -4950,18 +4960,32 @@ window.__pageOwnsScrollAnims = true;
         if (hasSub(m) && !m.forge) return 'pro';
         return 'teams';
       }
+      /* while subscribed (or finishing checkout) the page calms down: only
+         the highlighted card may carry a blue CTA, everything else renders
+         ghost so it doesn't compete (Gary, 2026-10-06) */
+      function subscribedNow() {
+        return hasSub(membership(state.workspace === 'team' ? 'teams' : 'pro'));
+      }
+      function calmMode() {
+        return state.intent ? true : subscribedNow();
+      }
       function renderCards() {
-        var hl = highlightPlan();
+        var hl = highlightPlan(), calm = calmMode();
         ['pro', 'teams'].forEach(function (p) {
           var c = document.querySelector('.card[data-plan="' + p + '"]');
           if (c) c.classList.toggle('card--hl', hl === p);
         });
+        /* MOST POPULAR is a shopper's cue — drop it once the account is
+           subscribed (Gary, 2026-10-06) */
+        var popBanner = document.querySelector('.card-teams .popular-banner');
+        if (popBanner) popBanner.hidden = subscribedNow();
         document.querySelectorAll('.card[data-plan]').forEach(function (card) {
           var plan = card.getAttribute('data-plan'), btn = card.querySelector('[data-cta]'), msgs = card.querySelector('[data-msgs]');
           var cta, links = [];
           if (plan === 'free') cta = freeActions().primary;
           else if (plan === 'enterprise') cta = { label: 'See a Demo', variant: 'primary' };
           else { var a = paidActions(plan); cta = a.primary; links = a.links; }
+          if (calm && plan !== hl && !cta.disabled) cta = { label: cta.label, variant: 'secondary' };
           renderButton(btn, cta);
           renderMsgs(msgs, links.map(function (l) { return { link: true, label: l.label, kind: l.kind }; }));
           if (plan === 'pro' || plan === 'teams') { renderPrice(plan); renderPicker(plan); }
