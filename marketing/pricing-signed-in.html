@@ -4907,7 +4907,10 @@ window.__pageOwnsScrollAnims = true;
         var sel = selected(plan); return '$' + (interval === 'yearly' ? sel.year : sel.month);
       };
       function renderPrice(plan) {
-        var sel = selected(plan), unit = plan === 'teams' ? ' / year per member' : ' / year';
+        /* Teams' "per member" rides on the term line, not the total: "/ year per
+           member" overran the 251px column by ~2px and orphaned "member" on its
+           own line (Gary, 2026-10-06) */
+        var sel = selected(plan), unit = ' / year', per = plan === 'teams' ? 'Per member, billed' : 'Billed';
         var price = document.getElementById(plan === 'pro' ? 'pro-price' : 'teams-price');
         if (price && !state.rolling) price.textContent = '$' + (state.interval === 'yearly' ? sel.year : sel.month);
         var period = document.querySelector('.card[data-plan="' + plan + '"] .price-period');
@@ -4916,10 +4919,10 @@ window.__pageOwnsScrollAnims = true;
         if (!total) return;
         if (state.interval === 'yearly') {
           total.innerHTML = 'Total of <strong>' + money(sel.year * 12) + '</strong> <s>' + money(sel.month * 12) + '</s>' + unit;
-          save.textContent = 'Billed annually';
+          save.textContent = per + ' annually';
         } else {
           total.innerHTML = 'Total of <strong>' + money(sel.month * 12) + '</strong>' + unit;
-          save.textContent = 'Billed monthly';
+          save.textContent = per + ' monthly';
         }
       }
       /* "1200M" reads as "1.2B", matching the scale under the slider */
