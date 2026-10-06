@@ -2616,7 +2616,7 @@ html .page-header h1 { margin-bottom: 20px; }
           <p class="price-total" id="pro-total"></p>
           <p class="price-save" id="pro-save"></p>
         </div>
-        <button class="hero-btn-primary card-cta">
+        <button class="hero-btn-primary card-cta" data-intent="pro">
           <div class="btn-bg-hover"></div>
           <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Started</span><span>Get Started</span></div></div>
         </button>
@@ -2686,7 +2686,7 @@ html .page-header h1 { margin-bottom: 20px; }
           <p class="price-total" id="teams-total"></p>
           <p class="price-save" id="teams-save"></p>
         </div>
-        <button class="hero-btn-primary card-cta">
+        <button class="hero-btn-primary card-cta" data-intent="teams">
           <div class="btn-bg-hover"></div>
           <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Started</span><span>Get Started</span></div></div>
         </button>
@@ -4460,6 +4460,19 @@ window.__pageOwnsScrollAnims = true;
   });
   var saved = ''; try { saved = localStorage.getItem('sc-theme') || ''; } catch (e) {}
   apply(saved, false);
+})();
+</script>
+<script>
+/* Prototype wiring for the new checkout flow (George): in production
+   "Get Started" goes to signup and the redirect brings the new account BACK
+   to /pricing to pick plan + token package. The sandbox skips the signup hop
+   and lands straight on the signed-in page's return state (?intent=…). */
+(function () {
+  document.querySelectorAll('[data-intent]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      window.location.href = 'pricing-signed-in.html?intent=' + btn.getAttribute('data-intent');
+    });
+  });
 })();
 </script>
 </body>

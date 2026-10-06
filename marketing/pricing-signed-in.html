@@ -654,8 +654,7 @@
     }
     .workspace-btn[aria-expanded="true"] .workspace-caret { transform: rotate(180deg); }
 
-    .workspace-menu,
-    .token-menu {
+    .workspace-menu {
       position: absolute;
       z-index: 20;
       left: 0;
@@ -675,14 +674,12 @@
     /* .workspace-anchor is an inline-flex row, so the menu's static position
        is beside the button, not under it — pin it explicitly. */
     .workspace-menu { top: 100%; right: auto; min-width: 100%; white-space: nowrap; }
-    .workspace-picker.is-open .workspace-menu,
-    .token-picker.is-open .token-menu {
+    .workspace-picker.is-open .workspace-menu {
       opacity: 1;
       visibility: visible;
       transform: translateY(0);
     }
-    .workspace-menu li,
-    .token-menu li {
+    .workspace-menu li {
       display: flex;
       align-items: center;
       gap: 10px;
@@ -693,24 +690,16 @@
       cursor: pointer;
       transition: background-color 0.15s ease, color 0.15s ease;
     }
-    .workspace-menu li:hover,
-    .token-menu li:hover { background: rgba(255,255,255,0.06); color: #fff; }
-    .workspace-menu li[aria-selected="true"],
-    .token-menu li[aria-selected="true"] { color: #fff; background: rgba(255,255,255,0.04); }
+    .workspace-menu li:hover { background: rgba(255,255,255,0.06); color: #fff; }
+    .workspace-menu li[aria-selected="true"] { color: #fff; background: rgba(255,255,255,0.04); }
 
-    /* ── Token-tier picker (Teams) ── */
-    /* The picker occupies exactly the CTA's band: a 52px control with the
-       same 28/36 margins. Its label and current-plan line are floated into
-       those margins rather than adding to the flow — in flow they pushed
-       Teams' description and divider ~21px below the other three cards. */
-    /* margins match .card .card-cta (20/24) so the 52px control lands on the
-       same row as the other cards' buttons; label + current-plan line float
-       in those margins (Gary, 2026-09-30: was 44/48, tuned for an older band) */
-    /* 2026-10-05 — mirrors the production build (bolt#4868): the picker is
-       IN FLOW under the card's button (label above it, current-plan / tokens-
-       left notes below), instead of floating in the button band with the
-       Teams CTA pushed to the card foot. The dividers are re-aligned by the
-       lede equaliser below. */
+    /* ── Token-package control (Pro + Teams) ── */
+    /* 2026-10-06 — the purchase flow is moving onto this page: after signup
+       the user is redirected back here to pick a plan + token package, and
+       upgrades/downgrades happen here too (George's checkout change). The
+       dropdown hid the tier list, the tier you're on and the price delta;
+       it's now an inline slider — 14 tier ticks, a ring on the subscribed
+       tier, live price, and a +/− per-month delta before you commit. */
     .token-picker { position: relative; z-index: 30; display: flex; flex-direction: column; gap: 6px; margin: 8px 0 0; }
     .token-picker[hidden] { display: none; }
     .token-label {
@@ -720,68 +709,25 @@
       white-space: nowrap;
       color: rgba(255,255,255,0.5);
     }
-    .token-btn {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      width: 100%;
-      /* 52px = the button standard, so it reads as the same control size as
-         the CTAs sitting beside it in the neighbouring cards */
-      height: 52px;
-      padding: 0 14px;
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 2px;
-      background: rgba(255,255,255,0.03);
-      color: #fff;
-      font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif);
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: border-color 0.2s ease;
-    }
-    .token-btn:hover { border-color: rgba(255,255,255,0.28); }
-    .token-mark {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: rgba(20,136,252,0.18);
-      color: #1488FC;
-      flex-shrink: 0;
-    }
-    .token-mark svg { width: 10px; height: 10px; }
-    .token-value { flex: 1; text-align: left; font-variant-numeric: tabular-nums; }
-    .token-caret {
-      width: 12px;
-      height: 12px;
-      color: rgba(255,255,255,0.45);
-      transition: transform 0.2s ease;
-    }
-    .token-btn[aria-expanded="true"] .token-caret { transform: rotate(180deg); }
-    .token-menu { top: 100%; max-height: 232px; overflow-y: auto; }
-    /* three columns — token / badge / price — so every row's numbers start
-       and end on the same x. A flex row with the badge inline pushed each
-       token label to a different position. */
-    .token-menu li {
-      display: grid;
-      grid-template-columns: 52px 1fr auto;
-      align-items: center;
-      gap: 10px;
-      font-variant-numeric: tabular-nums;
-    }
-    .token-menu .token-opt-price { color: rgba(255,255,255,0.5); text-align: right; }
-    .token-menu .token-opt-current {
-      justify-self: start;
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: #1488FC;
-      color: #fff;
-      font-size: 11px;
-      font-weight: 600;
-      line-height: 1.45;
-    }
+    .token-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+    .token-readout { font-size: 12px; color: rgba(255,255,255,0.5); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .token-readout strong { font-size: 14px; font-weight: 600; color: #fff; }
+    .token-slider { position: relative; height: 24px; display: flex; align-items: center; }
+    /* tick strip is inset by half the 16px thumb so each tick sits under the
+       thumb centre at its stop (a native range keeps the thumb inside the track) */
+    .token-ticks { position: absolute; left: 8px; right: 8px; top: 50%; height: 0; pointer-events: none; }
+    .token-tick { position: absolute; top: 0; width: 2px; height: 2px; margin-top: -1px; background: rgba(255,255,255,0.35); transform: translateX(-50%); }
+    /* the tier you're subscribed to — a brand ring the thumb can sit on */
+    .token-tick--current { width: 8px; height: 8px; margin-top: -4px; background: #0a0a0a; border: 2px solid #1488FC; border-radius: 50%; box-sizing: border-box; }
+    .token-range { -webkit-appearance: none; appearance: none; width: 100%; height: 24px; margin: 0; background: transparent; cursor: pointer; }
+    .token-range:focus-visible { outline: 2px solid rgba(20,136,252,0.6); outline-offset: 4px; }
+    .token-range::-webkit-slider-runnable-track { height: 3px; background: linear-gradient(to right, #1488FC var(--fill, 0%), rgba(255,255,255,0.14) var(--fill, 0%)); }
+    .token-range::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; margin-top: -6.5px; background: #fff; border: 2px solid #1488FC; border-radius: 2px; box-shadow: 0 2px 8px rgba(0,0,0,0.45); transition: transform 0.15s ease; }
+    .token-range::-webkit-slider-thumb:hover { transform: scale(1.12); }
+    .token-range::-moz-range-track { height: 3px; background: rgba(255,255,255,0.14); }
+    .token-range::-moz-range-progress { height: 3px; background: #1488FC; }
+    .token-range::-moz-range-thumb { width: 12px; height: 12px; background: #fff; border: 2px solid #1488FC; border-radius: 2px; box-shadow: 0 2px 8px rgba(0,0,0,0.45); }
+    .token-scale { display: flex; justify-content: space-between; margin-top: -2px; font-size: 10px; letter-spacing: 0.3px; color: rgba(255,255,255,0.3); font-variant-numeric: tabular-nums; }
     .token-notes { display: flex; flex-direction: column; gap: 2px; }
     .token-notes[hidden] { display: none; }
     .token-current {
@@ -791,16 +737,25 @@
       color: rgba(255,255,255,0.5);
     }
     .token-current strong { font-weight: 600; color: rgba(255,255,255,0.8); }
-    .token-menu .token-opt-scheduled {
-      justify-self: start;
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: rgba(20,136,252,0.18);
-      color: #4DA6FF;
-      font-size: 11px;
-      font-weight: 600;
-      line-height: 1.45;
+    .token-delta { margin: 0; font-size: 11px; line-height: 1.3; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .token-delta--up { color: #4DA6FF; }
+    .token-delta--down { color: rgba(255,255,255,0.55); }
+
+    /* ── Post-signup return state (?intent=pro|teams&tier=N) ──
+       the state George's redirect lands on: fresh account, chosen plan
+       spotlit, CTA reads as a first purchase. */
+    .intent-banner {
+      /* siblings all carry z-index:1 to clear the hero glow overlay — without
+         it the glow paints over the banner and it reads half-invisible */
+      position: relative; z-index: 1;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      width: fit-content; margin: 0 auto 28px; padding: 10px 18px;
+      border: 1px solid rgba(20,136,252,0.35); border-radius: 2px;
+      background: rgba(20,136,252,0.08);
+      font-size: 13px; line-height: 1.5; color: rgba(255,255,255,0.85);
     }
+    .intent-banner svg { width: 14px; height: 14px; color: #1488FC; flex-shrink: 0; }
+    .card.card--intent { border-color: rgba(20,136,252,0.8); box-shadow: 0 0 0 1px rgba(20,136,252,0.8), 0 12px 48px rgba(20,136,252,0.16); }
     /* ── CTA row (bolt#4868 .pricing-card-action): button, then any under-
        action message, then the token picker. The production build renders
        secondary actions (Downgrade, Manage subscription, the forbidden and
@@ -869,23 +824,30 @@
     /* ─── LIGHT — signed-in components (2026-09-30) ─────────────────────── */
     html[data-theme="light"] .workspace-btn { background: #fff; border-color: var(--sc-line); color: var(--sc-ink); box-shadow: 0 1px 2px rgba(15,26,42,0.06); }
     html[data-theme="light"] .workspace-btn:hover { border-color: var(--sc-line-strong); }
-    html[data-theme="light"] .workspace-caret, html[data-theme="light"] .token-caret { color: rgba(var(--sc-ink-rgb),0.5); }
-    html[data-theme="light"] .workspace-menu, html[data-theme="light"] .token-menu { background: #fff; border-color: var(--sc-line); box-shadow: 0 12px 32px rgba(15,26,42,0.14); }
-    html[data-theme="light"] .workspace-menu li, html[data-theme="light"] .token-menu li { color: rgba(var(--sc-ink-rgb),0.75); }
-    html[data-theme="light"] .workspace-menu li:hover, html[data-theme="light"] .token-menu li:hover { background: rgba(var(--sc-ink-rgb),0.05); color: var(--sc-ink); }
-    html[data-theme="light"] .workspace-menu li[aria-selected="true"], html[data-theme="light"] .token-menu li[aria-selected="true"] { color: var(--sc-ink); background: rgba(20,136,252,0.08); }
+    html[data-theme="light"] .workspace-caret { color: rgba(var(--sc-ink-rgb),0.5); }
+    html[data-theme="light"] .workspace-menu { background: #fff; border-color: var(--sc-line); box-shadow: 0 12px 32px rgba(15,26,42,0.14); }
+    html[data-theme="light"] .workspace-menu li { color: rgba(var(--sc-ink-rgb),0.75); }
+    html[data-theme="light"] .workspace-menu li:hover { background: rgba(var(--sc-ink-rgb),0.05); color: var(--sc-ink); }
+    html[data-theme="light"] .workspace-menu li[aria-selected="true"] { color: var(--sc-ink); background: rgba(20,136,252,0.08); }
     html[data-theme="light"] .token-label, html[data-theme="light"] .token-current { color: var(--sc-text-muted); }
     html[data-theme="light"] .token-current strong { color: var(--sc-ink); }
-    html[data-theme="light"] .token-btn { background: #fff; border-color: rgba(var(--sc-ink-rgb),0.14); color: var(--sc-ink); }
-    html[data-theme="light"] .token-btn:hover { border-color: rgba(var(--sc-ink-rgb),0.3); }
-    html[data-theme="light"] .token-menu .token-opt-price { color: var(--sc-text-muted); }
+    html[data-theme="light"] .token-readout { color: var(--sc-text-muted); }
+    html[data-theme="light"] .token-readout strong { color: var(--sc-ink); }
+    html[data-theme="light"] .token-tick { background: rgba(var(--sc-ink-rgb),0.3); }
+    html[data-theme="light"] .token-tick--current { background: #fff; }
+    html[data-theme="light"] .token-range::-webkit-slider-runnable-track { background: linear-gradient(to right, #1488FC var(--fill, 0%), rgba(var(--sc-ink-rgb),0.14) var(--fill, 0%)); }
+    html[data-theme="light"] .token-range::-moz-range-track { background: rgba(var(--sc-ink-rgb),0.14); }
+    html[data-theme="light"] .token-range::-webkit-slider-thumb { box-shadow: 0 1px 4px rgba(15,26,42,0.25); }
+    html[data-theme="light"] .token-range::-moz-range-thumb { box-shadow: 0 1px 4px rgba(15,26,42,0.25); }
+    html[data-theme="light"] .token-scale { color: rgba(var(--sc-ink-rgb),0.35); }
+    html[data-theme="light"] .token-delta--down { color: rgba(var(--sc-ink-rgb),0.55); }
+    html[data-theme="light"] .intent-banner { background: rgba(20,136,252,0.07); border-color: rgba(20,136,252,0.3); color: rgba(var(--sc-ink-rgb),0.85); }
     html[data-theme="light"] .card .card-cta:disabled { border-color: rgba(var(--sc-ink-rgb),0.14); color: rgba(var(--sc-ink-rgb),0.5); background: transparent; }
     html[data-theme="light"] .switch-note, html[data-theme="light"] .card-action-msgs { color: var(--sc-text-muted); }
     html[data-theme="light"] .card-action-msgs .card-link { color: #0f6fd0; }
     html[data-theme="light"] .card-action-msgs .card-link:hover { color: #1488FC; }
     html[data-theme="light"] .card-action-msgs .card-link--muted { color: rgba(var(--sc-ink-rgb),0.6); }
     html[data-theme="light"] .card-action-msgs .card-link--muted:hover { color: var(--sc-ink); }
-    html[data-theme="light"] .token-menu .token-opt-scheduled { background: rgba(20,136,252,0.12); color: #0f6fd0; }
 
     /* ── Signed-in: the four dividers (and the bullet lists under them) share
        one row. Each card's lede (notes + description) differs in length, so a
@@ -2947,15 +2909,15 @@ html .page-header h1 { margin-bottom: 20px; }
         </button>
         <div class="card-action-msgs" data-msgs hidden></div>
         <div class="token-picker" data-picker hidden>
-          <span class="token-label">Monthly tokens</span>
-          <button class="token-btn" id="pro-token-btn" aria-haspopup="listbox" aria-expanded="false">
-            <span class="token-mark" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg>
-            </span>
-            <span class="token-value" data-token-value>10M / month</span>
-            <svg class="token-caret" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-          <ul class="token-menu" id="pro-token-menu" role="listbox"></ul>
+          <div class="token-head">
+            <span class="token-label">Monthly tokens</span>
+            <span class="token-readout"><strong data-token-value>10M</strong> / month</span>
+          </div>
+          <div class="token-slider">
+            <div class="token-ticks" data-ticks aria-hidden="true"></div>
+            <input type="range" class="token-range" data-range min="0" max="13" step="1" value="0" aria-label="Pro token package" />
+          </div>
+          <div class="token-scale" aria-hidden="true"><span>10M</span><span>1.2B</span></div>
           <div class="token-notes" data-picker-notes hidden></div>
         </div>
         </div>
@@ -3039,15 +3001,15 @@ html .page-header h1 { margin-bottom: 20px; }
         </button>
         <div class="card-action-msgs" data-msgs hidden></div>
         <div class="token-picker" data-picker hidden>
-          <span class="token-label">Monthly tokens per member</span>
-          <button class="token-btn" id="teams-token-btn" aria-haspopup="listbox" aria-expanded="false">
-            <span class="token-mark" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg>
-            </span>
-            <span class="token-value" data-token-value>10M / month</span>
-            <svg class="token-caret" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-          <ul class="token-menu" id="teams-token-menu" role="listbox"></ul>
+          <div class="token-head">
+            <span class="token-label">Monthly tokens per member</span>
+            <span class="token-readout"><strong data-token-value>10M</strong> / month</span>
+          </div>
+          <div class="token-slider">
+            <div class="token-ticks" data-ticks aria-hidden="true"></div>
+            <input type="range" class="token-range" data-range min="0" max="13" step="1" value="0" aria-label="Teams token package" />
+          </div>
+          <div class="token-scale" aria-hidden="true"><span>10M</span><span>1.2B</span></div>
           <div class="token-notes" data-picker-notes hidden></div>
         </div>
         </div>
@@ -4722,8 +4684,13 @@ window.__pageOwnsScrollAnims = true;
            switch-workspace note; Teams from a personal workspace: "Upgrade
            to Teams"; a team member who isn't an admin: "Contact an admin to
            manage"
-         • "Your current plan: 10M tokens." under a subscribed card's picker,
-           "You have N tokens left" while the current tier is the one shown
+         • the token package is picked on an inline slider (2026-10-06 —
+           replaces the dropdown): a ring marks the subscribed tier, and the
+           line under it shows the +/− per-month delta against it, or the
+           current-plan / tokens-left note while the selection IS the plan
+         • ?intent=pro|teams&tier=N — the post-signup return state George's
+           checkout redirect lands on: fresh personal-free account, chosen
+           card spotlit, CTA "Subscribe to <Plan>"
          • compare table: every column at or below the current plan is a
            locked "You're on <plan>"; the others carry the card's own label
          • the hero subtitle, and no logo train / compliance banner, are the
@@ -4774,7 +4741,16 @@ window.__pageOwnsScrollAnims = true;
         'team-admin':     { label: 'Team admin',  workspace: 'team',     personal: { plan: 'pro', tier: 1, interval: 'yearly', left: '6.4M' },  team: { tier: 1, interval: 'yearly', role: 'admin', left: '8.2M' } },
         'team-member':    { label: 'Team member', workspace: 'team',     personal: { plan: 'free' },                                            team: { tier: 1, interval: 'yearly', role: 'member', left: '8.2M' } }
       };
-      var state = { scenario: 'team-admin', workspace: 'team', interval: 'yearly', proSel: null, teamSel: null, overlays: {} };
+      var state = { scenario: 'team-admin', workspace: 'team', interval: 'yearly', proSel: null, teamSel: null, overlays: {}, intent: null };
+
+      /* ── post-signup return (?intent=pro|teams&tier=N) — the state George's
+         checkout redirect lands on: a fresh account comes back to this page
+         to finish picking its plan + token package. */
+      var qs = new URLSearchParams(location.search);
+      if (qs.get('intent') === 'pro' || qs.get('intent') === 'teams') {
+        state.intent = qs.get('intent');
+        state.scenario = 'personal-free';
+      }
 
       function facts() { return SCENARIOS[state.scenario]; }
       function findTier(list, n) { for (var i = 0; i < list.length; i++) if (list[i].tier === n) return list[i]; return null; }
@@ -4806,6 +4782,11 @@ window.__pageOwnsScrollAnims = true;
       /* ── PlansStore.getActions + the stores' inactive / forbidden states ── */
       function paidActions(plan) {
         var m = membership(plan), sel = selected(plan), f = facts();
+        /* post-signup return: a fresh account finishing checkout is making a
+           first purchase, not an upgrade */
+        if (state.intent === plan && !hasSub(m)) {
+          return { primary: { label: plan === 'pro' ? 'Subscribe to Pro' : 'Subscribe to Teams', variant: 'primary' }, links: [] };
+        }
         if (plan === 'pro' && state.workspace === 'team') {
           return { primary: { label: "You’re on Teams", variant: 'secondary', disabled: true }, links: [], note: true };
         }
@@ -4886,22 +4867,36 @@ window.__pageOwnsScrollAnims = true;
         var show = plan === 'teams' || state.workspace === 'personal';
         picker.hidden = !show;
         if (!show) return;
-        picker.querySelector('[data-token-value]').textContent = sel.tokens + ' / month';
-        picker.querySelector('.token-menu').innerHTML = list.map(function (t) {
-          var badge = hasSub(m) && !m.forge && t.tier === m.tier ? '<span class="token-opt-current">Current</span>' : '<span></span>';
-          return '<li role="option" data-tier="' + t.tier + '" aria-selected="' + (t.tier === sel.tier) + '">' +
-            '<span class="token-opt-tokens">' + t.tokens + '</span>' + badge +
-            '<span class="token-opt-price">$' + (state.interval === 'yearly' ? t.year : t.month) + '</span></li>';
+        var idx = list.indexOf(sel), last = list.length - 1;
+        picker.querySelector('[data-token-value]').textContent = sel.tokens;
+        var range = picker.querySelector('[data-range]');
+        range.max = last;
+        if (+range.value !== idx) range.value = idx;
+        range.style.setProperty('--fill', (idx / last * 100) + '%');
+        /* tier ticks, with a ring on the one you're subscribed to */
+        var curIdx = -1;
+        if (hasSub(m) && !m.forge) for (var i = 0; i < list.length; i++) if (list[i].tier === m.tier) curIdx = i;
+        picker.querySelector('[data-ticks]').innerHTML = list.map(function (t, i) {
+          return '<span class="token-tick' + (i === curIdx ? ' token-tick--current' : '') + '" style="left:' + (i / last * 100) + '%"></span>';
         }).join('');
-        /* under-selector messages (getMessages + the token-stats line) */
+        /* under-slider line: the per-month delta vs the subscribed tier, or
+           the current-plan / tokens-left note when the selection IS the plan */
         var notes = [];
         if (hasSub(m)) {
-          if (m.forge) notes.push('Your current plan: <strong>Bolt Lite</strong>');
-          else notes.push('Your current plan: <strong>' + findTier(list, m.tier).tokens + ' tokens</strong>.');
-          if (!m.forge && sel.tier === m.tier && m.left) notes.push('You have <strong>' + m.left + '</strong> tokens left');
+          if (m.forge) {
+            notes.push('<p class="token-current">Your current plan: <strong>Bolt Lite</strong></p>');
+          } else if (sel.tier === m.tier) {
+            notes.push('<p class="token-current">Your current plan' + (m.left ? ' — <strong>' + m.left + '</strong> tokens left this month' : '') + '</p>');
+          } else {
+            var cur = findTier(list, m.tier);
+            var delta = state.interval === 'yearly' ? sel.year - cur.year : sel.month - cur.month;
+            notes.push('<p class="token-delta token-delta--' + (delta > 0 ? 'up' : 'down') + '">' +
+              (delta > 0 ? '+' : '−') + money(Math.abs(delta)) + '/month vs your current ' + cur.tokens +
+              (plan === 'teams' ? ', per member' : '') + '</p>');
+          }
         }
         var box = picker.querySelector('[data-picker-notes]');
-        box.innerHTML = notes.map(function (n) { return '<p class="token-current">' + n + '</p>'; }).join('');
+        box.innerHTML = notes.join('');
         box.hidden = !notes.length;
       }
       function renderCards() {
@@ -4973,8 +4968,9 @@ window.__pageOwnsScrollAnims = true;
       ['pro', 'teams'].forEach(function (plan) {
         var picker = document.querySelector('.card[data-plan="' + plan + '"] [data-picker]');
         if (!picker) return;
-        bindDropdown(picker, picker.querySelector('.token-btn'), picker.querySelector('.token-menu'), function (li) {
-          var t = findTier(plan === 'pro' ? PRO_TIERS : TEAM_TIERS, +li.getAttribute('data-tier'));
+        picker.querySelector('[data-range]').addEventListener('input', function () {
+          var list = plan === 'pro' ? PRO_TIERS : TEAM_TIERS;
+          var t = list[+this.value];
           if (plan === 'pro') state.proSel = t; else state.teamSel = t;
           renderCards();
         });
@@ -5011,9 +5007,32 @@ window.__pageOwnsScrollAnims = true;
       }
       /* the switch's markup sits after this script — delegate */
       document.addEventListener('click', function (e) {
-        var b = e.target.closest('[data-scenario]'); if (b) applyScenario(b.getAttribute('data-scenario'));
+        var b = e.target.closest('[data-scenario]'); if (!b) return;
+        if (state.intent) {   /* flipping scenarios leaves the return state */
+          state.intent = null;
+          var ban = document.querySelector('.intent-banner'); if (ban) ban.parentNode.removeChild(ban);
+          var lit = document.querySelector('.card--intent'); if (lit) lit.classList.remove('card--intent');
+        }
+        applyScenario(b.getAttribute('data-scenario'));
       });
-      window.addEventListener('load', function () { applyScenario(state.scenario); });
+      function enterIntent() {
+        var plan = state.intent, list = plan === 'pro' ? PRO_TIERS : TEAM_TIERS;
+        var t = findTier(list, parseInt(qs.get('tier'), 10)) || list[0];
+        if (plan === 'pro') state.proSel = t; else state.teamSel = t;
+        var card = document.querySelector('.card[data-plan="' + plan + '"]');
+        card.classList.add('card--intent');
+        var banner = document.createElement('div');
+        banner.className = 'intent-banner';
+        banner.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true"><path d="M21 0h3v3h-3zM18 3h3v3h-3zM15 6h3v3h-3zM12 9h3v3h-3zM0 9h3v3h-3zM3 12h3v3h-3zM9 12h3v3h-3zM6 15h3v3h-3z"/></svg>' +
+          'Your account is ready — pick your plan and token package to start building.';
+        var grid = document.querySelector('.cards');
+        grid.parentNode.insertBefore(banner, grid);
+        renderCards();
+      }
+      window.addEventListener('load', function () {
+        applyScenario(state.scenario);
+        if (state.intent) enterIntent();
+      });
 
       /* keep prices, labels and the picker options in step with the billing toggle */
       var origSetBilling = window.setBilling, rollTimer = null;
