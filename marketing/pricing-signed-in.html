@@ -5065,19 +5065,19 @@ window.__pageOwnsScrollAnims = true;
         var price = yearly ? t.year : t.month, base = list[0], basePrice = yearly ? base.year : base.month;
         var perM = price / parseFloat(t.tokens), basePerM = basePrice / parseFloat(base.tokens);
         var less = Math.round((1 - perM / basePerM) * 100);
-        var rate = '$' + perM.toFixed(2) + ' per 1M';
+        /* no $-per-token rate (Gary, 2026-10-06) — the % saving carries the value */
         if (hasSub(m) && !m.forge) {
           var cur = findTier(list, m.tier);
-          if (t.tier === m.tier) return { head: 'Your current plan', sub: rate + ' tokens', up: false };
+          if (t.tier === m.tier) return { head: 'Your current plan', sub: '', up: false };
           var dT = parseFloat(t.tokens) - parseFloat(cur.tokens), dP = price - (yearly ? cur.year : cur.month);
           var amt = function (n) { n = Math.abs(n); return n >= 1000 ? +(n / 1000).toFixed(2) + 'B' : n + 'M'; };
           return {
             head: (dT > 0 ? '+' : '−') + amt(dT) + ' tokens, ' + (dP >= 0 ? '+' : '−') + money(Math.abs(dP)) + '/mo',
-            sub: less > 0 ? rate + ' · ' + less + '% less' : rate + ' tokens',
+            sub: less > 0 ? less + '% less per token' : '',
             up: dT > 0
           };
         }
-        return { head: rate + ' tokens', sub: less > 0 ? less + '% less per token than ' + tierLabel(base.tokens) : '', up: false };
+        return less > 0 ? { head: less + '% less per token than ' + tierLabel(base.tokens), sub: '', up: false } : null;
       }
       /* "1200M" reads as "1.2B", matching the scale under the slider */
       function tierLabel(t) { var n = parseFloat(t); return n >= 1000 ? +(n / 1000).toFixed(2) + 'B' : t; }
@@ -5280,6 +5280,7 @@ window.__pageOwnsScrollAnims = true;
           var li = e.target.closest('li'); if (!li) return;
           var t = findTier(plan === 'pro' ? PRO_TIERS : TEAM_TIERS, +li.getAttribute('data-tier'));
           var h = tierHint(plan, t);
+          if (!h) { hint.classList.remove('is-on'); return; }
           hint.innerHTML = '<strong' + (h.up ? ' class="is-up"' : '') + '>' + h.head + '</strong>' + h.sub;
           var dr = dd.getBoundingClientRect(), lr = li.getBoundingClientRect();
           hint.style.top = (lr.top - dr.top) + 'px';
