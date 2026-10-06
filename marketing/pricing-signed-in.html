@@ -706,17 +706,14 @@
     /* margins match .card .card-cta (20/24) so the 52px control lands on the
        same row as the other cards' buttons; label + current-plan line float
        in those margins (Gary, 2026-09-30: was 44/48, tuned for an older band) */
-    .token-picker { position: relative; height: 52px; margin: 30px 0 34px; }  /* 30 above (Gary: air over the token label), 34 below */
-    .card-teams > .token-picker { z-index: 30; }
-
-    /* Teams' CTA sits at the foot of the card instead of mid-stack: the token
-       picker pushes it well below the other cards' buttons, so anchoring it
-       to the bottom edge reads as deliberate rather than adrift. */
-    .card-teams > .card-cta { margin-top: auto; margin-bottom: 0; }
+    /* 2026-10-05 — mirrors the production build (bolt#4868): the picker is
+       IN FLOW under the card's button (label above it, current-plan / tokens-
+       left notes below), instead of floating in the button band with the
+       Teams CTA pushed to the card foot. The dividers are re-aligned by the
+       lede equaliser below. */
+    .token-picker { position: relative; z-index: 30; display: flex; flex-direction: column; gap: 6px; margin: 8px 0 0; }
+    .token-picker[hidden] { display: none; }
     .token-label {
-      position: absolute;
-      left: 0;
-      bottom: calc(100% + 6px);
       margin: 0;
       font-size: 11px;
       line-height: 1.3;
@@ -785,71 +782,82 @@
       font-weight: 600;
       line-height: 1.45;
     }
+    .token-notes { display: flex; flex-direction: column; gap: 2px; }
+    .token-notes[hidden] { display: none; }
     .token-current {
-      position: absolute;
-      left: 0;
-      top: calc(100% + 5px);
       margin: 0;
       font-size: 11px;
       line-height: 1.3;
-      white-space: nowrap;
       color: rgba(255,255,255,0.5);
     }
     .token-current strong { font-weight: 600; color: rgba(255,255,255,0.8); }
-
-    /* ── CTA in its "already on this plan" state ──
-       .card wins over shared's .hero-btn-primary on specificity (0,2,0 vs
-       0,1,0), so no !important is needed for the base look — only for the
-       pixel canvas shared's JS injects. */
-    .card .card-cta--current {
+    .token-menu .token-opt-scheduled {
+      justify-self: start;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(20,136,252,0.18);
+      color: #4DA6FF;
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1.45;
+    }
+    /* ── CTA row (bolt#4868 .pricing-card-action): button, then any under-
+       action message, then the token picker. The production build renders
+       secondary actions (Downgrade, Manage subscription, the forbidden and
+       "You're on …" states) as the shared ghost button; disabled ones keep
+       the ghost outline with faint ink. Link-style actions (Cancel
+       subscription, Cancel downgrade, Renew) are text links under the button. */
+    .card .card-action { display: flex; flex-direction: column; gap: 8px; width: 100%; margin: 20px 0 24px; }
+    /* .card > * gives every child z-index 1 (its own stacking context), which
+       would trap the open token menu under the lede that follows — lift the row */
+    .card > .card-action { z-index: 30; }
+    .card .card-action > .card-cta { margin: 0; }
+    .card .card-cta:disabled {
       background: transparent;
       border: 1px solid rgba(255,255,255,0.12);
       color: rgba(255,255,255,0.45);
       cursor: default;
       pointer-events: none;
-    }
-    .card .card-cta--current .btn-bg-hover { display: none; }
-    .card .card-cta--current canvas { display: none !important; }
-
-    /* "Contact an admin to manage" is longer than the button is wide at
-       4-up; let it wrap rather than clip */
-    .card .card-cta--current {
+      font-size: 14px;
+      font-weight: 600;
+      opacity: 1;
+      /* "Contact an admin to manage" is longer than the button is wide at
+         4-up; let it wrap rather than clip */
       height: auto;
       min-height: 52px;
       padding: 10px 16px;
-      font-size: 14px;
       line-height: 1.35;
       text-align: center;
       white-space: normal;
     }
-    .card .card-cta--current .btn-text-inner,
-    .card .card-cta--current .btn-text-wrap { display: block; width: 100%; }
-    .card .card-cta--current .btn-text-inner span + span { display: none; }
-
-    /* Teams on a team plan gets a plain line, not a dead button — there's
-       nothing to click, so a disabled control only invited the click. Sits
-       where the CTA would, at the foot of the card. */
-    /* shared's .hero-btn-primary sets display:flex, which out-ranks the UA's
-       [hidden] rule — the button stays visible without this */
-    .card .card-cta[hidden], .admin-note[hidden] { display: none; }
-    .admin-note {
-      margin-top: auto;
-      padding: 14px 0 2px;
-      text-align: center;
-      font-size: 15px;
-      font-weight: 500;
-      color: #fff;
+    .card .card-cta:disabled .btn-bg-hover { display: none; }
+    .card .card-cta:disabled canvas { display: none !important; }
+    .card .card-cta:disabled .btn-text-inner,
+    .card .card-cta:disabled .btn-text-wrap { display: block; width: 100%; }
+    .card .card-cta:disabled .btn-text-inner span + span { display: none; }
+    .card-action-msgs { display: flex; flex-direction: column; gap: 4px; font-size: 13px; line-height: 1.55; color: rgba(255,255,255,0.45); }
+    .card-action-msgs[hidden] { display: none; }
+    .card-action-msgs .card-msg { margin: 0; }
+    .card-action-msgs .card-msg--center { text-align: center; }
+    .card-action-msgs .card-msg--warning { color: #f5b454; }
+    .card-action-msgs .card-link {
+      align-self: flex-start;
+      background: none; border: 0; padding: 0; cursor: pointer;
+      font: inherit; font-weight: 600; color: #4DA6FF;
+      text-decoration: none;
     }
-
-    /* sits at the foot of the Pro card — in the top band it pushed the
-       description and divider ~80px below the other three cards */
+    .card-action-msgs .card-link:hover { color: #7CBFFF; text-decoration: underline; }
+    .card-action-msgs .card-link--muted { color: rgba(255,255,255,0.6); }
+    .card-action-msgs .card-link--muted:hover { color: #fff; }
+    .card-action-msgs .card-link:disabled { color: rgba(255,255,255,0.3); cursor: default; text-decoration: none; }
+    /* "For personal plans, switch to your personal workspace…" — the under-
+       description note on Pro while a team workspace is selected */
     .switch-note {
-      margin-top: auto;
       font-size: 13px;
       line-height: 1.55;
       color: rgba(255,255,255,0.45);
     }
-
+    .switch-note[hidden] { display: none; }
     @media (max-width: 768px) {
       .workspace-picker { flex-wrap: wrap; justify-content: center; gap: 8px; }
     }
@@ -871,9 +879,13 @@
     html[data-theme="light"] .token-btn { background: #fff; border-color: rgba(var(--sc-ink-rgb),0.14); color: var(--sc-ink); }
     html[data-theme="light"] .token-btn:hover { border-color: rgba(var(--sc-ink-rgb),0.3); }
     html[data-theme="light"] .token-menu .token-opt-price { color: var(--sc-text-muted); }
-    html[data-theme="light"] .card .card-cta--current { border-color: rgba(var(--sc-ink-rgb),0.14); color: rgba(var(--sc-ink-rgb),0.5); background: transparent; }
-    html[data-theme="light"] .admin-note { color: var(--sc-ink); }
-    html[data-theme="light"] .switch-note { color: var(--sc-text-muted); }
+    html[data-theme="light"] .card .card-cta:disabled { border-color: rgba(var(--sc-ink-rgb),0.14); color: rgba(var(--sc-ink-rgb),0.5); background: transparent; }
+    html[data-theme="light"] .switch-note, html[data-theme="light"] .card-action-msgs { color: var(--sc-text-muted); }
+    html[data-theme="light"] .card-action-msgs .card-link { color: #0f6fd0; }
+    html[data-theme="light"] .card-action-msgs .card-link:hover { color: #1488FC; }
+    html[data-theme="light"] .card-action-msgs .card-link--muted { color: rgba(var(--sc-ink-rgb),0.6); }
+    html[data-theme="light"] .card-action-msgs .card-link--muted:hover { color: var(--sc-ink); }
+    html[data-theme="light"] .token-menu .token-opt-scheduled { background: rgba(20,136,252,0.12); color: #0f6fd0; }
 
     /* ── Signed-in: the four dividers (and the bullet lists under them) share
        one row. Each card's lede (notes + description) differs in length, so a
@@ -1051,7 +1063,7 @@
        aligned for equal-height cards). */
     /* 24px below matches the divider's own margin, so CTA → description →
        rule → list all breathe on the same rhythm */
-    .card .card-cta { width: 100%; margin: 30px 0 34px; }  /* +10 below the CTA row on the signed-in page — the token control's current-plan line needed air (Gary, 2026-09-30) */
+    .card .card-cta { width: 100%; }  /* margins live on .card-action — the row holds button + picker (2026-10-05) */  /* +10 below the CTA row on the signed-in page — the token control's current-plan line needed air (Gary, 2026-09-30) */
 
 
     /* ── Compare features table ── */
@@ -1116,6 +1128,17 @@
     /* Compact variant of the shared .hero-btn-primary — same anatomy, so the
        pixel-fill hover from shared-components.js applies; only the scale is
        overridden here (higher specificity beats shared's 52px base). */
+    /* locked columns (at or below the current plan) read like the cards: ghost + disabled */
+    .compare-tier-head .tier-cta[aria-disabled="true"] {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.45);
+      pointer-events: none;
+      font-weight: 600;
+    }
+    .compare-tier-head .tier-cta[aria-disabled="true"] .btn-bg-hover { display: none; }
+    .compare-tier-head .tier-cta[aria-disabled="true"] canvas { display: none !important; }
+    html[data-theme="light"] .compare-tier-head .tier-cta[aria-disabled="true"] { border-color: rgba(var(--sc-ink-rgb),0.14); color: rgba(var(--sc-ink-rgb),0.5); }
     .compare-tier-head .tier-cta {
       height: auto;
       margin-top: 0;
@@ -2859,10 +2882,16 @@ html .page-header h1 { margin-bottom: 20px; }
         <div class="price-note">
           <p class="price-total">Free forever, no card required</p>
         </div>
-        <button class="hero-btn-primary card-cta card-cta--current" disabled>
+<!-- CTA row: every card's button shares the row under the price; a token
+             picker, when shown, follows its button (bolt#4868). Labels, variants and
+             notes are rendered by the signed-in state script. -->
+        <div class="card-action" data-action="free">
+        <button class="hero-btn-ghost card-cta" data-cta disabled>
           <div class="btn-bg-hover"></div>
           <div class="btn-text-wrap"><div class="btn-text-inner"><span>You're on Teams</span><span>You're on Teams</span></div></div>
         </button>
+        <div class="card-action-msgs" data-msgs hidden></div>
+        </div>
 
         <div class="card-lede">
         <p class="card-description">Try Bolt with daily limits. No credit card.</p>
@@ -2908,15 +2937,33 @@ html .page-header h1 { margin-bottom: 20px; }
           <p class="price-total" id="pro-total"></p>
           <p class="price-save" id="pro-save"></p>
         </div>
-        <button class="hero-btn-primary card-cta card-cta--current" disabled>
+<!-- CTA row: every card's button shares the row under the price; a token
+             picker, when shown, follows its button (bolt#4868). Labels, variants and
+             notes are rendered by the signed-in state script. -->
+        <div class="card-action" data-action="pro">
+        <button class="hero-btn-ghost card-cta" data-cta disabled>
           <div class="btn-bg-hover"></div>
           <div class="btn-text-wrap"><div class="btn-text-inner"><span>You're on Teams</span><span>You're on Teams</span></div></div>
         </button>
+        <div class="card-action-msgs" data-msgs hidden></div>
+        <div class="token-picker" data-picker hidden>
+          <span class="token-label">Monthly tokens</span>
+          <button class="token-btn" id="pro-token-btn" aria-haspopup="listbox" aria-expanded="false">
+            <span class="token-mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg>
+            </span>
+            <span class="token-value" data-token-value>10M / month</span>
+            <svg class="token-caret" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <ul class="token-menu" id="pro-token-menu" role="listbox"></ul>
+          <div class="token-notes" data-picker-notes hidden></div>
+        </div>
+        </div>
 
         <div class="card-lede">
 
         <p class="card-description">Everything in Free, plus real app capacity and your own domain.</p>
-        <p class="switch-note">For personal plans, switch to your personal workspace using the selector in the top right.</p>
+        <p class="switch-note">For personal plans, switch to your personal workspace using the workspace selector.</p>
 
         </div>
         <hr class="divider" />
@@ -2982,19 +3029,28 @@ html .page-header h1 { margin-bottom: 20px; }
           <p class="price-total" id="teams-total"></p>
           <p class="price-save" id="teams-save"></p>
         </div>
-                <div class="token-picker">
+        <!-- CTA row: every card's button shares the row under the price; a token
+             picker, when shown, follows its button (bolt#4868). Labels, variants and
+             notes are rendered by the signed-in state script. -->
+        <div class="card-action" data-action="teams">
+        <button class="hero-btn-primary card-cta" data-cta>
+          <div class="btn-bg-hover"></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Upgrade</span><span>Upgrade</span></div></div>
+        </button>
+        <div class="card-action-msgs" data-msgs hidden></div>
+        <div class="token-picker" data-picker hidden>
           <span class="token-label">Monthly tokens per member</span>
-          <button class="token-btn" id="token-btn" aria-haspopup="listbox" aria-expanded="false">
+          <button class="token-btn" id="teams-token-btn" aria-haspopup="listbox" aria-expanded="false">
             <span class="token-mark" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg>
             </span>
-            <span class="token-value" id="token-value">900M / month</span>
+            <span class="token-value" data-token-value>10M / month</span>
             <svg class="token-caret" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
-          <ul class="token-menu" id="token-menu" role="listbox"></ul>
-          <p class="token-current">Your current plan: <strong>10M tokens</strong>.</p>
+          <ul class="token-menu" id="teams-token-menu" role="listbox"></ul>
+          <div class="token-notes" data-picker-notes hidden></div>
         </div>
-
+        </div>
 
         <div class="card-lede">
         <p class="card-description">Everything in Pro, plus shared capacity and team controls.</p>
@@ -3034,11 +3090,6 @@ html .page-header h1 { margin-bottom: 20px; }
           </li>
         </ul>
         </div>
-        <p class="admin-note">Contact an admin to manage</p>
-        <button class="hero-btn-primary card-cta card-cta--current" disabled hidden>
-          <div class="btn-bg-hover"></div>
-          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Contact an admin to manage</span><span>Contact an admin to manage</span></div></div>
-        </button>
       </div>
 
       <!-- Organization -->
@@ -3051,10 +3102,16 @@ html .page-header h1 { margin-bottom: 20px; }
         <div class="price-note">
           <p class="price-total">Custom annual contract, billed by consumption</p>
         </div>
-        <button class="hero-btn-primary card-cta">
+<!-- CTA row: every card's button shares the row under the price; a token
+             picker, when shown, follows its button (bolt#4868). Labels, variants and
+             notes are rendered by the signed-in state script. -->
+        <div class="card-action" data-action="enterprise">
+        <button class="hero-btn-primary card-cta" data-cta>
           <div class="btn-bg-hover"></div>
           <div class="btn-text-wrap"><div class="btn-text-inner"><span>See a Demo</span><span>See a Demo</span></div></div>
         </button>
+        <div class="card-action-msgs" data-msgs hidden></div>
+        </div>
 
         <div class="card-lede">
         <p class="card-description">Everything in Teams, built for scale, security, and compliance.</p>
@@ -3810,8 +3867,17 @@ html .page-header h1 { margin-bottom: 20px; }
       if (val === currentBilling) return;
       var isYearly = val === 'yearly';
       var direction = isYearly ? 'down' : 'up';
-      animatePrice(document.getElementById('pro-price'),   isYearly ? '$18' : '$25', direction);
-      animatePrice(document.getElementById('teams-price'), isYearly ? '$27' : '$30', direction);
+      /* signed-in: the headline price is the SELECTED tier's (state script); a
+         workspace-driven term sync swaps instantly, only a click on the toggle rolls (bolt#4868) */
+      var proNext = window.__priceFor ? window.__priceFor('pro', val) : (isYearly ? '$18' : '$25');
+      var teamsNext = window.__priceFor ? window.__priceFor('teams', val) : (isYearly ? '$27' : '$30');
+      if (window.__instantPriceSwap) {
+        document.getElementById('pro-price').textContent = proNext;
+        document.getElementById('teams-price').textContent = teamsNext;
+      } else {
+        animatePrice(document.getElementById('pro-price'),   proNext, direction);
+        animatePrice(document.getElementById('teams-price'), teamsNext, direction);
+      }
       document.querySelectorAll('.billing-btn').forEach(function (b) {
         var on = (b.getAttribute('data-period') === 'yearly') === isYearly;
         b.classList.toggle('active', on);
@@ -3826,10 +3892,9 @@ html .page-header h1 { margin-bottom: 20px; }
     /* Annual totals behind the per-month headline: yearly = 12 x the yearly
        rate, monthly = 12 x the monthly rate. Keep in step with the rates in
        setBilling above. */
-    var PLAN_TOTALS = window.PLAN_TOTALS = {
-      pro:   { yearly: 216, monthly: 300 },
-      teams: { yearly: 324, monthly: 360 }
-    };
+    /* signed-in page: the per-tier totals are rendered by the state script
+       below (the selected tier drives them), so nothing is listed here */
+    var PLAN_TOTALS = window.PLAN_TOTALS = {};
     window.renderPriceNotes = renderPriceNotes;
     function renderPriceNotes(period) {
       Object.keys(PLAN_TOTALS).forEach(function (plan) {
@@ -4639,164 +4704,331 @@ window.__pageOwnsScrollAnims = true;
 </script>
   <script>
     /* ═══ Signed-in behaviour ═══════════════════════════════════════════
-       Prototype state only — a real page would read the workspace, its plan
-       and its token tier from the account. */
+       A faithful mirror of the production pricing stores (stackblitz/bolt
+       #4868 — lib/stores/pricing/{plans,freePlan,proPlans,teamPlans,cta}.ts
+       and CompareTable.tsx), so this page shows what a Free, Pro, Lite or
+       Teams account actually sees. The ACCOUNT FACTS are prototype state
+       (the review-only Scenario switch, bottom right); everything derived
+       from them follows the real rules:
+
+         • a workspace with a subscription opens its card on the NEXT tier
+           above the current one, so the button reads "Upgrade"; picking the
+           current tier turns it into "Manage subscription" (+ "Cancel
+           subscription" on Teams), a lower tier into "Downgrade", the same
+           tier on the other billing term into "Change commitment"
+         • Free: "Your Current Plan" on a free account, "Downgrade to Free"
+           on a paid one, "You're on Teams" while a team workspace is selected
+         • Pro while a team workspace is selected: "You're on Teams" + the
+           switch-workspace note; Teams from a personal workspace: "Upgrade
+           to Teams"; a team member who isn't an admin: "Contact an admin to
+           manage"
+         • "Your current plan: 10M tokens." under a subscribed card's picker,
+           "You have N tokens left" while the current tier is the one shown
+         • compare table: every column at or below the current plan is a
+           locked "You're on <plan>"; the others carry the card's own label
+         • the hero subtitle, and no logo train / compliance banner, are the
+           signed-in design (unchanged) */
     (function () {
-      var PLAN_ORDER = ['free', 'pro', 'teams', 'enterprise'];
-      var PLAN_NAME  = { free: 'Free', pro: 'Pro', teams: 'Teams', enterprise: 'Enterprise' };
-
-      /* Per-member monthly token allowance. Yearly is ~10% off monthly, which
-         is what the Teams SAVE badge claims. 10M is the workspace's current
-         tier, so it opens selected. */
-      /* The real tier table. The listed price is the yearly-term price per
-         member; monthly is that / 0.9, which is the 10% the Teams badge
-         claims — and lands 900M on $1500/mo, matching the product. */
-      var TIERS = [
-        { tokens: '10M',   yearly: 27   },
-        { tokens: '26M',   yearly: 55   },
-        { tokens: '55M',   yearly: 100  },
-        { tokens: '120M',  yearly: 190  },
-        { tokens: '180M',  yearly: 270  },
-        { tokens: '240M',  yearly: 360  },
-        { tokens: '300M',  yearly: 450  },
-        { tokens: '360M',  yearly: 540  },
-        { tokens: '420M',  yearly: 630  },
-        { tokens: '480M',  yearly: 720  },
-        { tokens: '540M',  yearly: 810  },
-        { tokens: '600M',  yearly: 900  },
-        { tokens: '900M',  yearly: 1350 },
-        { tokens: '1200M', yearly: 1800 }
+      /* ── the real tier tables (utils/pricing.ts): yearly-term price per month, monthly-term price per month ── */
+      var PRO_TIERS = [
+        { tier: 1,  tokens: '10M',   year: 18,   month: 25 },
+        { tier: 2,  tokens: '26M',   year: 45,   month: 50 },
+        { tier: 3,  tokens: '55M',   year: 90,   month: 100 },
+        { tier: 4,  tokens: '120M',  year: 180,  month: 200 },
+        { tier: 5,  tokens: '180M',  year: 270,  month: 300 },
+        { tier: 6,  tokens: '240M',  year: 360,  month: 400 },
+        { tier: 7,  tokens: '300M',  year: 450,  month: 500 },
+        { tier: 8,  tokens: '360M',  year: 540,  month: 600 },
+        { tier: 9,  tokens: '420M',  year: 630,  month: 700 },
+        { tier: 10, tokens: '480M',  year: 720,  month: 800 },
+        { tier: 11, tokens: '540M',  year: 810,  month: 900 },
+        { tier: 12, tokens: '600M',  year: 900,  month: 1000 },
+        { tier: 13, tokens: '900M',  year: 1350, month: 1500 },
+        { tier: 14, tokens: '1200M', year: 1800, month: 2000 }
       ];
-      TIERS.forEach(function (t) { t.monthly = Math.round(t.yearly / 0.9); });
-      /* The workspace sits on the base Teams tier, so the card opens showing
-         the same $27 / $324 the public pricing page advertises. */
-      var CURRENT_TIER = 0;
-      var tierIdx = 0;
+      var TEAM_TIERS = [
+        { tier: 1,  tokens: '10M',   year: 27,   month: 30 },
+        { tier: 2,  tokens: '26M',   year: 55,   month: 60 },
+        { tier: 3,  tokens: '55M',   year: 100,  month: 110 },
+        { tier: 4,  tokens: '120M',  year: 190,  month: 210 },
+        { tier: 5,  tokens: '180M',  year: 270,  month: 300 },
+        { tier: 6,  tokens: '240M',  year: 360,  month: 400 },
+        { tier: 7,  tokens: '300M',  year: 450,  month: 500 },
+        { tier: 8,  tokens: '360M',  year: 540,  month: 600 },
+        { tier: 9,  tokens: '420M',  year: 630,  month: 700 },
+        { tier: 10, tokens: '480M',  year: 720,  month: 800 },
+        { tier: 11, tokens: '540M',  year: 810,  month: 900 },
+        { tier: 12, tokens: '600M',  year: 900,  month: 1000 },
+        { tier: 13, tokens: '900M',  year: 1350, month: 1500 },
+        { tier: 14, tokens: '1200M', year: 1800, month: 2000 }
+      ];
 
-      var currentPlan = 'teams';
+      /* ── account facts (prototype) — the Scenario switch sets these ──
+         personal: plan 'free' | 'pro' | 'lite', tier + interval of the personal
+         subscription, tokens left this month; team: tier + interval of the
+         org's subscription, the viewer's role, tokens left. */
+      var SCENARIOS = {
+        'personal-free':  { label: 'Free',        workspace: 'personal', personal: { plan: 'free' },                                            team: { tier: 1, interval: 'yearly', role: 'admin', left: '8.2M' } },
+        'personal-pro':   { label: 'Pro',         workspace: 'personal', personal: { plan: 'pro', tier: 1, interval: 'yearly', left: '6.4M' },  team: { tier: 1, interval: 'yearly', role: 'admin', left: '8.2M' } },
+        'personal-lite':  { label: 'Lite',        workspace: 'personal', personal: { plan: 'lite', tier: 1, interval: 'monthly', left: '7.1M' }, team: { tier: 1, interval: 'yearly', role: 'admin', left: '8.2M' } },
+        'team-admin':     { label: 'Team admin',  workspace: 'team',     personal: { plan: 'pro', tier: 1, interval: 'yearly', left: '6.4M' },  team: { tier: 1, interval: 'yearly', role: 'admin', left: '8.2M' } },
+        'team-member':    { label: 'Team member', workspace: 'team',     personal: { plan: 'free' },                                            team: { tier: 1, interval: 'yearly', role: 'member', left: '8.2M' } }
+      };
+      var state = { scenario: 'team-admin', workspace: 'team', interval: 'yearly', proSel: null, teamSel: null, overlays: {} };
 
-      /* ── generic dropdown wiring ── */
-      function bindPicker(wrapSel, btnId, menuId) {
-        var wrap = document.querySelector(wrapSel);
-        var btn  = document.getElementById(btnId);
-        var menu = document.getElementById(menuId);
-        if (!wrap || !btn || !menu) return null;
+      function facts() { return SCENARIOS[state.scenario]; }
+      function findTier(list, n) { for (var i = 0; i < list.length; i++) if (list[i].tier === n) return list[i]; return null; }
+      function nextTier(list, n) { for (var i = 0; i < list.length; i++) if (list[i].tier > n) return list[i]; return null; }
+
+      /* ── membership per card, mirroring PlansStore.getDisplayState ──
+         Pro reads the PERSONAL subscription (inactive while a team workspace
+         is selected); Teams reads the ORG's (inactive from a personal one). */
+      function membership(plan) {
+        var f = facts();
+        if (plan === 'pro') {
+          if (state.workspace !== 'personal') return null;
+          if (f.personal.plan === 'free') return { tier: 0 };
+          return { tier: f.personal.tier, interval: f.personal.interval, forge: f.personal.plan === 'lite', left: f.personal.left };
+        }
+        if (state.workspace !== 'team') return null;
+        return { tier: f.team.tier, interval: f.team.interval, role: f.team.role, left: f.team.left };
+      }
+      function hasSub(m) { return !!m && (m.tier || 0) > 0; }
+
+      /* the selected tier opens on the next one above the current (_initActiveState) */
+      function defaultSel(plan) {
+        var list = plan === 'pro' ? PRO_TIERS : TEAM_TIERS, m = membership(plan);
+        if (!hasSub(m) || m.forge) return list[0];
+        return nextTier(list, m.tier) || findTier(list, m.tier);
+      }
+      function selected(plan) { return plan === 'pro' ? state.proSel : state.teamSel; }
+
+      /* ── PlansStore.getActions + the stores' inactive / forbidden states ── */
+      function paidActions(plan) {
+        var m = membership(plan), sel = selected(plan), f = facts();
+        if (plan === 'pro' && state.workspace === 'team') {
+          return { primary: { label: "You’re on Teams", variant: 'secondary', disabled: true }, links: [], note: true };
+        }
+        if (plan === 'teams' && state.workspace === 'personal') {
+          return { primary: { label: 'Upgrade to Teams', variant: 'primary' }, links: [] };   // create-team flow
+        }
+        if (plan === 'teams' && f.team.role !== 'admin') {
+          return { primary: { label: 'Contact an admin to manage', variant: 'secondary', disabled: true }, links: [] };
+        }
+        if (!hasSub(m)) return { primary: { label: 'Upgrade', variant: 'primary' }, links: [] };
+        var isSameTier = !m.forge && m.tier === sel.tier;
+        var isSubscribedInterval = state.interval === m.interval;
+        var isActive = isSameTier && isSubscribedInterval;
+        var isDowngrade = !m.forge && m.tier > sel.tier;
+        var isUpgrade = m.forge || m.tier < sel.tier;
+        if (isSameTier && !isSubscribedInterval) return { primary: { label: 'Change commitment', variant: 'primary' }, links: [] };
+        var out = { primary: null, links: [] };
+        if (isActive) out.primary = { label: 'Manage subscription', variant: 'secondary' };
+        if (isDowngrade) out.primary = { label: 'Downgrade', variant: 'secondary' };
+        if (isUpgrade) out.primary = { label: 'Upgrade', variant: 'primary' };
+        if (plan === 'teams' && isActive) out.links.push({ label: 'Cancel subscription', kind: 'color' });
+        return out;
+      }
+      function freeActions() {
+        var f = facts();
+        if (state.workspace === 'team') return { primary: { label: "You’re on Teams", variant: 'secondary', disabled: true } };
+        if (f.personal.plan === 'free') return { primary: { label: 'Your Current Plan', variant: 'secondary', disabled: true } };
+        return { primary: { label: 'Downgrade to Free', variant: 'secondary' } };
+      }
+
+      /* ── rendering ── */
+      function setLabel(btn, label) { btn.querySelectorAll('.btn-text-inner span').forEach(function (sp) { sp.textContent = label; }); }
+      function renderButton(btn, cta) {
+        btn.classList.remove('hero-btn-primary', 'hero-btn-ghost');
+        btn.classList.add(cta.variant === 'secondary' ? 'hero-btn-ghost' : 'hero-btn-primary');
+        btn.disabled = !!cta.disabled;
+        if (cta.disabled) btn.setAttribute('aria-disabled', 'true'); else btn.removeAttribute('aria-disabled');
+        setLabel(btn, cta.label);
+      }
+      function renderMsgs(box, items) {
+        box.innerHTML = '';
+        items.forEach(function (it) {
+          if (it.link) {
+            var b = document.createElement('button'); b.type = 'button';
+            b.className = 'card-link' + (it.kind === 'color' ? '' : ' card-link--muted'); b.textContent = it.label; box.appendChild(b);
+          } else {
+            var p = document.createElement('p'); p.className = 'card-msg' + (it.center ? ' card-msg--center' : '') + (it.warning ? ' card-msg--warning' : '');
+            p.textContent = it.text; box.appendChild(p);
+          }
+        });
+        box.hidden = !items.length;
+      }
+      function money(n) { return '$' + n.toLocaleString('en-US'); }
+      window.__priceFor = function (plan, interval) {
+        var sel = selected(plan); return '$' + (interval === 'yearly' ? sel.year : sel.month);
+      };
+      function renderPrice(plan) {
+        var sel = selected(plan), unit = plan === 'teams' ? ' / year per member' : ' / year';
+        var price = document.getElementById(plan === 'pro' ? 'pro-price' : 'teams-price');
+        if (price && !state.rolling) price.textContent = '$' + (state.interval === 'yearly' ? sel.year : sel.month);
+        var period = document.querySelector('.card[data-plan="' + plan + '"] .price-period');
+        if (period) period.textContent = plan === 'teams' ? '/month per member' : '/month';
+        var total = document.getElementById(plan + '-total'), save = document.getElementById(plan + '-save');
+        if (!total) return;
+        if (state.interval === 'yearly') {
+          total.innerHTML = 'Total of <strong>' + money(sel.year * 12) + '</strong> <s>' + money(sel.month * 12) + '</s>' + unit;
+          save.textContent = 'Billed annually';
+        } else {
+          total.innerHTML = 'Total of <strong>' + money(sel.month * 12) + '</strong>' + unit;
+          save.textContent = 'Billed monthly';
+        }
+      }
+      function renderPicker(plan) {
+        var card = document.querySelector('.card[data-plan="' + plan + '"]');
+        var picker = card.querySelector('[data-picker]'); if (!picker) return;
+        var m = membership(plan), sel = selected(plan), list = plan === 'pro' ? PRO_TIERS : TEAM_TIERS;
+        /* PricingSelector renders for a signed-in viewer: Pro on the personal workspace, Teams anywhere */
+        var show = plan === 'teams' || state.workspace === 'personal';
+        picker.hidden = !show;
+        if (!show) return;
+        picker.querySelector('[data-token-value]').textContent = sel.tokens + ' / month';
+        picker.querySelector('.token-menu').innerHTML = list.map(function (t) {
+          var badge = hasSub(m) && !m.forge && t.tier === m.tier ? '<span class="token-opt-current">Current</span>' : '<span></span>';
+          return '<li role="option" data-tier="' + t.tier + '" aria-selected="' + (t.tier === sel.tier) + '">' +
+            '<span class="token-opt-tokens">' + t.tokens + '</span>' + badge +
+            '<span class="token-opt-price">$' + (state.interval === 'yearly' ? t.year : t.month) + '</span></li>';
+        }).join('');
+        /* under-selector messages (getMessages + the token-stats line) */
+        var notes = [];
+        if (hasSub(m)) {
+          if (m.forge) notes.push('Your current plan: <strong>Bolt Lite</strong>');
+          else notes.push('Your current plan: <strong>' + findTier(list, m.tier).tokens + ' tokens</strong>.');
+          if (!m.forge && sel.tier === m.tier && m.left) notes.push('You have <strong>' + m.left + '</strong> tokens left');
+        }
+        var box = picker.querySelector('[data-picker-notes]');
+        box.innerHTML = notes.map(function (n) { return '<p class="token-current">' + n + '</p>'; }).join('');
+        box.hidden = !notes.length;
+      }
+      function renderCards() {
+        document.querySelectorAll('.card[data-plan]').forEach(function (card) {
+          var plan = card.getAttribute('data-plan'), btn = card.querySelector('[data-cta]'), msgs = card.querySelector('[data-msgs]');
+          var cta, links = [];
+          if (plan === 'free') cta = freeActions().primary;
+          else if (plan === 'enterprise') cta = { label: 'See a Demo', variant: 'primary' };
+          else { var a = paidActions(plan); cta = a.primary; links = a.links; }
+          renderButton(btn, cta);
+          renderMsgs(msgs, links.map(function (l) { return { link: true, label: l.label, kind: l.kind }; }));
+          if (plan === 'pro' || plan === 'teams') { renderPrice(plan); renderPicker(plan); }
+        });
+        var note = document.querySelector('.card[data-plan="pro"] .switch-note');
+        if (note) note.hidden = state.workspace !== 'team';
+        renderCompare();
+        if (window.__equaliseLedes) window.__equaliseLedes();
+      }
+
+      /* ── compare table header: lockTiersAtOrBelow ── */
+      var TIER_KEYS = ['free', 'pro', 'teams', 'ent'];
+      function currentPlan() {
+        var f = facts();
+        if (state.workspace === 'team') return { tier: 'teams', label: 'Teams' };
+        if (f.personal.plan === 'free') return { tier: 'free', label: 'Free' };
+        if (f.personal.plan === 'lite') return { tier: 'free', label: 'Lite' };   /* Lite sits above Free; Pro stays an upgrade */
+        return { tier: 'pro', label: 'Pro' };
+      }
+      function renderCompare() {
+        var cur = currentPlan(), idx = TIER_KEYS.indexOf(cur.tier);
+        var labels = {
+          free: freeActions().primary, pro: paidActions('pro').primary, teams: paidActions('teams').primary,
+          ent: { label: 'Get Started', variant: 'primary' }
+        };
+        TIER_KEYS.forEach(function (key, i) {
+          var th = document.querySelector('.compare-tier-head .tier-' + key), btn = th && th.querySelector('.tier-cta');
+          if (!btn) return;
+          var cta = i <= idx ? { label: "You’re on " + cur.label, disabled: true } : labels[key];
+          btn.classList.remove('hero-btn-primary', 'hero-btn-ghost');
+          btn.classList.add(cta.disabled ? 'hero-btn-ghost' : 'hero-btn-primary');
+          if (cta.disabled) { btn.setAttribute('aria-disabled', 'true'); btn.removeAttribute('href'); }
+          else { btn.removeAttribute('aria-disabled'); btn.setAttribute('href', '#'); }
+          setLabel(btn, cta.label);
+        });
+      }
+
+      /* ── pickers: generic open/close + tier choice ── */
+      function bindDropdown(wrap, btn, menu, onPick) {
+        if (!wrap || !btn || !menu) return;
         btn.addEventListener('click', function (e) {
           e.stopPropagation();
           var open = wrap.classList.toggle('is-open');
           btn.setAttribute('aria-expanded', String(open));
         });
+        menu.addEventListener('click', function (e) {
+          var li = e.target.closest('li'); if (!li) return;
+          wrap.classList.remove('is-open'); btn.setAttribute('aria-expanded', 'false');
+          onPick(li);
+        });
         document.addEventListener('click', function (e) {
           if (wrap.contains(e.target)) return;
-          wrap.classList.remove('is-open');
-          btn.setAttribute('aria-expanded', 'false');
+          wrap.classList.remove('is-open'); btn.setAttribute('aria-expanded', 'false');
         });
         document.addEventListener('keydown', function (e) {
           if (e.key !== 'Escape') return;
-          wrap.classList.remove('is-open');
-          btn.setAttribute('aria-expanded', 'false');
-        });
-        return { wrap: wrap, btn: btn, menu: menu };
-      }
-
-      /* ── workspace ── */
-      var ws = bindPicker('.workspace-picker', 'workspace-btn', 'workspace-menu');
-      if (ws) {
-        ws.menu.addEventListener('click', function (e) {
-          var li = e.target.closest('li');
-          if (!li) return;
-          [].forEach.call(ws.menu.children, function (o) {
-            o.setAttribute('aria-selected', String(o === li));
-          });
-          document.getElementById('workspace-name').textContent = li.textContent.trim();
-          ws.wrap.classList.remove('is-open');
-          ws.btn.setAttribute('aria-expanded', 'false');
-          currentPlan = li.getAttribute('data-plan');
-          renderCtas();
+          wrap.classList.remove('is-open'); btn.setAttribute('aria-expanded', 'false');
         });
       }
-
-      /* ── token tier ── */
-      var tk = bindPicker('.token-picker', 'token-btn', 'token-menu');
-      function renderTierMenu() {
-        if (!tk) return;
-        var period = document.querySelector('.billing-toggle').getAttribute('data-billing');
-        tk.menu.innerHTML = TIERS.map(function (t, i) {
-          return '<li role="option" data-i="' + i + '" aria-selected="' + (i === tierIdx) + '">' +
-                 '<span class="token-opt-tokens">' + t.tokens + '</span>' +
-                 (i === CURRENT_TIER ? '<span class="token-opt-current">Current</span>' : '<span></span>') +
-                 '<span class="token-opt-price">$' + t[period] + '</span></li>';
-        }).join('');
-      }
-      function renderTier() {
-        if (!tk) return;
-        var t = TIERS[tierIdx];
-        var period = document.querySelector('.billing-toggle').getAttribute('data-billing');
-        document.getElementById('token-value').textContent = t.tokens + ' / month';
-        /* the Teams headline + annual totals follow the selected tier */
-        var price = document.getElementById('teams-price');
-        if (price) price.textContent = '$' + t[period];
-        if (window.PLAN_TOTALS && window.PLAN_TOTALS.teams) {
-          window.PLAN_TOTALS.teams.yearly  = t.yearly  * 12;
-          window.PLAN_TOTALS.teams.monthly = t.monthly * 12;
-          if (window.renderPriceNotes) window.renderPriceNotes(period);
-        }
-        renderTierMenu();
-      }
-      if (tk) {
-        tk.menu.addEventListener('click', function (e) {
-          var li = e.target.closest('li');
-          if (!li) return;
-          tierIdx = +li.getAttribute('data-i');
-          tk.wrap.classList.remove('is-open');
-          tk.btn.setAttribute('aria-expanded', 'false');
-          renderTier();
+      ['pro', 'teams'].forEach(function (plan) {
+        var picker = document.querySelector('.card[data-plan="' + plan + '"] [data-picker]');
+        if (!picker) return;
+        bindDropdown(picker, picker.querySelector('.token-btn'), picker.querySelector('.token-menu'), function (li) {
+          var t = findTier(plan === 'pro' ? PRO_TIERS : TEAM_TIERS, +li.getAttribute('data-tier'));
+          if (plan === 'pro') state.proSel = t; else state.teamSel = t;
+          renderCards();
         });
-      }
+      });
 
-      /* ── CTAs reflect the plan the workspace is already on ── */
-      function renderCtas() {
-        document.querySelectorAll('.card[data-plan]').forEach(function (card) {
-          var plan = card.getAttribute('data-plan');
-          var btn  = card.querySelector('.card-cta');
-          if (!btn) return;
-          /* on a team plan there's nothing for Teams to link to — show the
-             plain "contact an admin" line instead of the button */
-          var adminNote = card.querySelector('.admin-note');
-          if (adminNote) {
-            var isManaged = plan === currentPlan;
-            adminNote.hidden = !isManaged;
-            btn.hidden = isManaged;
-            if (isManaged) return;
-          }
-          var label, current = true;
-          if (plan === 'enterprise') {
-            label = 'See a Demo'; current = false;
-          } else if (plan === currentPlan) {
-            label = 'Your Current Plan';
-          } else if (PLAN_ORDER.indexOf(plan) < PLAN_ORDER.indexOf(currentPlan)) {
-            label = "You're on " + PLAN_NAME[currentPlan];
-          } else {
-            label = 'Upgrade to ' + PLAN_NAME[plan]; current = false;
-          }
-          btn.classList.toggle('card-cta--current', current);
-          btn.disabled = current;
-          btn.querySelectorAll('.btn-text-inner span').forEach(function (sp) { sp.textContent = label; });
+      /* ── workspace picker (nav) — switches between the personal and team workspace ── */
+      var wsWrap = document.querySelector('.workspace-picker');
+      bindDropdown(wsWrap, document.getElementById('workspace-btn'), document.getElementById('workspace-menu'), function (li) {
+        selectWorkspace(li.getAttribute('data-plan') === 'teams' ? 'team' : 'personal');
+      });
+      function selectWorkspace(ws) {
+        state.workspace = ws;
+        var menu = document.getElementById('workspace-menu');
+        [].forEach.call(menu.children, function (o) {
+          var isTeam = o.getAttribute('data-plan') === 'teams';
+          o.setAttribute('aria-selected', String(isTeam === (ws === 'team')));
+          if (isTeam === (ws === 'team')) document.getElementById('workspace-name').textContent = o.textContent.trim();
         });
-        /* the "switch workspace" hint only applies while on a team plan */
-        var note = document.querySelector('.switch-note');
-        if (note) note.style.display = currentPlan === 'teams' ? '' : 'none';
+        /* a workspace with a paid subscription switches the page to ITS billing term; otherwise yearly (Pricing.tsx) */
+        var m = membership(ws === 'team' ? 'teams' : 'pro');
+        var interval = hasSub(m) && m.interval ? m.interval : 'yearly';
+        state.proSel = defaultSel('pro'); state.teamSel = defaultSel('teams');
+        if (interval !== state.interval) { window.__instantPriceSwap = true; window.setBilling(interval); window.__instantPriceSwap = false; }
+        renderCards();
       }
 
-      /* keep tier prices and CTAs in step with the billing toggle */
-      var origSetBilling = window.setBilling;
+      /* ── review-only scenario switch ── */
+      function applyScenario(key) {
+        state.scenario = key;
+        document.querySelectorAll('[data-scenario]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-scenario') === key)); });
+        var hasTeam = true;   /* every scenario has a team workspace in the picker; the facts say what it's on */
+        document.getElementById('workspace-menu').querySelector('[data-plan="teams"]').hidden = !hasTeam;
+        selectWorkspace(facts().workspace);
+      }
+      /* the switch's markup sits after this script — delegate */
+      document.addEventListener('click', function (e) {
+        var b = e.target.closest('[data-scenario]'); if (b) applyScenario(b.getAttribute('data-scenario'));
+      });
+      window.addEventListener('load', function () { applyScenario(state.scenario); });
+
+      /* keep prices, labels and the picker options in step with the billing toggle */
+      var origSetBilling = window.setBilling, rollTimer = null;
       window.setBilling = function (val) {
+        if (val === state.interval) return;
+        state.interval = val;
+        /* the headline rolls (0.22s out + 0.22s in); everything else re-renders now */
+        state.rolling = !window.__instantPriceSwap;
         origSetBilling(val);
-        renderTier();
+        renderCards();
+        clearTimeout(rollTimer);
+        rollTimer = setTimeout(function () { state.rolling = false; }, 520);
       };
-
-      renderTier();
-      renderCtas();
+      state.interval = document.querySelector('.billing-toggle').getAttribute('data-billing') || 'yearly';
+      applyScenario(state.scenario);
     })();
   </script>
 
@@ -4825,12 +5057,11 @@ window.__pageOwnsScrollAnims = true;
         });
         rows.forEach(function (r) { r.l.style.minHeight = Math.ceil(target - r.pre) + 'px'; });
       }
+      window.__equaliseLedes = equalise;
       equalise();
       window.addEventListener('resize', equalise);
       if (document.fonts && document.fonts.ready) document.fonts.ready.then(equalise);
       document.addEventListener('sc-themechange', equalise);
-      /* the workspace switch toggles the Pro switch-note */
-      document.addEventListener('click', function () { setTimeout(equalise, 0); });
     })();
   </script>
 <!-- ╔═══ PROTOTYPE ONLY — THEME REVIEW TOGGLE ═══════════════════════════════╗
@@ -4857,6 +5088,19 @@ window.__pageOwnsScrollAnims = true;
   .sc-theme-switch button[aria-pressed="true"] { background: var(--sc-blue); color: #fff; }
   @media print { .sc-theme-switch { display: none; } }
 </style>
+<style id="scenario-review-switch-style">
+  .sc-scenario-switch { right: auto; left: 16px; }
+  .sc-scenario-switch .sc-switch-label { padding: 6px 4px 6px 8px; font-size: 11px; color: var(--sc-text-muted); align-self: center; }
+</style>
+<!-- PROTOTYPE ONLY — which account is signed in (sets the facts the page derives everything from) -->
+<div class="sc-theme-switch sc-scenario-switch" role="group" aria-label="Signed-in scenario">
+  <span class="sc-switch-label">Account</span>
+  <button type="button" data-scenario="personal-free">Free</button>
+  <button type="button" data-scenario="personal-pro">Pro</button>
+  <button type="button" data-scenario="personal-lite">Lite</button>
+  <button type="button" data-scenario="team-admin">Team admin</button>
+  <button type="button" data-scenario="team-member">Team member</button>
+</div>
 <div class="sc-theme-switch" role="group" aria-label="Theme preview">
   <button type="button" data-theme-set="">System</button>
   <button type="button" data-theme-set="light">Light</button>
