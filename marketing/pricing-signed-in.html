@@ -5026,12 +5026,17 @@ window.__pageOwnsScrollAnims = true;
           free: freeActions().primary, pro: paidActions('pro').primary, teams: paidActions('teams').primary,
           ent: { label: 'Get Started', variant: 'primary' }
         };
+        /* same calm rule as the cards: while subscribed (or finishing
+           checkout) only the highlighted plan's column may be blue (Gary,
+           2026-10-06 — on Pro, Upgrade to Teams / Get Started were blue here) */
+        var calm = calmMode(), hl = highlightPlan();
         TIER_KEYS.forEach(function (key, i) {
           var th = document.querySelector('.compare-tier-head .tier-' + key), btn = th && th.querySelector('.tier-cta');
           if (!btn) return;
           var cta = i <= idx ? { label: "You’re on " + cur.label, disabled: true } : labels[key];
+          var ghost = cta.disabled || (calm && key !== hl);
           btn.classList.remove('hero-btn-primary', 'hero-btn-ghost');
-          btn.classList.add(cta.disabled ? 'hero-btn-ghost' : 'hero-btn-primary');
+          btn.classList.add(ghost ? 'hero-btn-ghost' : 'hero-btn-primary');
           if (cta.disabled) { btn.setAttribute('aria-disabled', 'true'); btn.removeAttribute('href'); }
           else { btn.removeAttribute('aria-disabled'); btn.setAttribute('href', '#'); }
           setLabel(btn, cta.label);
