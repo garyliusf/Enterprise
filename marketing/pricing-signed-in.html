@@ -722,24 +722,34 @@
       color: rgba(255,255,255,0.5);
     }
     .token-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
-    .token-readout { font-size: 12px; color: rgba(255,255,255,0.5); font-variant-numeric: tabular-nums; white-space: nowrap; }
-    .token-readout strong { font-size: 14px; font-weight: 600; color: #fff; }
-    .token-slider { position: relative; height: 24px; display: flex; align-items: center; }
+    .token-slider { position: relative; height: 26px; display: flex; align-items: center; }
     /* tick strip is inset by half the 16px thumb so each tick sits under the
        thumb centre at its stop (a native range keeps the thumb inside the track) */
-    .token-ticks { position: absolute; left: 8px; right: 8px; top: 50%; height: 0; pointer-events: none; }
+    .token-ticks { position: absolute; left: 22px; right: 22px; top: 50%; height: 0; pointer-events: none; }
     .token-tick { position: absolute; top: 0; width: 2px; height: 2px; margin-top: -1px; background: rgba(255,255,255,0.35); transform: translateX(-50%); }
     /* the tier you're subscribed to — a brand ring the thumb can sit on */
     .token-tick--current { width: 8px; height: 8px; margin-top: -4px; background: #0a0a0a; border: 2px solid #1488FC; border-radius: 50%; box-sizing: border-box; }
-    .token-range { -webkit-appearance: none; appearance: none; width: 100%; height: 24px; margin: 0; background: transparent; cursor: pointer; }
+    .token-range { -webkit-appearance: none; appearance: none; width: 100%; height: 26px; margin: 0; background: transparent; cursor: pointer; }
     .token-range:focus-visible { outline: 2px solid rgba(20,136,252,0.6); outline-offset: 4px; }
     .token-range::-webkit-slider-runnable-track { height: 3px; background: linear-gradient(to right, #1488FC var(--fill, 0%), rgba(255,255,255,0.14) var(--fill, 0%)); }
-    .token-range::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; margin-top: -6.5px; background: #fff; border: 2px solid #1488FC; border-radius: 2px; box-shadow: 0 2px 8px rgba(0,0,0,0.45); transition: transform 0.15s ease; }
-    .token-range::-webkit-slider-thumb:hover { transform: scale(1.12); }
+    /* the native thumb is an invisible 44x22 hit area; the visible handle is
+       .token-chip, positioned over it by the script (Gary, 2026-10-06:
+       value-chip handle — it carries the tier, so no separate readout) */
+    .token-range::-webkit-slider-thumb { -webkit-appearance: none; width: 44px; height: 22px; margin-top: -9.5px; background: transparent; border: 0; }
     .token-range::-moz-range-track { height: 3px; background: rgba(255,255,255,0.14); }
     .token-range::-moz-range-progress { height: 3px; background: #1488FC; }
-    .token-range::-moz-range-thumb { width: 12px; height: 12px; background: #fff; border: 2px solid #1488FC; border-radius: 2px; box-shadow: 0 2px 8px rgba(0,0,0,0.45); }
-    .token-scale { display: flex; justify-content: space-between; margin-top: -2px; font-size: 10px; letter-spacing: 0.3px; color: rgba(255,255,255,0.3); font-variant-numeric: tabular-nums; }
+    .token-range::-moz-range-thumb { width: 44px; height: 22px; background: transparent; border: 0; }
+    .token-chip {
+      position: absolute; top: 50%; z-index: 2;
+      width: 44px; height: 22px; margin-top: -11px; transform: translateX(-50%);
+      display: flex; align-items: center; justify-content: center;
+      background: #1488FC; color: #fff; border-radius: 2px;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.2px; white-space: nowrap;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.45);
+      pointer-events: none;   /* drags go through to the range input */
+    }
+    .token-slider:hover .token-chip, .token-range:active + .token-chip { background: #0f6fd0; }
+    .token-scale { display: flex; justify-content: space-between; margin-top: -2px; font-size: 10px; letter-spacing: 0.3px; color: rgba(255,255,255,0.3); }
     .token-notes { display: flex; flex-direction: column; gap: 2px; }
     .token-notes[hidden] { display: none; }
     .token-current {
@@ -749,7 +759,7 @@
       color: rgba(255,255,255,0.5);
     }
     .token-current strong { font-weight: 600; color: rgba(255,255,255,0.8); }
-    .token-delta { margin: 0; font-size: 11px; line-height: 1.3; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .token-delta { margin: 0; font-size: 11px; line-height: 1.3; font-weight: 600; }   /* no tabular-nums: it widens the decimal point ("+1 .19B") */
     .token-delta--up { color: #4DA6FF; }
     .token-delta--down { color: rgba(255,255,255,0.55); }
 
@@ -843,14 +853,11 @@
     html[data-theme="light"] .workspace-menu li[aria-selected="true"] { color: var(--sc-ink); background: rgba(20,136,252,0.08); }
     html[data-theme="light"] .token-label, html[data-theme="light"] .token-current { color: var(--sc-text-muted); }
     html[data-theme="light"] .token-current strong { color: var(--sc-ink); }
-    html[data-theme="light"] .token-readout { color: var(--sc-text-muted); }
-    html[data-theme="light"] .token-readout strong { color: var(--sc-ink); }
     html[data-theme="light"] .token-tick { background: rgba(var(--sc-ink-rgb),0.3); }
     html[data-theme="light"] .token-tick--current { background: #fff; }
     html[data-theme="light"] .token-range::-webkit-slider-runnable-track { background: linear-gradient(to right, #1488FC var(--fill, 0%), rgba(var(--sc-ink-rgb),0.14) var(--fill, 0%)); }
     html[data-theme="light"] .token-range::-moz-range-track { background: rgba(var(--sc-ink-rgb),0.14); }
-    html[data-theme="light"] .token-range::-webkit-slider-thumb { box-shadow: 0 1px 4px rgba(15,26,42,0.25); }
-    html[data-theme="light"] .token-range::-moz-range-thumb { box-shadow: 0 1px 4px rgba(15,26,42,0.25); }
+    html[data-theme="light"] .token-chip { box-shadow: 0 1px 4px rgba(15,26,42,0.25); }
     html[data-theme="light"] .token-scale { color: rgba(var(--sc-ink-rgb),0.35); }
     html[data-theme="light"] .token-delta--down { color: rgba(var(--sc-ink-rgb),0.55); }
     html[data-theme="light"] .intent-banner { background: rgba(20,136,252,0.07); border-color: rgba(20,136,252,0.3); color: rgba(var(--sc-ink-rgb),0.85); }
@@ -2938,11 +2945,11 @@ html .page-header h1 { margin-bottom: 20px; }
         <div class="token-picker" data-picker hidden>
           <div class="token-head">
             <span class="token-label">Monthly tokens</span>
-            <span class="token-readout"><strong data-token-value>10M</strong> / month</span>
           </div>
           <div class="token-slider">
             <div class="token-ticks" data-ticks aria-hidden="true"></div>
             <input type="range" class="token-range" data-range min="0" max="13" step="1" value="0" aria-label="Pro token package" />
+            <span class="token-chip" data-token-value aria-hidden="true">10M</span>
           </div>
           <div class="token-scale" aria-hidden="true"><span>10M</span><span>1.2B</span></div>
           <div class="token-notes" data-picker-notes hidden></div>
@@ -3030,11 +3037,11 @@ html .page-header h1 { margin-bottom: 20px; }
         <div class="token-picker" data-picker hidden>
           <div class="token-head">
             <span class="token-label">Monthly tokens per member</span>
-            <span class="token-readout"><strong data-token-value>10M</strong> / month</span>
           </div>
           <div class="token-slider">
             <div class="token-ticks" data-ticks aria-hidden="true"></div>
             <input type="range" class="token-range" data-range min="0" max="13" step="1" value="0" aria-label="Teams token package" />
+            <span class="token-chip" data-token-value aria-hidden="true">10M</span>
           </div>
           <div class="token-scale" aria-hidden="true"><span>10M</span><span>1.2B</span></div>
           <div class="token-notes" data-picker-notes hidden></div>
@@ -4915,6 +4922,19 @@ window.__pageOwnsScrollAnims = true;
           save.textContent = 'Billed monthly';
         }
       }
+      /* "1200M" reads as "1.2B", matching the scale under the slider */
+      function tierLabel(t) { var n = parseFloat(t); return n >= 1000 ? +(n / 1000).toFixed(2) + 'B' : t; }
+      /* the chip sits over the invisible native thumb: the thumb centre runs
+         from 22px to (width - 22px) across the track */
+      function placeChip(picker) {
+        var range = picker.querySelector('[data-range]'), chip = picker.querySelector('.token-chip');
+        if (!range || !chip) return;
+        var f = (+range.value) / (+range.max || 1);
+        chip.style.left = (f * (range.offsetWidth - 44) + 22) + 'px';
+      }
+      window.addEventListener('resize', function () {
+        document.querySelectorAll('[data-picker]').forEach(function (p) { if (!p.hidden) placeChip(p); });
+      });
       function renderPicker(plan) {
         var card = document.querySelector('.card[data-plan="' + plan + '"]');
         var picker = card.querySelector('[data-picker]'); if (!picker) return;
@@ -4930,11 +4950,13 @@ window.__pageOwnsScrollAnims = true;
         picker.hidden = !show;
         if (!show) return;
         var idx = list.indexOf(sel), last = list.length - 1;
-        picker.querySelector('[data-token-value]').textContent = sel.tokens;
+        picker.querySelector('[data-token-value]').textContent = tierLabel(sel.tokens);
         var range = picker.querySelector('[data-range]');
         range.max = last;
         if (+range.value !== idx) range.value = idx;
         range.style.setProperty('--fill', (idx / last * 100) + '%');
+        range.setAttribute('aria-valuetext', tierLabel(sel.tokens) + ' tokens per month');
+        placeChip(picker);
         /* tier ticks, with a ring on the one you're subscribed to */
         var curIdx = -1;
         if (hasSub(m) && !m.forge) for (var i = 0; i < list.length; i++) if (list[i].tier === m.tier) curIdx = i;
