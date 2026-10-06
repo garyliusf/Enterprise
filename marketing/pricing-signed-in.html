@@ -4717,12 +4717,13 @@ window.__pageOwnsScrollAnims = true;
        (the review-only Scenario switch, bottom right); everything derived
        from them follows the real rules:
 
-         • a workspace with a subscription opens its card ON the current
-           tier (Gary, 2026-10-06 — production opened on the next tier up),
-           so the button reads "Manage subscription" (+ "Cancel subscription"
-           on Teams); sliding to a higher tier turns it into "Upgrade", a
-           lower one into "Downgrade", the same tier on the other billing
-           term into "Change commitment"
+         • a subscribed Pro card opens ON the current tier (Gary,
+           2026-10-06), so the button reads "Manage subscription"; a
+           subscribed Teams card opens one tier ABOVE it (as production does),
+           so a team admin lands on "Upgrade". Sliding to a higher tier gives
+           "Upgrade", a lower one "Downgrade", the current tier "Manage
+           subscription" (+ "Cancel subscription" on Teams), the same tier on
+           the other billing term "Change commitment"
          • Free: "Your Current Plan" on a free account, "Downgrade to Free"
            on a paid one, "You're on Teams" while a team workspace is selected
          • Pro while a team workspace is selected: "You're on Teams" + the
@@ -4816,12 +4817,14 @@ window.__pageOwnsScrollAnims = true;
       }
       function hasSub(m) { return !!m && (m.tier || 0) > 0; }
 
-      /* the slider opens ON the subscribed tier (Gary, 2026-10-06) so the
-         card reads as your current plan first — production's _initActiveState
-         opened on the next tier up, which led with "Upgrade" */
+      /* where the slider opens (Gary, 2026-10-06): Pro opens ON the
+         subscribed tier so the card reads as your current plan first; Teams
+         opens one tier ABOVE it (production's _initActiveState) so a team
+         admin lands on an upgrade */
       function defaultSel(plan) {
         var list = plan === 'pro' ? PRO_TIERS : TEAM_TIERS, m = membership(plan);
         if (!hasSub(m) || m.forge) return list[0];
+        if (plan === 'teams') return nextTier(list, m.tier) || findTier(list, m.tier);
         return findTier(list, m.tier) || list[0];
       }
       function selected(plan) { return plan === 'pro' ? state.proSel : state.teamSel; }
@@ -4948,8 +4951,8 @@ window.__pageOwnsScrollAnims = true;
             var abs = Math.abs(delta);
             var amount = abs >= 1000 ? +(abs / 1000).toFixed(2) + 'B' : abs + 'M';
             notes.push('<p class="token-delta token-delta--' + (delta > 0 ? 'up' : 'down') + '">' +
-              (delta > 0 ? '+' : '−') + amount + ' tokens vs your current ' + cur.tokens +
-              (plan === 'teams' ? ', per member' : '') + '</p>');
+              (delta > 0 ? '+' : '−') + amount + ' tokens' + (plan === 'teams' ? ' per member' : '') +
+              ' vs your current ' + cur.tokens + '</p>');
           }
         }
         var box = picker.querySelector('[data-picker-notes]');
