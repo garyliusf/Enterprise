@@ -329,13 +329,23 @@
     .card:hover .card-hover-canvas { opacity: 1; }
     .card > *:not(.card-hover-canvas) { position: relative; z-index: 1; }
 
-    /* ── Teams card — blue-washed surface + the always-on pixel field ── */
+    /* ── Teams card — column borders (structural, stays put) ── */
     .card-teams {
+      border-right: 1px solid rgba(255,255,255,0.07);
+      border-left: none;
+    }
+    /* ── Highlighted card — blue wash + the always-on pixel field ──
+       2026-10-06 (Gary): once subscribed, the wash follows the plan you're
+       ON instead of staying pinned to Teams — Pro for a personal Pro
+       subscription, Teams on a team workspace, and it moves when the
+       workspace picker changes (and to the chosen plan in the ?intent=
+       return state). Free/Lite keep the Teams default (Most Popular).
+       The signed-in script stamps .card--hl; Teams carries it in markup
+       for the pre-JS paint. */
+    .card--hl {
       background:
         linear-gradient(180deg, rgba(20,136,252,0.16) 0%, rgba(20,136,252,0.05) 55%, rgba(20,136,252,0.10) 100%), /* brightened — carries the emphasis now that POPULAR is gone */
         #0a0a0a;
-      border-right: 1px solid rgba(255,255,255,0.07);
-      border-left: none;
     }
 
     /* ── "Most Popular" banner ──
@@ -1393,19 +1403,21 @@
     .compliance-left .hero-btn-ghost,
     .faq-header .hero-btn-ghost { min-width: var(--cta-min-w); max-width: 100%; width: fit-content; }
 
-    /* ── Teams pixel canvas background ── */
-    #teams-pixel-canvas {
+    /* ── Plan pixel canvas background (Pro + Teams carry one; only the
+       highlighted card's is visible) ── */
+    #teams-pixel-canvas, #pro-pixel-canvas {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
       pointer-events: none;
-      opacity: 0.55; /* always-on field marks the popular card */
+      opacity: 0; /* the field marks the highlighted card only */
       transition: opacity 0.3s ease;
       z-index: 0;
     }
-    .cards.is-hovering #teams-pixel-canvas { opacity: 0.12; }
-    .card-teams:hover #teams-pixel-canvas { opacity: 0.5 !important; }
+    .card--hl #teams-pixel-canvas, .card--hl #pro-pixel-canvas { opacity: 0.55; }
+    .cards.is-hovering .card--hl #teams-pixel-canvas, .cards.is-hovering .card--hl #pro-pixel-canvas { opacity: 0.12; }
+    .card--hl:hover #teams-pixel-canvas, .card--hl:hover #pro-pixel-canvas { opacity: 0.5 !important; }
 
     .card-teams > *:not(canvas) {
       position: relative;
@@ -1589,7 +1601,8 @@
     /* cards */
     html[data-theme="light"] .cards { border-color: var(--sc-line); box-shadow: 0 8px 28px rgba(15,26,42,0.08); }
     html[data-theme="light"] .card { background: #fff; border-right-color: var(--sc-line); }
-    html[data-theme="light"] .card-teams { background: linear-gradient(180deg, rgba(20,136,252,0.16) 0%, rgba(20,136,252,0.05) 55%, rgba(20,136,252,0.10) 100%), #fff; border-right-color: var(--sc-line); }
+    html[data-theme="light"] .card--hl { background: linear-gradient(180deg, rgba(20,136,252,0.16) 0%, rgba(20,136,252,0.05) 55%, rgba(20,136,252,0.10) 100%), #fff; }
+    html[data-theme="light"] .card-teams { border-right-color: var(--sc-line); }
     @media (max-width: 1100px) { html[data-theme="light"] .card:nth-child(1), html[data-theme="light"] .card:nth-child(2) { border-bottom-color: var(--sc-line); } }
     @media (max-width: 640px) { html[data-theme="light"] .card { border-bottom-color: var(--sc-line); } }
     html[data-theme="light"] .plan-label, html[data-theme="light"] .price-amount, html[data-theme="light"] .price-amount--custom, html[data-theme="light"] .card-description, html[data-theme="light"] .price-total strong { color: var(--sc-ink); }
@@ -2899,6 +2912,7 @@ html .page-header h1 { margin-bottom: 20px; }
 
       <!-- Pro -->
       <div data-plan="pro" class="card">
+        <canvas id="pro-pixel-canvas"></canvas>
         <canvas class="card-hover-canvas" id="pro-hover-canvas"></canvas>
         <span class="plan-label blue">Pro</span>
         <div class="card-price">
@@ -2989,7 +3003,7 @@ html .page-header h1 { margin-bottom: 20px; }
       </div>
 
       <!-- Teams -->
-      <div data-plan="teams" class="card card-teams">
+      <div data-plan="teams" class="card card-teams card--hl">
         <canvas id="teams-pixel-canvas"></canvas>
         <div class="popular-banner">MOST POPULAR</div>
         <span class="plan-label purple">Teams</span>
@@ -3633,10 +3647,12 @@ html .page-header h1 { margin-bottom: 20px; }
       requestAnimationFrame(draw);
     }
 
-    makePixelCanvas('teams-pixel-canvas', 6, 2,
+    /* both paid cards carry the field; CSS shows only the highlighted one */
+    ['teams-pixel-canvas', 'pro-pixel-canvas'].forEach(function (fieldId) {
+    makePixelCanvas(fieldId, 6, 2,
       function(c, r, t, p) {
         var px = c * 6, py = r * 6;
-        var el = document.getElementById('teams-pixel-canvas');
+        var el = document.getElementById(fieldId);
         var W = el ? el.width : 400, H = el ? el.height : 600;
         // Dramatic top-center bloom, fades toward bottom and edges
         var cx = W / 2;
@@ -3664,6 +3680,7 @@ html .page-header h1 { margin-bottom: 20px; }
         return density > rand ? density * 0.9 : 0;
       }, 0.90, '20,136,252'
     );
+    });
 
 
     (function() {
@@ -4923,7 +4940,22 @@ window.__pageOwnsScrollAnims = true;
         box.innerHTML = notes.join('');
         box.hidden = !notes.length;
       }
+      /* the blue wash follows the plan you're ON (Gary, 2026-10-06): Teams
+         by default and for free/Lite accounts, Pro while a personal Pro
+         subscription is current, the intent plan in the return state. */
+      function highlightPlan() {
+        if (state.intent) return state.intent;
+        if (state.workspace === 'team') return 'teams';
+        var m = membership('pro');
+        if (hasSub(m) && !m.forge) return 'pro';
+        return 'teams';
+      }
       function renderCards() {
+        var hl = highlightPlan();
+        ['pro', 'teams'].forEach(function (p) {
+          var c = document.querySelector('.card[data-plan="' + p + '"]');
+          if (c) c.classList.toggle('card--hl', hl === p);
+        });
         document.querySelectorAll('.card[data-plan]').forEach(function (card) {
           var plan = card.getAttribute('data-plan'), btn = card.querySelector('[data-cta]'), msgs = card.querySelector('[data-msgs]');
           var cta, links = [];
