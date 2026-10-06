@@ -823,7 +823,7 @@
        compares with your plan + its price per 1M tokens. Opens to the right of
        the menu, or the left when the viewport has no room; never moves the list. */
     .token-hint {
-      position: absolute; z-index: 25; left: calc(100% + 8px); width: 230px;
+      position: absolute; z-index: 25; left: calc(100% + 8px); width: max-content; max-width: 230px;
       padding: 10px 12px; border-radius: 2px;
       background: #1a1a1c; border: 1px solid rgba(255,255,255,0.12);
       box-shadow: 0 12px 32px rgba(0,0,0,0.55);
@@ -5058,27 +5058,26 @@ window.__pageOwnsScrollAnims = true;
       /* hover-hint copy — facts from the price table only: how the tier
          compares with your plan, and its price per 1M tokens */
       function tierHint(plan, t) {
+        /* kept short (Gary, 2026-10-06): the Current badge and the card already
+           say "vs your plan" and "per member", so the hint is just the numbers */
         var list = plan === 'pro' ? PRO_TIERS : TEAM_TIERS, m = membership(plan);
         var yearly = state.interval === 'yearly';
         var price = yearly ? t.year : t.month, base = list[0], basePrice = yearly ? base.year : base.month;
         var perM = price / parseFloat(t.tokens), basePerM = basePrice / parseFloat(base.tokens);
         var less = Math.round((1 - perM / basePerM) * 100);
-        var each = plan === 'teams' ? ' per member' : '';
-        var head, up = false;
+        var rate = '$' + perM.toFixed(2) + ' per 1M';
         if (hasSub(m) && !m.forge) {
           var cur = findTier(list, m.tier);
-          if (t.tier === m.tier) head = 'Your current plan';
-          else {
-            var dT = parseFloat(t.tokens) - parseFloat(cur.tokens), dP = price - (yearly ? cur.year : cur.month);
-            var amt = function (n) { n = Math.abs(n); return n >= 1000 ? +(n / 1000).toFixed(2) + 'B' : n + 'M'; };
-            up = dT > 0;
-            head = (up ? '+' : '−') + amt(dT) + ' tokens, ' + (dP >= 0 ? '+' : '−') + money(Math.abs(dP)) + '/month' + each + ' vs your current ' + tierLabel(cur.tokens);
-          }
-        } else {
-          head = tierLabel(t.tokens) + ' tokens every month' + each;
+          if (t.tier === m.tier) return { head: 'Your current plan', sub: rate + ' tokens', up: false };
+          var dT = parseFloat(t.tokens) - parseFloat(cur.tokens), dP = price - (yearly ? cur.year : cur.month);
+          var amt = function (n) { n = Math.abs(n); return n >= 1000 ? +(n / 1000).toFixed(2) + 'B' : n + 'M'; };
+          return {
+            head: (dT > 0 ? '+' : '−') + amt(dT) + ' tokens, ' + (dP >= 0 ? '+' : '−') + money(Math.abs(dP)) + '/mo',
+            sub: less > 0 ? rate + ' · ' + less + '% less' : rate + ' tokens',
+            up: dT > 0
+          };
         }
-        var sub = '$' + perM.toFixed(2) + ' per 1M tokens' + (less > 0 ? ' · ' + less + '% less per token than ' + tierLabel(base.tokens) : '');
-        return { head: head, sub: sub, up: up };
+        return { head: rate + ' tokens', sub: less > 0 ? less + '% less per token than ' + tierLabel(base.tokens) : '', up: false };
       }
       /* "1200M" reads as "1.2B", matching the scale under the slider */
       function tierLabel(t) { var n = parseFloat(t); return n >= 1000 ? +(n / 1000).toFixed(2) + 'B' : t; }
