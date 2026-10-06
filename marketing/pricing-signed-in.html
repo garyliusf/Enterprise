@@ -4939,10 +4939,14 @@ window.__pageOwnsScrollAnims = true;
           } else if (sel.tier === m.tier) {
             notes.push('<p class="token-current"><strong>Your current plan</strong>' + (m.left ? ' — <strong>' + m.left + '</strong> tokens left this month' : '') + '</p>');
           } else {
+            /* the difference in TOKENS, not dollars (Gary, 2026-10-06) — the
+               price already updates in the headline above */
             var cur = findTier(list, m.tier);
-            var delta = state.interval === 'yearly' ? sel.year - cur.year : sel.month - cur.month;
+            var delta = parseFloat(sel.tokens) - parseFloat(cur.tokens);   /* both in M */
+            var abs = Math.abs(delta);
+            var amount = abs >= 1000 ? +(abs / 1000).toFixed(2) + 'B' : abs + 'M';
             notes.push('<p class="token-delta token-delta--' + (delta > 0 ? 'up' : 'down') + '">' +
-              (delta > 0 ? '+' : '−') + money(Math.abs(delta)) + '/month vs your current ' + cur.tokens +
+              (delta > 0 ? '+' : '−') + amount + ' tokens vs your current ' + cur.tokens +
               (plan === 'teams' ? ', per member' : '') + '</p>');
           }
         }
