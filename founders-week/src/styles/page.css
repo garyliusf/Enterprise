@@ -147,26 +147,54 @@ img, svg { display: block; }
   min-height: calc(min(74dvh, 780px) + var(--sc-nav-overlap));
   padding: calc(clamp(90px, calc(24px + 8.5vh), 148px) + var(--sc-nav-overlap)) 0 clamp(96px, 12vh, 140px);
   display: flex; flex-direction: column; align-items: center;
-  /* The family ramp is authored for a short hero (white by ~72%); stretch it
-     so the copy stack and both buttons stay on the blue (referral recipe). */
-  background: var(--sc-hero-bg);
-  background-size: 100% 128%;
-  background-repeat: no-repeat;
-  background-color: var(--sc-ground);
+  /* the video paints the hero; this navy shows only until its poster loads */
+  background: #021a57;
 }
-:root[data-theme="dark"] .fw-hero {
-  background:
-    radial-gradient(ellipse 70% 62% at 50% 0%, rgba(20, 136, 252, 0.30), rgba(20, 136, 252, 0.08) 55%, transparent 78%),
-    radial-gradient(ellipse 40% 30% at 50% 4%, rgba(120, 190, 255, 0.18), transparent 70%),
-    #000;
-}
+
 .fw-hero::after {
   /* the stretched ramp is cut off still pale blue — release it into the page
      ground so the hero never ends on a hard line */
   content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 30%; z-index: 1; pointer-events: none;
   background: linear-gradient(to bottom, rgba(var(--sc-ground-rgb), 0) 0%, rgba(var(--sc-ground-rgb), 0.55) 55%, var(--sc-ground) 100%);
 }
-.fw-hero-dither { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+.fw-hero-video {
+  position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0;
+  object-fit: cover; object-position: 50% 30%; pointer-events: none;
+}
+/* DARK: fading the video's near-white lower half straight to black passes
+   through grey (pale cyan at half alpha over black is grey). So in dark the
+   video itself is pulled down and saturated, a multiply layer tints its
+   whites blue, and the fade to the ground travels through navy — the hero
+   stays blue all the way into the black page. */
+:root[data-theme="dark"] .fw-hero-video { filter: brightness(0.72) saturate(1.35); }
+:root[data-theme="dark"] .fw-hero::after {
+  height: 62%;
+  background:
+    linear-gradient(to bottom,
+      rgba(3, 16, 58, 0) 0%,
+      rgba(3, 16, 58, 0.45) 30%,
+      rgba(2, 9, 34, 0.82) 62%,
+      rgba(1, 3, 12, 0.97) 86%,
+      #000 100%);
+}
+/* the scrim (::before, below) multiplies in dark, with a blue band over the
+   lower half: whites take the tint, the deep blues and blacks barely move */
+:root[data-theme="dark"] .fw-hero::before {
+  mix-blend-mode: multiply;
+  background:
+    radial-gradient(ellipse 62% 52% at 50% 48%, rgba(2, 14, 52, 0.55), rgba(2, 14, 52, 0.18) 60%, transparent 85%),
+    linear-gradient(180deg, rgba(0, 4, 20, 0.35) 0%, transparent 22%),
+    linear-gradient(to bottom, rgba(40, 110, 230, 0) 35%, rgba(40, 110, 230, 0.85) 80%);
+}
+/* Legibility scrim: the video's lower-left runs near-white under centred
+   white copy, so a soft navy pool sits behind the stack, plus a light top
+   band for the nav. Same in both themes — the video is the same. */
+.fw-hero::before {
+  content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    radial-gradient(ellipse 62% 52% at 50% 48%, rgba(2, 14, 52, 0.55), rgba(2, 14, 52, 0.18) 60%, transparent 85%),
+    linear-gradient(180deg, rgba(0, 4, 20, 0.35) 0%, transparent 22%);
+}
 .fw-hero-inner {
   position: relative; z-index: 2; width: min(900px, calc(100vw - 160px));
   display: flex; flex-direction: column; align-items: center; text-align: center;
@@ -183,7 +211,11 @@ img, svg { display: block; }
 }
 .fw-hero-ctas { margin-top: 32px; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
 /* ghost on the blue: white hairline, white ink */
-.fw-hero .hero-btn-ghost { border-color: rgba(255, 255, 255, 0.4); color: #fff; }
+.fw-hero .hero-btn-ghost {
+  border-color: rgba(255, 255, 255, 0.45); color: #fff;
+  /* a faint navy fill keeps the label legible where the video runs pale */
+  background: rgba(2, 14, 52, 0.28);
+}
 .fw-hero .hero-btn-ghost:hover { border-color: rgba(255, 255, 255, 0.7); }
 .fw-hero-count {
   margin-top: 20px; display: inline-flex; align-items: center; gap: 8px;
@@ -203,11 +235,13 @@ img, svg { display: block; }
   .fw-hero {
     min-height: 0;
     padding: calc(100px + var(--sc-nav-overlap)) 0 96px;
-    /* the stacked buttons push the copy lower on phones: stretch the ramp
-       further so the ghost button still sits on blue */
-    background-size: 100% 190%;
   }
   .fw-hero::after { height: 20%; }
+  .fw-hero::before {
+    background:
+      radial-gradient(ellipse 90% 50% at 50% 52%, rgba(2, 14, 52, 0.6), rgba(2, 14, 52, 0.2) 65%, transparent 90%),
+      linear-gradient(180deg, rgba(0, 4, 20, 0.35) 0%, transparent 22%);
+  }
   .fw-hero-inner { width: calc(100vw - 32px); }
   .fw-hero-eyebrow { margin-bottom: 12px; }
   .fw-hero-h1 { font-size: clamp(37px, 10.45vw, 51px); }
