@@ -147,9 +147,14 @@
   /* The dot colour cannot be a constant: white dots are invisible on a light
      ground. Resolve it from a token at attach time and again whenever the
      theme changes, so one canvas serves both themes. */
-  function token(name, fallback) {
+  /* FOUNDERS WEEK DEVIATION from marketing/shared-components.js: read the
+     token at the BUTTON, not the root, so a button inside a .sc-on-dark
+     section (hero, featured session, footer) gets the light-on-dark dots
+     instead of the page's dark ink — on navy those were invisible. Upstream
+     candidate. */
+  function token(name, fallback, el) {
     try {
-      var v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+      var v = getComputedStyle(el || document.documentElement).getPropertyValue(name).trim();
       return v || fallback;
     } catch (e) { return fallback; }
   }
@@ -164,9 +169,9 @@
     canvas.className = 'btn-pixel-canvas';
     btn.insertBefore(canvas, btn.firstChild);
     var ctx = canvas.getContext('2d');
-    var color = token(varName, fallback);
+    var color = token(varName, fallback, btn);
     document.addEventListener('sc-themechange', function () {
-      color = token(varName, fallback);
+      color = token(varName, fallback, btn);
       draw();
     });
     var spacing = 4, dot = 2, cols = 0, rows = 0, noise = [];

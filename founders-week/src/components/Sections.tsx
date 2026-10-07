@@ -1,6 +1,6 @@
 import type React from 'react';
 import { useEffect, useRef, useState } from 'react';
-import { BOLT_URL, competition, faqs, footerCta, sessions, templates, TERMS_PATH, timeline, weekend } from '../config';
+import { BOLT_URL, competition, faqs, footerCta, sessions, templates, TERMS_PATH, timeline, weekend, type Session } from '../config';
 import { getGallery, isPreview, type GalleryEntry } from '../lib/api';
 import { EntryForm, JoinForm } from './Forms';
 import { BgVideo, Btn, BoltLogo, PixelField, SectionHeader, Tbc, type WaveFn } from './ui';
@@ -133,7 +133,108 @@ export function Weekend() {
 }
 
 /* ── Schedule ─────────────────────────────────────────────────────────────── */
+/* "Starts in 12d 04h 31m" → "Live now" → "Ended", ticking once a minute */
+function useCountdown(start?: string, end?: string) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!start) return;
+    const id = setInterval(() => setNow(Date.now()), 30_000);
+    return () => clearInterval(id);
+  }, [start]);
+  if (!start || !end) return null;
+  const s = Date.parse(start);
+  const e = Date.parse(end);
+  if (now >= e) return { state: 'ended' as const, parts: [] };
+  if (now >= s) return { state: 'live' as const, parts: [] };
+  let m = Math.floor((s - now) / 60000);
+  const d = Math.floor(m / 1440);
+  m -= d * 1440;
+  const h = Math.floor(m / 60);
+  m -= h * 60;
+  return { state: 'soon' as const, parts: [[d, 'd'], [h, 'h'], [m, 'm']] as [number, string][] };
+}
+
+const gcalDate = (iso: string) => iso.replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+
+function calendarLinks(s: Session) {
+  if (!s.start || !s.end) return null;
+  const details = `${s.blurb}\n\nFounders Week on Bolt.`;
+  const google =
+    'https://calendar.google.com/calendar/render?action=TEMPLATE' +
+    `&text=${encodeURIComponent(s.title)}` +
+    `&dates=${gcalDate(s.start)}/${gcalDate(s.end)}` +
+    `&details=${encodeURIComponent(details)}`;
+  const ics = [
+    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Bolt//Founders Week//EN', 'BEGIN:VEVENT',
+    `UID:${gcalDate(s.start)}-founders-week@bolt.new`, `DTSTAMP:${gcalDate(s.start)}`,
+    `DTSTART:${gcalDate(s.start)}`, `DTEND:${gcalDate(s.end)}`,
+    `SUMMARY:${s.title}`, `DESCRIPTION:${details.replace(/\n/g, '\\n')}`, 'END:VEVENT', 'END:VCALENDAR',
+  ].join('\r\n');
+  return { google, ics: 'data:text/calendar;charset=utf-8,' + encodeURIComponent(ics) };
+}
+
+function FeaturedSession({ s }: { s: Session }) {
+  const cd = useCountdown(s.start, s.end);
+  const cal = calendarLinks(s);
+  const [dow, mon, dayNum] = s.day.split(' ');
+  return (
+    <article className="fw-feature sc-on-dark">
+      <PixelField wave={featureWave} spacing={8} dot={2} opacity={0.85} className="fw-feature-field" color="140,190,255" />
+      <div className="fw-feature-date" aria-label={`${s.day}, ${s.time}`}>
+        <span className="fw-feature-mon">{mon}</span>
+        <span className="fw-feature-day">{dayNum}</span>
+        <span className="fw-feature-dow">{dow} · {s.time}</span>
+      </div>
+      <div className="fw-feature-body">
+        <span className="fw-feature-kicker">
+          <span className="fw-live-dot" aria-hidden="true" />
+          {cd?.state === 'live' ? 'Live now' : 'Confirmed'}
+        </span>
+        <h3 className="fw-feature-title">{s.title}</h3>
+        <p className="fw-feature-blurb">{s.blurb}</p>
+        <span className="fw-feature-host">{s.host}</span>
+      </div>
+      <div className="fw-feature-side">
+        {cd?.state === 'soon' && (
+          <div className="fw-countdown" aria-label="Time until the session starts">
+            <span className="fw-countdown-label">Starts in</span>
+            <div className="fw-countdown-row">
+              {cd.parts.map(([n, u]) => (
+                <span key={u} className="fw-countdown-cell">
+                  <b>{String(n).padStart(2, '0')}</b>
+                  <i>{u}</i>
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+        {cal && cd?.state !== 'ended' && (
+          <div className="fw-feature-cta">
+            <Btn href={cal.google} variant="ghost" external>
+              Add to Calendar
+            </Btn>
+            <a className="fw-feature-ics" href={cal.ics} download="founder-qa-eric-pai.ics">
+              Apple / Outlook (.ics)
+            </a>
+          </div>
+        )}
+      </div>
+    </article>
+  );
+}
+
+const featureWave: WaveFn = (c, r, t, phase, cols, rows) => {
+  const x = c / cols;
+  const y = r / rows;
+  const d = Math.max(0, 1 - Math.hypot((1 - x) * 1.1, y * 1.3));
+  const w = Math.sin(x * 9 - y * 5 - t / 700) * 0.5 + 0.5;
+  return d * d * w * (Math.sin(t / 600 + phase) * 0.25 + 0.75);
+};
+
 export function Schedule() {
+  const [featured, ...rest] = sessions.some((s) => !s.tbc)
+    ? [sessions.find((s) => !s.tbc)!, ...sessions.filter((s) => s.tbc)]
+    : [undefined, ...sessions];
   return (
     <section className="fw-section fw-section--schedule" id="schedule">
       <div className="fw-inner">
@@ -142,22 +243,22 @@ export function Schedule() {
           title="A week of founder sessions"
           subtitle="Live Q&As, workshops and feedback hours. Join Founders Week and we will send you the links."
         />
-        <div className="fw-sessions">
-          {sessions.map((s) => (
-            <div key={s.title} className={`fw-session${s.tbc ? ' is-tbc' : ''}`}>
-              <div className="fw-session-when">
-                <span className="fw-session-day">{s.day}</span>
-                <span className="fw-session-time">{s.time}</span>
-              </div>
-              <div className="fw-session-what">
-                <h3 className="fw-session-title">
-                  {s.title}
+        {featured && <FeaturedSession s={featured} />}
+        <div className="fw-grid fw-grid--3 fw-session-cards">
+          {rest.map((s, i) => (
+            s && (
+              <article key={s.title} className="fw-card fw-session-card">
+                <PixelField wave={cornerWave} spacing={9} dot={2} opacity={0.5} className="fw-card-field" />
+                <span className="fw-card-num">{String(i + 2).padStart(2, '0')}</span>
+                <span className="fw-session-when">
+                  {s.day === 'Date TBC' ? 'Date and time soon' : `${s.day} · ${s.time}`}
                   {s.tbc && <Tbc />}
-                </h3>
+                </span>
+                <h3 className="fw-card-title">{s.title}</h3>
+                <p className="fw-card-desc">{s.blurb}</p>
                 <span className="fw-session-host">{s.host}</span>
-              </div>
-              <span className={`fw-session-tag${s.tbc ? '' : ' is-confirmed'}`}>{s.tbc ? 'Details soon' : 'Confirmed'}</span>
-            </div>
+              </article>
+            )
           ))}
         </div>
       </div>

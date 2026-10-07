@@ -79,13 +79,47 @@ export const weekend = {
     'Rate limits apply. The free allowance is only available Sat Oct 17 and Sun Oct 18 and can only be used on the free weekend model.',
 };
 
-export type Session = { day: string; time: string; title: string; host: string; tbc?: boolean };
+export type Session = {
+  day: string;
+  time: string;
+  title: string;
+  host: string;
+  blurb: string;
+  /* ISO start/end — set once confirmed; drives the countdown and calendar link */
+  start?: string;
+  end?: string;
+  tbc?: boolean;
+};
 
+/* Descriptions are from the CX program page (Notion). Only the Eric & Pai
+   Q&A is confirmed; the rest need dates and times. */
 export const sessions: Session[] = [
-  { day: 'Tue Oct 20', time: '10–11am PT', title: 'Founder Q&A with Eric & Pai', host: 'Bolt co-founders' },
-  { day: 'Date TBC', time: 'Time TBC', title: 'Live growth workshop', host: 'Enrique, Bolt', tbc: true },
-  { day: 'Date TBC', time: 'Time TBC', title: 'Founder AMA', host: 'Bolt team', tbc: true },
-  { day: 'Date TBC', time: 'Time TBC', title: 'Feedback hours: bring your product', host: 'Bolt team and peers', tbc: true },
+  {
+    day: 'Tue Oct 20',
+    time: '10–11am PT',
+    title: 'Founder Q&A with Eric & Pai',
+    host: 'Bolt co-founders',
+    blurb: 'An hour with Bolt’s co-founders on building a startup, from the first prompt to the first customer. Questions are collected in advance.',
+    start: '2026-10-20T17:00:00Z',
+    end: '2026-10-20T18:00:00Z',
+  },
+  {
+    day: 'Date TBC',
+    time: 'Time TBC',
+    title: 'Live growth workshop',
+    host: 'Enrique, Bolt',
+    blurb: 'Go-to-market, growth and getting your first users, worked through live.',
+    tbc: true,
+  },
+  { day: 'Date TBC', time: 'Time TBC', title: 'Founder AMA', host: 'Bolt team', blurb: 'Ask the Bolt team anything about building and launching on Bolt.', tbc: true },
+  {
+    day: 'Date TBC',
+    time: 'Time TBC',
+    title: 'Feedback hours',
+    host: 'Bolt team and peers',
+    blurb: 'Bring your product and get live feedback from the team and other founders.',
+    tbc: true,
+  },
 ];
 
 export type FounderTemplate = {

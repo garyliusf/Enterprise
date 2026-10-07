@@ -406,33 +406,80 @@ img, svg { display: block; }
   .fw-submit { width: 100%; padding: 0 26px; font-size: 16px; }
 }
 
-/* ── Schedule ───────────────────────────────────────────────────────────── */
-.fw-sessions { border-top: 1px solid var(--sc-line); }
-.fw-session {
-  display: grid; grid-template-columns: 200px 1fr auto; gap: 24px; align-items: center;
-  padding: 28px 16px; border-bottom: 1px solid var(--sc-line);
-  transition: background-color 0.2s ease;
+/* ── Schedule ───────────────────────────────────────────────────────────
+   One featured card for the confirmed session (dark navy in both themes,
+   live dot field, big date, countdown, calendar CTA) over a row of
+   compliance-treatment cards for the sessions still being scheduled. */
+.fw-feature {
+  position: relative; overflow: hidden; isolation: isolate;
+  display: grid; grid-template-columns: 168px minmax(0, 1fr) auto; gap: 40px; align-items: center;
+  padding: 40px; margin-bottom: 16px; border-radius: 2px;
+  border: 1px solid rgba(20, 136, 252, 0.45);
+  background:
+    radial-gradient(ellipse 60% 120% at 100% 0%, rgba(20, 136, 252, 0.35), transparent 70%),
+    linear-gradient(135deg, #021a57 0%, #04246c 45%, #0a3f9e 100%);
+  color: #fff;
 }
-.fw-session:hover { background: var(--sc-hover-tint); }
-.fw-session-when { display: flex; flex-direction: column; gap: 4px; }
-.fw-session-day { font-size: 15px; font-weight: 600; color: var(--sc-ink); }
-.fw-session-time { font-size: 14px; color: var(--sc-text-muted); }
-.fw-session-title { font-size: 20px; font-weight: 500; letter-spacing: -0.3px; line-height: 1.3; }
-.fw-session-host { display: block; margin-top: 4px; font-size: 14px; color: var(--sc-text-muted); }
-.fw-session-tag {
-  font: 700 11px/1 var(--sc-font-label); letter-spacing: 1.5px; text-transform: uppercase;
-  padding: 7px 10px; border-radius: 2px; color: var(--sc-text-faint); border: 1px solid var(--sc-line);
-  /* one width for every state, so the column lines up ("Details soon" is the longest label) */
-  min-width: 128px; text-align: center; justify-self: end;
+.fw-feature-field { z-index: 0; }
+.fw-feature > :not(.fw-pixel-field) { position: relative; z-index: 1; }
+.fw-feature-date {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  height: 168px; border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 2px;
+  background: rgba(0, 4, 20, 0.28);
 }
-.fw-session-tag.is-confirmed { color: #fff; background: var(--sc-blue); border-color: var(--sc-blue); }
-.fw-session.is-tbc .fw-session-day, .fw-session.is-tbc .fw-session-time { color: var(--sc-text-faint); font-weight: 500; }
+.fw-feature-mon { font: 700 13px/1 var(--sc-font-label); letter-spacing: 2px; text-transform: uppercase; color: #8cc4ff; }
+.fw-feature-day { margin: 6px 0 8px; font-size: 72px; font-weight: 300; line-height: 0.85; letter-spacing: -3px; }
+.fw-feature-dow { font-size: 13px; color: rgba(255, 255, 255, 0.7); }
+.fw-feature-kicker {
+  display: inline-flex; align-items: center; gap: 8px; margin-bottom: 12px;
+  font: 700 13px/1 var(--sc-font-label); letter-spacing: 2px; text-transform: uppercase; color: #8cc4ff;
+}
+.fw-feature-title { font-size: clamp(24px, 2.4vw, 32px); font-weight: 500; letter-spacing: -0.6px; line-height: 1.2; }
+.fw-feature-blurb { margin-top: 10px; max-width: 520px; font-size: 15px; line-height: 1.6; color: rgba(255, 255, 255, 0.75); }
+.fw-feature-host { display: block; margin-top: 14px; font-size: 13px; color: rgba(255, 255, 255, 0.6); }
+.fw-feature-side { display: flex; flex-direction: column; align-items: flex-end; gap: 20px; }
+.fw-countdown { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.fw-countdown-label { font: 700 11px/1 var(--sc-font-label); letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255, 255, 255, 0.6); }
+.fw-countdown-row { display: flex; gap: 6px; }
+.fw-countdown-cell {
+  display: flex; align-items: baseline; gap: 2px; padding: 10px 12px; border-radius: 2px;
+  background: rgba(0, 4, 20, 0.35); border: 1px solid rgba(255, 255, 255, 0.14);
+  font-variant-numeric: tabular-nums;
+}
+.fw-countdown-cell b { font-size: 28px; font-weight: 300; letter-spacing: -1px; line-height: 1; }
+.fw-countdown-cell i { font-style: normal; font-size: 12px; color: rgba(255, 255, 255, 0.6); }
+.fw-feature-cta { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+.fw-feature .hero-btn-ghost { border-color: rgba(255, 255, 255, 0.45); color: #fff; background: rgba(2, 14, 52, 0.28); min-width: var(--cta-min-w); }
+.fw-feature .hero-btn-ghost:hover { border-color: rgba(255, 255, 255, 0.75); }
+.fw-feature-ics { font-size: 12px; color: rgba(255, 255, 255, 0.6); text-decoration: underline; text-underline-offset: 3px; }
+.fw-feature-ics:hover { color: #fff; }
+
+.fw-session-when {
+  display: block; margin-bottom: 10px;
+  font: 700 13px/1.4 var(--sc-font-label); letter-spacing: 2px; text-transform: uppercase; color: var(--sc-text-faint);
+}
+.fw-session-host { display: block; margin-top: 16px; font-size: 13px; color: var(--sc-text-muted); }
+.fw-session-card { display: flex; flex-direction: column; }
+.fw-session-card .fw-card-desc { flex: 1; }
+
+@media (max-width: 1024px) {
+  .fw-feature { grid-template-columns: 140px minmax(0, 1fr); gap: 28px; padding: 32px; }
+  .fw-feature-date { height: 140px; }
+  .fw-feature-day { font-size: 60px; }
+  .fw-feature-side { grid-column: 1 / -1; flex-direction: row; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+  .fw-countdown { align-items: flex-start; }
+  .fw-feature-cta { flex-direction: row; align-items: center; gap: 16px; }
+  .fw-session-cards { grid-template-columns: repeat(3, 1fr); }
+}
 @media (max-width: 768px) {
-  .fw-session { grid-template-columns: 1fr auto; gap: 8px 16px; padding: 22px 0; }
-  .fw-session-when { grid-column: 1 / -1; flex-direction: row; gap: 8px; }
-  .fw-session-when .fw-session-time::before { content: '·'; margin-right: 8px; }
-  .fw-session-title { font-size: 18px; }
-  .fw-session-tag { align-self: start; }
+  .fw-feature { grid-template-columns: 1fr; gap: 24px; padding: 24px 20px; }
+  .fw-feature-date { flex-direction: row; justify-content: flex-start; align-items: baseline; gap: 10px; height: auto; padding: 14px 16px; }
+  .fw-feature-day { font-size: 44px; margin: 0; letter-spacing: -2px; }
+  .fw-feature-side { flex-direction: column; align-items: stretch; }
+  .fw-feature-cta { flex-direction: column; align-items: stretch; }
+  .fw-feature .hero-btn-ghost { width: 100%; }
+  .fw-feature-ics { align-self: center; }
+  .fw-session-cards { grid-template-columns: 1fr; }
 }
 
 /* ── Templates — the catalog card (marketing/templates/index.html) ───────
