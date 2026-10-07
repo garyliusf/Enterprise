@@ -5,7 +5,7 @@ import { BoltLogo, Btn } from './ui';
 const LINKS = [
   { href: '#weekend', label: 'Build Weekend' },
   { href: '#schedule', label: 'Sessions' },
-  { href: '#compete', label: 'Competition' },
+  { href: '#compete', label: 'Contest' },
   { href: '#faq', label: 'FAQ' },
 ];
 

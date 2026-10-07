@@ -6,6 +6,7 @@ type Status = 'idle' | 'sending' | 'done' | 'error';
 
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 const URL_RE = /^https?:\/\/\S+\.\S+/i;
+const VIDEO_RE = /^https?:\/\/(www\.|m\.)?(youtube\.com|youtu\.be|x\.com|twitter\.com)\/\S+/i;
 
 function Field({
   label,
@@ -90,10 +91,10 @@ export function JoinForm() {
         <span className="fw-done-mark" aria-hidden="true" />
         <h3 className="fw-done-title">You are in, {name.trim().split(' ')[0] || 'founder'}.</h3>
         <p className="fw-done-body">
-          {message || 'We will email you the session links before the weekend. Building something to show? Enter the competition below.'}
+          {message || 'We will email you the session links before the weekend. Building something new? Enter the contest below.'}
         </p>
         <a className="fw-text-link" href="#compete">
-          Enter the competition <i className="fw-arrow" aria-hidden="true" />
+          Enter the contest <i className="fw-arrow" aria-hidden="true" />
         </a>
       </div>
     );
@@ -137,7 +138,7 @@ export function JoinForm() {
   );
 }
 
-/* ── Competition entry ───────────────────────────────────────────────────── */
+/* ── Contest entry ───────────────────────────────────────────────────── */
 
 export function EntryForm() {
   const [v, setV] = useState({
@@ -146,8 +147,10 @@ export function EntryForm() {
     product_name: '',
     product_url: '',
     bolt_project_url: '',
+    demo_video_url: '',
     tagline: '',
     description: '',
+    team_name: '',
     social_handle: '',
   });
   const [agree, setAgree] = useState(false);
@@ -161,10 +164,10 @@ export function EntryForm() {
     const n: Record<string, string> = {};
     if (!v.name.trim()) n.name = 'Add your name.';
     if (!EMAIL_RE.test(v.email.trim())) n.email = 'Add a valid email address.';
-    if (!v.product_name.trim()) n.product_name = 'Name your product.';
+    if (!v.product_name.trim()) n.product_name = 'Name your app.';
     if (!URL_RE.test(v.product_url.trim())) n.product_url = 'Add the live link, starting with https://';
-    if (v.bolt_project_url.trim() && !URL_RE.test(v.bolt_project_url.trim()))
-      n.bolt_project_url = 'This needs to be a full link, starting with https://';
+    if (!URL_RE.test(v.bolt_project_url.trim())) n.bolt_project_url = 'Add the Bolt project link, starting with https://';
+    if (!VIDEO_RE.test(v.demo_video_url.trim())) n.demo_video_url = 'Add a public YouTube or X link.';
     if (!v.tagline.trim()) n.tagline = 'Describe it in one line.';
     if (!v.description.trim()) n.description = 'Tell us a little more.';
     if (!agree) n.agree = 'Accept the rules to enter.';
@@ -184,9 +187,11 @@ export function EntryForm() {
         email: v.email,
         product_name: v.product_name.trim(),
         product_url: v.product_url.trim(),
-        bolt_project_url: v.bolt_project_url.trim() || undefined,
+        bolt_project_url: v.bolt_project_url.trim(),
+        demo_video_url: v.demo_video_url.trim(),
         tagline: v.tagline.trim(),
         description: v.description.trim(),
+        team_name: v.team_name.trim() || undefined,
         social_handle: v.social_handle.trim() || undefined,
       });
       setStatus('done');
@@ -207,7 +212,7 @@ export function EntryForm() {
         <span className="fw-done-mark" aria-hidden="true" />
         <h3 className="fw-done-title">{v.product_name.trim()} is entered.</h3>
         <p className="fw-done-body">
-          Your entry shows up in the gallery once it has been reviewed. Winners are announced the week after entries close on Oct 24.
+          Your entry shows up in the gallery once it has been reviewed. Judging runs Oct 21 to 31, and winners are announced on or about Oct 31.
         </p>
       </div>
     );
@@ -224,7 +229,7 @@ export function EntryForm() {
         </Field>
       </div>
       <div className="fw-form-row">
-        <Field label="Product name" error={errors.product_name}>
+        <Field label="App name" error={errors.product_name}>
           <input value={v.product_name} onChange={set('product_name')} maxLength={80} />
         </Field>
         <Field label="Live link" error={errors.product_url} hint="Your bolt.host or custom domain.">
@@ -234,12 +239,24 @@ export function EntryForm() {
       <Field label="One-line description" error={errors.tagline}>
         <input value={v.tagline} onChange={set('tagline')} maxLength={120} placeholder="What it does, for whom" />
       </Field>
-      <Field label="Tell us about it" error={errors.description} hint="Who uses it, what you are proud of, what is next.">
+      <Field
+        label="Tell us about it"
+        error={errors.description}
+        hint="What it does and its features. List any tools besides Bolt you used, as the rules require."
+      >
         <textarea value={v.description} onChange={set('description')} rows={5} maxLength={1200} />
       </Field>
       <div className="fw-form-row">
-        <Field label="Bolt project link" optional error={errors.bolt_project_url} hint="Helps the judges see how it was built.">
+        <Field label="Bolt project link" error={errors.bolt_project_url} hint="The project you built the app in.">
           <input type="url" value={v.bolt_project_url} onChange={set('bolt_project_url')} placeholder="https://bolt.new/~/" />
+        </Field>
+        <Field label="Demo video" error={errors.demo_video_url} hint="Up to five minutes, public on YouTube or X.">
+          <input type="url" value={v.demo_video_url} onChange={set('demo_video_url')} placeholder="https://youtube.com/…" />
+        </Field>
+      </div>
+      <div className="fw-form-row">
+        <Field label="Team or organization" optional hint="If you are entering on behalf of one.">
+          <input value={v.team_name} onChange={set('team_name')} maxLength={120} />
         </Field>
         <Field label="X or LinkedIn" optional>
           <input value={v.social_handle} onChange={set('social_handle')} maxLength={80} placeholder="@handle" />
@@ -248,16 +265,16 @@ export function EntryForm() {
       <label className={`fw-check${errors.agree ? ' has-error' : ''}`}>
         <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} />
         <span>
-          I built this product in Bolt and I accept the{' '}
+          I am 18 or older, I built this app primarily in Bolt during the contest period, and I accept the{' '}
           <a className="fw-text-link" href={TERMS_PATH} target="_blank" rel="noopener">
-            competition rules
+            official rules
           </a>
           .
         </span>
       </label>
       {errors.agree && <span className="fw-field-error">{errors.agree}</span>}
       <div className="fw-form-foot">
-        <Submit status={status}>Submit Your Product</Submit>
+        <Submit status={status}>Submit Your App</Submit>
         {status === 'error' && <p className="fw-form-error" role="alert">{message}</p>}
       </div>
       <PreviewNote />

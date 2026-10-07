@@ -23,9 +23,12 @@ create table if not exists public.entries (
   email text not null unique check (email ~* '^[^@\s]+@[^@\s]+\.[^@\s]+$'),
   product_name text not null check (char_length(product_name) between 1 and 80),
   product_url text not null check (product_url ~* '^https?://'),
-  bolt_project_url text check (bolt_project_url is null or bolt_project_url ~* '^https?://'),
+  bolt_project_url text not null check (bolt_project_url ~* '^https?://'),
+  -- the rules require a public demo video (<= 5 min) on YouTube or X
+  demo_video_url text not null check (demo_video_url ~* '^https?://((www|m)\.)?(youtube\.com|youtu\.be|x\.com|twitter\.com)/'),
   tagline text not null check (char_length(tagline) between 1 and 120),
   description text not null check (char_length(description) between 1 and 1200),
+  team_name text check (char_length(team_name) <= 120),
   social_handle text check (char_length(social_handle) <= 80),
   approved_at timestamptz,
   starred boolean not null default false

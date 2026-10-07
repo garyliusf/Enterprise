@@ -66,7 +66,7 @@ export function Join() {
           <ul className="fw-ticks">
             <li>Free unlimited building on Oct 17 and 18</li>
             <li>Live sessions with the founders and the Bolt team</li>
-            <li>A shot at the founder competition</li>
+            <li>A shot at the $17,500 founder contest</li>
           </ul>
         </div>
         <div className="fw-form-card">
@@ -142,10 +142,10 @@ export function Templates() {
           eyebrow="Founder templates"
           title={
             <>
-              Ten templates to start from {templates.tbc && <Tbc />}
+              Templates to start from {templates.tbc && <Tbc />}
             </>
           }
-          subtitle="A starter kit for founders, built in Bolt. They drop before the build weekend, so you can open one and start building on Saturday morning."
+          subtitle="A starter kit for founders, built in Bolt. Open one, make it yours, and start building on Saturday morning."
         />
         <div className="fw-templates">
           {templates.items.map((t, i) => {
@@ -226,7 +226,7 @@ export function Competition() {
             <div key={p.place} className={`fw-prize${i === 0 ? ' is-first' : ''}`}>
               {i === 0 && <PixelField wave={cornerWave} spacing={8} dot={2} opacity={0.7} className="fw-card-field is-on" />}
               <span className="fw-prize-place">
-                {p.place} place
+                {p.place}
                 {competition.prizesTbc && <Tbc />}
               </span>
               <span className="fw-prize-amount">{p.amount}</span>
@@ -235,9 +235,9 @@ export function Competition() {
           ))}
         </div>
         <p className="fw-fine">
-          {competition.prizeFinePrint}{' '}
+          {competition.criteria} {competition.prizeFinePrint}{' '}
           <a className="fw-text-link" href={TERMS_PATH} target="_blank" rel="noopener">
-            Read the rules
+            Read the official rules
           </a>
         </p>
 
@@ -251,8 +251,11 @@ export function Competition() {
 
         <div className="fw-enter" id="enter">
           <div className="fw-enter-head">
-            <h3 className="fw-subhead-title">Enter the competition</h3>
-            <p className="section-sub">Existing products count. No pitch needed, just the live product and a few lines about it.</p>
+            <h3 className="fw-subhead-title">Enter the contest</h3>
+            <p className="section-sub">
+              Submissions are open Oct 13 to Oct 20. You need the live app, its Bolt project link and a public demo video of up to
+              five minutes on YouTube or X.
+            </p>
           </div>
           <div className="fw-form-card fw-form-card--wide">
             <EntryForm />
@@ -332,7 +335,7 @@ export function SiteFooter() {
           <BoltLogo />
         </a>
         <nav className="fw-footer-links" aria-label="Footer">
-          <a href={TERMS_PATH}>Competition Rules</a>
+          <a href={TERMS_PATH}>Contest Rules</a>
           <a href="https://stackblitz.com/terms-of-service" target="_blank" rel="noopener">
             Terms of Use
           </a>
