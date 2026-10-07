@@ -714,39 +714,47 @@
        dropdown hid the tier list, the tier you're on and the price delta;
        it's now an inline slider — 14 tier ticks, a ring on the subscribed
        tier, live price, and a +/− per-month delta before you commit. */
-    .token-picker { position: relative; z-index: 30; display: flex; flex-direction: column; gap: 6px; margin: 8px 0 0; }
+    .token-picker {
+      position: relative; z-index: 30; display: flex; flex-direction: column; gap: 6px; margin: 8px 0 0;
+      /* chip handle size (Qian/Gary, 2026-10-07: +10% desktop, +20% phones,
+         from 44x22 / 11px) — the thumb, tick inset and placeChip() follow it */
+      --chip-w: 48px; --chip-h: 24px; --chip-fs: 12px;
+    }
+    @media (max-width: 768px) { .token-picker { --chip-w: 53px; --chip-h: 26px; --chip-fs: 13px; } }
     .token-picker[hidden] { display: none; }
+    /* 13px primary ink (Qian, 2026-10-07: 11px grey was easy to miss) */
     .token-label {
       margin: 0;
-      font-size: 11px;
+      font-size: 13px;
+      font-weight: 500;
       line-height: 1.3;
       white-space: nowrap;
-      color: rgba(255,255,255,0.5);
+      color: #fff;
     }
     .token-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
-    .token-slider { position: relative; height: 26px; display: flex; align-items: center; }
-    /* tick strip is inset by half the 16px thumb so each tick sits under the
-       thumb centre at its stop (a native range keeps the thumb inside the track) */
-    .token-ticks { position: absolute; left: 22px; right: 22px; top: 50%; height: 0; pointer-events: none; }
+    .token-slider { position: relative; height: calc(var(--chip-h) + 4px); display: flex; align-items: center; }
+    /* tick strip is inset by half a chip so each tick sits under the thumb
+       centre at its stop (a native range keeps the thumb inside the track) */
+    .token-ticks { position: absolute; left: calc(var(--chip-w) / 2); right: calc(var(--chip-w) / 2); top: 50%; height: 0; pointer-events: none; }
     .token-tick { position: absolute; top: 0; width: 2px; height: 2px; margin-top: -1px; background: rgba(255,255,255,0.35); transform: translateX(-50%); }
     /* the tier you're subscribed to — a brand ring the thumb can sit on */
     .token-tick--current { width: 8px; height: 8px; margin-top: -4px; background: #0a0a0a; border: 2px solid #1488FC; border-radius: 50%; box-sizing: border-box; }
-    .token-range { -webkit-appearance: none; appearance: none; width: 100%; height: 26px; margin: 0; background: transparent; cursor: pointer; }
+    .token-range { -webkit-appearance: none; appearance: none; width: 100%; height: calc(var(--chip-h) + 4px); margin: 0; background: transparent; cursor: pointer; }
     .token-range:focus-visible { outline: 2px solid rgba(20,136,252,0.6); outline-offset: 4px; }
     .token-range::-webkit-slider-runnable-track { height: 3px; background: linear-gradient(to right, #1488FC var(--fill, 0%), rgba(255,255,255,0.14) var(--fill, 0%)); }
     /* the native thumb is an invisible 44x22 hit area; the visible handle is
        .token-chip, positioned over it by the script (Gary, 2026-10-06:
        value-chip handle — it carries the tier, so no separate readout) */
-    .token-range::-webkit-slider-thumb { -webkit-appearance: none; width: 44px; height: 22px; margin-top: -9.5px; background: transparent; border: 0; }
+    .token-range::-webkit-slider-thumb { -webkit-appearance: none; width: var(--chip-w); height: var(--chip-h); margin-top: calc((3px - var(--chip-h)) / 2); background: transparent; border: 0; }
     .token-range::-moz-range-track { height: 3px; background: rgba(255,255,255,0.14); }
     .token-range::-moz-range-progress { height: 3px; background: #1488FC; }
-    .token-range::-moz-range-thumb { width: 44px; height: 22px; background: transparent; border: 0; }
+    .token-range::-moz-range-thumb { width: var(--chip-w); height: var(--chip-h); background: transparent; border: 0; }
     .token-chip {
       position: absolute; top: 50%; z-index: 2;
-      width: 44px; height: 22px; margin-top: -11px; transform: translateX(-50%);
+      width: var(--chip-w); height: var(--chip-h); margin-top: calc(var(--chip-h) / -2); transform: translateX(-50%);
       display: flex; align-items: center; justify-content: center;
       background: #1488FC; color: #fff; border-radius: 2px;
-      font-size: 11px; font-weight: 600; letter-spacing: 0.2px; white-space: nowrap;
+      font-size: var(--chip-fs); font-weight: 600; letter-spacing: 0.2px; white-space: nowrap;
       box-shadow: 0 2px 8px rgba(0,0,0,0.45);
       pointer-events: none;   /* drags go through to the range input */
     }
@@ -932,7 +940,8 @@
     html[data-theme="light"] .workspace-menu li { color: rgba(var(--sc-ink-rgb),0.75); }
     html[data-theme="light"] .workspace-menu li:hover { background: rgba(var(--sc-ink-rgb),0.05); color: var(--sc-ink); }
     html[data-theme="light"] .workspace-menu li[aria-selected="true"] { color: var(--sc-ink); background: rgba(20,136,252,0.08); }
-    html[data-theme="light"] .token-label, html[data-theme="light"] .token-current { color: var(--sc-text-muted); }
+    html[data-theme="light"] .token-current { color: var(--sc-text-muted); }
+    html[data-theme="light"] .token-label { color: var(--sc-ink); }
     html[data-theme="light"] .token-current strong { color: var(--sc-ink); }
     html[data-theme="light"] .token-current-hl, html[data-theme="light"] .token-current-hl strong { color: #1488FC; }
     html[data-theme="light"] .token-tick { background: rgba(var(--sc-ink-rgb),0.3); }
@@ -5089,12 +5098,13 @@ window.__pageOwnsScrollAnims = true;
       /* "1200M" reads as "1.2B", matching the scale under the slider */
       function tierLabel(t) { var n = parseFloat(t); return n >= 1000 ? +(n / 1000).toFixed(2) + 'B' : t; }
       /* the chip sits over the invisible native thumb: the thumb centre runs
-         from 22px to (width - 22px) across the track */
+         from half a chip to (width − half a chip) across the track */
       function placeChip(picker) {
         var range = picker.querySelector('[data-range]'), chip = picker.querySelector('.token-chip');
         if (!range || !chip) return;
         var f = (+range.value) / (+range.max || 1);
-        chip.style.left = (f * (range.offsetWidth - 44) + 22) + 'px';
+        var w = chip.offsetWidth || 48;   /* --chip-w: 48 desktop, 53 phones */
+        chip.style.left = (f * (range.offsetWidth - w) + w / 2) + 'px';
       }
       window.addEventListener('resize', function () {
         document.querySelectorAll('[data-picker]').forEach(function (p) { if (!p.hidden) placeChip(p); });
