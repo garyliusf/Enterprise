@@ -179,9 +179,22 @@ export function Templates() {
               style={{ '--i': i } as React.CSSProperties}
             >
               <div className="fw-tcard-preview" aria-hidden="true">
-                {t.shot ? (
+                {t.shot && t.fill ? (
+                  <img className="fw-tcard-fill" src={t.shot} alt="" loading="eager" decoding="async" />
+                ) : t.shot ? (
                   <div className="fw-tcard-shot-wrap">
-                    <img className="fw-tcard-shot" src={t.shot} alt="" width={800} height={2245} loading="eager" decoding="async" />
+                    <img
+                      className="fw-tcard-shot"
+                      src={t.shot}
+                      alt=""
+                      width={t.w ?? 800}
+                      height={t.h ?? 2245}
+                      /* eager, like the catalog: a lazy shot inside a clipped,
+                         absolutely positioned wrap can miss its load and leave
+                         an empty card */
+                      loading="eager"
+                      decoding="async"
+                    />
                   </div>
                 ) : (
                   <TemplateMock seed={i} />

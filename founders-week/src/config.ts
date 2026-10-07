@@ -96,6 +96,11 @@ export type FounderTemplate = {
      (e.g. '/templates/waitlist.webp', 800px wide). Without one the card shows
      a placeholder page mock. */
   shot?: string;
+  /* intrinsic size of the shot (defaults to the 800x2245 capture format) */
+  w?: number;
+  h?: number;
+  /* single-screen app view: cover-fill the card, no hover drift (catalog `fill`) */
+  fill?: boolean;
   tag?: string;
 };
 
@@ -133,6 +138,17 @@ export const templates = {
       shot: '/templates/hvac.webp',
       tag: 'Services',
     },
+    /* The first 8 of the templates catalog (marketing/templates), in catalog
+       order. Names, tags and shots are the catalog's; the "Open in Bolt" fork
+       links are production's (bolt-public-pages src/content/templates/*.json). */
+    { name: 'Architect Portfolio', blurb: 'A quiet, typographic studio site.', url: 'https://bolt.new/fork/github-gf8uflaz', shot: '/templates/catalog/architect-portfolio.webp', tag: 'Portfolio' },
+    { name: 'SaaS Landing', blurb: 'Metrics, feature grid, and pricing.', url: 'https://bolt.new/fork/github-xtrskmb3', shot: '/templates/catalog/premium-saas-dashboard-lp.webp', h: 3339, tag: 'SaaS' },
+    { name: 'Finance Tracker', blurb: 'Budgeting with cash-flow charts.', url: 'https://bolt.new/fork/github-7mpvjfb3', shot: '/templates/catalog/ledger-finance.webp', w: 1100, h: 1447, fill: true, tag: 'Apps' },
+    { name: 'Travel Journal', blurb: 'Destinations and atelier stories.', url: 'https://bolt.new/fork/github-mu7mffmh', shot: '/templates/catalog/maison-voyage.webp', w: 1000, h: 1458, tag: 'Editorial' },
+    { name: 'Fashion Editorial', blurb: 'A cinematic couture lookbook.', url: 'https://bolt.new/fork/github-nehpa2f2', shot: '/templates/catalog/vestige-fashion.webp', w: 1100, h: 1450, fill: true, tag: 'Editorial' },
+    { name: 'Nonprofit Site', blurb: 'Programmes, impact reporting, and donations.', url: 'https://bolt.new/fork/github-ywj4ls7k', shot: '/templates/catalog/nonprofit-website.webp', w: 1000, h: 1458, tag: 'Websites' },
+    { name: 'Space Tourism', blurb: 'Booking site for commercial spaceflight.', url: 'https://bolt.new/fork/github-rqpxpvya', shot: '/templates/catalog/astralis-space-tourism.webp', h: 3889, tag: 'Websites' },
+    { name: 'Meditation App', blurb: 'Sessions, pricing, and onboarding.', url: 'https://bolt.new/fork/github-7cctkmbu', shot: '/templates/catalog/still-meditation.webp', h: 3217, tag: 'Apps' },
   ] as FounderTemplate[],
 };
 
