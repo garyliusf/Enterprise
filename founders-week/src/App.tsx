@@ -34,9 +34,9 @@ export default function App() {
       <Nav />
       <main>
         <Hero />
+        <Weekend />
         <Timeline />
         <Join />
-        <Weekend />
         <Schedule />
         <Templates />
         <Competition />

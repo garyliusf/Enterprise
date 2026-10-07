@@ -54,12 +54,10 @@ export function Timeline() {
   return (
     <section className="fw-section fw-section--timeline" aria-label="How the week runs">
       <div className="fw-inner">
-        {/* First section after the hero: static H2, no reveal (CLAUDE.md). */}
         <SectionHeader
           eyebrow="How the week runs"
           title="Build, learn, then show it off"
           subtitle="Founders Week runs Oct 17 to 24. Join once and you are in for all of it."
-          reveal={false}
         />
         {/* The shared "How it works" step line (solutions/_template, bolt-cli):
             the line draws, a glow travels it, nodes pop and the copy rises in
@@ -155,7 +153,8 @@ export function Weekend() {
   return (
     <section className="fw-section fw-section--weekend" id="weekend">
       <div className="fw-inner">
-        <SectionHeader eyebrow={weekend.eyebrow} title={weekend.title} subtitle={weekend.subtitle} />
+        {/* First section after the hero: static H2, no reveal (CLAUDE.md). */}
+        <SectionHeader eyebrow={weekend.eyebrow} title={weekend.title} subtitle={weekend.subtitle} reveal={false} />
         <div className="fw-mosaic" ref={mosaic}>
           {MOSAIC.map((t, n) => {
             const style = { '--n': n } as React.CSSProperties;
