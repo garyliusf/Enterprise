@@ -243,9 +243,9 @@ export function Competition() {
 
         <div className="fw-subhead">
           <h3 className="fw-subhead-title">Entries</h3>
-          <a className="fw-text-link" href="#enter">
-            Submit yours <i className="fw-arrow" aria-hidden="true" />
-          </a>
+          <div className="hero-btn-group">
+            <Btn href="#enter">Submit Yours</Btn>
+          </div>
         </div>
         <Gallery />
 
