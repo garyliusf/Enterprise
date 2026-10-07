@@ -1,5 +1,5 @@
 import type React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { BOLT_URL, competition, faqs, footerCta, sessions, templates, TERMS_PATH, timeline, weekend } from '../config';
 import { getGallery, isPreview, type GalleryEntry } from '../lib/api';
 import { EntryForm, JoinForm } from './Forms';
@@ -23,6 +23,41 @@ const cornerWave: WaveFn = (c, r, t, phase, cols, rows) => {
   return d * d * w * (Math.sin(t / 650 + phase) * 0.2 + 0.8);
 };
 
+/* Wrapper for the step line: adds .line-active once 30% of it is in view
+   (same trigger as the template's script) and sets the glow's travel. */
+function HowSteps({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const wrap = ref.current;
+    if (!wrap) return;
+    const setDist = () => wrap.style.setProperty('--glow-dist', wrap.offsetWidth + 'px');
+    setDist();
+    window.addEventListener('resize', setDist);
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach((e) => {
+        if (e.isIntersecting) {
+          wrap.classList.add('line-active');
+          io.unobserve(wrap);
+        }
+      }),
+      { threshold: 0.3 },
+    );
+    io.observe(wrap);
+    return () => {
+      io.disconnect();
+      window.removeEventListener('resize', setDist);
+    };
+  }, []);
+  return (
+    <div className="how-steps-wrap" ref={ref}>
+      <div className="how-line-track" />
+      <div className="how-line-fill" />
+      <div className="how-line-glow" />
+      <div className="how-steps how-steps--four">{children}</div>
+    </div>
+  );
+}
+
 /* ── Timeline ─────────────────────────────────────────────────────────────── */
 export function Timeline() {
   return (
@@ -35,19 +70,24 @@ export function Timeline() {
           subtitle="Founders Week runs Oct 17 to 24. Join once and you are in for all of it."
           reveal={false}
         />
-        <ol className="fw-timeline">
+        {/* The shared "How it works" step line (solutions/_template, bolt-cli):
+            the line draws, a glow travels it, nodes pop and the copy rises in
+            sequence once it scrolls into view. Four steps = bolt-cli's timing. */}
+        <HowSteps>
           {timeline.map((m, i) => (
-            <li key={m.title} className="fw-milestone">
-              <span className="fw-milestone-num">{String(i + 1).padStart(2, '0')}</span>
-              <span className="fw-milestone-date">
+            <div key={m.title} className="how-step">
+              <div className="how-step-node">
+                <span className="how-step-number">{String(i + 1).padStart(2, '0')}</span>
+              </div>
+              <span className="how-step-date">
                 {m.date}
                 {m.tbc && <Tbc />}
               </span>
-              <h3 className="fw-card-title">{m.title}</h3>
-              <p className="fw-card-desc">{m.body}</p>
-            </li>
+              <h3 className="how-step-title">{m.title}</h3>
+              <p className="how-step-desc">{m.body}</p>
+            </div>
           ))}
-        </ol>
+        </HowSteps>
       </div>
     </section>
   );
