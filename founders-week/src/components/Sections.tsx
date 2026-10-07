@@ -156,26 +156,19 @@ function useCountdown(start?: string, end?: string) {
 
 const gcalDate = (iso: string) => iso.replace(/[-:]/g, '').replace(/\.\d{3}/, '');
 
-function calendarLinks(s: Session) {
+function calendarLink(s: Session) {
   if (!s.start || !s.end) return null;
-  const details = `${s.blurb}\n\nFounders Week on Bolt.`;
-  const google =
+  return (
     'https://calendar.google.com/calendar/render?action=TEMPLATE' +
     `&text=${encodeURIComponent(s.title)}` +
     `&dates=${gcalDate(s.start)}/${gcalDate(s.end)}` +
-    `&details=${encodeURIComponent(details)}`;
-  const ics = [
-    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Bolt//Founders Week//EN', 'BEGIN:VEVENT',
-    `UID:${gcalDate(s.start)}-founders-week@bolt.new`, `DTSTAMP:${gcalDate(s.start)}`,
-    `DTSTART:${gcalDate(s.start)}`, `DTEND:${gcalDate(s.end)}`,
-    `SUMMARY:${s.title}`, `DESCRIPTION:${details.replace(/\n/g, '\\n')}`, 'END:VEVENT', 'END:VCALENDAR',
-  ].join('\r\n');
-  return { google, ics: 'data:text/calendar;charset=utf-8,' + encodeURIComponent(ics) };
+    `&details=${encodeURIComponent(`${s.blurb}\n\nFounders Week on Bolt.`)}`
+  );
 }
 
 function FeaturedSession({ s }: { s: Session }) {
   const cd = useCountdown(s.start, s.end);
-  const cal = calendarLinks(s);
+  const cal = calendarLink(s);
   const [dow, mon, dayNum] = s.day.split(' ');
   return (
     <article className="fw-feature sc-on-dark">
@@ -210,12 +203,9 @@ function FeaturedSession({ s }: { s: Session }) {
         )}
         {cal && cd?.state !== 'ended' && (
           <div className="fw-feature-cta">
-            <Btn href={cal.google} variant="ghost" external>
+            <Btn href={cal} variant="ghost" external>
               Add to Calendar
             </Btn>
-            <a className="fw-feature-ics" href={cal.ics} download="founder-qa-eric-pai.ics">
-              Apple / Outlook (.ics)
-            </a>
           </div>
         )}
       </div>
