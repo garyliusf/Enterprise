@@ -328,7 +328,7 @@ export function SiteFooter() {
   return (
     <footer className="fw-site-footer">
       <div className="fw-inner fw-site-footer-row">
-        <a href={BOLT_URL} className="fw-footer-logo" target="_blank" rel="noopener" aria-label="Bolt">
+        <a href={BOLT_URL} className="fw-footer-logo" target="_blank" rel="noopener" aria-label="bolt.new">
           <BoltLogo />
         </a>
         <nav className="fw-footer-links" aria-label="Footer">
