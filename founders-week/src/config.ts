@@ -99,16 +99,40 @@ export type FounderTemplate = {
   tag?: string;
 };
 
-/* Founder templates (Bolt share links from Gary, 2026-10-07). The share
-   pages need a Bolt login to read, so names and blurbs are still TBC —
-   fill them in from the projects. Add more links as they come. */
+/* Founder templates (Bolt share links from Gary, 2026-10-07). Shots are
+   full-page captures of each project's preview at 1440px, cropped to the
+   templates catalog's 800x2245 format. */
 export const templates = {
-  tbc: true,
+  tbc: false,
   items: [
-    { name: 'Founder template 1', blurb: 'Name and description coming soon.', url: 'https://bolt.new/p/71745514' },
-    { name: 'Founder template 2', blurb: 'Name and description coming soon.', url: 'https://bolt.new/p/71745835' },
-    { name: 'Founder template 3', blurb: 'Name and description coming soon.', url: 'https://bolt.new/p/71752787' },
-    { name: 'Founder template 4', blurb: 'Name and description coming soon.', url: 'https://bolt.new/p/71752020' },
+    {
+      name: 'Landscape Studio',
+      blurb: 'Rootline: an editorial site for a design-build landscape studio.',
+      url: 'https://bolt.new/p/71745514',
+      shot: '/templates/rootline.webp',
+      tag: 'Services',
+    },
+    {
+      name: 'Lawn Care',
+      blurb: 'Mow Problems: instant quotes, plans and a service-area map.',
+      url: 'https://bolt.new/p/71745835',
+      shot: '/templates/mow.webp',
+      tag: 'Services',
+    },
+    {
+      name: 'Plumbing',
+      blurb: 'Flow State Plumbing: services, booking and recent jobs.',
+      url: 'https://bolt.new/p/71752787',
+      shot: '/templates/plumbing.webp',
+      tag: 'Services',
+    },
+    {
+      name: 'HVAC Company',
+      blurb: 'Comfort Co.: heating and cooling services, plans and reviews.',
+      url: 'https://bolt.new/p/71752020',
+      shot: '/templates/hvac.webp',
+      tag: 'Services',
+    },
   ] as FounderTemplate[],
 };
 
