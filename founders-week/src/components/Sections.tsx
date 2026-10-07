@@ -114,10 +114,12 @@ export function Join() {
    Tile order = DOM order; desktop placement is explicit per slot (page.css
    .fw-mosaic > :nth-child), tablet/phone fall back to spans + dense flow.
    'p' = photo (index into weekend.photos, wraps), 'c' = card (index). */
+/* photo indices are arranged so a repeat never touches its twin; the
+   workshop shot is cropped vertical in the tall top-right slot (Gary) */
 const MOSAIC: ({ k: 'p'; i: number } | { k: 'c'; i: number })[] = [
   { k: 'p', i: 0 },
   { k: 'c', i: 0 },
-  { k: 'p', i: 1 },
+  { k: 'p', i: 3 },
   { k: 'p', i: 2 },
   { k: 'c', i: 1 },
   { k: 'p', i: 1 },
@@ -161,7 +163,14 @@ export function Weekend() {
               const ph = photos[t.i % photos.length];
               return (
                 <figure key={n} className="fw-mosaic-photo" style={style} aria-hidden="true">
-                  <img src={ph.src} alt="" loading="lazy" decoding="async" style={{ objectPosition: ph.focus }} />
+                  <img
+                    src={ph.src}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    className={'flip' in ph && ph.flip ? 'is-flipped' : undefined}
+                    style={{ objectPosition: ph.focus }}
+                  />
                 </figure>
               );
             }

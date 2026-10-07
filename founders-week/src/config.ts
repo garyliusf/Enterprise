@@ -76,10 +76,13 @@ export const weekend = {
   /* Mosaic photos (public/people). Placeholders: three photos repeat until
      the final set arrives — add files here and they slot into the grid in
      order. `focus` is the object-position that keeps the person in frame. */
+  /* flip: mirror horizontally so the edge tiles face into the grid (only
+     for shots with no visible text) */
   photos: [
     { src: '/people/founder-laptop.webp', focus: '62% 35%' },
     { src: '/people/founder-nursery.webp', focus: '42% 40%' },
     { src: '/people/founder-cafe.webp', focus: '52% 30%' },
+    { src: '/people/founder-workshop.webp', focus: '64% 40%', flip: true },
   ],
   /* Only shown once DigitalOcean confirms they are covering inference. */
   partner: { show: false, name: 'DigitalOcean', line: 'Free inference for the weekend is provided by DigitalOcean.' },
