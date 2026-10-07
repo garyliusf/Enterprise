@@ -353,6 +353,67 @@ export function FooterCta() {
   );
 }
 
+type ThemeChoice = 'system' | 'light' | 'dark';
+type ThemeWindow = Window & { __scSetTheme?: (c: ThemeChoice) => void; __scThemeChoice?: () => ThemeChoice };
+
+/* System / Light / Dark — drives the resolver in index.html. */
+function ThemeToggle() {
+  const w = window as ThemeWindow;
+  const [choice, setChoice] = useState<ThemeChoice>(() => w.__scThemeChoice?.() ?? 'system');
+  const options: { value: ThemeChoice; label: string; icon: React.ReactNode }[] = [
+    {
+      value: 'system',
+      label: 'System',
+      icon: (
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3">
+          <rect x="1.5" y="2.5" width="13" height="9" rx="1" />
+          <path d="M5.5 14h5M8 11.5V14" />
+        </svg>
+      ),
+    },
+    {
+      value: 'light',
+      label: 'Light',
+      icon: (
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3">
+          <circle cx="8" cy="8" r="3" />
+          <path d="M8 1v1.6M8 13.4V15M1 8h1.6M13.4 8H15M3 3l1.1 1.1M11.9 11.9 13 13M3 13l1.1-1.1M11.9 4.1 13 3" />
+        </svg>
+      ),
+    },
+    {
+      value: 'dark',
+      label: 'Dark',
+      icon: (
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3">
+          <path d="M13.5 9.6A6 6 0 0 1 6.4 2.5a6 6 0 1 0 7.1 7.1Z" />
+        </svg>
+      ),
+    },
+  ];
+  return (
+    <div className="fw-theme" role="radiogroup" aria-label="Theme">
+      {options.map((o) => (
+        <button
+          key={o.value}
+          type="button"
+          role="radio"
+          aria-checked={choice === o.value}
+          aria-label={o.label}
+          title={o.label}
+          className={`fw-theme-btn${choice === o.value ? ' is-on' : ''}`}
+          onClick={() => {
+            w.__scSetTheme?.(o.value);
+            setChoice(o.value);
+          }}
+        >
+          {o.icon}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export function SiteFooter() {
   return (
     <footer className="fw-site-footer">
@@ -369,6 +430,7 @@ export function SiteFooter() {
             Privacy Policy
           </a>
         </nav>
+        <ThemeToggle />
         <span className="fw-footer-copy">© 2026 StackBlitz</span>
       </div>
     </footer>

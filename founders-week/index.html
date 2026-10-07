@@ -30,6 +30,14 @@
         }
         apply();
         var onChange = function () { apply(); document.dispatchEvent(new Event('sc-themechange')); };
+        /* footer toggle: 'light' | 'dark' saves a choice, 'system' clears it */
+        window.__scSetTheme = function (choice) {
+          q = null;
+          saved = ok(choice) ? choice : null;
+          try { saved ? localStorage.setItem('sc-theme', saved) : localStorage.removeItem('sc-theme'); } catch (e) {}
+          onChange();
+        };
+        window.__scThemeChoice = function () { return ok(q) ? q : ok(saved) ? saved : 'system'; };
         if (mq.addEventListener) mq.addEventListener('change', onChange); else if (mq.addListener) mq.addListener(onChange);
       })();
     </script>
