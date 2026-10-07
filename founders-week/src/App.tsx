@@ -3,6 +3,7 @@ import { Hero } from './components/Hero';
 import { Nav } from './components/Nav';
 import { Competition, Faq, FooterCta, Join, Schedule, SiteFooter, Templates, Timeline, Weekend } from './components/Sections';
 import { Terms } from './components/Terms';
+import { ThemeSwitch } from './components/ThemeSwitch';
 import { TERMS_PATH } from './config';
 
 export default function App() {
@@ -21,6 +22,7 @@ export default function App() {
         <Nav overHero={false} />
         <Terms />
         <SiteFooter />
+        <ThemeSwitch />
       </>
     );
   }
@@ -40,6 +42,7 @@ export default function App() {
         <FooterCta />
       </main>
       <SiteFooter />
+      <ThemeSwitch />
     </>
   );
 }
