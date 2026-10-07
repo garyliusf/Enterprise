@@ -1,0 +1,903 @@
+/* ============================================================================
+   SHARED COMPONENTS — single source of truth for standardized components.
+   Linked at the END of <body> on each page so it wins the cascade over any
+   leftover inline rules. Edit component styling HERE, not per-page.
+
+   Covers: Buttons (primary/ghost/cta) · Eyebrows · FAQ · Footer
+           · Hero video component (narrow)
+   Used by: microsoft.html, bolt-cli.html  (Phase 1)
+   ============================================================================ */
+
+/* ─── THEME TOKENS ──────────────────────────────────────────────────────────
+   LIGHT IS THE DEFAULT (Gary, 2026-09-18). Dark is no longer the ground the
+   site is designed on — it comes back only for visitors whose OS asks for it,
+   and for pages that pin a theme explicitly.
+
+   Resolution order:
+     :root                                → LIGHT   (the default, always)
+     @media (prefers-color-scheme: dark)
+       :root:not([data-theme="light"])    → DARK    (system preference)
+     :root[data-theme="dark"]             → DARK    (explicitly pinned)
+
+   Pin a page with <html data-theme="light"> or <html data-theme="dark"> when
+   it must NOT follow the system — a dark-only campaign page, a screenshot
+   source, or a page whose art only works on one ground.
+
+   ── Token SCOPES: .sc-on-dark / .sc-on-light ──
+   Put .sc-on-dark on any SECTION that sits on dark art (a photo hero, a video
+   band, the footer) and every token inside it flips to the dark set — so the
+   copy stays white on a light page without a single hand-written override.
+   .sc-on-light is the mirror. Same value sets as the themes, so a component
+   only ever needs ONE set of token-based rules.
+
+   ── The RGB-triplet trick ──
+   The dark palette is built almost entirely out of rgba(255,255,255,α) at two
+   dozen different alphas. Rather than mint a token per alpha step, ONE triplet
+   token carries the ink and every rule composes the alpha it needs:
+
+       color:  rgba(var(--sc-ink-rgb), 0.65);
+       border: 1px solid rgba(var(--sc-ink-rgb), 0.10);
+
+   That keeps the token list short and makes conversion mechanical: every
+   rgba(255,255,255,X) in a page becomes rgba(var(--sc-ink-rgb),X) and themes
+   itself. The pixel-canvas JS reads the same triplet — makePixelCanvas already
+   takes an 'R,G,B' string — so the canvas effects theme for free.
+
+   ── What does NOT theme ──
+   Brand blue (#1488FC) is the same in both themes. Only blue *text on the
+   page ground* changes: #1488FC on white is 3.1:1 and fails WCAG AA, so light
+   uses the darker #0a5aa8 (6.4:1). Blue as a BUTTON FILL is unchanged in both
+   themes — white on #1488FC is fine either way.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+:root,
+.sc-on-light {
+  /* ink — the text/border colour, as an RGB triplet for free alpha */
+  --sc-ink-rgb: 10, 12, 20;
+  --sc-ink: #0a0a0a;                      /* solid primary text / headlines */
+
+  /* ground + surfaces */
+  --sc-ground: #fff;                      /* page background */
+  --sc-ground-rgb: 255, 255, 255;         /* for translucent grounds/scrims */
+  --sc-surface: #fafbfd;                  /* cards, panels, tiles */
+  /* On LIGHT the band is the ground — Gary: the templates section should stay
+     white, not sit a step darker. Dark keeps its #050508 lift, where a band
+     off pure black is what separates the section. Only .tmpl-section and its
+     rail fade consume this. */
+  --sc-band: #fff;
+  --sc-band-rgb: 255, 255, 255;
+  --sc-surface-strong: #f1f3f7;           /* deeper surface — strips, table heads */
+  --sc-recess: rgba(10, 12, 20, 0.05);    /* panel RECESSED into a surface */
+  --sc-hover-tint: rgba(20, 136, 252, 0.06);/* card hover: a blue lean, not a wash */
+  --sc-flash-tint: rgba(20, 136, 252, 0.16);/* cursor flashlight centre */
+  --sc-hover-filter: brightness(0.97);    /* light DARKENS on hover */
+
+  /* standard text roles (see CLAUDE.md typography table) */
+  --sc-text-sub: #5b5b66;                 /* hero subtitle   (dark: #ABABAB) */
+  --sc-text-muted: rgba(10, 12, 20, 0.61);/* section subtitle  — 5.35:1 (dark: 5.28) */
+  --sc-text-desc: rgba(10, 12, 20, 0.65); /* card/body copy    — 6.18:1 (dark: 6.27) */
+  --sc-text-faint: rgba(10, 12, 20, 0.58);/* small caps labels — 4.80:1 (dark: 3.66) */
+
+  /* lines */
+  --sc-line: rgba(10, 12, 20, 0.10);      /* standard card/panel border */
+  --sc-line-soft: rgba(10, 12, 20, 0.07); /* hairlines, FAQ item rules */
+  --sc-line-strong: rgba(10, 12, 20, 0.22);/* ghost-button border */
+  --sc-icon-border: rgba(10, 12, 20, 0.18);/* icon tiles: 0.08 vanishes on light (Gary) */
+  /* Company logos ship with #A8ADB5 baked in (picked for the dark theme) and
+     read washed-out on white. Flatten to ink and carry the weight in alpha,
+     so they sit at the same darkness as the stroked UI icons above. */
+  --sc-logo-filter: brightness(0) opacity(0.85);
+  /* Pixel-fill hover on ghost buttons — white dots are invisible on a light
+     ground, so the dot colour flips with the theme. */
+  --sc-btn-pixel-ghost: rgba(10, 12, 20, 0.22);
+
+  /* brand blue — identical in both themes except as text on the ground */
+  --sc-blue: #1488FC;                     /* button fills, icons, eyebrows */
+  --sc-blue-hover: #0f6fd0;
+  --sc-blue-ink: #0a5aa8;                 /* blue TEXT on the ground (AA) */
+
+  /* effects */
+  --sc-dot-rgb: 20, 136, 252;             /* pixel-canvas dots — blue on light */
+  --sc-shadow: rgba(10, 12, 20, 0.14);
+  --sc-accent-warm: #b1502a;             /* warm serif accent (dark: #FFB093) */
+  --sc-logo-invert: 0;                    /* logo trains ship BLACK artwork */
+  --sc-hero-art: 0;                       /* dark-only hero photo + scrim: hidden on light */
+  --sc-hero-art-display: none;            /* for art whose KEYFRAMES animate opacity */
+  /* Light hero: an inverted aurora — deep navy arcing down through brand blue
+     into the page ground, with a fine halftone over it. Replaces the photo,
+     which is lit for a black scrim and cannot invert. */
+  /* Static base — also the reduced-motion and no-JS state. The animated
+     layers (.hero-aurora) sit on top of this and drift. Stops are deliberately
+     LARGE: the dark dome owns the top ~40%, reaching white around 72%, which
+     is the proportion in the reference. An earlier, tighter ramp read as a
+     clipped band across the top. */
+  --sc-hero-bg:
+    /* Very WIDE, modest height: the blue must reach the left and right edges at
+       the top so only the BOTTOM arcs. A squarer ellipse curves on all sides
+       and reads as a half-moon (Gary). */
+    /* Matched to the reference by measurement, not feel: the crown is
+       NEAR-BLACK and holds to ~37%, then a TIGHT ramp through vivid blue to a
+       bright cyan rim at 64%, releasing to white by ~71%. An even ramp across
+       the full height reads as flat mid-blue and loses the depth entirely. */
+    /* ONE dome with a TIGHT BRIGHT RIM hugging its arc — that rim is the whole
+       effect. The reference's apparent glow at the lower left and right is not
+       two corner lights, it is the rim itself, which sits lower at the sides
+       where the arc sweeps down. Corner glows were tried and were the wrong
+       mechanism: they lit the bottom without ever producing the edge.
+       The bright stops are deliberately NARROW (60% -> 67%); spreading them
+       is what made every earlier pass read as flat mid-blue. */
+    /* Taller now that the drift layers are gone — they had been padding the
+       mid-band, so without them the ramp has to carry the whole height itself
+       or white arrives before the copy clears. */
+    /* LINEAR vertical ramp — Gary's reference is not a radial dome at all.
+       Deep navy at the crown straight down through royal blue, pale blue and
+       into white. Every radial construction before this fought the fact that
+       the reference has no arc in it. */
+    linear-gradient(180deg,
+      #021a57 0%, #04246c 14%, #072f86 26%, #0a3f9e 38%,
+      #1259c3 50%, #3b82cf 60%, #6ba6da 68%,
+      #a3c8e6 76%, #cfe0ee 83%, #e8eff6 89%,
+      #f6f8fb 95%, #fff 100%),
+    #fff;
+  --sc-aurora-on: 1;
+  /* 0: the copy stack must NOT move (Gary). Covering the subtitle and CTA is
+     the gradient's job — lifting the stack also moved the H1 up ~51px, which
+     was a side effect of the fix, not the intent. */
+  --sc-hero-lift: 0px;
+  --sc-hero-grid: rgba(10, 30, 70, 0.10);
+  /* ── CHROME (nav + site footer). Light values are Forge Lite's, lifted from
+     bolt-public-pages src/styles/marketing-nav-footer.css; dark values are the
+     sandbox's existing ones, so dark renders exactly as before. ── */
+  --sc-nav-bg: #fff;                      /* AT REST: solid — the hero aurora is vivid blue and glass muddies it (Gary) */
+  --sc-nav-bg-scrolled: rgba(255, 254, 254, 0.82);/* once scrolled: the glass treatment */
+  --sc-nav-bg-solid: #fffefe;              /* OPAQUE: an open menu must never leave the bar translucent (prod #335); 0.88 let the page bleed through as a grey band (Gary) */
+  --sc-nav-hairline: rgba(10, 12, 20, 0.06);
+  --sc-nav-menu-divider: rgba(10, 12, 20, 0.10);  /* bar/panel seam while a menu is open — 0.06 vanished against the white panel (Gary); production light nav uses 0.1 here */
+  --sc-nav-ink: rgba(0, 0, 0, 0.7);
+  --sc-nav-ink-hover: #000;
+  --sc-nav-ink-hover-bg: rgba(0, 0, 0, 0.05);
+  --sc-nav-logo: #0a0a0a;
+  /* Over-hero nav variant (.mkt-nav--over-hero, opt-in per page). AT REST
+     the bar sits transparently on the blue hero with white ink; past the
+     scroll threshold it falls back to the regular tokens above. Overlap is
+     how far the hero is pulled up under the bar. (Gary, 2026-09-28) */
+  --sc-nav-over-bg: transparent;
+  --sc-nav-over-bg-scrolled: #fff;       /* solid, not glass: glass over the blue hero reads blue-grey */
+  --sc-nav-over-blur: none;              /* blur would smear the dither under the bar */
+  --sc-nav-over-hairline: transparent;
+  --sc-nav-over-ink: #fff;                /* pure white — any alpha lets the blue through and reads faded (Gary) */
+  --sc-nav-over-ink-hover: #fff;
+  --sc-nav-over-ink-hover-bg: rgba(255, 255, 255, 0.1);
+  --sc-nav-over-logo: #fff;
+  --sc-nav-overlap: 69px;                /* the BOX height: 68px bar + the 1px hairline border — 68 left a white 1px row at the very top */
+  --sc-panel-bg: #fffefe;
+  --sc-panel-shadow: 0 24px 40px -16px rgba(10, 12, 20, 0.12);  /* soft; the negative spread keeps it off the bar above (the dark one read as a drop shadow on the bar) */
+  --sc-panel-heading: #73737b;
+  --sc-panel-link: #525258;
+  --sc-panel-link-hover: #0c0c0f;
+  --sc-feature-bg: rgba(17, 17, 20, 0.04);
+  --sc-feature-bg-hover: #eef6ff;          /* light brand-blue tint — was lavender #f3f0f5 (Gary) */
+  --sc-feature-border: #EFEDF3;
+  --sc-feature-border-hover: #bfdcfd;      /* blue to match the fill — the old grey-purple clashed */
+  --sc-scrim: rgba(17, 17, 20, 0.25);
+  --sc-drawer-bg: #fffefe;
+  --sc-dim: 0.6;
+}
+
+/* DARK — system preference. The :not([data-theme="light"]) guard lets a page
+   pin itself light even on a dark-set machine. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --sc-ink-rgb: 255, 255, 255;
+    --sc-ink: #fff;
+
+    --sc-ground: #000;
+    --sc-ground-rgb: 0, 0, 0;
+    --sc-surface: #09090b;
+    --sc-band: #050508;
+    --sc-band-rgb: 5, 5, 8;
+    --sc-surface-strong: #060606;
+    --sc-recess: rgba(0, 0, 0, 0.35);
+    --sc-hover-tint: rgba(20, 136, 252, 0.08);
+    --sc-flash-tint: rgba(150, 185, 255, 0.14);
+    --sc-hover-filter: brightness(1.25);    /* dark BRIGHTENS on hover */
+
+    --sc-text-sub: #ABABAB;
+    --sc-text-muted: rgba(255, 255, 255, 0.5);
+    --sc-text-desc: rgba(255, 255, 255, 0.55);
+    --sc-text-faint: rgba(255, 255, 255, 0.4);
+
+    --sc-line: rgba(255, 255, 255, 0.10);
+    --sc-line-soft: rgba(255, 255, 255, 0.07);
+    --sc-line-strong: rgba(255, 255, 255, 0.22);
+    --sc-icon-border: rgba(255, 255, 255, 0.08);
+    --sc-logo-filter: none;
+    --sc-btn-pixel-ghost: rgba(255, 255, 255, 0.18);
+
+    --sc-blue: #1488FC;
+    --sc-blue-hover: #0f6fd0;
+    --sc-blue-ink: #1488FC;               /* full brand blue reads fine on black */
+
+    --sc-dot-rgb: 180, 185, 195;
+    --sc-shadow: rgba(0, 0, 0, 0.5);
+    --sc-accent-warm: #FFB093;
+    --sc-logo-invert: 1;                  /* black wordmarks inverted to white */
+    --sc-hero-art: 1;
+    --sc-hero-art-display: block;
+    --sc-hero-bg: #000;
+    --sc-aurora-on: 0;
+    --sc-hero-lift: 0px;
+    --sc-hero-grid: rgba(255, 255, 255, 0.05);
+    --sc-nav-bg: rgba(5, 5, 7, 0.72);
+    --sc-nav-bg-scrolled: rgba(5, 5, 7, 0.72);  /* dark keeps glass in both states */
+    --sc-nav-bg-solid: #050507;
+    --sc-nav-hairline: transparent;
+    --sc-nav-menu-divider: transparent;
+    --sc-nav-ink: rgba(255, 255, 255, 0.75);
+    --sc-nav-ink-hover: #fff;
+    --sc-nav-ink-hover-bg: rgba(255, 255, 255, 0.05);
+    --sc-nav-logo: #fff;
+    /* over-hero at rest = the regular dark bar; overlap 0 so dark never moves */
+    --sc-nav-over-bg: transparent;            /* over the hero: see-through at rest, like light (Gary, 2026-09-30) */
+    --sc-nav-over-bg-scrolled: #050507;       /* solid black once scrolled, the mirror of light's solid white */
+    --sc-nav-over-blur: none;                 /* nothing to blur over a transparent bar */
+    --sc-nav-over-hairline: transparent;
+    --sc-nav-over-ink: rgba(255, 255, 255, 0.75);
+    --sc-nav-over-ink-hover: #fff;
+    --sc-nav-over-ink-hover-bg: rgba(255, 255, 255, 0.05);
+    --sc-nav-over-logo: #fff;
+    --sc-nav-overlap: 69px;               /* same pull-over as light: 68px bar + 1px hairline */
+    --sc-panel-bg: rgba(8, 8, 12, 0.98);
+    --sc-panel-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+    --sc-panel-heading: rgba(255, 255, 255, 0.4);
+    --sc-panel-link: rgba(255, 255, 255, 0.55);
+    --sc-panel-link-hover: #fff;
+    --sc-feature-bg: rgba(255, 255, 255, 0.03);
+    --sc-feature-bg-hover: rgba(255, 255, 255, 0.045);
+    --sc-feature-border: rgba(255, 255, 255, 0.08);
+    --sc-feature-border-hover: rgba(255, 255, 255, 0.22);
+    --sc-scrim: rgba(0, 0, 0, 0.5);
+    --sc-drawer-bg: #050507;
+    --sc-dim: 0.5;
+  }
+}
+
+/* DARK — explicitly pinned. SYNC PAIR with the media-query block above: these
+   two carry the same values and must be edited together. (Kept as plain CSS
+   rather than light-dark() so the tokens resolve on every browser, not just
+   Baseline-2024 ones.) */
+:root[data-theme="dark"],
+.sc-on-dark {
+  --sc-ink-rgb: 255, 255, 255;
+  --sc-ink: #fff;
+
+  --sc-ground: #000;
+  --sc-ground-rgb: 0, 0, 0;
+  --sc-surface: #09090b;
+  --sc-band: #050508;
+  --sc-band-rgb: 5, 5, 8;
+  --sc-surface-strong: #060606;
+  --sc-recess: rgba(0, 0, 0, 0.35);
+  --sc-hover-tint: rgba(20, 136, 252, 0.08);
+  --sc-flash-tint: rgba(150, 185, 255, 0.14);
+  --sc-hover-filter: brightness(1.25);    /* dark BRIGHTENS on hover */
+
+  --sc-text-sub: #ABABAB;
+  --sc-text-muted: rgba(255, 255, 255, 0.5);
+  --sc-text-desc: rgba(255, 255, 255, 0.55);
+  --sc-text-faint: rgba(255, 255, 255, 0.4);
+
+  --sc-line: rgba(255, 255, 255, 0.10);
+  --sc-line-soft: rgba(255, 255, 255, 0.07);
+  --sc-line-strong: rgba(255, 255, 255, 0.22);
+  --sc-icon-border: rgba(255, 255, 255, 0.08);
+  --sc-logo-filter: none;
+  --sc-btn-pixel-ghost: rgba(255, 255, 255, 0.18);
+
+  --sc-blue: #1488FC;
+  --sc-blue-hover: #0f6fd0;
+  --sc-blue-ink: #1488FC;
+
+  --sc-dot-rgb: 180, 185, 195;
+  --sc-shadow: rgba(0, 0, 0, 0.5);
+  --sc-accent-warm: #FFB093;
+  --sc-logo-invert: 1;
+  --sc-hero-art: 1;
+  --sc-hero-art-display: block;
+  --sc-hero-bg: #000;
+  --sc-aurora-on: 0;
+  --sc-hero-lift: 0px;
+  --sc-hero-grid: rgba(255, 255, 255, 0.05);
+  --sc-nav-bg: rgba(5, 5, 7, 0.72);
+  --sc-nav-bg-scrolled: rgba(5, 5, 7, 0.72);  /* dark keeps glass in both states */
+  --sc-nav-bg-solid: #050507;
+  --sc-nav-hairline: transparent;
+  --sc-nav-menu-divider: transparent;
+  --sc-nav-ink: rgba(255, 255, 255, 0.75);
+  --sc-nav-ink-hover: #fff;
+  --sc-nav-ink-hover-bg: rgba(255, 255, 255, 0.05);
+  --sc-nav-logo: #fff;
+  /* over-hero at rest = the regular dark bar; overlap 0 so dark never moves */
+  --sc-nav-over-bg: transparent;            /* over the hero: see-through at rest, like light (Gary, 2026-09-30) */
+  --sc-nav-over-bg-scrolled: #050507;       /* solid black once scrolled, the mirror of light's solid white */
+  --sc-nav-over-blur: none;                 /* nothing to blur over a transparent bar */
+  --sc-nav-over-hairline: transparent;
+  --sc-nav-over-ink: rgba(255, 255, 255, 0.75);
+  --sc-nav-over-ink-hover: #fff;
+  --sc-nav-over-ink-hover-bg: rgba(255, 255, 255, 0.05);
+  --sc-nav-over-logo: #fff;
+  --sc-nav-overlap: 69px;               /* same pull-over as light: 68px bar + 1px hairline */
+  --sc-panel-bg: rgba(8, 8, 12, 0.98);
+  --sc-panel-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+  --sc-panel-heading: rgba(255, 255, 255, 0.4);
+  --sc-panel-link: rgba(255, 255, 255, 0.55);
+  --sc-panel-link-hover: #fff;
+  --sc-feature-bg: rgba(255, 255, 255, 0.03);
+  --sc-feature-bg-hover: rgba(255, 255, 255, 0.045);
+  --sc-feature-border: rgba(255, 255, 255, 0.08);
+  --sc-feature-border-hover: rgba(255, 255, 255, 0.22);
+  --sc-scrim: rgba(0, 0, 0, 0.5);
+  --sc-drawer-bg: #050507;
+  --sc-dim: 0.5;
+}
+
+/* ─── TYPE FAMILIES (Gary, 2026-09-28) ─────────────────────────────────────
+   Theme-independent, so they live outside the three synced palette blocks.
+   Each chain falls back to the family it replaced: the retired mirrors
+   (microsoft, bolt-cli, referral, forrester, share) link this
+   file but still load only their legacy fonts, so they keep rendering exactly
+   as before without being edited. */
+:root {
+  --sc-font-sans:  'Schibsted Grotesk', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --sc-font-label: 'Schibsted Grotesk', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;   /* eyebrows, tags, small uppercase labels — sans now (Gary, 2026-09-29; was Literata) */
+  --sc-font-serif: 'Literata', 'Cormorant Garamond', Georgia, serif;   /* quotes, serif display (was Cormorant) */
+  --sc-serif-style: italic;              /* Gary: the serif role is Literata ITALIC — flip here for upright */
+  --sc-eyebrow-size: 13px;              /* eyebrows — was 16px, too big in Literata (Gary) */
+  --sc-label-weight: 700;               /* labels at Bold (Gary, 2026-09-29: 600 still read thin at 13px in Schibsted) */
+}
+
+/* Tell the UA which themes the page supports, so form controls, scrollbars
+   and the canvas behind the page follow along. */
+:root { color-scheme: light dark; }
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"]  { color-scheme: dark; }
+
+
+/* ─── DESIGN TOKENS ──────────────────────────────────────────────────────── */
+/* Canonical subtitle → CTA vertical spacing. Change here to move every
+   hero, section side-card, callout, and footer across every page in one edit.
+   Mobile uses a shorter value — tight spacing reads better on small screens. */
+:root { --sub-to-cta: 32px; }
+@media (max-width: 768px) { :root { --sub-to-cta: 24px; } }
+
+/* Minimum width for standalone CTAs, so short labels ("Learn More",
+   "Read More") don't render smaller than their neighbours. It's a floor, not
+   a fixed width — longer labels still expand past it. */
+:root { --cta-min-w: 180px; }
+@media (max-width: 768px) { :root { --cta-min-w: 220px; } }
+
+/* Apply the token to every subtitle→CTA pattern. Each rule offsets the
+   parent container's own flex `gap` so the total distance = --sub-to-cta.
+   max(0px, …) prevents negative margins when the mobile token is smaller
+   than the container's own gap (in which case the container gap alone is
+   already close enough — the CTA row just doesn't add anything extra).
+
+   Container base `gap` values (per current page CSS):
+     .hero-inner        → 24px  (20 at ≤768)
+     .builtin-left      → 22px
+     .run-callout       → 12px
+     .footer-section    → 24px  (canvas hack: 24 - 152 + 192 = 64 baseline) */
+/* NOTE: child combinator (>) is deliberate. .hero-inner's `gap` only creates
+   space between its DIRECT children, so the offset is only valid there. With a
+   descendant selector this also hit pages that nest the button group deeper
+   (microsoft puts it inside .hero-headline-group), silently replacing a correct
+   margin with an offset computed against a gap that never applied. */
+.hero-inner > .hero-btn-group { margin-top: max(0px, calc(var(--sub-to-cta) - 24px)); }
+/* At ≤768 .hero-inner's gap drops 24 → 20 on most pages, so the offset has to
+   be recomputed against 20 or the hero lands 4px short. */
+@media (max-width: 768px) {
+  .hero-inner > .hero-btn-group { margin-top: max(0px, calc(var(--sub-to-cta) - 20px)); }
+}
+.builtin-cta                { margin-top: max(0px, calc(var(--sub-to-cta) - 22px)); }
+.run-callout-btns           { margin-top: max(0px, calc(var(--sub-to-cta) - 12px)); }
+/* Footer button sits inside a wrapper with margin-top:-152 + a 192px canvas.
+   Desktop baseline = 64px, so button margin-top = --sub-to-cta - 64px. */
+/* Baseline is the same at every breakpoint (the canvas keeps its inline 192px
+   height on mobile), so this one rule covers desktop and mobile — the token
+   itself is what changes. */
+.footer-cta-btn { margin-top: calc(var(--sub-to-cta) - 64px); }
+/* Footer email-form strips sit in the same wrapper (-152px pull + 192px canvas
+   = 64px baseline), so the same token math gives them the same subtitle gap.
+   Add this class to the strip and drop its inline margin-top. */
+.footer-cta-strip { margin-top: calc(var(--sub-to-cta) - 64px); }
+/* Footer CTAs are standalone buttons, so they take the documented
+   standalone-CTA min-width (CLAUDE.md) instead of shrinking to short labels
+   like "Read More". Matches the hero/callout CTA treatment. */
+/* Standalone CTAs (hero, section side-card, callout, footer) get an
+   equalizing min-width so short labels like "Learn More" / "Read More" don't
+   render smaller than their neighbours. Scoped to the standalone CTA
+   containers per CLAUDE.md, so form-attached submits (.hero-cta-button email
+   strips, .re-prompt-submit prompt boxes) keep their natural width. */
+.hero-btn-group .hero-btn-primary,   .hero-btn-group .hero-btn-ghost,
+.hero-cta-row .hero-btn-primary,     .hero-cta-row .hero-btn-ghost,
+.builtin-cta .hero-btn-primary,      .builtin-cta .hero-btn-ghost,
+.run-callout-btns .hero-btn-primary, .run-callout-btns .hero-btn-ghost,
+.footer-cta-btn { min-width: var(--cta-min-w); max-width: 100%; }
+
+/* Form/input-attached submits are sized by the field they're joined to, so
+   they must never pick up the standalone min-width — not even if they end up
+   inside one of the containers above. Specificity here is 0-2-0, matching the
+   rule above, and it's declared after, so it wins. */
+:is(form, .hero-form-row, .card-form-strip, .re-prompt-shell)
+  :is(.hero-btn-primary, .hero-btn-ghost, .footer-cta-btn),
+.hero-cta-button,
+.re-prompt-submit { min-width: 0; max-width: none; }
+
+/* ─── PRIMARY / GHOST / CTA BUTTONS ──────────────────────────────────────── */
+.hero-btn-primary {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 52px; padding: 0 28px; background: var(--sc-blue); border: none; border-radius: 2px;
+  color: #fff; font-size: 15px; font-weight: 600; font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif);
+  cursor: pointer; position: relative; overflow: hidden; text-decoration: none;
+}
+/* MOBILE. This rule did not exist — pages relying on shared rendered the
+   desktop 0 28px / 15px on phones, 2px tighter and 1px smaller than every
+   production hero. Values are production's, which cli-hero, ms-hero,
+   referral-hero and hero-split all agree on. NB: CLAUDE.md also described a
+   44px / 0 18px / 14px mobile button; nothing anywhere implemented it and it
+   contradicted the standalone-CTA section two paragraphs later — removed. */
+@media (max-width: 768px) {
+  .hero-btn-primary, .hero-btn-ghost {
+    height: 52px; padding: 0 26px; font-size: 16px;
+    justify-content: center;
+  }
+}
+.hero-btn-primary .btn-bg-hover { position: absolute; inset: 0; background: var(--sc-blue-hover); z-index: 1; transform: translateY(101%); transition: transform 0.45s cubic-bezier(0.165,0.84,0.44,1); }
+.hero-btn-primary .btn-text-wrap { position: relative; z-index: 3; overflow: hidden; height: 1.2em; }
+.hero-btn-primary .btn-text-inner { display: flex; flex-direction: column; transition: transform 0.45s cubic-bezier(0.165,0.84,0.44,1); }
+.hero-btn-primary .btn-text-inner span { display: block; line-height: 1.2; }
+.hero-btn-primary:hover .btn-bg-hover { transform: translateY(0); }
+.hero-btn-primary:hover .btn-text-inner { transform: translateY(-50%); }
+/* Ghost button uses the same two-span slide-up trick — share the rules */
+.hero-btn-ghost .btn-bg-hover { display: none; }
+.hero-btn-ghost .btn-text-wrap { position: relative; z-index: 3; overflow: hidden; height: 1.2em; }
+.hero-btn-ghost .btn-text-inner { display: flex; flex-direction: column; transition: transform 0.45s cubic-bezier(0.165,0.84,0.44,1); }
+.hero-btn-ghost .btn-text-inner span { display: block; line-height: 1.2; }
+.hero-btn-ghost:hover .btn-text-inner { transform: translateY(-50%); }
+
+/* ─── PIXEL-FILL BUTTON HOVER (canonical, matches ai-for-real-estate/smb/microsoft) ───
+   JS attaches a <canvas class="btn-pixel-canvas"> as the first child of each
+   .hero-btn-primary / .hero-btn-ghost / .footer-cta-btn and toggles .btn-pixelized.
+   When pixelized: slide-up bg layer + text duplicate hide; the canvas fills with
+   brand-blue dots on mouseenter, fades on mouseleave, with a subtle flicker at peak. */
+.btn-pixel-canvas { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
+.hero-btn-ghost .btn-pixel-canvas { z-index: 1; border-radius: 2px; }
+.hero-btn-primary.btn-pixelized .btn-bg-hover,
+.hero-btn-ghost.btn-pixelized .btn-bg-hover,
+.footer-cta-btn.btn-pixelized .btn-bg-hover { display: none !important; }
+.hero-btn-primary.btn-pixelized .btn-text-inner,
+.hero-btn-ghost.btn-pixelized .btn-text-inner,
+.footer-cta-btn.btn-pixelized .btn-text-inner { transform: none !important; }
+.hero-btn-primary.btn-pixelized .btn-text-inner span:nth-child(2),
+.hero-btn-ghost.btn-pixelized .btn-text-inner span:nth-child(2),
+.footer-cta-btn.btn-pixelized .btn-text-inner span:nth-child(2) { display: none; }
+.hero-btn-primary.btn-pixelized .btn-text-wrap,
+.hero-btn-ghost.btn-pixelized .btn-text-wrap,
+.footer-cta-btn.btn-pixelized .btn-text-wrap { z-index: 3; }
+
+/* ─── SECTION HEADLINE (canonical H2) ─────────────────────────────────────
+   ONE class for every section-level H2. Replaces the per-page aliases that
+   had drifted apart (.builtin-h2 / .detail-h2 / .agent-h2 / .compliance-h2 /
+   .bullets-h2 / .trust-h2 / .hiw-h2 / .run-callout-h2 / .section-headline) —
+   twelve names for one component is how the ≤768px rule ended up applied to
+   .builtin-h2 only, leaving .agent-h2 and .detail-h2 pinned at their 32px
+   floor and visibly smaller.
+
+   .ms-faq-headline and .footer-headline share this type (grouped below);
+   their component rules carry layout only (FAQ margin, footer centering).
+   NOT covered: .feat-headline / .how-headline on non-migrated pages.
+
+   Adopted by: security.html, trust.html, trust-v2.html.
+   Other pages still use their local aliases and are unaffected; migrate them
+   by swapping the class in markup and deleting the local rule. */
+.sc-section-h2,
+.ms-faq-headline,
+.footer-headline {
+  /* 40px floor (not 32) so the size is continuous across the 768px breakpoint:
+     the ≤768 rule caps at 40px, and a 32px floor made the headline SHRINK by
+     8px when the viewport grew past 768 (4vw doesn't reach 40px until 1000px).
+     The old 32px floor only ever bound in the 769–800px sliver. */
+  font-size: clamp(40px, 4vw, 52px);
+  font-weight: 500;
+  color: var(--sc-ink);
+  line-height: 1.15;
+  letter-spacing: -1px;
+  margin: 0;
+}
+@media (max-width: 768px) {
+  .sc-section-h2, .ms-faq-headline, .footer-headline { font-size: clamp(28px, 8vw, 40px); }
+}
+
+/* ─── SCROLL-IN ANIMATIONS (canonical across all marketing pages) ──────────
+   .dsa-reveal wraps an H1/H2 and triggers per-word blur-fade reveal on scroll.
+   .eyebrow-scramble triggers a 600ms letter-scramble entrance and re-fires
+   every 6s while visible. JS lives in shared-components.js. */
+.dsa-reveal .word {
+  display: inline-block;
+  opacity: 0;
+  transform: translate(-10px, -7px);
+  filter: blur(5px);
+  will-change: opacity, transform, filter;
+}
+.dsa-reveal.is-revealed .word {
+  animation: dsa-word-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--i, 0) * 28ms);
+}
+/* Fast-scroll catch-up (paired with the .is-instant classification in
+   shared-components.js and the pages' local reveal modules): when a header is
+   first noticed already deep in view, the cascade is skipped and the words are
+   simply there. Selectors deliberately cover BOTH container types (.dsa-reveal
+   shared / .reveal-h page-local) and carry the skip to the shared-owned
+   subtitle words via the sibling combinator. */
+.dsa-reveal.is-instant .word,
+.reveal-h.is-instant .word,
+.dsa-reveal.is-instant ~ .sc-sub-words .word,
+.reveal-h.is-instant ~ .sc-sub-words .word { opacity: 1; transform: none; filter: none; animation: none; }
+/* Subtitle word-reveal: the SAME per-word blur cascade as the H2 (microsoft
+   behavior). shared-components.js wraps the subtitle's words with --i indexes
+   continuing from the heading's word count, so heading → subtitle read as one
+   continuous cascade. Classes are JS-set, so no-JS pages stay visible. */
+.sc-sub-words .word {
+  display: inline-block;
+  opacity: 0;
+  transform: translate(-10px, -7px);
+  filter: blur(5px);
+  will-change: opacity, transform, filter;
+}
+.sc-sub-words.sc-sub-go .word {
+  animation: dsa-word-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--i, 0) * 28ms);
+}
+/* Fast-scroll catch-up for subtitles, structure-independent: the class is set
+   on the sub itself by the reveal JS (the sibling selectors above only reach
+   subs that FOLLOW the container; subs inside it need this). Placed after the
+   .sc-sub-go rule — equal specificity, later wins. */
+.sc-sub-words.sc-sub-instant .word { opacity: 1; transform: none; filter: none; animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .sc-sub-words .word { opacity: 1; transform: none; filter: none; animation: none; }
+}
+
+@keyframes dsa-word-reveal {
+  from { opacity: 0; transform: translate(-10px, -7px); filter: blur(5px); }
+  to   { opacity: 1; transform: translate(0, 0);        filter: blur(0);   }
+}
+
+/* Email-capture submit button */
+.hero-cta-button {
+  width: auto; padding: 0 24px; height: 52px; flex-shrink: 0; background: var(--sc-blue);
+  border: none; border-radius: 0 2px 2px 0; color: #fff; font-size: 15px; font-weight: 600;
+  font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif); cursor: pointer; position: relative; overflow: hidden;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.hero-cta-button .btn-bg-hover { position: absolute; inset: 0; background: var(--sc-blue-hover); z-index: 1; transform: translateY(101%); transition: transform 0.45s cubic-bezier(0.165,0.84,0.44,1); }
+.hero-cta-button .btn-text-wrap { position: relative; z-index: 3; overflow: hidden; height: 1.2em; }
+.hero-cta-button .btn-text-inner { display: flex; flex-direction: column; transition: transform 0.45s cubic-bezier(0.165,0.84,0.44,1); }
+.hero-cta-button .btn-text-inner span { display: block; line-height: 1.2; }
+.hero-cta-button:hover .btn-bg-hover { transform: translateY(0); }
+.hero-cta-button:hover .btn-text-inner { transform: translateY(-50%); }
+
+/* ─── EMAIL CAPTURE STRIP (bordered card: label + email input + submit) ───── */
+.card-form-strip { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; padding: 12px 28px; cursor: default; }
+/* Footer usage of the strip is a bordered rounded card */
+.card-form-strip.is-carded { border: 1px solid rgba(var(--sc-ink-rgb),0.08); border-radius: 8px; }
+.card-strip-text { display: flex; flex-direction: column; gap: 3px; flex-shrink: 0; }
+.card-strip-sub { font-size: 16px; font-weight: 500; color: var(--sc-ink); margin: 0; line-height: 1.2; display: inline-flex; align-items: baseline; gap: 0.25em; }
+.hero-form-row { display: flex; gap: 0; flex: 1 1 320px; max-width: 420px; background: rgba(var(--sc-ink-rgb),0.08); border-radius: 4px; overflow: hidden; }
+.hero-email-input { flex: 1; height: 52px; background: transparent; border: none; padding: 0 18px; font-size: 15px; font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif); color: var(--sc-ink); outline: none; }
+.hero-email-input::placeholder { color: rgba(var(--sc-ink-rgb),0.45); }
+@media (max-width: 768px) {
+  .card-form-strip { flex-direction: column; align-items: center; gap: 12px; padding: 16px 12px; }
+  .card-form-strip .hero-form-row { width: 100%; max-width: none; flex-basis: auto; }
+}
+
+.hero-btn-ghost {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 52px; padding: 0 28px; background: transparent;
+  border: 1px solid var(--sc-line-strong); border-radius: 2px;
+  color: rgba(var(--sc-ink-rgb),0.8); font-size: 15px; font-weight: 500;
+  font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif); cursor: pointer; text-decoration: none;
+  position: relative; overflow: hidden;     /* anchor + clip for the pixel-fill canvas hover */
+}
+.hero-btn-ghost:hover { border-color: rgba(var(--sc-ink-rgb),0.4); color: var(--sc-ink); }
+/* Phone values restated AFTER the base rule: the ≤768 block above sits
+   earlier in the file, so at equal specificity this base rule was winning and
+   ghost buttons rendered 15px / 0 28px on phones (solutions audit, 2026-10-02). */
+@media (max-width: 768px) {
+  .hero-btn-ghost { padding: 0 26px; font-size: 16px; }
+}
+
+/* ─── EYEBROWS (sans-700 blue labels — Schibsted via --sc-font-label) ──────────────────────────────────── */
+.ms-faq-eyebrow, .footer-eyebrow, .how-eyebrow, .section-eyebrow,
+.slider-section-eyebrow, .feat-eyebrow, .success-eyebrow, .practice-visual-label {
+  font-family: var(--sc-font-label, 'Literata', serif); font-size: var(--sc-eyebrow-size, 13px); font-weight: var(--sc-label-weight, 500);
+  letter-spacing: 2px; text-transform: uppercase; color: var(--sc-blue);
+}
+/* FAQ eyebrow -> H2 on the 16/12/6 header rhythm (audit 2026-09-30): the security-family pages carried a flat margin: 0 0 16px */
+.ms-faq-eyebrow { margin: 0 0 16px; }
+@media (max-width: 1024px) { .ms-faq-eyebrow { margin-bottom: 12px; } }
+@media (max-width: 768px) { .ms-faq-eyebrow { margin-bottom: 12px; } }   /* mobile eyebrow->H2 is 12 (Gary, 2026-10-02; was 10) */
+/* pages that wrap the FAQ eyebrow in a .section-header already get the gap from
+   the header — the eyebrow's own margin would stack on top (careers read 32/24/16) */
+.section-header > .ms-faq-eyebrow { margin-bottom: 0; }
+@media (max-width: 1024px) {
+  .ms-faq-eyebrow, .footer-eyebrow, .how-eyebrow, .section-eyebrow,
+  .slider-section-eyebrow, .feat-eyebrow, .success-eyebrow,
+  .practice-section .practice-visual-label {
+    font-size: 13px;
+  }
+}
+
+/* ─── FAQ — accordion: +/- icon, smooth grid-row expand, blue tint when open ── */
+/* type comes from the canonical section-H2 group above; this is layout only */
+.ms-faq-headline { margin: 0 0 48px; }
+.ms-faq-list { display: flex; flex-direction: column; }
+.ms-faq-item { border-top: 1px solid var(--sc-line-soft); border-bottom: none; position: relative; transition: background 0.2s ease; overflow: hidden; }
+.ms-faq-item:last-child { border-bottom: 1px solid var(--sc-line-soft); }
+.ms-faq-item.is-open { background: rgba(20,136,252,0.03); }
+.ms-faq-q { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 28px 16px; background: none; border: none; cursor: pointer; font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif); font-size: 18px; font-weight: 500; color: rgba(var(--sc-ink-rgb),0.7); text-align: left; transition: color 0.2s; }
+.ms-faq-q:hover, .ms-faq-item.is-open .ms-faq-q { color: var(--sc-ink); }
+.ms-faq-icon { flex-shrink: 0; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; color: var(--sc-blue); position: relative; }
+.ms-faq-icon-plus, .ms-faq-icon-minus { position: absolute; transition: opacity 0.2s, transform 0.2s; }
+.ms-faq-icon-minus { opacity: 0; transform: rotate(-90deg); }
+.ms-faq-item.is-open .ms-faq-icon-plus { opacity: 0; transform: rotate(90deg); }
+.ms-faq-item.is-open .ms-faq-icon-minus { opacity: 1; transform: rotate(0deg); }
+.ms-faq-chevron { display: none; }
+.ms-faq-a { display: grid; grid-template-rows: 0fr; max-height: none; overflow: hidden; transition: grid-template-rows 0.38s cubic-bezier(0.4,0,0.2,1); }
+.ms-faq-item.is-open .ms-faq-a { grid-template-rows: 1fr; }
+.ms-faq-a-inner { overflow: hidden; padding: 0 16px; font-size: 15px; color: var(--sc-text-muted); /* section-subtitle grey (standardized 2026-08-07, was 0.65) */ line-height: 1.7; max-width: 720px; transition: padding-bottom 0.38s cubic-bezier(0.4,0,0.2,1); }
+.ms-faq-item.is-open .ms-faq-a-inner { padding-bottom: 24px; }
+.ms-faq-link { color: var(--sc-blue-ink); text-decoration: none; }
+.ms-faq-link:hover { text-decoration: underline; }
+@media (max-width: 768px) {
+  .ms-faq-inner { width: calc(100vw - 32px); }
+  .ms-faq-q { font-size: 17px; padding: 22px 0; }
+  .ms-faq-a-inner { padding: 0; font-size: 13px; }
+  .ms-faq-item.is-open .ms-faq-a-inner { padding-bottom: 20px; }
+}
+@media (max-width: 540px) {
+  .ms-faq-q { font-size: 16px; }
+}
+
+/* FAQ open-state pixel animation (canvas injected per item by shared-components.js) */
+.ms-faq-open-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity 0.5s ease; z-index: 0; }
+.ms-faq-item.is-open .ms-faq-open-canvas { opacity: 1; }
+.ms-faq-q, .ms-faq-a { position: relative; z-index: 1; }
+
+/* ─── SECTION HEADER GAP — progressive on smaller screens (Gary, 2026-09-29) ──
+   The eyebrow/H2/subtitle stack keeps its 16px gap on desktop, but the type
+   shrinks at tablet + mobile while the gap didn't, so it read airy. Shared
+   loads last, so these override the page-local .section-header rules only at
+   the breakpoints; pages that already set 12px on mobile now land at 10px. */
+@media (max-width: 1024px) { .section-header, .unlocks-header { gap: 12px; } }
+@media (max-width: 768px)  {
+  .section-header, .unlocks-header { gap: 8px; }   /* unlocks-header is solutions' header stack; a plain margin wrapper elsewhere, where gap is inert */
+  /* Mobile rhythm is 12 / 8 (Gary, 2026-10-02: "16 12 12 for eyebrow to
+     headline, 16 12 8 for headline to subtitle"; it was 10 / 6 from 09-30).
+     The gap is 8 for H2->sub; the eyebrow adds 4 to reach 12. */
+  :is(.section-header, .unlocks-header, .feat-header) > :is(.section-eyebrow, .feat-eyebrow, .how-eyebrow, .slider-section-eyebrow, .success-eyebrow, .ms-faq-eyebrow) { margin-bottom: 4px; }
+  /* the security family's .eyebrow-pill stacks (builtin / detail / aiblock / docs) sit on
+     sibling netting rather than a header gap — same +4 so they land on 12 */
+  .eyebrow-pill { margin-bottom: 4px; }
+  .hero-section .eyebrow-pill, .hero-inner .eyebrow-pill { margin-bottom: 0; }
+  /* subtitle leading 1.65 -> 1.4 on phones (Gary): the desktop measure is
+     ~640px wide where 1.65 breathes; at phone width the same leading reads
+     loose between its own wrapped lines and against the H2 above. */
+  .section-sub, .feat-subheadline, .footer-subtitle { line-height: 1.4; }
+}
+
+/* ─── CARD HOVER DOT FIELD — dark cap (Gary, 2026-09-29) ────────────────────
+   The pale hover dot field at full strength reads far too loud on black.
+   Covers every instance name in one rule: any hovered parent's direct child
+   hover-canvas tops out at 40% in dark. Light keeps full (the dots are
+   whisper-faint on white). Pages set opacity:1 on hover at (0,2,0); this is
+   (0,3,1), so it wins without touching the resting opacity:0. */
+html[data-theme="dark"] :hover > :is(.int-card-hover-canvas, .builtin-hover-canvas,
+  .feat-hover-canvas, .card-hover-canvas, .template-hover-canvas,
+  .trust-hover-canvas) { opacity: 0.4; }
+/* .unlock-hover-canvas is EXCLUDED: its pages set a deliberate 0.10 noise
+   wash — this rule outranks page rules, so including it RAISED that 4x
+   (templates/detail, Gary). Only the opacity:1 dot fields get capped. */
+
+/* ─── HEADER RHYTHM NETTING — family stacks (2026-09-29) ────────────────────
+   The security/trust-family header stacks carry their own flex gaps (22px
+   .builtin-left — it also spaces the content below; 18px compliance/detail/
+   bullets heads; 16px controls/hiw/aiblock heads). Adjacency margins net
+   ONLY the eyebrow→H2 and H2→subtitle hops to the 16/12/6 rhythm without
+   touching each container's gap, so content spacing below is unchanged.
+   :not(:first-child) guards stacks whose H2 has no eyebrow above it. */
+:is(.builtin-left) > :is(.reveal-h, .sc-section-h2):not(:first-child),
+:is(.builtin-left) > :is(.reveal-h, .sc-section-h2) + p { margin-top: -6px; }
+:is(.compliance-head, .detail-head, .bullets-left) > :is(.reveal-h, .sc-section-h2):not(:first-child),
+:is(.compliance-head, .detail-head, .bullets-left) > :is(.reveal-h, .sc-section-h2) + p { margin-top: -2px; }
+@media (max-width: 1024px) {
+  :is(.builtin-left) > :is(.reveal-h, .sc-section-h2):not(:first-child),
+  :is(.builtin-left) > :is(.reveal-h, .sc-section-h2) + p { margin-top: -10px; }
+  :is(.compliance-head, .detail-head, .bullets-left) > :is(.reveal-h, .sc-section-h2):not(:first-child),
+  :is(.compliance-head, .detail-head, .bullets-left) > :is(.reveal-h, .sc-section-h2) + p { margin-top: -6px; }
+  :is(.controls-head, .hiw-head, .aiblock-head) > :is(.reveal-h, .sc-section-h2):not(:first-child),
+  :is(.controls-head, .hiw-head, .aiblock-head) > :is(.reveal-h, .sc-section-h2) + p { margin-top: -4px; }
+}
+@media (max-width: 768px) {
+  :is(.builtin-left) > :is(.reveal-h, .sc-section-h2):not(:first-child),
+  :is(.builtin-left) > :is(.reveal-h, .sc-section-h2) + p { margin-top: -14px; }   /* 22 gap -> 8 (12 with the eyebrow's +4) */
+  :is(.compliance-head, .detail-head, .bullets-left) > :is(.reveal-h, .sc-section-h2):not(:first-child),
+  :is(.compliance-head, .detail-head, .bullets-left) > :is(.reveal-h, .sc-section-h2) + p { margin-top: -10px; }
+  :is(.controls-head, .hiw-head, .aiblock-head) > :is(.reveal-h, .sc-section-h2):not(:first-child),
+  :is(.controls-head, .hiw-head, .aiblock-head) > :is(.reveal-h, .sc-section-h2) + p { margin-top: -8px; }
+}
+
+/* ─── FOOTER (canonical — identical across all pages at every breakpoint) ─── */
+.footer-section { padding: 90px 40px 0; gap: 24px; }
+.footer-eyebrow { font-family: var(--sc-font-label, 'Literata', serif); font-weight: var(--sc-label-weight, 500); }
+/* type comes from the canonical section-H2 group above */
+/* margin-top nets the H2->subtitle gap against .footer-section's own 24px
+   flex gap. It was -16px, which left an 8px gap — half the 16px every other
+   section header uses (.section-header { gap: 16px }) and visibly tight.
+   -8px = 16px, matching. Measured, not guessed. (Gary, 2026-09-18)
+
+   Size + line-height also match the section subtitle now: clamp(15,1.1vw,17)
+   / 1.65, not the old flat 18px / 1.6. The footer CTA subtitle was the only
+   subtitle on the page with no documented standard and its own values — hero
+   and section both matched CLAUDE.md, this one did not. (Gary, 2026-09-18) */
+.footer-subtitle { font-size: clamp(15px, 1.1vw, 17px); color: var(--sc-text-sub); max-width: 640px; line-height: 1.65; margin: -8px auto 0; }
+/* eyebrow->H2 nets to the same 16/12/6 as everything else (Gary) — adjacent
+   sibling so a .dsa-reveal-wrapped headline and a bare one both net once */
+.footer-eyebrow + .dsa-reveal, .footer-eyebrow + .footer-headline { margin-top: -8px; }
+@media (max-width: 1024px) {
+  .footer-subtitle { margin-top: -12px; }  /* nets the 24px footer gap to 12, matching section headers */
+  .footer-eyebrow + .dsa-reveal, .footer-eyebrow + .footer-headline { margin-top: -12px; }
+}
+@media (max-width: 768px) {
+  .footer-section { padding: 48px 0 0; }
+  .footer-subtitle { margin-top: -16px; line-height: 1.4; }  /* nets the 24px footer gap to 8; 1.4 restated here because the base .footer-subtitle rule below (1.65) is later in the file than the ≤768 rule above and was winning on phones (audit 2026-09-30) */
+  .footer-eyebrow + .dsa-reveal, .footer-eyebrow + .footer-headline { margin-top: -12px; }  /* nets the 24px footer gap to 12 (mobile eyebrow->H2; sub is 8) */
+  /* 380px (not the old per-page 310px) so typical footer copy wraps to 2 lines,
+     not 3, on phones. Wins over each page's .footer-subtitle { max-width: 310px }
+     by specificity + load order. */
+  .footer-section .footer-subtitle { max-width: 380px; }
+  /* .hero-pills exempted: the pills row is a shrink-wrapped component — this
+     blanket width:100% stretched it edge-to-edge, and the 12px padding
+     overrode the component's own 16px (0-2-0 beats .hero-pills' 0-1-0). */
+  /* buttons excluded: on pages whose footer button is a direct child (customers)
+     this rule was stretching it full-width with 12px sides once its inline
+     sizing was removed (2026-10-02) */
+  .footer-section > *:not(.bolt-image-wrap, .hero-pills, .hero-btn-primary, .hero-btn-ghost) { padding-left: 12px; padding-right: 12px; box-sizing: border-box; width: 100%; }
+  /* full-width boxes (prompt shell, email strip) keep the 16px mobile gutter floor — 12px is fine for centred text/buttons but not for an edge-to-edge box (audit 2026-09-30, when the catalog pages started letting shared win) */
+  .footer-section > :is(.footer-prompt-stack, .card-form-strip, .re-prompt-shell),
+  .footer-section > *:has(> .re-prompt-shell, > .card-form-strip, > .hero-form-row) { padding-left: 16px; padding-right: 16px; }
+  .footer-subtitle { font-size: 15px; max-width: 310px; }   /* = the phone section subtitle; was a one-off 16 (Gary, 2026-10-02) */
+  /* (The old `.footer-section .card-form-strip { margin-top: -28px !important }`
+     mobile nudge is gone — strips now carry .footer-cta-strip, driven by the
+     --sub-to-cta token, same as .footer-cta-btn.) */
+}
+
+/* ─── FOOTER BOLT WORDMARK — bigger/full-bleed on MOBILE ONLY ─────────────── */
+@media (max-width: 768px) {
+  /* calc centering = full-bleed regardless of the footer's side padding */
+  .bolt-image-wrap { width: 100vw !important; margin-left: calc(-50vw + 50%) !important; height: 42vw !important; max-height: 42vw !important; }
+  .bolt-image-wrap img, #bolt-shimmer-canvas { transform: scale(1.35); transform-origin: center top; }
+}
+
+/* ─── HERO VIDEO COMPONENT — narrow centered card ─────────────────────────────
+   A narrow, height-aware video card that sits centered under a hero H1+subtitle:
+   16:9 poster + play button → opens a fullscreen modal (tella embed); a strip is
+   attached to the bottom edge (social-proof + CTA, a label, or an email form).
+
+   Sizing: .hero-video-col is capped to min(800px, 88vh). 800px matches the
+   Enterprise hero card width; the 88vh term shrinks the card on shorter
+   viewports so the whole H1 + subtitle + card stack stays centered inside a
+   full-height hero (min-height: 100vh/100dvh) without clipping or crowding the top.
+
+   Required markup:
+     <div class="hero-video-col">
+       <div class="hero-video-card" id="hero-video-card">
+         <div class="hero-video-area">
+           <img src="…poster.webp" alt="" aria-hidden="true"
+                style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+           <div class="hero-video-overlay"></div>
+           <div class="hero-play-btn" id="hero-play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+         </div>
+         <div class="hero-card-strip hero-card-strip--social"> … strip content … </div>
+       </div>
+     </div>
+     <div class="video-modal" id="video-modal" style="--video-poster:url('…poster.webp')">
+       <div class="video-modal-inner">
+         <button class="video-modal-close" id="video-modal-close">×</button>
+         <div id="modal-video" data-youtube="<youtube-id>"></div>
+       </div>
+     </div>
+   Video source: set data-youtube="<id>" (preferred) OR data-tella="<slug>" on
+   #modal-video. Behavior (open/close, embed injection, play ripple) lives in
+   shared-components.js.
+   Set the modal poster via the --video-poster custom property (shown above).
+   ──────────────────────────────────────────────────────────────────────────── */
+.hero-video-col { display: flex; flex-direction: column; gap: 0; width: 100%; max-width: min(800px, 88vh); margin: 0 auto; }
+.hero-video-card { border-radius: 4px; overflow: hidden; border: none; cursor: pointer; display: flex; flex-direction: column; box-shadow: 0 24px 64px var(--sc-shadow); }
+.hero-video-area { position: relative; aspect-ratio: 16/9; background: #000; border-radius: 4px 4px 0 0; overflow: hidden; }
+/* Scoped to the video card's own markup. An unscoped .hero-video-overlay
+   collides with pages that use the same class name for a full-page hero
+   darkening layer (microsoft.html: rgba(10,10,14,0.72) over msft-bg.webp) —
+   this vignette would silently replace it and the hero renders far too bright. */
+.hero-video-area > .hero-video-overlay { position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.45) 100%); z-index: 2; }
+
+/* play button + click ripple/return animations */
+.hero-play-btn {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 4;
+  width: 56px; height: 56px; border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.55); background: rgba(255,255,255,0.08);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), background 0.25s, box-shadow 0.25s;
+  pointer-events: none;
+}
+.hero-video-card:hover .hero-play-btn { transform: translate(-50%,-50%) scale(1.12); background: rgba(255,255,255,0.15); box-shadow: 0 0 24px rgba(255,255,255,0.12); }
+.hero-play-btn svg { width: 26px; height: 26px; fill: #fff; margin-left: 3px; }
+@keyframes play-ripple { 0% { transform:translate(-50%,-50%) scale(1); opacity:1; } 100% { transform:translate(-50%,-50%) scale(1.65); opacity:0; } }
+@keyframes play-fadein { from { opacity:0; transform:translate(-50%,-50%) scale(0.85); } to { opacity:1; transform:translate(-50%,-50%) scale(1); } }
+.hero-play-btn.clicked  { animation: play-ripple 0.55s cubic-bezier(0.22,1,0.36,1) forwards; }
+.hero-play-btn.returning { animation: play-fadein 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+
+/* bottom strip — base + content variants (social-proof / label / email form) */
+.hero-card-strip { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; padding: 14px 20px; background: var(--sc-surface-strong); }
+.hero-card-strip--social { flex-wrap: nowrap; }
+.hero-card-social-line { display: flex; align-items: flex-start; gap: 10px; flex: 1 1 auto; min-width: 0; }
+.hero-card-social-text { font-size: 14px; color: var(--sc-text-desc); line-height: 1.5; }
+.hero-card-social-text strong { color: rgba(var(--sc-ink-rgb),0.78); font-weight: 600; }
+.hero-social-proof-dot { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; flex-shrink: 0; margin-top: 4px; }
+.hero-card-strip--social .hero-social-proof-dot { margin-top: 6px; }
+.hero-strip-btn { flex-shrink: 0; }
+.hero-card-strip-sub { font-size: 15px; font-weight: 500; color: var(--sc-ink); margin: 0; line-height: 1.2; display: inline-flex; align-items: baseline; gap: 0.25em; flex-shrink: 0; }
+.hero-card-strip-text { font-size: 14px; color: rgba(var(--sc-ink-rgb),0.7); flex-shrink: 0; }
+.hero-card-strip-text em { font-style: var(--sc-serif-style, italic); color: var(--sc-accent-warm); font-family: var(--sc-font-serif, 'Literata', serif); font-size: 16px; }
+.hero-card-form { display: flex; gap: 0; flex: 1; max-width: 340px; background: rgba(var(--sc-ink-rgb),0.08); border-radius: 4px; overflow: hidden; }
+.hero-card-input { flex: 1; height: 44px; background: transparent; border: none; padding: 0 14px; font-size: 14px; font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif); color: var(--sc-ink); outline: none; }
+.hero-card-input::placeholder { color: rgba(var(--sc-ink-rgb),0.4); }
+.hero-card-submit { height: 44px; padding: 0 18px; background: var(--sc-blue); border: none; border-radius: 0 2px 2px 0; color: #fff; font-size: 14px; font-weight: 600; font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif); cursor: pointer; white-space: nowrap; transition: background 0.2s; }
+.hero-card-submit:hover { background: var(--sc-blue-hover); }
+
+/* fullscreen video modal (poster set per-page via --video-poster) */
+.video-modal { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.88); align-items: center; justify-content: center; }
+.video-modal.open { display: flex; }
+/* width grows to 1280px but the 149.33vh term (= 84vh × 16/9) caps height so it never overflows short screens */
+.video-modal-inner { position: relative; width: min(92vw, 1280px, 149.33vh); aspect-ratio: 16/9; border-radius: 4px; overflow: hidden; background: #000 var(--video-poster, none) center/cover no-repeat; }
+.video-modal-inner video, .video-modal-inner iframe, #modal-video, #modal-video iframe { width: 100%; height: 100%; object-fit: cover; border: 0; display: block; }
+/* fade the iframe in on load so the poster bridges the gap (no black flash) */
+#modal-video iframe { opacity: 0; transition: opacity 0.4s ease; }
+#modal-video iframe.is-loaded { opacity: 1; }
+.video-modal-close { position: absolute; top: -40px; right: 0; background: none; border: none; color: rgba(255,255,255,0.7); font-size: 28px; cursor: pointer; line-height: 1; }
+.video-modal-close:hover { color: #fff; }
+/* mobile: stack the social strip — full-width social line over a full-width CTA */
+@media (max-width: 768px) {
+  .hero-card-strip--social { flex-direction: column; align-items: stretch; gap: 14px; padding: 16px; }
+  .hero-card-social-text { font-size: 13px; }
+  .hero-card-strip--social .hero-strip-btn { width: 100%; }
+}
+
+/* ─── INTEGRATION TILE LOGOS ──────────────────────────────────────────────
+   The component's markup is copied per page (solutions, integrations,
+   use-cases, templates); only this treatment is shared. Inert on dark, where
+   the token is `none`. */
+.int-logo img { filter: var(--sc-logo-filter, none); }
+
+/* How-it-works on phones: a vertical timeline on EVERY page (Gary, 2026-10-02 —
+   first shipped on bolt-cli). The circle takes a left column with the title +
+   description beside it, and a faint line runs from each circle to the next,
+   6px clear of both. Production: use-case-page.css + solution-page.css. */
+@media (max-width: 768px) {
+  .how-step { display: grid; grid-template-columns: 40px minmax(0, 1fr); column-gap: 18px; position: relative; padding: 0; }
+  .how-step-node { grid-column: 1; grid-row: 1 / span 2; margin-bottom: 0; }
+  .how-step-title { grid-column: 2; margin-top: 8px; }
+  .how-step-desc { grid-column: 2; }
+  .how-step:not(:last-child)::before { content: ""; position: absolute; left: 19.5px; width: 1px; top: 46px; bottom: -34px; background: rgba(255, 255, 255, 0.10); pointer-events: none; }
+  html[data-theme="light"] .how-step:not(:last-child)::before { background: rgba(var(--sc-ink-rgb, 10, 12, 20), 0.12); }
+}

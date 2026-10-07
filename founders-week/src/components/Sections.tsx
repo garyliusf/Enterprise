@@ -1,0 +1,347 @@
+import { useEffect, useState } from 'react';
+import { BOLT_URL, competition, faqs, footerCta, sessions, templates, TERMS_PATH, timeline, weekend } from '../config';
+import { getGallery, isPreview, type GalleryEntry } from '../lib/api';
+import { EntryForm, JoinForm } from './Forms';
+import { Btn, BoltLogo, PixelField, SectionHeader, Tbc, type WaveFn } from './ui';
+
+/* Wave functions for the section pixel fields (sandbox makePixelCanvas family). */
+const risingWave: WaveFn = (c, r, t, phase, cols, rows) => {
+  const x = c / cols;
+  const y = r / rows;
+  const centre = 1 - Math.min(1, Math.abs(x - 0.5) * 2.1);
+  const fromBottom = Math.max(0, (y - 0.25) / 0.75);
+  const w = Math.sin(x * 9 - t / 900 + y * 4) * 0.5 + 0.5;
+  const breathe = Math.sin(t / 700 + phase) * 0.25 + 0.75;
+  return centre * fromBottom * fromBottom * w * breathe;
+};
+const cornerWave: WaveFn = (c, r, t, phase, cols, rows) => {
+  const dx = 1 - c / cols;
+  const dy = r / rows;
+  const d = Math.max(0, 1 - Math.hypot(dx, 1 - dy) * 1.25);
+  const w = Math.sin(dx * 10 + dy * 6 - t / 800) * 0.5 + 0.5;
+  return d * d * w * (Math.sin(t / 650 + phase) * 0.2 + 0.8);
+};
+
+/* ── Timeline ─────────────────────────────────────────────────────────────── */
+export function Timeline() {
+  return (
+    <section className="fw-section fw-section--timeline" aria-label="How the week runs">
+      <div className="fw-inner">
+        {/* First section after the hero: static H2, no reveal (CLAUDE.md). */}
+        <SectionHeader
+          eyebrow="How the week runs"
+          title="Build, learn, then show it off"
+          subtitle="Founders Week runs Oct 17 to 24. Join once and you are in for all of it."
+          reveal={false}
+        />
+        <ol className="fw-timeline">
+          {timeline.map((m, i) => (
+            <li key={m.title} className="fw-milestone">
+              <span className="fw-milestone-num">{String(i + 1).padStart(2, '0')}</span>
+              <span className="fw-milestone-date">
+                {m.date}
+                {m.tbc && <Tbc />}
+              </span>
+              <h3 className="fw-card-title">{m.title}</h3>
+              <p className="fw-card-desc">{m.body}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  );
+}
+
+/* ── Join ─────────────────────────────────────────────────────────────────── */
+export function Join() {
+  return (
+    <section className="fw-section fw-section--band fw-section--join" id="join">
+      <div className="fw-inner fw-split">
+        <div className="fw-split-copy">
+          <SectionHeader
+            eyebrow="Join Founders Week"
+            title="Count yourself in"
+            subtitle="Joining is free and takes ten seconds. We will send you the session links and a reminder before the build weekend starts."
+          />
+          <ul className="fw-ticks">
+            <li>Free unlimited building on Oct 17 and 18</li>
+            <li>Live sessions with the founders and the Bolt team</li>
+            <li>A shot at the founder competition</li>
+          </ul>
+        </div>
+        <div className="fw-form-card">
+          <JoinForm />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── Free build weekend ──────────────────────────────────────────────────── */
+export function Weekend() {
+  return (
+    <section className="fw-section fw-section--weekend" id="weekend">
+      <div className="fw-inner">
+        <SectionHeader eyebrow={weekend.eyebrow} title={weekend.title} subtitle={weekend.subtitle} />
+        <div className="fw-grid fw-grid--3">
+          {weekend.points.map((p, i) => (
+            <div key={p.title} className="fw-card">
+              <PixelField wave={cornerWave} spacing={9} dot={2} opacity={0.5} className="fw-card-field" />
+              <span className="fw-card-num">{String(i + 1).padStart(2, '0')}</span>
+              <h3 className="fw-card-title">{p.title}</h3>
+              <p className="fw-card-desc">{p.body}</p>
+            </div>
+          ))}
+        </div>
+        {weekend.partner.show && <p className="fw-partner">{weekend.partner.line}</p>}
+        <p className="fw-fine">{weekend.finePrint}</p>
+      </div>
+    </section>
+  );
+}
+
+/* ── Schedule ─────────────────────────────────────────────────────────────── */
+export function Schedule() {
+  return (
+    <section className="fw-section fw-section--schedule" id="schedule">
+      <div className="fw-inner">
+        <SectionHeader
+          eyebrow="Founder programming · Oct 19–23"
+          title="A week of founder sessions"
+          subtitle="Live Q&As, workshops and feedback hours. Join Founders Week and we will send you the links."
+        />
+        <div className="fw-sessions">
+          {sessions.map((s) => (
+            <div key={s.title} className={`fw-session${s.tbc ? ' is-tbc' : ''}`}>
+              <div className="fw-session-when">
+                <span className="fw-session-day">{s.day}</span>
+                <span className="fw-session-time">{s.time}</span>
+              </div>
+              <div className="fw-session-what">
+                <h3 className="fw-session-title">
+                  {s.title}
+                  {s.tbc && <Tbc />}
+                </h3>
+                <span className="fw-session-host">{s.host}</span>
+              </div>
+              <span className={`fw-session-tag${s.tbc ? '' : ' is-confirmed'}`}>{s.tbc ? 'Details soon' : 'Confirmed'}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── Founder templates ───────────────────────────────────────────────────── */
+export function Templates() {
+  return (
+    <section className="fw-section fw-section--templates" id="templates">
+      <div className="fw-inner">
+        <SectionHeader
+          eyebrow="Founder templates"
+          title={
+            <>
+              Ten templates to start from {templates.tbc && <Tbc />}
+            </>
+          }
+          subtitle="A starter kit for founders, built in Bolt. They drop before the build weekend, so you can open one and start building on Saturday morning."
+        />
+        <div className="fw-templates">
+          {templates.items.map((t, i) => {
+            const inner = (
+              <>
+                <span className="fw-template-num">{String(i + 1).padStart(2, '0')}</span>
+                <span className="fw-template-name">{t.name}</span>
+                <span className="fw-template-blurb">{t.blurb}</span>
+                <span className="fw-template-cta">
+                  {t.url ? 'Open in Bolt' : 'Coming soon'}
+                  {t.url && <i className="fw-arrow" aria-hidden="true" />}
+                </span>
+              </>
+            );
+            return t.url ? (
+              <a key={t.name} className="fw-template" href={t.url} target="_blank" rel="noopener">
+                {inner}
+              </a>
+            ) : (
+              <div key={t.name} className="fw-template is-locked">
+                {inner}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── Competition: prizes → entries gallery → submission form ─────────────── */
+function Gallery() {
+  const [entries, setEntries] = useState<GalleryEntry[] | null>(null);
+  useEffect(() => {
+    getGallery().then(setEntries);
+  }, []);
+
+  if (entries === null) return <div className="fw-gallery fw-gallery--loading" aria-busy="true" />;
+  if (!entries.length) {
+    return (
+      <div className="fw-gallery-empty">
+        <p>No entries yet. The first products show up here once they have been reviewed.</p>
+        <a className="fw-text-link" href="#enter">
+          Be the first to enter <i className="fw-arrow" aria-hidden="true" />
+        </a>
+      </div>
+    );
+  }
+  return (
+    <>
+      {isPreview && <p className="fw-preview-note">Preview mode: these are sample entries.</p>}
+      <div className="fw-gallery">
+        {entries.map((e, i) => (
+          <a key={e.id} className="fw-entry-card" href={e.product_url} target="_blank" rel="noopener">
+            <span className="fw-entry-thumb" data-hue={i % 4} aria-hidden="true">
+              <span>{e.product_name.replace(/^Sample:\s*/, '').charAt(0)}</span>
+            </span>
+            <span className="fw-entry-body">
+              <span className="fw-entry-name">{e.product_name}</span>
+              <span className="fw-entry-tagline">{e.tagline}</span>
+              <span className="fw-entry-founder">by {e.founder_name}</span>
+            </span>
+          </a>
+        ))}
+      </div>
+    </>
+  );
+}
+
+export function Competition() {
+  return (
+    <section className="fw-section fw-section--band fw-section--compete" id="compete">
+      <div className="fw-inner">
+        <SectionHeader eyebrow={competition.eyebrow} title={competition.title} subtitle={competition.subtitle} />
+
+        <div className="fw-prizes">
+          {competition.prizes.map((p, i) => (
+            <div key={p.place} className={`fw-prize${i === 0 ? ' is-first' : ''}`}>
+              {i === 0 && <PixelField wave={cornerWave} spacing={8} dot={2} opacity={0.7} className="fw-card-field is-on" />}
+              <span className="fw-prize-place">
+                {p.place} place
+                {competition.prizesTbc && <Tbc />}
+              </span>
+              <span className="fw-prize-amount">{p.amount}</span>
+              <p className="fw-card-desc">{p.extras}</p>
+            </div>
+          ))}
+        </div>
+        <p className="fw-fine">
+          {competition.prizeFinePrint}{' '}
+          <a className="fw-text-link" href={TERMS_PATH} target="_blank" rel="noopener">
+            Read the rules
+          </a>
+        </p>
+
+        <div className="fw-subhead">
+          <h3 className="fw-subhead-title">Entries</h3>
+          <a className="fw-text-link" href="#enter">
+            Submit yours <i className="fw-arrow" aria-hidden="true" />
+          </a>
+        </div>
+        <Gallery />
+
+        <div className="fw-enter" id="enter">
+          <div className="fw-enter-head">
+            <h3 className="fw-subhead-title">Enter the competition</h3>
+            <p className="section-sub">Existing products count. No pitch needed, just the live product and a few lines about it.</p>
+          </div>
+          <div className="fw-form-card fw-form-card--wide">
+            <EntryForm />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── FAQ (shared .ms-faq component; JS only toggles .is-open) ───────────── */
+export function Faq() {
+  const [open, setOpen] = useState<number | null>(0);
+  return (
+    <section className="fw-section fw-section--faq ms-faq-section" id="faq">
+      <div className="fw-inner fw-faq-layout">
+        <div className="fw-faq-head">
+          <span className="ms-faq-eyebrow eyebrow-scramble">FAQ</span>
+          <div className="dsa-reveal">
+            <h2 className="ms-faq-headline">Questions, answered</h2>
+          </div>
+        </div>
+        <div className="ms-faq-list">
+          {faqs.map((f, i) => (
+            <div key={f.q} className={`ms-faq-item${open === i ? ' is-open' : ''}`}>
+              <button
+                className="ms-faq-q"
+                aria-expanded={open === i}
+                onClick={() => setOpen(open === i ? null : i)}
+              >
+                {f.q}
+                <span className="ms-faq-icon">
+                  <svg className="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none">
+                    <line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                    <line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                  </svg>
+                  <svg className="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none">
+                    <line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                  </svg>
+                </span>
+              </button>
+              <div className="ms-faq-a">
+                <div className="ms-faq-a-inner">{f.a}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── Footer CTA + footer ─────────────────────────────────────────────────── */
+export function FooterCta() {
+  return (
+    <section className="fw-footer-cta">
+      <PixelField wave={risingWave} spacing={9} dot={2} opacity={0.75} className="fw-footer-field" />
+      <div className="fw-footer-cta-inner">
+        <span className="footer-eyebrow eyebrow-scramble">{footerCta.eyebrow}</span>
+        <div className="dsa-reveal">
+          <h2 className="sc-section-h2">{footerCta.title}</h2>
+        </div>
+        <p className="fw-footer-sub">{footerCta.subtitle}</p>
+        <div className="hero-btn-group fw-footer-btns">
+          <Btn href="#join">{footerCta.cta}</Btn>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export function SiteFooter() {
+  return (
+    <footer className="fw-site-footer">
+      <div className="fw-inner fw-site-footer-row">
+        <a href={BOLT_URL} className="fw-footer-logo" target="_blank" rel="noopener" aria-label="Bolt">
+          <BoltLogo />
+        </a>
+        <nav className="fw-footer-links" aria-label="Footer">
+          <a href={TERMS_PATH}>Competition Rules</a>
+          <a href="https://stackblitz.com/terms-of-service" target="_blank" rel="noopener">
+            Terms of Use
+          </a>
+          <a href="https://stackblitz.com/privacy-policy" target="_blank" rel="noopener">
+            Privacy Policy
+          </a>
+        </nav>
+        <span className="fw-footer-copy">© 2026 StackBlitz</span>
+      </div>
+    </footer>
+  );
+}
