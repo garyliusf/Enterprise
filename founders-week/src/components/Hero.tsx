@@ -21,7 +21,6 @@ function HeroDither() {
       [15, 7, 13, 5],
     ];
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const dark = window.matchMedia('(prefers-color-scheme: dark)');
     let cols = 0;
     let rows = 0;
     let raf = 0;
@@ -34,7 +33,7 @@ function HeroDither() {
     };
     const draw = (ts: number) => {
       const t = ts / 1000;
-      const isDark = dark.matches;
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = isDark ? 'rgb(120,160,230)' : '#fff';
       for (let r = 0; r < rows; r++) {

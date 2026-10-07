@@ -88,7 +88,16 @@ export const sessions: Session[] = [
   { day: 'Date TBC', time: 'Time TBC', title: 'Feedback hours: bring your product', host: 'Bolt team and peers', tbc: true },
 ];
 
-export type FounderTemplate = { name: string; blurb: string; url?: string };
+export type FounderTemplate = {
+  name: string;
+  blurb: string;
+  url?: string;
+  /* Full-page screenshot of the template's landing page, in public/templates/
+     (e.g. '/templates/waitlist.webp', 800px wide). Without one the card shows
+     a placeholder page mock. */
+  shot?: string;
+  tag?: string;
+};
 
 /* Founder templates (Bolt share links from Gary, 2026-10-07). The share
    pages need a Bolt login to read, so names and blurbs are still TBC —

@@ -1,3 +1,4 @@
+import type React from 'react';
 import { useEffect, useState } from 'react';
 import { BOLT_URL, competition, faqs, footerCta, sessions, templates, TERMS_PATH, timeline, weekend } from '../config';
 import { getGallery, isPreview, type GalleryEntry } from '../lib/api';
@@ -133,6 +134,24 @@ export function Schedule() {
   );
 }
 
+/* Placeholder page mock for a template card with no screenshot yet: a tall
+   skeleton landing page, so the hover drift still reads as "scroll". */
+function TemplateMock({ seed }: { seed: number }) {
+  const accent = ['#1488FC', '#0a3f9e', '#3b82cf', '#072f86'][seed % 4];
+  return (
+    <div className="fw-tcard-shot-wrap">
+      <div className="fw-tmock" style={{ '--acc': accent } as React.CSSProperties}>
+        <div className="fw-tmock-nav"><i /><b /><b /><b /></div>
+        <div className="fw-tmock-hero"><b className="w80" /><b className="w60" /><s /><em /></div>
+        <div className="fw-tmock-img" />
+        <div className="fw-tmock-row"><span /><span /><span /></div>
+        <div className="fw-tmock-text"><b className="w70" /><s /><s /><s className="w50" /></div>
+        <div className="fw-tmock-row"><span /><span /></div>
+      </div>
+    </div>
+  );
+}
+
 /* ── Founder templates ───────────────────────────────────────────────────── */
 export function Templates() {
   return (
@@ -147,29 +166,36 @@ export function Templates() {
           }
           subtitle="A starter kit for founders, built in Bolt. Open one, make it yours, and start building on Saturday morning."
         />
+        {/* Same card as the templates catalog (marketing/templates): portrait
+            preview, full-page shot that drifts up on hover, name + tag foot. */}
         <div className="fw-templates">
-          {templates.items.map((t, i) => {
-            const inner = (
-              <>
-                <span className="fw-template-num">{String(i + 1).padStart(2, '0')}</span>
-                <span className="fw-template-name">{t.name}</span>
-                <span className="fw-template-blurb">{t.blurb}</span>
-                <span className="fw-template-cta">
-                  {t.url ? 'Open in Bolt' : 'Coming soon'}
-                  {t.url && <i className="fw-arrow" aria-hidden="true" />}
-                </span>
-              </>
-            );
-            return t.url ? (
-              <a key={t.name} className="fw-template" href={t.url} target="_blank" rel="noopener">
-                {inner}
-              </a>
-            ) : (
-              <div key={t.name} className="fw-template is-locked">
-                {inner}
+          {templates.items.map((t, i) => (
+            <a
+              key={t.name}
+              className="fw-tcard"
+              href={t.url || '#'}
+              target="_blank"
+              rel="noopener"
+              style={{ '--i': i } as React.CSSProperties}
+            >
+              <div className="fw-tcard-preview" aria-hidden="true">
+                {t.shot ? (
+                  <div className="fw-tcard-shot-wrap">
+                    <img className="fw-tcard-shot" src={t.shot} alt="" width={800} height={2245} loading="eager" decoding="async" />
+                  </div>
+                ) : (
+                  <TemplateMock seed={i} />
+                )}
+                <div className="fw-tcard-overlay">
+                  <span>Open in Bolt</span>
+                </div>
               </div>
-            );
-          })}
+              <div className="fw-tcard-foot">
+                <span className="fw-tcard-name">{t.name}</span>
+                <span className="fw-tcard-tag">{t.tag || 'Founders'}</span>
+              </div>
+            </a>
+          ))}
         </div>
       </div>
     </section>

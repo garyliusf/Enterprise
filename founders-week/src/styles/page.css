@@ -4,7 +4,9 @@
    shared-components.css, a verbatim copy of marketing/shared-components.css
    in the Enterprise sandbox. Everything here is page layout, prefixed fw-
    so nothing collides with the shared class names.
-   Light is the default; dark follows the OS (tokens flip in the shared file).
+   Light is the default; dark follows the OS. The resolver in index.html
+   stamps <html data-theme> before paint (?theme= → saved choice → OS →
+   light), so dark overrides here key on :root[data-theme="dark"].
    ============================================================================ */
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -52,7 +54,7 @@ img, svg { display: block; }
 }
 .fw-text-link:hover { color: var(--sc-blue-hover); }
 .fw-text-link:hover .fw-arrow { transform: translateX(3px); }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .fw-text-link { color: #4DA6FF; } :root:not([data-theme="light"]) .fw-text-link:hover { color: #7CBFFF; } }
+:root[data-theme="dark"] .fw-text-link { color: #4DA6FF; } :root[data-theme="dark"] .fw-text-link:hover { color: #7CBFFF; }
 
 .fw-tbc {
   display: inline-block; margin-left: 8px; padding: 2px 6px; vertical-align: middle;
@@ -152,13 +154,11 @@ img, svg { display: block; }
   background-repeat: no-repeat;
   background-color: var(--sc-ground);
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .fw-hero {
-    background:
-      radial-gradient(ellipse 70% 62% at 50% 0%, rgba(20, 136, 252, 0.30), rgba(20, 136, 252, 0.08) 55%, transparent 78%),
-      radial-gradient(ellipse 40% 30% at 50% 4%, rgba(120, 190, 255, 0.18), transparent 70%),
-      #000;
-  }
+:root[data-theme="dark"] .fw-hero {
+  background:
+    radial-gradient(ellipse 70% 62% at 50% 0%, rgba(20, 136, 252, 0.30), rgba(20, 136, 252, 0.08) 55%, transparent 78%),
+    radial-gradient(ellipse 40% 30% at 50% 4%, rgba(120, 190, 255, 0.18), transparent 70%),
+    #000;
 }
 .fw-hero::after {
   /* the stretched ramp is cut off still pale blue — release it into the page
@@ -301,7 +301,7 @@ img, svg { display: block; }
 .fw-field.has-error input, .fw-field.has-error textarea { border-color: #d64545; }
 .fw-field-hint { font-size: 12px; color: var(--sc-text-faint); }
 .fw-field-error, .fw-form-error { font-size: 12px; color: #d64545; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) :is(.fw-field-error, .fw-form-error) { color: #ff8a8a; } }
+:root[data-theme="dark"] :is(.fw-field-error, .fw-form-error) { color: #ff8a8a; }
 
 .fw-choice-row { display: flex; flex-wrap: wrap; gap: 8px; }
 .fw-chip {
@@ -377,33 +377,81 @@ img, svg { display: block; }
   .fw-session-tag { align-self: start; }
 }
 
-/* ── Templates ──────────────────────────────────────────────────────────
-   Separate cards on a gap (not a shared-border tile grid) so the section
-   holds any number of templates without border bookkeeping. */
-.fw-templates { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
-.fw-template {
-  position: relative; display: flex; flex-direction: column; gap: 6px; min-height: 196px;
-  padding: 24px 20px; text-decoration: none; color: inherit;
-  border: 1px solid var(--sc-line); border-radius: 2px;
-  background: linear-gradient(180deg, rgba(var(--sc-ink-rgb), 0.03) 0%, rgba(var(--sc-ink-rgb), 0.005) 100%);
-  transition: border-color 0.3s ease, background-color 0.2s ease;
+/* ── Templates — the catalog card (marketing/templates/index.html) ───────
+   Portrait 4/5 preview, a full-page screenshot top-anchored and clipped that
+   drifts up ~40px on hover, a scrim + pill label rising from the foot, and a
+   name / tag row underneath. Values copied from the catalog. */
+.fw-templates { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 56px 20px; }
+@keyframes fw-tcard-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.fw-tcard {
+  position: relative; display: flex; flex-direction: column; text-decoration: none; color: inherit;
+  transition: transform 0.25s ease;
+  animation: fw-tcard-in 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(min(var(--i, 0), 15) * 45ms);
 }
-a.fw-template:hover { border-color: rgba(20, 136, 252, 0.45); background-color: var(--sc-hover-tint); }
-a.fw-template:hover .fw-arrow { transform: translateX(3px); }
-.fw-template-num { font: 700 12px/1 var(--sc-font-label); letter-spacing: 2px; color: var(--sc-text-faint); margin-bottom: 20px; }
-.fw-template-name { font-size: 17px; font-weight: 600; letter-spacing: -0.2px; }
-.fw-template-blurb { font-size: 14px; line-height: 1.5; color: var(--sc-text-desc); }
-.fw-template-cta {
-  margin-top: auto; padding-top: 16px; display: inline-flex; align-items: center; gap: 8px;
-  font-size: 13px; font-weight: 600; color: var(--sc-blue-ink);
+.fw-tcard:hover { transform: translateY(-3px); }
+.fw-tcard-preview {
+  position: relative; aspect-ratio: 4 / 5; overflow: hidden;
+  border-radius: 4px; border: 1px solid rgba(var(--sc-ink-rgb), 0.08);
+  background: var(--sc-surface); transition: border-color 0.25s ease;
 }
-.fw-template.is-locked .fw-template-cta { color: var(--sc-text-faint); font-weight: 500; }
-@media (max-width: 768px) {
-  .fw-templates { grid-template-columns: 1fr 1fr; gap: 12px; }
-  .fw-template { min-height: 0; padding: 20px 16px; }
-  .fw-template-num { margin-bottom: 12px; }
+.fw-tcard-shot-wrap { position: relative; width: 100%; height: 100%; overflow: hidden; }
+.fw-tcard-shot, .fw-tmock {
+  position: absolute; top: 0; left: 0; width: 100%; height: auto; display: block;
+  transform: translateY(0); transition: transform 0.8s ease-out;
 }
-@media (max-width: 480px) { .fw-templates { grid-template-columns: 1fr; } }
+.fw-tcard:hover :is(.fw-tcard-shot, .fw-tmock) { transform: translateY(-40px); }
+
+.fw-tcard-overlay {
+  position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  display: flex; align-items: flex-end; justify-content: center; padding-bottom: 18px;
+  background: linear-gradient(180deg, rgba(255,255,255,0) 60%, rgba(255,255,255,0.72) 88%, rgba(255,255,255,0.92) 100%);
+  opacity: 0; transition: opacity 0.32s ease;
+}
+.fw-tcard:hover .fw-tcard-overlay { opacity: 1; }
+.fw-tcard-overlay span {
+  font: 700 10px/1 var(--sc-font-label); letter-spacing: 1.6px; text-transform: uppercase; color: var(--sc-ink);
+  background: #fff; padding: 9px 16px; border-radius: 999px;
+  border: 1px solid rgba(var(--sc-ink-rgb), 0.08); box-shadow: 0 4px 14px rgba(15, 26, 42, 0.12);
+  transform: translateY(6px); transition: transform 0.32s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.fw-tcard:hover .fw-tcard-overlay span { transform: none; }
+:root[data-theme="dark"] .fw-tcard-preview { background: #0a0a10; }
+:root[data-theme="dark"] .fw-tcard-overlay {
+  background: linear-gradient(180deg, rgba(5,5,8,0) 45%, rgba(5,5,8,0.55) 80%, rgba(5,5,8,0.82) 100%);
+}
+:root[data-theme="dark"] .fw-tcard-overlay span { background: none; padding: 0; border: 0; box-shadow: none; }
+.fw-tcard-foot { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 14px 4px 0; }
+.fw-tcard-name { font-size: 14px; font-weight: 500; letter-spacing: -0.1px; color: rgba(var(--sc-ink-rgb), 0.92); }
+.fw-tcard-tag {
+  padding-top: 2px; white-space: nowrap;
+  font: var(--sc-label-weight) 10px/1.4 var(--sc-font-label); letter-spacing: 1.2px; text-transform: uppercase; color: var(--sc-text-muted);
+}
+@media (prefers-reduced-motion: reduce) {
+  .fw-tcard { animation: none; }
+  .fw-tcard-shot, .fw-tmock, .fw-tcard:hover :is(.fw-tcard-shot, .fw-tmock),
+  .fw-tcard-overlay span, .fw-tcard:hover .fw-tcard-overlay span { transform: none; transition: none; }
+}
+@media (max-width: 1024px) { .fw-templates { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 44px 16px; } }
+@media (max-width: 768px) { .fw-templates { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 36px 12px; } }
+
+/* Placeholder mock — a skeleton landing page, taller than the card */
+.fw-tmock { --mk: rgba(var(--sc-ink-rgb), 0.09); --mk2: rgba(var(--sc-ink-rgb), 0.05); padding: 0 0 24px; background: var(--sc-ground); }
+.fw-tmock b, .fw-tmock s, .fw-tmock i, .fw-tmock em, .fw-tmock span { display: block; border-radius: 2px; }
+.fw-tmock-nav { display: flex; align-items: center; gap: 8px; padding: 12px 14px; border-bottom: 1px solid var(--mk2); }
+.fw-tmock-nav i { width: 28px; height: 8px; background: var(--acc); margin-right: auto; }
+.fw-tmock-nav b { width: 18px; height: 5px; background: var(--mk); }
+.fw-tmock-hero { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 34px 18px 22px; }
+.fw-tmock-hero b { height: 12px; background: rgba(var(--sc-ink-rgb), 0.16); }
+.fw-tmock-hero s { width: 64%; height: 6px; background: var(--mk); margin-top: 4px; }
+.fw-tmock-hero em { width: 34%; height: 18px; background: var(--acc); margin-top: 10px; }
+.w80 { width: 80%; } .w70 { width: 70%; } .w60 { width: 60%; } .w50 { width: 50%; }
+.fw-tmock-img { height: 120px; margin: 0 14px; background: linear-gradient(135deg, var(--acc), color-mix(in srgb, var(--acc) 35%, var(--sc-ground))); border-radius: 2px; opacity: 0.85; }
+.fw-tmock-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 8px; padding: 18px 14px 0; }
+.fw-tmock-row span { height: 64px; background: var(--mk2); border: 1px solid var(--mk2); }
+.fw-tmock-text { display: flex; flex-direction: column; gap: 7px; padding: 22px 14px 0; }
+.fw-tmock-text b { height: 9px; background: rgba(var(--sc-ink-rgb), 0.14); }
+.fw-tmock-text s { height: 5px; background: var(--mk); }
 
 /* ── Competition (band) ─────────────────────────────────────────────────── */
 .fw-prizes { display: grid; grid-template-columns: 1.25fr 1fr 1fr; gap: 16px; }

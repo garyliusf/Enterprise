@@ -163,15 +163,15 @@ export function PixelField({
     ro.observe(canvas.parentElement!);
     const io = new IntersectionObserver(([e]) => (visible = e.isIntersecting));
     io.observe(canvas);
-    const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    mq.addEventListener('change', readColor);
+    /* the theme resolver (index.html) fires this when the OS theme flips */
+    document.addEventListener('sc-themechange', readColor);
     if (reduce) requestAnimationFrame((t) => draw(t));
     else raf = requestAnimationFrame(loop);
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
       io.disconnect();
-      mq.removeEventListener('change', readColor);
+      document.removeEventListener('sc-themechange', readColor);
     };
   }, [spacing, dot, opacity, color]);
 

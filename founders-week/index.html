@@ -8,6 +8,31 @@
     <meta property="og:title" content="Founders Week | Bolt" />
     <meta property="og:description" content="A free build weekend, a week of founder sessions, and a competition for the product you built in Bolt." />
     <meta name="theme-color" content="#021a57" />
+    <!-- Theme resolver, same model as the marketing site: light by default,
+         dark for visitors whose OS asks for it. Runs before paint so there is
+         no flash. Order: ?theme=light|dark (preview override) → saved choice
+         (localStorage "sc-theme") → OS preference → light. Follows OS changes
+         live and fires "sc-themechange" so canvases re-tint. -->
+    <script>
+      (function () {
+        var root = document.documentElement;
+        var mq = window.matchMedia('(prefers-color-scheme: dark)');
+        var q = new URLSearchParams(location.search).get('theme');
+        var saved = null;
+        try { saved = localStorage.getItem('sc-theme'); } catch (e) {}
+        function ok(v) { return v === 'light' || v === 'dark'; }
+        function apply() {
+          var t = ok(q) ? q : ok(saved) ? saved : mq.matches ? 'dark' : 'light';
+          root.setAttribute('data-theme', t);
+          root.style.colorScheme = t;
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute('content', t === 'dark' ? '#000000' : '#021a57');
+        }
+        apply();
+        var onChange = function () { apply(); document.dispatchEvent(new Event('sc-themechange')); };
+        if (mq.addEventListener) mq.addEventListener('change', onChange); else if (mq.addListener) mq.addListener(onChange);
+      })();
+    </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
