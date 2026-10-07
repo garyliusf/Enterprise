@@ -620,6 +620,20 @@
        keeps it above the page — in the hero it was trapped in a z-index:1
        stacking context that the cards grid painted over. */
     .mkt-nav-actions .workspace-menu { left: auto; right: 0; }
+    /* PHONES + TABLETS (Gary, 2026-10-07): the nav grid is 1fr auto 1fr, so
+       with the middle links hidden the right group only gets HALF the bar —
+       the picker pushed the menu button 27–37px off-screen. Scoped to a nav
+       that holds the workspace picker; the shared navbar elsewhere is unchanged. */
+    @media (max-width: 1024px) {
+      .mkt-nav-inner:has(.workspace-picker) { grid-template-columns: auto 1fr auto; }
+    }
+    @media (max-width: 768px) {
+      .mkt-nav-inner:has(.workspace-picker) { column-gap: 12px; }
+      .mkt-nav-actions .workspace-btn { gap: 8px; padding: 6px 10px 6px 6px; font-size: 13px; }
+      /* logo, gaps, burger and the pill's own chrome leave the name ~100vw − 252px;
+         longer names truncate instead of pushing the menu button out */
+      .mkt-nav-actions .workspace-name { min-width: 0; max-width: calc(100vw - 252px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    }
     /* both pickers must out-rank what they open over: the workspace menu
        overlaps the cards below it, and the token menu overlaps its own card's
        later children — .card-teams > * gives every child z-index 1, and
@@ -1119,6 +1133,12 @@
     .tip-link { color: #4DA6FF; text-decoration: none; }
     .tip-link:hover { color: #7CBFFF; text-decoration: underline; }
     .compare-tip-cell--val:last-child .tip-bubble { left: auto; right: 0; }
+    /* phones: hidden bubbles still count toward page width — a 230px bubble
+       hanging right from a cell near the edge made the page scroll sideways
+       (Gary's audit, 2026-10-07). Anchor right and never exceed the screen. */
+    @media (max-width: 768px) {
+      .compare-tip-cell--val .tip-bubble { left: auto; right: 0; width: min(230px, calc(100vw - 32px)); }
+    }
 
     .tip-bubble {
       position: absolute;
@@ -3310,7 +3330,7 @@ html .page-header h1 { margin-bottom: 20px; }
               <span class="tier-name">Enterprise</span>
               <div><a class="hero-btn-primary tier-cta" href="#">
                 <div class="btn-bg-hover"></div>
-                <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Started</span><span>Get Started</span></div></div>
+                <div class="btn-text-wrap"><div class="btn-text-inner"><span>See a Demo</span><span>See a Demo</span></div></div>
               </a></div>
             </th>
           </tr>
@@ -3600,7 +3620,7 @@ html .page-header h1 { margin-bottom: 20px; }
                 <svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
               </span>
             </button>
-            <div class="ms-faq-a"><div class="ms-faq-a-inner">Yes, you can change your plan by clicking <strong>Manage subscription</strong>. This will take you to our Stripe billing portal where you can select <strong>Update subscription</strong> to change your plan type.</div></div>
+            <div class="ms-faq-a"><div class="ms-faq-a-inner">Yes, you can change your plan by clicking <strong>Manage Subscription</strong>. This will take you to our Stripe billing portal where you can select <strong>Update subscription</strong> to change your plan type.</div></div>
           </div>
           <div class="ms-faq-item">
             <button class="ms-faq-q" onclick="toggleFaq(this)">
@@ -3610,7 +3630,7 @@ html .page-header h1 { margin-bottom: 20px; }
                 <svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
               </span>
             </button>
-            <div class="ms-faq-a"><div class="ms-faq-a-inner">Yes, you can cancel at any time. Click <strong>Manage subscription</strong> to be taken into the cancellation process.</div></div>
+            <div class="ms-faq-a"><div class="ms-faq-a-inner">Yes, you can cancel at any time. Click <strong>Manage Subscription</strong> to be taken into the cancellation process.</div></div>
           </div>
           <div class="ms-faq-item">
             <button class="ms-faq-q" onclick="toggleFaq(this)">
@@ -4999,7 +5019,7 @@ window.__pageOwnsScrollAnims = true;
           return { primary: { label: 'Upgrade to Teams', variant: 'primary' }, links: [] };   // create-team flow
         }
         if (plan === 'teams' && f.team.role !== 'admin') {
-          return { primary: { label: 'Contact an admin to manage', variant: 'secondary', disabled: true }, links: [] };
+          return { primary: { label: 'Contact an Admin to Manage', variant: 'secondary', disabled: true }, links: [] };
         }
         if (!hasSub(m)) return { primary: { label: 'Upgrade', variant: 'primary' }, links: [] };
         var isSameTier = !m.forge && m.tier === sel.tier;
@@ -5011,13 +5031,13 @@ window.__pageOwnsScrollAnims = true;
            Manage subscription button isn't on screen at first — keep it
            reachable as a link under the button off the current tier (Gary,
            2026-10-06; the FAQ tells people to click it) */
-        var manageLink = plan === 'teams' && !isActive ? [{ label: 'Manage subscription', kind: 'color' }] : [];
-        if (isSameTier && !isSubscribedInterval) return { primary: { label: 'Change commitment', variant: 'primary' }, links: manageLink };
+        var manageLink = plan === 'teams' && !isActive ? [{ label: 'Manage Subscription', kind: 'color' }] : [];
+        if (isSameTier && !isSubscribedInterval) return { primary: { label: 'Change Commitment', variant: 'primary' }, links: manageLink };
         var out = { primary: null, links: manageLink };
-        if (isActive) out.primary = { label: 'Manage subscription', variant: 'secondary' };
+        if (isActive) out.primary = { label: 'Manage Subscription', variant: 'secondary' };
         if (isDowngrade) out.primary = { label: 'Downgrade', variant: 'secondary' };
         if (isUpgrade) out.primary = { label: 'Upgrade', variant: 'primary' };
-        if (plan === 'teams' && isActive) out.links.push({ label: 'Cancel subscription', kind: 'color' });
+        if (plan === 'teams' && isActive) out.links.push({ label: 'Cancel Subscription', kind: 'color' });
         return out;
       }
       function freeActions() {
@@ -5232,7 +5252,7 @@ window.__pageOwnsScrollAnims = true;
         var cur = currentPlan(), idx = TIER_KEYS.indexOf(cur.tier);
         var labels = {
           free: freeActions().primary, pro: paidActions('pro').primary, teams: paidActions('teams').primary,
-          ent: { label: 'Get Started', variant: 'primary' }
+          ent: { label: 'See a Demo', variant: 'primary' }   /* matches the Enterprise card (Gary, 2026-10-07) */
         };
         /* same calm rule as the cards: while subscribed (or finishing
            checkout) only the highlighted plan's column may be blue (Gary,
