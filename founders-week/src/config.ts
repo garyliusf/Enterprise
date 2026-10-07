@@ -73,6 +73,14 @@ export const weekend = {
       body: 'Paid plans get five times the free allowance in every block. Blocks you miss do not carry over.',
     },
   ],
+  /* Mosaic photos (public/people). Placeholders: three photos repeat until
+     the final set arrives — add files here and they slot into the grid in
+     order. `focus` is the object-position that keeps the person in frame. */
+  photos: [
+    { src: '/people/founder-laptop.webp', focus: '62% 35%' },
+    { src: '/people/founder-nursery.webp', focus: '42% 40%' },
+    { src: '/people/founder-cafe.webp', focus: '52% 30%' },
+  ],
   /* Only shown once DigitalOcean confirms they are covering inference. */
   partner: { show: false, name: 'DigitalOcean', line: 'Free inference for the weekend is provided by DigitalOcean.' },
   finePrint:

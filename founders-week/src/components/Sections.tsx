@@ -110,20 +110,73 @@ export function Join() {
 }
 
 /* ── Free build weekend ──────────────────────────────────────────────────── */
+/* Mosaic: a canvas of uneven photo tiles with the three cards set into it.
+   Tile order = DOM order; desktop placement is explicit per slot (page.css
+   .fw-mosaic > :nth-child), tablet/phone fall back to spans + dense flow.
+   'p' = photo (index into weekend.photos, wraps), 'c' = card (index). */
+const MOSAIC: ({ k: 'p'; i: number } | { k: 'c'; i: number })[] = [
+  { k: 'p', i: 0 },
+  { k: 'c', i: 0 },
+  { k: 'p', i: 1 },
+  { k: 'p', i: 2 },
+  { k: 'c', i: 1 },
+  { k: 'p', i: 1 },
+  { k: 'c', i: 2 },
+  { k: 'p', i: 2 },
+  { k: 'p', i: 0 },
+];
+
+/* tiles rise in, staggered, the first time the mosaic scrolls into view */
+function useRevealOnce<T extends HTMLElement>() {
+  const ref = useRef<T>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          el.classList.add('is-in');
+          io.disconnect();
+        }
+      },
+      { threshold: 0.12 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return ref;
+}
+
 export function Weekend() {
+  const mosaic = useRevealOnce<HTMLDivElement>();
+  const photos = weekend.photos;
   return (
     <section className="fw-section fw-section--weekend" id="weekend">
       <div className="fw-inner">
         <SectionHeader eyebrow={weekend.eyebrow} title={weekend.title} subtitle={weekend.subtitle} />
-        <div className="fw-grid fw-grid--3">
-          {weekend.points.map((p, i) => (
-            <div key={p.title} className="fw-card">
-              <PixelField wave={cornerWave} spacing={9} dot={2} opacity={0.5} className="fw-card-field" />
-              <span className="fw-card-num">{String(i + 1).padStart(2, '0')}</span>
-              <h3 className="fw-card-title">{p.title}</h3>
-              <p className="fw-card-desc">{p.body}</p>
-            </div>
-          ))}
+        <div className="fw-mosaic" ref={mosaic}>
+          {MOSAIC.map((t, n) => {
+            const style = { '--n': n } as React.CSSProperties;
+            if (t.k === 'p') {
+              const ph = photos[t.i % photos.length];
+              return (
+                <figure key={n} className="fw-mosaic-photo" style={style} aria-hidden="true">
+                  <img src={ph.src} alt="" loading="lazy" decoding="async" style={{ objectPosition: ph.focus }} />
+                </figure>
+              );
+            }
+            const p = weekend.points[t.i];
+            return (
+              <div key={n} className="fw-card fw-mosaic-card" style={style}>
+                <PixelField wave={cornerWave} spacing={9} dot={2} opacity={0.5} className="fw-card-field" />
+                <span className="fw-card-num">{String(t.i + 1).padStart(2, '0')}</span>
+                <div className="fw-mosaic-card-copy">
+                  <h3 className="fw-card-title">{p.title}</h3>
+                  <p className="fw-card-desc">{p.body}</p>
+                </div>
+              </div>
+            );
+          })}
         </div>
         {weekend.partner.show && <p className="fw-partner">{weekend.partner.line}</p>}
         <p className="fw-fine">{weekend.finePrint}</p>
