@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Hero } from './components/Hero';
 import { Nav } from './components/Nav';
-import { Competition, Faq, FooterCta, Join, Schedule, SiteFooter, Templates, Timeline, Weekend } from './components/Sections';
+import { Competition, Faq, FooterCta, FooterZone, Join, Schedule, SiteFooter, Templates, Timeline, Weekend } from './components/Sections';
 import { Terms } from './components/Terms';
 import { ThemeSwitch } from './components/ThemeSwitch';
 import { TERMS_PATH } from './config';
@@ -21,7 +21,9 @@ export default function App() {
       <>
         <Nav overHero={false} />
         <Terms />
-        <SiteFooter />
+        <FooterZone compact>
+          <SiteFooter />
+        </FooterZone>
         <ThemeSwitch />
       </>
     );
@@ -39,9 +41,11 @@ export default function App() {
         <Templates />
         <Competition />
         <Faq />
-        <FooterCta />
       </main>
-      <SiteFooter />
+      <FooterZone>
+        <FooterCta />
+        <SiteFooter />
+      </FooterZone>
       <ThemeSwitch />
     </>
   );

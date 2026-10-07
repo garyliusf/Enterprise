@@ -583,8 +583,38 @@ img, svg { display: block; }
 }
 
 /* ── Footer CTA ─────────────────────────────────────────────────────────── */
+/* Footer zone: one BoltGrad02 video behind the CTA + site footer. The copy
+   inside is .sc-on-dark (white) in both themes. Layers: video 0, fades and
+   scrim 1, content 2. */
+.fw-footer-zone { position: relative; overflow: hidden; isolation: isolate; background: #021a57; }
+.fw-footer-video {
+  position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0;
+  object-fit: cover; object-position: 50% 100%; pointer-events: none; /* the bottom of BoltGrad02 is all blue; its top has a black corner + pale glow */
+}
+/* Hard top edge (Gary): the footer is the page's last block, so the video
+   simply starts — no fade from the page ground. */
+.fw-footer-zone::after {
+  /* legibility: a navy pool behind the CTA copy (the video's pale glow sits
+     right there) and a darker floor under the footer links */
+  content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    radial-gradient(ellipse 55% 42% at 50% 42%, rgba(2, 14, 52, 0.55), rgba(2, 14, 52, 0.15) 65%, transparent 85%),
+    linear-gradient(to bottom, transparent 60%, rgba(1, 6, 24, 0.55) 100%);
+}
+.fw-footer-zone > :not(video) { position: relative; z-index: 2; }
+@media (max-width: 768px) {
+  /* the copy column is narrow and tall on phones: widen the pool to cover it */
+  .fw-footer-zone::after {
+    background:
+      radial-gradient(ellipse 95% 48% at 50% 40%, rgba(2, 14, 52, 0.6), rgba(2, 14, 52, 0.2) 65%, transparent 90%),
+      linear-gradient(to bottom, transparent 60%, rgba(1, 6, 24, 0.55) 100%);
+  }
+}
+:root[data-theme="dark"] .fw-footer-video { filter: brightness(0.72) saturate(1.35); }
+.fw-footer-zone .footer-eyebrow { color: #8cc4ff; }
+.fw-footer-zone .fw-footer-sub { color: rgba(255, 255, 255, 0.82); }
+
 .fw-footer-cta { position: relative; overflow: hidden; padding: clamp(80px, 12vh, 140px) 16px 88px; text-align: center; }
-.fw-footer-field { z-index: 0; }
 .fw-footer-cta-inner { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; }
 /* header rhythm: eyebrow→H2 16/12/12, H2→sub 16/12/8, sub→button 32/32/24.
    Shared's .footer-eyebrow + .dsa-reveal pull-up assumes the 24px flex gap of
@@ -603,7 +633,10 @@ img, svg { display: block; }
 }
 
 /* ── Site footer ────────────────────────────────────────────────────────── */
-.fw-site-footer { border-top: 1px solid var(--sc-line); padding: 28px 0 32px; }
+.fw-site-footer { border-top: 1px solid rgba(255, 255, 255, 0.16); padding: 28px 0 32px; }
+.fw-footer-zone .fw-footer-links a { color: rgba(255, 255, 255, 0.75); }
+.fw-footer-zone .fw-footer-links a:hover { color: #fff; }
+.fw-footer-zone .fw-footer-copy { color: rgba(255, 255, 255, 0.6); }
 .fw-site-footer-row { display: flex; align-items: center; gap: 32px; flex-wrap: wrap; }
 .fw-footer-logo { color: var(--sc-ink); }
 .fw-footer-logo svg { height: 20px; width: auto; }

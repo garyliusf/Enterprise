@@ -3,18 +3,9 @@ import { useEffect, useRef, useState } from 'react';
 import { BOLT_URL, competition, faqs, footerCta, sessions, templates, TERMS_PATH, timeline, weekend } from '../config';
 import { getGallery, isPreview, type GalleryEntry } from '../lib/api';
 import { EntryForm, JoinForm } from './Forms';
-import { Btn, BoltLogo, PixelField, SectionHeader, Tbc, type WaveFn } from './ui';
+import { BgVideo, Btn, BoltLogo, PixelField, SectionHeader, Tbc, type WaveFn } from './ui';
 
 /* Wave functions for the section pixel fields (sandbox makePixelCanvas family). */
-const risingWave: WaveFn = (c, r, t, phase, cols, rows) => {
-  const x = c / cols;
-  const y = r / rows;
-  const centre = 1 - Math.min(1, Math.abs(x - 0.5) * 2.1);
-  const fromBottom = Math.max(0, (y - 0.25) / 0.75);
-  const w = Math.sin(x * 9 - t / 900 + y * 4) * 0.5 + 0.5;
-  const breathe = Math.sin(t / 700 + phase) * 0.25 + 0.75;
-  return centre * fromBottom * fromBottom * w * breathe;
-};
 const cornerWave: WaveFn = (c, r, t, phase, cols, rows) => {
   const dx = 1 - c / cols;
   const dy = r / rows;
@@ -391,7 +382,6 @@ export function Faq() {
 export function FooterCta() {
   return (
     <section className="fw-footer-cta">
-      <PixelField wave={risingWave} spacing={9} dot={2} opacity={0.75} className="fw-footer-field" />
       <div className="fw-footer-cta-inner">
         <span className="footer-eyebrow eyebrow-scramble">{footerCta.eyebrow}</span>
         <div className="dsa-reveal">
@@ -403,6 +393,17 @@ export function FooterCta() {
         </div>
       </div>
     </section>
+  );
+}
+
+/* The closing CTA and the site footer share one video ground (BoltGrad02).
+   Its top fades in from the page so the section has no hard top edge. */
+export function FooterZone({ children, compact = false }: { children: React.ReactNode; compact?: boolean }) {
+  return (
+    <div className={`fw-footer-zone sc-on-dark${compact ? ' fw-footer-zone--compact' : ''}`}>
+      <BgVideo name="footer" className="fw-footer-video" lazy />
+      {children}
+    </div>
   );
 }
 

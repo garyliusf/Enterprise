@@ -177,3 +177,56 @@ export function PixelField({
 
   return <canvas ref={ref} className={`fw-pixel-field ${className}`.trim()} aria-hidden="true" />;
 }
+
+/* ── Background video ────────────────────────────────────────────────────
+   Muted looping gradient video (hero, footer). Files live in public/hero/:
+   <name>.webm, <name>.mp4 and <name>-poster.jpg (first frame, so nothing
+   changes when playback starts). Plays only while on screen; `lazy` also
+   holds the download until it is near. Reduced motion: stays on the poster. */
+export function BgVideo({ name, className, lazy = false }: { name: string; className?: string; lazy?: boolean }) {
+  const ref = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    const v = ref.current;
+    if (!v) return;
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let inView = false;
+    const sync = () => {
+      if (!mq.matches && inView) {
+        if (v.preload === 'none') {
+          v.preload = 'auto';
+          v.load();
+        }
+        v.play().catch(() => {});
+      } else v.pause();
+    };
+    const io = new IntersectionObserver(
+      ([e]) => {
+        inView = e.isIntersecting;
+        sync();
+      },
+      { rootMargin: '300px 0px' },
+    );
+    io.observe(v);
+    mq.addEventListener('change', sync);
+    return () => {
+      io.disconnect();
+      mq.removeEventListener('change', sync);
+    };
+  }, []);
+  return (
+    <video
+      ref={ref}
+      className={className}
+      muted
+      loop
+      playsInline
+      preload={lazy ? 'none' : 'auto'}
+      poster={`/hero/${name}-poster.jpg`}
+      aria-hidden="true"
+      tabIndex={-1}
+    >
+      <source src={`/hero/${name}.webm`} type="video/webm" />
+      <source src={`/hero/${name}.mp4`} type="video/mp4" />
+    </video>
+  );
+}
