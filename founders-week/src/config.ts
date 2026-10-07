@@ -54,6 +54,8 @@ export const timeline: Milestone[] = [
   },
 ];
 
+import type { PixelIconName } from './components/ui';
+
 export const weekend = {
   eyebrow: 'Free build weekend',
   title: 'Two days of unlimited building',
@@ -61,14 +63,17 @@ export const weekend = {
     'From Saturday morning to Sunday night, everyone on Bolt gets a free open model in the model picker. No plan change, no code to redeem.',
   points: [
     {
+      icon: 'plus' as PixelIconName,
       title: 'Everyone is in',
       body: 'Free, personal paid and Teams accounts all get it. On Teams, every member gets their own allowance.',
     },
     {
+      icon: 'clock' as PixelIconName,
       title: 'A fresh block every six hours',
       body: 'Your allowance comes in six-hour blocks. A block starts when you open Bolt, and your first visit after it ends starts the next one.',
     },
     {
+      icon: 'up' as PixelIconName,
       title: 'More on paid plans',
       body: 'Paid plans get five times the free allowance in every block. Blocks you miss do not carry over.',
     },
@@ -97,6 +102,7 @@ export type Session = {
   title: string;
   host: string;
   blurb: string;
+  icon?: PixelIconName;
   /* ISO start/end — set once confirmed; drives the countdown and calendar link */
   start?: string;
   end?: string;
@@ -119,15 +125,17 @@ export const sessions: Session[] = [
     day: 'Date TBC',
     time: 'Time TBC',
     title: 'Live growth workshop',
+    icon: 'bars',
     host: 'Enrique, Bolt',
     blurb: 'Go-to-market, growth and getting your first users, worked through live.',
     tbc: true,
   },
-  { day: 'Date TBC', time: 'Time TBC', title: 'Founder AMA', host: 'Bolt team', blurb: 'Ask the Bolt team anything about building and launching on Bolt.', tbc: true },
+  { day: 'Date TBC', time: 'Time TBC', title: 'Founder AMA', icon: 'ask', host: 'Bolt team', blurb: 'Ask the Bolt team anything about building and launching on Bolt.', tbc: true },
   {
     day: 'Date TBC',
     time: 'Time TBC',
     title: 'Feedback hours',
+    icon: 'swap',
     host: 'Bolt team and peers',
     blurb: 'Bring your product and get live feedback from the team and other founders.',
     tbc: true,

@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react';
 
 /* Canonical bolt.new wordmark (images/bolt-new.svg in the sandbox — the same
    one the site nav inlines), inked with currentColor so it follows the theme. */
@@ -229,4 +229,148 @@ export function BgVideo({ name, className, lazy = false }: { name: string; class
       <source src={`/hero/${name}.mp4`} type="video/mp4" />
     </video>
   );
+}
+
+/* ── Pixel icons ─────────────────────────────────────────────────────────
+   The deck's X-gradient language: a 5x5 grid of square pixels; the focus
+   cell is full brand blue and every other lit cell fades by its distance
+   from it (Chebyshev rings 0 / 1 / 2 / 3+). On card hover the fade lifts
+   so the whole shape lights up. */
+export type PixelIconName = 'x' | 'plus' | 'clock' | 'up' | 'bars' | 'ask' | 'swap';
+
+const PIXEL_ICONS: Record<PixelIconName, { rows: string[]; focus: [number, number] }> = {
+  x: { rows: ['#...#', '.#.#.', '..#..', '.#.#.', '#...#'], focus: [2, 2] },
+  plus: { rows: ['..#..', '..#..', '#####', '..#..', '..#..'], focus: [2, 2] },
+  /* ring + centre only; the minute hand is drawn and animated separately */
+  clock: { rows: ['.###.', '#...#', '#.#.#', '#...#', '.###.'], focus: [2, 2] },
+  up: { rows: ['..#..', '.###.', '#.#.#', '..#..', '..#..'], focus: [0, 2] },
+  bars: { rows: ['....#', '....#', '..#.#', '..#.#', '#.#.#'], focus: [0, 4] },
+  ask: { rows: ['#####', '#.#.#', '#####', '.#...', '#....'], focus: [1, 2] },
+  swap: { rows: ['.#...', '#####', '.....', '#####', '...#.'], focus: [1, 0] },
+};
+const RING_OPACITY = [1, 0.55, 0.28, 0.16];
+/* minute-hand cells around the centre: 12, 1:30, 3, 4:30, 6 */
+const CLOCK_HAND: [number, number][] = [
+  [2, 1],
+  [3, 1],
+  [3, 2],
+  [3, 3],
+  [2, 3],
+];
+
+export function PixelIcon({ name, className = '', index = 0 }: { name: PixelIconName; className?: string; index?: number }) {
+  const { rows, focus } = PIXEL_ICONS[name];
+  const cells: { x: number; y: number; o: number; d: number }[] = [];
+  rows.forEach((row, y) =>
+    [...row].forEach((ch, x) => {
+      if (ch !== '#') return;
+      const d = Math.min(3, Math.max(Math.abs(y - focus[0]), Math.abs(x - focus[1])));
+      cells.push({ x, y, o: RING_OPACITY[d], d });
+    }),
+  );
+  /* 4px pixels on a 6px pitch → 28px icon */
+  return (
+    <svg
+      className={`fw-pixel-icon ${className}`.trim()}
+      viewBox="0 0 28 28"
+      width="28"
+      height="28"
+      aria-hidden="true"
+      style={{ '--k': index } as CSSProperties}
+    >
+      {cells.map((c) => (
+        <rect
+          key={`${c.x}-${c.y}`}
+          x={c.x * 6}
+          y={c.y * 6}
+          width="4"
+          height="4"
+          className={name === 'clock' ? 'is-static' : undefined}
+          style={{ '--o': c.o, '--d': c.d } as CSSProperties}
+        />
+      ))}
+      {/* clock: the minute hand sweeps 12 → 3 → 6, one cell per step */}
+      {name === 'clock' &&
+        CLOCK_HAND.map(([x, y], h) => (
+          <rect key={`h${h}`} x={x * 6} y={y * 6} width="4" height="4" className={`fw-hand fw-hand-${h}`} />
+        ))}
+    </svg>
+  );
+}
+
+/* ── Card hover dot field ────────────────────────────────────────────────
+   React port of attachHoverField (solutions/_template, from compliance.html):
+   a rotating blue dot field that grows toward the card's right edge, drawn
+   only while the card is hovered, faded in by CSS. Mount it as the card's
+   first child; the card needs position: relative + overflow: hidden. */
+export function HoverField({ index = 0 }: { index?: number }) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const canvas = ref.current;
+    const tile = canvas?.parentElement;
+    if (!canvas || !tile) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const SPACING = 9;
+    const DOT = 2;
+    const phase = index * 1.7;
+    let cols = 0;
+    let rows = 0;
+    let phases: number[][] = [];
+    let hovered = false;
+    let t = 0;
+    let raf = 0;
+    const resize = () => {
+      const w = tile.offsetWidth;
+      const h = tile.offsetHeight;
+      if (!w || !h) return;
+      canvas.width = w;
+      canvas.height = h;
+      cols = Math.ceil(w / SPACING) + 1;
+      rows = Math.ceil(h / SPACING) + 1;
+      phases = Array.from({ length: rows }, () => Array.from({ length: cols }, () => Math.random() * Math.PI * 2));
+    };
+    const draw = () => {
+      raf = 0;
+      if (!hovered || !cols) return;
+      t += 0.03;
+      const W = canvas.width;
+      const H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+      const angle = t * 0.16 + phase;
+      const ca = Math.cos(angle);
+      const sa = Math.sin(angle);
+      for (let r = 0; r < rows; r++)
+        for (let c = 0; c < cols; c++) {
+          const px = c * SPACING;
+          const py = r * SPACING;
+          const ph = phases[r]?.[c] ?? 0;
+          const wave = Math.sin((px * ca + py * sa) / 58 + t + ph) * Math.cos((px * -sa + py * ca) / 90 + t * 0.6);
+          const op = Math.max(0, wave) * 0.55 * (px / W);
+          if (op < 0.04) continue;
+          ctx.fillStyle = `rgba(60,140,235,${op.toFixed(3)})`;
+          ctx.fillRect(px, py, DOT, DOT);
+        }
+      raf = requestAnimationFrame(draw);
+    };
+    const enter = () => {
+      hovered = true;
+      if (!raf) raf = requestAnimationFrame(draw);
+    };
+    const leave = () => {
+      hovered = false;
+    };
+    const ro = new ResizeObserver(resize);
+    ro.observe(tile);
+    resize();
+    tile.addEventListener('mouseenter', enter);
+    tile.addEventListener('mouseleave', leave);
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+      tile.removeEventListener('mouseenter', enter);
+      tile.removeEventListener('mouseleave', leave);
+    };
+  }, [index]);
+  return <canvas ref={ref} className="fw-hover-field" aria-hidden="true" />;
 }

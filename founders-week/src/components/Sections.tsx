@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { BOLT_URL, competition, faqs, footerCta, sessions, templates, TERMS_PATH, timeline, weekend, type Session } from '../config';
 import { getGallery, isPreview, type GalleryEntry } from '../lib/api';
 import { EntryForm, JoinForm } from './Forms';
-import { BgVideo, Btn, BoltLogo, PixelField, SectionHeader, Tbc, type WaveFn } from './ui';
+import { BgVideo, Btn, BoltLogo, HoverField, PixelField, PixelIcon, SectionHeader, Tbc, type WaveFn } from './ui';
 
 /* Wave functions for the section pixel fields (sandbox makePixelCanvas family). */
 const cornerWave: WaveFn = (c, r, t, phase, cols, rows) => {
@@ -177,8 +177,8 @@ export function Weekend() {
             const p = weekend.points[t.i];
             return (
               <div key={n} className="fw-card fw-mosaic-card" style={style}>
-                <PixelField wave={cornerWave} spacing={9} dot={2} opacity={0.5} className="fw-card-field" />
-                <span className="fw-card-num">{String(t.i + 1).padStart(2, '0')}</span>
+                <HoverField index={t.i} />
+                <PixelIcon name={p.icon} index={t.i} />
                 <div className="fw-mosaic-card-copy">
                   <h3 className="fw-card-title">{p.title}</h3>
                   <p className="fw-card-desc">{p.body}</p>
@@ -300,8 +300,8 @@ export function Schedule() {
           {rest.map((s, i) => (
             s && (
               <article key={s.title} className="fw-card fw-session-card">
-                <PixelField wave={cornerWave} spacing={9} dot={2} opacity={0.5} className="fw-card-field" />
-                <span className="fw-card-num">{String(i + 2).padStart(2, '0')}</span>
+                <HoverField index={i + 3} />
+                <PixelIcon name={s.icon ?? 'x'} index={i} />
                 <span className="fw-session-when">
                   {s.day === 'Date TBC' ? 'Date and time soon' : `${s.day} · ${s.time}`}
                   {s.tbc && <Tbc />}
