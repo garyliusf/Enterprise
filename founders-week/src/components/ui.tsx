@@ -271,24 +271,28 @@ export function PixelIcon({ name, className = '', index = 0 }: { name: PixelIcon
   /* 4px pixels on a 6px pitch → 28px icon */
   return (
     <svg
-      className={`fw-pixel-icon ${className}`.trim()}
+      className={`fw-pixel-icon fw-pi-${name} ${className}`.trim()}
       viewBox="0 0 28 28"
       width="28"
       height="28"
       aria-hidden="true"
       style={{ '--k': index } as CSSProperties}
     >
-      {cells.map((c) => (
-        <rect
-          key={`${c.x}-${c.y}`}
-          x={c.x * 6}
-          y={c.y * 6}
-          width="4"
-          height="4"
-          className={name === 'clock' ? 'is-static' : undefined}
-          style={{ '--o': c.o, '--d': c.d } as CSSProperties}
-        />
-      ))}
+      {/* icons with their own motion (clock hand, rising arrow) keep their
+          gradient still; the rest run the ring-by-ring in/out loop */}
+      <g>
+        {cells.map((c) => (
+          <rect
+            key={`${c.x}-${c.y}`}
+            x={c.x * 6}
+            y={c.y * 6}
+            width="4"
+            height="4"
+            className={name === 'clock' || name === 'up' ? 'is-static' : undefined}
+            style={{ '--o': c.o, '--d': c.d } as CSSProperties}
+          />
+        ))}
+      </g>
       {/* clock: the minute hand sweeps 12 → 3 → 6, one cell per step */}
       {name === 'clock' &&
         CLOCK_HAND.map(([x, y], h) => (

@@ -308,6 +308,22 @@ img, svg { display: block; }
 .fw-card .fw-pixel-icon { margin-bottom: 40px; }
 .fw-mosaic-card .fw-pixel-icon { margin-bottom: 0; }
 @media (max-width: 768px) { .fw-card .fw-pixel-icon { margin-bottom: 24px; } }
+/* up arrow: fades in at rest, rises, fades out as it climbs, resets.
+   Animated on the <svg> box itself (not an inner <g>) with will-change, so
+   the browser composites it as one layer and slides it on the GPU — an SVG
+   group transform repaints the pixels at fractional positions every frame,
+   which read as jitter. One continuous ease, no mid-way stops. */
+.fw-pixel-icon.fw-pi-up {
+  will-change: transform, opacity;
+  animation: fw-rise 3s cubic-bezier(0.45, 0, 0.25, 1) infinite both;
+  animation-delay: calc(var(--k, 0) * 450ms);
+}
+@keyframes fw-rise {
+  0%   { opacity: 0; transform: translate3d(0, 0, 0); }
+  20%  { opacity: 1; transform: translate3d(0, 0, 0); }
+  80%  { opacity: 0; transform: translate3d(0, -12px, 0); }
+  100% { opacity: 0; transform: translate3d(0, -12px, 0); }
+}
 /* clock: ring + centre hold still; the hand steps 12 → 6 over 3s, holds at
    6, then resets. One keyframe set per position (0.6s windows of 4.2s). */
 .fw-pixel-icon rect.is-static { animation: none; }
@@ -326,6 +342,7 @@ img, svg { display: block; }
   .fw-pixel-icon rect { animation: none; }
   .fw-pixel-icon rect.fw-hand { animation: none !important; opacity: 0; }
   .fw-pixel-icon rect.fw-hand-4 { opacity: 0.85; } /* rest on 6 o'clock */
+  .fw-pixel-icon.fw-pi-up { animation: none; }
 }
 
 /* ── Weekend mosaic ─────────────────────────────────────────────────────
