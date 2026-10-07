@@ -4865,12 +4865,14 @@ window.__pageOwnsScrollAnims = true;
        from them follows the real rules:
 
          • a subscribed Pro card opens ON the current tier (Gary,
-           2026-10-06), so the button reads "Manage subscription"; a
+           2026-10-06), so the button reads "Manage Subscription"; a
            subscribed Teams card opens one tier ABOVE it (as production does),
            so a team admin lands on "Upgrade". Sliding to a higher tier gives
            "Upgrade", a lower one "Downgrade", the current tier "Manage
-           subscription" (+ "Cancel subscription" on Teams), the same tier on
-           the other billing term "Change commitment"
+           Subscription" (+ "Cancel Subscription" on Teams). The same tier on
+           the other billing term is also "Manage Subscription" with "Your
+           current plan is billed yearly" under it (2026-10-07; production
+           says "Change commitment")
          • Free: "Your Current Plan" on a free account, "Downgrade to Free"
            on a paid one, "You're on Teams" while a team workspace is selected
          • Pro while a team workspace is selected: "You're on Teams" + the
@@ -5031,8 +5033,11 @@ window.__pageOwnsScrollAnims = true;
            Manage subscription button isn't on screen at first — keep it
            reachable as a link under the button off the current tier (Gary,
            2026-10-06; the FAQ tells people to click it) */
+        /* your own tier on the OTHER billing term is still your plan: no
+           "Change Commitment" (production's label) — just Manage Subscription,
+           which is where the term is changed (Gary, 2026-10-07) */
+        if (isSameTier && !isSubscribedInterval) return { primary: { label: 'Manage Subscription', variant: 'secondary' }, links: [] };
         var manageLink = plan === 'teams' && !isActive ? [{ label: 'Manage Subscription', kind: 'color' }] : [];
-        if (isSameTier && !isSubscribedInterval) return { primary: { label: 'Change Commitment', variant: 'primary' }, links: manageLink };
         var out = { primary: null, links: manageLink };
         if (isActive) out.primary = { label: 'Manage Subscription', variant: 'secondary' };
         if (isDowngrade) out.primary = { label: 'Downgrade', variant: 'secondary' };
@@ -5176,7 +5181,13 @@ window.__pageOwnsScrollAnims = true;
           if (m.forge) {
             notes.push('<p class="token-current">Your current plan: <strong>Bolt Lite</strong></p>');
           } else if (sel.tier === m.tier) {
-            notes.push('<p class="token-current"><span class="token-current-hl"><strong>Your current plan</strong>' + (m.left ? ' — <strong>' + m.left + '</strong></span> tokens left this month' : '</span>') + '</p>');
+            if (state.interval !== m.interval) {
+              /* same tier, other term: say which term the plan is on instead of
+                 claiming this view is the plan */
+              notes.push('<p class="token-current"><span class="token-current-hl"><strong>Your current plan is billed ' + (m.interval === 'yearly' ? 'yearly' : 'monthly') + '</strong></span></p>');
+            } else {
+              notes.push('<p class="token-current"><span class="token-current-hl"><strong>Your current plan</strong>' + (m.left ? ' — <strong>' + m.left + '</strong></span> tokens left this month' : '</span>') + '</p>');
+            }
           } else {
             /* the difference in TOKENS, not dollars (Gary, 2026-10-06) — the
                price already updates in the headline above */
