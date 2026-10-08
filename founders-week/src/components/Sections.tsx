@@ -345,7 +345,7 @@ export function Templates() {
               Templates to start from {templates.tbc && <Tbc />}
             </>
           }
-          subtitle="A starter kit for founders, built in Bolt. Open one, make it yours, and start building on Saturday morning."
+          subtitle="A starter kit for builders, built in Bolt. Open one, make it yours, and start building on Saturday morning."
         />
         {/* Same card as the templates catalog (marketing/templates): portrait
             preview, full-page shot that drifts up on hover, name + tag foot. */}
