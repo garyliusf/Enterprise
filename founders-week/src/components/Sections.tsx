@@ -457,8 +457,18 @@ export function Competition() {
           </a>
         </p>
 
+        {/* bridge: a pixel trail flows down from the grand prize into last round's winners */}
+        <div className="fw-bridge" aria-hidden="true">
+          <span className="fw-bridge-line" />
+          <span className="fw-bridge-pill">
+            <span className="fw-live-dot" />
+            Last round
+          </span>
+          <span className="fw-bridge-line fw-bridge-line--short" />
+        </div>
         <div className="fw-subhead fw-subhead--winners">
           <h3 className="fw-subhead-title">Past Winners</h3>
+          <p className="fw-subhead-sub">Pi Day’s grand-prize builds. Yours could be next.</p>
         </div>
         <PastWinners />
 
