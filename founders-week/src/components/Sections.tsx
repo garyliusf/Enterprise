@@ -457,9 +457,6 @@ export function Competition() {
 
         <div className="fw-subhead">
           <h3 className="fw-subhead-title">Past Winners</h3>
-          <div className="hero-btn-group">
-            <Btn href="#enter">Submit Yours</Btn>
-          </div>
         </div>
         <PastWinners />
 
