@@ -230,7 +230,7 @@ export const competition = {
 /* Pi Day 2026 grand-prize winners, shown as past winners in the contest
    section (from piday.bolt.host). */
 export const pastWinners = {
-  label: 'Pi Day 2026 · $1,000 grand prize',
+  label: 'Pi Day 2026 · Grand prize',
   items: [
     { name: 'Pi Symphony', url: 'https://pi-symphony.bolt.host/', img: '/winners/pi-symphony.webp' },
     { name: 'AI Stylist', url: 'https://ai-stylist-web-app-u-w5mq.bolt.host/', img: '/winners/ai-stylist.webp' },
