@@ -356,7 +356,7 @@ export function PixelIcon({ name, className = '', index = 0 }: { name: PixelIcon
    a rotating blue dot field that grows toward the card's right edge, drawn
    only while the card is hovered, faded in by CSS. Mount it as the card's
    first child; the card needs position: relative + overflow: hidden. */
-export function HoverField({ index = 0 }: { index?: number }) {
+export function HoverField({ index = 0, color = '60,140,235' }: { index?: number; color?: string }) {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const canvas = ref.current;
@@ -401,7 +401,7 @@ export function HoverField({ index = 0 }: { index?: number }) {
           const wave = Math.sin((px * ca + py * sa) / 58 + t + ph) * Math.cos((px * -sa + py * ca) / 90 + t * 0.6);
           const op = Math.max(0, wave) * 0.55 * (px / W);
           if (op < 0.04) continue;
-          ctx.fillStyle = `rgba(60,140,235,${op.toFixed(3)})`;
+          ctx.fillStyle = `rgba(${color},${op.toFixed(3)})`;
           ctx.fillRect(px, py, DOT, DOT);
         }
       raf = requestAnimationFrame(draw);
@@ -424,6 +424,6 @@ export function HoverField({ index = 0 }: { index?: number }) {
       tile.removeEventListener('mouseenter', enter);
       tile.removeEventListener('mouseleave', leave);
     };
-  }, [index]);
+  }, [index, color]);
   return <canvas ref={ref} className="fw-hover-field" aria-hidden="true" />;
 }

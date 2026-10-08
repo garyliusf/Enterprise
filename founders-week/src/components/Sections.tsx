@@ -198,6 +198,8 @@ export function Weekend() {
               const ph = photos[t.i % photos.length];
               return (
                 <figure key={n} className="fw-mosaic-photo" style={style} aria-hidden="true">
+                  {/* the card hover field, in white, drifting over the photo */}
+                  <HoverField index={n} color="255,255,255" />
                   <img
                     src={ph.src}
                     alt=""
