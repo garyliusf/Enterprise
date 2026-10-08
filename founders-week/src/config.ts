@@ -89,7 +89,7 @@ export const weekend = {
   photos: [
     { src: asset('/people/founder-laptop.webp'), focus: '62% 35%' },
     { src: asset('/people/founder-terracotta.webp'), focus: '50% 38%' },
-    { src: asset('/people/founder-cafe.webp'), focus: '55% 22%' },
+    { src: asset('/people/founder-coffee.webp'), focus: '55% 32%' },
     { src: asset('/people/founder-desk.webp'), focus: '58% 38%' },
     { src: asset('/people/founder-apron.webp'), focus: '60% 18%' },
     { src: asset('/people/founder-glasses.webp'), focus: '62% 30%' },
