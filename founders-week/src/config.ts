@@ -260,6 +260,6 @@ export const faqs: { q: string; a: string }[] = [
 export const footerCta = {
   eyebrow: 'Builder’s Week',
   title: 'Your startup starts this weekend',
-  subtitle: 'Build something new in Bolt between Oct 13 and Oct 20 and enter it for a share of $17,500.',
+  subtitle: 'Build something new in Bolt between Oct 13 and Oct 20 and enter to win the grand prize of $10k.',
   cta: 'Enter to Win $10k',
 };
