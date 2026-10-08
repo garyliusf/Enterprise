@@ -306,7 +306,6 @@ export function Schedule() {
                 </span>
                 <h3 className="fw-card-title">{s.title}</h3>
                 <p className="fw-card-desc">{s.blurb}</p>
-                <span className="fw-session-host">{s.host}</span>
               </article>
             )
           ))}
