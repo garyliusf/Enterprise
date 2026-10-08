@@ -455,6 +455,11 @@ export function Competition() {
           </a>
         </p>
 
+        <div className="fw-subhead fw-subhead--winners">
+          <h3 className="fw-subhead-title">Past Winners</h3>
+        </div>
+        <PastWinners />
+
         <div className="fw-enter" id="enter">
           <aside className="fw-enter-head sc-on-dark">
             <PixelField wave={cornerWave} spacing={8} dot={2} opacity={0.6} className="fw-card-field is-on" color="140,190,255" />
@@ -480,10 +485,6 @@ export function Competition() {
           </div>
         </div>
 
-        <div className="fw-subhead fw-subhead--winners">
-          <h3 className="fw-subhead-title">Past Winners</h3>
-        </div>
-        <PastWinners />
       </div>
     </section>
   );
