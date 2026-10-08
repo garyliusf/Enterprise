@@ -440,6 +440,16 @@ export function Competition() {
       <div className="fw-inner">
         <SectionHeader center eyebrow={competition.eyebrow} title={competition.title} subtitle={competition.subtitle} />
 
+        {/* outline for the ghost rank numerals: the font's glyphs are built
+            from overlapping shapes, so a text-stroke traced the hidden inner
+            joins (broken "2"). Fill the numeral, erode it 1px and keep only
+            what the erosion removed = a clean outer edge. */}
+        <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true" focusable="false">
+          <filter id="fw-rank-outline" x="0" y="0" width="100%" height="100%">
+            <feMorphology in="SourceAlpha" operator="erode" radius="1" result="inner" />
+            <feComposite in="SourceGraphic" in2="inner" operator="out" />
+          </filter>
+        </svg>
         {/* podium: 2nd | 1st | 3rd on desktop, 1-2-3 stacked on phones */}
         <div className="fw-prizes">
           {competition.prizes.map((p, i) => (
