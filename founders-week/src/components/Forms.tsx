@@ -160,7 +160,7 @@ export function EntryForm() {
       <fieldset className="fw-step">
         <legend className="fw-step-head">
           <span className="fw-step-num">01</span>
-          <span className="fw-step-title">You</span>
+          <span className="fw-step-title">First, the founder</span>
         </legend>
         <div className="fw-form-row">
           <Field label="Your name" error={errors.name}>
@@ -183,7 +183,7 @@ export function EntryForm() {
       <fieldset className="fw-step">
         <legend className="fw-step-head">
           <span className="fw-step-num">02</span>
-          <span className="fw-step-title">Your app</span>
+          <span className="fw-step-title">Now, the product</span>
         </legend>
         <div className="fw-form-row">
           <Field label="App name" error={errors.product_name}>
@@ -208,7 +208,7 @@ export function EntryForm() {
       <fieldset className="fw-step">
         <legend className="fw-step-head">
           <span className="fw-step-num">03</span>
-          <span className="fw-step-title">Show it off</span>
+          <span className="fw-step-title">Show, don’t tell</span>
         </legend>
         <div className="fw-form-row">
           <Field label="Bolt project link" error={errors.bolt_project_url} hint="The project you built the app in.">
