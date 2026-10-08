@@ -1,14 +1,7 @@
-import { useEffect, useState } from 'react';
 import { hero } from '../config';
-import { getParticipantCount } from '../lib/api';
 import { BgVideo, Btn, PixelIcon } from './ui';
 
 export function Hero() {
-  const [count, setCount] = useState<number | null>(null);
-  useEffect(() => {
-    getParticipantCount().then(setCount);
-  }, []);
-
   return (
     <section className="fw-hero" id="top">
       {/* BoltGrad03 */}
@@ -29,12 +22,6 @@ export function Hero() {
           {/* one CTA: straight to the contest + prizes */}
           <Btn href="#compete">{hero.primaryCta}</Btn>
         </div>
-        {count !== null && count > 0 && (
-          <p className="fw-hero-count">
-            <span className="fw-live-dot" aria-hidden="true" />
-            {count.toLocaleString()} founders are in
-          </p>
-        )}
       </div>
     </section>
   );

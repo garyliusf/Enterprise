@@ -2,7 +2,7 @@ import type React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { BOLT_URL, competition, faqs, footerCta, sessions, templates, TERMS_PATH, timeline, weekend, type Session } from '../config';
 import { getGallery, isPreview, type GalleryEntry } from '../lib/api';
-import { EntryForm, JoinForm } from './Forms';
+import { EntryForm } from './Forms';
 import { BgVideo, Btn, BoltLogo, HoverField, PixelField, PixelIcon, PixelRise, SectionHeader, Tbc, type WaveFn } from './ui';
 
 /* Wave functions for the section pixel fields (sandbox makePixelCanvas family). */
@@ -91,7 +91,7 @@ export function Timeline() {
         <SectionHeader
           eyebrow="How the week runs"
           title="Build, learn, then show it off"
-          subtitle="Builder’s Week runs Oct 17 to 24. Join once and you are in for all of it."
+          subtitle="Builder’s Week runs Oct 17 to 24: a free build weekend, a week of sessions, and a contest."
         />
         {/* The shared "How it works" step line (solutions/_template, bolt-cli):
             the line draws, a glow travels it, nodes pop and the copy rises in
@@ -108,36 +108,6 @@ export function Timeline() {
             </div>
           ))}
         </HowSteps>
-      </div>
-    </section>
-  );
-}
-
-/* ── Join ─────────────────────────────────────────────────────────────────── */
-export function Join() {
-  return (
-    <section className="fw-section fw-section--band fw-section--join" id="join">
-      {/* Stacked + centred (Gary). The section ground takes a background
-          image later — see .fw-section--join in page.css. */}
-      <div className="fw-inner fw-join-stack">
-        <div className="fw-join-copy">
-          <SectionHeader
-            center
-            eyebrow="Join Builder’s Week"
-            title="Count yourself in"
-            subtitle="Joining is free and takes ten seconds. We will send you the session links and a reminder before the build weekend starts."
-          >
-            <span className="fw-form-badge">For everyone · Free · 10 seconds</span>
-          </SectionHeader>
-          <ul className="fw-ticks">
-            <li>Session links for the founder Q&A, workshops and feedback hours</li>
-            <li>A reminder before the free build weekend on Oct 17 and 18</li>
-            <li>No app needed. Entering the contest is a separate step</li>
-          </ul>
-        </div>
-        <div className="fw-form-card">
-          <JoinForm />
-        </div>
       </div>
     </section>
   );
@@ -322,7 +292,7 @@ export function Schedule() {
         <SectionHeader
           eyebrow="Founder programming · Oct 19–23"
           title="A week of founder sessions"
-          subtitle="Live Q&As, workshops and feedback hours. Join Builder’s Week and we will send you the links."
+          subtitle="Live Q&As, workshops and feedback hours with the Bolt team."
         />
         {featured && <FeaturedSession s={featured} />}
         <div className="fw-grid fw-grid--3 fw-session-cards">
@@ -511,12 +481,6 @@ export function Competition() {
               <li>The Bolt project you built it in</li>
               <li>A public demo video of 5 minutes or less on YouTube or X</li>
             </ul>
-            <p className="fw-enter-alt">
-              Not entering?{' '}
-              <a className="fw-text-link" href="#join">
-                Just join Builder’s Week <i className="fw-arrow" aria-hidden="true" />
-              </a>
-            </p>
           </div>
           <div className="fw-form-card fw-form-card--wide">
             <EntryForm />
@@ -580,7 +544,7 @@ export function FooterCta() {
         </div>
         <p className="fw-footer-sub">{footerCta.subtitle}</p>
         <div className="hero-btn-group fw-footer-btns">
-          <Btn href="#join">{footerCta.cta}</Btn>
+          <Btn href="#compete">{footerCta.cta}</Btn>
         </div>
       </div>
     </section>

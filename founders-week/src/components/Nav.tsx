@@ -53,8 +53,8 @@ export function Nav({ overHero = true }: { overHero?: boolean }) {
             Open Bolt
           </a>
           {overHero && (
-            <Btn href="#join" className="fw-nav-cta">
-              Join
+            <Btn href="#compete" className="fw-nav-cta">
+              Submit to Win
             </Btn>
           )}
           {overHero && (
@@ -78,8 +78,8 @@ export function Nav({ overHero = true }: { overHero?: boolean }) {
               <i className="fw-arrow" aria-hidden="true" />
             </a>
           ))}
-          <a href="#join" onClick={() => setOpen(false)}>
-            Join Builder’s Week
+          <a href="#compete" onClick={() => setOpen(false)}>
+            Submit to Win
             <i className="fw-arrow" aria-hidden="true" />
           </a>
         </div>

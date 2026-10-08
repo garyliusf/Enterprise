@@ -241,10 +241,6 @@ export const faqs: { q: string; a: string }[] = [
     a: 'Yes. Contest entries must be new apps built primarily in Bolt during the submission period, Oct 13 to Oct 20. Bolt starter templates are fine as a starting point. Other tools can play a supporting role if you disclose them.',
   },
   {
-    q: 'What is the difference between joining and entering?',
-    a: 'Joining Builder’s Week tells us you are taking part, and we send you the session links and reminders. Entering the contest is a separate submission with your app, its Bolt project link and a demo video.',
-  },
-  {
     q: 'When are the winners announced?',
     a: 'Submissions close on Tuesday Oct 20. Judging runs Oct 21 to 31, and winners are announced on or about Oct 31 on this page and on social.',
   },
@@ -253,6 +249,6 @@ export const faqs: { q: string; a: string }[] = [
 export const footerCta = {
   eyebrow: 'Builder’s Week',
   title: 'Your startup starts this weekend',
-  subtitle: 'Join now and we will send you everything you need before Saturday.',
-  cta: 'Join Builder’s Week',
+  subtitle: 'Build something new in Bolt between Oct 13 and Oct 20 and enter it for a share of $17,500.',
+  cta: 'Submit to Win',
 };

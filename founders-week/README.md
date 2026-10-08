@@ -1,7 +1,6 @@
 # Builder’s Week
 
-Landing page for Builder’s Week (Oct 17–24): what the week is, a sign-up to
-participate, the session schedule, the founder templates, and the competition
+Landing page for Builder’s Week (Oct 17–24): what the week is, the session schedule, the founder templates, and the contest
 (prizes, entries gallery, submission form). Linear: DES-428, DES-430. Brief:
 the "Founders Week page" step on the GTM launch board in Notion (the campaign
 was renamed Builder’s Week on 2026-10-08).
@@ -32,8 +31,8 @@ small TBC tag on the page.
 
 ## Preview mode
 
-Until `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are set, both forms
-pretend to succeed without saving anything, and the gallery shows sample
+Until `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are set, the entry form
+pretends to succeed without saving anything, and the gallery shows sample
 entries. A small note under each form says so.
 
 ## Exporting to Bolt
@@ -47,9 +46,6 @@ entries. A small note under each form says so.
 
 ## Data model
 
-- `participants`: sign-ups (name, email, stage, what they're building). One
-  per email.
-- `entries`: competition submissions. One per email. Hidden until approved.
-- The public key can only insert. The page reads a participant count
-  (`participant_count()`) and approved entries without emails
-  (`gallery_entries`).
+- `entries`: contest submissions. One per email. Hidden until approved.
+- The public key can only insert. The page reads approved entries without
+  emails (`gallery_entries`).

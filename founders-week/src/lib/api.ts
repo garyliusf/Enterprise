@@ -17,15 +17,6 @@ const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefine
 
 export const isPreview = !SUPABASE_URL || !SUPABASE_KEY;
 
-export type Stage = 'idea' | 'building' | 'launched';
-
-export type SignUp = {
-  name: string;
-  email: string;
-  stage: Stage;
-  building?: string;
-};
-
 export type Entry = {
   name: string;
   email: string;
@@ -74,18 +65,6 @@ export class DuplicateError extends Error {
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-export async function joinFoundersWeek(data: SignUp): Promise<void> {
-  if (isPreview) {
-    await wait(700);
-    return;
-  }
-  await rest('participants', {
-    method: 'POST',
-    headers: { Prefer: 'return=minimal' },
-    body: JSON.stringify({ ...data, email: data.email.trim().toLowerCase() }),
-  });
-}
-
 export async function submitEntry(data: Entry): Promise<void> {
   if (isPreview) {
     await wait(900);
@@ -96,19 +75,6 @@ export async function submitEntry(data: Entry): Promise<void> {
     headers: { Prefer: 'return=minimal' },
     body: JSON.stringify({ ...data, email: data.email.trim().toLowerCase() }),
   });
-}
-
-/* Participant count for the hero. Null hides the counter, so the page never
-   shows "0 founders". */
-export async function getParticipantCount(): Promise<number | null> {
-  if (isPreview) return null;
-  try {
-    const res = await rest('rpc/participant_count', { method: 'POST', body: '{}' });
-    const n = await res.json();
-    return typeof n === 'number' ? n : null;
-  } catch {
-    return null;
-  }
 }
 
 /* Approved entries only — new submissions wait for review before they show. */

@@ -1,6 +1,6 @@
-import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
+import { useState, type FormEvent, type ReactNode } from 'react';
 import { TERMS_PATH } from '../config';
-import { DuplicateError, isPreview, joinFoundersWeek, submitEntry, type Stage } from '../lib/api';
+import { DuplicateError, isPreview, submitEntry } from '../lib/api';
 
 type Status = 'idle' | 'sending' | 'done' | 'error';
 
@@ -54,130 +54,6 @@ function PreviewNote() {
   return <p className="fw-preview-note">Preview mode: nothing is saved until the database is connected.</p>;
 }
 
-/* ── Join (sign-up to participate) ──────────────────────────────────────── */
-
-const STAGES: { value: Stage; label: string }[] = [
-  { value: 'idea', label: 'I have an idea' },
-  { value: 'building', label: 'I am building' },
-  { value: 'launched', label: 'I have launched' },
-];
-
-/* Join → entry hand-off: the entry form starts with the name and email the
-   visitor already gave, and tells them so. Session-scoped, nothing else. */
-const JOINED_KEY = 'fw-joined';
-type Joined = { name: string; email: string };
-function readJoined(): Joined | null {
-  try {
-    const raw = sessionStorage.getItem(JOINED_KEY);
-    return raw ? (JSON.parse(raw) as Joined) : null;
-  } catch {
-    return null;
-  }
-}
-function saveJoined(j: Joined) {
-  try {
-    sessionStorage.setItem(JOINED_KEY, JSON.stringify(j));
-  } catch {
-    /* storage blocked: the entry form just starts empty */
-  }
-  window.dispatchEvent(new Event('fw-joined'));
-}
-
-export function JoinForm() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [stage, setStage] = useState<Stage>('idea');
-  const [building, setBuilding] = useState('');
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [status, setStatus] = useState<Status>('idle');
-  const [message, setMessage] = useState('');
-
-  async function onSubmit(e: FormEvent) {
-    e.preventDefault();
-    const next: Record<string, string> = {};
-    if (!name.trim()) next.name = 'Add your name.';
-    if (!EMAIL_RE.test(email.trim())) next.email = 'Add a valid email address.';
-    setErrors(next);
-    if (Object.keys(next).length) return;
-    setStatus('sending');
-    try {
-      await joinFoundersWeek({ name: name.trim(), email, stage, building: building.trim() || undefined });
-      saveJoined({ name: name.trim(), email: email.trim() });
-      setStatus('done');
-    } catch (err) {
-      if (err instanceof DuplicateError) {
-        saveJoined({ name: name.trim(), email: email.trim() });
-        setStatus('done');
-        setMessage('You were already on the list. See you on Saturday.');
-        return;
-      }
-      setStatus('error');
-      setMessage('Something went wrong. Try again in a moment.');
-    }
-  }
-
-  if (status === 'done') {
-    return (
-      <div className="fw-form fw-form--done" role="status">
-        <span className="fw-done-mark" aria-hidden="true" />
-        <h3 className="fw-done-title">You are in, {name.trim().split(' ')[0] || 'founder'}.</h3>
-        <p className="fw-done-body">
-          {message || 'Your session links and a reminder are on the way to your inbox before the weekend.'}
-        </p>
-        <p className="fw-done-next">
-          Competing too? The contest is a separate entry, and we have already filled in your name and email.{' '}
-          <a className="fw-text-link" href="#enter">
-            Enter the contest <i className="fw-arrow" aria-hidden="true" />
-          </a>
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <form className="fw-form" onSubmit={onSubmit} noValidate>
-      <div className="fw-form-row">
-        <Field label="Name" error={errors.name}>
-          <input value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" maxLength={120} />
-        </Field>
-        <Field label="Email" error={errors.email}>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
-        </Field>
-      </div>
-      <fieldset className="fw-field fw-choice">
-        <legend className="fw-field-label">Where are you?</legend>
-        <div className="fw-choice-row">
-          {STAGES.map((s) => (
-            <label key={s.value} className={`fw-chip${stage === s.value ? ' is-on' : ''}`}>
-              <input type="radio" name="stage" value={s.value} checked={stage === s.value} onChange={() => setStage(s.value)} />
-              {s.label}
-            </label>
-          ))}
-        </div>
-      </fieldset>
-      <Field label="What are you building?" optional>
-        <input
-          value={building}
-          onChange={(e) => setBuilding(e.target.value)}
-          maxLength={280}
-          placeholder="One line is plenty"
-        />
-      </Field>
-      <div className="fw-form-foot">
-        <Submit status={status}>Get Session Links</Submit>
-        {status === 'error' && <p className="fw-form-error" role="alert">{message}</p>}
-      </div>
-      <p className="fw-form-aside">
-        Want to compete for the $17,500 in prizes? That is a separate entry with your app.{' '}
-        <a className="fw-text-link" href="#enter">
-          Go to the contest <i className="fw-arrow" aria-hidden="true" />
-        </a>
-      </p>
-      <PreviewNote />
-    </form>
-  );
-}
-
 /* ── Contest entry ───────────────────────────────────────────────────── */
 
 export function EntryForm() {
@@ -194,19 +70,6 @@ export function EntryForm() {
     social_handle: '',
   });
   const [agree, setAgree] = useState(false);
-  const [prefilled, setPrefilled] = useState(false);
-  /* pick up a join that happened on this visit (or earlier this session) */
-  useEffect(() => {
-    const apply = () => {
-      const j = readJoined();
-      if (!j) return;
-      setV((cur) => (cur.name || cur.email ? cur : { ...cur, name: j.name, email: j.email }));
-      setPrefilled(true);
-    };
-    apply();
-    window.addEventListener('fw-joined', apply);
-    return () => window.removeEventListener('fw-joined', apply);
-  }, []);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<Status>('idle');
   const [message, setMessage] = useState('');
@@ -273,7 +136,6 @@ export function EntryForm() {
 
   return (
     <form className="fw-form fw-entry" onSubmit={onSubmit} noValidate>
-      {prefilled && <p className="fw-prefill-note">We filled in your name and email from your Builder’s Week sign-up.</p>}
       <div className="fw-form-row">
         <Field label="Your name" error={errors.name}>
           <input value={v.name} onChange={set('name')} autoComplete="name" maxLength={120} />
