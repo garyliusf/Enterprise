@@ -429,12 +429,14 @@ export function Competition() {
   return (
     <section className="fw-section fw-section--band fw-section--compete" id="compete">
       <div className="fw-inner">
-        <SectionHeader eyebrow={competition.eyebrow} title={competition.title} subtitle={competition.subtitle} />
+        <SectionHeader center eyebrow={competition.eyebrow} title={competition.title} subtitle={competition.subtitle} />
 
+        {/* podium: 2nd | 1st | 3rd on desktop, 1-2-3 stacked on phones */}
         <div className="fw-prizes">
           {competition.prizes.map((p, i) => (
-            <div key={p.place} className={`fw-prize${i === 0 ? ' is-first' : ''}`}>
-              {i === 0 && <PixelField wave={cornerWave} spacing={8} dot={2} opacity={0.7} className="fw-card-field is-on" />}
+            <div key={p.place} className={`fw-prize sc-on-dark fw-prize--${i + 1}${i === 0 ? ' is-first' : ''}`}>
+              <PixelField wave={cornerWave} spacing={8} dot={2} opacity={i === 0 ? 0.9 : 0.45} className="fw-card-field is-on" color="140,190,255" />
+              <span className="fw-prize-rank" aria-hidden="true">{i + 1}</span>
               <span className="fw-prize-place">
                 {p.place}
                 {competition.prizesTbc && <Tbc />}
@@ -444,7 +446,7 @@ export function Competition() {
             </div>
           ))}
         </div>
-        <p className="fw-fine">
+        <p className="fw-fine fw-fine--center">
           {competition.criteria} {competition.prizeFinePrint}{' '}
           <a className="fw-text-link" href={TERMS_PATH} target="_blank" rel="noopener">
             Read the official rules

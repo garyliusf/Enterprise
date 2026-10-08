@@ -872,18 +872,56 @@ img, svg { display: block; }
 .fw-tmock-text s { height: 5px; background: var(--mk); }
 
 /* ── Competition (band) ─────────────────────────────────────────────────── */
-.fw-prizes { display: grid; grid-template-columns: 1.25fr 1fr 1fr; gap: 16px; }
+.fw-prizes { display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 16px; align-items: end; margin-top: 8px; }
+/* dark navy cards in both themes, so they pop off the light band */
 .fw-prize {
-  position: relative; overflow: hidden; display: flex; flex-direction: column;
-  padding: 28px 24px 32px; border: 1px solid var(--sc-line); border-radius: 2px; background: var(--sc-ground);
+  position: relative; overflow: hidden; isolation: isolate; display: flex; flex-direction: column;
+  min-height: 290px; padding: 32px 28px 30px; border-radius: 4px; color: #fff;
+  border: 1px solid rgba(120, 175, 255, 0.28);
+  background:
+    radial-gradient(ellipse 80% 70% at 100% 0%, rgba(20, 136, 252, 0.32), transparent 70%),
+    linear-gradient(160deg, #04246c 0%, #021a57 55%, #010f38 100%);
+  box-shadow: 0 24px 48px -28px rgba(2, 26, 87, 0.65);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
 }
 .fw-prize > :not(.fw-pixel-field) { position: relative; z-index: 1; }
-.fw-prize.is-first { border-color: rgba(20, 136, 252, 0.45); }
-.fw-prize-place { font: 700 13px/1.4 var(--sc-font-label); letter-spacing: 2px; text-transform: uppercase; color: var(--sc-blue-ink); }
-.fw-prize-amount {
-  margin: 32px 0 8px; font-size: clamp(48px, 5vw, 72px); font-weight: 300; line-height: 0.95; letter-spacing: -3px; color: var(--sc-ink);
+.fw-prize:hover { box-shadow: 0 32px 56px -28px rgba(2, 26, 87, 0.8); } /* no lift, like the winner cards */
+/* podium order on desktop: 2nd, 1st, 3rd */
+.fw-prize--2 { order: 1; }
+.fw-prize--1 { order: 2; }
+.fw-prize--3 { order: 3; }
+/* the grand prize: taller, brighter, glowing edge */
+.fw-prize.is-first {
+  min-height: 360px; padding: 40px 36px 36px;
+  border-color: rgba(140, 196, 255, 0.6);
+  background:
+    radial-gradient(ellipse 90% 75% at 50% 0%, rgba(77, 166, 255, 0.45), transparent 70%),
+    linear-gradient(160deg, #0a3f9e 0%, #04246c 50%, #021a57 100%);
+  box-shadow: 0 0 0 1px rgba(77, 166, 255, 0.35), 0 0 48px -6px rgba(20, 136, 252, 0.55), 0 32px 64px -28px rgba(2, 26, 87, 0.8);
 }
-.fw-prize:not(.is-first) .fw-prize-amount { font-size: clamp(40px, 4vw, 56px); letter-spacing: -2px; }
+/* big ghost rank numeral in the corner */
+.fw-prize-rank {
+  position: absolute !important; right: 18px; bottom: -28px; z-index: 0 !important;
+  font-size: 180px; font-weight: 700; line-height: 1; letter-spacing: -8px;
+  color: transparent; -webkit-text-stroke: 1px rgba(140, 196, 255, 0.22);
+}
+.fw-prize.is-first .fw-prize-rank { font-size: 230px; -webkit-text-stroke-color: rgba(160, 210, 255, 0.35); }
+.fw-prize-place {
+  align-self: flex-start; padding: 6px 12px; border-radius: 999px;
+  font: 700 11px/1 var(--sc-font-label); letter-spacing: 1.8px; text-transform: uppercase;
+  color: #cfe6ff; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18);
+}
+.fw-prize.is-first .fw-prize-place { color: #021a57; background: #fff; border-color: #fff; }
+.fw-prize-amount {
+  margin: auto 0 8px; padding-top: 40px; font-size: clamp(44px, 4.4vw, 60px); font-weight: 300; line-height: 0.95; letter-spacing: -2.5px; color: #fff;
+}
+.fw-prize.is-first .fw-prize-amount {
+  font-size: clamp(56px, 6vw, 84px); letter-spacing: -3.5px; font-weight: 400;
+  background: linear-gradient(180deg, #ffffff 30%, #9fd0ff 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.fw-prize .fw-card-desc { color: rgba(255, 255, 255, 0.7); margin-top: 4px; }
+.fw-fine--center { margin-left: auto; margin-right: auto; text-align: center; }
+@media (prefers-reduced-motion: reduce) { .fw-prize, .fw-prize:hover { transition: none; transform: none; } }
 
 .fw-subhead { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 96px 0 24px; }
 .fw-subhead-title { font-size: clamp(24px, 2.2vw, 30px); font-weight: 500; letter-spacing: -0.6px; }
@@ -930,8 +968,9 @@ img, svg { display: block; }
 .fw-enter-head { display: flex; flex-direction: column; gap: 12px; position: sticky; top: 100px; }
 
 @media (max-width: 1024px) {
-  .fw-prizes { grid-template-columns: 1fr 1fr; }
-  .fw-prize.is-first { grid-column: 1 / -1; }
+  .fw-prizes { grid-template-columns: 1fr 1fr; align-items: stretch; }
+  .fw-prize.is-first { grid-column: 1 / -1; order: 0; min-height: 300px; }
+  .fw-prize { min-height: 240px; }
   .fw-gallery { grid-template-columns: 1fr 1fr; }
   .fw-enter { grid-template-columns: 1fr; gap: 24px; margin-top: 72px; }
   .fw-enter-head { position: static; }
@@ -939,6 +978,8 @@ img, svg { display: block; }
 }
 @media (max-width: 768px) {
   .fw-prizes, .fw-gallery { grid-template-columns: 1fr; }
+  .fw-prize { min-height: 210px; } .fw-prize.is-first { min-height: 260px; padding: 32px 24px 28px; }
+  .fw-prize-rank { font-size: 140px; } .fw-prize.is-first .fw-prize-rank { font-size: 170px; }
   .fw-subhead { margin-top: 56px; }
   .fw-enter { margin-top: 56px; }
 }
