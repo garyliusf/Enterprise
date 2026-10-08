@@ -24,7 +24,7 @@ export const hero = {
   titleSans: 'one weekend, on us.',
   subtitle:
     'A free build weekend, a week of founder sessions with the Bolt team, and a contest for the new app you build in Bolt.',
-  primaryCta: 'Submit to Win',
+  primaryCta: 'Submit to Win $10k',
 };
 
 export type Milestone = { date: string; title: string; body: string; tbc?: boolean };
