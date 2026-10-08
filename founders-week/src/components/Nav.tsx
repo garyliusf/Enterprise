@@ -49,8 +49,8 @@ export function Nav({ overHero = true }: { overHero?: boolean }) {
           </nav>
         )}
         <div className="fw-nav-actions">
-          <a className="fw-nav-bolt" href={BOLT_URL} target="_blank" rel="noopener">
-            Open Bolt
+          <a className="fw-nav-bolt" href={BOLT_URL} target="_blank" rel="noopener" aria-label="Open Bolt">
+            Open <i className="fw-nav-bmark" aria-hidden="true" />
           </a>
           {overHero && (
             <Btn href="#compete" className="fw-nav-cta">
