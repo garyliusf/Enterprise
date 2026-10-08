@@ -236,7 +236,7 @@ export function BgVideo({ name, className, lazy = false }: { name: string; class
    cell is full brand blue and every other lit cell fades by its distance
    from it (Chebyshev rings 0 / 1 / 2 / 3+). On card hover the fade lifts
    so the whole shape lights up. */
-export type PixelIconName = 'x' | 'plus' | 'clock' | 'up' | 'rocket' | 'speak' | 'chat' | 'one' | 'two';
+export type PixelIconName = 'x' | 'plus' | 'clock' | 'up' | 'rocket' | 'speak' | 'chat';
 
 const PIXEL_ICONS: Record<PixelIconName, { rows: string[]; focus: [number, number] }> = {
   x: { rows: ['#...#', '.#.#.', '..#..', '.#.#.', '#...#'], focus: [2, 2] },
@@ -245,9 +245,6 @@ const PIXEL_ICONS: Record<PixelIconName, { rows: string[]; focus: [number, numbe
   clock: { rows: ['.###.', '#...#', '#.#.#', '#...#', '.###.'], focus: [2, 2] },
   up: { rows: ['..#..', '.###.', '#.#.#', '..#..', '..#..'], focus: [0, 2] },
   /* growth workshop: a rocket (nose, window, body, fins); exhaust drawn separately */
-  /* pixel numerals for numbered lists */
-  one: { rows: ['..#..', '.##..', '..#..', '..#..', '.###.'], focus: [2, 2] },
-  two: { rows: ['.###.', '#...#', '..##.', '.#...', '#####'], focus: [2, 2] },
   rocket: { rows: ['...#...', '..###..', '..#.#..', '..###..', '.#####.', '.#.#.#.', '.......'], focus: [0, 3] },
   /* AMA: a megaphone on a finer 7x7 grid (5x5 was too coarse to read):
      handle, flaring cone, wide mouth; sound waves drawn separately */
