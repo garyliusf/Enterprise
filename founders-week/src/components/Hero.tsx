@@ -26,10 +26,8 @@ export function Hero() {
         </h1>
         <p className="fw-hero-sub">{hero.subtitle}</p>
         <div className="hero-btn-group fw-hero-ctas">
-          <Btn href="#join">{hero.primaryCta}</Btn>
-          <Btn href="#compete" variant="ghost">
-            {hero.secondaryCta}
-          </Btn>
+          {/* one CTA: straight to the contest + prizes */}
+          <Btn href="#compete">{hero.primaryCta}</Btn>
         </div>
         {count !== null && count > 0 && (
           <p className="fw-hero-count">
@@ -38,7 +36,6 @@ export function Hero() {
           </p>
         )}
       </div>
-      <p className="fw-hero-fine">{hero.finePrint}</p>
     </section>
   );
 }

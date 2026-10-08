@@ -24,9 +24,7 @@ export const hero = {
   titleSans: 'one weekend, on us.',
   subtitle:
     'A free build weekend, a week of founder sessions with the Bolt team, and a contest for the new app you build in Bolt.',
-  primaryCta: 'Join Builder’s Week',
-  secondaryCta: 'Enter the Contest',
-  finePrint: 'Free build weekend runs Sat Oct 17 to Sun Oct 18 on open models. Rate limits apply.',
+  primaryCta: 'Submit to Win',
 };
 
 export type Milestone = { date: string; title: string; body: string; tbc?: boolean };
