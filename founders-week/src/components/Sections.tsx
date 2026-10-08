@@ -49,7 +49,8 @@ function HowSteps({ children }: { children: React.ReactNode }) {
 }
 
 /* Tear-off calendar page for a timeline date ("Oct 13", "Oct 17–18").
-   Flips down as its step reveals; the next upcoming date gets a tag. */
+   Flips down as its step reveals; the next upcoming date gets a blue edge
+   (its step number glows, see Timeline). */
 function CalendarDate({ label, next, tbc }: { label: string; next?: boolean; tbc?: boolean }) {
   const [mon, ...rest] = label.split(' ');
   const days = rest.join(' ');
@@ -61,12 +62,6 @@ function CalendarDate({ label, next, tbc }: { label: string; next?: boolean; tbc
       </span>
       <span className="fw-cal-mon">{mon}</span>
       <span className={`fw-cal-day${days.length > 3 ? ' is-range' : ''}`}>{days}</span>
-      {next && (
-        <span className="fw-cal-next">
-          <span className="fw-live-dot" aria-hidden="true" />
-          Next up
-        </span>
-      )}
       {tbc && <Tbc />}
     </span>
   );
@@ -98,8 +93,9 @@ export function Timeline() {
         <HowSteps>
           {timeline.map((m, i) => (
             <div key={m.title} className="how-step">
-              <div className="how-step-node">
+              <div className={`how-step-node${i === nextIdx ? ' is-next' : ''}`}>
                 <span className="how-step-number">{String(i + 1).padStart(2, '0')}</span>
+                {i === nextIdx && <span className="fw-sr">Next up</span>}
               </div>
               <CalendarDate label={m.date} next={i === nextIdx} tbc={m.tbc} />
               <h3 className="how-step-title">{m.title}</h3>
