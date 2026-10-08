@@ -487,7 +487,7 @@ export function Competition() {
               Entries open Oct 13 – Oct 20
             </span>
             <h3 className="fw-enter-title">Submit your app</h3>
-            <p className="fw-enter-sub">One entry per founder. Build something new in Bolt, then send it our way.</p>
+            <p className="fw-enter-sub">One entry per builder. Build something new in Bolt, then send it our way.</p>
             <div className="fw-enter-prize">
               <span className="fw-enter-prize-label">Grand prize</span>
               <span className="fw-enter-prize-amount">$10,000</span>
@@ -497,6 +497,8 @@ export function Competition() {
             <ol className="fw-enter-list">
               <li>A live link to the app, free for anyone to open</li>
               <li>The Bolt project you built it in</li>
+              {/* required by the rules; keep it listed (dropped once, restored 2026-10-08) */}
+              <li>A public demo video, 5 minutes or less, on YouTube or X</li>
             </ol>
           </aside>
           <div className="fw-form-card fw-form-card--wide">

@@ -219,8 +219,10 @@ export type Prize = { place: string; amount: string; extras: string };
 export const competition = {
   eyebrow: 'The contest',
   title: 'Show us what you built',
+  /* Keep "demo video" in this line: the rules require one with every entry
+     (removed once on 2026-10-08, restored the same day at Gary's ask). */
   subtitle:
-    'Build a new app in Bolt between Oct 13 and Oct 20, then submit it below. Winners are announced on or about Oct 31.',
+    'Build a new app in Bolt between Oct 13 and Oct 20, then submit it with a short demo video. Winners are announced on or about Oct 31.',
   prizesTbc: false,
   prizes: [
     { place: 'Grand prize', amount: '$10,000', extras: 'Paid in U.S. dollars.' },
