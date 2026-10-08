@@ -34,22 +34,22 @@ export type Milestone = { date: string; title: string; body: string; tbc?: boole
 export const timeline: Milestone[] = [
   {
     date: 'Oct 13',
-    title: 'Contest opens',
+    title: 'Contest Opens',
     body: 'Start building something new in Bolt. Submissions are open from Oct 13 to Oct 20.',
   },
   {
     date: 'Oct 17–18',
-    title: 'Free build weekend',
+    title: 'Free Build Weekend',
     body: 'Unlimited building on open models for everyone on Bolt, free and paid, Teams included.',
   },
   {
     date: 'Oct 19–23',
-    title: 'Founder programming',
+    title: 'Founder Programming',
     body: 'A live Q&A with the founders, workshops, an AMA and feedback hours on your product.',
   },
   {
     date: 'Oct 31',
-    title: 'Winners announced',
+    title: 'Winners Announced',
     body: 'Submissions close Oct 20 and judging runs Oct 21 to 31. Winners are announced here and on social.',
   },
 ];
