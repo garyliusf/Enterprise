@@ -87,7 +87,7 @@ export const weekend = {
     { src: '/people/founder-laptop.webp', focus: '62% 35%' },
     { src: '/people/founder-fashion.webp', focus: '36% 55%' },
     { src: '/people/founder-cafe.webp', focus: '52% 30%' },
-    { src: '/people/founder-workshop.webp', focus: '64% 40%', flip: true },
+    { src: '/people/founder-desk.webp', focus: '55% 45%' },
     { src: '/people/founder-meeting.webp', focus: '58% 28%' },
     { src: '/people/founder-studio.webp', focus: '42% 26%' },
   ],
