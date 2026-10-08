@@ -436,6 +436,8 @@ export function Competition() {
           {competition.prizes.map((p, i) => (
             <div key={p.place} className={`fw-prize sc-on-dark fw-prize--${i + 1}${i === 0 ? ' is-first' : ''}`}>
               <PixelField wave={cornerWave} spacing={8} dot={2} opacity={i === 0 ? 0.9 : 0.45} className="fw-card-field is-on" color="140,190,255" />
+              {/* button-style pixel fill: rises on hover, falls on leave */}
+              <PixelRise colors={['255,255,255', '200,228,255', '140,196,255', '77,166,255']} alpha={0.55} />
               <span className="fw-prize-rank" aria-hidden="true">{i + 1}</span>
               <span className="fw-prize-place">
                 {p.place}
