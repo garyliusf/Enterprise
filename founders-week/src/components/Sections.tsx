@@ -455,11 +455,6 @@ export function Competition() {
           </a>
         </p>
 
-        <div className="fw-subhead">
-          <h3 className="fw-subhead-title">Past Winners</h3>
-        </div>
-        <PastWinners />
-
         <div className="fw-enter" id="enter">
           <div className="fw-enter-head">
             <span className="fw-form-badge fw-form-badge--contest">Contest entrants only · Needs a live app</span>
@@ -468,13 +463,17 @@ export function Competition() {
             <ul className="fw-need">
               <li>A live link to the app, free for anyone to open</li>
               <li>The Bolt project you built it in</li>
-              <li>A public demo video of 5 minutes or less on YouTube or X</li>
             </ul>
           </div>
           <div className="fw-form-card fw-form-card--wide">
             <EntryForm />
           </div>
         </div>
+
+        <div className="fw-subhead fw-subhead--winners">
+          <h3 className="fw-subhead-title">Past Winners</h3>
+        </div>
+        <PastWinners />
       </div>
     </section>
   );
