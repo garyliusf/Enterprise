@@ -351,6 +351,36 @@ img, svg { display: block; }
 .fw-card .fw-pixel-icon { margin-bottom: 40px; }
 .fw-mosaic-card .fw-pixel-icon { margin-bottom: 0; }
 @media (max-width: 768px) { .fw-card .fw-pixel-icon { margin-bottom: 24px; } }
+/* ── Session icons: each has its own motion, at its own pace ──────────────
+   (:root prefix keeps these above the dark-theme in/out loop rule) */
+/* self-drawing paths (trend arrow, question mark): cells light in stroke
+   order, hold, then clear in the same order */
+:root .fw-pixel-icon rect.is-path {
+  opacity: 0.14;
+  animation: fw-draw 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation-delay: calc(var(--seq) * 110ms);
+}
+:root .fw-pi-ask rect.is-path { animation-duration: 3.8s; animation-delay: calc(var(--seq) * 140ms + 600ms); }
+@keyframes fw-draw {
+  0% { opacity: 0.14; }
+  7%, 62% { opacity: 1; }
+  78%, 100% { opacity: 0.14; }
+}
+/* chat bubble: solid outline, typing dots bouncing in a wave */
+:root .fw-pixel-icon rect.is-outline { opacity: 0.32; }
+:root[data-theme="dark"] .fw-pixel-icon rect.is-outline { opacity: 0.42; }
+:root .fw-pixel-icon rect.fw-typing {
+  fill: #1488FC; opacity: 0.12; transform-box: fill-box; transform-origin: 50% 50%;
+  animation: fw-typing 1.3s ease-in-out infinite;
+  animation-delay: calc(var(--seq) * 160ms + 300ms);
+}
+@keyframes fw-typing {
+  0%, 60%, 100% { opacity: 0.12; transform: translateY(0); }
+  28% { opacity: 1; transform: translateY(-1.5px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root .fw-pixel-icon rect.is-path, :root .fw-pixel-icon rect.fw-typing { animation: none; opacity: 1; transform: none; }
+}
 /* up arrow: fades in at rest, rises, fades out as it climbs, resets.
    Animated on the <svg> box itself (not an inner <g>) with will-change, so
    the browser composites it as one layer and slides it on the GPU — an SVG

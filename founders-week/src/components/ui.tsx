@@ -236,7 +236,7 @@ export function BgVideo({ name, className, lazy = false }: { name: string; class
    cell is full brand blue and every other lit cell fades by its distance
    from it (Chebyshev rings 0 / 1 / 2 / 3+). On card hover the fade lifts
    so the whole shape lights up. */
-export type PixelIconName = 'x' | 'plus' | 'clock' | 'up' | 'bars' | 'ask' | 'swap';
+export type PixelIconName = 'x' | 'plus' | 'clock' | 'up' | 'grow' | 'ask' | 'chat';
 
 const PIXEL_ICONS: Record<PixelIconName, { rows: string[]; focus: [number, number] }> = {
   x: { rows: ['#...#', '.#.#.', '..#..', '.#.#.', '#...#'], focus: [2, 2] },
@@ -244,11 +244,24 @@ const PIXEL_ICONS: Record<PixelIconName, { rows: string[]; focus: [number, numbe
   /* ring + centre only; the minute hand is drawn and animated separately */
   clock: { rows: ['.###.', '#...#', '#.#.#', '#...#', '.###.'], focus: [2, 2] },
   up: { rows: ['..#..', '.###.', '#.#.#', '..#..', '..#..'], focus: [0, 2] },
-  bars: { rows: ['....#', '....#', '..#.#', '..#.#', '#.#.#'], focus: [0, 4] },
-  ask: { rows: ['#####', '#.#.#', '#####', '.#...', '#....'], focus: [1, 2] },
-  swap: { rows: ['.#...', '#####', '.....', '#####', '...#.'], focus: [1, 0] },
+  /* growth: a rising trend arrow, drawn bottom-left → top-right */
+  grow: { rows: ['..###', '...##', '..#.#', '.#...', '#....'], focus: [0, 4] },
+  /* AMA: a question mark, drawn stroke by stroke, then the dot */
+  ask: { rows: ['.###.', '#...#', '..##.', '.....', '..#..'], focus: [2, 2] },
+  /* feedback: a chat bubble (outline + tail); typing dots drawn separately */
+  chat: { rows: ['#####', '#...#', '#####', '.#...', '#....'], focus: [1, 2] },
 };
 const RING_OPACITY = [1, 0.55, 0.28, 0.16];
+/* stroke order for the self-drawing icons, as "y,x" → step */
+const DRAW_ORDER: Partial<Record<PixelIconName, Record<string, number>>> = {
+  grow: { '4,0': 0, '3,1': 1, '2,2': 2, '1,3': 3, '0,4': 4, '0,3': 5, '1,4': 5, '0,2': 6, '2,4': 6 },
+  ask: { '1,0': 0, '0,1': 1, '0,2': 2, '0,3': 3, '1,4': 4, '2,3': 5, '2,2': 6, '4,2': 9 },
+};
+const TYPING_DOTS: [number, number][] = [
+  [1, 1],
+  [2, 1],
+  [3, 1],
+];
 /* minute-hand cells around the centre: 12, 1:30, 3, 4:30, 6 */
 const CLOCK_HAND: [number, number][] = [
   [2, 1],
@@ -288,11 +301,18 @@ export function PixelIcon({ name, className = '', index = 0 }: { name: PixelIcon
             y={c.y * 6}
             width="4"
             height="4"
-            className={name === 'clock' || name === 'up' ? 'is-static' : undefined}
-            style={{ '--o': c.o, '--d': c.d } as CSSProperties}
+            className={
+              DRAW_ORDER[name] ? 'is-path' : name === 'chat' ? 'is-static is-outline' : name === 'clock' || name === 'up' ? 'is-static' : undefined
+            }
+            style={{ '--o': c.o, '--d': c.d, '--seq': DRAW_ORDER[name]?.[`${c.y},${c.x}`] ?? 0 } as CSSProperties}
           />
         ))}
       </g>
+      {/* chat: three typing dots bounce in a wave inside the bubble */}
+      {name === 'chat' &&
+        TYPING_DOTS.map(([x, y], n) => (
+          <rect key={`t${n}`} x={x * 6} y={y * 6} width="4" height="4" className="fw-typing" style={{ '--seq': n } as CSSProperties} />
+        ))}
       {/* clock: the minute hand sweeps 12 → 3 → 6, one cell per step */}
       {name === 'clock' &&
         CLOCK_HAND.map(([x, y], h) => (
