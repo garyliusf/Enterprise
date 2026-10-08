@@ -1,9 +1,10 @@
-# Founders Week
+# Builder’s Week
 
-Landing page for Founders Week (Oct 17–24): what the week is, a sign-up to
+Landing page for Builder’s Week (Oct 17–24): what the week is, a sign-up to
 participate, the session schedule, the founder templates, and the competition
 (prizes, entries gallery, submission form). Linear: DES-428, DES-430. Brief:
-the "Founders Week page" step on the GTM launch board in Notion.
+the "Founders Week page" step on the GTM launch board in Notion (the campaign
+was renamed Builder’s Week on 2026-10-08).
 
 React + Vite + TypeScript, no other runtime dependencies. Built to be exported
 to Bolt.

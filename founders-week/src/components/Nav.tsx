@@ -34,10 +34,10 @@ export function Nav({ overHero = true }: { overHero?: boolean }) {
   return (
     <header className={`fw-nav${solid ? ' is-solid' : ''}${open ? ' is-open' : ''}`}>
       <div className="fw-nav-bar">
-        <a className="fw-nav-brand" href={overHero ? '#top' : '/'} aria-label="Founders Week home">
+        <a className="fw-nav-brand" href={overHero ? '#top' : '/'} aria-label="Builder’s Week home">
           <BoltLogo className="fw-nav-logo" />
           <span className="fw-nav-divider" aria-hidden="true" />
-          <span className="fw-nav-campaign">Founders Week</span>
+          <span className="fw-nav-campaign">Builder’s Week</span>
         </a>
         {overHero && (
           <nav className="fw-nav-links" aria-label="Sections">
@@ -79,7 +79,7 @@ export function Nav({ overHero = true }: { overHero?: boolean }) {
             </a>
           ))}
           <a href="#join" onClick={() => setOpen(false)}>
-            Join Founders Week
+            Join Builder’s Week
             <i className="fw-arrow" aria-hidden="true" />
           </a>
         </div>

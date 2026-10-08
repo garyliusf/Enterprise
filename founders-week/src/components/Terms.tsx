@@ -23,8 +23,8 @@ export function Terms() {
   return (
     <main className="fw-terms">
       <header className="fw-terms-head">
-        <span className="section-eyebrow">Founders Week · Official Rules</span>
-        <h1 className="fw-terms-h1">Bolt’s Founders Week Contest Terms and Conditions</h1>
+        <span className="section-eyebrow">Builder’s Week · Official Rules</span>
+        <h1 className="fw-terms-h1">Bolt’s Builder’s Week Contest Terms and Conditions</h1>
         <dl className="fw-terms-facts">
           <div><dt>Submissions</dt><dd>Oct 13 – Oct 20, 2026</dd></div>
           <div><dt>Judging</dt><dd>Oct 21 – Oct 31, 2026</dd></div>
@@ -51,7 +51,7 @@ export function Terms() {
         </p>
 
         <p>
-          These Official Rules (the “Rules”) govern the BOLT’S FOUNDERS WEEK CONTEST (the “Contest”). The Contest is
+          These Official Rules (the “Rules”) govern the BOLT’S BUILDER’S WEEK CONTEST (the “Contest”). The Contest is
           sponsored by StackBlitz, Inc., 1160 Battery Street, Suite 30W, San Francisco, CA 94111 (“Sponsor”), the operator
           of Bolt.new (“Bolt”). The Contest is administered by StackBlitz, Inc. (“Administrator”). By submitting an entry,
           each Entrant (and, for a Team or Organization, its Representative on its behalf) agrees to these Rules and to the
@@ -398,12 +398,12 @@ export function Terms() {
         <p>
           To obtain the names of the winners, <a href="https://bolt.new/founders-week">https://bolt.new/founders-week</a> or
           send a request, within ninety (90) days after winners are announced, to{' '}
-          <a href="mailto:legal@stackblitz.com">legal@stackblitz.com</a> with the subject line “Bolt’s Founders Week Contest
+          <a href="mailto:legal@stackblitz.com">legal@stackblitz.com</a> with the subject line “Bolt’s Builder’s Week Contest
           Winners List.”
         </p>
 
         <a className="fw-text-link fw-terms-back" href="/">
-          Back to Founders Week <i className="fw-arrow" aria-hidden="true" />
+          Back to Builder’s Week <i className="fw-arrow" aria-hidden="true" />
         </a>
       </article>
       </div>

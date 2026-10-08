@@ -273,7 +273,7 @@ export function EntryForm() {
 
   return (
     <form className="fw-form fw-entry" onSubmit={onSubmit} noValidate>
-      {prefilled && <p className="fw-prefill-note">We filled in your name and email from your Founders Week sign-up.</p>}
+      {prefilled && <p className="fw-prefill-note">We filled in your name and email from your Builder’s Week sign-up.</p>}
       <div className="fw-form-row">
         <Field label="Your name" error={errors.name}>
           <input value={v.name} onChange={set('name')} autoComplete="name" maxLength={120} />

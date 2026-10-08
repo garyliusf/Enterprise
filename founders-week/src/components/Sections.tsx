@@ -91,7 +91,7 @@ export function Timeline() {
         <SectionHeader
           eyebrow="How the week runs"
           title="Build, learn, then show it off"
-          subtitle="Founders Week runs Oct 17 to 24. Join once and you are in for all of it."
+          subtitle="Builder’s Week runs Oct 17 to 24. Join once and you are in for all of it."
         />
         {/* The shared "How it works" step line (solutions/_template, bolt-cli):
             the line draws, a glow travels it, nodes pop and the copy rises in
@@ -123,7 +123,7 @@ export function Join() {
         <div className="fw-join-copy">
           <SectionHeader
             center
-            eyebrow="Join Founders Week"
+            eyebrow="Join Builder’s Week"
             title="Count yourself in"
             subtitle="Joining is free and takes ten seconds. We will send you the session links and a reminder before the build weekend starts."
           >
@@ -259,7 +259,7 @@ function calendarLink(s: Session) {
     'https://calendar.google.com/calendar/render?action=TEMPLATE' +
     `&text=${encodeURIComponent(s.title)}` +
     `&dates=${gcalDate(s.start)}/${gcalDate(s.end)}` +
-    `&details=${encodeURIComponent(`${s.blurb}\n\nFounders Week on Bolt.`)}`
+    `&details=${encodeURIComponent(`${s.blurb}\n\nBuilder’s Week on Bolt.`)}`
   );
 }
 
@@ -320,7 +320,7 @@ export function Schedule() {
         <SectionHeader
           eyebrow="Founder programming · Oct 19–23"
           title="A week of founder sessions"
-          subtitle="Live Q&As, workshops and feedback hours. Join Founders Week and we will send you the links."
+          subtitle="Live Q&As, workshops and feedback hours. Join Builder’s Week and we will send you the links."
         />
         {featured && <FeaturedSession s={featured} />}
         <div className="fw-grid fw-grid--3 fw-session-cards">
@@ -416,7 +416,7 @@ export function Templates() {
               </div>
               <div className="fw-tcard-foot">
                 <span className="fw-tcard-name">{t.name}</span>
-                <span className="fw-tcard-tag">{t.tag || 'Founders'}</span>
+                <span className="fw-tcard-tag">{t.tag || 'Builders'}</span>
               </div>
             </a>
           ))}
@@ -512,7 +512,7 @@ export function Competition() {
             <p className="fw-enter-alt">
               Not entering?{' '}
               <a className="fw-text-link" href="#join">
-                Just join Founders Week <i className="fw-arrow" aria-hidden="true" />
+                Just join Builder’s Week <i className="fw-arrow" aria-hidden="true" />
               </a>
             </p>
           </div>

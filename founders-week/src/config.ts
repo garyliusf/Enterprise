@@ -1,8 +1,8 @@
 /* ============================================================================
-   FOUNDERS WEEK — every piece of copy and every date that is still moving
+   BUILDER’S WEEK — every piece of copy and every date that is still moving
    lives here, so a decision lands as a one-line edit.
 
-   Copy rules for every Founders Week asset (from the launch page in Notion):
+   Copy rules for every Builder’s Week asset (from the launch page in Notion):
    - "Unlimited" in the headline, rate limits in the fine print.
    - No token counts. Never name a default model. Percentages only.
    - Say "open models" in public.
@@ -17,14 +17,14 @@ export const BOLT_URL = 'https://bolt.new/?utm_source=founders-week&utm_medium=l
 export const TERMS_PATH = '/terms';
 
 export const hero = {
-  eyebrow: 'Founders Week · Oct 17–24',
+  eyebrow: 'Builder’s Week · Oct 17–24',
   /* Tagline is an open decision (Marketing drafts, Haily refines, CX signs
      off), and so is "Bolt" in front of the name. */
   titleSerif: 'Unlimited building,',
   titleSans: 'one weekend, on us.',
   subtitle:
     'A free build weekend, a week of founder sessions with the Bolt team, and a contest for the new app you build in Bolt.',
-  primaryCta: 'Join Founders Week',
+  primaryCta: 'Join Builder’s Week',
   secondaryCta: 'Enter the Contest',
   finePrint: 'Free build weekend runs Sat Oct 17 to Sun Oct 18 on open models. Rate limits apply.',
 };
@@ -231,7 +231,7 @@ export const competition = {
 
 export const faqs: { q: string; a: string }[] = [
   {
-    q: 'Who can take part in Founders Week?',
+    q: 'Who can take part in Builder’s Week?',
     a: 'Anyone with a Bolt account can join the build weekend and the sessions. The contest is open to individuals 18 and over, teams and organizations, with some exclusions listed in the official rules.',
   },
   {
@@ -244,7 +244,7 @@ export const faqs: { q: string; a: string }[] = [
   },
   {
     q: 'What is the difference between joining and entering?',
-    a: 'Joining Founders Week tells us you are taking part, and we send you the session links and reminders. Entering the contest is a separate submission with your app, its Bolt project link and a demo video.',
+    a: 'Joining Builder’s Week tells us you are taking part, and we send you the session links and reminders. Entering the contest is a separate submission with your app, its Bolt project link and a demo video.',
   },
   {
     q: 'When are the winners announced?',
@@ -253,8 +253,8 @@ export const faqs: { q: string; a: string }[] = [
 ];
 
 export const footerCta = {
-  eyebrow: 'Founders Week',
+  eyebrow: 'Builder’s Week',
   title: 'Your startup starts this weekend',
   subtitle: 'Join now and we will send you everything you need before Saturday.',
-  cta: 'Join Founders Week',
+  cta: 'Join Builder’s Week',
 };
