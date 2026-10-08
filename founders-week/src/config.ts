@@ -83,11 +83,11 @@ export const weekend = {
      for shots with no visible text) */
   photos: [
     { src: '/people/founder-laptop.webp', focus: '62% 35%' },
-    { src: '/people/founder-terracotta.webp', focus: '46% 60%' },
+    { src: '/people/founder-terracotta.webp', focus: '50% 38%' },
     { src: '/people/founder-cafe.webp', focus: '55% 22%' },
     { src: '/people/founder-desk.webp', focus: '58% 38%' },
     { src: '/people/founder-apron.webp', focus: '60% 18%' },
-    { src: '/people/founder-video-call.webp', focus: '55% 62%' },
+    { src: '/people/founder-glasses.webp', focus: '62% 30%' },
   ],
   /* Only shown once DigitalOcean confirms they are covering inference. */
   partner: { show: false, name: 'DigitalOcean', line: 'Free inference for the weekend is provided by DigitalOcean.' },
