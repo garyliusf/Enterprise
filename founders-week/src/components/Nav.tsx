@@ -49,8 +49,15 @@ export function Nav({ overHero = true }: { overHero?: boolean }) {
           </nav>
         )}
         <div className="fw-nav-actions">
-          <a className="fw-nav-bolt" href={BOLT_URL} target="_blank" rel="noopener" aria-label="Open Bolt">
-            Open <i className="fw-nav-bmark" aria-hidden="true" />
+          {/* standard ghost button markup (pixel hover from shared), b mark inline */}
+          <a className="hero-btn-ghost fw-nav-start" href={BOLT_URL} target="_blank" rel="noopener" aria-label="Start building on Bolt">
+            <div className="btn-bg-hover" />
+            <div className="btn-text-wrap">
+              <div className="btn-text-inner">
+                <span>Start Building <i className="fw-nav-bmark" aria-hidden="true" /></span>
+                <span>Start Building <i className="fw-nav-bmark" aria-hidden="true" /></span>
+              </div>
+            </div>
           </a>
           {overHero && (
             <Btn href="#compete" className="fw-nav-cta">
