@@ -92,7 +92,8 @@ img, svg { display: block; }
 .fw-nav-logo { height: 20px; width: auto; color: var(--sc-nav-over-logo); transition: color 0.25s ease; }
 .fw-nav.is-solid .fw-nav-logo { color: var(--sc-nav-logo); }
 .fw-nav-divider { width: 1px; height: 18px; background: currentColor; opacity: 0.3; }
-.fw-nav-campaign { font: 700 13px/1 var(--sc-font-label); letter-spacing: 2px; text-transform: uppercase; }
+.fw-nav-campaign { font: 700 11px/1 var(--sc-font-label); letter-spacing: 1.6px; text-transform: uppercase; }
+@media (max-width: 768px) { .fw-nav-campaign { font-size: 10px; letter-spacing: 1.4px; } }
 .fw-nav-links { display: flex; gap: 4px; margin-left: auto; }
 .fw-nav-links a {
   font-size: 14px; font-weight: 500; text-decoration: none; color: inherit;
@@ -133,14 +134,23 @@ img, svg { display: block; }
   .fw-nav-links { display: none; }
   .fw-nav-logo { height: 24px; } /* same bump as the site nav at tablet/phone */
   .fw-nav-brand + .fw-nav-actions, .fw-nav-links + .fw-nav-actions { margin-left: auto; }
+  /* the marketing site's burger (shared-nav-footer.css .mkt-nav-burger):
+     three 22px lines that morph into an X; colour follows the bar ink */
   .fw-nav-burger {
-    display: flex; flex-direction: column; justify-content: center; gap: 6px;
-    width: 40px; height: 40px; margin-right: -8px; padding: 0 9px;
-    background: none; border: 0; color: inherit; cursor: pointer;
+    display: block; position: relative; width: 40px; height: 40px; margin-right: -9px; padding: 0;
+    background: none; border: 0; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent;
   }
-  .fw-nav-burger span { display: block; height: 1.5px; background: currentColor; transition: transform 0.25s ease; }
-  .fw-nav.is-open .fw-nav-burger span:first-child { transform: translateY(3.75px) rotate(45deg); }
-  .fw-nav.is-open .fw-nav-burger span:last-child { transform: translateY(-3.75px) rotate(-45deg); }
+  .fw-nav-burger span {
+    position: absolute; left: 9px; width: 22px; height: 1.5px; border-radius: 1px; background: currentColor;
+    transform-origin: center;
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.18s ease;
+  }
+  .fw-nav-burger span:nth-child(1) { top: 12px; }
+  .fw-nav-burger span:nth-child(2) { top: 19px; }
+  .fw-nav-burger span:nth-child(3) { top: 26px; }
+  .fw-nav.is-open .fw-nav-burger span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .fw-nav.is-open .fw-nav-burger span:nth-child(2) { opacity: 0; transform: scaleX(0.5); }
+  .fw-nav.is-open .fw-nav-burger span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
   .fw-nav-drawer:not([hidden]) {
     display: flex; flex-direction: column; padding: 8px 0 24px;
     width: min(900px, calc(100vw - 80px)); margin: 0 auto;
@@ -300,13 +310,18 @@ img, svg { display: block; }
   .fw-hero {
     min-height: 0;
     padding: calc(100px + var(--sc-nav-overlap)) 0 64px;
+    /* taller on phones: the video scales up with the box, so its pale lower
+       band drops below the copy instead of sitting behind the subtitle */
+    min-height: min(100svh, 820px); justify-content: center;
   }
+  .fw-hero-video { object-position: 50% 0%; }
   .fw-hero::after { height: 20%; }
   .fw-hero::before {
     background:
-      radial-gradient(ellipse 90% 50% at 50% 52%, rgba(2, 14, 52, 0.6), rgba(2, 14, 52, 0.2) 65%, transparent 90%),
+      radial-gradient(ellipse 120% 55% at 50% 50%, rgba(2, 14, 52, 0.62), rgba(2, 14, 52, 0.32) 60%, rgba(2, 14, 52, 0.08) 85%, transparent 100%),
       linear-gradient(180deg, rgba(0, 4, 20, 0.35) 0%, transparent 22%);
   }
+  .fw-hero-sub { color: #fff; text-shadow: 0 1px 12px rgba(0, 12, 50, 0.45); }
   .fw-hero-inner { width: calc(100vw - 32px); }
   .fw-hero-pill { margin-bottom: 14px; }
   .fw-hero-pill .fw-hero-eyebrow { font-size: 10px; letter-spacing: 1.6px; }

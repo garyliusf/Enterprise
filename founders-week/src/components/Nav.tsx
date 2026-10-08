@@ -78,6 +78,7 @@ export function Nav({ overHero = true }: { overHero?: boolean }) {
             >
               <span />
               <span />
+              <span />
             </button>
           )}
         </div>
