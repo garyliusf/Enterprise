@@ -733,11 +733,11 @@ img, svg { display: block; }
 
 /* ── Schedule ───────────────────────────────────────────────────────────
    One featured card for the confirmed session (dark navy in both themes,
-   live dot field, big date, countdown, calendar CTA) over a row of
+   live dot field, big date, hosts photo, calendar CTA) over a row of
    compliance-treatment cards for the sessions still being scheduled. */
 .fw-feature {
   position: relative; overflow: hidden; isolation: isolate;
-  display: grid; grid-template-columns: 168px minmax(0, 1fr) auto; gap: 40px; align-items: center;
+  display: grid; grid-template-columns: 168px minmax(0, 1fr) minmax(240px, 30%); gap: 40px; align-items: center;
   padding: 40px; margin-bottom: 16px; border-radius: 2px;
   border: 1px solid rgba(20, 136, 252, 0.45);
   background:
@@ -754,7 +754,7 @@ img, svg { display: block; }
 }
 .fw-feature-mon { font: 700 13px/1 var(--sc-font-label); letter-spacing: 2px; text-transform: uppercase; color: #8cc4ff; }
 .fw-feature-day { margin: 6px 0 8px; font-size: 72px; font-weight: 300; line-height: 0.85; letter-spacing: -3px; }
-.fw-feature-dow { font-size: 13px; color: rgba(255, 255, 255, 0.7); }
+.fw-feature-dow { font-size: 15px; font-weight: 600; color: #fff; }
 .fw-feature-kicker {
   display: inline-flex; align-items: center; gap: 8px; margin-bottom: 12px;
   font: 700 13px/1 var(--sc-font-label); letter-spacing: 2px; text-transform: uppercase; color: #8cc4ff;
@@ -762,18 +762,20 @@ img, svg { display: block; }
 .fw-feature-title { font-size: clamp(24px, 2.4vw, 32px); font-weight: 500; letter-spacing: -0.6px; line-height: 1.2; }
 .fw-feature-blurb { margin-top: 10px; max-width: 520px; font-size: 15px; line-height: 1.6; color: rgba(255, 255, 255, 0.75); }
 .fw-feature-host { display: block; margin-top: 14px; font-size: 13px; color: rgba(255, 255, 255, 0.6); }
-.fw-feature-side { display: flex; flex-direction: column; align-items: flex-end; gap: 20px; }
-.fw-countdown { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
-.fw-countdown-label { font: 700 11px/1 var(--sc-font-label); letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255, 255, 255, 0.6); }
-.fw-countdown-row { display: flex; gap: 6px; }
-.fw-countdown-cell {
-  display: flex; align-items: baseline; gap: 2px; padding: 10px 12px; border-radius: 2px;
-  background: rgba(0, 4, 20, 0.35); border: 1px solid rgba(255, 255, 255, 0.14);
-  font-variant-numeric: tabular-nums;
+.fw-feature-side { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px 24px; margin-top: 24px; }
+.fw-feature-cta { display: flex; align-items: center; gap: 10px; }
+/* Eric & Pai: bleeds to the card's top/right/bottom edges, fades into the
+   navy on its left and bottom, with a light blue tint so it sits in the
+   card's palette */
+.fw-feature-photo {
+  align-self: stretch; margin: -40px -40px -40px 0; min-height: 300px; position: relative;
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 55%), linear-gradient(to top, transparent 0%, #000 35%);
+  -webkit-mask-composite: source-in;
+          mask-image: linear-gradient(to right, transparent 0%, #000 55%), linear-gradient(to top, transparent 0%, #000 35%);
+          mask-composite: intersect;
 }
-.fw-countdown-cell b { font-size: 28px; font-weight: 300; letter-spacing: -1px; line-height: 1; }
-.fw-countdown-cell i { font-style: normal; font-size: 12px; color: rgba(255, 255, 255, 0.6); }
-.fw-feature-cta { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+.fw-feature-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 18%; filter: grayscale(1) contrast(1.1) brightness(1.12); }
+.fw-feature-photo::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 60% 55% at 55% 32%, rgba(90, 150, 240, 0.22), rgba(4, 36, 108, 0.8) 100%); mix-blend-mode: multiply; }
 .fw-feature .hero-btn-ghost { border-color: rgba(255, 255, 255, 0.45); color: #fff; background: rgba(2, 14, 52, 0.28); min-width: var(--cta-min-w); }
 .fw-feature .hero-btn-ghost:hover { border-color: rgba(255, 255, 255, 0.75); }
 
@@ -789,15 +791,18 @@ img, svg { display: block; }
   .fw-feature { grid-template-columns: 140px minmax(0, 1fr); gap: 28px; padding: 32px; }
   .fw-feature-date { height: 140px; }
   .fw-feature-day { font-size: 60px; }
-  .fw-feature-side { grid-column: 1 / -1; flex-direction: row; align-items: center; justify-content: space-between; flex-wrap: wrap; }
-  .fw-countdown { align-items: flex-start; }
-  .fw-feature-cta { flex-direction: row; align-items: center; gap: 16px; }
+  /* photo becomes a banner across the top, fading down into the card */
+  .fw-feature-photo {
+    grid-column: 1 / -1; grid-row: 1; margin: -32px -32px 0; min-height: 0; height: 260px;
+    -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 45%); mask-image: linear-gradient(to top, transparent 0%, #000 45%);
+  }
   .fw-session-cards { grid-template-columns: repeat(3, 1fr); }
 }
 @media (max-width: 768px) {
   .fw-feature { grid-template-columns: 1fr; gap: 24px; padding: 24px 20px; }
   .fw-feature-date { flex-direction: row; justify-content: flex-start; align-items: baseline; gap: 10px; height: auto; padding: 14px 16px; }
   .fw-feature-day { font-size: 44px; margin: 0; letter-spacing: -2px; }
+  .fw-feature-photo { margin: -24px -20px 0; height: 220px; }
   .fw-feature-side { flex-direction: column; align-items: stretch; }
   .fw-feature-cta { flex-direction: column; align-items: stretch; }
   .fw-feature .hero-btn-ghost { width: 100%; }

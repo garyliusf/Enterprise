@@ -283,21 +283,7 @@ function FeaturedSession({ s }: { s: Session }) {
         <h3 className="fw-feature-title">{s.title}</h3>
         <p className="fw-feature-blurb">{s.blurb}</p>
         <span className="fw-feature-host">{s.host}</span>
-      </div>
-      <div className="fw-feature-side">
-        {cd?.state === 'soon' && (
-          <div className="fw-countdown" aria-label="Time until the session starts">
-            <span className="fw-countdown-label">Starts in</span>
-            <div className="fw-countdown-row">
-              {cd.parts.map(([n, u]) => (
-                <span key={u} className="fw-countdown-cell">
-                  <b>{String(n).padStart(2, '0')}</b>
-                  <i>{u}</i>
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
+        <div className="fw-feature-side">
         {cal && cd?.state !== 'ended' && (
           <div className="fw-feature-cta">
             <Btn href={cal} variant="ghost" external>
@@ -305,7 +291,13 @@ function FeaturedSession({ s }: { s: Session }) {
             </Btn>
           </div>
         )}
+        </div>
       </div>
+      {s.photo && (
+        <div className="fw-feature-photo" aria-hidden="true">
+          <img src={s.photo} alt="" loading="lazy" decoding="async" />
+        </div>
+      )}
     </article>
   );
 }
