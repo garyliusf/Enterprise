@@ -36,9 +36,9 @@ export default function App() {
         <Hero />
         <Weekend />
         <Timeline />
+        <Templates />
         <Join />
         <Schedule />
-        <Templates />
         <Competition />
         <Faq />
       </main>
