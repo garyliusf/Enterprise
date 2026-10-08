@@ -443,3 +443,126 @@ export function HoverField({
   }, [index, Array.isArray(color) ? color.join('|') : color, dot, strength, edgeFade]);
   return <canvas ref={ref} className="fw-hover-field" aria-hidden="true" />;
 }
+
+/* ── Pixel rise ──────────────────────────────────────────────────────────
+   The button pixel-fill hover (shared-components.js attach()) scaled up for
+   photos: each cell gets a noise value biased toward the bottom; on hover a
+   threshold climbs so pixels fill in from the bottom up, flickering at the
+   edge; on leave it drops and they fall back down. Sparse, translucent,
+   white + light blue so the photo stays visible through it. */
+export function PixelRise({
+  colors = ['255,255,255', '255,255,255', '160,210,255', '100,175,255'],
+  spacing = 9,
+  dot = 2,
+  alpha = 0.5,
+}: {
+  colors?: string[];
+  spacing?: number;
+  dot?: number;
+  alpha?: number;
+}) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const canvas = ref.current;
+    const tile = canvas?.parentElement;
+    if (!canvas || !tile) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let cols = 0;
+    let rows = 0;
+    let noise: number[][] = [];
+    let tint: number[][] = [];
+    let progress = 0;
+    let target = 0;
+    let raf = 0;
+    let last = 0;
+    let flickerTimer = 0;
+
+    const resize = () => {
+      const r = tile.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      canvas.width = Math.round(r.width);
+      canvas.height = Math.round(r.height);
+      cols = Math.ceil(canvas.width / spacing);
+      rows = Math.ceil(canvas.height / spacing);
+      noise = [];
+      tint = [];
+      for (let y = 0; y < rows; y++) {
+        noise[y] = [];
+        tint[y] = [];
+        for (let x = 0; x < cols; x++) {
+          /* bottom rows get low values, so they light first (button: bias from top) */
+          const bias = y / Math.max(1, rows - 1);
+          noise[y][x] = (1 - bias) * 0.55 + Math.random() * 0.55;
+          tint[y][x] = Math.floor(Math.random() * colors.length);
+        }
+      }
+      draw();
+    };
+    const draw = (flicker = false) => {
+      if (!canvas.width) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const threshold = progress * 1.15;
+      for (let y = 0; y < rows; y++)
+        for (let x = 0; x < cols; x++) {
+          const n = noise[y][x];
+          if (n >= threshold) continue;
+          if (flicker && Math.random() < 0.03) continue;
+          const edge = threshold - n;
+          if (edge < 0.08 && Math.random() < 0.45) continue;
+          /* fresher pixels at the rising edge are brighter; settled ones dim */
+          const a = alpha * (edge < 0.25 ? 1 : 0.4);
+          ctx.fillStyle = `rgba(${colors[tint[y][x]]},${a})`;
+          ctx.fillRect(x * spacing, y * spacing, dot, dot);
+        }
+    };
+    const tick = (t: number) => {
+      if (!last) last = t;
+      const dt = Math.min(0.05, (t - last) / 1000);
+      last = t;
+      progress += (target - progress) * Math.min(1, dt * 2.6);
+      if (Math.abs(target - progress) < 0.003) progress = target;
+      draw();
+      if (progress !== target) raf = requestAnimationFrame(tick);
+      else {
+        raf = 0;
+        last = 0;
+        if (target === 1) flick();
+      }
+    };
+    const flick = () => {
+      if (target !== 1) return;
+      draw(true);
+      flickerTimer = window.setTimeout(() => requestAnimationFrame(flick), 140);
+    };
+    const go = (to: number) => {
+      target = to;
+      if (reduce) {
+        progress = to;
+        draw();
+        return;
+      }
+      clearTimeout(flickerTimer);
+      if (!raf) {
+        last = 0;
+        raf = requestAnimationFrame(tick);
+      }
+    };
+    const enter = () => go(1);
+    const leave = () => go(0);
+    const ro = new ResizeObserver(resize);
+    ro.observe(tile);
+    resize();
+    tile.addEventListener('mouseenter', enter);
+    tile.addEventListener('mouseleave', leave);
+    return () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(flickerTimer);
+      ro.disconnect();
+      tile.removeEventListener('mouseenter', enter);
+      tile.removeEventListener('mouseleave', leave);
+    };
+  }, [colors.join('|'), spacing, dot, alpha]);
+  return <canvas ref={ref} className="fw-pixel-rise" aria-hidden="true" />;
+}

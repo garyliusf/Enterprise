@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { BOLT_URL, competition, faqs, footerCta, sessions, templates, TERMS_PATH, timeline, weekend, type Session } from '../config';
 import { getGallery, isPreview, type GalleryEntry } from '../lib/api';
 import { EntryForm, JoinForm } from './Forms';
-import { BgVideo, Btn, BoltLogo, HoverField, PixelField, PixelIcon, SectionHeader, Tbc, type WaveFn } from './ui';
+import { BgVideo, Btn, BoltLogo, HoverField, PixelField, PixelIcon, PixelRise, SectionHeader, Tbc, type WaveFn } from './ui';
 
 /* Wave functions for the section pixel fields (sandbox makePixelCanvas family). */
 const cornerWave: WaveFn = (c, r, t, phase, cols, rows) => {
@@ -198,8 +198,8 @@ export function Weekend() {
               const ph = photos[t.i % photos.length];
               return (
                 <figure key={n} className="fw-mosaic-photo" style={style} aria-hidden="true">
-                  {/* the card hover field, in white, drifting over the photo */}
-                  <HoverField index={n} color={['255,255,255', '255,255,255', '150,205,255', '90,170,255']} dot={3} strength={1} edgeFade={false} />
+                  {/* the button pixel-fill hover, scaled up: rises on hover, falls on leave */}
+                  <PixelRise />
                   <img
                     src={ph.src}
                     alt=""
