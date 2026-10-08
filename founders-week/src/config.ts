@@ -89,7 +89,7 @@ export const weekend = {
     { src: '/people/founder-cafe.webp', focus: '52% 30%' },
     { src: '/people/founder-desk.webp', focus: '55% 45%' },
     { src: '/people/founder-meeting.webp', focus: '58% 28%' },
-    { src: '/people/founder-laptop-cafe.webp', focus: '30% 16%' },
+    { src: '/people/founder-video-call.webp', focus: '55% 62%' },
   ],
   /* Only shown once DigitalOcean confirms they are covering inference. */
   partner: { show: false, name: 'DigitalOcean', line: 'Free inference for the weekend is provided by DigitalOcean.' },
