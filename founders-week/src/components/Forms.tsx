@@ -140,7 +140,7 @@ export function EntryForm() {
         <span className="fw-done-mark" aria-hidden="true" />
         <h3 className="fw-done-title">{v.product_name.trim()} is entered.</h3>
         <p className="fw-done-body">
-          Your entry shows up in the gallery once it has been reviewed. Judging runs Oct 21 to 31, and winners are announced on or about Oct 31.
+          We will email you if we have questions. Judging runs Oct 21 to 31, and winners are announced on or about Oct 31.
         </p>
       </div>
     );
