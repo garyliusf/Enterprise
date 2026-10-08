@@ -985,17 +985,75 @@ img, svg { display: block; }
   font-size: 15px; color: var(--sc-text-desc);
 }
 
-.fw-enter { margin-top: 96px; display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 64px; align-items: start; }
-.fw-enter-head { display: flex; flex-direction: column; gap: 12px; position: sticky; top: 100px; }
+.fw-enter { margin-top: 96px; display: grid; grid-template-columns: minmax(0, 4.2fr) minmax(0, 7fr); gap: 24px; align-items: start; }
+/* left: navy panel, sticky beside the long form */
+.fw-enter-head {
+  position: sticky; top: 92px; overflow: hidden; isolation: isolate;
+  display: flex; flex-direction: column; gap: 14px;
+  padding: 36px 32px 34px; border-radius: 4px; color: #fff;
+  border: 1px solid rgba(120, 175, 255, 0.28);
+  background:
+    radial-gradient(ellipse 90% 70% at 100% 0%, rgba(20, 136, 252, 0.35), transparent 70%),
+    linear-gradient(160deg, #04246c 0%, #021a57 55%, #010f38 100%);
+  box-shadow: 0 24px 48px -28px rgba(2, 26, 87, 0.65);
+}
+.fw-enter-head > :not(.fw-pixel-field) { position: relative; z-index: 1; }
+.fw-enter-badge {
+  align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px;
+  font: 700 11px/1 var(--sc-font-label); letter-spacing: 1.6px; text-transform: uppercase;
+  color: #cfe6ff; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18);
+}
+.fw-enter-title { margin-top: 6px; font-size: clamp(32px, 3vw, 42px); font-weight: 500; letter-spacing: -1px; line-height: 1.1; }
+.fw-enter-sub { font-size: 15px; line-height: 1.6; color: rgba(255, 255, 255, 0.72); }
+.fw-enter-prize {
+  display: flex; flex-direction: column; gap: 4px; margin: 10px 0 4px; padding: 18px 20px;
+  border-radius: 4px; background: rgba(0, 6, 30, 0.35); border: 1px solid rgba(140, 196, 255, 0.22);
+}
+.fw-enter-prize-label { font: 700 11px/1 var(--sc-font-label); letter-spacing: 1.6px; text-transform: uppercase; color: #8cc4ff; }
+.fw-enter-prize-amount {
+  font-size: 52px; font-weight: 400; line-height: 1; letter-spacing: -2.5px;
+  background: linear-gradient(180deg, #fff 30%, #9fd0ff 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.fw-enter-prize-more { font-size: 13px; color: rgba(255, 255, 255, 0.6); }
+.fw-enter-ready { margin-top: 6px; font: 700 11px/1 var(--sc-font-label); letter-spacing: 1.6px; text-transform: uppercase; color: rgba(255, 255, 255, 0.55); }
+.fw-enter-list { list-style: none; margin: 0; padding: 0; counter-reset: fw-need; display: flex; flex-direction: column; gap: 12px; }
+.fw-enter-list li { counter-increment: fw-need; display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: start; font-size: 15px; line-height: 1.45; color: rgba(255, 255, 255, 0.86); }
+.fw-enter-list li::before {
+  content: counter(fw-need, decimal-leading-zero); display: grid; place-items: center; height: 24px; border-radius: 2px;
+  font: 700 10px/1 var(--sc-font-label); letter-spacing: 1px; color: #fff; background: #1488FC;
+}
+/* right: the form, grouped into numbered steps with a progress bar */
+.fw-form-card--wide { padding: 0; overflow: hidden; }
+.fw-entry { gap: 0; }
+.fw-progress { position: relative; display: flex; align-items: center; gap: 14px; padding: 16px 32px; background: var(--sc-ground); border-bottom: 1px solid var(--sc-line-soft); }
+.fw-progress-bar { flex: 1; height: 4px; border-radius: 999px; background: rgba(var(--sc-ink-rgb), 0.08); overflow: hidden; }
+.fw-progress-bar span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #1488FC, #4DA6FF); transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
+.fw-progress-label { font: 700 11px/1 var(--sc-font-label); letter-spacing: 1.4px; text-transform: uppercase; color: var(--sc-blue-ink); white-space: nowrap; min-width: 112px; text-align: right; }
+.fw-step { border: 0; margin: 0; padding: 28px 32px 8px; display: flex; flex-direction: column; gap: 20px; }
+.fw-step + .fw-step { border-top: 1px solid var(--sc-line-soft); }
+/* float + width: takes the legend out of the fieldset border so the divider
+   runs above it, not through it */
+.fw-step-head { float: left; width: 100%; display: flex; align-items: center; gap: 12px; padding: 0; margin-bottom: 4px; }
+.fw-step-head + * { clear: both; }
+.fw-step-num {
+  display: grid; place-items: center; width: 30px; height: 30px; border-radius: 2px;
+  font: 700 11px/1 var(--sc-font-label); letter-spacing: 1px; color: #fff; background: #1488FC;
+}
+.fw-step-title { font-size: 18px; font-weight: 600; letter-spacing: -0.2px; color: var(--sc-ink); }
+.fw-entry > .fw-check { margin: 20px 32px 0; }
+.fw-entry > .fw-field-error { margin: 6px 32px 0; }
+.fw-entry > .fw-form-foot { margin: 20px 32px 0; }
+.fw-entry > .fw-preview-note { margin: 16px 32px 28px; }
+.fw-entry .fw-field input:focus, .fw-entry .fw-field textarea:focus { box-shadow: 0 0 0 4px rgba(20, 136, 252, 0.16); }
 
 @media (max-width: 1024px) {
   .fw-prizes { grid-template-columns: 1fr 1fr; align-items: stretch; }
   .fw-prize.is-first { grid-column: 1 / -1; order: 0; min-height: 300px; }
   .fw-prize { min-height: 240px; }
   .fw-gallery { grid-template-columns: 1fr 1fr; }
-  .fw-enter { grid-template-columns: 1fr; gap: 24px; margin-top: 72px; }
-  .fw-enter-head { position: static; }
-  .fw-subhead { margin-top: 72px; }
+  .fw-enter { grid-template-columns: 1fr; gap: 16px; margin-top: 72px; }
+  .fw-enter-head { position: relative; top: auto; }
+    .fw-subhead { margin-top: 72px; }
 }
 @media (max-width: 768px) {
   .fw-prizes, .fw-gallery { grid-template-columns: 1fr; }
@@ -1003,6 +1061,11 @@ img, svg { display: block; }
   .fw-prize-rank { font-size: 140px; } .fw-prize.is-first .fw-prize-rank { font-size: 170px; }
   .fw-subhead { margin-top: 56px; }
   .fw-enter { margin-top: 56px; }
+  .fw-enter-head { padding: 28px 22px; }
+  .fw-enter-prize-amount { font-size: 44px; }
+  .fw-progress, .fw-step { padding-left: 18px; padding-right: 18px; }
+  .fw-entry > .fw-check, .fw-entry > .fw-form-foot, .fw-entry > .fw-field-error, .fw-entry > .fw-preview-note { margin-left: 18px; margin-right: 18px; }
+  .fw-progress-label { min-width: 0; }
 }
 
 /* ── FAQ ────────────────────────────────────────────────────────────────── */

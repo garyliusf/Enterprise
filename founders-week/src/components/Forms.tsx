@@ -70,6 +70,18 @@ export function EntryForm() {
     social_handle: '',
   });
   const [agree, setAgree] = useState(false);
+  const required = [
+    v.name.trim(),
+    EMAIL_RE.test(v.email.trim()),
+    v.product_name.trim(),
+    URL_RE.test(v.product_url.trim()),
+    v.tagline.trim(),
+    v.description.trim(),
+    URL_RE.test(v.bolt_project_url.trim()),
+    VIDEO_RE.test(v.demo_video_url.trim()),
+    agree,
+  ];
+  const done = required.filter(Boolean).length / required.length;
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<Status>('idle');
   const [message, setMessage] = useState('');
@@ -136,48 +148,77 @@ export function EntryForm() {
 
   return (
     <form className="fw-form fw-entry" onSubmit={onSubmit} noValidate>
-      <div className="fw-form-row">
-        <Field label="Your name" error={errors.name}>
-          <input value={v.name} onChange={set('name')} autoComplete="name" maxLength={120} />
-        </Field>
-        <Field label="Email" error={errors.email} hint="Only used to contact you about your entry.">
-          <input type="email" value={v.email} onChange={set('email')} autoComplete="email" />
-        </Field>
+      {/* live completion: required fields filled + rules accepted */}
+      <div className="fw-progress" aria-hidden="true">
+        <div className="fw-progress-bar">
+          <span style={{ width: `${Math.round(done * 100)}%` }} />
+        </div>
+        <span className="fw-progress-label">{done >= 1 ? 'Ready to submit' : `${Math.round(done * 100)}% complete`}</span>
       </div>
-      <div className="fw-form-row">
-        <Field label="App name" error={errors.product_name}>
-          <input value={v.product_name} onChange={set('product_name')} maxLength={80} />
+
+      <fieldset className="fw-step">
+        <legend className="fw-step-head">
+          <span className="fw-step-num">01</span>
+          <span className="fw-step-title">You</span>
+        </legend>
+        <div className="fw-form-row">
+          <Field label="Your name" error={errors.name}>
+            <input value={v.name} onChange={set('name')} autoComplete="name" maxLength={120} />
+          </Field>
+          <Field label="Email" error={errors.email} hint="Only used to contact you about your entry.">
+            <input type="email" value={v.email} onChange={set('email')} autoComplete="email" />
+          </Field>
+        </div>
+        <div className="fw-form-row">
+          <Field label="Team or organization" optional hint="If you are entering on behalf of one.">
+            <input value={v.team_name} onChange={set('team_name')} maxLength={120} />
+          </Field>
+          <Field label="X or LinkedIn" optional>
+            <input value={v.social_handle} onChange={set('social_handle')} maxLength={80} placeholder="@handle" />
+          </Field>
+        </div>
+      </fieldset>
+
+      <fieldset className="fw-step">
+        <legend className="fw-step-head">
+          <span className="fw-step-num">02</span>
+          <span className="fw-step-title">Your app</span>
+        </legend>
+        <div className="fw-form-row">
+          <Field label="App name" error={errors.product_name}>
+            <input value={v.product_name} onChange={set('product_name')} maxLength={80} />
+          </Field>
+          <Field label="Live link" error={errors.product_url} hint="Your bolt.host or custom domain.">
+            <input type="url" value={v.product_url} onChange={set('product_url')} placeholder="https://" />
+          </Field>
+        </div>
+        <Field label="One-line description" error={errors.tagline}>
+          <input value={v.tagline} onChange={set('tagline')} maxLength={120} placeholder="What it does, for whom" />
         </Field>
-        <Field label="Live link" error={errors.product_url} hint="Your bolt.host or custom domain.">
-          <input type="url" value={v.product_url} onChange={set('product_url')} placeholder="https://" />
+        <Field
+          label="Tell us about it"
+          error={errors.description}
+          hint="What it does and its features. List any tools besides Bolt you used, as the rules require."
+        >
+          <textarea value={v.description} onChange={set('description')} rows={4} maxLength={1200} />
         </Field>
-      </div>
-      <Field label="One-line description" error={errors.tagline}>
-        <input value={v.tagline} onChange={set('tagline')} maxLength={120} placeholder="What it does, for whom" />
-      </Field>
-      <Field
-        label="Tell us about it"
-        error={errors.description}
-        hint="What it does and its features. List any tools besides Bolt you used, as the rules require."
-      >
-        <textarea value={v.description} onChange={set('description')} rows={5} maxLength={1200} />
-      </Field>
-      <div className="fw-form-row">
-        <Field label="Bolt project link" error={errors.bolt_project_url} hint="The project you built the app in.">
-          <input type="url" value={v.bolt_project_url} onChange={set('bolt_project_url')} placeholder="https://bolt.new/~/" />
-        </Field>
-        <Field label="Demo video" error={errors.demo_video_url} hint="Up to five minutes, public on YouTube or X.">
-          <input type="url" value={v.demo_video_url} onChange={set('demo_video_url')} placeholder="https://youtube.com/…" />
-        </Field>
-      </div>
-      <div className="fw-form-row">
-        <Field label="Team or organization" optional hint="If you are entering on behalf of one.">
-          <input value={v.team_name} onChange={set('team_name')} maxLength={120} />
-        </Field>
-        <Field label="X or LinkedIn" optional>
-          <input value={v.social_handle} onChange={set('social_handle')} maxLength={80} placeholder="@handle" />
-        </Field>
-      </div>
+      </fieldset>
+
+      <fieldset className="fw-step">
+        <legend className="fw-step-head">
+          <span className="fw-step-num">03</span>
+          <span className="fw-step-title">Show it off</span>
+        </legend>
+        <div className="fw-form-row">
+          <Field label="Bolt project link" error={errors.bolt_project_url} hint="The project you built the app in.">
+            <input type="url" value={v.bolt_project_url} onChange={set('bolt_project_url')} placeholder="https://bolt.new/~/" />
+          </Field>
+          <Field label="Demo video" error={errors.demo_video_url} hint="Up to five minutes, public on YouTube or X.">
+            <input type="url" value={v.demo_video_url} onChange={set('demo_video_url')} placeholder="https://youtube.com/…" />
+          </Field>
+        </div>
+      </fieldset>
+
       <label className={`fw-check${errors.agree ? ' has-error' : ''}`}>
         <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} />
         <span>

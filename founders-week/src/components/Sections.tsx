@@ -456,15 +456,25 @@ export function Competition() {
         </p>
 
         <div className="fw-enter" id="enter">
-          <div className="fw-enter-head">
-            <span className="fw-form-badge fw-form-badge--contest">Contest entrants only · Needs a live app</span>
-            <h3 className="fw-subhead-title">Submit your app</h3>
-            <p className="section-sub">Submissions are open Oct 13 to Oct 20. One entry per founder. Have these ready:</p>
-            <ul className="fw-need">
+          <aside className="fw-enter-head sc-on-dark">
+            <PixelField wave={cornerWave} spacing={8} dot={2} opacity={0.6} className="fw-card-field is-on" color="140,190,255" />
+            <span className="fw-enter-badge">
+              <span className="fw-live-dot" aria-hidden="true" />
+              Entries open Oct 13 – Oct 20
+            </span>
+            <h3 className="fw-enter-title">Submit your app</h3>
+            <p className="fw-enter-sub">One entry per founder. Build something new in Bolt, then send it our way.</p>
+            <div className="fw-enter-prize">
+              <span className="fw-enter-prize-label">Grand prize</span>
+              <span className="fw-enter-prize-amount">$10,000</span>
+              <span className="fw-enter-prize-more">+ $5,000 and $2,500 for second and third</span>
+            </div>
+            <p className="fw-enter-ready">Have these ready</p>
+            <ol className="fw-enter-list">
               <li>A live link to the app, free for anyone to open</li>
               <li>The Bolt project you built it in</li>
-            </ul>
-          </div>
+            </ol>
+          </aside>
           <div className="fw-form-card fw-form-card--wide">
             <EntryForm />
           </div>
