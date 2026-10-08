@@ -1,3 +1,4 @@
+import { asset } from '../config';
 /* Official contest rules — legal's text, verbatim. Do not edit the wording
    here; changes come from legal. Bracketed values ([00:00 a.m.], [sixty (60)]
    …) are legal's own open items and are reproduced as written. */
@@ -402,7 +403,7 @@ export function Terms() {
           Winners List.”
         </p>
 
-        <a className="fw-text-link fw-terms-back" href="/">
+        <a className="fw-text-link fw-terms-back" href={asset('/')}>
           Back to Builder’s Week <i className="fw-arrow" aria-hidden="true" />
         </a>
       </article>

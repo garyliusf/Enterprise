@@ -35,6 +35,14 @@ Until `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are set, the entry form
 pretends to succeed without saving anything, and the gallery shows sample
 entries. A small note under each form says so.
 
+## Staging preview
+
+`npm run build:preview` builds a static copy into `preview/`, served by the
+sandbox's GitHub Pages at
+https://garyliusf.github.io/Enterprise/founders-week/preview/ (rules page:
+`…/preview/terms/`). Rebuild and commit `preview/` to update it. Forms run in
+preview mode there (nothing is saved).
+
 ## Exporting to Bolt
 
 1. Push this folder to its own GitHub repo (repo root = this folder).

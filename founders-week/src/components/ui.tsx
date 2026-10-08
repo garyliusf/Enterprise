@@ -1,4 +1,5 @@
 import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react';
+import { asset } from '../config';
 
 /* Canonical bolt.new wordmark (images/bolt-new.svg in the sandbox — the same
    one the site nav inlines), inked with currentColor so it follows the theme. */
@@ -221,12 +222,12 @@ export function BgVideo({ name, className, lazy = false }: { name: string; class
       loop
       playsInline
       preload={lazy ? 'none' : 'auto'}
-      poster={`/hero/${name}-poster.jpg`}
+      poster={asset(`/hero/${name}-poster.jpg`)}
       aria-hidden="true"
       tabIndex={-1}
     >
-      <source src={`/hero/${name}.webm`} type="video/webm" />
-      <source src={`/hero/${name}.mp4`} type="video/mp4" />
+      <source src={asset(`/hero/${name}.webm`)} type="video/webm" />
+      <source src={asset(`/hero/${name}.mp4`)} type="video/mp4" />
     </video>
   );
 }

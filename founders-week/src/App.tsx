@@ -7,7 +7,7 @@ import { ThemeSwitch } from './components/ThemeSwitch';
 import { TERMS_PATH } from './config';
 
 export default function App() {
-  const isTerms = window.location.pathname.replace(/\/$/, '') === TERMS_PATH;
+  const isTerms = window.location.pathname.replace(/\/$/, '') === TERMS_PATH.replace(/\/$/, '');
 
   /* shared-components.js scans the DOM once when it runs (pixel-fill button
      hovers, FAQ open-state canvases, eyebrow scramble, heading word reveal),

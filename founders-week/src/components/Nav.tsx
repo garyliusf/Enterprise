@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BOLT_URL } from '../config';
+import { asset, BOLT_URL } from '../config';
 import { BoltLogo, Btn } from './ui';
 
 const LINKS = [
@@ -50,7 +50,7 @@ export function Nav({ overHero = true }: { overHero?: boolean }) {
   return (
     <header className={`fw-nav${solid ? ' is-solid' : ''}${open ? ' is-open' : ''}`}>
       <div className="fw-nav-bar">
-        <a className="fw-nav-brand" href={overHero ? '#top' : '/'} aria-label="Builder’s Week home">
+        <a className="fw-nav-brand" href={overHero ? '#top' : asset('/')} aria-label="Builder’s Week home">
           <BoltLogo className="fw-nav-logo" />
           <span className="fw-nav-divider" aria-hidden="true" />
           <span className="fw-nav-campaign">Builder’s Week</span>

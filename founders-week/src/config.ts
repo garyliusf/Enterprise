@@ -13,8 +13,13 @@
    flip it off once the value is confirmed.
    ============================================================================ */
 
+/* Public files are referenced root-relative ('/people/x.webp'); asset() adds
+   Vite's base so the same build works at the site root (Bolt) and in a
+   subfolder (the GitHub Pages staging preview). */
+export const asset = (p: string) => import.meta.env.BASE_URL + p.replace(/^\//, '');
+
 export const BOLT_URL = 'https://bolt.new/?utm_source=founders-week&utm_medium=landing';
-export const TERMS_PATH = '/terms';
+export const TERMS_PATH = asset('/terms/');
 
 export const hero = {
   eyebrow: 'Builder’s Week · Oct 17–24',
@@ -82,12 +87,12 @@ export const weekend = {
   /* flip: mirror horizontally so the edge tiles face into the grid (only
      for shots with no visible text) */
   photos: [
-    { src: '/people/founder-laptop.webp', focus: '62% 35%' },
-    { src: '/people/founder-terracotta.webp', focus: '50% 38%' },
-    { src: '/people/founder-cafe.webp', focus: '55% 22%' },
-    { src: '/people/founder-desk.webp', focus: '58% 38%' },
-    { src: '/people/founder-apron.webp', focus: '60% 18%' },
-    { src: '/people/founder-glasses.webp', focus: '62% 30%' },
+    { src: asset('/people/founder-laptop.webp'), focus: '62% 35%' },
+    { src: asset('/people/founder-terracotta.webp'), focus: '50% 38%' },
+    { src: asset('/people/founder-cafe.webp'), focus: '55% 22%' },
+    { src: asset('/people/founder-desk.webp'), focus: '58% 38%' },
+    { src: asset('/people/founder-apron.webp'), focus: '60% 18%' },
+    { src: asset('/people/founder-glasses.webp'), focus: '62% 30%' },
   ],
   /* Only shown once DigitalOcean confirms they are covering inference. */
   partner: { show: false, name: 'DigitalOcean', line: 'Free inference for the weekend is provided by DigitalOcean.' },
@@ -119,7 +124,7 @@ export const sessions: Session[] = [
     title: 'Founder Q&A with Eric & Pai',
     host: 'Bolt co-founders',
     blurb: 'An hour with Bolt’s co-founders on building a startup, from the first prompt to the first customer. Questions are collected in advance.',
-    photo: '/people/eric-pai.webp',
+    photo: asset('/people/eric-pai.webp'),
     start: '2026-10-20T17:00:00Z',
     end: '2026-10-20T18:00:00Z',
   },
@@ -170,41 +175,41 @@ export const templates = {
       name: 'Landscape Studio',
       blurb: 'Rootline: an editorial site for a design-build landscape studio.',
       url: 'https://bolt.new/p/71745514',
-      shot: '/templates/rootline.webp',
+      shot: asset('/templates/rootline.webp'),
       tag: 'Services',
     },
     {
       name: 'Lawn Care',
       blurb: 'Mow Problems: instant quotes, plans and a service-area map.',
       url: 'https://bolt.new/p/71745835',
-      shot: '/templates/mow.webp',
+      shot: asset('/templates/mow.webp'),
       tag: 'Services',
     },
     {
       name: 'Plumbing',
       blurb: 'Flow State Plumbing: services, booking and recent jobs.',
       url: 'https://bolt.new/p/71752787',
-      shot: '/templates/plumbing.webp',
+      shot: asset('/templates/plumbing.webp'),
       tag: 'Services',
     },
     {
       name: 'HVAC Company',
       blurb: 'Comfort Co.: heating and cooling services, plans and reviews.',
       url: 'https://bolt.new/p/71752020',
-      shot: '/templates/hvac.webp',
+      shot: asset('/templates/hvac.webp'),
       tag: 'Services',
     },
     /* The first 8 of the templates catalog (marketing/templates), in catalog
        order. Names, tags and shots are the catalog's; the "Open in Bolt" fork
        links are production's (bolt-public-pages src/content/templates/*.json). */
-    { name: 'Architect Portfolio', blurb: 'A quiet, typographic studio site.', url: 'https://bolt.new/fork/github-gf8uflaz', shot: '/templates/catalog/architect-portfolio.webp', tag: 'Portfolio' },
-    { name: 'SaaS Landing', blurb: 'Metrics, feature grid, and pricing.', url: 'https://bolt.new/fork/github-xtrskmb3', shot: '/templates/catalog/premium-saas-dashboard-lp.webp', h: 3339, tag: 'SaaS' },
-    { name: 'Finance Tracker', blurb: 'Budgeting with cash-flow charts.', url: 'https://bolt.new/fork/github-7mpvjfb3', shot: '/templates/catalog/ledger-finance.webp', w: 1100, h: 1447, fill: true, tag: 'Apps' },
-    { name: 'Travel Journal', blurb: 'Destinations and atelier stories.', url: 'https://bolt.new/fork/github-mu7mffmh', shot: '/templates/catalog/maison-voyage.webp', w: 1000, h: 1458, tag: 'Editorial' },
-    { name: 'Fashion Editorial', blurb: 'A cinematic couture lookbook.', url: 'https://bolt.new/fork/github-nehpa2f2', shot: '/templates/catalog/vestige-fashion.webp', w: 1100, h: 1450, fill: true, tag: 'Editorial' },
-    { name: 'Nonprofit Site', blurb: 'Programmes, impact reporting, and donations.', url: 'https://bolt.new/fork/github-ywj4ls7k', shot: '/templates/catalog/nonprofit-website.webp', w: 1000, h: 1458, tag: 'Websites' },
-    { name: 'Space Tourism', blurb: 'Booking site for commercial spaceflight.', url: 'https://bolt.new/fork/github-rqpxpvya', shot: '/templates/catalog/astralis-space-tourism.webp', h: 3889, tag: 'Websites' },
-    { name: 'Meditation App', blurb: 'Sessions, pricing, and onboarding.', url: 'https://bolt.new/fork/github-7cctkmbu', shot: '/templates/catalog/still-meditation.webp', h: 3217, tag: 'Apps' },
+    { name: 'Architect Portfolio', blurb: 'A quiet, typographic studio site.', url: 'https://bolt.new/fork/github-gf8uflaz', shot: asset('/templates/catalog/architect-portfolio.webp'), tag: 'Portfolio' },
+    { name: 'SaaS Landing', blurb: 'Metrics, feature grid, and pricing.', url: 'https://bolt.new/fork/github-xtrskmb3', shot: asset('/templates/catalog/premium-saas-dashboard-lp.webp'), h: 3339, tag: 'SaaS' },
+    { name: 'Finance Tracker', blurb: 'Budgeting with cash-flow charts.', url: 'https://bolt.new/fork/github-7mpvjfb3', shot: asset('/templates/catalog/ledger-finance.webp'), w: 1100, h: 1447, fill: true, tag: 'Apps' },
+    { name: 'Travel Journal', blurb: 'Destinations and atelier stories.', url: 'https://bolt.new/fork/github-mu7mffmh', shot: asset('/templates/catalog/maison-voyage.webp'), w: 1000, h: 1458, tag: 'Editorial' },
+    { name: 'Fashion Editorial', blurb: 'A cinematic couture lookbook.', url: 'https://bolt.new/fork/github-nehpa2f2', shot: asset('/templates/catalog/vestige-fashion.webp'), w: 1100, h: 1450, fill: true, tag: 'Editorial' },
+    { name: 'Nonprofit Site', blurb: 'Programmes, impact reporting, and donations.', url: 'https://bolt.new/fork/github-ywj4ls7k', shot: asset('/templates/catalog/nonprofit-website.webp'), w: 1000, h: 1458, tag: 'Websites' },
+    { name: 'Space Tourism', blurb: 'Booking site for commercial spaceflight.', url: 'https://bolt.new/fork/github-rqpxpvya', shot: asset('/templates/catalog/astralis-space-tourism.webp'), h: 3889, tag: 'Websites' },
+    { name: 'Meditation App', blurb: 'Sessions, pricing, and onboarding.', url: 'https://bolt.new/fork/github-7cctkmbu', shot: asset('/templates/catalog/still-meditation.webp'), h: 3217, tag: 'Apps' },
   ] as FounderTemplate[],
 };
 
@@ -232,9 +237,9 @@ export const competition = {
 export const pastWinners = {
   label: 'Pi Day 2026 · Grand prize',
   items: [
-    { name: 'Pi Symphony', url: 'https://pi-symphony.bolt.host/', img: '/winners/pi-symphony.webp' },
-    { name: 'AI Stylist', url: 'https://ai-stylist-web-app-u-w5mq.bolt.host/', img: '/winners/ai-stylist.webp' },
-    { name: 'Mindron Multi Agent System Builder', url: 'https://mindron-core-setup-arnx.bolt.host/', img: '/winners/mindron.webp' },
+    { name: 'Pi Symphony', url: 'https://pi-symphony.bolt.host/', img: asset('/winners/pi-symphony.webp') },
+    { name: 'AI Stylist', url: 'https://ai-stylist-web-app-u-w5mq.bolt.host/', img: asset('/winners/ai-stylist.webp') },
+    { name: 'Mindron Multi Agent System Builder', url: 'https://mindron-core-setup-arnx.bolt.host/', img: asset('/winners/mindron.webp') },
   ],
 };
 
