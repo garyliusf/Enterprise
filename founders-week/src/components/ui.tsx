@@ -236,7 +236,7 @@ export function BgVideo({ name, className, lazy = false }: { name: string; class
    cell is full brand blue and every other lit cell fades by its distance
    from it (Chebyshev rings 0 / 1 / 2 / 3+). On card hover the fade lifts
    so the whole shape lights up. */
-export type PixelIconName = 'x' | 'plus' | 'clock' | 'up' | 'grow' | 'ask' | 'chat';
+export type PixelIconName = 'x' | 'plus' | 'clock' | 'up' | 'bulb' | 'speak' | 'chat';
 
 const PIXEL_ICONS: Record<PixelIconName, { rows: string[]; focus: [number, number] }> = {
   x: { rows: ['#...#', '.#.#.', '..#..', '.#.#.', '#...#'], focus: [2, 2] },
@@ -244,19 +244,39 @@ const PIXEL_ICONS: Record<PixelIconName, { rows: string[]; focus: [number, numbe
   /* ring + centre only; the minute hand is drawn and animated separately */
   clock: { rows: ['.###.', '#...#', '#.#.#', '#...#', '.###.'], focus: [2, 2] },
   up: { rows: ['..#..', '.###.', '#.#.#', '..#..', '..#..'], focus: [0, 2] },
-  /* growth: a rising trend arrow, drawn bottom-left → top-right */
-  grow: { rows: ['..###', '...##', '..#.#', '.#...', '#....'], focus: [0, 4] },
-  /* AMA: a question mark, drawn stroke by stroke, then the dot */
-  ask: { rows: ['.###.', '#...#', '..##.', '.....', '..#..'], focus: [2, 2] },
+  /* growth workshop: a lightbulb (glass, neck, base); the filament is drawn separately */
+  /* straight-sided glass narrowing to a screw base (a widest-middle row read as a diamond) */
+  bulb: { rows: ['..###..', '.#...#.', '.#...#.', '..#.#..', '..###..', '..###..', '...#...'], focus: [2, 3] },
+  /* AMA: a megaphone on a finer 7x7 grid (5x5 was too coarse to read):
+     handle, flaring cone, wide mouth; sound waves drawn separately */
+  speak: { rows: ['....#..', '...##..', '#####..', '#####..', '#####..', '...##..', '....#..'], focus: [3, 4] },
   /* feedback: a chat bubble (outline + tail); typing dots drawn separately */
   chat: { rows: ['#####', '#...#', '#####', '.#...', '#....'], focus: [1, 2] },
 };
 const RING_OPACITY = [1, 0.55, 0.28, 0.16];
 /* stroke order for the self-drawing icons, as "y,x" → step */
 const DRAW_ORDER: Partial<Record<PixelIconName, Record<string, number>>> = {
-  grow: { '4,0': 0, '3,1': 1, '2,2': 2, '1,3': 3, '0,4': 4, '0,3': 5, '1,4': 5, '0,2': 6, '2,4': 6 },
-  ask: { '1,0': 0, '0,1': 1, '0,2': 2, '0,3': 3, '1,4': 4, '2,3': 5, '2,2': 6, '4,2': 9 },
 };
+/* lightbulb filament */
+const FILAMENT: [number, number][] = [
+  [3, 1],
+  [3, 2],
+];
+/* light rays at the top corners, on while the filament is lit */
+const RAYS: [number, number][] = [
+  [0, 0],
+  [6, 0],
+  [0, 3],
+  [6, 3],
+];
+/* megaphone sound waves: near pair, then the far pair */
+const SOUND_WAVES: [number, number, number][] = [
+  [6, 3, 0],
+  [6, 2, 1],
+  [6, 4, 1],
+  [6, 1, 2],
+  [6, 5, 2],
+];
 const TYPING_DOTS: [number, number][] = [
   [1, 1],
   [2, 1],
@@ -273,12 +293,17 @@ const CLOCK_HAND: [number, number][] = [
 
 export function PixelIcon({ name, className = '', index = 0 }: { name: PixelIconName; className?: string; index?: number }) {
   const { rows, focus } = PIXEL_ICONS[name];
+  /* 5x5 → 4px squares on a 6px pitch; 7x7 → 3px on a 4px pitch (both ≈28px) */
+  const P = rows.length === 7 ? 4 : 6;
+  const S = rows.length === 7 ? 3 : 4;
   const cells: { x: number; y: number; o: number; d: number }[] = [];
   rows.forEach((row, y) =>
     [...row].forEach((ch, x) => {
       if (ch !== '#') return;
       const d = Math.min(3, Math.max(Math.abs(y - focus[0]), Math.abs(x - focus[1])));
-      cells.push({ x, y, o: RING_OPACITY[d], d });
+      /* megaphone: a left-to-right ramp, handle soft → mouth full */
+      const o = name === 'speak' ? 0.38 + 0.62 * (x / 4) : RING_OPACITY[d];
+      cells.push({ x, y, o: Math.min(1, o), d });
     }),
   );
   /* 4px pixels on a 6px pitch → 28px icon */
@@ -297,17 +322,26 @@ export function PixelIcon({ name, className = '', index = 0 }: { name: PixelIcon
         {cells.map((c) => (
           <rect
             key={`${c.x}-${c.y}`}
-            x={c.x * 6}
-            y={c.y * 6}
-            width="4"
-            height="4"
+            x={c.x * P}
+            y={c.y * P}
+            width={S}
+            height={S}
             className={
-              DRAW_ORDER[name] ? 'is-path' : name === 'chat' ? 'is-static is-outline' : name === 'clock' || name === 'up' ? 'is-static' : undefined
+              DRAW_ORDER[name] ? 'is-path' : name === 'chat' || name === 'speak' || name === 'bulb' ? 'is-static is-solid' : name === 'clock' || name === 'up' ? 'is-static' : undefined
             }
             style={{ '--o': c.o, '--d': c.d, '--seq': DRAW_ORDER[name]?.[`${c.y},${c.x}`] ?? 0 } as CSSProperties}
           />
         ))}
       </g>
+      {/* lightbulb: the filament flickers on, glows, switches off */}
+      {name === 'bulb' &&
+        [...FILAMENT.map(([x, y], k) => <rect key={`f${k}`} x={x * P} y={y * P} width={S} height={S} className="fw-filament" />),
+          ...RAYS.map(([x, y], k) => <rect key={`r${k}`} x={x * P} y={y * P} width={S} height={S} className="fw-filament fw-ray" />)]}
+      {/* megaphone: sound waves pulse outward from the bell */}
+      {name === 'speak' &&
+        SOUND_WAVES.map(([x, y, n], k) => (
+          <rect key={`w${k}`} x={x * P} y={y * P} width={S} height={S} className="fw-wave" style={{ '--seq': n } as CSSProperties} />
+        ))}
       {/* chat: three typing dots bounce in a wave inside the bubble */}
       {name === 'chat' &&
         TYPING_DOTS.map(([x, y], n) => (

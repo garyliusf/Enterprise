@@ -360,15 +360,49 @@ img, svg { display: block; }
   animation: fw-draw 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   animation-delay: calc(var(--seq) * 110ms);
 }
-:root .fw-pi-ask rect.is-path { animation-duration: 3.8s; animation-delay: calc(var(--seq) * 140ms + 600ms); }
 @keyframes fw-draw {
   0% { opacity: 0.14; }
   7%, 62% { opacity: 1; }
   78%, 100% { opacity: 0.14; }
 }
 /* chat bubble: solid outline, typing dots bouncing in a wave */
-:root .fw-pixel-icon rect.is-outline { opacity: 0.32; }
-:root[data-theme="dark"] .fw-pixel-icon rect.is-outline { opacity: 0.42; }
+/* solid bodies (megaphone) at full strength; the chat bubble outline stays soft */
+:root .fw-pixel-icon rect.is-solid { opacity: 1; }
+:root .fw-pi-chat rect.is-solid { opacity: 0.32; }
+:root .fw-pi-speak rect.is-solid { opacity: var(--o); }
+/* bulb glass sits a touch softer so the lit filament reads as the light */
+:root .fw-pi-bulb rect.is-solid { opacity: 0.7; }
+:root .fw-pixel-icon rect.fw-filament {
+  fill: #1488FC; opacity: 0.12;
+  animation: fw-filament 3.4s linear infinite; animation-delay: 0.4s;
+}
+.fw-pi-bulb { overflow: visible; }
+:root .fw-pixel-icon rect.fw-ray { opacity: 0; animation-name: fw-ray; }
+@keyframes fw-ray { 0%, 18% { opacity: 0; } 24%, 70% { opacity: 0.7; } 80%, 100% { opacity: 0; } }
+@keyframes fw-filament {
+  0%, 6% { opacity: 0.12; }
+  9% { opacity: 1; } 12% { opacity: 0.25; } 15% { opacity: 1; } 18% { opacity: 0.5; } 21%, 72% { opacity: 1; }
+  80%, 100% { opacity: 0.12; }
+}
+/* the glow: a soft blue halo while the filament is lit */
+.fw-pi-bulb { animation: fw-bulb-glow 3.4s linear 0.4s infinite; }
+@keyframes fw-bulb-glow {
+  0%, 18% { filter: none; }
+  24%, 70% { filter: drop-shadow(0 0 4px rgba(20, 136, 252, 0.55)); }
+  80%, 100% { filter: none; }
+}
+:root[data-theme="dark"] .fw-pi-chat rect.is-solid { opacity: 0.42; }
+/* megaphone sound waves: near pair, then far pair, pushing outward */
+:root .fw-pixel-icon rect.fw-wave {
+  fill: #1488FC; opacity: 0; transform-box: fill-box;
+  animation: fw-wave 1.6s cubic-bezier(0.3, 0.6, 0.3, 1) infinite;
+  animation-delay: calc(var(--seq) * 220ms + 200ms);
+}
+@keyframes fw-wave {
+  0% { opacity: 0; transform: translateX(-2px); }
+  25% { opacity: 1; transform: translateX(0); }
+  60%, 100% { opacity: 0; transform: translateX(2px); }
+}
 :root .fw-pixel-icon rect.fw-typing {
   fill: #1488FC; opacity: 0.12; transform-box: fill-box; transform-origin: 50% 50%;
   animation: fw-typing 1.3s ease-in-out infinite;
@@ -379,7 +413,8 @@ img, svg { display: block; }
   28% { opacity: 1; transform: translateY(-1.5px); }
 }
 @media (prefers-reduced-motion: reduce) {
-  :root .fw-pixel-icon rect.is-path, :root .fw-pixel-icon rect.fw-typing { animation: none; opacity: 1; transform: none; }
+  :root .fw-pixel-icon rect.is-path, :root .fw-pixel-icon rect.fw-typing, :root .fw-pixel-icon rect.fw-wave, :root .fw-pixel-icon rect.fw-filament { animation: none; opacity: 1; transform: none; }
+  .fw-pi-bulb { animation: none; }
 }
 /* up arrow: fades in at rest, rises, fades out as it climbs, resets.
    Animated on the <svg> box itself (not an inner <g>) with will-change, so
