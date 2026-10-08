@@ -1,4 +1,4 @@
-import { useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import { TERMS_PATH } from '../config';
 import { DuplicateError, isPreview, joinFoundersWeek, submitEntry, type Stage } from '../lib/api';
 
@@ -54,6 +54,27 @@ const STAGES: { value: Stage; label: string }[] = [
   { value: 'launched', label: 'I have launched' },
 ];
 
+/* Join → entry hand-off: the entry form starts with the name and email the
+   visitor already gave, and tells them so. Session-scoped, nothing else. */
+const JOINED_KEY = 'fw-joined';
+type Joined = { name: string; email: string };
+function readJoined(): Joined | null {
+  try {
+    const raw = sessionStorage.getItem(JOINED_KEY);
+    return raw ? (JSON.parse(raw) as Joined) : null;
+  } catch {
+    return null;
+  }
+}
+function saveJoined(j: Joined) {
+  try {
+    sessionStorage.setItem(JOINED_KEY, JSON.stringify(j));
+  } catch {
+    /* storage blocked: the entry form just starts empty */
+  }
+  window.dispatchEvent(new Event('fw-joined'));
+}
+
 export function JoinForm() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -73,9 +94,11 @@ export function JoinForm() {
     setStatus('sending');
     try {
       await joinFoundersWeek({ name: name.trim(), email, stage, building: building.trim() || undefined });
+      saveJoined({ name: name.trim(), email: email.trim() });
       setStatus('done');
     } catch (err) {
       if (err instanceof DuplicateError) {
+        saveJoined({ name: name.trim(), email: email.trim() });
         setStatus('done');
         setMessage('You were already on the list. See you on Saturday.');
         return;
@@ -91,11 +114,14 @@ export function JoinForm() {
         <span className="fw-done-mark" aria-hidden="true" />
         <h3 className="fw-done-title">You are in, {name.trim().split(' ')[0] || 'founder'}.</h3>
         <p className="fw-done-body">
-          {message || 'We will email you the session links before the weekend. Building something new? Enter the contest below.'}
+          {message || 'Your session links and a reminder are on the way to your inbox before the weekend.'}
         </p>
-        <a className="fw-text-link" href="#compete">
-          Enter the contest <i className="fw-arrow" aria-hidden="true" />
-        </a>
+        <p className="fw-done-next">
+          Competing too? The contest is a separate entry, and we have already filled in your name and email.{' '}
+          <a className="fw-text-link" href="#enter">
+            Enter the contest <i className="fw-arrow" aria-hidden="true" />
+          </a>
+        </p>
       </div>
     );
   }
@@ -130,9 +156,15 @@ export function JoinForm() {
         />
       </Field>
       <div className="fw-form-foot">
-        <Submit status={status}>Join Founders Week</Submit>
+        <Submit status={status}>Get Session Links</Submit>
         {status === 'error' && <p className="fw-form-error" role="alert">{message}</p>}
       </div>
+      <p className="fw-form-aside">
+        Want to compete for the $17,500 in prizes? That is a separate entry with your app.{' '}
+        <a className="fw-text-link" href="#enter">
+          Go to the contest <i className="fw-arrow" aria-hidden="true" />
+        </a>
+      </p>
       <PreviewNote />
     </form>
   );
@@ -154,6 +186,19 @@ export function EntryForm() {
     social_handle: '',
   });
   const [agree, setAgree] = useState(false);
+  const [prefilled, setPrefilled] = useState(false);
+  /* pick up a join that happened on this visit (or earlier this session) */
+  useEffect(() => {
+    const apply = () => {
+      const j = readJoined();
+      if (!j) return;
+      setV((cur) => (cur.name || cur.email ? cur : { ...cur, name: j.name, email: j.email }));
+      setPrefilled(true);
+    };
+    apply();
+    window.addEventListener('fw-joined', apply);
+    return () => window.removeEventListener('fw-joined', apply);
+  }, []);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<Status>('idle');
   const [message, setMessage] = useState('');
@@ -220,6 +265,7 @@ export function EntryForm() {
 
   return (
     <form className="fw-form fw-entry" onSubmit={onSubmit} noValidate>
+      {prefilled && <p className="fw-prefill-note">We filled in your name and email from your Founders Week sign-up.</p>}
       <div className="fw-form-row">
         <Field label="Your name" error={errors.name}>
           <input value={v.name} onChange={set('name')} autoComplete="name" maxLength={120} />

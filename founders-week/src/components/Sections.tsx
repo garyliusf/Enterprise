@@ -92,11 +92,13 @@ export function Join() {
             eyebrow="Join Founders Week"
             title="Count yourself in"
             subtitle="Joining is free and takes ten seconds. We will send you the session links and a reminder before the build weekend starts."
-          />
+          >
+            <span className="fw-form-badge">For everyone · Free · 10 seconds</span>
+          </SectionHeader>
           <ul className="fw-ticks">
-            <li>Free unlimited building on Oct 17 and 18</li>
-            <li>Live sessions with the founders and the Bolt team</li>
-            <li>A shot at the $17,500 founder contest</li>
+            <li>Session links for the founder Q&A, workshops and feedback hours</li>
+            <li>A reminder before the free build weekend on Oct 17 and 18</li>
+            <li>No app needed. Entering the contest is a separate step</li>
           </ul>
         </div>
         <div className="fw-form-card">
@@ -473,10 +475,19 @@ export function Competition() {
 
         <div className="fw-enter" id="enter">
           <div className="fw-enter-head">
-            <h3 className="fw-subhead-title">Enter the contest</h3>
-            <p className="section-sub">
-              Submissions are open Oct 13 to Oct 20. You need the live app, its Bolt project link and a public demo video of up to
-              five minutes on YouTube or X.
+            <span className="fw-form-badge fw-form-badge--contest">Contest entrants only · Needs a live app</span>
+            <h3 className="fw-subhead-title">Submit your app</h3>
+            <p className="section-sub">Submissions are open Oct 13 to Oct 20. One entry per founder. Have these ready:</p>
+            <ul className="fw-need">
+              <li>A live link to the app, free for anyone to open</li>
+              <li>The Bolt project you built it in</li>
+              <li>A public demo video of 5 minutes or less on YouTube or X</li>
+            </ul>
+            <p className="fw-enter-alt">
+              Not entering?{' '}
+              <a className="fw-text-link" href="#join">
+                Just join Founders Week <i className="fw-arrow" aria-hidden="true" />
+              </a>
             </p>
           </div>
           <div className="fw-form-card fw-form-card--wide">
