@@ -475,10 +475,16 @@ export function Competition() {
               <span className="fw-enter-prize-more">+ $5,000 and $2,500 for second and third</span>
             </div>
             <p className="fw-enter-ready">Have these ready</p>
-            <ol className="fw-enter-list">
-              <li>A live link to the app, free for anyone to open</li>
-              <li>The Bolt project you built it in</li>
-            </ol>
+            <ul className="fw-enter-list">
+              <li>
+                <PixelIcon name="globe" index={0} className="fw-enter-icon" />
+                A live link to the app, free for anyone to open
+              </li>
+              <li>
+                <PixelIcon name="bmark" index={1} className="fw-enter-icon" />
+                The Bolt project you built it in
+              </li>
+            </ul>
           </aside>
           <div className="fw-form-card fw-form-card--wide">
             <EntryForm />
