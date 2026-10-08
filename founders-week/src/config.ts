@@ -26,7 +26,7 @@ export const hero = {
   /* Tagline is an open decision (Marketing drafts, Haily refines, CX signs
      off), and so is "Bolt" in front of the name. */
   titleSerif: 'Unlimited building,',
-  titleSans: 'win $10,000.',
+  titleSans: 'and a shot at $10,000.',
   subtitle:
     'A free build weekend, a week of founder sessions with the Bolt team, and a contest for the new app you build in Bolt.',
   primaryCta: 'Enter to Win $10k',
