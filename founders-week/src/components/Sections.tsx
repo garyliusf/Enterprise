@@ -153,10 +153,10 @@ export function Join() {
 const MOSAIC: ({ k: 'p'; i: number } | { k: 'c'; i: number })[] = [
   { k: 'p', i: 0 },
   { k: 'c', i: 0 },
-  { k: 'p', i: 3 },
+  { k: 'p', i: 1 },
   { k: 'p', i: 4 },
   { k: 'c', i: 1 },
-  { k: 'p', i: 1 },
+  { k: 'p', i: 3 },
   { k: 'c', i: 2 },
   { k: 'p', i: 5 },
   { k: 'p', i: 2 },

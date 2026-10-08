@@ -85,9 +85,9 @@ export const weekend = {
      for shots with no visible text) */
   photos: [
     { src: '/people/founder-laptop.webp', focus: '62% 35%' },
-    { src: '/people/founder-fashion.webp', focus: '36% 55%' },
+    { src: '/people/founder-terracotta.webp', focus: '46% 60%' },
     { src: '/people/founder-cafe.webp', focus: '55% 22%' },
-    { src: '/people/founder-desk.webp', focus: '55% 45%' },
+    { src: '/people/founder-desk.webp', focus: '58% 38%' },
     { src: '/people/founder-apron.webp', focus: '60% 18%' },
     { src: '/people/founder-video-call.webp', focus: '55% 62%' },
   ],
