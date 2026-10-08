@@ -405,6 +405,10 @@ function PastWinners() {
         <a key={w.name} className="fw-entry-card fw-winner" href={w.url} target="_blank" rel="noopener">
           <span className="fw-winner-shot" aria-hidden="true">
             <img src={w.img} alt="" loading="lazy" decoding="async" />
+            {/* same hover as the template cards: wash + pill rising from the foot */}
+            <span className="fw-tcard-overlay">
+              <span>View App</span>
+            </span>
           </span>
           <span className="fw-winner-foot">
             <span className="fw-entry-body">
