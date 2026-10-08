@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { hero } from '../config';
 import { getParticipantCount } from '../lib/api';
-import { BgVideo, Btn } from './ui';
+import { BgVideo, Btn, PixelIcon } from './ui';
 
 export function Hero() {
   const [count, setCount] = useState<number | null>(null);
@@ -15,7 +15,11 @@ export function Hero() {
       <BgVideo name="hero" className="fw-hero-video" />
       <div className="fw-hero-inner sc-on-dark">
         {/* Above the fold: no scroll reveal on the H1 (CLAUDE.md). */}
-        <span className="section-eyebrow fw-hero-eyebrow eyebrow-scramble">{hero.eyebrow}</span>
+        {/* glass pill: pixel spark + scrambling label + a light sweep */}
+        <span className="fw-hero-pill">
+          <PixelIcon name="x" className="fw-hero-pill-icon" />
+          <span className="section-eyebrow fw-hero-eyebrow eyebrow-scramble">{hero.eyebrow}</span>
+        </span>
         <h1 className="fw-hero-h1">
           <span className="fw-serif">{hero.titleSerif}</span>
           <span>{hero.titleSans}</span>
