@@ -37,8 +37,8 @@ export default function App() {
         <Weekend />
         <Timeline />
         <Schedule />
-        <Templates />
         <Competition />
+        <Templates />
         <Faq />
       </main>
       <FooterZone>
