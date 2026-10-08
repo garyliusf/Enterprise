@@ -310,10 +310,6 @@ export function Schedule() {
               <article key={s.title} className="fw-card fw-session-card">
                 <HoverField index={i + 3} />
                 <PixelIcon name={s.icon ?? 'x'} index={i} />
-                <span className="fw-session-when">
-                  {s.day === 'Date TBC' ? 'Date and time soon' : `${s.day} · ${s.time}`}
-                  {s.tbc && <Tbc />}
-                </span>
                 <h3 className="fw-card-title">{s.title}</h3>
                 <p className="fw-card-desc">{s.blurb}</p>
               </article>
