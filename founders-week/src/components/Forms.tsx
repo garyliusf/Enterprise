@@ -35,8 +35,16 @@ function Field({
 
 function Submit({ status, children }: { status: Status; children: string }) {
   return (
-    <button type="submit" className="fw-submit" disabled={status === 'sending'}>
-      {status === 'sending' ? 'Sending…' : children}
+    /* the standard primary button markup, so shared-components.js gives it
+       the pixel-fill hover (and the slide-up fallback) */
+    <button type="submit" className="hero-btn-primary fw-submit" disabled={status === 'sending'}>
+      <div className="btn-bg-hover" />
+      <div className="btn-text-wrap">
+        <div className="btn-text-inner">
+          <span>{status === 'sending' ? 'Sending…' : children}</span>
+          <span>{status === 'sending' ? 'Sending…' : children}</span>
+        </div>
+      </div>
     </button>
   );
 }

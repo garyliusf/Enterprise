@@ -86,9 +86,12 @@ export function Timeline() {
 export function Join() {
   return (
     <section className="fw-section fw-section--band fw-section--join" id="join">
-      <div className="fw-inner fw-split">
-        <div className="fw-split-copy">
+      {/* Stacked + centred (Gary). The section ground takes a background
+          image later — see .fw-section--join in page.css. */}
+      <div className="fw-inner fw-join-stack">
+        <div className="fw-join-copy">
           <SectionHeader
+            center
             eyebrow="Join Founders Week"
             title="Count yourself in"
             subtitle="Joining is free and takes ten seconds. We will send you the session links and a reminder before the build weekend starts."
