@@ -234,6 +234,12 @@ function calendarLink(s: Session) {
   );
 }
 
+const ordinal = (n: number) => {
+  const t = n % 100;
+  if (t >= 11 && t <= 13) return 'th';
+  return ({ 1: 'st', 2: 'nd', 3: 'rd' } as Record<number, string>)[n % 10] ?? 'th';
+};
+
 function FeaturedSession({ s }: { s: Session }) {
   const cd = useCountdown(s.start, s.end);
   const cal = calendarLink(s);
@@ -243,7 +249,11 @@ function FeaturedSession({ s }: { s: Session }) {
       <PixelField wave={featureWave} spacing={8} dot={2} opacity={0.85} className="fw-feature-field" color="140,190,255" />
       <div className="fw-feature-date" aria-label={`${s.day}, ${s.time}`}>
         <span className="fw-feature-mon">{mon}</span>
-        <span className="fw-feature-day">{dayNum}</span>
+        <span className="fw-feature-day">
+          {dayNum}
+          {/* small raised ordinal: 20th */}
+          <sup className="fw-feature-ord">{ordinal(Number(dayNum))}</sup>
+        </span>
         <span className="fw-feature-dow">{dow} · {s.time}</span>
       </div>
       <div className="fw-feature-body">
