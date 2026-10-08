@@ -190,7 +190,7 @@ export function Weekend() {
     <section className="fw-section fw-section--weekend" id="weekend">
       <div className="fw-inner">
         {/* First section after the hero: static H2, no reveal (CLAUDE.md). */}
-        <SectionHeader eyebrow={weekend.eyebrow} title={weekend.title} subtitle={weekend.subtitle} reveal={false} />
+        <SectionHeader center eyebrow={weekend.eyebrow} title={weekend.title} subtitle={weekend.subtitle} reveal={false} />
         <div className="fw-mosaic" ref={mosaic}>
           {MOSAIC.map((t, n) => {
             const style = { '--n': n } as React.CSSProperties;
