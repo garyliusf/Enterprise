@@ -30,13 +30,6 @@ export type Entry = {
   social_handle?: string;
 };
 
-export type GalleryEntry = {
-  id: string;
-  product_name: string;
-  product_url: string;
-  tagline: string;
-  founder_name: string;
-};
 
 async function rest(path: string, init: RequestInit = {}) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
@@ -76,27 +69,3 @@ export async function submitEntry(data: Entry): Promise<void> {
     body: JSON.stringify({ ...data, email: data.email.trim().toLowerCase() }),
   });
 }
-
-/* Approved entries only — new submissions wait for review before they show. */
-export async function getGallery(): Promise<GalleryEntry[]> {
-  if (isPreview) return SAMPLE_ENTRIES;
-  try {
-    const res = await rest(
-      'gallery_entries?select=id,product_name,product_url,tagline,founder_name&order=approved_at.desc',
-    );
-    return (await res.json()) as GalleryEntry[];
-  } catch {
-    return [];
-  }
-}
-
-/* Preview-only placeholders so the gallery layout can be reviewed. Never
-   shown once Supabase is connected. */
-const SAMPLE_ENTRIES: GalleryEntry[] = [
-  { id: 's1', product_name: 'Sample: Tidy Books', product_url: '#', tagline: 'Bookkeeping for one-person businesses.', founder_name: 'Sample founder' },
-  { id: 's2', product_name: 'Sample: Crewcall', product_url: '#', tagline: 'Shift scheduling for small restaurants.', founder_name: 'Sample founder' },
-  { id: 's3', product_name: 'Sample: Plotline', product_url: '#', tagline: 'Garden planning that knows your climate.', founder_name: 'Sample founder' },
-  { id: 's4', product_name: 'Sample: Quoteflow', product_url: '#', tagline: 'Send a quote from a photo of the job.', founder_name: 'Sample founder' },
-  { id: 's5', product_name: 'Sample: Roomly', product_url: '#', tagline: 'Book meeting rooms across buildings.', founder_name: 'Sample founder' },
-  { id: 's6', product_name: 'Sample: Petcheck', product_url: '#', tagline: 'Vaccination reminders for pet owners.', founder_name: 'Sample founder' },
-];

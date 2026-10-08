@@ -227,6 +227,17 @@ export const competition = {
     'No purchase necessary. Open to individuals 18 and over, teams and organizations, subject to the eligibility rules. One entry per entrant.',
 };
 
+/* Pi Day 2026 grand-prize winners, shown as past winners in the contest
+   section (from piday.bolt.host). */
+export const pastWinners = {
+  label: 'Pi Day 2026 · $1,000 grand prize',
+  items: [
+    { name: 'Pi Symphony', url: 'https://pi-symphony.bolt.host/', img: '/winners/pi-symphony.webp' },
+    { name: 'AI Stylist', url: 'https://ai-stylist-web-app-u-w5mq.bolt.host/', img: '/winners/ai-stylist.webp' },
+    { name: 'Mindron Multi Agent System Builder', url: 'https://mindron-core-setup-arnx.bolt.host/', img: '/winners/mindron.webp' },
+  ],
+};
+
 export const faqs: { q: string; a: string }[] = [
   {
     q: 'Who can take part in Builder’s Week?',

@@ -1,7 +1,6 @@
 import type React from 'react';
 import { useEffect, useRef, useState } from 'react';
-import { BOLT_URL, competition, faqs, footerCta, sessions, templates, TERMS_PATH, timeline, weekend, type Session } from '../config';
-import { getGallery, isPreview, type GalleryEntry } from '../lib/api';
+import { BOLT_URL, competition, faqs, footerCta, pastWinners, sessions, templates, TERMS_PATH, timeline, weekend, type Session } from '../config';
 import { EntryForm } from './Forms';
 import { BgVideo, Btn, BoltLogo, HoverField, PixelField, PixelIcon, PixelRise, SectionHeader, Tbc, type WaveFn } from './ui';
 
@@ -399,41 +398,26 @@ export function Templates() {
 }
 
 /* ── Competition: prizes → entries gallery → submission form ─────────────── */
-function Gallery() {
-  const [entries, setEntries] = useState<GalleryEntry[] | null>(null);
-  useEffect(() => {
-    getGallery().then(setEntries);
-  }, []);
-
-  if (entries === null) return <div className="fw-gallery fw-gallery--loading" aria-busy="true" />;
-  if (!entries.length) {
-    return (
-      <div className="fw-gallery-empty">
-        <p>No entries yet. The first products show up here once they have been reviewed.</p>
-        <a className="fw-text-link" href="#enter">
-          Be the first to enter <i className="fw-arrow" aria-hidden="true" />
-        </a>
-      </div>
-    );
-  }
+function PastWinners() {
   return (
-    <>
-      {isPreview && <p className="fw-preview-note">Preview mode: these are sample entries.</p>}
-      <div className="fw-gallery">
-        {entries.map((e, i) => (
-          <a key={e.id} className="fw-entry-card" href={e.product_url} target="_blank" rel="noopener">
-            <span className="fw-entry-thumb" data-hue={i % 4} aria-hidden="true">
-              <span>{e.product_name.replace(/^Sample:\s*/, '').charAt(0)}</span>
-            </span>
+    <div className="fw-gallery">
+      {pastWinners.items.map((w) => (
+        <a key={w.name} className="fw-entry-card fw-winner" href={w.url} target="_blank" rel="noopener">
+          <span className="fw-winner-shot" aria-hidden="true">
+            <img src={w.img} alt="" loading="lazy" decoding="async" />
+          </span>
+          <span className="fw-winner-foot">
             <span className="fw-entry-body">
-              <span className="fw-entry-name">{e.product_name}</span>
-              <span className="fw-entry-tagline">{e.tagline}</span>
-              <span className="fw-entry-founder">by {e.founder_name}</span>
+              <span className="fw-winner-label">{pastWinners.label}</span>
+              <span className="fw-entry-name">{w.name}</span>
             </span>
-          </a>
-        ))}
-      </div>
-    </>
+            <svg className="fw-winner-arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+              <path d="M4 12 12 4M5.5 4H12v6.5" />
+            </svg>
+          </span>
+        </a>
+      ))}
+    </div>
   );
 }
 
@@ -464,12 +448,12 @@ export function Competition() {
         </p>
 
         <div className="fw-subhead">
-          <h3 className="fw-subhead-title">Entries</h3>
+          <h3 className="fw-subhead-title">Past Winners</h3>
           <div className="hero-btn-group">
             <Btn href="#enter">Submit Yours</Btn>
           </div>
         </div>
-        <Gallery />
+        <PastWinners />
 
         <div className="fw-enter" id="enter">
           <div className="fw-enter-head">
