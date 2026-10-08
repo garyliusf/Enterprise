@@ -86,9 +86,9 @@ export const weekend = {
   photos: [
     { src: '/people/founder-laptop.webp', focus: '62% 35%' },
     { src: '/people/founder-fashion.webp', focus: '36% 55%' },
-    { src: '/people/founder-cafe.webp', focus: '52% 30%' },
+    { src: '/people/founder-cafe.webp', focus: '55% 22%' },
     { src: '/people/founder-desk.webp', focus: '55% 45%' },
-    { src: '/people/founder-meeting.webp', focus: '58% 28%' },
+    { src: '/people/founder-apron.webp', focus: '60% 18%' },
     { src: '/people/founder-video-call.webp', focus: '55% 62%' },
   ],
   /* Only shown once DigitalOcean confirms they are covering inference. */
