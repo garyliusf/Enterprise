@@ -280,7 +280,7 @@ function FeaturedSession({ s }: { s: Session }) {
       <div className="fw-feature-body">
         <span className="fw-feature-kicker">
           <span className="fw-live-dot" aria-hidden="true" />
-          {cd?.state === 'live' ? 'Live now' : 'Confirmed'}
+          {cd?.state === 'live' ? 'Live now' : 'Coming up'}
         </span>
         <h3 className="fw-feature-title">{s.title}</h3>
         <p className="fw-feature-blurb">{s.blurb}</p>
