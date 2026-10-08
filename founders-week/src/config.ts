@@ -126,7 +126,7 @@ export const sessions: Session[] = [
     day: 'Date TBC',
     time: 'Time TBC',
     title: 'Live growth workshop',
-    icon: 'bulb',
+    icon: 'rocket',
     host: 'Enrique, Bolt',
     blurb: 'Go-to-market, growth and getting your first users, worked through live.',
     tbc: true,

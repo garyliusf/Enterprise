@@ -236,7 +236,7 @@ export function BgVideo({ name, className, lazy = false }: { name: string; class
    cell is full brand blue and every other lit cell fades by its distance
    from it (Chebyshev rings 0 / 1 / 2 / 3+). On card hover the fade lifts
    so the whole shape lights up. */
-export type PixelIconName = 'x' | 'plus' | 'clock' | 'up' | 'bulb' | 'speak' | 'chat';
+export type PixelIconName = 'x' | 'plus' | 'clock' | 'up' | 'rocket' | 'speak' | 'chat';
 
 const PIXEL_ICONS: Record<PixelIconName, { rows: string[]; focus: [number, number] }> = {
   x: { rows: ['#...#', '.#.#.', '..#..', '.#.#.', '#...#'], focus: [2, 2] },
@@ -244,9 +244,8 @@ const PIXEL_ICONS: Record<PixelIconName, { rows: string[]; focus: [number, numbe
   /* ring + centre only; the minute hand is drawn and animated separately */
   clock: { rows: ['.###.', '#...#', '#.#.#', '#...#', '.###.'], focus: [2, 2] },
   up: { rows: ['..#..', '.###.', '#.#.#', '..#..', '..#..'], focus: [0, 2] },
-  /* growth workshop: a lightbulb (glass, neck, base); the filament is drawn separately */
-  /* straight-sided glass narrowing to a screw base (a widest-middle row read as a diamond) */
-  bulb: { rows: ['..###..', '.#...#.', '.#...#.', '..#.#..', '..###..', '..###..', '...#...'], focus: [2, 3] },
+  /* growth workshop: a rocket (nose, window, body, fins); exhaust drawn separately */
+  rocket: { rows: ['...#...', '..###..', '..#.#..', '..###..', '.#####.', '.#.#.#.', '.......'], focus: [0, 3] },
   /* AMA: a megaphone on a finer 7x7 grid (5x5 was too coarse to read):
      handle, flaring cone, wide mouth; sound waves drawn separately */
   speak: { rows: ['....#..', '...##..', '#####..', '#####..', '#####..', '...##..', '....#..'], focus: [3, 4] },
@@ -257,17 +256,11 @@ const RING_OPACITY = [1, 0.55, 0.28, 0.16];
 /* stroke order for the self-drawing icons, as "y,x" → step */
 const DRAW_ORDER: Partial<Record<PixelIconName, Record<string, number>>> = {
 };
-/* lightbulb filament */
-const FILAMENT: [number, number][] = [
-  [3, 1],
-  [3, 2],
-];
-/* light rays at the top corners, on while the filament is lit */
-const RAYS: [number, number][] = [
-  [0, 0],
-  [6, 0],
-  [0, 3],
-  [6, 3],
+/* rocket exhaust: centre flame + two side sparks */
+const EXHAUST: [number, number, number][] = [
+  [3, 6, 0],
+  [2, 6, 1],
+  [4, 6, 2],
 ];
 /* megaphone sound waves: near pair, then the far pair */
 const SOUND_WAVES: [number, number, number][] = [
@@ -301,8 +294,9 @@ export function PixelIcon({ name, className = '', index = 0 }: { name: PixelIcon
     [...row].forEach((ch, x) => {
       if (ch !== '#') return;
       const d = Math.min(3, Math.max(Math.abs(y - focus[0]), Math.abs(x - focus[1])));
-      /* megaphone: a left-to-right ramp, handle soft → mouth full */
-      const o = name === 'speak' ? 0.38 + 0.62 * (x / 4) : RING_OPACITY[d];
+      /* megaphone: a left-to-right ramp, handle soft → mouth full;
+         rocket: nose full, softening toward the fins */
+      const o = name === 'speak' ? 0.38 + 0.62 * (x / 4) : name === 'rocket' ? 1 - y * 0.09 : RING_OPACITY[d];
       cells.push({ x, y, o: Math.min(1, o), d });
     }),
   );
@@ -327,16 +321,17 @@ export function PixelIcon({ name, className = '', index = 0 }: { name: PixelIcon
             width={S}
             height={S}
             className={
-              DRAW_ORDER[name] ? 'is-path' : name === 'chat' || name === 'speak' || name === 'bulb' ? 'is-static is-solid' : name === 'clock' || name === 'up' ? 'is-static' : undefined
+              DRAW_ORDER[name] ? 'is-path' : name === 'chat' || name === 'speak' || name === 'rocket' ? 'is-static is-solid' : name === 'clock' || name === 'up' ? 'is-static' : undefined
             }
             style={{ '--o': c.o, '--d': c.d, '--seq': DRAW_ORDER[name]?.[`${c.y},${c.x}`] ?? 0 } as CSSProperties}
           />
         ))}
       </g>
-      {/* lightbulb: the filament flickers on, glows, switches off */}
-      {name === 'bulb' &&
-        [...FILAMENT.map(([x, y], k) => <rect key={`f${k}`} x={x * P} y={y * P} width={S} height={S} className="fw-filament" />),
-          ...RAYS.map(([x, y], k) => <rect key={`r${k}`} x={x * P} y={y * P} width={S} height={S} className="fw-filament fw-ray" />)]}
+      {/* rocket: exhaust flickers under it */}
+      {name === 'rocket' &&
+        EXHAUST.map(([x, y, n], k) => (
+          <rect key={`e${k}`} x={x * P} y={y * P} width={S} height={S} className="fw-exhaust" style={{ '--seq': n } as CSSProperties} />
+        ))}
       {/* megaphone: sound waves pulse outward from the bell */}
       {name === 'speak' &&
         SOUND_WAVES.map(([x, y, n], k) => (
