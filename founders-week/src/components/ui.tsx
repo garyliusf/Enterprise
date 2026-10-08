@@ -521,7 +521,7 @@ export function PixelRise({
       if (!last) last = t;
       const dt = Math.min(0.05, (t - last) / 1000);
       last = t;
-      progress += (target - progress) * Math.min(1, dt * 2.6);
+      progress += (target - progress) * Math.min(1, dt * 6);
       if (Math.abs(target - progress) < 0.003) progress = target;
       draw();
       if (progress !== target) raf = requestAnimationFrame(tick);
