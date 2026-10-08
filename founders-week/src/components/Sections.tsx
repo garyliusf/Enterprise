@@ -477,11 +477,11 @@ export function Competition() {
             <p className="fw-enter-ready">Have these ready</p>
             <ul className="fw-enter-list">
               <li>
-                <PixelIcon name="globe" index={0} className="fw-enter-icon" />
+                <PixelIcon name="one" index={0} className="fw-enter-icon" />
                 A live link to the app, free for anyone to open
               </li>
               <li>
-                <PixelIcon name="bmark" index={1} className="fw-enter-icon" />
+                <PixelIcon name="two" index={1} className="fw-enter-icon" />
                 The Bolt project you built it in
               </li>
             </ul>
