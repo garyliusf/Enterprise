@@ -151,7 +151,8 @@ export function EntryForm() {
       {/* live completion: required fields filled + rules accepted */}
       <div className="fw-progress" aria-hidden="true">
         <div className="fw-progress-bar">
-          <span style={{ width: `${Math.round(done * 100)}%` }} />
+          {/* starts with a 5% sliver so the meter reads as a meter before typing */}
+          <span style={{ width: `${Math.round(5 + done * 95)}%` }} />
         </div>
         <span className="fw-progress-label">{done >= 1 ? 'Ready to submit' : `${Math.round(done * 100)}% complete`}</span>
       </div>
