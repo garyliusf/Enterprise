@@ -49,8 +49,42 @@ function HowSteps({ children }: { children: React.ReactNode }) {
   );
 }
 
+/* Tear-off calendar page for a timeline date ("Oct 13", "Oct 17–18").
+   Flips down as its step reveals; the next upcoming date gets a tag. */
+function CalendarDate({ label, next, tbc }: { label: string; next?: boolean; tbc?: boolean }) {
+  const [mon, ...rest] = label.split(' ');
+  const days = rest.join(' ');
+  return (
+    <span className={`how-step-date fw-cal${next ? ' is-next' : ''}`} aria-label={label}>
+      <span className="fw-cal-rings" aria-hidden="true">
+        <i />
+        <i />
+      </span>
+      <span className="fw-cal-mon">{mon}</span>
+      <span className={`fw-cal-day${days.length > 3 ? ' is-range' : ''}`}>{days}</span>
+      {next && (
+        <span className="fw-cal-next">
+          <span className="fw-live-dot" aria-hidden="true" />
+          Next up
+        </span>
+      )}
+      {tbc && <Tbc />}
+    </span>
+  );
+}
+
+/* index of the first milestone whose (last) day hasn't passed yet */
+function nextMilestone(): number {
+  const now = Date.now();
+  return timeline.findIndex((m) => {
+    const lastDay = Number((m.date.match(/(\d+)(?!.*\d)/) || [])[1]);
+    return lastDay && new Date(2026, 9, lastDay, 23, 59).getTime() >= now;
+  });
+}
+
 /* ── Timeline ─────────────────────────────────────────────────────────────── */
 export function Timeline() {
+  const nextIdx = nextMilestone();
   return (
     <section className="fw-section fw-section--timeline" aria-label="How the week runs">
       <div className="fw-inner">
@@ -68,10 +102,7 @@ export function Timeline() {
               <div className="how-step-node">
                 <span className="how-step-number">{String(i + 1).padStart(2, '0')}</span>
               </div>
-              <span className="how-step-date">
-                {m.date}
-                {m.tbc && <Tbc />}
-              </span>
+              <CalendarDate label={m.date} next={i === nextIdx} tbc={m.tbc} />
               <h3 className="how-step-title">{m.title}</h3>
               <p className="how-step-desc">{m.body}</p>
             </div>
