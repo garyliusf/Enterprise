@@ -461,8 +461,8 @@ export function Competition() {
         <div className="fw-bridge" aria-hidden="true">
           <span className="fw-bridge-line" />
           <span className="fw-bridge-pill">
-            <span className="fw-live-dot" />
-            Last round
+            <svg className="fw-bridge-ants" aria-hidden="true"><rect x="0.75" y="0.75" /></svg>
+            Hall of Fame
           </span>
           <span className="fw-bridge-line fw-bridge-line--short" />
         </div>
