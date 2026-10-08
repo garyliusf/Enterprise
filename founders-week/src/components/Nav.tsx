@@ -31,6 +31,11 @@ export function Nav({ overHero = true }: { overHero?: boolean }) {
   }, [open]);
 
   const solid = scrolled || open;
+  /* the pixel-hover script reads its dot colour on sc-themechange — nudge it
+     when the bar flips, so the Start Building dots switch white <-> ink */
+  useEffect(() => {
+    document.dispatchEvent(new Event('sc-themechange'));
+  }, [solid]);
   return (
     <header className={`fw-nav${solid ? ' is-solid' : ''}${open ? ' is-open' : ''}`}>
       <div className="fw-nav-bar">
