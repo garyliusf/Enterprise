@@ -340,7 +340,7 @@ export function Templates() {
     <section className="fw-section fw-section--templates" id="templates">
       <div className="fw-inner">
         <SectionHeader
-          eyebrow="Founder templates"
+          eyebrow="Get started"
           title={
             <>
               Templates to start from {templates.tbc && <Tbc />}
