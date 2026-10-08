@@ -460,9 +460,13 @@ export function Competition() {
         {/* bridge: a pixel trail flows down from the grand prize into last round's winners */}
         <div className="fw-bridge" aria-hidden="true">
           <span className="fw-bridge-line" />
+          {/* rewind: last event hands off to this one */}
           <span className="fw-bridge-pill">
-            <span className="fw-live-dot" />
-            Last round
+            <span className="fw-bridge-from">
+              <b className="fw-bridge-pi">π</b> Day
+            </span>
+            <i className="fw-arrow" />
+            <span className="fw-bridge-to">Builder’s Week</span>
           </span>
           <span className="fw-bridge-line fw-bridge-line--short" />
         </div>
