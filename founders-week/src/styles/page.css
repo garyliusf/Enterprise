@@ -140,6 +140,7 @@ img, svg { display: block; }
     display: block; position: relative; width: 40px; height: 40px; margin-right: -9px; padding: 0;
     background: none; border: 0; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent;
   }
+  .fw-nav-burger:focus:not(:focus-visible) { outline: none; }
   .fw-nav-burger span {
     position: absolute; left: 9px; width: 22px; height: 1.5px; border-radius: 1px; background: currentColor;
     transform-origin: center;
@@ -151,24 +152,40 @@ img, svg { display: block; }
   .fw-nav.is-open .fw-nav-burger span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
   .fw-nav.is-open .fw-nav-burger span:nth-child(2) { opacity: 0; transform: scaleX(0.5); }
   .fw-nav.is-open .fw-nav-burger span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
-  .fw-nav-drawer:not([hidden]) {
-    display: flex; flex-direction: column; padding: 8px 0 24px;
-    width: min(900px, calc(100vw - 80px)); margin: 0 auto;
-    animation: fw-drawer-in 0.32s ease both;
+  /* = the marketing drawer (.mkt-nav-mobile): a fixed sheet under the 68px
+     bar that fades + settles 8px both ways in 0.32s; visibility flips after
+     the fade on close so it never just vanishes */
+  .fw-nav-drawer {
+    display: block; position: fixed; top: 68px; left: 0; right: 0;
+    height: calc(100vh - 68px); height: calc(100dvh - 68px);
+    background: var(--sc-drawer-bg); overflow-y: auto; overscroll-behavior: contain;
+    opacity: 0; transform: translateY(-8px); visibility: hidden;
+    transition: opacity 0.32s ease, transform 0.32s cubic-bezier(0.2, 0.7, 0.2, 1), visibility 0s linear 0.32s;
   }
-  .fw-nav.is-open { background: var(--sc-nav-bg-solid); height: 100dvh; overflow-y: auto; overscroll-behavior: contain; }
+  .fw-nav-drawer.is-open {
+    opacity: 1; transform: none; visibility: visible;
+    transition: opacity 0.32s ease, transform 0.32s cubic-bezier(0.2, 0.7, 0.2, 1), visibility 0s;
+  }
+  .fw-nav-drawer-inner { display: flex; flex-direction: column; padding: 8px 0 24px; width: min(900px, calc(100vw - 80px)); margin: 0 auto; }
+  .fw-nav.is-open { background: var(--sc-nav-bg-solid); }
+  html.fw-drawer-open { overflow: hidden; }
+  @media (prefers-reduced-motion: reduce) {
+    .fw-nav-drawer, .fw-nav-drawer.is-open { transform: none; transition: opacity 0.2s ease, visibility 0s linear 0.2s; }
+    .fw-nav-drawer.is-open { transition: opacity 0.2s ease, visibility 0s; }
+  }
+  /* = the marketing drawer row (.mkt-nav-mobile-item): 20/500, 14px rows,
+     no rules, a muted 16px chevron — drill chevrons stay chevrons */
   .fw-nav-drawer a {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 18px 0; font-size: 20px; font-weight: 500; text-decoration: none; color: var(--sc-ink);
-    border-bottom: 1px solid var(--sc-line-soft);
+    padding: 14px 0; font-size: 20px; font-weight: 500; text-decoration: none; color: var(--sc-ink);
   }
+  .fw-drawer-chev { width: 16px; height: 16px; flex: none; color: var(--sc-panel-heading); }
 }
 @media (max-width: 768px) {
-  .fw-nav-bar, .fw-nav-drawer:not([hidden]) { width: calc(100vw - 32px); }
+  .fw-nav-bar, .fw-nav-drawer-inner { width: calc(100vw - 32px); }
   .fw-nav-start { display: none !important; }
 }
 @media (max-width: 400px) { .fw-nav-divider, .fw-nav-campaign { display: none; } }
-@keyframes fw-drawer-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
 /* ── Hero ───────────────────────────────────────────────────────────────── */
 .fw-hero {
