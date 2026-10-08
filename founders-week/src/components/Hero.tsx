@@ -20,7 +20,7 @@ export function Hero() {
         <p className="fw-hero-sub">{hero.subtitle}</p>
         <div className="hero-btn-group fw-hero-ctas">
           {/* one CTA: straight to the contest + prizes */}
-          <Btn href="#compete">{hero.primaryCta}</Btn>
+          <Btn href="#compete" className="fw-hero-cta">{hero.primaryCta}</Btn>
         </div>
       </div>
     </section>
