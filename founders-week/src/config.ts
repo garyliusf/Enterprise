@@ -261,5 +261,5 @@ export const footerCta = {
   eyebrow: 'Builder’s Week',
   title: 'Your startup starts this weekend',
   subtitle: 'Build something new in Bolt between Oct 13 and Oct 20 and enter it for a share of $17,500.',
-  cta: 'Submit to Win',
+  cta: 'Submit to Win $10k',
 };
