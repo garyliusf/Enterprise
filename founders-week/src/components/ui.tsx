@@ -356,7 +356,21 @@ export function PixelIcon({ name, className = '', index = 0 }: { name: PixelIcon
    a rotating blue dot field that grows toward the card's right edge, drawn
    only while the card is hovered, faded in by CSS. Mount it as the card's
    first child; the card needs position: relative + overflow: hidden. */
-export function HoverField({ index = 0, color = '60,140,235' }: { index?: number; color?: string }) {
+export function HoverField({
+  index = 0,
+  color = '60,140,235',
+  dot = 2,
+  strength = 0.55,
+  edgeFade = true,
+}: {
+  index?: number;
+  /* one 'r,g,b', or several — each dot keeps one colour from the set */
+  color?: string | string[];
+  dot?: number;
+  strength?: number;
+  /* true: dots grow toward the right edge (cards); false: even across */
+  edgeFade?: boolean;
+}) {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const canvas = ref.current;
@@ -364,8 +378,9 @@ export function HoverField({ index = 0, color = '60,140,235' }: { index?: number
     if (!canvas || !tile) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    const SPACING = 9;
-    const DOT = 2;
+    const SPACING = dot >= 3 ? 10 : 9;
+    const DOT = dot;
+    const palette = Array.isArray(color) ? color : [color];
     const phase = index * 1.7;
     let cols = 0;
     let rows = 0;
@@ -399,9 +414,10 @@ export function HoverField({ index = 0, color = '60,140,235' }: { index?: number
           const py = r * SPACING;
           const ph = phases[r]?.[c] ?? 0;
           const wave = Math.sin((px * ca + py * sa) / 58 + t + ph) * Math.cos((px * -sa + py * ca) / 90 + t * 0.6);
-          const op = Math.max(0, wave) * 0.55 * (px / W);
+          const op = Math.max(0, wave) * strength * (edgeFade ? px / W : 0.55 + 0.45 * (px / W));
           if (op < 0.04) continue;
-          ctx.fillStyle = `rgba(${color},${op.toFixed(3)})`;
+          const rgb = palette[Math.floor(ph * 10) % palette.length];
+          ctx.fillStyle = `rgba(${rgb},${op.toFixed(3)})`;
           ctx.fillRect(px, py, DOT, DOT);
         }
       raf = requestAnimationFrame(draw);
@@ -424,6 +440,6 @@ export function HoverField({ index = 0, color = '60,140,235' }: { index?: number
       tile.removeEventListener('mouseenter', enter);
       tile.removeEventListener('mouseleave', leave);
     };
-  }, [index, color]);
+  }, [index, Array.isArray(color) ? color.join('|') : color, dot, strength, edgeFade]);
   return <canvas ref={ref} className="fw-hover-field" aria-hidden="true" />;
 }

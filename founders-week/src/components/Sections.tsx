@@ -199,7 +199,7 @@ export function Weekend() {
               return (
                 <figure key={n} className="fw-mosaic-photo" style={style} aria-hidden="true">
                   {/* the card hover field, in white, drifting over the photo */}
-                  <HoverField index={n} color="255,255,255" />
+                  <HoverField index={n} color={['255,255,255', '255,255,255', '150,205,255', '90,170,255']} dot={3} strength={1} edgeFade={false} />
                   <img
                     src={ph.src}
                     alt=""
