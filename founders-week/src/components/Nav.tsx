@@ -54,7 +54,7 @@ export function Nav({ overHero = true }: { overHero?: boolean }) {
           </a>
           {overHero && (
             <Btn href="#compete" className="fw-nav-cta">
-              Submit to Win $10k
+              Enter to Win $10k
             </Btn>
           )}
           {overHero && (
@@ -79,7 +79,7 @@ export function Nav({ overHero = true }: { overHero?: boolean }) {
             </a>
           ))}
           <a href="#compete" onClick={() => setOpen(false)}>
-            Submit to Win $10k
+            Enter to Win $10k
             <i className="fw-arrow" aria-hidden="true" />
           </a>
         </div>
