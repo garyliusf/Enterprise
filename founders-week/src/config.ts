@@ -28,7 +28,7 @@ export const hero = {
   titleSerif: 'Unlimited building,',
   titleSans: 'and a shot at $10,000.',
   subtitle:
-    'A free build weekend, a week of live sessions with the Bolt team, and a contest for the new project you build in Bolt.',
+    'A free build weekend, a week of live sessions with the Bolt team, and a contest for the project you build in Bolt.',
   primaryCta: 'Enter to Win $10k',
 };
 
@@ -38,7 +38,7 @@ export const timeline: Milestone[] = [
   {
     date: 'Oct 13',
     title: 'Contest Opens',
-    body: 'Start building something new in Bolt. Submissions are open from Oct 13 to Oct 20.',
+    body: 'Turn your idea into a product in Bolt. Submissions are open from Oct 13 to Oct 20.',
   },
   {
     date: 'Oct 17–18',
@@ -222,7 +222,7 @@ export const competition = {
   /* Keep "demo video" in this line: the rules require one with every entry
      (removed once on 2026-10-08, restored the same day at Gary's ask). */
   subtitle:
-    'Build a new project in Bolt between Oct 13 and Oct 20, then submit it with a short demo video. Winners are announced on or about Oct 31.',
+    'Turn your idea into a product. Build it in Bolt and submit it with a short demo video by Oct 20. Winners are announced on or about Oct 31.',
   prizesTbc: false,
   prizes: [
     { place: 'Grand prize', amount: '$10,000', extras: 'Paid in U.S. dollars.' },
@@ -256,7 +256,8 @@ export const faqs: { q: string; a: string }[] = [
   },
   {
     q: 'Does my project have to be new?',
-    a: 'Yes. Contest entries must be new projects built primarily in Bolt during the submission period, Oct 13 to Oct 20. Bolt starter templates are fine as a starting point. Other tools can play a supporting role if you disclose them.',
+    /* Gary, 2026-10-09: projects don't have to be new. NOTE the rules page (Terms.tsx, legal's text) still says "a new application, created during the Submission Period" — legal to reconcile. */
+    a: 'No. Your project doesn’t have to be new, it just has to be built in Bolt. Submit it between Oct 13 and Oct 20. Other tools can play a supporting role if you disclose them.',
   },
   {
     q: 'When are the winners announced?',
@@ -267,6 +268,6 @@ export const faqs: { q: string; a: string }[] = [
 export const footerCta = {
   eyebrow: 'Builder’s Week',
   title: 'Your startup starts this weekend',
-  subtitle: 'Build something new in Bolt between Oct 13 and Oct 20 and enter to win the grand prize of $10k.',
+  subtitle: 'Build it in Bolt, submit it by Oct 20 and enter to win the grand prize of $10k.',
   cta: 'Enter to Win $10k',
 };
