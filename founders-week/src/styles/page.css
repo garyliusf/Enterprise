@@ -264,25 +264,22 @@ img, svg { display: block; }
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 8px 24px -12px rgba(0, 10, 40, 0.6);
   -webkit-backdrop-filter: blur(10px) saturate(1.4); backdrop-filter: blur(10px) saturate(1.4);
 }
-/* light sweep across the pill every ~5s */
-.fw-hero-pill::after {
-  content: ''; position: absolute; inset: -1px; z-index: -1; pointer-events: none;
-  background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.38) 48%, rgba(255, 255, 255, 0.08) 56%, transparent 70%);
-  transform: translateX(-120%);
-  animation: fw-pill-sweep 5s cubic-bezier(0.45, 0, 0.25, 1) 1.2s infinite;
+/* subtle pixels inside the glass instead of the light sweep (2026-10-08):
+   two offset dot grids fade in and out in turn, so pixels seem to twinkle
+   on and off; masked so they gather toward the ends, away from the label */
+.fw-hero-pill::before, .fw-hero-pill::after {
+  content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(rgba(255, 255, 255, 0.9) 0.8px, transparent 1.2px) 0 0 / 6px 6px;
+  -webkit-mask-image: linear-gradient(90deg, #000 0%, rgba(0, 0, 0, 0.25) 30%, rgba(0, 0, 0, 0.25) 70%, #000 100%);
+  mask-image: linear-gradient(90deg, #000 0%, rgba(0, 0, 0, 0.25) 30%, rgba(0, 0, 0, 0.25) 70%, #000 100%);
+  opacity: 0; animation: fw-pill-pixels 4.8s ease-in-out infinite;
 }
-@keyframes fw-pill-sweep { 0% { transform: translateX(-120%); } 38%, 100% { transform: translateX(120%); } }
+.fw-hero-pill::after { background-position: 3px 3px; animation-delay: -2.4s; }
+@keyframes fw-pill-pixels { 0%, 100% { opacity: 0; } 50% { opacity: 0.22; } }
 /* .fw-hero-pill prefix: shared's .section-eyebrow loads last and would win at equal specificity */
 .fw-hero-pill .fw-hero-eyebrow { color: #fff; font-size: 11px; letter-spacing: 2px; line-height: 1; text-shadow: 0 1px 8px rgba(0, 20, 80, 0.35); }
-/* the pixel spark: white on the glass, rings pulsing outward */
-.fw-hero-pill .fw-pixel-icon.fw-hero-pill-icon { width: 11px; height: 11px; margin: 0; }
-.fw-hero-pill-icon rect { fill: #fff !important; }
-.fw-hero-pill-icon rect { animation-name: fw-spark !important; animation-duration: 2.4s !important; }
-:root[data-theme="dark"] .fw-hero-pill-icon rect { animation-name: fw-spark !important; }
-@keyframes fw-spark { 0%, 100% { opacity: calc(var(--o) * 0.35); } 40% { opacity: 1; } 70% { opacity: var(--o); } }
 @media (prefers-reduced-motion: reduce) {
-  .fw-hero-pill::after { animation: none; display: none; }
-  .fw-hero-pill-icon rect { animation: none !important; opacity: var(--o); }
+  .fw-hero-pill::before, .fw-hero-pill::after { animation: none; opacity: 0.12; }
 }
 .fw-hero-h1 {
   font-size: 66px; font-weight: 500; line-height: 1.1; letter-spacing: normal; color: #fff;
