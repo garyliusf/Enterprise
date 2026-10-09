@@ -6,6 +6,7 @@ export function Hero() {
     <section className="fw-hero" id="top">
       {/* BoltGrad03 */}
       <BgVideo name="hero" className="fw-hero-video" />
+      <span className="fw-grain" aria-hidden="true" />
       <div className="fw-hero-inner sc-on-dark">
         {/* Above the fold: no scroll reveal on the H1 (CLAUDE.md). */}
         {/* glass pill: pulsing live dot + label + a light sweep (no scramble).

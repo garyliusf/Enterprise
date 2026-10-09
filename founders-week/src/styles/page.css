@@ -216,13 +216,17 @@ img, svg { display: block; }
 .fw-hero-video {
   position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0;
   object-fit: cover; object-position: 50% 30%; pointer-events: none;
+  /* a soft blur melts the few crisp ridges in the footage and any codec
+     blocks/banding (all of it is gradient, nothing needs detail); the small
+     scale hides the blur's soft edge (2026-10-09) */
+  filter: blur(10px); transform: scale(1.04);
 }
 /* DARK: fading the video's near-white lower half straight to black passes
    through grey (pale cyan at half alpha over black is grey). So in dark the
    video itself is pulled down and saturated, a multiply layer tints its
    whites blue, and the fade to the ground travels through navy — the hero
    stays blue all the way into the black page. */
-:root[data-theme="dark"] .fw-hero-video { filter: brightness(0.72) saturate(1.35); }
+:root[data-theme="dark"] .fw-hero-video { filter: blur(10px) brightness(0.72) saturate(1.35); }
 :root[data-theme="dark"] .fw-hero::after {
   height: 62%;
   background:
@@ -1283,6 +1287,7 @@ img, svg { display: block; }
 .fw-footer-video {
   position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0;
   object-fit: cover; object-position: 50% 100%; pointer-events: none; /* the bottom of BoltGrad02 is all blue; its top has a black corner + pale glow */
+  filter: blur(10px); transform: scale(1.04); /* same de-banding as the hero */
 }
 /* Hard top edge (Gary): the footer is the page's last block, so the video
    simply starts — no fade from the page ground. */
@@ -1303,7 +1308,7 @@ img, svg { display: block; }
       linear-gradient(to bottom, transparent 60%, rgba(1, 6, 24, 0.55) 100%);
   }
 }
-:root[data-theme="dark"] .fw-footer-video { filter: brightness(0.72) saturate(1.35); }
+:root[data-theme="dark"] .fw-footer-video { filter: blur(10px) brightness(0.72) saturate(1.35); }
 .fw-footer-zone .footer-eyebrow { color: #8cc4ff; }
 .fw-footer-zone .fw-footer-sub { color: rgba(255, 255, 255, 0.82); }
 
@@ -1487,3 +1492,15 @@ img, svg { display: block; }
             mask-image: linear-gradient(to right, transparent var(--x), rgba(0, 0, 0, 0.12) calc(var(--x) + 9%), rgba(0, 0, 0, 0.4) calc(var(--x) + 18%), rgba(0, 0, 0, 0.75) calc(var(--x) + 27%), #000 calc(var(--x) + 36%)), linear-gradient(to top, transparent 0%, #000 35%);
   }
 }
+
+/* Grain over the gradient videos (2026-10-09): smooth 8-bit gradients step
+   into visible bands, and the white fade stretches them. A faint static noise
+   dithers the steps away. Overlay blend leaves pure white (the page ground
+   under the hero fade) untouched. Sits under the copy (z 1, before content). */
+.fw-grain {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+  opacity: 0.14; mix-blend-mode: overlay;
+}
+.fw-grain--footer { opacity: 0.1; }

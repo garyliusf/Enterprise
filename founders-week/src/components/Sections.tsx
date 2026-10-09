@@ -589,6 +589,7 @@ export function FooterZone({ children, compact = false }: { children: React.Reac
   return (
     <div className={`fw-footer-zone sc-on-dark${compact ? ' fw-footer-zone--compact' : ''}`}>
       <BgVideo name="footer" className="fw-footer-video" lazy />
+      <span className="fw-grain fw-grain--footer" aria-hidden="true" />
       {children}
     </div>
   );
