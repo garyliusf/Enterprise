@@ -273,9 +273,12 @@ function FeaturedSession({ s }: { s: Session }) {
         </div>
       </div>
       {s.photo && (
-        <div className="fw-feature-photo" aria-hidden="true">
-          <img src={s.photo} alt="" loading="lazy" decoding="async" />
-        </div>
+        <figure className="fw-feature-photo-wrap">
+          <div className="fw-feature-photo" aria-hidden="true">
+            <img src={s.photo} alt="" loading="lazy" decoding="async" />
+          </div>
+          {s.photoCaption && <figcaption className="fw-feature-caption">{s.photoCaption}</figcaption>}
+        </figure>
       )}
     </article>
   );

@@ -112,6 +112,8 @@ export type Session = {
   icon?: PixelIconName;
   /* featured card only: a photo of the hosts, blended into the card's right edge */
   photo?: string;
+  /* names along the bottom of the photo */
+  photoCaption?: string;
   /* ISO start/end — set once confirmed; drives the countdown and calendar link */
   start?: string;
   end?: string;
@@ -128,6 +130,7 @@ export const sessions: Session[] = [
     host: 'Bolt co-founders',
     blurb: 'An hour with Bolt’s co-founders on building a business, from the first prompt to the first paying customer. Questions are collected in advance.',
     photo: asset('/people/eric-pai.webp'),
+    photoCaption: 'Eric Simons & Albert Pai',
     start: '2026-10-20T17:00:00Z',
     end: '2026-10-20T18:00:00Z',
   },
