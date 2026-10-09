@@ -28,9 +28,10 @@ export const hero = {
   /* Business-first messaging (2026-10-09): the week is for people starting
      or running a business, so the hero leads with that. */
   titleSerif: 'Build your business.',
-  titleSans: 'We’ll cover the cost.',
+  titleSans: 'Win $10,000 to scale it.',
   subtitle:
-    'A free build weekend, a week of live sessions with the Bolt team, and $10,000 to scale what you build.',
+    /* the headline carries the $10k now, so the subtitle keeps the "on us" idea */
+    'A free build weekend and a week of live sessions with the Bolt team, on us.',
   primaryCta: 'Enter to Win $10k',
 };
 
