@@ -46,7 +46,7 @@ export const timeline: Milestone[] = [
   {
     date: 'Oct 17–18',
     title: 'Free Build Weekend',
-    body: 'Free building on GLM 5.3 Flash for everyone on Bolt, free and paid, Teams included. 00:00 Sat to 23:59 Sun PDT.',
+    body: 'Free building on GLM 5.3 Flash for everyone on Bolt, free and paid, Teams included. Starts Sat Oct 17 at 12:00am PDT, ends Sun Oct 18 at 11:59pm PDT.',
   },
   {
     date: 'Oct 19–23',
@@ -100,7 +100,7 @@ export const weekend = {
   /* Only shown once DigitalOcean confirms they are covering inference. */
   partner: { show: false, name: 'DigitalOcean', line: 'Free inference for the weekend is provided by DigitalOcean.' },
   finePrint:
-    'The free weekend runs from 00:00 PDT Saturday Oct 17 to 23:59 PDT Sunday Oct 18. GLM 5.3 Flash is the only free model during the weekend. Rate limits apply. Blocks you miss do not carry over.',
+    'The free weekend runs from Saturday Oct 17 at 12:00am PDT to Sunday Oct 18 at 11:59pm PDT. GLM 5.3 Flash is the only free model during the weekend. Rate limits apply. Blocks you miss do not carry over.',
 };
 
 export type Session = {
@@ -257,7 +257,7 @@ export const faqs: { q: string; a: string }[] = [
   },
   {
     q: 'Is the build weekend really free?',
-    a: 'Yes. From 00:00 PDT Saturday Oct 17 to 23:59 PDT Sunday Oct 18, GLM 5.3 Flash is free in the model picker for every account, free and paid. It is the only free model that weekend. Your allowance comes in six-hour blocks and rate limits apply. No paid plan is needed to enter the contest either.',
+    a: 'Yes. From Saturday Oct 17 at 12:00am PDT to Sunday Oct 18 at 11:59pm PDT, GLM 5.3 Flash is free in the model picker for every account, free and paid. It is the only free model that weekend. Your allowance comes in six-hour blocks and rate limits apply. No paid plan is needed to enter the contest either.',
   },
   {
     q: 'Does my project have to be new?',
