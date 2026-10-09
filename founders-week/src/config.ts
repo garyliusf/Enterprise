@@ -25,10 +25,12 @@ export const hero = {
   eyebrow: 'Builder’s Week · Oct 17–24',
   /* Tagline is an open decision (Marketing drafts, Haily refines, CX signs
      off), and so is "Bolt" in front of the name. */
-  titleSerif: 'Unlimited building,',
-  titleSans: 'and a shot at $10,000.',
+  /* Business-first messaging (2026-10-09): the week is for people starting
+     or running a business, so the hero leads with that. */
+  titleSerif: 'Build your business.',
+  titleSans: 'We’ll cover the cost.',
   subtitle:
-    'A free build weekend, a week of live sessions with the Bolt team, and a contest for the project you build in Bolt.',
+    'A free build weekend, a week of live sessions with the Bolt team, and $10,000 to scale what you build.',
   primaryCta: 'Enter to Win $10k',
 };
 
@@ -38,17 +40,17 @@ export const timeline: Milestone[] = [
   {
     date: 'Oct 13',
     title: 'Contest Opens',
-    body: 'Turn your idea into a product in Bolt. Submissions are open from Oct 13 to Oct 20.',
+    body: 'Turn your business idea into a product in Bolt, or grow the one you run. Submissions are open from Oct 13 to Oct 20.',
   },
   {
     date: 'Oct 17–18',
     title: 'Free Build Weekend',
-    body: 'Unlimited building on open models for everyone on Bolt, free and paid, Teams included.',
+    body: 'Free building on GLM 5.3 Flash for everyone on Bolt, free and paid, Teams included. 00:00 Sat to 23:59 Sun PDT.',
   },
   {
     date: 'Oct 19–23',
     title: 'Live Sessions',
-    body: 'A Q&A with the founders, workshops, an AMA and feedback hours on your product.',
+    body: 'A Q&A with the founders, workshops, an AMA and feedback hours on growing your business with Bolt.',
   },
   {
     date: 'Oct 31',
@@ -61,9 +63,9 @@ import type { PixelIconName } from './components/ui';
 
 export const weekend = {
   eyebrow: 'Free build weekend',
-  title: 'Two days of unlimited building',
+  title: 'Two days of free building', /* not "unlimited": rate limits apply */
   subtitle:
-    'From Saturday morning to Sunday night, everyone on Bolt gets a free open model in the model picker. No plan change, no code to redeem.',
+    'From Saturday morning to Sunday night, every Bolt user gets GLM 5.3 Flash free in the model picker. No plan change, no code to redeem. Your business idea just lost its last excuse.',
   points: [
     {
       icon: 'plus' as PixelIconName,
@@ -97,7 +99,7 @@ export const weekend = {
   /* Only shown once DigitalOcean confirms they are covering inference. */
   partner: { show: false, name: 'DigitalOcean', line: 'Free inference for the weekend is provided by DigitalOcean.' },
   finePrint:
-    'Rate limits apply. Blocks you miss do not carry over. The free allowance is only available Sat Oct 17 and Sun Oct 18 and can only be used on the free weekend model.',
+    'The free weekend runs from 00:00 PDT Saturday Oct 17 to 23:59 PDT Sunday Oct 18. GLM 5.3 Flash is the only free model during the weekend. Rate limits apply. Blocks you miss do not carry over.',
 };
 
 export type Session = {
@@ -123,7 +125,7 @@ export const sessions: Session[] = [
     time: '10–11am PT',
     title: 'Founder Q&A with Eric & Pai',
     host: 'Bolt co-founders',
-    blurb: 'An hour with Bolt’s co-founders on building a startup, from the first prompt to the first customer. Questions are collected in advance.',
+    blurb: 'An hour with Bolt’s co-founders on building a business, from the first prompt to the first paying customer. Questions are collected in advance.',
     photo: asset('/people/eric-pai.webp'),
     start: '2026-10-20T17:00:00Z',
     end: '2026-10-20T18:00:00Z',
@@ -134,17 +136,17 @@ export const sessions: Session[] = [
     title: 'Live growth workshop',
     icon: 'rocket',
     host: 'Enrique, Bolt',
-    blurb: 'Go-to-market, growth and getting your first users, worked through live.',
+    blurb: 'Go-to-market for your business: positioning, pricing and landing your first paying customers, worked through live.',
     tbc: true,
   },
-  { day: 'Date TBC', time: 'Time TBC', title: 'Founder AMA', icon: 'chat', host: 'Bolt team', blurb: 'Ask the Bolt team anything about building and launching on Bolt.', tbc: true },
+  { day: 'Date TBC', time: 'Time TBC', title: 'Founder AMA', icon: 'chat', host: 'Bolt team', blurb: 'Ask the Bolt team anything about launching and running a business on Bolt.', tbc: true },
   {
     day: 'Date TBC',
     time: 'Time TBC',
     title: 'Feedback hours',
     icon: 'speak',
     host: 'Bolt team and peers',
-    blurb: 'Bring your product and get live feedback from the team and other founders.',
+    blurb: 'Bring your business and get live feedback from the team and other founders.',
     tbc: true,
   },
 ];
@@ -218,14 +220,16 @@ export type Prize = { place: string; amount: string; extras: string };
 /* From the official rules (Terms.tsx). Keep these in step with legal's text. */
 export const competition = {
   eyebrow: 'The contest',
-  title: 'Show us what you built',
-  /* Keep "demo video" in this line: the rules require one with every entry
-     (removed once on 2026-10-08, restored the same day at Gary's ask). */
+  /* Business ideas or existing businesses only, so the entries are the right
+     kind (2026-10-09). The demo video is optional now; the rules still list it
+     as required — legal to reconcile. */
+  title: 'Show us the business you’re building',
   subtitle:
-    'Turn your idea into a product. Build it in Bolt and submit it with a short demo video by Oct 20. Winners are announced on or about Oct 31.',
+    'Turn a business idea into a product, or grow the business you already run. Build it in Bolt and submit it by Oct 20. Winners are announced on or about Oct 31.',
   prizesTbc: false,
   prizes: [
-    { place: 'Grand prize', amount: '$10,000', extras: 'Paid in U.S. dollars.' },
+    /* the 1:1 is not in the rules yet — legal to add */
+    { place: 'Grand prize', amount: '$10,000', extras: 'Paid in U.S. dollars, plus a 1:1 mentoring session with Eric Simons, Bolt’s co-founder and CEO.' },
     { place: 'Second prize', amount: '$5,000', extras: 'Paid in U.S. dollars.' },
     { place: 'Third prize', amount: '$2,500', extras: 'Paid in U.S. dollars.' },
   ] as Prize[],
@@ -252,7 +256,7 @@ export const faqs: { q: string; a: string }[] = [
   },
   {
     q: 'Is the build weekend really free?',
-    a: 'Yes. From Saturday Oct 17 to Sunday Oct 18 a free open model appears in the model picker for every account, free and paid. Your allowance comes in six-hour blocks and rate limits apply. No paid plan is needed to enter the contest either.',
+    a: 'Yes. From 00:00 PDT Saturday Oct 17 to 23:59 PDT Sunday Oct 18, GLM 5.3 Flash is free in the model picker for every account, free and paid. It is the only free model that weekend. Your allowance comes in six-hour blocks and rate limits apply. No paid plan is needed to enter the contest either.',
   },
   {
     q: 'Does my project have to be new?',

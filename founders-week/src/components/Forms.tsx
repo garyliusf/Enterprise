@@ -78,7 +78,7 @@ export function EntryForm() {
     v.tagline.trim(),
     v.description.trim(),
     URL_RE.test(v.bolt_project_url.trim()),
-    VIDEO_RE.test(v.demo_video_url.trim()),
+    /* demo video is optional: not counted toward progress */
     agree,
   ];
   const done = required.filter(Boolean).length / required.length;
@@ -95,9 +95,9 @@ export function EntryForm() {
     if (!v.product_name.trim()) n.product_name = 'Name your project.';
     if (!URL_RE.test(v.product_url.trim())) n.product_url = 'Add the live link, starting with https://';
     if (!URL_RE.test(v.bolt_project_url.trim())) n.bolt_project_url = 'Add the Bolt project link, starting with https://';
-    if (!VIDEO_RE.test(v.demo_video_url.trim())) n.demo_video_url = 'Add a public YouTube or X link.';
+    if (v.demo_video_url.trim() && !VIDEO_RE.test(v.demo_video_url.trim())) n.demo_video_url = 'Use a public YouTube or X link.';
     if (!v.tagline.trim()) n.tagline = 'Describe it in one line.';
-    if (!v.description.trim()) n.description = 'Tell us a little more.';
+    if (!v.description.trim()) n.description = 'Tell us about your business.';
     if (!agree) n.agree = 'Accept the rules to enter.';
     setErrors(n);
     if (Object.keys(n).length) {
@@ -116,7 +116,7 @@ export function EntryForm() {
         product_name: v.product_name.trim(),
         product_url: v.product_url.trim(),
         bolt_project_url: v.bolt_project_url.trim(),
-        demo_video_url: v.demo_video_url.trim(),
+        demo_video_url: v.demo_video_url.trim() || undefined,
         tagline: v.tagline.trim(),
         description: v.description.trim(),
         team_name: v.team_name.trim() || undefined,
@@ -183,7 +183,7 @@ export function EntryForm() {
       <div className="fw-step" role="group" aria-labelledby="fw-step-2">
         <div className="fw-step-head" id="fw-step-2">
           <span className="fw-step-num">02</span>
-          <span className="fw-step-title">About your build</span>
+          <span className="fw-step-title">About your business</span>
         </div>
         <div className="fw-form-row">
           <Field label="Project name" error={errors.product_name}>
@@ -197,9 +197,9 @@ export function EntryForm() {
           <input value={v.tagline} onChange={set('tagline')} maxLength={120} placeholder="What it does, for whom" />
         </Field>
         <Field
-          label="Tell us about it"
+          label="Tell us about your business"
           error={errors.description}
-          hint="What it does and its features. List any tools besides Bolt you used, as the rules require."
+          hint="Your business idea, who it’s for and the problem it solves. List any tools besides Bolt you used, as the rules require."
         >
           <textarea value={v.description} onChange={set('description')} rows={4} maxLength={1200} />
         </Field>
@@ -214,7 +214,7 @@ export function EntryForm() {
           <Field label="Bolt project link" error={errors.bolt_project_url} hint="Where you built it in Bolt.">
             <input type="url" value={v.bolt_project_url} onChange={set('bolt_project_url')} placeholder="https://bolt.new/~/" />
           </Field>
-          <Field label="Demo video" error={errors.demo_video_url} hint="Up to five minutes, public on YouTube or X.">
+          <Field label="Demo video" optional error={errors.demo_video_url} hint="Up to five minutes, public on YouTube or X.">
             <input type="url" value={v.demo_video_url} onChange={set('demo_video_url')} placeholder="https://youtube.com/…" />
           </Field>
         </div>

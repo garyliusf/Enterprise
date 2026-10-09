@@ -299,7 +299,7 @@ export function Schedule() {
         <SectionHeader
           eyebrow="Live sessions · Oct 19–23"
           title="Grow what you’ve built"
-          subtitle="Q&As, workshops and feedback hours with the Bolt team."
+          subtitle="Q&As, workshops and feedback hours with the Bolt team, all about growing a business on Bolt."
         />
         {featured && <FeaturedSession s={featured} />}
         <div className="fw-grid fw-grid--3 fw-session-cards">
@@ -499,15 +499,15 @@ export function Competition() {
               Entries open Oct 13 – Oct 20
             </span>
             <h3 className="fw-enter-title">Submit your project to win $10k</h3>
-            <p className="fw-enter-sub">One entry per builder. Build it in Bolt, then send it our way.</p>
+            <p className="fw-enter-sub">One entry per builder. A business idea or a business you run, built in Bolt.</p>
             {/* prize card removed: it pulled focus from "Have these ready";
                 the prize lives in the title now (reviewer, 2026-10-08) */}
             <p className="fw-enter-ready">Have these ready</p>
             <ol className="fw-enter-list">
               <li>A live link anyone can open for free</li>
               <li>Your Bolt project link</li>
-              {/* required by the rules; keep it listed (dropped once, restored 2026-10-08) */}
-              <li>A public demo video, 5 minutes or less, on YouTube or X</li>
+              {/* optional since 2026-10-09 (rules still say required — legal) */}
+              <li>Optional: a short demo video on YouTube or X</li>
             </ol>
           </aside>
           <div className="fw-form-card fw-form-card--wide">

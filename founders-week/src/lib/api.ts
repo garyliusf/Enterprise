@@ -23,7 +23,7 @@ export type Entry = {
   product_name: string;
   product_url: string;
   bolt_project_url: string;
-  demo_video_url: string;
+  demo_video_url?: string;
   tagline: string;
   description: string;
   team_name?: string;
