@@ -65,7 +65,7 @@ export const weekend = {
   eyebrow: 'Free build weekend',
   title: 'Two days of free building', /* not "unlimited": rate limits apply */
   subtitle:
-    'From Saturday morning to Sunday night, every Bolt user gets GLM 5.3 Flash free in the model picker. No plan change, no code to redeem. Your business idea just lost its last excuse.',
+    'From Saturday morning to Sunday night, every Bolt user gets GLM 5.3 Flash free in the model picker. No plan change, no code to redeem.',
   points: [
     {
       icon: 'plus' as PixelIconName,
