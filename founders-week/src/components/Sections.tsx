@@ -297,9 +297,9 @@ export function Schedule() {
     <section className="fw-section fw-section--schedule" id="schedule">
       <div className="fw-inner">
         <SectionHeader
-          eyebrow="Founder programming · Oct 19–23"
-          title="A week of founder sessions"
-          subtitle="Live Q&As, workshops and feedback hours with the Bolt team."
+          eyebrow="Live sessions · Oct 19–23"
+          title="Grow what you’ve built"
+          subtitle="Q&As, workshops and feedback hours with the Bolt team."
         />
         {featured && <FeaturedSession s={featured} />}
         <div className="fw-grid fw-grid--3 fw-session-cards">

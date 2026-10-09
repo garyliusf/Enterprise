@@ -28,7 +28,7 @@ export const hero = {
   titleSerif: 'Unlimited building,',
   titleSans: 'and a shot at $10,000.',
   subtitle:
-    'A free build weekend, a week of founder sessions with the Bolt team, and a contest for the new project you build in Bolt.',
+    'A free build weekend, a week of live sessions with the Bolt team, and a contest for the new project you build in Bolt.',
   primaryCta: 'Enter to Win $10k',
 };
 
@@ -47,8 +47,8 @@ export const timeline: Milestone[] = [
   },
   {
     date: 'Oct 19–23',
-    title: 'Founder Programming',
-    body: 'A live Q&A with the founders, workshops, an AMA and feedback hours on your product.',
+    title: 'Live Sessions',
+    body: 'A Q&A with the founders, workshops, an AMA and feedback hours on your product.',
   },
   {
     date: 'Oct 31',
