@@ -78,7 +78,7 @@ export const weekend = {
     {
       icon: 'up' as PixelIconName,
       title: 'More on paid plans',
-      body: 'Paid plans get five times the free allowance in every block. Blocks you miss do not carry over.',
+      body: 'Paid plans get five times the free allowance in every block.',
     },
   ],
   /* Mosaic photos (public/people). Placeholders: three photos repeat until
@@ -97,7 +97,7 @@ export const weekend = {
   /* Only shown once DigitalOcean confirms they are covering inference. */
   partner: { show: false, name: 'DigitalOcean', line: 'Free inference for the weekend is provided by DigitalOcean.' },
   finePrint:
-    'Rate limits apply. The free allowance is only available Sat Oct 17 and Sun Oct 18 and can only be used on the free weekend model.',
+    'Rate limits apply. Blocks you miss do not carry over. The free allowance is only available Sat Oct 17 and Sun Oct 18 and can only be used on the free weekend model.',
 };
 
 export type Session = {
