@@ -32,7 +32,7 @@ export const hero = {
   subtitle:
     /* the headline carries the $10k now, so the subtitle keeps the "on us" idea */
     'A free build weekend and a week of live sessions with the Bolt team, on us.',
-  primaryCta: 'Enter to Win $10k',
+  primaryCta: 'Compete for $10k',
 };
 
 export type Milestone = { date: string; title: string; body: string; tbc?: boolean };
@@ -272,6 +272,6 @@ export const faqs: { q: string; a: string }[] = [
 export const footerCta = {
   eyebrow: 'Builder’s Week',
   title: 'Your startup starts this weekend',
-  subtitle: 'Build it in Bolt, submit it by Oct 20 and enter to win the grand prize of $10k.',
-  cta: 'Enter to Win $10k',
+  subtitle: 'Build it in Bolt, submit it by Oct 20 and compete for the $10k grand prize.',
+  cta: 'Compete for $10k',
 };

@@ -77,7 +77,7 @@ export function Nav({ overHero = true }: { overHero?: boolean }) {
           </a>
           {overHero && (
             <Btn href="#compete" className="fw-nav-cta">
-              Enter to Win $10k
+              Compete for $10k
             </Btn>
           )}
           {overHero && (
@@ -108,7 +108,7 @@ export function Nav({ overHero = true }: { overHero?: boolean }) {
             </a>
           ))}
           <a href="#compete" onClick={() => setOpen(false)}>
-            Enter to Win $10k
+            Compete for $10k
             <svg className="fw-drawer-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6" /></svg>
           </a>
           </div>

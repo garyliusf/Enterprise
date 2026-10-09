@@ -501,7 +501,7 @@ export function Competition() {
               <span className="fw-live-dot" aria-hidden="true" />
               Entries open Oct 13 – Oct 20
             </span>
-            <h3 className="fw-enter-title">Submit your project to win $10k</h3>
+            <h3 className="fw-enter-title">Submit your project to compete for $10k</h3>
             <p className="fw-enter-sub">One entry per builder. A business idea or a business you run, built in Bolt.</p>
             {/* prize card removed: it pulled focus from "Have these ready";
                 the prize lives in the title now (reviewer, 2026-10-08) */}
