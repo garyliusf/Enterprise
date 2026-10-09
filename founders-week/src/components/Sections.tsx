@@ -251,6 +251,8 @@ function FeaturedSession({ s }: { s: Session }) {
           <sup className="fw-feature-ord">{ordinal(Number(dayNum))}</sup>
         </span>
         <span className="fw-feature-dow">{dow} · {s.time}</span>
+        {/* phones: one plain line instead of the stacked tile (reviewer, 2026-10-08) */}
+        <span className="fw-feature-line">{dow}, {mon} {dayNum} · {s.time}</span>
       </div>
       <div className="fw-feature-body">
         <span className="fw-feature-kicker">
@@ -496,17 +498,14 @@ export function Competition() {
               <span className="fw-live-dot" aria-hidden="true" />
               Entries open Oct 13 – Oct 20
             </span>
-            <h3 className="fw-enter-title">Submit your app</h3>
+            <h3 className="fw-enter-title">Submit your project to win $10k</h3>
             <p className="fw-enter-sub">One entry per builder. Build something new in Bolt, then send it our way.</p>
-            <div className="fw-enter-prize">
-              <span className="fw-enter-prize-label">Grand prize</span>
-              <span className="fw-enter-prize-amount">$10,000</span>
-              <span className="fw-enter-prize-more">+ $5,000 and $2,500 for second and third</span>
-            </div>
+            {/* prize card removed: it pulled focus from "Have these ready";
+                the prize lives in the title now (reviewer, 2026-10-08) */}
             <p className="fw-enter-ready">Have these ready</p>
             <ol className="fw-enter-list">
-              <li>A live link to the app, free for anyone to open</li>
-              <li>The Bolt project you built it in</li>
+              <li>A live link anyone can open for free</li>
+              <li>Your Bolt project link</li>
               {/* required by the rules; keep it listed (dropped once, restored 2026-10-08) */}
               <li>A public demo video, 5 minutes or less, on YouTube or X</li>
             </ol>

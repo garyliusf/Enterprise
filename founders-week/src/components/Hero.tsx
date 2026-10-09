@@ -1,5 +1,5 @@
 import { hero } from '../config';
-import { BgVideo, Btn, PixelIcon } from './ui';
+import { BgVideo, Btn } from './ui';
 
 export function Hero() {
   return (
@@ -8,13 +8,15 @@ export function Hero() {
       <BgVideo name="hero" className="fw-hero-video" />
       <div className="fw-hero-inner sc-on-dark">
         {/* Above the fold: no scroll reveal on the H1 (CLAUDE.md). */}
-        {/* glass pill: pixel spark + label + a light sweep (no scramble) */}
+        {/* glass pill: pulsing live dot + label + a light sweep (no scramble).
+            The pixel x read as a close button (reviewer, 2026-10-08). */}
         <span className="fw-hero-pill">
-          <PixelIcon name="x" className="fw-hero-pill-icon" />
+          <span className="fw-live-dot fw-hero-pill-dot" aria-hidden="true" />
           <span className="section-eyebrow fw-hero-eyebrow">{hero.eyebrow}</span>
         </span>
         <h1 className="fw-hero-h1">
-          <span className="fw-serif">{hero.titleSerif}</span>
+          {/* all sans: the serif first line read out of place (reviewer, 2026-10-08) */}
+          <span>{hero.titleSerif}</span>
           <span>{hero.titleSans}</span>
         </h1>
         <p className="fw-hero-sub">{hero.subtitle}</p>

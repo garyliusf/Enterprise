@@ -189,7 +189,12 @@ img, svg { display: block; }
   .fw-nav-bar, .fw-nav-drawer-inner { width: calc(100vw - 32px); }
   .fw-nav-start { display: none !important; }
 }
-@media (max-width: 400px) { .fw-nav-divider, .fw-nav-campaign { display: none; } }
+/* the campaign label needs room: below 480 it pushed the CTA narrow enough
+   for Safari to wrap "Win $10k" onto a hidden second line (reviewer's iPhone,
+   2026-10-08) */
+@media (max-width: 480px) { .fw-nav-divider, .fw-nav-campaign { display: none; } }
+.fw-nav .hero-btn-primary.fw-nav-cta { flex: none; white-space: nowrap; }
+.fw-nav .hero-btn-primary.fw-nav-cta .btn-text-inner span { white-space: nowrap; }
 
 /* ── Hero ───────────────────────────────────────────────────────────────── */
 .fw-hero {
@@ -284,11 +289,6 @@ img, svg { display: block; }
 }
 /* each line balances on its own, so a wrap never strands one word */
 .fw-hero-h1 > span { display: block; text-wrap: balance; }
-/* serif hero line rule (solutions, 2026-09-29): Literata italic's long
-   descenders crowd the sans line below, so DESKTOP ONLY add a 10px margin
-   under the serif line (a margin, not line-height: half-leading would only
-   put half of it between the lines) */
-@media (min-width: 1025px) { .fw-hero-h1 > .fw-serif { margin-bottom: 10px; } }
 .fw-hero-sub {
   margin-top: 20px; max-width: 620px;
   font-size: clamp(16px, 1.4vw, 20px); line-height: 1.4; color: rgba(255, 255, 255, 0.82);
@@ -759,7 +759,7 @@ img, svg { display: block; }
 
 .fw-check { display: flex; gap: 12px; align-items: flex-start; font-size: 14px; line-height: 1.5; color: var(--sc-text-desc); cursor: pointer; }
 .fw-check input { width: 18px; height: 18px; margin: 1px 0 0; accent-color: var(--sc-blue); flex: none; }
-.fw-check .fw-text-link { font-size: inherit; }
+.fw-check .fw-text-link, .fw-fine .fw-text-link { font-size: inherit; } /* links in running text match it (reviewer, 2026-10-08) */
 
 .fw-form-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-top: 4px; }
 /* Form submit = .hero-btn-primary (52px, pixel hover from shared); these
@@ -825,7 +825,11 @@ img, svg { display: block; }
 .fw-feature-day { display: inline-flex; align-items: flex-start; }
 /* the ordinal shows only on phones, where the date reads inline (OCT 20th Tue…) */
 .fw-feature-ord { display: none; }
-@media (max-width: 768px) { .fw-feature-ord { display: inline; } }
+.fw-feature-line { display: none; }
+@media (max-width: 768px) {
+  .fw-feature-mon, .fw-feature-day, .fw-feature-dow { display: none !important; }
+  .fw-feature-line { display: block; font-size: 16px; font-weight: 600; line-height: 1.3; color: #fff; }
+}
 .fw-feature-ord { font-size: 0.3em; font-weight: 500; letter-spacing: 0; line-height: 1; margin: 0.12em 0 0 0.16em; /* clears the number's -3px tracking */ color: #8cc4ff; top: 0; }
 .fw-feature-kicker {
   /* flex, not inline-flex: an inline box sits on a line strut and starts ~6px below the column top */
@@ -1209,10 +1213,10 @@ img, svg { display: block; }
 /* no divider between steps (Gary, 2026-10-08): the numbered heads and a
    roomier top pad carry the break */
 .fw-step + .fw-step { padding-top: 44px; }
-/* float + width: takes the legend out of the fieldset border so the divider
-   runs above it, not through it */
-.fw-step-head { float: left; width: 100%; display: flex; align-items: center; gap: 12px; padding: 0; margin-bottom: 4px; }
-.fw-step-head + * { clear: both; }
+/* steps are role="group" divs, not fieldset/legend: Safari pinned the legend
+   to the fieldset's top edge and ignored the padding above it, so on iPhone
+   the heads crowded the progress bar and the field above (2026-10-08) */
+.fw-step-head { display: flex; align-items: center; gap: 12px; padding: 0; margin-bottom: 4px; }
 .fw-step-num {
   display: grid; place-items: center; width: 30px; height: 30px; border-radius: 2px;
   font: 700 11px/1 var(--sc-font-label); letter-spacing: 1px; color: #fff; background: #1488FC;

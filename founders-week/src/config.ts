@@ -28,7 +28,7 @@ export const hero = {
   titleSerif: 'Unlimited building,',
   titleSans: 'and a shot at $10,000.',
   subtitle:
-    'A free build weekend, a week of founder sessions with the Bolt team, and a contest for the new app you build in Bolt.',
+    'A free build weekend, a week of founder sessions with the Bolt team, and a contest for the new project you build in Bolt.',
   primaryCta: 'Enter to Win $10k',
 };
 
@@ -67,7 +67,7 @@ export const weekend = {
   points: [
     {
       icon: 'plus' as PixelIconName,
-      title: 'Everyone is in',
+      title: 'Everyone gets access',
       body: 'Free, personal paid and Teams accounts all get it. On Teams, every member gets their own allowance.',
     },
     {
@@ -222,7 +222,7 @@ export const competition = {
   /* Keep "demo video" in this line: the rules require one with every entry
      (removed once on 2026-10-08, restored the same day at Gary's ask). */
   subtitle:
-    'Build a new app in Bolt between Oct 13 and Oct 20, then submit it with a short demo video. Winners are announced on or about Oct 31.',
+    'Build a new project in Bolt between Oct 13 and Oct 20, then submit it with a short demo video. Winners are announced on or about Oct 31.',
   prizesTbc: false,
   prizes: [
     { place: 'Grand prize', amount: '$10,000', extras: 'Paid in U.S. dollars.' },
@@ -255,8 +255,8 @@ export const faqs: { q: string; a: string }[] = [
     a: 'Yes. From Saturday Oct 17 to Sunday Oct 18 a free open model appears in the model picker for every account, free and paid. Your allowance comes in six-hour blocks and rate limits apply. No paid plan is needed to enter the contest either.',
   },
   {
-    q: 'Does my app have to be new?',
-    a: 'Yes. Contest entries must be new apps built primarily in Bolt during the submission period, Oct 13 to Oct 20. Bolt starter templates are fine as a starting point. Other tools can play a supporting role if you disclose them.',
+    q: 'Does my project have to be new?',
+    a: 'Yes. Contest entries must be new projects built primarily in Bolt during the submission period, Oct 13 to Oct 20. Bolt starter templates are fine as a starting point. Other tools can play a supporting role if you disclose them.',
   },
   {
     q: 'When are the winners announced?',

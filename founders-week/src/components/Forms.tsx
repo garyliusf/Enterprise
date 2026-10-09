@@ -92,7 +92,7 @@ export function EntryForm() {
     const n: Record<string, string> = {};
     if (!v.name.trim()) n.name = 'Add your name.';
     if (!EMAIL_RE.test(v.email.trim())) n.email = 'Add a valid email address.';
-    if (!v.product_name.trim()) n.product_name = 'Name your app.';
+    if (!v.product_name.trim()) n.product_name = 'Name your project.';
     if (!URL_RE.test(v.product_url.trim())) n.product_url = 'Add the live link, starting with https://';
     if (!URL_RE.test(v.bolt_project_url.trim())) n.bolt_project_url = 'Add the Bolt project link, starting with https://';
     if (!VIDEO_RE.test(v.demo_video_url.trim())) n.demo_video_url = 'Add a public YouTube or X link.';
@@ -157,11 +157,11 @@ export function EntryForm() {
         <span className="fw-progress-label">{done >= 1 ? 'Ready to submit' : `${Math.round(done * 100)}% complete`}</span>
       </div>
 
-      <fieldset className="fw-step">
-        <legend className="fw-step-head">
+      <div className="fw-step" role="group" aria-labelledby="fw-step-1">
+        <div className="fw-step-head" id="fw-step-1">
           <span className="fw-step-num">01</span>
           <span className="fw-step-title">About you</span>
-        </legend>
+        </div>
         <div className="fw-form-row">
           <Field label="Your name" error={errors.name}>
             <input value={v.name} onChange={set('name')} autoComplete="name" maxLength={120} />
@@ -178,15 +178,15 @@ export function EntryForm() {
             <input value={v.social_handle} onChange={set('social_handle')} maxLength={80} placeholder="@handle" />
           </Field>
         </div>
-      </fieldset>
+      </div>
 
-      <fieldset className="fw-step">
-        <legend className="fw-step-head">
+      <div className="fw-step" role="group" aria-labelledby="fw-step-2">
+        <div className="fw-step-head" id="fw-step-2">
           <span className="fw-step-num">02</span>
           <span className="fw-step-title">About your build</span>
-        </legend>
+        </div>
         <div className="fw-form-row">
-          <Field label="App name" error={errors.product_name}>
+          <Field label="Project name" error={errors.product_name}>
             <input value={v.product_name} onChange={set('product_name')} maxLength={80} />
           </Field>
           <Field label="Live link" error={errors.product_url} hint="Your bolt.host or custom domain.">
@@ -203,27 +203,27 @@ export function EntryForm() {
         >
           <textarea value={v.description} onChange={set('description')} rows={4} maxLength={1200} />
         </Field>
-      </fieldset>
+      </div>
 
-      <fieldset className="fw-step">
-        <legend className="fw-step-head">
+      <div className="fw-step" role="group" aria-labelledby="fw-step-3">
+        <div className="fw-step-head" id="fw-step-3">
           <span className="fw-step-num">03</span>
           <span className="fw-step-title">Your demo</span>
-        </legend>
+        </div>
         <div className="fw-form-row">
-          <Field label="Bolt project link" error={errors.bolt_project_url} hint="The project you built the app in.">
+          <Field label="Bolt project link" error={errors.bolt_project_url} hint="Where you built it in Bolt.">
             <input type="url" value={v.bolt_project_url} onChange={set('bolt_project_url')} placeholder="https://bolt.new/~/" />
           </Field>
           <Field label="Demo video" error={errors.demo_video_url} hint="Up to five minutes, public on YouTube or X.">
             <input type="url" value={v.demo_video_url} onChange={set('demo_video_url')} placeholder="https://youtube.com/…" />
           </Field>
         </div>
-      </fieldset>
+      </div>
 
       <label className={`fw-check${errors.agree ? ' has-error' : ''}`}>
         <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} />
         <span>
-          I am 18 or older, I built this app primarily in Bolt during the contest period, and I accept the{' '}
+          I am 18 or older, I built this project primarily in Bolt during the contest period, and I accept the{' '}
           <a className="fw-text-link" href={TERMS_PATH} target="_blank" rel="noopener">
             official rules
           </a>
@@ -232,7 +232,7 @@ export function EntryForm() {
       </label>
       {errors.agree && <span className="fw-field-error">{errors.agree}</span>}
       <div className="fw-form-foot">
-        <Submit status={status}>Submit Your App</Submit>
+        <Submit status={status}>Submit Your Project</Submit>
         {status === 'error' && <p className="fw-form-error" role="alert">{message}</p>}
       </div>
       <PreviewNote />
