@@ -263,10 +263,11 @@ function FeaturedSession({ s }: { s: Session }) {
         <p className="fw-feature-blurb">{s.blurb}</p>
         <span className="fw-feature-host">{s.host}</span>
         <div className="fw-feature-side">
-        {cal && cd?.state !== 'ended' && (
+        {cd?.state !== 'ended' && (s.url || cal) && (
           <div className="fw-feature-cta">
-            <Btn href={cal} variant="ghost" external>
-              Add to Calendar
+            {/* Luma handles the RSVP and the calendar invite */}
+            <Btn href={s.url ?? cal!} variant="ghost" external>
+              {s.url ? 'RSVP' : 'Add to Calendar'}
             </Btn>
           </div>
         )}
@@ -293,29 +294,44 @@ const featureWave: WaveFn = (c, r, t, phase, cols, rows) => {
 };
 
 export function Schedule() {
-  const [featured, ...rest] = sessions.some((s) => !s.tbc)
-    ? [sessions.find((s) => !s.tbc)!, ...sessions.filter((s) => s.tbc)]
-    : [undefined, ...sessions];
+  /* the session with hosts' photo leads; the rest are cards in date order */
+  const featured = sessions.find((s) => s.photo);
+  const rest = sessions.filter((s) => s !== featured);
   return (
     <section className="fw-section fw-section--schedule" id="schedule">
       <div className="fw-inner">
         <SectionHeader
-          eyebrow="Live sessions · Oct 19–23"
+          eyebrow="Live sessions · Oct 20–23"
           title="Grow what you’ve built"
-          subtitle="Q&As, workshops and feedback hours with the Bolt team, all about growing a business on Bolt."
+          subtitle="A founder Q&A and live workshops on SEO, growth and design, all about growing a business on Bolt."
         />
         {featured && <FeaturedSession s={featured} />}
         <div className="fw-grid fw-grid--3 fw-session-cards">
-          {rest.map((s, i) => (
-            s && (
-              <article key={s.title} className="fw-card fw-session-card">
+          {rest.map((s, i) => {
+            const inner = (
+              <>
                 <HoverField index={i + 3} />
                 <PixelIcon name={s.icon ?? 'x'} index={i} />
+                <span className="fw-session-when">{s.day} · {s.time}</span>
                 <h3 className="fw-card-title">{s.title}</h3>
                 <p className="fw-card-desc">{s.blurb}</p>
-              </article>
-            )
-          ))}
+                <span className="fw-session-host">{s.host}</span>
+                {s.url && (
+                  <span className="fw-text-link fw-session-rsvp">
+                    RSVP <i className="fw-arrow" aria-hidden="true" />
+                  </span>
+                )}
+              </>
+            );
+            /* whole card links to the Luma event */
+            return s.url ? (
+              <a key={s.title} className="fw-card fw-session-card" href={s.url} target="_blank" rel="noopener">
+                {inner}
+              </a>
+            ) : (
+              <article key={s.title} className="fw-card fw-session-card">{inner}</article>
+            );
+          })}
         </div>
       </div>
     </section>

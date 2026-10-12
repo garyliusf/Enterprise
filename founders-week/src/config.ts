@@ -49,9 +49,9 @@ export const timeline: Milestone[] = [
     body: 'Free building on GLM 5.3 Flash for everyone on Bolt, free and paid, Teams included. Starts Sat Oct 17 at 12:00am PDT, ends Sun Oct 18 at 11:59pm PDT.',
   },
   {
-    date: 'Oct 19–23',
+    date: 'Oct 20–23',
     title: 'Live Sessions',
-    body: 'A Q&A with the founders, workshops, an AMA and feedback hours on growing your business with Bolt.',
+    body: 'A Q&A with Bolt’s co-founders and live workshops on SEO, growth and design for your business.',
   },
   {
     date: 'Oct 31',
@@ -114,6 +114,8 @@ export type Session = {
   photo?: string;
   /* names along the bottom of the photo */
   photoCaption?: string;
+  /* Luma event page (RSVP) */
+  url?: string;
   /* ISO start/end — set once confirmed; drives the countdown and calendar link */
   start?: string;
   end?: string;
@@ -123,35 +125,51 @@ export type Session = {
 /* Descriptions are from the CX program page (Notion). Only the Eric & Pai
    Q&A is confirmed; the rest need dates and times. */
 export const sessions: Session[] = [
+  /* All four from Luma (Blake, 2026-10-12); times are PT. */
   {
     day: 'Tue Oct 20',
     time: '10–11am PT',
-    title: 'Founder Q&A with Eric & Pai',
-    host: 'Bolt co-founders',
-    blurb: 'An hour with Bolt’s co-founders on building a business, from the first prompt to the first paying customer. Questions are collected in advance.',
+    title: 'Ask Eric & Albert anything',
+    host: 'Eric Simons, CEO, and Albert Pai, CTO',
+    blurb: 'Bolt’s co-founders take your questions live and unscripted: the turnaround, the riskiest product bets, and the advice they think is overrated. Send your questions in advance.',
     photo: asset('/people/eric-pai.webp'),
     photoCaption: 'Eric Simons & Albert Pai',
+    url: 'https://luma.com/bolt-y5tz',
     start: '2026-10-20T17:00:00Z',
     end: '2026-10-20T18:00:00Z',
   },
   {
-    day: 'Date TBC',
-    time: 'Time TBC',
-    title: 'Live growth workshop',
-    icon: 'rocket',
-    host: 'Enrique, Bolt',
-    blurb: 'Go-to-market for your business: positioning, pricing and landing your first paying customers, worked through live.',
-    tbc: true,
+    day: 'Wed Oct 21',
+    time: '10:30–11am PT',
+    title: 'Help customers find you',
+    icon: 'up',
+    host: 'Alberto Aviles, Head of Demand Generation',
+    blurb: 'Three SEO tips for your Bolt site: titles that earn the click, getting your pages found, and one search term per page.',
+    url: 'https://luma.com/bolt-nk7v',
+    start: '2026-10-21T17:30:00Z',
+    end: '2026-10-21T18:00:00Z',
   },
-  { day: 'Date TBC', time: 'Time TBC', title: 'Founder AMA', icon: 'chat', host: 'Bolt team', blurb: 'Ask the Bolt team anything about launching and running a business on Bolt.', tbc: true },
   {
-    day: 'Date TBC',
-    time: 'Time TBC',
-    title: 'Feedback hours',
-    icon: 'speak',
-    host: 'Bolt team and peers',
-    blurb: 'Bring your business and get live feedback from the team and other founders.',
-    tbc: true,
+    day: 'Thu Oct 22',
+    time: '10:30–11:30am PT',
+    title: 'Turn sign-ups into regulars',
+    icon: 'rocket',
+    host: 'Enrique Hoyos, Growth Marketing Lead',
+    blurb: 'Onboarding, adoption and retention: get new users to a first win, keep them coming back, and spot who is about to leave.',
+    url: 'https://luma.com/bolt-ueio',
+    start: '2026-10-22T17:30:00Z',
+    end: '2026-10-22T18:30:00Z',
+  },
+  {
+    day: 'Fri Oct 23',
+    time: '10:30–11:30am PT',
+    title: 'How to stand out',
+    icon: 'chat',
+    host: 'Qian Yu, Head of Design',
+    blurb: 'A design and branding clinic: what makes customers choose you, then live reviews of founder projects. Share yours in the chat.',
+    url: 'https://luma.com/bolt-pli7',
+    start: '2026-10-23T17:30:00Z',
+    end: '2026-10-23T18:30:00Z',
   },
 ];
 
