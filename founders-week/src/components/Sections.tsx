@@ -327,6 +327,8 @@ export function Schedule() {
           {rest.map((s, i) => {
             const inner = (
               <>
+                {/* the footer gradient clip, each card a different crop / flip / tint / moment */}
+                <BgVideo name="cards" className={`fw-session-video fw-session-video--${(i % 3) + 1}`} lazy startAt={i * 6.5} />
                 <HoverField index={i + 3} />
                 <PixelIcon name={s.icon ?? 'x'} index={i} />
                 <span className="fw-session-when">{s.day} · {s.time}</span>

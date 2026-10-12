@@ -1522,3 +1522,31 @@ a.fw-session-card { text-decoration: none; color: inherit; }
 .fw-host-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .fw-host-name { font-size: 15px; font-weight: 600; line-height: 1.3; color: var(--sc-ink); }
 .fw-host-role { font-size: 13px; line-height: 1.35; color: var(--sc-text-muted); }
+
+/* Session cards: the footer gradient clip behind each card (2026-10-12).
+   One small encode (hero/cards.*), three variants so no two cards match:
+   different crop, a mirror, a slight hue shift, and a different moment in
+   the loop (startAt). Light = a pale wash so dark copy stays readable;
+   dark = richer video under a near-black wash. Crops stay in the clip's
+   lower half, which is all blue (its top has a black corner that greys out
+   under the light wash). */
+.fw-session-card { isolation: isolate; }
+.fw-card > .fw-session-video {
+  position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%;
+  object-fit: cover; pointer-events: none;
+  filter: blur(6px) saturate(1.1); transform: scale(1.6); transform-origin: 50% 100%; /* zoomed into the lower half */
+  opacity: 0.55;
+}
+.fw-session-video--1 { object-position: 0% 100%; }
+.fw-session-video--2 { object-position: 100% 100%; transform: scale(1.6) scaleX(-1); }
+.fw-session-video--3 { object-position: 35% 100%; filter: blur(6px) saturate(1.15) hue-rotate(-14deg); }
+/* wash over the video, under the copy: strongest top-left where the text starts */
+.fw-session-card::before {
+  content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.74) 50%, rgba(255, 255, 255, 0.4) 100%);
+}
+:root[data-theme="dark"] .fw-card > .fw-session-video { opacity: 0.85; }
+:root[data-theme="dark"] .fw-session-card::before {
+  background: linear-gradient(160deg, rgba(5, 5, 7, 0.88) 0%, rgba(5, 5, 7, 0.62) 50%, rgba(5, 5, 7, 0.25) 100%);
+}
+@media (prefers-reduced-motion: reduce) { .fw-card > .fw-session-video { transform: none; } }

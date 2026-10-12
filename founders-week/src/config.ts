@@ -158,6 +158,7 @@ export const sessions: Session[] = [
     title: 'Turn sign-ups into regulars',
     icon: 'rocket',
     host: 'Enrique Hoyos, Growth Marketing Lead',
+    hostPhoto: asset('/people/enrique-hoyos.webp'),
     blurb: 'Onboarding, adoption and retention: get new users to a first win, keep them coming back, and spot who is about to leave.',
     url: 'https://luma.com/bolt-ueio',
     start: '2026-10-22T17:30:00Z',

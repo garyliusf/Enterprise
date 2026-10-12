@@ -184,11 +184,13 @@ export function PixelField({
    <name>.webm, <name>.mp4 and <name>-poster.jpg (first frame, so nothing
    changes when playback starts). Plays only while on screen; `lazy` also
    holds the download until it is near. Reduced motion: stays on the poster. */
-export function BgVideo({ name, className, lazy = false }: { name: string; className?: string; lazy?: boolean }) {
+export function BgVideo({ name, className, lazy = false, startAt = 0 }: { name: string; className?: string; lazy?: boolean; startAt?: number }) {
   const ref = useRef<HTMLVideoElement>(null);
   useEffect(() => {
     const v = ref.current;
     if (!v) return;
+    /* startAt: seconds into the loop, so several copies of one clip never move in step */
+    if (startAt) v.addEventListener('loadedmetadata', () => { v.currentTime = startAt % (v.duration || 1); }, { once: true });
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
     let inView = false;
     const sync = () => {
