@@ -146,6 +146,7 @@ export const sessions: Session[] = [
     title: 'Help customers find you',
     icon: 'up',
     host: 'Alberto Aviles, Head of Demand Generation',
+    hostPhoto: asset('/people/alberto-aviles.webp'),
     blurb: 'Three SEO tips for your Bolt site: titles that earn the click, getting your pages found, and one search term per page.',
     url: 'https://luma.com/bolt-nk7v',
     start: '2026-10-21T17:30:00Z',
