@@ -591,7 +591,9 @@
     '.sc-page-nav-panel a { display: block; padding: 8px 10px; border-radius: 2px; text-decoration: none;' +
     '  font-size: 13px; font-weight: 500; color: var(--sc-text-desc, rgba(255,255,255,0.55)); }' +
     '.sc-page-nav-panel a:hover { background: rgba(20,136,252,0.10); color: var(--sc-ink, #fff); }' +
-    '.sc-page-nav-panel a.is-current { color: #1488FC; pointer-events: none; }';
+    '.sc-page-nav-panel a.is-current { color: #1488FC; pointer-events: none; }' +
+    /* the review widgets sit over the mobile drawer's bottom row (Get Started / Sign In): hide them while it is open */
+    'body.mkt-nav-mobile-open .sc-page-nav, body.mkt-nav-mobile-open .sc-theme-switch { display: none; }';
   document.head.appendChild(css);
   var root = document.createElement('div');
   root.className = 'sc-page-nav';
