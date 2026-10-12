@@ -1505,7 +1505,9 @@ a.fw-session-card { text-decoration: none; color: inherit; }
 .fw-session-card .fw-session-when { margin: 0 0 8px; font-size: 11px; letter-spacing: 1.6px; color: var(--sc-blue-ink); }
 :root[data-theme="dark"] .fw-session-card .fw-session-when { color: #4DA6FF; }
 .fw-session-card .fw-session-host { margin-top: 16px; }
-.fw-session-card .fw-session-rsvp { margin-top: 14px; position: relative; z-index: 1; }
+.fw-session-card .fw-session-rsvp { margin-top: auto; padding-top: 14px; align-self: flex-end; position: relative; z-index: 1; } /* bottom-right corner (2026-10-12) */
+/* on the dark corner glow the blue link sank in: white there */
+:root[data-theme="dark"] .fw-session-card .fw-session-rsvp { color: #fff; }
 .fw-session-card:hover .fw-session-rsvp .fw-arrow { transform: translateX(3px); }
 
 /* speaker row: avatar + name (ink, semibold) over role (muted) — 2026-10-12 */
@@ -1535,22 +1537,17 @@ a.fw-session-card { text-decoration: none; color: inherit; }
   position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%;
   object-fit: cover; pointer-events: none;
   filter: blur(6px) saturate(1.1); transform: scale(1.6); transform-origin: 50% 100%; /* zoomed into the lower half */
-  opacity: 0.55;
+  opacity: 0.6;
+  /* both themes: the clip shows only as a glow in the bottom-right corner (Gary) */
+  -webkit-mask-image: radial-gradient(ellipse 75% 70% at 100% 100%, #000 0%, rgba(0, 0, 0, 0.45) 40%, transparent 75%);
+          mask-image: radial-gradient(ellipse 75% 70% at 100% 100%, #000 0%, rgba(0, 0, 0, 0.45) 40%, transparent 75%);
 }
 .fw-session-video--1 { object-position: 0% 100%; }
 .fw-session-video--2 { object-position: 100% 100%; transform: scale(1.6) scaleX(-1); }
 .fw-session-video--3 { object-position: 35% 100%; filter: blur(6px) saturate(1.15) hue-rotate(-14deg); }
 /* wash over the video, under the copy: strongest top-left where the text starts */
-.fw-session-card::before {
-  content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
-  background: linear-gradient(160deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.74) 50%, rgba(255, 255, 255, 0.4) 100%);
-}
+/* no wash needed now the glow is confined to the corner */
 /* dark: only a glow in the bottom-right corner (Gary: full video "too
    crazy"); the rest of the card stays near-black */
-:root[data-theme="dark"] .fw-card > .fw-session-video {
-  opacity: 0.7;
-  -webkit-mask-image: radial-gradient(ellipse 75% 70% at 100% 100%, #000 0%, rgba(0, 0, 0, 0.45) 40%, transparent 75%);
-          mask-image: radial-gradient(ellipse 75% 70% at 100% 100%, #000 0%, rgba(0, 0, 0, 0.45) 40%, transparent 75%);
-}
-:root[data-theme="dark"] .fw-session-card::before { background: none; }
+:root[data-theme="dark"] .fw-card > .fw-session-video { opacity: 0.7; }
 @media (prefers-reduced-motion: reduce) { .fw-card > .fw-session-video { transform: none; } }
