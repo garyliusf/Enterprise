@@ -293,6 +293,23 @@ const featureWave: WaveFn = (c, r, t, phase, cols, rows) => {
   return d * d * w * (Math.sin(t / 600 + phase) * 0.25 + 0.75);
 };
 
+/* host row on a session card: avatar (photo or initials), name over role */
+function SessionHost({ s }: { s: Session }) {
+  const [name, ...role] = s.host.split(', ');
+  const initials = name.split(' ').map((w) => w[0]).join('').slice(0, 2);
+  return (
+    <span className="fw-session-host">
+      <span className="fw-host-avatar" aria-hidden="true">
+        {s.hostPhoto ? <img src={s.hostPhoto} alt="" loading="lazy" decoding="async" /> : initials}
+      </span>
+      <span className="fw-host-text">
+        <span className="fw-host-name">{name}</span>
+        {role.length > 0 && <span className="fw-host-role">{role.join(', ')}</span>}
+      </span>
+    </span>
+  );
+}
+
 export function Schedule() {
   /* the session with hosts' photo leads; the rest are cards in date order */
   const featured = sessions.find((s) => s.photo);
@@ -315,7 +332,7 @@ export function Schedule() {
                 <span className="fw-session-when">{s.day} · {s.time}</span>
                 <h3 className="fw-card-title">{s.title}</h3>
                 <p className="fw-card-desc">{s.blurb}</p>
-                <span className="fw-session-host">{s.host}</span>
+                <SessionHost s={s} />
                 {s.url && (
                   <span className="fw-text-link fw-session-rsvp">
                     RSVP <i className="fw-arrow" aria-hidden="true" />

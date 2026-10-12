@@ -116,6 +116,8 @@ export type Session = {
   photoCaption?: string;
   /* Luma event page (RSVP) */
   url?: string;
+  /* speaker headshot (public/people), shown in the card's host row; initials until set */
+  hostPhoto?: string;
   /* ISO start/end — set once confirmed; drives the countdown and calendar link */
   start?: string;
   end?: string;
