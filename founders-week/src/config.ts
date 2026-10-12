@@ -169,6 +169,7 @@ export const sessions: Session[] = [
     title: 'How to stand out',
     icon: 'chat',
     host: 'Qian Yu, Head of Design',
+    hostPhoto: asset('/people/qian-yu.webp'),
     blurb: 'A design and branding clinic: what makes customers choose you, then live reviews of founder projects. Share yours in the chat.',
     url: 'https://luma.com/bolt-pli7',
     start: '2026-10-23T17:30:00Z',
