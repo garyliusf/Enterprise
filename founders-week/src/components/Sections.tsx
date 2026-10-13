@@ -334,12 +334,15 @@ export function Schedule() {
                 <span className="fw-session-when">{s.day} · {s.time}</span>
                 <h3 className="fw-card-title">{s.title}</h3>
                 <p className="fw-card-desc">{s.blurb}</p>
-                <SessionHost s={s} />
-                {s.url && (
-                  <span className="fw-text-link fw-session-rsvp">
-                    RSVP <i className="fw-arrow" aria-hidden="true" />
-                  </span>
-                )}
+                {/* one bottom row: speaker left, RSVP right */}
+                <div className="fw-session-foot">
+                  <SessionHost s={s} />
+                  {s.url && (
+                    <span className="fw-text-link fw-session-rsvp">
+                      RSVP <i className="fw-arrow" aria-hidden="true" />
+                    </span>
+                  )}
+                </div>
               </>
             );
             /* whole card links to the Luma event */
