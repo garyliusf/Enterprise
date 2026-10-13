@@ -86,7 +86,9 @@ function nextMilestone(): number {
 
 /* ── Timeline ─────────────────────────────────────────────────────────────── */
 export function Timeline() {
-  const nextIdx = nextMilestone();
+  /* client-only: the prerendered markup carries no "next" step */
+  const [nextIdx, setNextIdx] = useState(-1);
+  useEffect(() => setNextIdx(nextMilestone()), []);
   return (
     <section className="fw-section fw-section--timeline" aria-label="How the week runs">
       <div className="fw-inner">
@@ -207,9 +209,12 @@ export function Weekend() {
 /* ── Schedule ─────────────────────────────────────────────────────────────── */
 /* "Starts in 12d 04h 31m" → "Live now" → "Ended", ticking once a minute */
 function useCountdown(start?: string, end?: string) {
-  const [now, setNow] = useState(() => Date.now());
+  /* 0 on the server and first paint (the page is prerendered, so the build
+     time must not leak into the markup); the real clock lands right after */
+  const [now, setNow] = useState(0);
   useEffect(() => {
     if (!start) return;
+    setNow(Date.now());
     const id = setInterval(() => setNow(Date.now()), 30_000);
     return () => clearInterval(id);
   }, [start]);
