@@ -1,5 +1,5 @@
-import { useState, type FormEvent, type ReactNode } from 'react';
-import { TERMS_PATH } from '../config';
+import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
+import { BOLT_URL, TERMS_PATH } from '../config';
 import { DuplicateError, isPreview, submitEntry } from '../lib/api';
 
 type Status = 'idle' | 'sending' | 'done' | 'error';
@@ -55,6 +55,141 @@ function PreviewNote() {
 }
 
 /* ── Contest entry ───────────────────────────────────────────────────── */
+
+/* Submission window, from the rules: Oct 13 00:00 to Oct 20 23:59 PT (PDT = UTC-7). */
+const CLOSES_AT = Date.parse('2026-10-21T06:59:59Z');
+const JUDGING_ENDS = Date.parse('2026-10-31T06:59:59Z');
+
+/* Review override, never on bolt.new: ?entries=closed or ?entries=done shows
+   that state without waiting for the date or submitting. */
+function reviewState(): 'closed' | 'done' | null {
+  if (typeof window === 'undefined' || /(^|\.)bolt\.new$/.test(window.location.hostname)) return null;
+  const v = new URLSearchParams(window.location.search).get('entries');
+  return v === 'closed' || v === 'done' ? v : null;
+}
+
+/* 'open' on the server and first paint (the page is prerendered), then the real
+   clock. Exported so the entry panel beside the form flips with it. */
+export function useEntriesClosed() {
+  const [closed, setClosed] = useState(false);
+  useEffect(() => {
+    const check = () => setClosed(reviewState() === 'closed' || Date.now() > CLOSES_AT);
+    check();
+    const id = setInterval(check, 60_000);
+    return () => clearInterval(id);
+  }, []);
+  return closed;
+}
+
+/* What happens after you enter: three dated steps, the current one lit. */
+function NextSteps({ closed }: { closed: boolean }) {
+  const judging = closed && Date.now() < JUDGING_ENDS;
+  const steps = [
+    { when: 'Oct 20', what: 'Submissions close', state: closed ? 'done' : 'now' },
+    { when: 'Oct 21–31', what: 'Judges review every entry', state: judging ? 'now' : closed ? 'done' : 'next' },
+    { when: '~Oct 31', what: 'Winners announced here and on social', state: closed && !judging ? 'now' : 'next' },
+  ];
+  return (
+    <ol className="fw-next">
+      {steps.map((st) => (
+        <li key={st.what} className={`fw-next-step is-${st.state}`}>
+          <span className="fw-next-dot" aria-hidden="true" />
+          <span className="fw-next-when">{st.when}</span>
+          <span className="fw-next-what">{st.what}</span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function GhostLink({ href, children }: { href: string; children: string }) {
+  return (
+    <a className="hero-btn-ghost fw-state-ghost" href={href} target="_blank" rel="noopener">
+      <div className="btn-bg-hover" />
+      <div className="btn-text-wrap">
+        <div className="btn-text-inner">
+          <span>{children}</span>
+          <span>{children}</span>
+        </div>
+      </div>
+    </a>
+  );
+}
+
+/* After a successful entry. */
+function EntryDone({ name, project, url, email }: { name: string; project: string; url: string; email: string }) {
+  const first = name.trim().split(/\s+/)[0];
+  const share =
+    'https://x.com/intent/post?text=' +
+    encodeURIComponent(`I just entered ${project} in @boltdotnew Builders Week. Built in Bolt. 🚀`) +
+    (url ? '&url=' + encodeURIComponent(url) : '');
+  return (
+    <div className="fw-state fw-state--done" role="status">
+      <div className="fw-progress fw-progress--full" aria-hidden="true">
+        <div className="fw-progress-bar"><span style={{ width: '100%' }} /></div>
+        <span className="fw-progress-label">Submitted</span>
+      </div>
+      <div className="fw-state-body">
+        <svg className="fw-state-check" viewBox="0 0 48 48" aria-hidden="true">
+          <circle cx="24" cy="24" r="22" />
+          <path d="M14 24.5l7 7 13-14" />
+        </svg>
+        <p className="fw-state-eyebrow">Entry received</p>
+        <h3 className="fw-state-title">You’re in{first ? `, ${first}` : ''}.</h3>
+        <p className="fw-state-sub">
+          <strong>{project}</strong> is entered in Builders Week. We’ll email <strong>{email}</strong> if we have
+          questions.
+        </p>
+        <p className="fw-state-label">What happens next</p>
+        <NextSteps closed={false} />
+        <div className="fw-state-actions">
+          <a className="hero-btn-primary fw-state-primary" href={share} target="_blank" rel="noopener">
+            <div className="btn-bg-hover" />
+            <div className="btn-text-wrap">
+              <div className="btn-text-inner">
+                <span>Share Your Entry</span>
+                <span>Share Your Entry</span>
+              </div>
+            </div>
+          </a>
+          <GhostLink href={BOLT_URL}>Keep Building</GhostLink>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* After Oct 20 23:59 PT the form gives way to this. */
+function EntriesClosed() {
+  return (
+    <div className="fw-state fw-state--closed" role="status">
+      <div className="fw-state-strip">
+        <span className="fw-state-strip-dot" aria-hidden="true" />
+        Submissions closed Oct 20
+      </div>
+      <div className="fw-state-body">
+        <svg className="fw-state-lock" viewBox="0 0 48 48" aria-hidden="true">
+          <rect x="11" y="21" width="26" height="20" rx="3" />
+          <path d="M17 21v-5a7 7 0 0 1 14 0v5" />
+          <circle cx="24" cy="31" r="2" />
+        </svg>
+        <p className="fw-state-eyebrow">Submissions are closed</p>
+        <h3 className="fw-state-title">Thanks to everyone who entered.</h3>
+        <p className="fw-state-sub">
+          Every entry is with the judges now. Winners are announced on or about Oct 31, here and on social.
+        </p>
+        <p className="fw-state-label">Where things stand</p>
+        <NextSteps closed />
+        <div className="fw-state-actions">
+          <GhostLink href={BOLT_URL}>Keep Building</GhostLink>
+          <a className="fw-text-link" href={TERMS_PATH} target="_blank" rel="noopener">
+            Read the official rules <i className="fw-arrow" aria-hidden="true" />
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function EntryForm() {
   const [v, setV] = useState({
@@ -134,17 +269,18 @@ export function EntryForm() {
     }
   }
 
-  if (status === 'done') {
-    return (
-      <div className="fw-form fw-form--done fw-entry" role="status">
-        <span className="fw-done-mark" aria-hidden="true" />
-        <h3 className="fw-done-title">{v.product_name.trim()} is entered.</h3>
-        <p className="fw-done-body">
-          We will email you if we have questions. Judging runs Oct 21 to 31, and winners are announced on or about Oct 31.
-        </p>
-      </div>
+  const closed = useEntriesClosed();
+  const [review, setReview] = useState<'closed' | 'done' | null>(null);
+  useEffect(() => setReview(reviewState()), []);
+
+  if (status === 'done' || review === 'done') {
+    return review === 'done' && status !== 'done' ? (
+      <EntryDone name="Ada Lovelace" project="Ledger Studio" url="https://ledger-studio.bolt.host" email="ada@example.com" />
+    ) : (
+      <EntryDone name={v.name} project={v.product_name.trim()} url={v.product_url.trim()} email={v.email.trim()} />
     );
   }
+  if (closed) return <EntriesClosed />;
 
   return (
     <form className="fw-form fw-entry" onSubmit={onSubmit} noValidate>

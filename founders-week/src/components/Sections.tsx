@@ -1,7 +1,7 @@
 import type React from 'react';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { BOLT_URL, competition, faqs, footerCta, pastWinners, sessions, templates, TERMS_PATH, timeline, weekend, type Session } from '../config';
-import { EntryForm } from './Forms';
+import { EntryForm, useEntriesClosed } from './Forms';
 import { BgVideo, Btn, BoltLogo, HoverField, PixelField, PixelIcon, PixelRise, SectionHeader, Tbc, type WaveFn } from './ui';
 
 /* Wave functions for the section pixel fields (sandbox makePixelCanvas family). */
@@ -540,29 +540,7 @@ export function Competition() {
         </div>
         <PastWinners />
 
-        <div className="fw-enter" id="enter">
-          <aside className="fw-enter-head sc-on-dark">
-            <PixelField wave={cornerWave} spacing={8} dot={2} opacity={0.6} className="fw-card-field is-on" color="140,190,255" />
-            <span className="fw-enter-badge">
-              <span className="fw-live-dot" aria-hidden="true" />
-              Entries open Oct 13 – Oct 20
-            </span>
-            <h3 className="fw-enter-title">Submit your project to compete for $10k</h3>
-            <p className="fw-enter-sub">One entry per builder. A business idea or a business you run, built in Bolt.</p>
-            {/* prize card removed: it pulled focus from "Have these ready";
-                the prize lives in the title now (reviewer, 2026-10-08) */}
-            <p className="fw-enter-ready">Have these ready</p>
-            <ol className="fw-enter-list">
-              <li>A live link anyone can open for free</li>
-              <li>Your Bolt project link</li>
-              {/* optional since 2026-10-09 (rules still say required — legal) */}
-              <li>Optional: a short demo video on YouTube or X</li>
-            </ol>
-          </aside>
-          <div className="fw-form-card fw-form-card--wide">
-            <EntryForm />
-          </div>
-        </div>
+        <EnterBlock />
 
       </div>
     </section>
@@ -660,5 +638,43 @@ export function SiteFooter() {
         <span className="fw-footer-copy">© 2026 StackBlitz</span>
       </div>
     </footer>
+  );
+}
+
+/* The entry area: panel + form. Both flip to the closed state after Oct 20. */
+function EnterBlock() {
+  const closed = useEntriesClosed();
+  return (
+          <div className="fw-enter" id="enter">
+            <aside className="fw-enter-head sc-on-dark">
+              <PixelField wave={cornerWave} spacing={8} dot={2} opacity={0.6} className="fw-card-field is-on" color="140,190,255" />
+              <span className="fw-enter-badge">
+                <span className={closed ? 'fw-closed-dot' : 'fw-live-dot'} aria-hidden="true" />
+                {closed ? 'Entries closed Oct 20' : 'Entries open Oct 13 – Oct 20'}
+              </span>
+              <h3 className="fw-enter-title">{closed ? 'Judging is underway' : 'Submit your project to compete for $10k'}</h3>
+              <p className="fw-enter-sub">
+                {closed
+                  ? 'Winners of the $10k grand prize, $5k and $2.5k are announced on or about Oct 31.'
+                  : 'One entry per builder. A business idea or a business you run, built in Bolt.'}
+              </p>
+              {/* prize card removed: it pulled focus from "Have these ready";
+                  the prize lives in the title now (reviewer, 2026-10-08) */}
+              {!closed && (
+                <>
+                  <p className="fw-enter-ready">Have these ready</p>
+                  <ol className="fw-enter-list">
+                    <li>A live link anyone can open for free</li>
+                    <li>Your Bolt project link</li>
+                    {/* optional since 2026-10-09 (rules still say required — legal) */}
+                    <li>Optional: a short demo video on YouTube or X</li>
+                  </ol>
+                </>
+              )}
+            </aside>
+            <div className="fw-form-card fw-form-card--wide">
+              <EntryForm />
+            </div>
+          </div>
   );
 }
