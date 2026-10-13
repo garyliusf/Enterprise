@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BOLT_URL, HOME_PATH } from '../config';
+import { asset, BOLT_URL, HOME_PATH, sessions, type Session } from '../config';
 import { GhostLink, NextSteps, reviewState } from './Forms';
 import { PixelField, type WaveFn } from './ui';
 
@@ -20,6 +20,58 @@ const burst: WaveFn = (c, r, t, phase, cols, rows) => {
    sessionStorage before redirecting here; without one (opened directly, or
    storage blocked) it shows a generic thank-you. ?entries=done previews the
    filled version off bolt.new. */
+/* host line for the thank-you list: the Q&A has two hosts (cropped from the
+   co-founder photo), the workshops one each */
+function hostOf(s: Session) {
+  if (s.photo) {
+    return {
+      name: 'Eric Simons & Albert Pai',
+      role: 'Co-founders, CEO and CTO',
+      photos: [asset('/people/eric-simons.webp'), asset('/people/albert-pai.webp')],
+    };
+  }
+  const [name, ...role] = s.host.split(', ');
+  return { name, role: role.join(', '), photos: s.hostPhoto ? [s.hostPhoto] : [] };
+}
+
+function UpcomingSessions() {
+  /* only sessions still ahead (client clock; this page is client-rendered) */
+  const now = Date.now();
+  const list = sessions.filter((s) => s.url && (!s.end || Date.parse(s.end) > now));
+  if (!list.length) return null;
+  return (
+    <div className="fw-thanks-sessions">
+      {list.map((s) => {
+        const h = hostOf(s);
+        return (
+          <a key={s.title} className="fw-thanks-session" href={s.url} target="_blank" rel="noopener">
+            <span className="fw-thanks-session-when">{s.day} · {s.time}</span>
+            <span className="fw-thanks-session-title">{s.title}</span>
+            <span className="fw-thanks-session-foot">
+              <span className="fw-session-host">
+                <span className={`fw-host-avatars${h.photos.length > 1 ? ' is-pair' : ''}`} aria-hidden="true">
+                  {h.photos.map((src) => (
+                    <span key={src} className="fw-host-avatar">
+                      <img src={src} alt="" loading="lazy" decoding="async" />
+                    </span>
+                  ))}
+                </span>
+                <span className="fw-host-text">
+                  <span className="fw-host-name">{h.name}</span>
+                  {h.role && <span className="fw-host-role">{h.role}</span>}
+                </span>
+              </span>
+              <span className="fw-text-link fw-session-rsvp">
+                RSVP <i className="fw-arrow" aria-hidden="true" />
+              </span>
+            </span>
+          </a>
+        );
+      })}
+    </div>
+  );
+}
+
 export function Thanks() {
   const [entry, setEntry] = useState<Entry | null>(null);
   const [ready, setReady] = useState(false);
@@ -108,19 +160,11 @@ export function Thanks() {
       </div>
 
       <section className="fw-thanks-wait" aria-label="While you wait">
-        <p className="fw-state-label">While you wait</p>
-        <div className="fw-thanks-links">
-          <a className="fw-thanks-link" href={HOME_PATH + '#schedule'}>
-            <span className="fw-thanks-link-title">Join the live sessions</span>
-            <span className="fw-thanks-link-desc">SEO, growth and design workshops with the Bolt team, Oct 20 to 23.</span>
-            <i className="fw-arrow" aria-hidden="true" />
-          </a>
-          <a className="fw-thanks-link" href={HOME_PATH}>
-            <span className="fw-thanks-link-title">Back to Builders Week</span>
-            <span className="fw-thanks-link-desc">The free build weekend, the prizes and past winners.</span>
-            <i className="fw-arrow" aria-hidden="true" />
-          </a>
-        </div>
+        <p className="fw-state-label">While you wait, join a live session</p>
+        <UpcomingSessions />
+        <a className="fw-text-link fw-thanks-back" href={HOME_PATH}>
+          Back to Builders Week <i className="fw-arrow" aria-hidden="true" />
+        </a>
       </section>
     </main>
   );
