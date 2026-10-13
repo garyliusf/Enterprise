@@ -1,5 +1,5 @@
 import type React from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { BOLT_URL, competition, faqs, footerCta, pastWinners, sessions, templates, TERMS_PATH, timeline, weekend, type Session } from '../config';
 import { EntryForm } from './Forms';
 import { BgVideo, Btn, BoltLogo, HoverField, PixelField, PixelIcon, PixelRise, SectionHeader, Tbc, type WaveFn } from './ui';
@@ -67,6 +67,14 @@ function CalendarDate({ label, next, tbc }: { label: string; next?: boolean; tbc
   );
 }
 
+/* Bold the free weekend model wherever it's named (Gary, 2026-10-13). */
+const MODEL = 'GLM 5.3 Flash';
+function boldModel(text: string): ReactNode {
+  const parts = text.split(MODEL);
+  if (parts.length === 1) return text;
+  return parts.flatMap((p, i) => (i ? [<strong key={i} className="fw-model">{MODEL}</strong>, p] : [p]));
+}
+
 /* index of the first milestone whose (last) day hasn't passed yet */
 function nextMilestone(): number {
   const now = Date.now();
@@ -99,7 +107,7 @@ export function Timeline() {
               </div>
               <CalendarDate label={m.date} next={i === nextIdx} tbc={m.tbc} />
               <h3 className="how-step-title">{m.title}</h3>
-              <p className="how-step-desc">{m.body}</p>
+              <p className="how-step-desc">{boldModel(m.body)}</p>
             </div>
           ))}
         </HowSteps>
@@ -155,7 +163,7 @@ export function Weekend() {
     <section className="fw-section fw-section--weekend" id="weekend">
       <div className="fw-inner">
         {/* First section after the hero: static H2, no reveal (CLAUDE.md). */}
-        <SectionHeader center eyebrow={weekend.eyebrow} title={weekend.title} subtitle={weekend.subtitle} reveal={false} />
+        <SectionHeader center eyebrow={weekend.eyebrow} title={weekend.title} subtitle={boldModel(weekend.subtitle)} reveal={false} />
         <div className="fw-mosaic" ref={mosaic}>
           {MOSAIC.map((t, n) => {
             const style = { '--n': n } as React.CSSProperties;
@@ -190,7 +198,7 @@ export function Weekend() {
           })}
         </div>
         {weekend.partner.show && <p className="fw-partner">{weekend.partner.line}</p>}
-        <p className="fw-fine">{weekend.finePrint}</p>
+        <p className="fw-fine">{boldModel(weekend.finePrint)}</p>
       </div>
     </section>
   );
@@ -593,7 +601,7 @@ export function Faq() {
                 </span>
               </button>
               <div className="ms-faq-a">
-                <div className="ms-faq-a-inner">{f.a}</div>
+                <div className="ms-faq-a-inner">{boldModel(f.a)}</div>
               </div>
             </div>
           ))}
