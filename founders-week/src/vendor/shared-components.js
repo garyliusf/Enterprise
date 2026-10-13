@@ -161,7 +161,12 @@
   function attach(btn, varName, fallback) {
     // Production: the Header/Footer are React islands that SSR a .hero-btn-primary and hydrate later; mutating that
     // button here races React (#418/#423, BOLT-825). No-op on the static sandbox pages. Carried by tools/build-careers-body.py.
-    if (btn.closest && btn.closest('astro-island, .mkt-nav-shell')) return;
+    /* BUILDERS WEEK DEVIATION: the whole campaign page is one React island,
+       and this script runs from its useEffect, i.e. AFTER hydration, so there
+       is no race. Skipping every astro-island left the page with the old
+       slide-up hover and no pixels on bolt.new (2026-10-13). Only the site
+       nav keeps the guard. */
+    if (btn.closest && btn.closest('.mkt-nav-shell')) return;
     if (btn.__pixelized) return;
     btn.__pixelized = true;
     btn.classList.add('btn-pixelized');
