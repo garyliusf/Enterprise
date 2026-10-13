@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { asset, BOLT_URL, HOME_PATH, sessions, type Session } from '../config';
 import { GhostLink, NextSteps, reviewState } from './Forms';
-import { PixelField, type WaveFn } from './ui';
+import { BgVideo, PixelField, type WaveFn } from './ui';
 
 type Entry = { name: string; project: string; url: string; email: string; at: number };
 
@@ -99,7 +99,13 @@ export function Thanks() {
 
   return (
     <main className="fw-thanks">
-      <PixelField wave={burst} spacing={9} dot={2} opacity={0.55} className="fw-thanks-field" color="20,136,252" />
+      {/* blue band: the hero gradient video + a white pixel burst; the check,
+          headline and summary sit on it, the receipt card overlaps its foot */}
+      <div className="fw-thanks-band" aria-hidden="true">
+        <BgVideo name="hero" className="fw-thanks-video" />
+        <span className="fw-grain" />
+        <PixelField wave={burst} spacing={9} dot={2} opacity={0.7} className="fw-thanks-field" color="255,255,255" />
+      </div>
       <div className={`fw-thanks-inner${ready ? ' is-ready' : ''}`}>
         <svg className="fw-state-check fw-thanks-check" viewBox="0 0 48 48" aria-hidden="true">
           <circle cx="24" cy="24" r="22" />
