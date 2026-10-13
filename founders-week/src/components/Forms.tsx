@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
-import { BOLT_URL, TERMS_PATH } from '../config';
+import { BOLT_URL, TERMS_PATH, THANKS_PATH } from '../config';
 import { DuplicateError, isPreview, submitEntry } from '../lib/api';
 
 type Status = 'idle' | 'sending' | 'done' | 'error';
@@ -62,7 +62,7 @@ const JUDGING_ENDS = Date.parse('2026-10-31T06:59:59Z');
 
 /* Review override, never on bolt.new: ?entries=closed or ?entries=done shows
    that state without waiting for the date or submitting. */
-function reviewState(): 'closed' | 'done' | null {
+export function reviewState(): 'closed' | 'done' | null {
   if (typeof window === 'undefined' || /(^|\.)bolt\.new$/.test(window.location.hostname)) return null;
   const v = new URLSearchParams(window.location.search).get('entries');
   return v === 'closed' || v === 'done' ? v : null;
@@ -82,7 +82,7 @@ export function useEntriesClosed() {
 }
 
 /* What happens after you enter: three dated steps, the current one lit. */
-function NextSteps({ closed }: { closed: boolean }) {
+export function NextSteps({ closed }: { closed: boolean }) {
   const judging = closed && Date.now() < JUDGING_ENDS;
   const steps = [
     { when: 'Oct 20', what: 'Submissions close', state: closed ? 'done' : 'now' },
@@ -102,7 +102,7 @@ function NextSteps({ closed }: { closed: boolean }) {
   );
 }
 
-function GhostLink({ href, children }: { href: string; children: string }) {
+export function GhostLink({ href, children }: { href: string; children: string }) {
   return (
     <a className="hero-btn-ghost fw-state-ghost" href={href} target="_blank" rel="noopener">
       <div className="btn-bg-hover" />
@@ -257,6 +257,16 @@ export function EntryForm() {
         team_name: v.team_name.trim() || undefined,
         social_handle: v.social_handle.trim() || undefined,
       });
+      /* the thank-you page reads this back (a real URL: refresh-safe, trackable) */
+      try {
+        sessionStorage.setItem(
+          'bw-entry',
+          JSON.stringify({ name: v.name.trim(), project: v.product_name.trim(), url: v.product_url.trim(), email: v.email.trim(), at: Date.now() }),
+        );
+      } catch {
+        /* storage blocked: the page falls back to a generic thank-you */
+      }
+      window.location.assign(THANKS_PATH);
       setStatus('done');
     } catch (err) {
       if (err instanceof DuplicateError) {

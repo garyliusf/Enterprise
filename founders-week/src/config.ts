@@ -20,6 +20,9 @@ export const asset = (p: string) => import.meta.env.BASE_URL + p.replace(/^\//, 
 
 export const BOLT_URL = 'https://bolt.new/?utm_source=founders-week&utm_medium=landing';
 export const TERMS_PATH = asset('/terms/');
+/* post-submission thank-you page (the form redirects here) */
+export const THANKS_PATH = asset('/thanks/');
+export const HOME_PATH = asset('/');
 
 export const hero = {
   eyebrow: 'Builders Week · Oct 17–24',

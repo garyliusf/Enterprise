@@ -4,10 +4,13 @@ import { Nav } from './components/Nav';
 import { Competition, Faq, FooterCta, FooterZone, Schedule, SiteFooter, Templates, Timeline, Weekend } from './components/Sections';
 import { Terms } from './components/Terms';
 import { ThemeSwitch } from './components/ThemeSwitch';
-import { TERMS_PATH } from './config';
+import { TERMS_PATH, THANKS_PATH } from './config';
+import { Thanks } from './components/Thanks';
 
 export default function App() {
-  const isTerms = window.location.pathname.replace(/\/$/, '') === TERMS_PATH.replace(/\/$/, '');
+  const path = window.location.pathname.replace(/\/$/, '');
+  const isTerms = path === TERMS_PATH.replace(/\/$/, '');
+  const isThanks = path === THANKS_PATH.replace(/\/$/, '');
 
   /* shared-components.js scans the DOM once when it runs (pixel-fill button
      hovers, FAQ open-state canvases, eyebrow scramble, heading word reveal),
@@ -15,6 +18,19 @@ export default function App() {
   useEffect(() => {
     import('./vendor/shared-components.js');
   }, []);
+
+  if (isThanks) {
+    return (
+      <>
+        <Nav overHero={false} />
+        <Thanks />
+        <FooterZone compact>
+          <SiteFooter />
+        </FooterZone>
+        <ThemeSwitch />
+      </>
+    );
+  }
 
   if (isTerms) {
     return (
