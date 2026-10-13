@@ -24,8 +24,8 @@ export function Terms() {
   return (
     <main className="fw-terms">
       <header className="fw-terms-head">
-        <span className="section-eyebrow">Builder’s Week · Official Rules</span>
-        <h1 className="fw-terms-h1">Bolt’s Builder’s Week Contest Terms and Conditions</h1>
+        <span className="section-eyebrow">Builders Week · Official Rules</span>
+        <h1 className="fw-terms-h1">Bolt’s Builders Week Contest Terms and Conditions</h1>
         <dl className="fw-terms-facts">
           <div><dt>Submissions</dt><dd>Oct 13 – Oct 20, 2026</dd></div>
           <div><dt>Judging</dt><dd>Oct 21 – Oct 31, 2026</dd></div>
@@ -399,12 +399,12 @@ export function Terms() {
         <p>
           To obtain the names of the winners, <a href="https://bolt.new/founders-week">https://bolt.new/founders-week</a> or
           send a request, within ninety (90) days after winners are announced, to{' '}
-          <a href="mailto:legal@stackblitz.com">legal@stackblitz.com</a> with the subject line “Bolt’s Builder’s Week Contest
+          <a href="mailto:legal@stackblitz.com">legal@stackblitz.com</a> with the subject line “Bolt’s Builders Week Contest
           Winners List.”
         </p>
 
         <a className="fw-text-link fw-terms-back" href={asset('/')}>
-          Back to Builder’s Week <i className="fw-arrow" aria-hidden="true" />
+          Back to Builders Week <i className="fw-arrow" aria-hidden="true" />
         </a>
       </article>
       </div>

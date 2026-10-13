@@ -2,7 +2,7 @@
    BUILDER’S WEEK — every piece of copy and every date that is still moving
    lives here, so a decision lands as a one-line edit.
 
-   Copy rules for every Builder’s Week asset (from the launch page in Notion):
+   Copy rules for every Builders Week asset (from the launch page in Notion):
    - "Unlimited" in the headline, rate limits in the fine print.
    - No token counts. Never name a default model. Percentages only.
    - Say "open models" in public.
@@ -22,7 +22,7 @@ export const BOLT_URL = 'https://bolt.new/?utm_source=founders-week&utm_medium=l
 export const TERMS_PATH = asset('/terms/');
 
 export const hero = {
-  eyebrow: 'Builder’s Week · Oct 17–24',
+  eyebrow: 'Builders Week · Oct 17–24',
   /* Tagline is an open decision (Marketing drafts, Haily refines, CX signs
      off), and so is "Bolt" in front of the name. */
   /* Business-first messaging (2026-10-09): the week is for people starting
@@ -274,7 +274,7 @@ export const pastWinners = {
 
 export const faqs: { q: string; a: string }[] = [
   {
-    q: 'Who can take part in Builder’s Week?',
+    q: 'Who can take part in Builders Week?',
     a: 'Anyone with a Bolt account can join the build weekend and the sessions. The contest is open to individuals 18 and over, teams and organizations, with some exclusions listed in the official rules.',
   },
   {
@@ -293,7 +293,7 @@ export const faqs: { q: string; a: string }[] = [
 ];
 
 export const footerCta = {
-  eyebrow: 'Builder’s Week',
+  eyebrow: 'Builders Week',
   title: 'Your startup starts this weekend',
   subtitle: 'Build it in Bolt, submit it by Oct 20 and compete for the $10k grand prize.',
   cta: 'Compete for $10k',

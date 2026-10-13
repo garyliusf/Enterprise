@@ -85,7 +85,7 @@ export function Timeline() {
         <SectionHeader
           eyebrow="How the week runs"
           title="Build, learn, then show it off"
-          subtitle="Builder’s Week runs Oct 17 to 24: a free build weekend, a week of sessions, and a contest."
+          subtitle="Builders Week runs Oct 17 to 24: a free build weekend, a week of sessions, and a contest."
         />
         {/* The shared "How it works" step line (solutions/_template, bolt-cli):
             the line draws, a glow travels it, nodes pop and the copy rises in
@@ -226,7 +226,7 @@ function calendarLink(s: Session) {
     'https://calendar.google.com/calendar/render?action=TEMPLATE' +
     `&text=${encodeURIComponent(s.title)}` +
     `&dates=${gcalDate(s.start)}/${gcalDate(s.end)}` +
-    `&details=${encodeURIComponent(`${s.blurb}\n\nBuilder’s Week on Bolt.`)}`
+    `&details=${encodeURIComponent(`${s.blurb}\n\nBuilders Week on Bolt.`)}`
   );
 }
 
