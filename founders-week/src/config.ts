@@ -203,34 +203,38 @@ export type FounderTemplate = {
 export const templates = {
   tbc: false,
   items: [
-    {
-      name: 'Landscape Studio',
-      blurb: 'Rootline: an editorial site for a design-build landscape studio.',
-      url: 'https://bolt.new/p/71745514',
-      shot: asset('/templates/rootline.webp'),
-      tag: 'Services',
-    },
-    {
-      name: 'Lawn Care',
-      blurb: 'Mow Problems: instant quotes, plans and a service-area map.',
-      url: 'https://bolt.new/p/71745835',
-      shot: asset('/templates/mow.webp'),
-      tag: 'Services',
-    },
-    {
-      name: 'Plumbing',
-      blurb: 'Flow State Plumbing: services, booking and recent jobs.',
-      url: 'https://bolt.new/p/71752787',
-      shot: asset('/templates/plumbing.webp'),
-      tag: 'Services',
-    },
-    {
-      name: 'HVAC Company',
-      blurb: 'Comfort Co.: heating and cooling services, plans and reviews.',
-      url: 'https://bolt.new/p/71752020',
-      shot: asset('/templates/hvac.webp'),
-      tag: 'Services',
-    },
+    /* HIDDEN 2026-10-14 (Gary): these four are private Bolt projects (bolt.new/p/…),
+       so visitors hit login or "Request access". Restore once the owner makes them
+       shareable or they get public fork links; shots stay in templates/.
+        {
+          name: 'Landscape Studio',
+          blurb: 'Rootline: an editorial site for a design-build landscape studio.',
+          url: 'https://bolt.new/p/71745514',
+          shot: asset('/templates/rootline.webp'),
+          tag: 'Services',
+        },
+        {
+          name: 'Lawn Care',
+          blurb: 'Mow Problems: instant quotes, plans and a service-area map.',
+          url: 'https://bolt.new/p/71745835',
+          shot: asset('/templates/mow.webp'),
+          tag: 'Services',
+        },
+        {
+          name: 'Plumbing',
+          blurb: 'Flow State Plumbing: services, booking and recent jobs.',
+          url: 'https://bolt.new/p/71752787',
+          shot: asset('/templates/plumbing.webp'),
+          tag: 'Services',
+        },
+        {
+          name: 'HVAC Company',
+          blurb: 'Comfort Co.: heating and cooling services, plans and reviews.',
+          url: 'https://bolt.new/p/71752020',
+          shot: asset('/templates/hvac.webp'),
+          tag: 'Services',
+        },
+    */
     /* The first 8 of the templates catalog (marketing/templates), in catalog
        order. Names, tags and shots are the catalog's; the "Open in Bolt" fork
        links are production's (bolt-public-pages src/content/templates/*.json). */
