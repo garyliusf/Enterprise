@@ -197,44 +197,21 @@ export type FounderTemplate = {
   tag?: string;
 };
 
-/* Founder templates (Bolt share links from Gary, 2026-10-07). Shots are
-   full-page captures of each project's preview at 1440px, cropped to the
-   templates catalog's 800x2245 format. */
 export const templates = {
   tbc: false,
   items: [
-    /* HIDDEN 2026-10-14 (Gary): these four are private Bolt projects (bolt.new/p/…),
-       so visitors hit login or "Request access". Restore once the owner makes them
-       shareable or they get public fork links; shots stay in templates/.
-        {
-          name: 'Landscape Studio',
-          blurb: 'Rootline: an editorial site for a design-build landscape studio.',
-          url: 'https://bolt.new/p/71745514',
-          shot: asset('/templates/rootline.webp'),
-          tag: 'Services',
-        },
-        {
-          name: 'Lawn Care',
-          blurb: 'Mow Problems: instant quotes, plans and a service-area map.',
-          url: 'https://bolt.new/p/71745835',
-          shot: asset('/templates/mow.webp'),
-          tag: 'Services',
-        },
-        {
-          name: 'Plumbing',
-          blurb: 'Flow State Plumbing: services, booking and recent jobs.',
-          url: 'https://bolt.new/p/71752787',
-          shot: asset('/templates/plumbing.webp'),
-          tag: 'Services',
-        },
-        {
-          name: 'HVAC Company',
-          blurb: 'Comfort Co.: heating and cooling services, plans and reviews.',
-          url: 'https://bolt.new/p/71752020',
-          shot: asset('/templates/hvac.webp'),
-          tag: 'Services',
-        },
-    */
+    /* Business templates, public fork links (Gary, 2026-10-14). They replace
+       the private bolt.new/p/ share links, which sent visitors to login or
+       "Request access". Shots: full-page captures at 1440px, cropped to the
+       catalog's 800x2245. */
+    { name: 'Landscape Studio', blurb: 'Rootline: an editorial site for a design-build landscape studio.', url: 'https://bolt.new/fork/sb1-nkwmdgm3', shot: asset('/templates/rootline.webp'), tag: 'Services' },
+    { name: 'Lawn Care', blurb: 'Mow Problems: instant quotes, plans and a service-area map.', url: 'https://bolt.new/fork/sb1-vipe17ab', shot: asset('/templates/mow.webp'), tag: 'Services' },
+    { name: 'Plumbing', blurb: 'Flow State Plumbing: services, booking and recent jobs.', url: 'https://bolt.new/fork/sb1-v6i8qmpp', shot: asset('/templates/plumbing.webp'), tag: 'Services' },
+    { name: 'HVAC Company', blurb: 'Comfort Co.: heating and cooling services, plans and reviews.', url: 'https://bolt.new/fork/sb1-mvfl725s', shot: asset('/templates/hvac.webp'), tag: 'Services' },
+    { name: 'Construction', blurb: 'Northfield Builders: services, projects and quotes.', url: 'https://bolt.new/fork/sb1-34h1wpsy', shot: asset('/templates/construction.webp'), tag: 'Services' },
+    { name: 'Home Cleaning', blurb: 'Clearwater: services, service area and quote requests.', url: 'https://bolt.new/fork/sb1-33phwvdj', shot: asset('/templates/cleaning.webp'), tag: 'Services' },
+    { name: 'Soda Shop', blurb: 'Groovy Gulp: a playful menu and build-your-own drinks.', url: 'https://bolt.new/fork/sb1-r5f2szok', shot: asset('/templates/soda.webp'), tag: 'Food & Drink' },
+    { name: 'Wedding Planner', blurb: 'Clara Hooshmand: real weddings, services and inquiries.', url: 'https://bolt.new/fork/sb1-xcpxwqz1', shot: asset('/templates/wedding.webp'), tag: 'Events' },
     /* The first 8 of the templates catalog (marketing/templates), in catalog
        order. Names, tags and shots are the catalog's; the "Open in Bolt" fork
        links are production's (bolt-public-pages src/content/templates/*.json). */
