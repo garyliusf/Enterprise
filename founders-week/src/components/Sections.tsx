@@ -172,12 +172,12 @@ export function Weekend() {
             if (t.k === 'p') {
               const ph = photos[t.i % photos.length];
               return (
-                <figure key={n} className="fw-mosaic-photo" style={style} aria-hidden="true">
+                <figure key={n} className="fw-mosaic-photo" style={style}>
                   {/* the button pixel-fill hover, scaled up: rises on hover, falls on leave */}
                   <PixelRise />
                   <img
                     src={ph.src}
-                    alt=""
+                    alt={ph.alt}
                     loading="lazy"
                     decoding="async"
                     className={'flip' in ph && ph.flip ? 'is-flipped' : undefined}
@@ -288,8 +288,8 @@ function FeaturedSession({ s }: { s: Session }) {
       </div>
       {s.photo && (
         <figure className="fw-feature-photo-wrap">
-          <div className="fw-feature-photo" aria-hidden="true">
-            <img src={s.photo} alt="" loading="lazy" decoding="async" />
+          <div className="fw-feature-photo">
+            <img src={s.photo} alt={s.photoCaption ? `${s.photoCaption}, Bolt’s co-founders` : ''} loading="lazy" decoding="async" />
           </div>
           {s.photoCaption && <figcaption className="fw-feature-caption">{s.photoCaption}</figcaption>}
         </figure>
@@ -312,8 +312,8 @@ function SessionHost({ s }: { s: Session }) {
   const initials = name.split(' ').map((w) => w[0]).join('').slice(0, 2);
   return (
     <span className="fw-session-host">
-      <span className="fw-host-avatar" aria-hidden="true">
-        {s.hostPhoto ? <img src={s.hostPhoto} alt="" loading="lazy" decoding="async" /> : initials}
+      <span className="fw-host-avatar" aria-hidden={s.hostPhoto ? undefined : true}>
+        {s.hostPhoto ? <img src={s.hostPhoto} alt={`Photo of ${name}`} loading="lazy" decoding="async" /> : initials}
       </span>
       <span className="fw-host-text">
         <span className="fw-host-name">{name}</span>
@@ -417,15 +417,15 @@ export function Templates() {
               rel="noopener"
               style={{ '--i': i } as React.CSSProperties}
             >
-              <div className="fw-tcard-preview" aria-hidden="true">
+              <div className="fw-tcard-preview">
                 {t.shot && t.fill ? (
-                  <img className="fw-tcard-fill" src={t.shot} alt="" loading="eager" decoding="async" />
+                  <img className="fw-tcard-fill" src={t.shot} alt={`Preview of the ${t.name} template`} loading="eager" decoding="async" />
                 ) : t.shot ? (
                   <div className="fw-tcard-shot-wrap">
                     <img
                       className="fw-tcard-shot"
                       src={t.shot}
-                      alt=""
+                      alt={`Preview of the ${t.name} template`}
                       width={t.w ?? 800}
                       height={t.h ?? 2245}
                       /* eager, like the catalog: a lazy shot inside a clipped,
@@ -471,10 +471,10 @@ function PastWinners() {
     <div className="fw-gallery">
       {pastWinners.items.map((w) => (
         <a key={w.name} className="fw-entry-card fw-winner" href={w.url} target="_blank" rel="noopener">
-          <span className="fw-winner-shot" aria-hidden="true">
-            <img src={w.img} alt="" loading="lazy" decoding="async" />
+          <span className="fw-winner-shot">
+            <img src={w.img} alt={`Screenshot of ${w.name}`} loading="lazy" decoding="async" />
             {/* same hover as the template cards: wash + pill rising from the foot */}
-            <span className="fw-tcard-overlay">
+            <span className="fw-tcard-overlay" aria-hidden="true">
               <span>View App</span>
             </span>
           </span>
@@ -541,7 +541,7 @@ export function Competition() {
         </div>
         <div className="fw-subhead fw-subhead--winners">
           <h3 className="fw-subhead-title">Past Winners</h3>
-          <p className="fw-subhead-sub">Pi Day’s grand-prize builds. Yours could be next.</p>
+          <p className="fw-subhead-sub">Winning builds from Pi Day. Yours could be next.</p>
         </div>
         <PastWinners />
 

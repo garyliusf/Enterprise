@@ -18,7 +18,7 @@
    subfolder (the GitHub Pages staging preview). */
 export const asset = (p: string) => import.meta.env.BASE_URL + p.replace(/^\//, '');
 
-export const BOLT_URL = 'https://bolt.new/?utm_source=founders-week&utm_medium=landing';
+export const BOLT_URL = 'https://bolt.new/?utm_source=builders-week&utm_medium=landing';
 export const TERMS_PATH = asset('/terms/');
 /* post-submission thank-you page (the form redirects here) */
 export const THANKS_PATH = asset('/thanks/');
@@ -93,12 +93,12 @@ export const weekend = {
   /* flip: mirror horizontally so the edge tiles face into the grid (only
      for shots with no visible text) */
   photos: [
-    { src: asset('/people/founder-laptop.webp'), focus: '62% 35%' },
-    { src: asset('/people/founder-terracotta.webp'), focus: '50% 38%' },
-    { src: asset('/people/founder-coffee.webp'), focus: '55% 32%' },
-    { src: asset('/people/founder-desk.webp'), focus: '58% 38%' },
-    { src: asset('/people/founder-apron.webp'), focus: '60% 18%' },
-    { src: asset('/people/founder-glasses.webp'), focus: '62% 30%' },
+    { src: asset('/people/founder-laptop.webp'), alt: 'A woman working on a laptop at a table full of potted herbs', focus: '62% 35%' },
+    { src: asset('/people/founder-terracotta.webp'), alt: 'A woman typing on a laptop against a terracotta wall', focus: '50% 38%' },
+    { src: asset('/people/founder-coffee.webp'), alt: 'A woman talking across her laptop in a bright café', focus: '55% 32%' },
+    { src: asset('/people/founder-desk.webp'), alt: 'A man working at a computer in his workshop', focus: '58% 38%' },
+    { src: asset('/people/founder-apron.webp'), alt: 'A shop owner in an apron thinking in front of his laptop', focus: '60% 18%' },
+    { src: asset('/people/founder-glasses.webp'), alt: 'A man in glasses and an apron reviewing notes at his counter', focus: '62% 30%' },
   ],
   /* Only shown once DigitalOcean confirms they are covering inference. */
   partner: { show: false, name: 'DigitalOcean', line: 'Free inference for the weekend is provided by DigitalOcean.' },
@@ -245,10 +245,10 @@ export const competition = {
     'No purchase necessary. Open to individuals 18 and over, teams and organizations, subject to the eligibility rules. One entry per entrant.',
 };
 
-/* Pi Day 2026 grand-prize winners, shown as past winners in the contest
+/* Pi Day 2026 winners, shown as past winners in the contest
    section (from piday.bolt.host). */
 export const pastWinners = {
-  label: 'Pi Day 2026 · Grand prize',
+  label: 'Pi Day 2026',
   items: [
     { name: 'Pi Symphony', url: 'https://pi-symphony.bolt.host/', img: asset('/winners/pi-symphony.webp') },
     { name: 'AI Stylist', url: 'https://ai-stylist-web-app-u-w5mq.bolt.host/', img: asset('/winners/ai-stylist.webp') },

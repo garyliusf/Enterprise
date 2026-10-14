@@ -27,11 +27,14 @@ function hostOf(s: Session) {
     return {
       name: 'Eric Simons & Albert Pai',
       role: 'Co-founders, CEO and CTO',
-      photos: [asset('/people/eric-simons.webp'), asset('/people/albert-pai.webp')],
+      photos: [
+        { src: asset('/people/eric-simons.webp'), alt: 'Photo of Eric Simons' },
+        { src: asset('/people/albert-pai.webp'), alt: 'Photo of Albert Pai' },
+      ],
     };
   }
   const [name, ...role] = s.host.split(', ');
-  return { name, role: role.join(', '), photos: s.hostPhoto ? [s.hostPhoto] : [] };
+  return { name, role: role.join(', '), photos: s.hostPhoto ? [{ src: s.hostPhoto, alt: `Photo of ${name}` }] : [] };
 }
 
 function UpcomingSessions() {
@@ -49,10 +52,10 @@ function UpcomingSessions() {
             <span className="fw-thanks-session-title">{s.title}</span>
             <span className="fw-thanks-session-foot">
               <span className="fw-session-host">
-                <span className={`fw-host-avatars${h.photos.length > 1 ? ' is-pair' : ''}`} aria-hidden="true">
-                  {h.photos.map((src) => (
-                    <span key={src} className="fw-host-avatar">
-                      <img src={src} alt="" loading="lazy" decoding="async" />
+                <span className={`fw-host-avatars${h.photos.length > 1 ? ' is-pair' : ''}`}>
+                  {h.photos.map((ph) => (
+                    <span key={ph.src} className="fw-host-avatar">
+                      <img src={ph.src} alt={ph.alt} loading="lazy" decoding="async" />
                     </span>
                   ))}
                 </span>
