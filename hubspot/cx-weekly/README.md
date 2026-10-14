@@ -83,8 +83,9 @@ Slower, but no CLI setup.
 
 | File | Used for |
 |---|---|
-| `hero-bg.jpg` | hero background (fades to black at the base) |
-| `nexal-dashboard.jpg` | hero product shot — **must be dark-edged**, it bleeds into the hero |
+| `hero-bg-dome.jpg` | hero background since 2026-10-14 — the light "dome": dark crown, blue rim, fades to light. Copy must stay in the top ~55% (it turns bright blue below that); the product image inside the hero supplies that height |
+| `hero-bg.jpg` | previous hero background (fades to black). Kept, never overwritten — already-sent emails still point at it |
+| `nexal-dashboard.jpg` | hero product shot — shown as a rounded card floating on the dome's blue rim |
 | `build-with-voice.jpg`, `maker-photo.jpg`, `bolt-templates.jpg`, `soulpress-app.jpg` | event images |
 | `callout-bg.jpg` | announcement-card texture (dark designs only) |
 | `wordmark-white.png` / `wordmark-grey.png` | header / footer logos (2x) |
