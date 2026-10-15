@@ -1,0 +1,58 @@
+<script>
+  export const config = {
+    componentType: 'content',
+    label: 'Bolt CX Event (No Image)',
+    presets: [{
+      icon: 'event_note',
+      label: 'Bolt CX Event (No Image)',
+      section: 'CX Weekly',
+      content: '<bolt-cx-event-text>Event title goes here</bolt-cx-event-text>',
+      description: 'Text-only event row for the Simple variant: title (click to edit), then date and RSVP link on one line, with a hairline above. No image to source each week. Add one per event.'
+    }]
+  };
+
+  export const props = Component.defineProps({
+    date: {
+      label: 'Date line',
+      section: 'Content',
+      schema: Component.props.string().optional().default('Thursday, August 27'),
+      defaultValue: 'Thursday, August 27',
+      type: 'text',
+      helpText: 'e.g. Thursday, August 27 · 10am PT. Clear to hide.',
+    },
+    'rsvp-url': {
+      label: 'RSVP link',
+      section: 'Action',
+      schema: Component.props.string().optional().default('https://bolt.new'),
+      defaultValue: 'https://bolt.new',
+      type: 'url',
+      helpText: 'Clear to hide the link.',
+    },
+    'rsvp-label': {
+      label: 'Link label',
+      section: 'Action',
+      schema: Component.props.string().optional().default('RSVP'),
+      defaultValue: 'RSVP',
+      type: 'text',
+    },
+  });
+
+  export const slots = Component.defineSlots({
+    default: { schema: Component.slots.text(), marks: [] },
+  });
+</script>
+
+<template>
+  <table #root role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:separate;width:100%;">
+    <tr><td style="background:#ffffff;padding:0 36px;font-family:'Schibsted Grotesk',Arial,sans-serif;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:100%;border-top:1px solid #E2E0DC;">
+        <tr><td style="padding:20px 0 22px;font-family:'Schibsted Grotesk',Arial,sans-serif;">
+          <div style="font-size:19px;font-weight:600;color:#000000;line-height:1.4;margin:0 0 6px;"><slot>Event title goes here</slot></div>
+          <div style="font-size:15px;font-weight:500;color:#666666;line-height:1.5;">
+            <span #if="props.date">${props.date}</span><span #if="props.date && props['rsvp-url']" style="color:#BDBAB5;">&nbsp;&nbsp;&middot;&nbsp;&nbsp;</span><a #if="props['rsvp-url']" :href="props['rsvp-url']" style="color:#1488FC;font-weight:600;text-decoration:none;">${props['rsvp-label']} <span style="letter-spacing:1px;">&rarr;</span></a>
+          </div>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</template>
