@@ -12,6 +12,7 @@ the canonical design source. Workspace: 224051.
 | `bolt-cx-heading` | 723cfd18-a1a5-4b4b-9434-5ed1e0035485 | heading text (inline) | 24px/500, 32/36/16 padding |
 | `bolt-cx-event` | 33029119-d0ff-462c-8284-258132131241 | title (inline), image, date, RSVP link/label | full-bleed image row, title/date/link styling, spacing |
 | `bolt-cx-event-text` | cd7a586e-91c0-4d74-b417-cd61d828fd63 | title (inline), date, RSVP link/label | no image: hairline above, date · RSVP on one line (Simple variant) |
+| `bolt-cx-feature` | b6733073-cd67-4959-9164-3c1171066eee | image (+alt, optional link), heading, subheading, body (inline), link label/URL | full-bleed image with 16px white gap above, type scale, arrow link |
 | `bolt-cx-tip` | 20783580-4cf8-4d15-8b2a-ec26cd363d32 | body (inline, bold/italic/link), eyebrow, title, prompt toggle/label/text, CTA | card border/radius, badge, composer chrome + glow, button |
 | `bolt-cx-signature` | 09285d3f-78a7-4f27-9da9-ea56b9490e1f | closing, signer | layout/centering |
 | `bolt-cx-footer` | c68924d3-9905-44c3-a65d-d1a94899b0e4 | nothing | everything (wordmark, socials, legal address, `{% unsubscribe_url %}`) |
@@ -27,6 +28,10 @@ Assembled email: node **76fd9d35-ae9b-4bd9-90df-5217a65e2387** ("CX Weekly — S
 (Design Studio)", is_template) — markup in `cx-weekly-simple-email.html`. Same as
 Variant A except the "Coming up next" rows use `bolt-cx-event-text`, so there is no
 event image to source each week (Linear: Emails: Template Variant (w/o Coming Up Next)).
+It also carries a `bolt-cx-feature` full-image block after the "You'll learn" list —
+example content is the Builders Week Q&A banner (copied from HubSpot's File Manager
+"Luma Workshop Thumb - Eric Pai QA (2).jpg" into Customer.io assets; local copy
+`../builders-week-qa-eric-albert.jpg`).
 
 ## Variant B (Musicbed all-dark canvas) — `bolt-cxd-*`
 
