@@ -1,3 +1,4 @@
+if (window.self !== window.top) { try { document.documentElement.classList.add('sc-embedded'); } catch (e) {} }
 /* ============================================================================
    SHARED COMPONENTS JS — behaviors for standardized components.
    Loaded at the end of <body> on each page.
@@ -573,6 +574,7 @@
   /* repo base = everything before /marketing/ or /solutions/ in the path */
   var base = location.pathname.replace(/(marketing|solutions|staging)\/.*$/, '');
   var css = document.createElement('style');
+  if (window.self !== window.top) return;
   css.id = 'sc-page-nav-style';
   css.textContent =
     '.sc-page-nav { position: fixed; right: 16px; bottom: 58px; z-index: 10001; font-family: var(--sc-font-sans, sans-serif); }' +
