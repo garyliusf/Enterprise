@@ -32,6 +32,7 @@
     var onSys = function (e) {
       var s = null; try { s = localStorage.getItem('sc-theme'); } catch (err) {}
       if (s) return;                                  /* explicit choice wins */
+      if (root.getAttribute('data-theme-locked')) return;
       root.setAttribute('data-theme', e.matches ? 'dark' : 'light');
       document.dispatchEvent(new CustomEvent('sc-themechange'));
     };
@@ -5116,7 +5117,7 @@ html[data-theme="light"] .footer-btn-noise { mix-blend-mode: multiply; }
   function apply(v, persist) {
     /* '' = System: drop the stored choice and follow the OS. The attribute is
        still stamped — it is never absent. */
-    root.setAttribute('data-theme', v || sysTheme());
+    root.setAttribute('data-theme', root.getAttribute('data-theme-locked') || v || sysTheme());
     btns.forEach(function (b) {
       b.setAttribute('aria-pressed', String(b.getAttribute('data-theme-set') === v));
     });
