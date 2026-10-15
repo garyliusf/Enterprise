@@ -11,6 +11,7 @@
 (function () {
   var root = document.documentElement, stored = null;
   try { stored = localStorage.getItem('sc-theme'); } catch (e) {}
+  try { var q = new URLSearchParams(location.search).get('theme'); if ((q === 'light' || q === 'dark') && window.self !== window.top) stored = q; } catch (e) {}
   var t = stored || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
   root.setAttribute('data-theme', t);
   if (!stored && window.matchMedia) {
@@ -66,6 +67,7 @@ body { background: var(--sc-ground); font-family: var(--sc-font-sans, 'Schibsted
    gap rules differ per page and some sit in later stylesheets. */
 @media (max-width: 768px) { html body .hero-subtitle { margin-top: -8px !important; } }
 </style>
+<script>if(window.self!==window.top){try{if(new URLSearchParams(location.search).get('bare')==='1')document.documentElement.classList.add('sc-bare');}catch(e){}}</script>
 </head>
 <body>
 

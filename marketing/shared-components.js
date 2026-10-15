@@ -1,4 +1,4 @@
-if (window.self !== window.top) { try { document.documentElement.classList.add('sc-embedded'); } catch (e) {} }
+if (window.self !== window.top) { try { document.documentElement.classList.add('sc-embedded'); if (new URLSearchParams(location.search).get('bare') === '1') document.documentElement.classList.add('sc-bare'); } catch (e) {} }
 /* ============================================================================
    SHARED COMPONENTS JS — behaviors for standardized components.
    Loaded at the end of <body> on each page.
