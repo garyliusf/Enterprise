@@ -45,11 +45,11 @@ export const useCases = {
   subtitle: 'No two businesses are alike, so no two Bolt.new projects are either.',
   more: { label: 'See all use cases', href: 'https://bolt.new/use-cases' },
   items: [
-    { tag: 'Landscaping', title: 'Take quote requests with photos', body: 'Customers snap a photo of their yard and get a quote back the same day.', photo: asset('/people/founder-laptop.webp'), focus: '62% 35%', chip: { icon: 'camera', title: 'New quote request', sub: '2 photos · Backyard, 40 × 60 ft' } },
-    { tag: 'Restaurants', title: 'Take reservations without the fees', body: 'A booking page on your own domain, with reminders, instead of a cut of every table.', photo: asset('/people/founder-apron.webp'), focus: '60% 18%', chip: { icon: 'calendar', title: 'Reservation confirmed', sub: 'Tonight 7:30 · Party of 4' } },
-    { tag: 'Trades', title: 'Book jobs from your phone', body: 'A site that takes the call for you: services, availability and a deposit up front.', photo: asset('/people/founder-glasses.webp'), focus: '62% 30%', chip: { icon: 'phone', title: 'Job booked', sub: 'Tue 9:00 · $75 deposit paid' } },
-    { tag: 'Retail', title: 'Open an online store this week', body: 'Catalog, checkout and inventory that updates itself as orders come in.', photo: asset('/people/founder-terracotta.webp'), focus: '50% 38%', chip: { icon: 'cart', title: 'New order #1042', sub: '3 items · $86.40 · Inventory updated' } },
-    { tag: 'Agencies', title: 'Give every client a dashboard', body: 'Project status, files and messages in a portal your clients can log in to.', photo: asset('/people/founder-standing.webp'), focus: '50% 30%', chip: { icon: 'users', title: 'Client signed in', sub: 'Northline · 2 files shared' } },
+    { tag: 'Landscaping', title: 'Take quote requests with photos', body: 'Customers snap a photo of their yard and get a quote back the same day.', photo: asset('/people/founder-laptop.webp'), focus: '62% 35%' },
+    { tag: 'Restaurants', title: 'Take reservations without the fees', body: 'A booking page on your own domain, with reminders, instead of a cut of every table.', photo: asset('/people/founder-apron.webp'), focus: '60% 18%' },
+    { tag: 'Trades', title: 'Book jobs from your phone', body: 'A site that takes the call for you: services, availability and a deposit up front.', photo: asset('/people/founder-glasses.webp'), focus: '62% 30%' },
+    { tag: 'Retail', title: 'Open an online store this week', body: 'Catalog, checkout and inventory that updates itself as orders come in.', photo: asset('/people/founder-terracotta.webp'), focus: '50% 38%' },
+    { tag: 'Agencies', title: 'Give every client a dashboard', body: 'Project status, files and messages in a portal your clients can log in to.', photo: asset('/people/founder-standing.webp'), focus: '50% 30%' },
   ],
 };
 
