@@ -29,10 +29,10 @@ export const showcase: { rowA: ShowcaseCard[]; rowB: ShowcaseCard[] } = {
 
 /* ── Stats ──────────────────────────────────────────────────────────────── */
 export const stats = [
-  { value: '10M+', label: 'Builders on bolt.new' },
-  { value: '80%', label: 'Never shipped an app before' },
-  { value: '4.9/5', label: 'Average user rating' },
-  { value: '1 day', label: 'Idea to live site' },
+  { value: '10M+', label: 'builders on bolt.new' },
+  { value: '80%', label: 'never shipped an app before' },
+  { value: '4.9/5', label: 'average user rating' },
+  { value: '1 day', label: 'idea to live site' },
 ];
 
 /* ── Build anything: six use-case cards ────────────────────────────────────
