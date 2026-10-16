@@ -262,9 +262,14 @@
    must be loaded same-origin (or with crossorigin="anonymous") so getImageData
    can sample bright vertical strips from the wordmark.
    ============================================================================ */
-(function () {
-  var canvas = document.getElementById('bolt-shimmer-canvas');
-  if (!canvas || !canvas.getContext) return;
+/* HOME DEVIATION: wrapped in a named, re-callable init (window.__scShimmer)
+   because the footer is React-rendered and the IIFE used to look for the
+   canvas once, before it was in the DOM — so the wordmark never animated. */
+function __scShimmerInit_legacy() {
+  /* HOME: retired — vendor/wordmark-shimmer.js owns the canvas */
+  var canvas = null;
+  if (!canvas) return;
+  canvas.__shimmer = true;
   var wrap = canvas.parentElement;
   var img  = wrap && wrap.querySelector('img');
   if (!img) return;
@@ -365,7 +370,8 @@
     var r = wrap.getBoundingClientRect();
     W = canvas.width = r.width; H = canvas.height = r.height;
   });
-})();
+}
+__scShimmerInit_legacy();
 
 /* ============================================================================
    SCROLL ANIMATIONS — eyebrow scramble + word reveal

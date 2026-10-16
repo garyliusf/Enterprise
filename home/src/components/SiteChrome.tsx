@@ -29,5 +29,12 @@ export function SiteNav({ overHero = true }: { overHero?: boolean }) {
 
 export function SiteFooterStd() {
   const html = footerHtml.replace(/__WORDMARK__/g, asset('/footer/bolt-bottom-light.webp'));
+  /* the wordmark shimmer scans for its canvas when shared-components.js runs,
+     which is before this footer mounts: kick it once the canvas exists */
+  useEffect(() => {
+    const w = window as unknown as { __scShimmer?: () => void; __scWordmark?: { light: string; dark: string } };
+    w.__scWordmark = { light: asset('/footer/bolt-bottom-light.webp'), dark: asset('/footer/bolt-bottom-dark.webp') };
+    import('../vendor/wordmark-shimmer.js').then(() => w.__scShimmer?.());
+  }, []);
   return <div className="home-chrome" style={{ display: 'contents' }} dangerouslySetInnerHTML={{ __html: html }} />;
 }
