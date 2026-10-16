@@ -255,13 +255,22 @@ function SceneDeploy() {
   return (
     <div ref={ref} className={`hm-vis hm-scene hm-scene--deploy${on ? ' is-on' : ''}${typed ? ' is-typed' : ''}`} aria-hidden="true">
       <SceneGround at={5} />
-      {/* a Google-style search bar: magnifier, the domain, the Deploy/Live pill */}
+      {/* Google's search box: magnifier, the domain typing in, mic + Lens on
+          the right; below it the Google-style button, Deploy → Live */}
       <div className="hm-dep-url">
         <svg className="hm-dep-glass" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" strokeWidth="2" /><path d="M15.5 15.5L21 21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
         <span className="hm-dep-domain">
           {SITE.slice(0, n)}
           <i className={`hm-sc-caret${typed ? ' is-hidden' : ''}`} />
         </span>
+        <span className="hm-dep-icons" aria-hidden="true">
+          {/* mic */}
+          <svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z" fill="#4285f4" /><path d="M17 11a5 5 0 0 1-10 0" fill="none" stroke="#34a853" strokeWidth="2" strokeLinecap="round" /><path d="M12 16v3" stroke="#fbbc05" strokeWidth="2" strokeLinecap="round" /><path d="M8.5 19h7" stroke="#ea4335" strokeWidth="2" strokeLinecap="round" /></svg>
+          {/* lens */}
+          <svg viewBox="0 0 24 24"><path d="M4 9V6a2 2 0 0 1 2-2h3" fill="none" stroke="#4285f4" strokeWidth="2" strokeLinecap="round" /><path d="M15 4h3a2 2 0 0 1 2 2v3" fill="none" stroke="#ea4335" strokeWidth="2" strokeLinecap="round" /><path d="M20 15v3a2 2 0 0 1-2 2h-3" fill="none" stroke="#fbbc05" strokeWidth="2" strokeLinecap="round" /><path d="M9 20H6a2 2 0 0 1-2-2v-3" fill="none" stroke="#34a853" strokeWidth="2" strokeLinecap="round" /><circle cx="12" cy="12" r="3.2" fill="#4285f4" /></svg>
+        </span>
+      </div>
+      <div className="hm-dep-actions">
         <em className="hm-dep-btn">
           <span className="hm-dep-btn-label">Deploy</span>
           <span className="hm-dep-btn-done">Live</span>
