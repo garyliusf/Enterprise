@@ -1848,7 +1848,7 @@ a.fw-session-card { text-decoration: none; color: inherit; }
 .hm-vis { position: relative; min-height: 200px; padding: 40px; border-radius: 12px; background: #fff; display: flex; align-items: center; justify-content: center; isolation: isolate; }
 /* brand ground (Story.tsx SceneGround): the gradient clip as a corner glow + pixel field, under everything */
 .hm-scene > :not(.hm-scene-video, .hm-scene-grain, .hm-scene-field, .hm-sc-status, .hm-dep-badge) { position: relative; z-index: 2; }
-.hm-scene-video { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; opacity: 0.6; } /* 0.6 over the white card (Gary: 0.42 read faded, full strength too heavy): washed over the white card: the still at full strength read too heavy (Gary) */
+.hm-scene-video { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; } /* full strength: the LIGHTNESS is baked into the stills (shadows lifted, saturation kept) — any white fade over the card read muddy (Gary); washed over the white card: the still at full strength read too heavy (Gary) */
 /* a slight noise on the ground only: it sits under the visual (z 2) */
 .hm-scene-grain { z-index: 1; opacity: 0.75; mix-blend-mode: overlay; background-size: 90px 90px; }
 .hm-scene-field { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; pointer-events: none; }
@@ -2120,20 +2120,22 @@ a.fw-session-card { text-decoration: none; color: inherit; }
 }
 
 /* ── Customer stories: the testimonial rail (get-started / enterprise) ──── */
-.hm-rail { position: relative; border: 1px solid var(--sc-line); border-radius: 2px; overflow: hidden; background: var(--sc-ground);
-  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 12%, #000 88%, transparent 100%); mask-image: linear-gradient(to right, transparent 0%, #000 12%, #000 88%, transparent 100%); }
+.hm-rail { position: relative; border: 1px solid var(--sc-line); border-radius: 2px; overflow: hidden; background: var(--sc-ground); }
+/* the edge fade lives on the inner clip, so the corner pixel field stays crisp */
+.hm-rail-clip { position: relative; z-index: 1; overflow: hidden; -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 12%, #000 88%, transparent 100%); mask-image: linear-gradient(to right, transparent 0%, #000 12%, #000 88%, transparent 100%); }
 .hm-rail-track { display: flex; gap: 1px; width: max-content; background: var(--sc-line); animation: hm-rail 48s linear infinite; will-change: transform; }
 .hm-rail:hover .hm-rail-track { animation-play-state: paused; }
 @keyframes hm-rail { to { transform: translateX(calc(-100% / 3)); } }
 .hm-rail-card { position: relative; width: 360px; min-height: 420px; flex: none; margin: 0; padding: 56px 36px 40px; background: var(--sc-ground); display: flex; flex-direction: column; gap: 24px; overflow: hidden; isolation: isolate; }
-.hm-rail-card > :not(.hm-rail-field) { position: relative; z-index: 1; }
-.hm-rail-field { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; pointer-events: none; }
+.hm-rail-card > * { position: relative; z-index: 1; }
+/* the corner field sits over the (opaque) cards but under nothing — it's the blue dither at the rail's bottom-right */
+.hm-rail-field { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; pointer-events: none; }
 .hm-rail-quote { margin: 0; flex: 1; font-size: 22px; line-height: 1.5; color: var(--sc-text-desc); }
 .hm-rail-who { display: flex; flex-direction: column; gap: 3px; padding-top: 20px; border-top: 1px solid var(--sc-line-soft); }
 .hm-rail-name { font-size: 14px; font-weight: 600; color: var(--sc-ink); }
 .hm-rail-role { font-size: 13px; color: var(--sc-text-muted); }
 @media (prefers-reduced-motion: reduce) { .hm-rail-track { animation: none; } }
-@media (max-width: 768px) { .hm-rail-card { width: 290px; min-height: 0; padding: 36px 24px 28px; } .hm-rail-quote { font-size: 19px; line-height: 1.44; } .hm-rail { -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 6%, #000 94%, transparent 100%); mask-image: linear-gradient(to right, transparent 0%, #000 6%, #000 94%, transparent 100%); } }
+@media (max-width: 768px) { .hm-rail-card { width: 290px; min-height: 0; padding: 36px 24px 28px; } .hm-rail-quote { font-size: 19px; line-height: 1.44; } .hm-rail-clip { -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 6%, #000 94%, transparent 100%); mask-image: linear-gradient(to right, transparent 0%, #000 6%, #000 94%, transparent 100%); } }
 
 /* ── Templates rail (solutions.html .tmpl-*) ─────────────────────────────── */
 .hm-templates { overflow-x: clip; }
