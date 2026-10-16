@@ -200,10 +200,24 @@ function SceneSecure() {
   return (
     <div ref={ref} className={`hm-vis hm-scene hm-scene--secure${on ? ' is-on' : ''}`} aria-hidden="true">
       <SceneGround at={12} />
-      <MiniSite stage="scan" />
-      <i className="hm-scan-line" />
-      <span className="hm-scan-flag hm-scan-flag--found">1 issue found</span>
-      <span className="hm-scan-flag hm-scan-flag--fixed">Fixed · safe to publish</span>
+      {/* the site inside Bolt's own frame: a slim app bar with the project
+          name and the Publish button. After the fix the page dims + blurs
+          and Publish lights up (Gary: no green pill, the real button). */}
+      <div className="hm-app">
+        <div className="hm-app-bar">
+          <span className="hm-app-logo"><i className="hm-app-b" />bolt</span>
+          <span className="hm-app-proj">Paws &amp; Paths</span>
+          <span className="hm-app-pub">
+            <i className="hm-app-pub-dot" />Publish
+          </span>
+        </div>
+        <div className="hm-app-page">
+          <MiniSite stage="scan" />
+          <i className="hm-scan-line" />
+          <span className="hm-scan-flag hm-scan-flag--found">1 issue found</span>
+          <span className="hm-scan-flag hm-scan-flag--fixed">Fixed</span>
+        </div>
+      </div>
     </div>
   );
 }

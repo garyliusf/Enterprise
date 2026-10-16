@@ -1858,7 +1858,7 @@ a.fw-session-card { text-decoration: none; color: inherit; }
 .hm-step-body { margin: 14px 0 0; max-width: 520px; font-size: 16px; line-height: 1.6; color: var(--sc-text-desc); }
 .hm-vis { position: relative; min-height: 200px; padding: 40px; border-radius: 2px; background: var(--sc-surface-strong); border: 1px solid var(--sc-line); display: flex; align-items: center; justify-content: center; isolation: isolate; }
 /* brand ground (Story.tsx SceneGround): the gradient clip as a corner glow + pixel field, under everything */
-.hm-scene > :not(.hm-scene-video, .hm-scene-field, .hm-sc-status, .hm-scan-flag, .hm-scan-line, .hm-dep-badge) { position: relative; z-index: 2; }
+.hm-scene > :not(.hm-scene-video, .hm-scene-field, .hm-sc-status, .hm-dep-badge) { position: relative; z-index: 2; }
 .hm-scene-video { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 100%; pointer-events: none; filter: blur(8px) saturate(1.1); transform: scale(1.5); transform-origin: 50% 100%; opacity: 0.55;
   -webkit-mask-image: radial-gradient(ellipse 80% 75% at 100% 100%, #000 0%, rgba(0, 0, 0, 0.45) 40%, transparent 75%); mask-image: radial-gradient(ellipse 80% 75% at 100% 100%, #000 0%, rgba(0, 0, 0, 0.45) 40%, transparent 75%); }
 .hm-scene-field { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; pointer-events: none; }
@@ -2011,17 +2011,18 @@ a.fw-session-card { text-decoration: none; color: inherit; }
 
 /* 04 secure: scan line sweeps, the deposit row flags, then goes green */
 .hm-scene--secure { position: relative; }
-.hm-scan-line { position: absolute; left: 40px; right: 40px; top: 40px; height: 2px; background: linear-gradient(90deg, transparent, #1488FC, transparent); box-shadow: 0 0 18px 4px rgba(20, 136, 252, 0.35); opacity: 0; }
+.hm-scan-line { position: absolute; left: 0; right: 0; top: 0; height: 2px; background: linear-gradient(90deg, transparent, #1488FC, transparent); box-shadow: 0 0 18px 4px rgba(20, 136, 252, 0.35); opacity: 0; }
 .hm-scene--secure.is-on .hm-scan-line { animation: hm-scan 1.6s ease-in-out 0.3s 1 forwards; }
-@keyframes hm-scan { 0% { opacity: 0; top: 40px; } 8% { opacity: 1; } 92% { opacity: 1; } 100% { opacity: 0; top: calc(100% - 42px); } }
+@keyframes hm-scan { 0% { opacity: 0; top: 0; } 8% { opacity: 1; } 92% { opacity: 1; } 100% { opacity: 0; top: calc(100% - 2px); } }
 .hm-scene--secure .pp-slot { transition: box-shadow 0.3s ease, background 0.3s ease; }
 .hm-scene--secure.is-on .pp-slot { animation: hm-flag 2.6s ease 1.3s forwards; }
 @keyframes hm-flag { 0% { box-shadow: 0 0 0 0 transparent; } 15%, 55% { box-shadow: 0 0 0 2px #e0a100; background: rgba(224, 161, 0, 0.08); } 75%, 100% { box-shadow: 0 0 0 2px #0d9b7a; background: rgba(13, 155, 122, 0.08); } }
-.hm-scan-flag { position: absolute; right: 18px; top: 16px; padding: 6px 12px; border-radius: 999px; font: 700 10px/1 var(--sc-font-label); letter-spacing: 1.2px; text-transform: uppercase; opacity: 0; transform: translateY(-4px); }
+.hm-scan-flag { position: absolute; right: 12px; top: 12px; z-index: 3; padding: 6px 12px; border-radius: 999px; font: 700 10px/1 var(--sc-font-label); letter-spacing: 1.2px; text-transform: uppercase; opacity: 0; transform: translateY(-4px); }
 .hm-scan-flag--found { background: #fff5d6; color: #8a6200; border: 1px solid rgba(224, 161, 0, 0.4); }
 .hm-scan-flag--fixed { background: #e3f6ef; color: #0b6e57; border: 1px solid rgba(13, 155, 122, 0.4); }
 .hm-scene--secure.is-on .hm-scan-flag--found { animation: hm-flag-found 1.6s ease 1.7s forwards; }
-.hm-scene--secure.is-on .hm-scan-flag--fixed { animation: hm-flag-fixed 0.4s ease 3.3s forwards; }
+.hm-scene--secure.is-on .hm-scan-flag--fixed { animation: hm-flag-fixed-brief 1.4s ease 3.3s forwards; }
+@keyframes hm-flag-fixed-brief { 0% { opacity: 0; transform: translateY(-4px); } 25%, 70% { opacity: 1; transform: none; } 100% { opacity: 0; } }
 @keyframes hm-flag-found { 0% { opacity: 0; transform: translateY(-4px); } 15%, 85% { opacity: 1; transform: none; } 100% { opacity: 0; } }
 @keyframes hm-flag-fixed { to { opacity: 1; transform: none; } }
 :root[data-theme="dark"] .hm-scan-flag--found { background: rgba(224, 161, 0, 0.14); color: #ffd36a; }
@@ -2108,3 +2109,30 @@ a.fw-session-card { text-decoration: none; color: inherit; }
    is just the margin the wrapper would otherwise add) */
 .hm-step-copy .dsa-reveal { margin: 18px 0 0; }
 .hm-step-copy .dsa-reveal .hm-step-title { margin: 0; }
+
+/* ── scene 4: the Bolt app frame, dim + blur, Publish lights up ─────────── */
+.hm-app { width: 100%; border-radius: 2px; overflow: hidden; border: 1px solid var(--sc-line); background: #0b0c10; box-shadow: 0 10px 24px -16px rgba(2, 26, 87, 0.5); }
+.hm-app-bar { display: flex; align-items: center; gap: 12px; height: 34px; padding: 0 10px 0 12px; background: #0b0c10; color: #fff; }
+.hm-app-logo { display: inline-flex; align-items: center; gap: 5px; font: 800 12px/1 var(--sc-font-sans); letter-spacing: -0.3px; }
+.hm-app-b { width: 12px; height: 12px; border-radius: 2px; background: #1488FC; }
+.hm-app-proj { margin-right: auto; font-size: 11px; color: rgba(255, 255, 255, 0.6); padding-left: 12px; border-left: 1px solid rgba(255, 255, 255, 0.14); }
+.hm-app-pub { position: relative; display: inline-flex; align-items: center; gap: 7px; height: 24px; padding: 0 11px; border-radius: 2px; background: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.55); font: 600 11px/1 var(--sc-font-sans); transition: background 0.35s ease, color 0.35s ease, box-shadow 0.35s ease; }
+.hm-app-pub-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255, 255, 255, 0.3); transition: background 0.35s ease; }
+.hm-app-page { position: relative; padding: 10px; background: #15171c; overflow: hidden; }
+.hm-app-page .hm-ms { transition: filter 0.6s ease, opacity 0.6s ease, transform 0.6s ease; }
+/* the ending: page dims + blurs, Publish goes blue and glows, the dot pulses */
+.hm-scene--secure.is-on .hm-app-page .hm-ms { animation: hm-dim 0.7s ease 4.4s forwards; }
+@keyframes hm-dim { to { filter: blur(3px) brightness(0.55); opacity: 0.75; transform: scale(0.985); } }
+.hm-scene--secure.is-on .hm-app-pub { animation: hm-pub 0.5s ease 4.7s forwards; }
+@keyframes hm-pub { to { background: #1488FC; color: #fff; box-shadow: 0 0 0 4px rgba(20, 136, 252, 0.25), 0 8px 24px -6px rgba(20, 136, 252, 0.7); } }
+.hm-scene--secure.is-on .hm-app-pub-dot { animation: hm-pub-dot 0.4s ease 4.7s forwards, hm-pulse 1.4s ease-in-out 5.1s infinite; }
+@keyframes hm-pub-dot { to { background: #fff; } }
+/* a soft spotlight on the button once it's lit */
+.hm-app-bar::after { content: ''; position: absolute; right: 10px; top: 5px; width: 90px; height: 24px; border-radius: 2px; pointer-events: none; opacity: 0; background: radial-gradient(ellipse at 50% 50%, rgba(20, 136, 252, 0.35), transparent 70%); filter: blur(10px); }
+.hm-app-bar { position: relative; }
+.hm-scene--secure.is-on .hm-app-bar::after { animation: hm-flag-fixed 0.6s ease 4.7s forwards; }
+@media (prefers-reduced-motion: reduce) {
+  .hm-app-page .hm-ms { filter: blur(3px) brightness(0.55); opacity: 0.75; }
+  .hm-app-pub { background: #1488FC; color: #fff; } .hm-app-pub-dot { background: #fff; }
+  .hm-scan-flag--fixed { opacity: 0; }
+}
