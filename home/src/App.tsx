@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import { Hero } from './components/Hero';
 import { SiteFooterStd, SiteNav } from './components/SiteChrome';
-import { Competition, Faq, FooterCta, FooterZone, Schedule, Templates, Timeline, Weekend } from './components/Sections';
+import { FooterZone } from './components/Sections';
+import { Closing, Enterprise, Showcase, Stats, Steps, Stories, TemplatesHome, UseCases, WhatsNew } from './components/Home';
 import { Terms } from './components/Terms';
 import { ThemeSwitch } from './components/ThemeSwitch';
 import { TERMS_PATH, THANKS_PATH } from './config';
@@ -46,15 +47,17 @@ export default function App() {
       <SiteNav />
       <main>
         <Hero />
-        <Weekend />
-        <Timeline />
-        <Schedule />
-        <Competition />
-        <Templates />
-        <Faq />
+        <Showcase />
+        <Stats />
+        <UseCases />
+        <Stories />
+        <Steps />
+        <TemplatesHome />
+        <WhatsNew />
+        <Enterprise />
       </main>
       <FooterZone>
-        <FooterCta />
+        <Closing />
       </FooterZone>
       <SiteFooterStd />
       <ThemeSwitch />
