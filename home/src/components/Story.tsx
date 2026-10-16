@@ -13,6 +13,8 @@ import { BgVideo, PixelField, type WaveFn } from './ui';
 
 const PROMPT = 'A booking site for my dog walking business, with a calendar and deposits';
 const SITE = 'pawsandpaths.com';
+/* where the project lives while it's being built: Bolt's own hosting */
+const PREVIEW = 'pawsandpaths.bolt.host';
 
 /* brand ground for every scene panel: the small gradient clip (cards.*),
    blurred and masked to a corner glow like the session cards, with a blue
@@ -114,7 +116,7 @@ function MiniSite({ stage }: { stage: 'build' | 'scan' | 'live' }) {
     <div className={`hm-ms hm-ms--${stage}`}>
       <div className="hm-ms-bar">
         <i /><i /><i />
-        <span className="hm-ms-url">{stage === 'live' ? SITE : 'localhost:5173'}</span>
+        <span className="hm-ms-url">{stage === 'live' ? SITE : PREVIEW}</span>
       </div>
       <div className="pp">
         <div className="pp-nav" style={{ '--i': 0 } as React.CSSProperties}>
