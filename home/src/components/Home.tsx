@@ -118,16 +118,19 @@ export function UseCases() {
     <section className="fw-section hm-usecases" id="use-cases">
       <div className="fw-inner">
         <SectionHeader center eyebrow={useCases.eyebrow} title={useCases.title} subtitle={useCases.subtitle} />
-        <div className="hm-uc-grid">
+        {/* one large feature (photo beside the copy), five standard cards around it */}
+        <div className="hm-uc-grid" data-uc={typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('uc') || 'a' : 'a'}>
           {useCases.items.map((u, i) => (
-            <a key={u.title} className="fw-card hm-uc-card" href={useCases.more.href}>
+            <a key={u.title} className={`fw-card hm-uc-card${i === 0 ? ' hm-uc-card--feature' : ''}`} href={useCases.more.href}>
               <HoverField index={i} />
               <span className="hm-uc-photo">
                 <img src={u.photo} alt={`${u.tag}: ${u.title}`} loading="lazy" decoding="async" style={{ objectPosition: u.focus }} />
               </span>
-              <span className="hm-uc-tag">{u.tag}</span>
-              <span className="fw-card-title">{u.title}</span>
-              <span className="fw-card-desc">{u.body}</span>
+              <span className="hm-uc-copy">
+                <span className="hm-uc-tag">{u.tag}</span>
+                <span className="fw-card-title">{u.title}</span>
+                <span className="fw-card-desc">{u.body}</span>
+              </span>
             </a>
           ))}
         </div>

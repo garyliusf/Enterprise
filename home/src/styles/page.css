@@ -1811,6 +1811,21 @@ a.fw-session-card { text-decoration: none; color: inherit; }
 
 /* ── Use cases ────────────────────────────────────────────────────────── */
 .hm-uc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+/* the feature card spans two columns and lays photo beside copy (landscape) */
+.hm-uc-card--feature { grid-column: span 2; flex-direction: row !important; align-items: stretch; gap: 32px; padding: 18px; }
+/* A: the last card is a feature too, so 6 cards fill 2 + 1 / 3 / 1 + 2 with no orphan */
+.hm-uc-grid[data-uc="a"] .hm-uc-card:last-child { grid-column: span 2; flex-direction: row !important; align-items: stretch; gap: 32px; padding: 18px; }
+.hm-uc-grid[data-uc="a"] .hm-uc-card:last-child .hm-uc-photo { flex: 0 0 56%; aspect-ratio: auto; margin: 0; min-height: 300px; order: 2; }
+.hm-uc-grid[data-uc="a"] .hm-uc-card:last-child .hm-uc-copy { display: flex; flex-direction: column; justify-content: center; padding: 16px 0 16px 16px; }
+.hm-uc-grid[data-uc="a"] .hm-uc-card:last-child .fw-card-title { font-size: clamp(24px, 2.2vw, 30px); letter-spacing: -0.6px; line-height: 1.15; }
+.hm-uc-grid[data-uc="a"] .hm-uc-card:last-child .fw-card-desc { font-size: 16px; margin-top: 12px; }
+@media (max-width: 768px) { .hm-uc-grid[data-uc="a"] .hm-uc-card:last-child { grid-column: auto; flex-direction: column !important; gap: 0; padding: 18px 18px 28px; } .hm-uc-grid[data-uc="a"] .hm-uc-card:last-child .hm-uc-photo { flex: none; aspect-ratio: 16 / 10; min-height: 0; margin-bottom: 28px; order: 0; } .hm-uc-grid[data-uc="a"] .hm-uc-card:last-child .hm-uc-copy { padding: 0; } }
+.hm-uc-card--feature .hm-uc-photo { flex: 0 0 56%; aspect-ratio: auto; margin: 0; min-height: 300px; }
+.hm-uc-card--feature .hm-uc-copy { display: flex; flex-direction: column; justify-content: center; padding: 16px 16px 16px 0; }
+.hm-uc-card--feature .fw-card-title { font-size: clamp(24px, 2.2vw, 30px); letter-spacing: -0.6px; line-height: 1.15; }
+.hm-uc-card--feature .fw-card-desc { font-size: 16px; margin-top: 12px; }
+@media (max-width: 1024px) { .hm-uc-card--feature { grid-column: span 2; } }
+@media (max-width: 768px) { .hm-uc-card--feature { grid-column: auto; flex-direction: column; gap: 0; padding: 18px 18px 28px; } .hm-uc-card--feature .hm-uc-photo { flex: none; aspect-ratio: 16 / 10; min-height: 0; margin-bottom: 28px; } .hm-uc-card--feature .hm-uc-copy { padding: 0; } }
 .hm-uc-card { display: flex; flex-direction: column; padding: 18px 18px 28px; text-decoration: none; color: inherit; border-radius: 12px; }
 .hm-uc-photo { display: block; aspect-ratio: 16 / 10; border-radius: 8px; overflow: hidden; margin-bottom: 28px; background: var(--sc-surface-strong); }
 .hm-uc-photo img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.6s ease; }
@@ -1947,3 +1962,26 @@ a.fw-session-card { text-decoration: none; color: inherit; }
 .hm-stat-value .hm-char { display: inline-block; opacity: 0; will-change: transform, opacity, filter; }
 .hm-stat-value .hm-char.is-revealed { animation: hm-char-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
 @media (prefers-reduced-motion: reduce) { .hm-stat-value .hm-char { opacity: 1; animation: none; } }
+.hm-uc-copy { display: flex; flex-direction: column; }
+
+/* ── Use-case layout VARIANTS (review only, picked via ?uc=a|b|c|d) ─────── */
+/* B: equal cards, photo side alternates per card (zigzag) */
+.hm-uc-grid[data-uc="b"] { grid-template-columns: 1fr 1fr; }
+.hm-uc-grid[data-uc="b"] .hm-uc-card { flex-direction: row; align-items: stretch; gap: 24px; padding: 16px; }
+.hm-uc-grid[data-uc="b"] .hm-uc-card:nth-child(4n+2), .hm-uc-grid[data-uc="b"] .hm-uc-card:nth-child(4n+3) { flex-direction: row-reverse; }
+.hm-uc-grid[data-uc="b"] .hm-uc-photo { flex: 0 0 46%; aspect-ratio: auto; margin: 0; min-height: 200px; }
+.hm-uc-grid[data-uc="b"] .hm-uc-copy { justify-content: center; padding: 8px 8px 8px 0; }
+.hm-uc-grid[data-uc="b"] .hm-uc-card--feature { grid-column: auto; gap: 24px; padding: 16px; }
+.hm-uc-grid[data-uc="b"] .hm-uc-card--feature .fw-card-title { font-size: 18px; letter-spacing: -0.2px; line-height: 1.35; }
+.hm-uc-grid[data-uc="b"] .hm-uc-card--feature .fw-card-desc { font-size: 14px; margin-top: 8px; }
+/* D: photo as a dimmed full-bleed backdrop, copy on top */
+.hm-uc-grid[data-uc="d"] .hm-uc-card, .hm-uc-grid[data-uc="d"] .hm-uc-card--feature { flex-direction: column !important; }
+.hm-uc-grid[data-uc="d"] .hm-uc-card { position: relative; min-height: 360px; padding: 24px; justify-content: flex-end; grid-column: auto; flex-direction: column; overflow: hidden; }
+.hm-uc-grid[data-uc="d"] .hm-uc-photo { position: absolute; inset: 0; margin: 0; border-radius: 0; aspect-ratio: auto; }
+.hm-uc-grid[data-uc="d"] .hm-uc-photo::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(5, 8, 20, 0.92) 0%, rgba(5, 8, 20, 0.55) 45%, rgba(5, 8, 20, 0.1) 100%); }
+.hm-uc-grid[data-uc="d"] .hm-uc-copy { position: relative; z-index: 1; }
+.hm-uc-grid[data-uc="d"] .hm-uc-tag { color: #8cc4ff; }
+.hm-uc-grid[data-uc="d"] .fw-card-title { color: #fff; font-size: 20px; }
+.hm-uc-grid[data-uc="d"] .fw-card-desc { color: rgba(255, 255, 255, 0.78); }
+.hm-uc-grid[data-uc="d"] .hm-uc-card--feature .fw-card-title { font-size: 20px; letter-spacing: -0.2px; line-height: 1.3; }
+.hm-uc-grid[data-uc="d"] .hm-uc-card--feature .fw-card-desc { font-size: 14px; margin-top: 8px; }
