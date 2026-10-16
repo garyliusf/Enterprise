@@ -111,9 +111,9 @@ export const whatsNew = {
   title: 'Built to keep up with you.',
   subtitle: 'Bolt keeps shipping new ways to build. Here is what just landed.',
   items: [
-    { title: 'Showcase Slides', body: 'Turn any project into a polished slide deck, generated straight from what you already built.', link: { label: 'See Showcase Slides', href: 'https://bolt.new/blog' } },
-    { title: 'Security engineer', body: 'An automatic security review runs on every publish and fixes what it finds, with no setup.', link: { label: 'See the security engineer', href: 'https://bolt.new/platform/security' } },
-    { title: 'Dictation mode', body: 'Say your idea out loud instead of typing it. Bolt builds from your voice just as well.', link: { label: 'Try dictation', href: 'https://bolt.new/' } },
+    { title: 'Showcase Slides', body: 'Turn any project into a polished slide deck, generated straight from what you already built.', link: { label: 'See Showcase Slides', href: 'https://bolt.new/blog' }, cards: ['Generated from the project you already built', 'Every slide matches your brand and copy', 'Export to PDF or present from Bolt'] },
+    { title: 'Security engineer', body: 'An automatic security review runs on every publish and fixes what it finds, with no setup.', link: { label: 'See the security engineer', href: 'https://bolt.new/platform/security' }, cards: ['Runs on every publish, no setup', 'Finds and fixes issues before customers see them', 'Plain-language report of what changed'] },
+    { title: 'Dictation mode', body: 'Say your idea out loud instead of typing it. Bolt builds from your voice just as well.', link: { label: 'Try dictation', href: 'https://bolt.new/' }, cards: ['Describe the idea out loud, Bolt builds it', 'Works in the composer and in follow-ups', 'Available on every plan'] },
   ],
 };
 

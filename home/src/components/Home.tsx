@@ -152,12 +152,13 @@ export function Stories() {
       <div className="fw-inner">
         <SectionHeader eyebrow={stories.eyebrow} title={stories.title} subtitle={stories.subtitle} />
         <div className="hm-rail">
+          {/* light-blue pixels gathering in the rail's bottom-right corner (the
+              get-started rail's corner field), fixed to the rail, not a card */}
+          <PixelField wave={railWave} spacing={9} dot={2.5} opacity={0.55} className="hm-rail-field" color="120,180,252" />
+          <div className="hm-rail-clip">
           <div className="hm-rail-track">
             {loop.map((s, i) => (
               <figure key={i} className="hm-rail-card" aria-hidden={i >= stories.items.length ? true : undefined}>
-                {i % stories.items.length === stories.items.length - 1 && (
-                  <PixelField wave={railWave} spacing={9} dot={2} opacity={0.5} className="hm-rail-field" color="20,136,252" />
-                )}
                 <blockquote className="hm-rail-quote fw-serif">“{s.quote}”</blockquote>
                 <figcaption className="hm-rail-who">
                   <span className="hm-rail-name">{s.name}</span>
@@ -165,6 +166,7 @@ export function Stories() {
                 </figcaption>
               </figure>
             ))}
+          </div>
           </div>
         </div>
       </div>
@@ -175,8 +177,9 @@ export function Stories() {
 const railWave: WaveFn = (c, r, t, phase, cols, rows) => {
   const x = c / cols;
   const y = r / rows;
-  const d = Math.max(0, 1 - Math.hypot((1 - x) * 1.3, (1 - y) * 1.2));
-  return d * d * (Math.sin(x * 9 - y * 5 - t / 700 + phase) * 0.5 + 0.5);
+  /* a triangle of dots in the bottom-right corner that thickens toward it */
+  const d = Math.max(0, 1 - Math.hypot((1 - x) * 3.2, (1 - y) * 1.6));
+  return d * d * (Math.sin(x * 12 - y * 6 - t / 700 + phase) * 0.35 + 0.65);
 };
 
 /* ── How it works: five moves; the visuals are one animated story (Story.tsx) */
@@ -303,47 +306,110 @@ export function TemplatesHome() {
   );
 }
 
-/* ── New this month: a feature list, the active item lit, one visual ──── */
+/* ── New this month: the enterprise page's timed feature tabs ──────────
+   Left: stacked tabs, the active one lit with a noisy blue progress bar
+   that auto-advances; right: the slide (visual + three caption cells).
+   Shorter than enterprise's (tabs 150 / area 360 instead of 240 / 480).
+   On phones it stacks as cards with no timer. Visuals are placeholders. */
+const DURATION = 8000;
 const newWave: WaveFn = (c, r, t, phase, cols, rows) => {
   const x = c / cols - 0.5;
   const y = r / rows - 0.5;
   const d = Math.max(0, 1 - Math.hypot(x * 1.6, y * 1.6));
   return d * d * (Math.sin((x + y) * 10 - t / 600 + phase) * 0.5 + 0.5);
 };
+/* the enterprise bar: blue static that fills left→right (drawNoise) */
+function drawBar(canvas: HTMLCanvasElement, progress: number) {
+  const dpr = window.devicePixelRatio || 1;
+  const cssW = canvas.parentElement?.offsetWidth || 0;
+  const w = Math.round(cssW * dpr);
+  const h = Math.round(4 * dpr);
+  if (!w || !h) return;
+  if (canvas.width !== w || canvas.height !== h) {
+    canvas.width = w;
+    canvas.height = h;
+    canvas.style.width = cssW + 'px';
+    canvas.style.height = '4px';
+  }
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+  const fill = Math.round(w * progress);
+  const img = ctx.createImageData(w, h);
+  for (let x = 0; x < fill; x++) {
+    for (let y = 0; y < h; y++) {
+      const i = (y * w + x) * 4;
+      const n = (Math.random() - 0.5) * 90;
+      img.data[i] = Math.max(0, Math.min(255, 20 + n));
+      img.data[i + 1] = Math.max(0, Math.min(255, 136 + n));
+      img.data[i + 2] = Math.max(0, Math.min(255, 252 + n));
+      img.data[i + 3] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+}
 
 export function WhatsNew() {
   const [active, setActive] = useState(0);
-  const timer = useRef<number | null>(null);
-  /* rotates on its own every 5s; hovering an item pins it */
+  const bars = useRef<(HTMLCanvasElement | null)[]>([]);
+  const root = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    timer.current = window.setInterval(() => setActive((a) => (a + 1) % whatsNew.items.length), 5000);
-    return () => { if (timer.current) window.clearInterval(timer.current); };
-  }, []);
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const phone = window.matchMedia('(max-width: 768px)');
+    let raf = 0;
+    let start = 0;
+    let inView = false;
+    const io = new IntersectionObserver(([e]) => { inView = e.isIntersecting; if (inView) { start = 0; } }, { threshold: 0.2 });
+    if (root.current) io.observe(root.current);
+    const tick = (ts: number) => {
+      raf = requestAnimationFrame(tick);
+      if (!inView || phone.matches) return;
+      if (!start) start = ts;
+      const p = Math.min((ts - start) / DURATION, 1);
+      const cv = bars.current[active];
+      if (cv) drawBar(cv, p);
+      if (p >= 1) {
+        start = 0;
+        setActive((a) => (a + 1) % whatsNew.items.length);
+      }
+    };
+    bars.current.forEach((cv, i) => { if (cv && i !== active) cv.getContext('2d')?.clearRect(0, 0, cv.width, cv.height); });
+    if (reduce) {
+      const cv = bars.current[active];
+      if (cv) drawBar(cv, 1);
+      return () => io.disconnect();
+    }
+    raf = requestAnimationFrame(tick);
+    return () => { cancelAnimationFrame(raf); io.disconnect(); };
+  }, [active]);
   return (
     <section className="fw-section hm-new" id="whats-new">
       <div className="fw-inner">
         <SectionHeader center eyebrow={whatsNew.eyebrow} title={whatsNew.title} subtitle={whatsNew.subtitle} />
-        <div className="hm-new-layout">
-          <ul className="hm-new-list">
+        <div className="hm-ft" ref={root}>
+          <div className="hm-ft-nav">
             {whatsNew.items.map((n, i) => (
-              <li key={n.title} className={`hm-new-item${active === i ? ' is-active' : ''}`} onMouseEnter={() => setActive(i)}>
-                <button type="button" className="hm-new-head" onClick={() => setActive(i)} aria-expanded={active === i}>
-                  {n.title}
-                </button>
-                <p className="hm-new-body">{n.body}</p>
-                <a className="fw-text-link hm-new-link" href={n.link.href}>
-                  {n.link.label} <i className="fw-arrow" aria-hidden="true" />
-                </a>
-              </li>
+              <button key={n.title} type="button" className={`hm-ft-tab${active === i ? ' is-active' : ''}`} onClick={() => setActive(i)} aria-pressed={active === i}>
+                <span className="hm-ft-bar" aria-hidden="true"><canvas ref={(el) => { bars.current[i] = el; }} /></span>
+                <span className="hm-ft-title">{n.title}</span>
+                <span className="hm-ft-desc">
+                  {n.body}
+                  <a className="fw-text-link hm-ft-link" href={n.link.href}>{n.link.label} <i className="fw-arrow" aria-hidden="true" /></a>
+                </span>
+                <span className="hm-ft-mobile" aria-hidden="true">
+                  <span className="hm-ft-ph"><i /><i /><i /></span>
+                  <span className="hm-ft-cards">{n.cards.map((c) => <span key={c} className="hm-ft-card">{c}</span>)}</span>
+                </span>
+              </button>
             ))}
-          </ul>
-          <div className="hm-new-visual" aria-hidden="true">
-            <PixelField wave={newWave} spacing={9} dot={2} opacity={0.35} className="hm-new-field" color="20,136,252" />
-            <div className="hm-new-slides">
-              {[0, 1, 2].map((k) => (
-                <span key={k} className={`hm-new-slide${k === 1 ? ' is-lead' : ''}`} style={{ '--k': k, '--a': active } as React.CSSProperties} />
-              ))}
-            </div>
+          </div>
+          <div className="hm-ft-area" aria-hidden="true">
+            <PixelField wave={newWave} spacing={9} dot={2} opacity={0.4} className="hm-ft-field" />
+            {whatsNew.items.map((n, i) => (
+              <div key={n.title} className={`hm-ft-slide${active === i ? ' is-active' : ''}`}>
+                <span className="hm-ft-ph"><i /><i /><i /></span>
+                <span className="hm-ft-cards">{n.cards.map((c) => <span key={c} className="hm-ft-card">{c}</span>)}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
