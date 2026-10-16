@@ -255,7 +255,9 @@ function SceneDeploy() {
   return (
     <div ref={ref} className={`hm-vis hm-scene hm-scene--deploy${on ? ' is-on' : ''}${typed ? ' is-typed' : ''}`} aria-hidden="true">
       <SceneGround at={5} />
+      {/* a Google-style search bar: magnifier, the domain, the Deploy/Live pill */}
       <div className="hm-dep-url">
+        <svg className="hm-dep-glass" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" strokeWidth="2" /><path d="M15.5 15.5L21 21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
         <span className="hm-dep-domain">
           {SITE.slice(0, n)}
           <i className={`hm-sc-caret${typed ? ' is-hidden' : ''}`} />
