@@ -1,5 +1,6 @@
 import type React from 'react';
 import { useEffect, useRef, useState } from 'react';
+import { asset } from '../config';
 import { BgVideo, PixelField, type WaveFn } from './ui';
 
 /* ============================================================================
@@ -94,32 +95,56 @@ function SceneDescribe() {
   );
 }
 
-/* the little site, reused by scenes 2, 4 and 5 */
+/* Paws & Paths — the business site the story builds. Its OWN brand, not
+   Bolt's: forest green + cream, Fraunces display, a paw mark, a real photo.
+   Reused by scenes 2, 4 and 5. `--i` orders the build-in. */
+const PAW = asset('/story/paws-hero.webp');
+function PawMark() {
+  return (
+    <svg className="pp-mark" viewBox="0 0 24 24" aria-hidden="true">
+      <ellipse cx="7" cy="8" rx="2.3" ry="3" /><ellipse cx="12" cy="5.5" rx="2.3" ry="3" /><ellipse cx="17" cy="8" rx="2.3" ry="3" />
+      <path d="M12 10.5c-3.6 0-6.5 3.2-6.5 6.3 0 2 1.4 3.2 3.2 3.2 1.2 0 2.1-.6 3.3-.6s2.1.6 3.3.6c1.8 0 3.2-1.2 3.2-3.2 0-3.1-2.9-6.3-6.5-6.3z" />
+    </svg>
+  );
+}
 function MiniSite({ stage }: { stage: 'build' | 'scan' | 'live' }) {
+  const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  const cells = [null, null, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19];
   return (
     <div className={`hm-ms hm-ms--${stage}`}>
       <div className="hm-ms-bar">
         <i /><i /><i />
         <span className="hm-ms-url">{stage === 'live' ? SITE : 'localhost:5173'}</span>
       </div>
-      <div className="hm-ms-page">
-        <div className="hm-ms-nav" style={{ '--i': 0 } as React.CSSProperties}>
-          <b>Paws &amp; Paths</b>
-          <span /><span /><span />
-          <em>Book a walk</em>
+      <div className="pp">
+        <div className="pp-nav" style={{ '--i': 0 } as React.CSSProperties}>
+          <span className="pp-logo"><PawMark />Paws &amp; Paths</span>
+          <span className="pp-links"><i>Walks</i><i>Pricing</i><i>About</i></span>
+          <em className="pp-btn pp-btn--sm">Book a walk</em>
         </div>
-        <div className="hm-ms-hero" style={{ '--i': 1 } as React.CSSProperties}>
-          <b>Dog walks you can book in a minute.</b>
-          <span />
+        <div className="pp-hero" style={{ '--i': 1 } as React.CSSProperties}>
+          <div className="pp-hero-copy">
+            <span className="pp-kicker">Dog walking · Portland, OR</span>
+            <b>Happy dogs, every single day.</b>
+            <p>Solo and group walks around the neighborhood, booked online in a minute.</p>
+          </div>
+          <img src={PAW} alt="" loading="lazy" decoding="async" />
         </div>
-        <div className="hm-ms-cal" style={{ '--i': 2 } as React.CSSProperties}>
-          {Array.from({ length: 14 }, (_, k) => (
-            <i key={k} className={k === 9 ? 'is-picked' : k === 3 || k === 11 ? 'is-busy' : undefined} style={{ '--k': k } as React.CSSProperties} />
-          ))}
-        </div>
-        <div className="hm-ms-row" style={{ '--i': 3 } as React.CSSProperties}>
-          <span className="hm-ms-field">30 min · $25</span>
-          <em className="hm-ms-cta">Pay $10 deposit</em>
+        <div className="pp-book" style={{ '--i': 2 } as React.CSSProperties}>
+          <div className="pp-cal">
+            <span className="pp-cal-head"><b>October</b><i>‹ ›</i></span>
+            <span className="pp-cal-days">{days.map((d, k) => <i key={k}>{d}</i>)}</span>
+            <span className="pp-cal-grid">
+              {cells.map((d, k) => (
+                <i key={k} className={d === null ? 'is-blank' : d === 14 ? 'is-picked' : d === 8 || d === 11 ? 'is-full' : undefined} style={{ '--k': k } as React.CSSProperties}>{d ?? ''}</i>
+              ))}
+            </span>
+          </div>
+          <div className="pp-slot" style={{ '--i': 3 } as React.CSSProperties}>
+            <span className="pp-slot-row"><b>Tue, Oct 14</b><i>4:00 pm · 30 min</i></span>
+            <span className="pp-slot-row"><b>Solo walk</b><i>$25 · $10 deposit</i></span>
+            <em className="pp-btn">Pay deposit &amp; book</em>
+          </div>
         </div>
       </div>
     </div>
@@ -145,9 +170,9 @@ function SceneWired() {
   return (
     <div ref={ref} className={`hm-vis hm-scene hm-scene--wired${on ? ' is-on' : ''}`} aria-hidden="true">
       <SceneGround at={8} />
-      <div className="hm-wire-core">
-        <b>Paws &amp; Paths</b>
-        <span>your project</span>
+      <div className="hm-wire-core pp-core">
+        <span className="pp-logo"><PawMark />Paws &amp; Paths</span>
+        <span>pawsandpaths.com</span>
       </div>
       <div className="hm-wire-list">
         {items.map((w, i) => (
