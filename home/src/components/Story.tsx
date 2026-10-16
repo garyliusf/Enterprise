@@ -28,7 +28,9 @@ const groundWave: WaveFn = (c, r, t, phase, cols, rows) => {
 function SceneGround({ at }: { at: number }) {
   return (
     <>
-      <img src={asset(`/story/grad-${at}.webp`)} alt="" className="hm-scene-video" loading="lazy" decoding="async" />
+      {/* light: a sky-blue remap of the still (grad-light-N); dark: the clip as shot */}
+      <img src={asset(`/story/grad-light-${at}.webp`)} alt="" className="hm-scene-video hm-scene-video--light" loading="lazy" decoding="async" />
+      <img src={asset(`/story/grad-${at}.webp`)} alt="" className="hm-scene-video hm-scene-video--dark" loading="lazy" decoding="async" />
       <div className="fw-grain hm-scene-grain" aria-hidden="true" />
       <PixelField wave={groundWave} spacing={8} dot={2} opacity={0.3} className="hm-scene-field" color="255,255,255" />
     </>
