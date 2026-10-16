@@ -46,14 +46,55 @@ export function Showcase() {
 }
 
 /* ── Stats bar ─────────────────────────────────────────────────────────── */
+/* The template pages' stat char reveal (solutions/_template, from
+   microsoft.html): each character tumbles in from a random direction with a
+   blur, staggered ~60ms, once the bar is half in view. */
+const CHAR_FROMS = [
+  'translateY(-24px) rotate(-8deg)', 'translateY(24px) rotate(8deg)',
+  'translateX(-20px) translateY(-16px) rotate(12deg)', 'translateX(20px) translateY(-16px) rotate(-12deg)',
+  'scale(0.4) rotate(20deg)', 'scale(0.4) rotate(-20deg)', 'translateY(-30px)', 'translateY(30px)',
+];
+function useStatReveal<T extends HTMLElement>() {
+  const ref = useRef<T>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const chars = el.querySelectorAll<HTMLElement>('.hm-char');
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      chars.forEach((c) => c.classList.add('is-revealed'));
+      return;
+    }
+    const timers: number[] = [];
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (!e.isIntersecting) return;
+        chars.forEach((c, i) => {
+          c.style.setProperty('--char-from', CHAR_FROMS[Math.floor(Math.random() * CHAR_FROMS.length)]);
+          timers.push(window.setTimeout(() => c.classList.add('is-revealed'), (i * 0.06 + Math.random() * 0.04) * 1000));
+        });
+        io.disconnect();
+      },
+      { threshold: 0.5 },
+    );
+    io.observe(el);
+    return () => { io.disconnect(); timers.forEach(clearTimeout); };
+  }, []);
+  return ref;
+}
+
 export function Stats() {
+  const ref = useStatReveal<HTMLDListElement>();
   return (
     <section className="fw-section hm-stats-section" aria-label="Bolt by the numbers">
       <div className="fw-inner">
-        <dl className="hm-stats">
+        <dl className="hm-stats" ref={ref}>
           {stats.map((s) => (
             <div key={s.label} className="hm-stat">
-              <dt className="hm-stat-value">{s.value}</dt>
+              <dt className="hm-stat-value" aria-label={s.value}>
+                {s.value.split('').map((ch, i) => (
+                  ch === ' ' ? ' ' : <span key={i} className="hm-char" aria-hidden="true">{ch}</span>
+                ))}
+              </dt>
               <dd className="hm-stat-label">{s.label}</dd>
             </div>
           ))}
