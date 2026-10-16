@@ -2,6 +2,7 @@ import type React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { closing, enterprise, showcase, stats, steps, stories, templatesHome, useCases, whatsNew, type ShowcaseCard } from '../home';
 import { PromptBox, TrustPills } from './Hero';
+import { StepVisual } from './Story';
 import { Btn, HoverField, PixelField, SectionHeader, type WaveFn } from './ui';
 
 /* ── Showcase: two rows of "Tell bolt" cards drifting in opposite directions ─
@@ -165,64 +166,7 @@ export function Stories() {
   );
 }
 
-/* ── How it works: five moves, each with a small live-ish visual ───────── */
-function StepVisual({ kind }: { kind: (typeof steps.items)[number]['visual'] }) {
-  if (kind === 'prompt') {
-    return (
-      <div className="hm-vis hm-vis--prompt">
-        <div className="hm-vis-input">A booking site for my dog walking business, with a calendar and deposits</div>
-      </div>
-    );
-  }
-  if (kind === 'build') {
-    return (
-      <div className="hm-vis hm-vis--build">
-        <div className="hm-vis-window">
-          <div className="hm-vis-bar"><i /><i /><i /><span>Building</span></div>
-          <div className="hm-vis-lines">
-            <span style={{ width: '36%' }} />
-            <span className="is-box" style={{ width: '68%' }} />
-            <span style={{ width: '50%' }} />
-            <span className="is-btn" />
-          </div>
-        </div>
-      </div>
-    );
-  }
-  if (kind === 'wired') {
-    return (
-      <div className="hm-vis hm-vis--wired">
-        {['Hosting', 'Database', 'Payments', 'Auth'].map((w, i) => (
-          <span key={w} className="hm-vis-check" style={{ '--i': i } as React.CSSProperties}>
-            <i className="hm-vis-box" />
-            {w}
-          </span>
-        ))}
-      </div>
-    );
-  }
-  if (kind === 'secure') {
-    return (
-      <div className="hm-vis hm-vis--secure">
-        {[88, 60, 46].map((w, i) => (
-          <span key={i} className="hm-vis-scan" style={{ '--i': i } as React.CSSProperties}>
-            <i className="hm-vis-tick" />
-            <span style={{ width: `${w}%` }} />
-          </span>
-        ))}
-      </div>
-    );
-  }
-  return (
-    <div className="hm-vis hm-vis--deploy">
-      <div className="hm-vis-url">
-        <span>yourbusiness.com</span>
-        <span className="hm-vis-deploy">Deploy</span>
-      </div>
-    </div>
-  );
-}
-
+/* ── How it works: five moves; the visuals are one animated story (Story.tsx) */
 export function Steps() {
   return (
     <section className="fw-section hm-steps" id="how-it-works">
