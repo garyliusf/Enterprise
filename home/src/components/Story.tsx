@@ -257,7 +257,6 @@ function SceneDeploy() {
       <div className="hm-dep-site">
         <MiniSite stage="live" />
       </div>
-      <span className="hm-dep-badge"><i />Live on {SITE}</span>
     </div>
   );
 }
