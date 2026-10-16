@@ -24,18 +24,22 @@ export const TERMS_PATH = asset('/terms/');
 export const THANKS_PATH = asset('/thanks/');
 export const HOME_PATH = asset('/');
 
+/* Home hero (Figma: "Marketing home page Sept 2026", 2026-10-16). */
 export const hero = {
-  eyebrow: 'Builders Week · Oct 17–24',
-  /* Tagline is an open decision (Marketing drafts, Haily refines, CX signs
-     off), and so is "Bolt" in front of the name. */
-  /* Business-first messaging (2026-10-09): the week is for people starting
-     or running a business, so the hero leads with that. */
-  titleSerif: 'Build your business.',
-  titleSans: 'Win $10,000 to scale it.',
+  titleSerif: 'Describe it.',
+  titleSans: 'Bolt builds it.',
   subtitle:
-    /* the headline carries the $10k now, so the subtitle keeps the "on us" idea */
-    'A free build weekend and a week of live sessions with the Bolt team, on us.',
-  primaryCta: 'Compete for $10k',
+    'Describe your idea in your own words and get a real website or app you can publish today. No code. No developer. No agency invoice.',
+  /* the prompt box: example prompt (also the SEO-crawlable placeholder),
+     suggestion pills that fill it, and the submit label */
+  promptExample: 'A booking site for my dog walking business, with a calendar and deposits',
+  promptPills: [
+    { label: 'Booking site', prompt: 'A booking site for my dog walking business, with a calendar and deposits' },
+    { label: 'Client dashboard', prompt: 'A client dashboard for my design studio: project status, files and messaging' },
+    { label: 'Online storefront', prompt: 'An online store for my ceramics studio that tracks inventory automatically' },
+  ],
+  promptCta: 'Build now',
+  trust: ['Free to start', 'No credit card required'],
 };
 
 export type Milestone = { date: string; title: string; body: string; tbc?: boolean };
