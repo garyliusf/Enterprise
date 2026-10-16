@@ -1,4 +1,4 @@
-import { useState, type FormEvent, type KeyboardEvent } from 'react';
+import { useEffect, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { hero } from '../config';
 import { BgVideo } from './ui';
 
@@ -10,30 +10,58 @@ export function goToBolt(prompt: string) {
 }
 
 /* The hero prompt box: white card, textarea, suggestion pills, Build now. */
+/* The example prompts, rotated through the empty box: each fades out, the
+   next fades in. Stops the moment there is text, and under reduced motion. */
+const EXAMPLES = [hero.promptExample, ...hero.promptPills.map((p) => p.prompt).filter((p) => p !== hero.promptExample)];
+function useRotatingExample(active: boolean) {
+  const [idx, setIdx] = useState(0);
+  const [shown, setShown] = useState(true);
+  useEffect(() => {
+    if (!active || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const id = window.setInterval(() => {
+      setShown(false);
+      window.setTimeout(() => {
+        setIdx((i) => (i + 1) % EXAMPLES.length);
+        setShown(true);
+      }, 450);
+    }, 4200);
+    return () => window.clearInterval(id);
+  }, [active]);
+  return { example: EXAMPLES[idx], shown };
+}
+
 export function PromptBox({ id = 'hero', compact = false }: { id?: string; compact?: boolean }) {
   const [text, setText] = useState('');
+  const { example, shown } = useRotatingExample(text === '');
   const submit = (e: FormEvent) => {
     e.preventDefault();
-    goToBolt(text);
+    goToBolt(text || example);
   };
   const onKey = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      goToBolt(text);
+      goToBolt(text || example);
     }
   };
   return (
     <form className={`hm-prompt${compact ? ' hm-prompt--compact' : ''}`} onSubmit={submit}>
       <label className="fw-sr" htmlFor={`${id}-prompt`}>Describe what you want to build</label>
-      <textarea
-        id={`${id}-prompt`}
-        className="hm-prompt-input"
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        onKeyDown={onKey}
-        placeholder={hero.promptExample}
-        rows={2}
-      />
+      <div className="hm-prompt-field">
+        {/* the example sits under a transparent textarea so it can fade; the
+            native placeholder stays for screen readers / no-JS */}
+        <span className={`hm-prompt-example${shown ? '' : ' is-out'}${text ? ' is-hidden' : ''}`} aria-hidden="true">
+          {example}
+        </span>
+        <textarea
+          id={`${id}-prompt`}
+          className="hm-prompt-input"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onKeyDown={onKey}
+          placeholder={hero.promptExample}
+          rows={2}
+        />
+      </div>
       <div className="hm-prompt-foot">
         {!compact && (
           <div className="hm-prompt-pills" aria-label="Example prompts">
