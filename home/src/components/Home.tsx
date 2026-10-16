@@ -105,12 +105,9 @@ export function Stats() {
 }
 
 /* ── Build anything: use-case cards ────────────────────────────────────── */
+/* secondary "see all" actions = the standard bordered (ghost) button (Gary) */
 function MoreLink({ label, href }: { label: string; href: string }) {
-  return (
-    <a className="fw-text-link hm-more" href={href}>
-      {label} <i className="fw-arrow" aria-hidden="true" />
-    </a>
-  );
+  return <Btn href={href} variant="ghost" className="hm-more">{label}</Btn>;
 }
 
 export function UseCases() {
@@ -348,7 +345,9 @@ export function Enterprise() {
         </div>
         <div className="hm-ent-actions">
           <Btn href={enterprise.cta.href} external>{enterprise.cta.label}</Btn>
-          <MoreLink {...enterprise.more} />
+          <a className="fw-text-link hm-more" href={enterprise.more.href}>
+            {enterprise.more.label} <i className="fw-arrow" aria-hidden="true" />
+          </a>
         </div>
       </div>
     </section>
