@@ -15,24 +15,27 @@ export function goToBolt(prompt: string) {
 const EXAMPLES = [hero.promptExample, ...hero.promptPills.map((p) => p.prompt).filter((p) => p !== hero.promptExample)];
 function useRotatingExample(active: boolean) {
   const [idx, setIdx] = useState(0);
-  const [shown, setShown] = useState(true);
+  /* 'in' = resting; 'out' = rolling up and fading; 'enter' = the next one
+     placed below, about to roll up into place */
+  const [phase, setPhase] = useState<'in' | 'out' | 'enter'>('in');
   useEffect(() => {
     if (!active || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const id = window.setInterval(() => {
-      setShown(false);
+      setPhase('out');
       window.setTimeout(() => {
         setIdx((i) => (i + 1) % EXAMPLES.length);
-        setShown(true);
+        setPhase('enter');
+        requestAnimationFrame(() => requestAnimationFrame(() => setPhase('in')));
       }, 350);
-    }, 2800); /* faster (Gary): ~2.8s a prompt, 0.35s fade */
+    }, 2800); /* ~2.8s a prompt (Gary), 0.35s roll */
     return () => window.clearInterval(id);
   }, [active]);
-  return { example: EXAMPLES[idx], shown };
+  return { example: EXAMPLES[idx], phase };
 }
 
 export function PromptBox({ id = 'hero', compact = false }: { id?: string; compact?: boolean }) {
   const [text, setText] = useState('');
-  const { example, shown } = useRotatingExample(text === '');
+  const { example, phase } = useRotatingExample(text === '');
   const submit = (e: FormEvent) => {
     e.preventDefault();
     goToBolt(text || example);
@@ -49,7 +52,7 @@ export function PromptBox({ id = 'hero', compact = false }: { id?: string; compa
       <div className="hm-prompt-field">
         {/* the example sits under a transparent textarea so it can fade; the
             native placeholder stays for screen readers / no-JS */}
-        <span className={`hm-prompt-example${shown ? '' : ' is-out'}${text ? ' is-hidden' : ''}`} aria-hidden="true">
+        <span className={`hm-prompt-example is-${phase}${text ? ' is-hidden' : ''}`} aria-hidden="true">
           {example}
         </span>
         <textarea
