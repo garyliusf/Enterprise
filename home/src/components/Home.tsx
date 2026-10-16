@@ -1,6 +1,7 @@
 import type React from 'react';
 import { useEffect, useRef, useState } from 'react';
-import { closing, enterprise, showcase, stats, steps, stories, templatesHome, useCases, whatsNew, type ShowcaseCard } from '../home';
+import { asset } from '../config';
+import { closing, enterprise, showcase, stats, steps, stories, platform, templatesHome, useCases, type ShowcaseCard } from '../home';
 import { PromptBox, TrustPills } from './Hero';
 import { StepVisual } from './Story';
 import { Btn, HoverField, PixelField, SectionHeader, type WaveFn } from './ui';
@@ -306,109 +307,113 @@ export function TemplatesHome() {
   );
 }
 
-/* ── New this month: the enterprise page's timed feature tabs ──────────
-   Left: stacked tabs, the active one lit with a noisy blue progress bar
-   that auto-advances; right: the slide (visual only; the caption strip
-   was dropped, Gary 2026-10-16).
-   Shorter than enterprise's (tabs 150 / area 360 instead of 240 / 480).
-   On phones it stacks as cards with no timer. Visuals are placeholders. */
-const DURATION = 8000;
-const newWave: WaveFn = (c, r, t, phase, cols, rows) => {
-  const x = c / cols - 0.5;
-  const y = r / rows - 0.5;
-  const d = Math.max(0, 1 - Math.hypot(x * 1.6, y * 1.6));
-  return d * d * (Math.sin((x + y) * 10 - t / 600 + phase) * 0.5 + 0.5);
-};
-/* the enterprise bar: blue static that fills left→right (drawNoise) */
-function drawBar(canvas: HTMLCanvasElement, progress: number) {
-  const dpr = window.devicePixelRatio || 1;
-  const cssW = canvas.parentElement?.offsetWidth || 0;
-  const w = Math.round(cssW * dpr);
-  const h = Math.round(4 * dpr);
-  if (!w || !h) return;
-  if (canvas.width !== w || canvas.height !== h) {
-    canvas.width = w;
-    canvas.height = h;
-    canvas.style.width = cssW + 'px';
-    canvas.style.height = '4px';
-  }
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return;
-  const fill = Math.round(w * progress);
-  const img = ctx.createImageData(w, h);
-  for (let x = 0; x < fill; x++) {
-    for (let y = 0; y < h; y++) {
-      const i = (y * w + x) * 4;
-      const n = (Math.random() - 0.5) * 90;
-      img.data[i] = Math.max(0, Math.min(255, 20 + n));
-      img.data[i + 1] = Math.max(0, Math.min(255, 136 + n));
-      img.data[i + 2] = Math.max(0, Math.min(255, 252 + n));
-      img.data[i + 3] = 255;
-    }
-  }
-  ctx.putImageData(img, 0, 0);
+/* ── Solutions: the solutions page's platform tabs ──────────────────────
+   Horizontal tab bar with the sliding underline, auto-advance every 7s,
+   copy + bullets on the left, the bolt browser mock on the right with the
+   template capture drifting inside it (solutions.html's platBrowserScroll). */
+const LEGS_LONG: [number, number, number][] = [[0.26, 2100, 2300], [0.52, 2100, 2300], [0.76, 2100, 2300], [1, 2100, 3500], [0.48, 1900, 800], [0, 2300, 1500]];
+const LEGS_SHORT: [number, number, number][] = [[0.52, 2200, 3000], [1, 2200, 3200], [0.44, 1900, 800], [0, 2200, 1500]];
+const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
+function BrowserMock({ shot, scroll }: { shot: string; scroll: 'long' | 'short' | 'static' }) {
+  const view = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const v = view.current;
+    if (!v || scroll === 'static') return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const legs = scroll === 'short' ? LEGS_SHORT : LEGS_LONG;
+    let leg = 0, moving = true, t0: number | null = null, from = 0;
+    let held = false, idle = 0, visible = true, lastWritten = -1, raf = 0;
+    const range = () => v.scrollHeight - v.clientHeight;
+    /* hand off to the visitor; resume after they've been still for a beat */
+    const yieldToUser = () => {
+      held = true;
+      window.clearTimeout(idle);
+      idle = window.setTimeout(() => {
+        const max = range(), pos = max > 0 ? v.scrollTop / max : 0;
+        const next = legs.findIndex((l) => l[0] > pos + 0.02);
+        leg = next === -1 ? legs.length - 1 : next;
+        held = false; moving = true; t0 = null;
+      }, 2400);
+    };
+    (['wheel', 'touchstart', 'pointerdown', 'keydown'] as const).forEach((e) => v.addEventListener(e, yieldToUser, { passive: true }));
+    const onScroll = () => { if (Math.abs(v.scrollTop - lastWritten) > 2) yieldToUser(); };
+    v.addEventListener('scroll', onScroll, { passive: true });
+    const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; }, { threshold: 0.05 });
+    io.observe(v);
+    const step = (ts: number) => {
+      raf = requestAnimationFrame(step);
+      const max = range();
+      if (held || !visible || max <= 0 || !v.clientHeight) { t0 = null; return; }
+      const l = legs[leg], dur = moving ? l[1] : l[2];
+      if (t0 === null) { t0 = ts; from = v.scrollTop; }
+      const p = Math.min(1, (ts - t0) / dur);
+      if (moving) { v.scrollTop = from + (l[0] * max - from) * easeOut(p); lastWritten = v.scrollTop; }
+      if (p >= 1) { if (moving) moving = false; else { moving = true; leg = (leg + 1) % legs.length; } t0 = null; }
+    };
+    raf = requestAnimationFrame(step);
+    return () => { cancelAnimationFrame(raf); io.disconnect(); window.clearTimeout(idle); v.removeEventListener('scroll', onScroll); };
+  }, [scroll]);
+  return (
+    <div className={`plat-browser${scroll === 'short' ? ' plat-browser--short' : scroll === 'static' ? ' plat-browser--static' : ''}`}>
+      <img className="plat-browser-bar" src={asset('/templates/bolt-browser-bar.svg')} alt="" />
+      <div className="plat-browser-view" ref={view}>
+        <img className="plat-browser-page" decoding="async" loading="lazy" src={shot} alt="" />
+      </div>
+    </div>
+  );
 }
 
-export function WhatsNew() {
+export function Platform() {
   const [active, setActive] = useState(0);
-  const bars = useRef<(HTMLCanvasElement | null)[]>([]);
-  const root = useRef<HTMLDivElement>(null);
+  const [atEnd, setAtEnd] = useState(true);
+  const bar = useRef<HTMLDivElement>(null);
+  const pinned = useRef(false);
+  /* auto-advance every 7s (a click restarts the clock) */
   useEffect(() => {
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const phone = window.matchMedia('(max-width: 768px)');
-    let raf = 0;
-    let start = 0;
-    let inView = false;
-    const io = new IntersectionObserver(([e]) => { inView = e.isIntersecting; if (inView) { start = 0; } }, { threshold: 0.2 });
-    if (root.current) io.observe(root.current);
-    const tick = (ts: number) => {
-      raf = requestAnimationFrame(tick);
-      if (!inView || phone.matches) return;
-      if (!start) start = ts;
-      const p = Math.min((ts - start) / DURATION, 1);
-      const cv = bars.current[active];
-      if (cv) drawBar(cv, p);
-      if (p >= 1) {
-        start = 0;
-        setActive((a) => (a + 1) % whatsNew.items.length);
-      }
-    };
-    bars.current.forEach((cv, i) => { if (cv && i !== active) cv.getContext('2d')?.clearRect(0, 0, cv.width, cv.height); });
-    if (reduce) {
-      const cv = bars.current[active];
-      if (cv) drawBar(cv, 1);
-      return () => io.disconnect();
-    }
-    raf = requestAnimationFrame(tick);
-    return () => { cancelAnimationFrame(raf); io.disconnect(); };
-  }, [active]);
+    const id = window.setTimeout(() => setActive((a) => (a + 1) % platform.tabs.length), 7000);
+    return () => window.clearTimeout(id);
+  }, [active, pinned.current]);
+  /* right-edge fade on the scrolling phone tab bar: lifted at the end */
+  useEffect(() => {
+    const b = bar.current;
+    if (!b) return;
+    const update = () => setAtEnd(b.scrollWidth - b.clientWidth - b.scrollLeft <= 4);
+    b.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    update();
+    return () => { b.removeEventListener('scroll', update); window.removeEventListener('resize', update); };
+  }, []);
   return (
-    <section className="fw-section hm-new" id="whats-new">
+    <section className="fw-section hm-plat" id="solutions">
       <div className="fw-inner">
-        <SectionHeader center eyebrow={whatsNew.eyebrow} title={whatsNew.title} subtitle={whatsNew.subtitle} />
-        <div className="hm-ft" ref={root}>
-          <div className="hm-ft-nav">
-            {whatsNew.items.map((n, i) => (
-              <button key={n.title} type="button" className={`hm-ft-tab${active === i ? ' is-active' : ''}`} onClick={() => setActive(i)} aria-pressed={active === i}>
-                <span className="hm-ft-bar" aria-hidden="true"><canvas ref={(el) => { bars.current[i] = el; }} /></span>
-                <span className="hm-ft-title">{n.title}</span>
-                <span className="hm-ft-desc">
-                  {n.body}
-                  <a className="fw-text-link hm-ft-link" href={n.link.href}>{n.link.label} <i className="fw-arrow" aria-hidden="true" /></a>
-                </span>
-                <span className="hm-ft-mobile" aria-hidden="true">
-                  <span className="hm-ft-ph"><i /><i /><i /></span>
-                </span>
-              </button>
-            ))}
-          </div>
-          <div className="hm-ft-area" aria-hidden="true">
-            <PixelField wave={newWave} spacing={9} dot={2} opacity={0.4} className="hm-ft-field" />
-            {whatsNew.items.map((n, i) => (
-              <div key={n.title} className={`hm-ft-slide${active === i ? ' is-active' : ''}`}>
-                <span className="hm-ft-ph"><i /><i /><i /></span>
+        <SectionHeader center eyebrow={platform.eyebrow} title={platform.title} subtitle={platform.subtitle} />
+        <div className="plat-stage">
+          <div className="plat-stage-black">
+            <div className={`plat-tabbar-wrap${atEnd ? ' at-end' : ''}`}>
+              <div className="plat-tabbar" role="tablist" ref={bar}>
+                {platform.tabs.map((t, i) => (
+                  <button key={t.label} type="button" role="tab" aria-selected={active === i} className={`plat-tab${active === i ? ' active' : ''}`} onClick={() => { pinned.current = !pinned.current; setActive(i); }}>
+                    {t.label}
+                  </button>
+                ))}
               </div>
-            ))}
+            </div>
+            <div className="plat-panels">
+              {platform.tabs.map((t, i) => (
+                <div key={t.label} role="tabpanel" className={`plat-panel${active === i ? ' active' : ''}`}>
+                  <div className="plat-panel-grid">
+                    <div className="plat-panel-left">
+                      <h3 className="plat-h3">{t.title}</h3>
+                      <p className="plat-body">{t.body}</p>
+                      <ul className="plat-list">{t.points.map((pt) => <li key={pt}>{pt}</li>)}</ul>
+                    </div>
+                    <div className="plat-vcard plat-vcard--browser" aria-hidden="true">
+                      <BrowserMock shot={t.shot} scroll={t.scroll} />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

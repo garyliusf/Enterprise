@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Hero } from './components/Hero';
 import { SiteFooterStd, SiteNav } from './components/SiteChrome';
 import { FooterZone } from './components/Sections';
-import { Closing, Enterprise, Showcase, Stats, Steps, Stories, TemplatesHome, UseCases, WhatsNew } from './components/Home';
+import { Closing, Enterprise, Showcase, Stats, Steps, Stories, Platform, TemplatesHome, UseCases } from './components/Home';
 import { Terms } from './components/Terms';
 import { ThemeSwitch } from './components/ThemeSwitch';
 import { TERMS_PATH, THANKS_PATH } from './config';
@@ -53,7 +53,7 @@ export default function App() {
         <Stories />
         <Steps />
         <TemplatesHome />
-        <WhatsNew />
+        <Platform />
         <Enterprise />
       </main>
       <FooterZone>

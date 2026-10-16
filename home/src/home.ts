@@ -105,15 +105,17 @@ export const templatesHome = {
   ],
 };
 
-/* ── New this month ─────────────────────────────────────────────────────── */
-export const whatsNew = {
-  eyebrow: 'New this month',
-  title: 'Built to keep up with you.',
-  subtitle: 'Bolt keeps shipping new ways to build. Here is what just landed.',
-  items: [
-    { title: 'Showcase Slides', body: 'Turn any project into a polished slide deck, generated straight from what you already built.', link: { label: 'See Showcase Slides', href: 'https://bolt.new/blog' } },
-    { title: 'Security engineer', body: 'An automatic security review runs on every publish and fixes what it finds, with no setup.', link: { label: 'See the security engineer', href: 'https://bolt.new/platform/security' } },
-    { title: 'Dictation mode', body: 'Say your idea out loud instead of typing it. Bolt builds from your voice just as well.', link: { label: 'Try dictation', href: 'https://bolt.new/' } },
+/* ── Solutions: the solutions page's platform tabs (replaces the feature
+   slider, Gary 2026-10-16). Copy + captures verbatim from solutions.html. */
+export const platform = {
+  eyebrow: 'Solutions',
+  title: 'Build exactly what you need',
+  subtitle: 'Whether you\u2019re building solo or shipping across a whole organization, Bolt fits the way you work.',
+  tabs: [
+    { label: 'Entrepreneur', title: 'Turn your idea into a live product', body: 'You know what you want to build. Bolt gets you there directly. You don\u2019t need a developer or a $12,000 agency invoice. It\u2019s your vision, made live.', points: ['Launch a working app without a technical co-founder', 'Build and revise it yourself instead of waiting on a developer', 'Deploy your MVP and test your assumptions'], shot: asset('/templates/catalog/premium-saas-dashboard-lp.webp'), scroll: 'long' as const },
+    { label: 'Small business', title: 'Replace the tools that cost you more than they help', body: 'Build the internal tools, customer-facing apps, and sales dashboards your business needs, without adding headcount or juggling five different subscriptions.', points: ['Internal tools and dashboards built in an afternoon, not a quarter', 'One platform instead of a stack of point solutions', 'No developer or expensive agency quotes needed'], shot: asset('/templates/catalog/ledger-finance.webp'), scroll: 'short' as const },
+    { label: 'Enterprise', title: 'Give every team the speed of a startup', body: 'Ship production-grade apps with the governance, security, and access controls your organization requires and the speed AI-coding provides.', points: ['SSO, audit logs, and role-based access control', 'Security scanning built into every deploy', 'Fits inside the workflows your engineering team already runs'], shot: asset('/templates/catalog/vantage-dashboard.webp'), scroll: 'static' as const },
+    { label: 'Agencies', title: 'Deliver more client work without more headcount', body: 'Build client sites, campaign pages, and custom tools fast enough to protect your margins, with the design control your clients expect from a finished deliverable.', points: ['Use client design systems', 'Faster turnaround on revision rounds', 'Deliver production ready products'], shot: asset('/templates/catalog/noir-agency.webp'), scroll: 'long' as const },
   ],
 };
 
