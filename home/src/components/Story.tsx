@@ -153,14 +153,13 @@ function MiniSite({ stage }: { stage: 'build' | 'scan' | 'live' }) {
   );
 }
 
-/* 02 — the site assembles piece by piece */
+/* 02 — the site reveals from a skeleton, block by block (no status pill — Gary) */
 function SceneBuild() {
   const { ref, on } = usePlayOnce<HTMLDivElement>();
   return (
     <div ref={ref} className={`hm-vis hm-scene hm-scene--build${on ? ' is-on' : ''}`} aria-hidden="true">
       <SceneGround at={2} />
       <MiniSite stage="build" />
-      <span className="hm-sc-status"><i />Building</span>
     </div>
   );
 }
