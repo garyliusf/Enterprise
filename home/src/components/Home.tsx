@@ -391,7 +391,31 @@ export function Enterprise() {
           </ul>
         </div>
         <div className="hm-ent-actions">
-          <Btn href={enterprise.cta.href} external>{enterprise.cta.label}</Btn>
+          <form
+            className="hm-ent-strip"
+            action={enterprise.strip.action}
+            method="get"
+            target="_blank"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const email = (e.currentTarget.elements.namedItem('email') as HTMLInputElement | null)?.value.trim() ?? '';
+              const url = new URL(enterprise.strip.action);
+              if (email) url.searchParams.set('email', email);
+              window.open(url.toString(), '_blank', 'noopener');
+            }}
+          >
+            <div className="card-strip-text">
+              <p className="card-strip-sub">{enterprise.strip.lead} <span className="strip-name">{enterprise.strip.name}</span></p>
+            </div>
+            <div className="hero-form-row">
+              <label className="sr-only" htmlFor="ent-email">{enterprise.strip.placeholder}</label>
+              <input id="ent-email" name="email" type="email" className="hero-email-input" placeholder={enterprise.strip.placeholder} autoComplete="email" required />
+              <button type="submit" className="hero-cta-button" aria-label="Book a 1:1 with sales">
+                <div className="btn-bg-hover" />
+                <div className="btn-text-wrap"><div className="btn-text-inner"><span>{enterprise.strip.cta}</span><span>{enterprise.strip.cta}</span></div></div>
+              </button>
+            </div>
+          </form>
           <a className="fw-text-link hm-more" href={enterprise.more.href}>
             {enterprise.more.label} <i className="fw-arrow" aria-hidden="true" />
           </a>

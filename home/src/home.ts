@@ -124,7 +124,8 @@ export const enterprise = {
   title: 'Need it to scale across a team?',
   body: 'SSO, audit logs and compliance support come standard for teams that need to govern how Bolt gets used.',
   pills: ['SSO & SAML', 'Audit logs', 'SOC 2 Type II', 'Role-based access', 'Dedicated support'],
-  cta: { label: 'Talk to Sales', href: 'https://bolt.new/enterprise#contact' },
+  /* the enterprise page's 1:1 strip; the form hands the email to the enterprise page's own form anchor */
+  strip: { lead: 'Schedule a 1:1 with', name: 'Mason', placeholder: 'Your work email', cta: 'Book a 1:1', action: 'https://bolt.new/enterprise#talk-to-sales' },
   more: { label: 'See Bolt for enterprise', href: 'https://bolt.new/enterprise' },
 };
 
