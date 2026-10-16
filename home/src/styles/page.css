@@ -1,0 +1,1707 @@
+/* ============================================================================
+   BUILDER’S WEEK — page styles.
+   Components (buttons, eyebrows, section H2, FAQ) come from
+   shared-components.css, a verbatim copy of marketing/shared-components.css
+   in the Enterprise sandbox. Everything here is page layout, prefixed fw-
+   so nothing collides with the shared class names.
+   Light is the default; dark follows the OS. The resolver in index.html
+   stamps <html data-theme> before paint (?theme= → saved choice → OS →
+   light), so dark overrides here key on :root[data-theme="dark"].
+   ============================================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 84px; -webkit-text-size-adjust: 100%; }
+/* html body, not body: on bolt-public-pages the site's global styles.css sets
+   body { bg-bolt-ds-surface text-white } at equal weight and loads later, which
+   left the light theme's dark text on a black page (Donald, 2026-10-13) */
+html body {
+  margin: 0;
+  background: var(--sc-ground);
+  color: var(--sc-ink);
+  font-family: var(--sc-font-sans);
+  line-height: normal;
+  /* hidden first as the fallback; clip keeps the fixed/sticky nav working */
+  overflow-x: hidden;
+  overflow-x: clip;
+}
+h1, h2, h3, p { margin: 0; }
+a { color: inherit; }
+img, svg { display: block; }
+:focus-visible { outline: 2px solid var(--sc-blue); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+/* ── Layout primitives ──────────────────────────────────────────────────── */
+.fw-inner { width: min(1200px, calc(100vw - 160px)); margin: 0 auto; position: relative; z-index: 2; }
+.fw-section { position: relative; padding: clamp(80px, 12vh, 140px) 0; }
+/* Same-ground seams total ONE standard unit, not two (CLAUDE.md seam rule). */
+.fw-section:not(.fw-section--band) + .fw-section:not(.fw-section--band) { padding-top: 0; }
+.fw-section--band { background: var(--sc-surface); border-top: 1px solid var(--sc-line-soft); border-bottom: 1px solid var(--sc-line-soft); }
+
+.sc-section-h2 { text-wrap: balance; }
+.section-header { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; margin-bottom: 56px; }
+.section-header--center { align-items: center; text-align: center; }
+.section-header--center .section-sub { margin-left: auto; margin-right: auto; }
+.section-sub { font-size: clamp(15px, 1.1vw, 17px); line-height: 1.65; color: var(--sc-text-muted); max-width: 640px; }
+
+/* ── Small parts ────────────────────────────────────────────────────────── */
+.fw-serif { font-family: var(--sc-font-serif); font-style: var(--sc-serif-style); font-weight: 400; }
+.fw-arrow {
+  display: inline-block; width: 14px; height: 12px; flex: none; background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 14' fill='none' stroke='black' stroke-width='1.5'%3E%3Cpath d='M1 7h13M9 2l5 5-5 5'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 14' fill='none' stroke='black' stroke-width='1.5'%3E%3Cpath d='M1 7h13M9 2l5 5-5 5'/%3E%3C/svg%3E") center / contain no-repeat;
+  transition: transform 0.2s ease;
+}
+.fw-text-link {
+  display: inline-flex; align-items: center; gap: 8px;
+  color: var(--sc-blue-ink); font-weight: 600; font-size: 15px; text-decoration: none;
+}
+.fw-text-link:hover { color: var(--sc-blue-hover); }
+.fw-text-link:hover .fw-arrow { transform: translateX(3px); }
+:root[data-theme="dark"] .fw-text-link { color: #4DA6FF; } :root[data-theme="dark"] .fw-text-link:hover { color: #7CBFFF; }
+
+.fw-tbc {
+  display: inline-block; margin-left: 8px; padding: 2px 6px; vertical-align: middle;
+  font: 700 10px/1.4 var(--sc-font-label); letter-spacing: 1px; text-transform: uppercase;
+  color: var(--sc-accent-warm); background: color-mix(in srgb, var(--sc-accent-warm) 12%, transparent);
+  border-radius: 2px; position: relative; top: -2px;
+}
+.fw-fine { margin-top: 24px; font-size: 13px; line-height: 1.6; color: var(--sc-text-faint); max-width: 720px; }
+.fw-partner { margin-top: 32px; font-size: 15px; color: var(--sc-text-desc); }
+.fw-preview-note {
+  margin-top: 16px; font-size: 12px; color: var(--sc-text-faint);
+  display: flex; align-items: center; gap: 8px;
+}
+.fw-preview-note::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--sc-accent-warm); flex: none; }
+
+.fw-pixel-field { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+/* ── Nav ────────────────────────────────────────────────────────────────── */
+.fw-nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+  background: transparent; border-bottom: 1px solid transparent;
+  color: var(--sc-nav-over-ink);
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+.fw-nav.is-solid {
+  background: var(--sc-nav-over-bg-scrolled);
+  border-bottom-color: var(--sc-nav-hairline);
+  color: var(--sc-nav-ink);
+}
+.fw-nav-bar {
+  height: 68px; width: min(1200px, calc(100vw - 160px)); margin: 0 auto;
+  display: flex; align-items: center; gap: 32px;
+}
+.fw-nav-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; flex: none; }
+.fw-nav-logo { height: 20px; width: auto; color: var(--sc-nav-over-logo); transition: color 0.25s ease; }
+.fw-nav.is-solid .fw-nav-logo { color: var(--sc-nav-logo); }
+.fw-nav-divider { width: 1px; height: 18px; background: currentColor; opacity: 0.3; }
+.fw-nav-campaign { font: 700 11px/1 var(--sc-font-label); letter-spacing: 1.6px; text-transform: uppercase; }
+@media (max-width: 768px) { .fw-nav-campaign { font-size: 10px; letter-spacing: 1.4px; } }
+.fw-nav-links { display: flex; gap: 4px; margin-left: auto; }
+.fw-nav-links a {
+  font-size: 14px; font-weight: 500; text-decoration: none; color: inherit;
+  padding: 8px 12px; border-radius: 2px; opacity: 0.85; transition: opacity 0.2s, background-color 0.2s;
+}
+.fw-nav-links a:hover { opacity: 1; background: var(--sc-nav-over-ink-hover-bg); }
+.fw-nav.is-solid .fw-nav-links a:hover { background: var(--sc-nav-ink-hover-bg); }
+.fw-nav-actions { display: flex; align-items: center; gap: 8px; }
+/* "Open b": the Bolt b mark as a mask, so it takes the link colour —
+   white over the hero, ink once the bar turns solid on scroll */
+/* "Start Building b": compact ghost button; over the hero it's white on
+   the blue, once the bar is solid it takes the bar's ink */
+.fw-nav .hero-btn-ghost.fw-nav-start {
+  height: 36px; padding: 0 14px; font-size: 14px; min-width: 0;
+  color: #fff; border-color: rgba(255, 255, 255, 0.45);
+}
+.fw-nav .hero-btn-ghost.fw-nav-start:hover { border-color: rgba(255, 255, 255, 0.8); }
+/* pixel-fill colour: white over the hero (the page's dark-ink dots were
+   invisible on the blue); the bar's ghost colour once it's solid */
+.fw-nav:not(.is-solid) .fw-nav-start { --sc-btn-pixel-ghost: rgba(255, 255, 255, 0.32); }
+.fw-nav.is-solid .hero-btn-ghost.fw-nav-start { color: var(--sc-ink); border-color: var(--sc-line-strong); }
+.fw-nav.is-solid .hero-btn-ghost.fw-nav-start:hover { border-color: rgba(var(--sc-ink-rgb), 0.45); }
+.fw-nav-start .btn-text-inner span { display: inline-flex !important; align-items: center; gap: 6px; }
+.fw-nav-bmark {
+  display: inline-block; width: 11px; height: 14px; background: currentColor;
+  -webkit-mask: url('/bolt-b.png') center / contain no-repeat; mask: url('/bolt-b.png') center / contain no-repeat;
+  position: relative; top: -0.5px;
+}
+.fw-nav-links + .fw-nav-actions { margin-left: 0; }
+.fw-nav-brand + .fw-nav-actions { margin-left: auto; }
+/* navbar button = production's compact nav CTA, not the 52px hero button */
+.fw-nav .hero-btn-primary.fw-nav-cta { height: 36px; padding: 0 16px; font-size: 14px; min-width: 0; }
+.fw-nav-burger { display: none; }
+.fw-nav-drawer { display: none; }
+
+@media (max-width: 1024px) {
+  .fw-nav-bar { width: min(900px, calc(100vw - 80px)); gap: 16px; }
+  .fw-nav-logo { height: 24px; } /* same bump as the site nav at tablet/phone */
+}
+/* burger + drawer from 1279px down (Gary): below 1280 the four section
+   links wrapped ("Build / Weekend") and squeezed the two buttons */
+@media (max-width: 1279px) {
+  .fw-nav-links { display: none; }
+  .fw-nav-brand + .fw-nav-actions, .fw-nav-links + .fw-nav-actions { margin-left: auto; }
+  /* the marketing site's burger (shared-nav-footer.css .mkt-nav-burger):
+     three 22px lines that morph into an X; colour follows the bar ink */
+  .fw-nav-burger {
+    display: block; position: relative; width: 40px; height: 40px; margin-right: -9px; padding: 0;
+    background: none; border: 0; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  .fw-nav-burger:focus:not(:focus-visible) { outline: none; }
+  .fw-nav-burger span {
+    position: absolute; left: 9px; width: 22px; height: 1.5px; border-radius: 1px; background: currentColor;
+    transform-origin: center;
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.18s ease;
+  }
+  .fw-nav-burger span:nth-child(1) { top: 12px; }
+  .fw-nav-burger span:nth-child(2) { top: 19px; }
+  .fw-nav-burger span:nth-child(3) { top: 26px; }
+  .fw-nav.is-open .fw-nav-burger span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .fw-nav.is-open .fw-nav-burger span:nth-child(2) { opacity: 0; transform: scaleX(0.5); }
+  .fw-nav.is-open .fw-nav-burger span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  /* = the marketing drawer (.mkt-nav-mobile): a fixed sheet under the 68px
+     bar that fades + settles 8px both ways in 0.32s; visibility flips after
+     the fade on close so it never just vanishes */
+  .fw-nav-drawer {
+    display: block; position: fixed; top: 68px; left: 0; right: 0;
+    height: calc(100vh - 68px); height: calc(100dvh - 68px);
+    background: var(--sc-drawer-bg); overflow-y: auto; overscroll-behavior: contain;
+    opacity: 0; transform: translateY(-8px); visibility: hidden;
+    transition: opacity 0.32s ease, transform 0.32s cubic-bezier(0.2, 0.7, 0.2, 1), visibility 0s linear 0.32s;
+  }
+  .fw-nav-drawer.is-open {
+    opacity: 1; transform: none; visibility: visible;
+    transition: opacity 0.32s ease, transform 0.32s cubic-bezier(0.2, 0.7, 0.2, 1), visibility 0s;
+  }
+  .fw-nav-drawer-inner { display: flex; flex-direction: column; padding: 8px 0 24px; width: min(900px, calc(100vw - 80px)); margin: 0 auto; }
+  .fw-nav.is-open { background: var(--sc-nav-bg-solid); }
+  html.fw-drawer-open { overflow: hidden; }
+  @media (prefers-reduced-motion: reduce) {
+    .fw-nav-drawer, .fw-nav-drawer.is-open { transform: none; transition: opacity 0.2s ease, visibility 0s linear 0.2s; }
+    .fw-nav-drawer.is-open { transition: opacity 0.2s ease, visibility 0s; }
+  }
+  /* = the marketing drawer row (.mkt-nav-mobile-item): 20/500, 14px rows,
+     no rules, a muted 16px chevron — drill chevrons stay chevrons */
+  .fw-nav-drawer a {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 0; font-size: 20px; font-weight: 500; text-decoration: none; color: var(--sc-ink);
+  }
+  .fw-drawer-chev { width: 16px; height: 16px; flex: none; color: var(--sc-panel-heading); }
+}
+@media (max-width: 768px) {
+  .fw-nav-bar, .fw-nav-drawer-inner { width: calc(100vw - 32px); }
+  .fw-nav-start { display: none !important; }
+}
+/* the campaign label needs room: below 480 it pushed the CTA narrow enough
+   for Safari to wrap "Win $10k" onto a hidden second line (reviewer's iPhone,
+   2026-10-08) */
+@media (max-width: 480px) { .fw-nav-divider, .fw-nav-campaign { display: none; } }
+.fw-nav .hero-btn-primary.fw-nav-cta { flex: none; white-space: nowrap; }
+.fw-nav .hero-btn-primary.fw-nav-cta .btn-text-inner span { white-space: nowrap; }
+
+/* ── Hero ───────────────────────────────────────────────────────────────── */
+.fw-hero {
+  position: relative; overflow: hidden;
+  min-height: calc(min(64vh, 680px) + var(--sc-nav-overlap));
+  min-height: calc(min(64dvh, 680px) + var(--sc-nav-overlap));
+  padding: calc(clamp(90px, calc(24px + 8.5vh), 148px) + var(--sc-nav-overlap)) 0 clamp(64px, 8vh, 96px);
+  display: flex; flex-direction: column; align-items: center;
+  /* the video paints the hero; this navy shows only until its poster loads */
+  background: #021a57;
+}
+
+.fw-hero::after {
+  /* the stretched ramp is cut off still pale blue — release it into the page
+     ground so the hero never ends on a hard line */
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 30%; z-index: 1; pointer-events: none;
+  background: linear-gradient(to bottom, rgba(var(--sc-ground-rgb), 0) 0%, rgba(var(--sc-ground-rgb), 0.55) 55%, var(--sc-ground) 100%);
+}
+.fw-hero-video {
+  position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0;
+  object-fit: cover; object-position: 50% 30%; pointer-events: none;
+  /* a soft blur melts the few crisp ridges in the footage and any codec
+     blocks/banding (all of it is gradient, nothing needs detail); the small
+     scale hides the blur's soft edge (2026-10-09) */
+  filter: blur(10px); transform: scale(1.04);
+}
+/* DARK: fading the video's near-white lower half straight to black passes
+   through grey (pale cyan at half alpha over black is grey). So in dark the
+   video itself is pulled down and saturated, a multiply layer tints its
+   whites blue, and the fade to the ground travels through navy — the hero
+   stays blue all the way into the black page. */
+:root[data-theme="dark"] .fw-hero-video { filter: blur(10px) brightness(0.72) saturate(1.35); }
+:root[data-theme="dark"] .fw-hero::after {
+  height: 62%;
+  background:
+    linear-gradient(to bottom,
+      rgba(3, 16, 58, 0) 0%,
+      rgba(3, 16, 58, 0.45) 30%,
+      rgba(2, 9, 34, 0.82) 62%,
+      rgba(1, 3, 12, 0.97) 86%,
+      #000 100%);
+}
+/* the scrim (::before, below) multiplies in dark, with a blue band over the
+   lower half: whites take the tint, the deep blues and blacks barely move */
+:root[data-theme="dark"] .fw-hero::before {
+  mix-blend-mode: multiply;
+  background:
+    radial-gradient(ellipse 62% 52% at 50% 48%, rgba(2, 14, 52, 0.55), rgba(2, 14, 52, 0.18) 60%, transparent 85%),
+    linear-gradient(180deg, rgba(0, 4, 20, 0.35) 0%, transparent 22%),
+    linear-gradient(to bottom, rgba(40, 110, 230, 0) 35%, rgba(40, 110, 230, 0.85) 80%);
+}
+/* Legibility scrim: the video's lower-left runs near-white under centred
+   white copy, so a soft navy pool sits behind the stack, plus a light top
+   band for the nav. Same in both themes — the video is the same. */
+.fw-hero::before {
+  content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    radial-gradient(ellipse 62% 52% at 50% 48%, rgba(2, 14, 52, 0.55), rgba(2, 14, 52, 0.18) 60%, transparent 85%),
+    linear-gradient(180deg, rgba(0, 4, 20, 0.35) 0%, transparent 22%);
+}
+.fw-hero-inner {
+  position: relative; z-index: 2; width: min(900px, calc(100vw - 160px));
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+}
+.fw-hero-pill {
+  position: relative; overflow: hidden; isolation: isolate;
+  display: inline-flex; align-items: center; gap: 8px;
+  margin-bottom: 20px; padding: 6px 12px 6px 10px; border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 8px 24px -12px rgba(0, 10, 40, 0.6);
+  -webkit-backdrop-filter: blur(10px) saturate(1.4); backdrop-filter: blur(10px) saturate(1.4);
+}
+/* subtle pixels inside the glass instead of the light sweep (2026-10-08):
+   two offset dot grids fade in and out in turn, so pixels seem to twinkle
+   on and off; masked so they gather toward the ends, away from the label */
+.fw-hero-pill::before, .fw-hero-pill::after {
+  content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(rgba(255, 255, 255, 0.9) 0.8px, transparent 1.2px) 0 0 / 6px 6px;
+  -webkit-mask-image: linear-gradient(90deg, #000 0%, rgba(0, 0, 0, 0.25) 30%, rgba(0, 0, 0, 0.25) 70%, #000 100%);
+  mask-image: linear-gradient(90deg, #000 0%, rgba(0, 0, 0, 0.25) 30%, rgba(0, 0, 0, 0.25) 70%, #000 100%);
+  opacity: 0; animation: fw-pill-pixels 4.8s ease-in-out infinite;
+}
+.fw-hero-pill::after { background-position: 3px 3px; animation-delay: -2.4s; }
+@keyframes fw-pill-pixels { 0%, 100% { opacity: 0; } 50% { opacity: 0.22; } }
+/* .fw-hero-pill prefix: shared's .section-eyebrow loads last and would win at equal specificity */
+.fw-hero-pill .fw-hero-eyebrow { color: #fff; font-size: 11px; letter-spacing: 2px; line-height: 1; text-shadow: 0 1px 8px rgba(0, 20, 80, 0.35); }
+@media (prefers-reduced-motion: reduce) {
+  .fw-hero-pill::before, .fw-hero-pill::after { animation: none; opacity: 0.12; }
+}
+.fw-hero-h1 {
+  font-size: 66px; font-weight: 500; line-height: 1.1; letter-spacing: normal; color: #fff;
+}
+/* each line balances on its own, so a wrap never strands one word */
+.fw-hero-h1 > span { display: block; text-wrap: balance; }
+.fw-hero-sub {
+  margin-top: 20px; max-width: 620px;
+  font-size: clamp(16px, 1.4vw, 20px); line-height: 1.4; color: rgba(255, 255, 255, 0.82);
+}
+.fw-hero-ctas { margin-top: 32px; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+/* ghost on the blue: white hairline, white ink */
+.fw-hero .hero-btn-ghost {
+  border-color: rgba(255, 255, 255, 0.45); color: #fff;
+  /* a faint navy fill keeps the label legible where the video runs pale */
+  background: rgba(2, 14, 52, 0.28);
+}
+.fw-hero .hero-btn-ghost:hover { border-color: rgba(255, 255, 255, 0.7); }
+.fw-hero-count {
+  margin-top: 20px; display: inline-flex; align-items: center; gap: 8px;
+  font-size: 14px; color: rgba(255, 255, 255, 0.82);
+}
+/* live dot: solid green dot + a ripple ring that expands out and fades
+   (the template's breathing box-shadow alone read as static on navy) */
+.fw-live-dot {
+  position: relative; width: 7px; height: 7px; border-radius: 50%; background: #22c55e; flex: none;
+  box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5);
+  animation: fw-dot-beat 1.8s ease-in-out infinite;
+}
+.fw-live-dot::after {
+  content: ''; position: absolute; inset: 0; border-radius: 50%;
+  border: 1.5px solid rgba(34, 197, 94, 0.9);
+  animation: fw-dot-ripple 1.8s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+}
+@keyframes fw-dot-ripple {
+  0%   { transform: scale(1); opacity: 0.9; }
+  80%, 100% { transform: scale(3.2); opacity: 0; }
+}
+@keyframes fw-dot-beat {
+  0%, 100% { transform: scale(1); }
+  12% { transform: scale(1.25); }
+  30% { transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) { .fw-live-dot, .fw-live-dot::after { animation: none; } .fw-live-dot::after { display: none; } }
+@media (max-width: 1024px) {
+  .fw-hero-inner { width: min(900px, calc(100vw - 80px)); }
+  .fw-hero-h1 { font-size: 51px; }
+  .fw-hero-sub { font-size: 18px; }
+}
+@media (max-width: 768px) {
+  .fw-hero {
+    min-height: 0;
+    padding: calc(100px + var(--sc-nav-overlap)) 0 64px;
+    /* taller on phones: the video scales up with the box, so its pale lower
+       band drops below the copy instead of sitting behind the subtitle */
+    min-height: min(100svh, 820px); justify-content: center;
+  }
+  .fw-hero-video { object-position: 50% 0%; }
+  .fw-hero::after { height: 20%; }
+  .fw-hero::before {
+    background:
+      radial-gradient(ellipse 120% 55% at 50% 50%, rgba(2, 14, 52, 0.62), rgba(2, 14, 52, 0.32) 60%, rgba(2, 14, 52, 0.08) 85%, transparent 100%),
+      linear-gradient(180deg, rgba(0, 4, 20, 0.35) 0%, transparent 22%);
+  }
+  .fw-hero-sub { color: #fff; text-shadow: 0 1px 12px rgba(0, 12, 50, 0.45); }
+  .fw-hero-inner { width: calc(100vw - 32px); }
+  .fw-hero-pill { margin-bottom: 14px; }
+  .fw-hero-pill .fw-hero-eyebrow { font-size: 10px; letter-spacing: 1.6px; }
+  .fw-hero-h1 { font-size: clamp(37px, 10.45vw, 51px); }
+  .fw-hero-sub { margin-top: 12px; font-size: 16px; }
+  .fw-hero-ctas { margin-top: 24px; flex-direction: column; align-items: center; width: 100%; }
+}
+
+/* ── Cards (compliance-card treatment) ──────────────────────────────────── */
+.fw-grid { display: grid; gap: 16px; }
+.fw-grid--3 { grid-template-columns: repeat(3, 1fr); }
+.fw-card {
+  position: relative; overflow: hidden;
+  padding: 28px 24px 32px; border: 1px solid var(--sc-line); border-radius: 2px;
+  background: linear-gradient(180deg, rgba(var(--sc-ink-rgb), 0.03) 0%, rgba(var(--sc-ink-rgb), 0.005) 100%);
+  transition: border-color 0.3s ease;
+}
+.fw-card:hover { border-color: rgba(20, 136, 252, 0.45); }
+.fw-card > :not(.fw-pixel-field, .fw-hover-field) { position: relative; z-index: 1; }
+/* the compliance-card hover field (HoverField = attachHoverField) */
+.fw-hover-field { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; opacity: 0; transition: opacity 0.45s ease; pointer-events: none; }
+.fw-card:hover > .fw-hover-field { opacity: 1; }
+:root[data-theme="dark"] .fw-card:hover > .fw-hover-field { opacity: 0.6; } /* shared's dark cap: full strength reads loud on black */
+.fw-card-field { opacity: 0; transition: opacity 0.5s ease; }
+.fw-card:hover .fw-card-field, .fw-card-field.is-on { opacity: 1; }
+.fw-card-num {
+  display: block; margin-bottom: 40px;
+  font: 700 13px/1 var(--sc-font-label); letter-spacing: 2px; color: var(--sc-blue-ink);
+}
+.fw-card-title { font-size: 18px; font-weight: 600; line-height: 1.35; letter-spacing: -0.2px; color: var(--sc-ink); }
+.fw-card-desc { margin-top: 8px; font-size: 15px; line-height: 1.6; color: var(--sc-text-desc); }
+@media (max-width: 1024px) { .fw-grid--3 { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 768px) { .fw-grid--3 { grid-template-columns: 1fr; } .fw-card-num { margin-bottom: 24px; } }
+
+/* ── Pixel icons (deck X-gradient) ─────────────────────────────────────── */
+.fw-pixel-icon { display: block; width: 28px; height: 28px; flex: none; overflow: visible; }
+.fw-pixel-icon rect { fill: #1488FC; opacity: var(--o); }
+/* Loop: the squares light up ring by ring from the focus outward, hold,
+   then fade back out in the same order. Each card's icon is offset by its
+   index (--k) so neighbouring cards don't pulse in unison. */
+/* never fully out (Gary, 2026-10-08): the off state rests at 20%, so the
+   icon stays readable between pulses */
+@keyframes fw-pixel-in-out {
+  0%, 8%   { opacity: min(0.2, var(--o)); }
+  26%, 70% { opacity: var(--o); }
+  88%, 100% { opacity: min(0.2, var(--o)); }
+}
+.fw-pixel-icon rect {
+  animation: fw-pixel-in-out 3.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation-delay: calc(var(--d) * 140ms + var(--k, 0) * 450ms);
+}
+/* on black the faintest ring vanished — lift its floor in dark */
+:root[data-theme="dark"] .fw-pixel-icon rect { --o-dark: calc(0.2 + var(--o) * 0.8); }
+@keyframes fw-pixel-in-out-dark {
+  0%, 8%   { opacity: 0.2; }
+  26%, 70% { opacity: var(--o-dark); }
+  88%, 100% { opacity: 0.2; }
+}
+:root[data-theme="dark"] .fw-pixel-icon rect { opacity: var(--o-dark); animation-name: fw-pixel-in-out-dark; }
+.fw-card .fw-pixel-icon { margin-bottom: 40px; }
+.fw-mosaic-card .fw-pixel-icon { margin-bottom: 0; }
+@media (max-width: 768px) { .fw-card .fw-pixel-icon { margin-bottom: 24px; } }
+/* ── Session icons: each has its own motion, at its own pace ──────────────
+   (:root prefix keeps these above the dark-theme in/out loop rule) */
+/* self-drawing paths (trend arrow, question mark): cells light in stroke
+   order, hold, then clear in the same order */
+:root .fw-pixel-icon rect.is-path {
+  opacity: 0.14;
+  animation: fw-draw 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation-delay: calc(var(--seq) * 110ms);
+}
+@keyframes fw-draw {
+  0% { opacity: 0.14; }
+  7%, 62% { opacity: 1; }
+  78%, 100% { opacity: 0.14; }
+}
+/* chat bubble: solid outline, typing dots bouncing in a wave */
+/* solid bodies (megaphone) at full strength; the chat bubble outline stays soft */
+:root .fw-pixel-icon rect.is-solid { opacity: 1; }
+:root .fw-pi-chat rect.is-solid { opacity: 0.32; }
+:root .fw-pi-speak rect.is-solid { opacity: var(--o); }
+:root .fw-pi-rocket rect.is-solid { opacity: var(--o); }
+/* rocket: flickering exhaust; the whole rocket lifts off, fades, resets */
+:root .fw-pixel-icon rect.fw-exhaust {
+  fill: #1488FC; opacity: 0.2;
+  animation: fw-exhaust 0.5s steps(2, end) infinite;
+  animation-delay: calc(var(--seq) * -0.17s);
+}
+:root .fw-pixel-icon rect.fw-exhaust:not(:first-of-type) { fill: #7CBFFF; }
+@keyframes fw-exhaust { 0% { opacity: 0.25; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+.fw-pixel-icon.fw-pi-rocket {
+  overflow: visible; will-change: transform, opacity;
+  animation: fw-liftoff 3.2s cubic-bezier(0.5, 0, 0.75, 0.4) infinite;
+}
+@keyframes fw-liftoff {
+  0%   { opacity: 0; transform: translate3d(0, 2px, 0); }
+  12%  { opacity: 1; transform: translate3d(0, 0, 0); }
+  45%  { opacity: 1; transform: translate3d(0, 0, 0); }     /* idle on the pad, engines running */
+  52%  { opacity: 1; transform: translate3d(0, 1px, 0); }   /* a tiny crouch before lift-off */
+  86%  { opacity: 0; transform: translate3d(0, -16px, 0); }
+  100% { opacity: 0; transform: translate3d(0, -16px, 0); }
+}
+
+:root[data-theme="dark"] .fw-pi-chat rect.is-solid { opacity: 0.42; }
+/* megaphone sound waves: near pair, then far pair, pushing outward */
+:root .fw-pixel-icon rect.fw-wave {
+  fill: #1488FC; opacity: 0; transform-box: fill-box;
+  animation: fw-wave 1.6s cubic-bezier(0.3, 0.6, 0.3, 1) infinite;
+  animation-delay: calc(var(--seq) * 220ms + 200ms);
+}
+@keyframes fw-wave {
+  0% { opacity: 0; transform: translateX(-2px); }
+  25% { opacity: 1; transform: translateX(0); }
+  60%, 100% { opacity: 0; transform: translateX(2px); }
+}
+:root .fw-pixel-icon rect.fw-typing {
+  fill: #1488FC; opacity: 0.12; transform-box: fill-box; transform-origin: 50% 50%;
+  animation: fw-typing 1.3s ease-in-out infinite;
+  animation-delay: calc(var(--seq) * 160ms + 300ms);
+}
+@keyframes fw-typing {
+  0%, 60%, 100% { opacity: 0.12; transform: translateY(0); }
+  28% { opacity: 1; transform: translateY(-1.5px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root .fw-pixel-icon rect.is-path, :root .fw-pixel-icon rect.fw-typing, :root .fw-pixel-icon rect.fw-wave, :root .fw-pixel-icon rect.fw-exhaust { animation: none; opacity: 1; transform: none; }
+  .fw-pixel-icon.fw-pi-rocket { animation: none; }
+}
+/* up arrow: fades in at rest, rises, fades out as it climbs, resets.
+   Animated on the <svg> box itself (not an inner <g>) with will-change, so
+   the browser composites it as one layer and slides it on the GPU — an SVG
+   group transform repaints the pixels at fractional positions every frame,
+   which read as jitter. One continuous ease, no mid-way stops. */
+.fw-pixel-icon.fw-pi-up {
+  will-change: transform, opacity;
+  animation: fw-rise 2.4s linear infinite both;
+  animation-delay: calc(var(--k, 0) * 450ms);
+}
+/* fade-in and fade-out take the same time (~1s each) and mirror each other:
+   ease-out IN at rest, a short beat, then ease-in (accelerating) up and OUT */
+@keyframes fw-rise {
+  0%   { opacity: 0; transform: translate3d(0, 2px, 0); animation-timing-function: cubic-bezier(0.1, 0.65, 0.45, 1); }
+  40%  { opacity: 1; transform: translate3d(0, 0, 0); }
+  48%  { opacity: 1; transform: translate3d(0, 0, 0); animation-timing-function: cubic-bezier(0.55, 0, 0.9, 0.35); }
+  90%  { opacity: 0; transform: translate3d(0, -18px, 0); }
+  100% { opacity: 0; transform: translate3d(0, -18px, 0); }
+}
+/* clock: ring + centre hold still; the hand steps 12 → 6 over 3s, holds at
+   6, then resets. One keyframe set per position (0.6s windows of 4.2s). */
+.fw-pixel-icon rect.is-static { animation: none; }
+.fw-pixel-icon rect.fw-hand { opacity: 0; fill: #1488FC; animation-duration: 4.2s; animation-iteration-count: infinite; animation-timing-function: steps(1, end); animation-delay: calc(var(--k, 0) * 450ms); }
+.fw-hand-0 { animation-name: fw-hand-0 !important; }
+.fw-hand-1 { animation-name: fw-hand-1 !important; }
+.fw-hand-2 { animation-name: fw-hand-2 !important; }
+.fw-hand-3 { animation-name: fw-hand-3 !important; }
+.fw-hand-4 { animation-name: fw-hand-4 !important; }
+@keyframes fw-hand-0 { 0% { opacity: 0.85; } 14.3%, 100% { opacity: 0; } }
+@keyframes fw-hand-1 { 0% { opacity: 0; } 14.3% { opacity: 0.85; } 28.6%, 100% { opacity: 0; } }
+@keyframes fw-hand-2 { 0% { opacity: 0; } 28.6% { opacity: 0.85; } 42.9%, 100% { opacity: 0; } }
+@keyframes fw-hand-3 { 0% { opacity: 0; } 42.9% { opacity: 0.85; } 57.2%, 100% { opacity: 0; } }
+@keyframes fw-hand-4 { 0% { opacity: 0; } 57.2% { opacity: 0.85; } 100% { opacity: 0.85; } }
+@media (prefers-reduced-motion: reduce) {
+  .fw-pixel-icon rect { animation: none; }
+  .fw-pixel-icon rect.fw-hand { animation: none !important; opacity: 0; }
+  .fw-pixel-icon rect.fw-hand-4 { opacity: 0.85; } /* rest on 6 o'clock */
+  .fw-pixel-icon.fw-pi-up { animation: none; }
+}
+
+/* ── Weekend mosaic ─────────────────────────────────────────────────────
+   12-col canvas, 88px row unit, 16px gaps. Desktop slots (col / row):
+     1 photo  1-5  / 1-4     2 card   6-9  / 1-3     3 photo  10-12 / 1-5
+     4 photo  6-9  / 4-7     5 card   1-3  / 5-7     6 photo  4-5   / 5-7
+     7 card   10-12/ 6-11    8 photo  1-5  / 8-11    9 photo  6-9   / 8-11
+   Every column fills rows 1-10 with no holes. (Bottom row is 3 units tall,
+   Gary: show more of those photos.) */
+.fw-mosaic {
+  display: grid; grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-auto-rows: 88px; gap: 16px;
+}
+.fw-mosaic > :nth-child(1) { grid-column: 1 / 6;   grid-row: 1 / 5; }
+.fw-mosaic > :nth-child(2) { grid-column: 6 / 10;  grid-row: 1 / 4; }
+.fw-mosaic > :nth-child(3) { grid-column: 10 / 13; grid-row: 1 / 6; }
+.fw-mosaic > :nth-child(4) { grid-column: 6 / 10;  grid-row: 4 / 8; }
+.fw-mosaic > :nth-child(5) { grid-column: 1 / 4;   grid-row: 5 / 8; }
+.fw-mosaic > :nth-child(6) { grid-column: 4 / 6;   grid-row: 5 / 8; }
+.fw-mosaic > :nth-child(7) { grid-column: 10 / 13; grid-row: 6 / 11; }
+.fw-mosaic > :nth-child(8) { grid-column: 1 / 6;   grid-row: 8 / 11; }
+.fw-mosaic > :nth-child(9) { grid-column: 6 / 10;  grid-row: 8 / 11; }
+
+.fw-mosaic-photo {
+  position: relative; margin: 0; overflow: hidden; border-radius: 2px;
+  background: var(--sc-surface-strong);
+}
+.fw-mosaic-photo img {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block;
+  transform: scale(1.001); transition: transform 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.fw-mosaic-photo:hover img { transform: scale(1.045); }
+/* subtle white dot field over the photo on hover (sits above the image) */
+.fw-pixel-rise { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+/* a light navy wash under the dots so they read on bright photos too */
+.fw-mosaic-photo::after {
+  content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: 0;
+  background: linear-gradient(0deg, rgba(2, 26, 87, 0.22) 0%, rgba(2, 26, 87, 0) 70%);
+  transition: opacity 0.45s ease;
+}
+.fw-mosaic-photo:hover::after { opacity: 1; }
+/* mirrored shots: the flip rides along with the hover zoom */
+.fw-mosaic-photo img.is-flipped { transform: scaleX(-1) scale(1.001); }
+.fw-mosaic-photo:hover img.is-flipped { transform: scaleX(-1) scale(1.045); }
+.fw-mosaic-card { display: flex; flex-direction: column; padding: 24px 24px 26px; }
+.fw-mosaic-card .fw-card-num { margin-bottom: 0; }
+.fw-mosaic-card-copy { margin-top: auto; }
+
+/* staggered rise-in, once */
+.fw-mosaic > * { opacity: 0; transform: translateY(18px); }
+.fw-mosaic.is-in > * {
+  opacity: 1; transform: none;
+  transition: opacity 0.8s ease, transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc(var(--n, 0) * 70ms);
+}
+/* the fine print follows once the last tile has landed (9 tiles x 70ms
+   stagger + most of the 0.9s rise) */
+.fw-mosaic ~ :is(.fw-fine, .fw-partner) { opacity: 0; transform: translateY(10px); }
+.fw-mosaic.is-in ~ :is(.fw-fine, .fw-partner) {
+  opacity: 1; transform: none;
+  transition: opacity 0.7s ease, transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: 1.15s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .fw-mosaic > *, .fw-mosaic.is-in > * { opacity: 1; transform: none; transition: none; }
+  .fw-mosaic ~ :is(.fw-fine, .fw-partner), .fw-mosaic.is-in ~ :is(.fw-fine, .fw-partner) { opacity: 1; transform: none; transition: none; }
+  .fw-mosaic-photo img, .fw-mosaic-photo:hover img { transform: none; transition: none; }
+}
+
+/* tablet: 6 columns, tiles keep their character via spans */
+@media (max-width: 1024px) {
+  .fw-mosaic { grid-template-columns: repeat(6, minmax(0, 1fr)); grid-auto-rows: 76px; grid-auto-flow: dense; }
+  .fw-mosaic > * { grid-column: auto / span 3 !important; grid-row: auto / span 3 !important; }
+  .fw-mosaic > :nth-child(1) { grid-column: auto / span 4 !important; grid-row: auto / span 4 !important; }
+  .fw-mosaic > :nth-child(3) { grid-column: auto / span 2 !important; grid-row: auto / span 4 !important; }
+  .fw-mosaic > :nth-child(8), .fw-mosaic > :nth-child(9) { grid-row: auto / span 3 !important; }
+  /* the last photo closes the canvas full-width (it was left alone with a hole beside it) */
+  .fw-mosaic > :nth-child(9) { grid-column: 1 / -1 !important; grid-row: auto / span 4 !important; }
+}
+/* phone: two columns; cards full width, photos alternate full / half */
+@media (max-width: 768px) {
+  .fw-mosaic { grid-template-columns: 1fr 1fr; grid-auto-rows: auto; gap: 12px; grid-auto-flow: row dense; }
+  /* :nth-child(n) matches the tablet rules' specificity, so these win */
+  .fw-mosaic > :nth-child(n) { grid-column: span 1 !important; grid-row: auto !important; }
+  .fw-mosaic > .fw-mosaic-card:nth-child(n) { grid-column: 1 / -1 !important; }
+  .fw-mosaic-photo { aspect-ratio: 3 / 4; }
+  .fw-mosaic > :nth-child(1), .fw-mosaic > :nth-child(9) { grid-column: 1 / -1 !important; aspect-ratio: 4 / 3; }
+  .fw-mosaic-card .fw-mosaic-card-copy { margin-top: 28px; }
+}
+
+/* ── Timeline = the shared "How it works" step line ──────────────────────
+   Verbatim from solutions/_template (base + keyframes), bolt-cli's 4th-step
+   delays, and the phone vertical-timeline block; colours moved onto the
+   --sc tokens so one rule set serves both themes. Added: .how-step-date,
+   which rides the title's stagger. */
+.fw-section--timeline { overflow-x: clip; } /* the glow runs 40px past the track */
+.how-steps-wrap { position: relative; }
+.how-line-track { position: absolute; top: 19px; left: 0; right: 0; height: 1px; background: rgba(var(--sc-ink-rgb), 0.08); pointer-events: none; z-index: 0; }
+.how-line-fill { position: absolute; top: 19px; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, rgba(20,136,252,0.25), rgba(20,136,252,0.8) 20%, rgba(20,136,252,0.8) 80%, rgba(20,136,252,0.25)); pointer-events: none; z-index: 1; transform: scaleX(0); transform-origin: left center; }
+.how-line-glow { position: absolute; top: 16px; left: 0; height: 7px; width: 80px; background: radial-gradient(ellipse at center, rgba(120,200,255,0.9) 0%, transparent 70%); border-radius: 4px; pointer-events: none; z-index: 2; opacity: 0; }
+.how-steps-wrap.line-active .how-line-fill { animation: howLineDraw 1.4s cubic-bezier(0.4,0,0.2,1) 0.1s both; }
+.how-steps-wrap.line-active .how-line-glow { animation: howGlowTravel 1.4s cubic-bezier(0.4,0,0.2,1) 0.1s both; }
+@keyframes howLineDraw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes howGlowTravel { 0% { opacity:0; transform:translateX(0); } 8% { opacity:1; } 88% { opacity:1; } 100% { opacity:0; transform:translateX(var(--glow-dist,700px)); } }
+.how-steps { display: grid; grid-template-columns: repeat(3,1fr); gap: 0; position: relative; }
+.how-steps.how-steps--four { grid-template-columns: repeat(4, 1fr); }
+.how-step { display: flex; flex-direction: column; padding: 0 28px 0 0; }
+.how-step:last-child { padding-right: 0; }
+.how-step-node { width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(20,136,252,0.5); background: var(--sc-ground); display: flex; align-items: center; justify-content: center; margin-bottom: 28px; position: relative; z-index: 1; flex-shrink: 0; transform: scale(0); }
+@keyframes nodePop { from { transform: scale(0); } to { transform: scale(1); } }
+.how-step-number { font-family: var(--sc-font-label); font-weight: var(--sc-label-weight, 700); font-size: 10px; color: #1488FC; }
+.how-step-date { display: block; margin: 0 0 10px; opacity: 0; transform: translateY(14px); filter: blur(10px); }
+/* ── Calendar page ─────────────────────────────────────────────────────── */
+.fw-cal {
+  position: relative; display: inline-flex; flex-direction: column; align-items: stretch;
+  width: 48px; margin: 2px 0 14px; padding-bottom: 5px; text-align: center;
+  background: var(--sc-ground); border: 1px solid var(--sc-line); border-radius: 4px;
+  box-shadow: 0 1px 0 rgba(var(--sc-ink-rgb), 0.04), 0 10px 22px -14px var(--sc-shadow);
+  transform-origin: 50% 0; /* no hover motion: read janky (reviewer, 2026-10-08) */
+}
+/* a second sheet peeking under the page */
+.fw-cal::after {
+  content: ''; position: absolute; left: 3px; right: 3px; bottom: -3px; height: 4px; z-index: -1;
+  border: 1px solid var(--sc-line); border-top: 0; border-radius: 0 0 4px 4px; background: var(--sc-surface);
+}
+.fw-cal-rings { position: absolute; top: -4px; left: 0; right: 0; display: flex; justify-content: center; gap: 18px; z-index: 2; }
+.fw-cal-rings i { width: 3px; height: 7px; border-radius: 2px; background: linear-gradient(180deg, #c9d2df, #8e9aab); box-shadow: 0 1px 1px rgba(0, 0, 0, 0.18); }
+.fw-cal-mon {
+  display: block; padding: 4px 0 3px; border-radius: 3px 3px 0 0;
+  font: 700 7px/1 var(--sc-font-label); letter-spacing: 1.3px; text-transform: uppercase; color: #fff;
+  background: linear-gradient(180deg, #1488FC, #0f6fd0);
+}
+.fw-cal-day {
+  display: block; padding-top: 4px; font-size: 18px; font-weight: 300; line-height: 1; letter-spacing: -0.6px;
+  color: var(--sc-ink); font-variant-numeric: tabular-nums;
+}
+.fw-cal-day.is-range { font-size: 12px; letter-spacing: -0.4px; padding-top: 6px; padding-bottom: 2px; }
+.fw-cal .fw-tbc { position: absolute; top: 14px; right: -12px; margin: 0; }
+/* the next upcoming date: blue edge + tag */
+.fw-cal.is-next { border-color: rgba(20, 136, 252, 0.55); box-shadow: 0 0 0 2px rgba(20, 136, 252, 0.12), 0 10px 22px -14px var(--sc-shadow); }
+/* the next upcoming step: its number node glows (replaced the "Next up"
+   pill, Gary 2026-10-08) — a filled blue node with a halo that breathes */
+.how-step-node.is-next { background: #1488FC; border-color: #1488FC; box-shadow: 0 0 18px 2px rgba(20, 136, 252, 0.45); }
+.how-step-node.is-next .how-step-number { color: #fff; }
+.how-step-node.is-next::after {
+  content: ''; position: absolute; inset: -1px; border-radius: 50%; pointer-events: none;
+  box-shadow: 0 0 0 0 rgba(20, 136, 252, 0.5);
+  animation: fw-node-glow 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+@keyframes fw-node-glow {
+  0%   { box-shadow: 0 0 0 0 rgba(20, 136, 252, 0.5); }
+  70%  { box-shadow: 0 0 0 12px rgba(20, 136, 252, 0); }
+  100% { box-shadow: 0 0 0 12px rgba(20, 136, 252, 0); }
+}
+@media (prefers-reduced-motion: reduce) { .how-step-node.is-next::after { animation: none; } }
+.fw-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+/* entrance: the page flips down from its rings instead of the text rise */
+@keyframes fw-cal-flip {
+  0%   { opacity: 0; transform: perspective(500px) rotateX(-82deg); filter: none; }
+  60%  { opacity: 1; transform: perspective(500px) rotateX(10deg); }
+  100% { opacity: 1; transform: none; filter: none; }
+}
+.how-steps-wrap.line-active .how-step .how-step-date.fw-cal { animation-name: fw-cal-flip; animation-duration: 0.8s; animation-timing-function: cubic-bezier(0.3, 0.7, 0.3, 1); }
+.how-step-title { font-size: 18px; font-weight: 600; color: var(--sc-ink); margin: 0 0 10px; letter-spacing: -0.2px; line-height: 1.35; opacity: 0; transform: translateY(14px); filter: blur(10px); }
+.how-step-desc { font-size: 14px; color: var(--sc-text-desc); line-height: 1.55; margin: 0; opacity: 0; transform: translateY(14px); filter: blur(10px); }
+/* resting state once the line has drawn. The entrances above fill BACKWARDS
+   only: a held last keyframe kept blur(0) + a transform on every step, which
+   pins each one to its own GPU layer, and Safari re-rasterised those layers
+   soft when the calendar's hover tilt repainted the row (Gary, 2026-10-08).
+   It also overrode the calendar hover transform. */
+.how-steps-wrap.line-active :is(.how-step-node, .how-step-title, .how-step-desc) { opacity: 1; transform: none; filter: none; }
+.how-steps-wrap.line-active .how-step-date { opacity: 1; filter: none; transform: none; }
+@keyframes howStepIn { from { opacity:0; transform:translateY(14px); filter:blur(10px); } to { opacity:1; transform:none; filter:none; } }
+.how-steps-wrap.line-active .how-step:nth-child(1) .how-step-node { animation: nodePop 0.45s cubic-bezier(0.34,1.56,0.64,1) 0.15s backwards; }
+.how-steps-wrap.line-active .how-step:nth-child(2) .how-step-node { animation: nodePop 0.45s cubic-bezier(0.34,1.56,0.64,1) 0.65s backwards; }
+.how-steps-wrap.line-active .how-step:nth-child(3) .how-step-node { animation: nodePop 0.45s cubic-bezier(0.34,1.56,0.64,1) 1.15s backwards; }
+.how-steps-wrap.line-active .how-step:nth-child(4) .how-step-node { animation: nodePop 0.45s cubic-bezier(0.34,1.56,0.64,1) 1.3s backwards; }
+.how-steps-wrap.line-active .how-step:nth-child(1) :is(.how-step-date, .how-step-title) { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 0.28s backwards; }
+.how-steps-wrap.line-active .how-step:nth-child(1) .how-step-desc  { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 0.40s backwards; }
+.how-steps-wrap.line-active .how-step:nth-child(2) :is(.how-step-date, .how-step-title) { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 0.78s backwards; }
+.how-steps-wrap.line-active .how-step:nth-child(2) .how-step-desc  { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 0.90s backwards; }
+.how-steps-wrap.line-active .how-step:nth-child(3) :is(.how-step-date, .how-step-title) { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 1.28s backwards; }
+.how-steps-wrap.line-active .how-step:nth-child(3) .how-step-desc  { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 1.40s backwards; }
+.how-steps-wrap.line-active .how-step:nth-child(4) :is(.how-step-date, .how-step-title) { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 1.42s backwards; }
+.how-steps-wrap.line-active .how-step:nth-child(4) .how-step-desc  { animation: howStepIn 0.9s cubic-bezier(0.25,0.46,0.45,0.94) 1.54s backwards; }
+@media (prefers-reduced-motion: reduce) {
+  .how-line-fill { transform: none; }
+  .how-step-node, .how-step-date, .how-step-title, .how-step-desc { transform: none; opacity: 1; filter: none; }
+  .how-steps-wrap.line-active :is(.how-line-fill, .how-line-glow, .how-step-node, .how-step-date, .how-step-title, .how-step-desc) { animation: none; }
+}
+@media (max-width: 1024px) { .how-steps.how-steps--four { grid-template-columns: repeat(2, 1fr); row-gap: 40px; } }
+/* phones: the vertical timeline (circle left, copy beside it, a faint line
+   from each circle to the next) — Gary, 2026-10-02 */
+@media (max-width: 768px) {
+  .how-steps, .how-steps.how-steps--four { grid-template-columns: 1fr; gap: 40px; }
+  .how-line-track, .how-line-fill, .how-line-glow { display: none; }
+  .how-step { display: grid; grid-template-columns: 40px minmax(0, 1fr); column-gap: 18px; position: relative; padding: 0; }
+  .how-step-node { grid-column: 1; grid-row: 1 / span 3; margin-bottom: 0; }
+  .how-step-date { grid-column: 2; margin-top: 4px; margin-bottom: 18px; justify-self: start; }
+  /* phones: a smaller calendar page, a bigger step title (Gary) */
+  .fw-cal { width: 38px; margin-bottom: 12px; padding-bottom: 4px; }
+  .fw-cal-rings { gap: 14px; top: -3px; }
+  .fw-cal-rings i { width: 2px; height: 6px; }
+  .fw-cal-mon { padding: 3px 0 2px; font-size: 6px; letter-spacing: 1px; }
+  .fw-cal-day { padding-top: 3px; font-size: 15px; letter-spacing: -0.4px; }
+  .fw-cal-day.is-range { font-size: 10px; letter-spacing: -0.3px; padding-top: 5px; padding-bottom: 1px; }
+  .how-step-title { font-size: 21px; letter-spacing: -0.3px; margin-top: 2px; }
+  .how-step-desc { font-size: 15px; }
+  .how-step-title, .how-step-desc { grid-column: 2; }
+  .how-step:not(:last-child)::before { content: ""; position: absolute; left: 19.5px; width: 1px; top: 46px; bottom: -34px; background: rgba(var(--sc-ink-rgb), 0.12); pointer-events: none; }
+}
+
+/* ── Join (band) ────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+}
+
+/* ── Forms ──────────────────────────────────────────────────────────────── */
+.fw-form-card {
+  position: relative; padding: 32px; border: 1px solid var(--sc-line); border-radius: 2px;
+  background: var(--sc-ground); box-shadow: 0 24px 48px -32px var(--sc-shadow);
+}
+.fw-form { display: flex; flex-direction: column; gap: 20px; }
+.fw-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.fw-field { display: flex; flex-direction: column; gap: 8px; min-width: 0; border: 0; padding: 0; margin: 0; }
+.fw-field-label { font-size: 13px; font-weight: 600; color: var(--sc-ink); display: flex; align-items: center; gap: 8px; padding: 0; }
+.fw-field-optional { font-weight: 500; color: var(--sc-text-faint); }
+.fw-field input, .fw-field textarea {
+  width: 100%; height: 48px; padding: 0 14px;
+  font: 400 15px/1.4 var(--sc-font-sans); color: var(--sc-ink);
+  background: var(--sc-ground); border: 1px solid rgba(var(--sc-ink-rgb), 0.16); border-radius: 2px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-appearance: none; appearance: none;
+}
+.fw-field textarea { height: auto; padding: 12px 14px; resize: vertical; min-height: 120px; }
+.fw-field input::placeholder, .fw-field textarea::placeholder { color: rgba(var(--sc-ink-rgb), 0.35); }
+.fw-field input:hover, .fw-field textarea:hover { border-color: rgba(var(--sc-ink-rgb), 0.3); }
+.fw-field input:focus, .fw-field textarea:focus { outline: none; border-color: var(--sc-blue); box-shadow: 0 0 0 3px rgba(20, 136, 252, 0.18); }
+.fw-field.has-error input, .fw-field.has-error textarea { border-color: #d64545; }
+.fw-field-hint { font-size: 12px; color: var(--sc-text-faint); }
+.fw-field-error, .fw-form-error { font-size: 12px; color: #d64545; }
+:root[data-theme="dark"] :is(.fw-field-error, .fw-form-error) { color: #ff8a8a; }
+
+
+.fw-check { display: flex; gap: 12px; align-items: flex-start; font-size: 14px; line-height: 1.5; color: var(--sc-text-desc); cursor: pointer; }
+.fw-check input { width: 18px; height: 18px; margin: 1px 0 0; accent-color: var(--sc-blue); flex: none; }
+.fw-check .fw-text-link, .fw-fine .fw-text-link { font-size: inherit; } /* links in running text match it (reviewer, 2026-10-08) */
+
+.fw-form-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-top: 4px; }
+/* Form submit = .hero-btn-primary (52px, pixel hover from shared); these
+   only size it — label width, never the standalone CTA min-width */
+.fw-submit { min-width: 0; }
+.fw-submit:disabled { opacity: 0.7; cursor: progress; }
+
+.fw-form--done { align-items: flex-start; gap: 12px; padding: 8px 0; }
+
+/* ── Join vs contest: badges, checklist, cross-links ───────────────────── */
+.fw-form-badge {
+  display: inline-flex; align-items: center; align-self: flex-start; margin-top: 8px;
+  padding: 7px 12px; border-radius: 2px;
+  font: 700 11px/1 var(--sc-font-label); letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--sc-blue-ink); background: rgba(20, 136, 252, 0.08); border: 1px solid rgba(20, 136, 252, 0.25);
+}
+.fw-form-badge--contest { color: var(--sc-accent-warm); background: color-mix(in srgb, var(--sc-accent-warm) 9%, transparent); border-color: color-mix(in srgb, var(--sc-accent-warm) 30%, transparent); }
+.fw-need { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.fw-need li { position: relative; padding-left: 24px; font-size: 15px; line-height: 1.45; color: rgba(var(--sc-ink-rgb), 0.75); }
+.fw-need li::before { content: ""; position: absolute; left: 0; top: 6px; width: 7px; height: 7px; background: #1488FC; }
+.fw-done-mark {
+  width: 40px; height: 40px; border-radius: 50%; background: var(--sc-blue); position: relative; margin-bottom: 8px;
+}
+.fw-done-mark::after {
+  content: ''; position: absolute; left: 13px; top: 13px; width: 14px; height: 8px;
+  border-left: 2px solid #fff; border-bottom: 2px solid #fff; transform: rotate(-45deg);
+}
+.fw-done-title { font-size: 22px; font-weight: 600; letter-spacing: -0.3px; }
+.fw-done-body { font-size: 15px; line-height: 1.6; color: var(--sc-text-desc); max-width: 480px; }
+
+@media (max-width: 768px) { form.fw-entry { padding-bottom: 24px; } }
+@media (max-width: 768px) {
+  .fw-form-card { padding: 24px 16px; }
+  .fw-form-row { grid-template-columns: 1fr; }
+  .fw-field input, .fw-field textarea { font-size: 16px; } /* 16px stops iOS zooming on focus */
+  .fw-submit { width: 100%; }
+}
+
+/* ── Schedule ───────────────────────────────────────────────────────────
+   One featured card for the confirmed session (dark navy in both themes,
+   live dot field, big date, hosts photo, calendar CTA) over a row of
+   compliance-treatment cards for the sessions still being scheduled. */
+.fw-feature {
+  position: relative; overflow: hidden; isolation: isolate;
+  display: grid; grid-template-columns: 168px minmax(0, 1fr) minmax(240px, 30%); gap: 40px; align-items: start;
+  padding: 40px; margin-bottom: 16px; border-radius: 2px;
+  border: 1px solid rgba(20, 136, 252, 0.45);
+  background:
+    radial-gradient(ellipse 60% 120% at 100% 0%, rgba(20, 136, 252, 0.35), transparent 70%),
+    linear-gradient(135deg, #021a57 0%, #04246c 45%, #0a3f9e 100%);
+  color: #fff;
+}
+.fw-feature-field { z-index: 0; }
+.fw-feature > :not(.fw-pixel-field) { position: relative; z-index: 1; }
+.fw-feature-date {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  /* stretches to the text column: top = kicker, bottom = button */
+  align-self: stretch; min-height: 168px; border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 2px;
+  background: rgba(0, 4, 20, 0.28);
+}
+.fw-feature-mon { font: 700 13px/1 var(--sc-font-label); letter-spacing: 2px; text-transform: uppercase; color: #8cc4ff; }
+.fw-feature-day { margin: 6px 0 8px; font-size: 72px; font-weight: 300; line-height: 0.85; letter-spacing: -3px; }
+.fw-feature-dow { font-size: 15px; font-weight: 600; color: #fff; }
+.fw-feature-day { display: inline-flex; align-items: flex-start; }
+/* the ordinal shows only on phones, where the date reads inline (OCT 20th Tue…) */
+.fw-feature-ord { display: none; }
+.fw-feature-line { display: none; }
+@media (max-width: 768px) {
+  .fw-feature-mon, .fw-feature-day, .fw-feature-dow { display: none !important; }
+  .fw-feature-line { display: block; font-size: 16px; font-weight: 600; line-height: 1.3; color: #fff; }
+}
+.fw-feature-ord { font-size: 0.3em; font-weight: 500; letter-spacing: 0; line-height: 1; margin: 0.12em 0 0 0.16em; /* clears the number's -3px tracking */ color: #8cc4ff; top: 0; }
+.fw-feature-kicker {
+  /* flex, not inline-flex: an inline box sits on a line strut and starts ~6px below the column top */
+  display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
+  font: 700 13px/1 var(--sc-font-label); letter-spacing: 2px; text-transform: uppercase; color: #8cc4ff;
+}
+.fw-feature-title { font-size: clamp(24px, 2.4vw, 32px); font-weight: 500; letter-spacing: -0.6px; line-height: 1.2; }
+.fw-feature-blurb { margin-top: 10px; max-width: 520px; font-size: 15px; line-height: 1.6; color: rgba(255, 255, 255, 0.75); }
+.fw-feature-host { display: block; margin-top: 14px; font-size: 13px; color: rgba(255, 255, 255, 0.6); }
+.fw-feature-side { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px 24px; margin-top: 24px; }
+.fw-feature-cta { display: flex; align-items: center; gap: 10px; }
+/* Eric & Pai: bleeds to the card's top/right/bottom edges, fades into the
+   navy on its left and bottom, with a light blue tint so it sits in the
+   card's palette */
+/* the figure carries the photo's place in the card grid; the photo fills it
+   and the names sit along its bottom, above the fade (2026-10-09) */
+.fw-feature-photo-wrap { position: relative; align-self: stretch; margin: -40px -40px -40px -120px; min-height: 300px; }
+/* -120px left: the photo runs under the gap so its fade-in (an eased ramp,
+   no hard edge) happens over the empty backdrop, not over Eric */
+.fw-feature-caption {
+  position: absolute; left: 30%; right: 0; bottom: 28px; z-index: 1; text-align: center;
+  font: 700 11px/1.3 var(--sc-font-label); letter-spacing: 1.6px; text-transform: uppercase; color: rgba(255, 255, 255, 0.85);
+}
+.fw-feature-photo {
+  position: absolute; inset: 0;
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.12) 9%, rgba(0, 0, 0, 0.4) 18%, rgba(0, 0, 0, 0.75) 27%, #000 36%), linear-gradient(to top, transparent 0%, #000 35%);
+  -webkit-mask-composite: source-in;
+          mask-image: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.12) 9%, rgba(0, 0, 0, 0.4) 18%, rgba(0, 0, 0, 0.75) 27%, #000 36%), linear-gradient(to top, transparent 0%, #000 35%);
+          mask-composite: intersect;
+}
+.fw-feature-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 18%; filter: grayscale(1) contrast(1.1) brightness(1.12); }
+.fw-feature-photo::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 85% 75% at 45% 34%, rgba(90, 150, 240, 0.2), rgba(4, 36, 108, 0.62) 100%); /* wide light pool so both faces sit in it (less blue on Eric, 2026-10-09) */ mix-blend-mode: multiply; }
+.fw-feature .hero-btn-ghost { border-color: rgba(255, 255, 255, 0.45); color: #fff; background: rgba(2, 14, 52, 0.28); min-width: var(--cta-min-w); }
+.fw-feature .hero-btn-ghost:hover { border-color: rgba(255, 255, 255, 0.75); }
+
+.fw-session-when {
+  display: block; margin-bottom: 10px;
+  font: 700 13px/1.4 var(--sc-font-label); letter-spacing: 2px; text-transform: uppercase; color: var(--sc-text-faint);
+}
+.fw-session-host { display: block; margin-top: 16px; font-size: 13px; color: var(--sc-text-muted); }
+.fw-session-card {
+  display: flex; flex-direction: column;
+  border-color: rgba(20, 136, 252, 0.22);
+  /* blue fill + a pixel grid that thickens toward the bottom */
+  /* no dot grid (2026-10-12): a clean pale-blue wash that deepens toward the
+     bottom-right, with a soft glow in that corner */
+  background:
+    radial-gradient(ellipse 80% 70% at 100% 100%, rgba(20, 136, 252, 0.14), transparent 70%),
+    linear-gradient(160deg, #f7faff 0%, #eaf2fe 100%);
+  -webkit-mask: none;
+}
+/* (the old grid-fade ::before is gone with the dot grid) */
+:root[data-theme="dark"] .fw-session-card {
+  border-color: rgba(255, 255, 255, 0.16);
+  background:
+    radial-gradient(ellipse 80% 70% at 100% 100%, rgba(20, 136, 252, 0.16), transparent 70%),
+    linear-gradient(160deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.055) 100%);
+}
+:root[data-theme="dark"] .fw-session-card:hover { border-color: rgba(255, 255, 255, 0.4); }
+.fw-session-card:hover { border-color: rgba(255, 255, 255, 0.45); }
+.fw-session-card:hover { border-color: rgba(20, 136, 252, 0.55); }
+.fw-session-card .fw-card-desc { flex: 1; }
+
+@media (max-width: 1024px) {
+  .fw-feature { grid-template-columns: 140px minmax(0, 1fr); gap: 28px; padding: 32px; }
+  .fw-feature-date { min-height: 140px; }
+  .fw-feature-day { font-size: 60px; }
+  /* photo becomes a banner across the top, fading down into the card */
+  .fw-feature-photo-wrap { grid-column: 1 / -1; grid-row: 1; margin: -32px -32px 0; min-height: 0; height: 260px; }
+  .fw-feature-caption { left: 0; bottom: 18px; }
+  .fw-feature-photo img { object-position: 50% 6%; } /* banner crop: keep the tops of their heads in frame */
+  .fw-feature-photo {
+    -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 45%); mask-image: linear-gradient(to top, transparent 0%, #000 45%);
+  }
+  .fw-session-cards { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 768px) {
+  .fw-feature { grid-template-columns: 1fr; gap: 24px; padding: 24px 20px; }
+  .fw-feature-date { flex-direction: row; justify-content: flex-start; align-items: baseline; gap: 10px; min-height: 0; padding: 14px 16px; justify-self: start; width: auto; } /* hugs its content, not full width */
+  .fw-feature-day { font-size: 44px; margin: 0; letter-spacing: -2px; }
+  .fw-feature-photo-wrap { margin: -24px -20px 0; height: 220px; }
+  .fw-feature-side { flex-direction: column; align-items: stretch; }
+  .fw-feature-cta { flex-direction: column; align-items: stretch; }
+  .fw-feature .hero-btn-ghost { width: 100%; }
+  .fw-session-cards { grid-template-columns: 1fr; }
+}
+
+/* ── Templates — the catalog card (marketing/templates/index.html) ───────
+   Portrait 4/5 preview, a full-page screenshot top-anchored and clipped that
+   drifts up ~40px on hover, a scrim + pill label rising from the foot, and a
+   name / tag row underneath. Values copied from the catalog. */
+.fw-templates { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 56px 20px; }
+@keyframes fw-tcard-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.fw-tcard {
+  position: relative; display: flex; flex-direction: column; text-decoration: none; color: inherit;
+  transition: transform 0.25s ease;
+  animation: fw-tcard-in 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(min(var(--i, 0), 15) * 45ms);
+}
+.fw-tcard:hover { transform: translateY(-3px); }
+.fw-tcard-preview {
+  position: relative; aspect-ratio: 4 / 5; overflow: hidden;
+  border-radius: 4px; border: 1px solid rgba(var(--sc-ink-rgb), 0.08);
+  background: var(--sc-surface); transition: border-color 0.25s ease;
+}
+.fw-tcard-shot-wrap { position: relative; width: 100%; height: 100%; overflow: hidden; }
+.fw-tcard-shot, .fw-tmock {
+  position: absolute; top: 0; left: 0; width: 100%; height: auto; display: block;
+  transform: translateY(0); transition: transform 0.8s ease-out;
+}
+.fw-tcard:hover :is(.fw-tcard-shot, .fw-tmock) { transform: translateY(-40px); }
+/* single-screen templates cover-fill the card, anchored top, no drift */
+.fw-tcard-fill { width: 100%; height: 100%; object-fit: cover; object-position: 50% 0%; display: block; }
+
+.fw-tcard-overlay {
+  position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  display: flex; align-items: flex-end; justify-content: center; padding-bottom: 18px;
+  background: linear-gradient(180deg, rgba(255,255,255,0) 60%, rgba(255,255,255,0.72) 88%, rgba(255,255,255,0.92) 100%);
+  opacity: 0; transition: opacity 0.32s ease;
+}
+.fw-tcard:hover .fw-tcard-overlay, .fw-winner:hover .fw-tcard-overlay { opacity: 1; }
+.fw-tcard-overlay span {
+  font: 700 10px/1 var(--sc-font-label); letter-spacing: 1.6px; text-transform: uppercase; color: var(--sc-ink);
+  background: #fff; padding: 9px 16px; border-radius: 999px;
+  border: 1px solid rgba(var(--sc-ink-rgb), 0.08); box-shadow: 0 4px 14px rgba(15, 26, 42, 0.12);
+  transform: translateY(6px); transition: transform 0.32s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.fw-tcard:hover .fw-tcard-overlay span, .fw-winner:hover .fw-tcard-overlay span { transform: none; }
+:root[data-theme="dark"] .fw-tcard-preview { background: #0a0a10; }
+:root[data-theme="dark"] .fw-tcard-overlay {
+  background: linear-gradient(180deg, rgba(5,5,8,0) 45%, rgba(5,5,8,0.55) 80%, rgba(5,5,8,0.82) 100%);
+}
+:root[data-theme="dark"] .fw-tcard-overlay span { background: none; padding: 0; border: 0; box-shadow: none; }
+.fw-tcard-foot { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 14px 4px 0; }
+.fw-tcard-name { font-size: 14px; font-weight: 500; letter-spacing: -0.1px; color: rgba(var(--sc-ink-rgb), 0.92); }
+.fw-tcard-tag {
+  padding-top: 2px; white-space: nowrap;
+  font: var(--sc-label-weight) 10px/1.4 var(--sc-font-label); letter-spacing: 1.2px; text-transform: uppercase; color: var(--sc-text-muted);
+}
+@media (prefers-reduced-motion: reduce) {
+  .fw-tcard { animation: none; }
+  .fw-tcard-shot, .fw-tmock, .fw-tcard:hover :is(.fw-tcard-shot, .fw-tmock),
+  .fw-tcard-overlay span, .fw-tcard:hover .fw-tcard-overlay span { transform: none; transition: none; }
+}
+@media (max-width: 1024px) { .fw-templates { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 44px 16px; } }
+@media (max-width: 768px) { .fw-templates { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 36px 12px; } }
+
+/* Placeholder mock — a skeleton landing page, taller than the card */
+.fw-tmock { --mk: rgba(var(--sc-ink-rgb), 0.09); --mk2: rgba(var(--sc-ink-rgb), 0.05); padding: 0 0 24px; background: var(--sc-ground); }
+.fw-tmock b, .fw-tmock s, .fw-tmock i, .fw-tmock em, .fw-tmock span { display: block; border-radius: 2px; }
+.fw-tmock-nav { display: flex; align-items: center; gap: 8px; padding: 12px 14px; border-bottom: 1px solid var(--mk2); }
+.fw-tmock-nav i { width: 28px; height: 8px; background: var(--acc); margin-right: auto; }
+.fw-tmock-nav b { width: 18px; height: 5px; background: var(--mk); }
+.fw-tmock-hero { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 34px 18px 22px; }
+.fw-tmock-hero b { height: 12px; background: rgba(var(--sc-ink-rgb), 0.16); }
+.fw-tmock-hero s { width: 64%; height: 6px; background: var(--mk); margin-top: 4px; }
+.fw-tmock-hero em { width: 34%; height: 18px; background: var(--acc); margin-top: 10px; }
+.w80 { width: 80%; } .w70 { width: 70%; } .w60 { width: 60%; } .w50 { width: 50%; }
+.fw-tmock-img { height: 120px; margin: 0 14px; background: linear-gradient(135deg, var(--acc), color-mix(in srgb, var(--acc) 35%, var(--sc-ground))); border-radius: 2px; opacity: 0.85; }
+.fw-tmock-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 8px; padding: 18px 14px 0; }
+.fw-tmock-row span { height: 64px; background: var(--mk2); border: 1px solid var(--mk2); }
+.fw-tmock-text { display: flex; flex-direction: column; gap: 7px; padding: 22px 14px 0; }
+.fw-tmock-text b { height: 9px; background: rgba(var(--sc-ink-rgb), 0.14); }
+.fw-tmock-text s { height: 5px; background: var(--mk); }
+
+/* ── Competition (band) ─────────────────────────────────────────────────── */
+.fw-prizes { display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 16px; align-items: end; margin-top: 8px; }
+/* dark navy cards in both themes, so they pop off the light band */
+.fw-prize {
+  position: relative; overflow: hidden; isolation: isolate; display: flex; flex-direction: column;
+  min-height: 290px; padding: 32px 28px 30px; border-radius: 4px; color: #fff;
+  border: 1px solid rgba(120, 175, 255, 0.28);
+  background:
+    radial-gradient(ellipse 80% 70% at 100% 0%, rgba(20, 136, 252, 0.32), transparent 70%),
+    linear-gradient(160deg, #04246c 0%, #021a57 55%, #010f38 100%);
+  box-shadow: 0 24px 48px -28px rgba(2, 26, 87, 0.65);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
+}
+.fw-prize > :not(.fw-pixel-field, .fw-pixel-rise) { position: relative; z-index: 1; }
+.fw-prize > .fw-pixel-rise { z-index: 0; }
+.fw-prize:hover { box-shadow: 0 32px 56px -28px rgba(2, 26, 87, 0.8); } /* no lift, like the winner cards */
+/* podium order on desktop: 2nd, 1st, 3rd */
+.fw-prize--2 { order: 1; }
+.fw-prize--1 { order: 2; }
+.fw-prize--3 { order: 3; }
+/* the grand prize: taller, brighter, glowing edge */
+.fw-prize.is-first {
+  min-height: 360px; padding: 40px 36px 36px;
+  border-color: rgba(140, 196, 255, 0.6);
+  background:
+    radial-gradient(ellipse 90% 75% at 50% 0%, rgba(77, 166, 255, 0.45), transparent 70%),
+    linear-gradient(160deg, #0a3f9e 0%, #04246c 50%, #021a57 100%);
+  box-shadow: 0 0 0 1px rgba(77, 166, 255, 0.35), 0 0 48px -6px rgba(20, 136, 252, 0.55), 0 32px 64px -28px rgba(2, 26, 87, 0.8);
+}
+/* big ghost rank numeral in the corner */
+.fw-prize-rank {
+  /* bottom in em, not px: the space under the glyph scales with font size,
+     so a px offset left the bigger "1" floating while 2 and 3 clipped. The
+     baseline sits 0.139em above the box bottom; -0.18em sinks every numeral
+     the same ~4% of its height below the card edge (a slight clip, Gary). */
+  position: absolute !important; right: 18px; bottom: -0.18em; z-index: 0 !important;
+  font-size: 180px; font-weight: 700; line-height: 1; letter-spacing: -8px;
+  /* solid fill turned into a 1px outer edge by #fw-rank-outline (a
+     text-stroke drew the glyph's overlapping inner contours) */
+  /* opaque fill so the edge cut is exact; opacity fades it afterwards */
+  color: rgb(140, 196, 255); opacity: 0.3; filter: url(#fw-rank-outline);
+}
+.fw-prize.is-first .fw-prize-rank { font-size: 230px; color: rgb(160, 210, 255); opacity: 0.45; }
+.fw-prize-place {
+  align-self: flex-start; padding: 6px 12px; border-radius: 999px;
+  font: 700 11px/1 var(--sc-font-label); letter-spacing: 1.8px; text-transform: uppercase;
+  color: #cfe6ff; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18);
+}
+.fw-prize.is-first .fw-prize-place { color: #021a57; background: #fff; border-color: #fff; }
+.fw-prize-amount {
+  margin: auto 0 8px; padding-top: 40px; font-size: clamp(44px, 4.4vw, 60px); font-weight: 300; line-height: 0.95; letter-spacing: -2.5px; color: #fff;
+}
+.fw-prize.is-first .fw-prize-amount {
+  font-size: clamp(56px, 6vw, 84px); letter-spacing: -3.5px; font-weight: 400;
+  background: linear-gradient(180deg, #ffffff 30%, #9fd0ff 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.fw-prize .fw-card-desc { color: rgba(255, 255, 255, 0.7); margin-top: 4px; }
+.fw-fine--center { margin-left: auto; margin-right: auto; text-align: center; }
+@media (prefers-reduced-motion: reduce) { .fw-prize, .fw-prize:hover { transition: none; transform: none; } }
+
+.fw-bridge { display: flex; flex-direction: column; align-items: center; margin-top: 40px; }
+/* a column of square pixels drifting downward */
+.fw-bridge-line {
+  width: 3px; height: 96px;
+  background: linear-gradient(180deg, #1488FC 0 3px, transparent 3px 9px) 0 0 / 3px 9px repeat-y;
+  -webkit-mask: linear-gradient(180deg, transparent, #000 30%, #000 70%, transparent);
+          mask: linear-gradient(180deg, transparent, #000 30%, #000 70%, transparent);
+  animation: fw-trail 0.9s linear infinite;
+}
+.fw-bridge-line--short { height: 40px; }
+@keyframes fw-trail { from { background-position: 0 0; } to { background-position: 0 9px; } }
+.fw-bridge-pill {
+  /* retro tag: square corners, MacPaint marching-ants selection, hard offset
+     shadow (no blur), pixel sparkles either side */
+  --ant: #1488FC;
+  display: inline-flex; align-items: center; gap: 10px; margin: 6px 0; padding: 9px 14px;
+  font: 700 11px/1 var(--sc-font-label); letter-spacing: 2px; text-transform: uppercase;
+  color: var(--sc-blue-ink);
+  background:
+    linear-gradient(90deg, var(--ant) 50%, transparent 0) 0 0 / 6px 2px repeat-x,
+    linear-gradient(90deg, var(--ant) 50%, transparent 0) 0 100% / 6px 2px repeat-x,
+    linear-gradient(0deg, var(--ant) 50%, transparent 0) 0 0 / 2px 6px repeat-y,
+    linear-gradient(0deg, var(--ant) 50%, transparent 0) 100% 0 / 2px 6px repeat-y,
+    var(--sc-ground);
+  box-shadow: 4px 4px 0 rgba(20, 136, 252, 0.22);
+  animation: fw-ants 1.6s linear infinite;
+}
+@keyframes fw-ants {
+  to { background-position: 12px 0, -12px 100%, 0 -12px, 100% 12px, 0 0; }
+}
+.fw-bridge-pill { position: relative; padding: 10px 18px; outline: 1px solid rgba(20, 136, 252, 0.28); outline-offset: -5px; }
+.fw-cert-seal { position: absolute; right: -9px; bottom: -13px; width: 18px; height: 22px; shape-rendering: crispEdges; }
+.fw-cert-seal-disc { fill: #1488FC; }
+.fw-cert-seal-tails { fill: #0f6fd0; }
+.fw-cert-seal-core { fill: var(--sc-ground); }
+:root[data-theme="dark"] .fw-cert-seal-tails { fill: #4DA6FF; }
+:root[data-theme="dark"] .fw-bridge-pill { box-shadow: 4px 4px 0 rgba(20, 136, 252, 0.35); }
+@media (prefers-reduced-motion: reduce) { .fw-bridge-pill { animation: none; } }
+.fw-subhead--winners { flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 8px; margin-top: 8px !important; }
+.fw-subhead-sub { font-size: 15px; color: var(--sc-text-muted); }
+@media (prefers-reduced-motion: reduce) { .fw-bridge-line { animation: none; } }
+@media (max-width: 768px) { .fw-bridge { margin-top: 28px; } .fw-bridge-line { height: 64px; } .fw-bridge-line--short { height: 28px; } }
+.fw-subhead { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 96px 0 24px; }
+.fw-subhead-title { font-size: clamp(24px, 2.2vw, 30px); font-weight: 500; letter-spacing: -0.6px; }
+
+.fw-gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.fw-gallery--loading { min-height: 200px; }
+.fw-entry-card {
+  display: flex; flex-direction: column; text-decoration: none; color: inherit;
+  border: 1px solid var(--sc-line); border-radius: 2px; overflow: hidden; background: var(--sc-ground);
+  transition: border-color 0.3s ease, transform 0.3s ease;
+}
+.fw-entry-card:hover { border-color: rgba(20, 136, 252, 0.45); }
+.fw-entry-thumb {
+  aspect-ratio: 16 / 9; display: flex; align-items: center; justify-content: center;
+  font-size: 56px; font-weight: 300; color: rgba(255, 255, 255, 0.92);
+  background: linear-gradient(160deg, #021a57, #1259c3 60%, #6ba6da);
+}
+.fw-entry-thumb[data-hue="1"] { background: linear-gradient(160deg, #04246c, #0a3f9e 55%, #3b82cf); }
+.fw-entry-thumb[data-hue="2"] { background: linear-gradient(200deg, #072f86, #1488FC 65%, #a3c8e6); }
+.fw-entry-thumb[data-hue="3"] { background: linear-gradient(140deg, #000509, #0a3f9e 60%, #1488FC); }
+.fw-entry-body { display: flex; flex-direction: column; gap: 6px; padding: 20px 20px 24px; }
+.fw-entry-name { font-size: 17px; font-weight: 600; letter-spacing: -0.2px; }
+.fw-entry-tagline { font-size: 14px; line-height: 1.5; color: var(--sc-text-desc); }
+.fw-entry-founder { margin-top: 6px; font-size: 13px; color: var(--sc-text-faint); }
+/* Past winners: real screenshot, label + name */
+.fw-winner-shot { position: relative; display: block; aspect-ratio: 4 / 3; overflow: hidden; background: var(--sc-surface-strong); border-bottom: 1px solid var(--sc-line); }
+.fw-winner-shot img {
+  width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; display: block;
+  /* black and white at rest, full colour on hover */
+  filter: grayscale(1);
+  transition: filter 0.5s ease; /* no zoom: same overlay-only hover as the template cards */
+}
+.fw-winner:hover .fw-winner-shot img, .fw-winner:focus-visible .fw-winner-shot img { filter: none; }
+/* no lift: the card itself stays put on hover (Gary) */
+.fw-winner, .fw-winner:hover { transform: none; }
+/* and no blue border on hover — the card frame stays neutral */
+.fw-entry-card.fw-winner:hover { border-color: var(--sc-line); }
+.fw-winner-shot .fw-tcard-overlay { display: flex; }
+.fw-winner-foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 20px 20px; }
+.fw-winner .fw-entry-body { padding: 0; gap: 6px; }
+.fw-winner-label { font: 700 10px/1.3 var(--sc-font-label); letter-spacing: 1.4px; text-transform: uppercase; color: var(--sc-text-muted); /* medium grey */ }
+.fw-gallery-empty {
+  display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center;
+  padding: 56px 24px; border: 1px dashed rgba(var(--sc-ink-rgb), 0.18); border-radius: 2px;
+  font-size: 15px; color: var(--sc-text-desc);
+}
+
+.fw-enter { margin-top: 96px; display: grid; grid-template-columns: minmax(0, 4.2fr) minmax(0, 7fr); gap: 24px; align-items: start; }
+/* the entry area sits on its own full-bleed band so the white form card and
+   the navy panel stand off the light contest band */
+.fw-enter { position: relative; isolation: isolate; padding: 72px 0; }
+.fw-enter::before {
+  content: ''; position: absolute; z-index: -1; top: 0; bottom: 0; left: 50%; width: 100vw; transform: translateX(-50%);
+  background:
+    radial-gradient(rgba(20, 136, 252, 0.16) 1px, transparent 1.4px) 0 0 / 14px 14px,
+    radial-gradient(ellipse 70% 90% at 50% 0%, rgba(20, 136, 252, 0.12), transparent 70%),
+    linear-gradient(180deg, #e9f1fd 0%, #dfeafb 100%);
+  border-top: 1px solid rgba(20, 136, 252, 0.18); border-bottom: 1px solid rgba(20, 136, 252, 0.18);
+}
+:root[data-theme="dark"] .fw-enter::before {
+  /* dark grey band, not navy (Gary, 2026-10-08): neutral dots, a faint
+     blue lift at the top only */
+  background:
+    radial-gradient(rgba(255, 255, 255, 0.09) 1px, transparent 1.4px) 0 0 / 14px 14px,
+    radial-gradient(ellipse 70% 90% at 50% 0%, rgba(20, 136, 252, 0.06), transparent 70%),
+    linear-gradient(180deg, #131417 0%, #0d0e10 100%);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+/* the entry band closes the contest section: no grey strip + rule below it */
+.fw-section--compete { padding-bottom: 0 !important; border-bottom: 0; }
+.fw-enter::before { border-bottom: 0; }
+.fw-enter .fw-form-card { box-shadow: 0 30px 60px -32px rgba(2, 26, 87, 0.45); border-color: rgba(20, 136, 252, 0.18); }
+/* left: navy panel, sticky beside the long form */
+.fw-enter-head {
+  position: sticky; top: 92px; overflow: hidden; isolation: isolate;
+  display: flex; flex-direction: column; gap: 14px;
+  padding: 36px 32px 34px; border-radius: 4px; color: #fff;
+  border: 1px solid rgba(120, 175, 255, 0.28);
+  background:
+    radial-gradient(ellipse 90% 70% at 100% 0%, rgba(20, 136, 252, 0.35), transparent 70%),
+    linear-gradient(160deg, #04246c 0%, #021a57 55%, #010f38 100%);
+  box-shadow: 0 24px 48px -28px rgba(2, 26, 87, 0.65);
+}
+.fw-enter-head > :not(.fw-pixel-field) { position: relative; z-index: 1; }
+.fw-enter-badge {
+  align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px;
+  font: 700 11px/1 var(--sc-font-label); letter-spacing: 1.6px; text-transform: uppercase;
+  color: #cfe6ff; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18);
+}
+.fw-enter-title { margin-top: 6px; font-size: clamp(32px, 3vw, 42px); font-weight: 500; letter-spacing: -1px; line-height: 1.1; }
+.fw-enter-sub { font-size: 15px; line-height: 1.6; color: rgba(255, 255, 255, 0.72); }
+.fw-enter-prize {
+  display: flex; flex-direction: column; gap: 4px; margin: 10px 0 4px; padding: 18px 20px;
+  border-radius: 4px; background: rgba(0, 6, 30, 0.35); border: 1px solid rgba(140, 196, 255, 0.22);
+}
+.fw-enter-prize-label { font: 700 11px/1 var(--sc-font-label); letter-spacing: 1.6px; text-transform: uppercase; color: #8cc4ff; }
+.fw-enter-prize-amount {
+  font-size: 52px; font-weight: 400; line-height: 1; letter-spacing: -2.5px;
+  background: linear-gradient(180deg, #fff 30%, #9fd0ff 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.fw-enter-prize-more { font-size: 13px; color: rgba(255, 255, 255, 0.6); }
+.fw-enter-ready { margin-top: 6px; font: 700 11px/1 var(--sc-font-label); letter-spacing: 1.6px; text-transform: uppercase; color: rgba(255, 255, 255, 0.55); }
+.fw-enter-list { list-style: none; margin: 0; padding: 0; counter-reset: fw-need; display: flex; flex-direction: column; gap: 12px; }
+.fw-enter-list li { counter-increment: fw-need; display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: start; padding-top: 1px; /* +1px: text centre lines up with the 01 badge */ font-size: 15px; line-height: 1.45; color: rgba(255, 255, 255, 0.86); }
+.fw-enter-list li::before {
+  margin-top: -1px; /* badge stays put while the text drops 1px */
+  content: counter(fw-need, decimal-leading-zero); display: grid; place-items: center; height: 24px; border-radius: 2px;
+  font: 700 10px/1 var(--sc-font-label); letter-spacing: 1px; color: #fff; background: #1488FC;
+}
+/* right: the form, grouped into numbered steps with a progress bar */
+.fw-form-card--wide { padding: 0; overflow: hidden; }
+.fw-entry { gap: 0; }
+.fw-progress { position: relative; display: flex; align-items: center; gap: 14px; padding: 16px 32px; background: var(--sc-ground); border-bottom: 1px solid var(--sc-line-soft); }
+.fw-progress-bar { flex: 1; height: 4px; border-radius: 999px; background: rgba(var(--sc-ink-rgb), 0.08); overflow: hidden; }
+.fw-progress-bar span { display: block; height: 100%; border-radius: inherit; background: #0d9b7a; /* deep mint: matches the label (light) */ transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
+.fw-progress-label { font: 700 11px/1 var(--sc-font-label); letter-spacing: 1.4px; text-transform: uppercase; color: #0d9b7a; white-space: nowrap; min-width: 112px; text-align: right; }
+:root[data-theme="dark"] .fw-progress-label { color: #7FDDC1; }
+:root[data-theme="dark"] .fw-progress-bar span { background: #7FDDC1; }
+.fw-step { border: 0; margin: 0; padding: 28px 32px 8px; display: flex; flex-direction: column; gap: 20px; }
+/* no divider between steps (Gary, 2026-10-08): the numbered heads and a
+   roomier top pad carry the break */
+.fw-step + .fw-step { padding-top: 44px; }
+/* steps are role="group" divs, not fieldset/legend: Safari pinned the legend
+   to the fieldset's top edge and ignored the padding above it, so on iPhone
+   the heads crowded the progress bar and the field above (2026-10-08) */
+.fw-step-head { display: flex; align-items: center; gap: 12px; padding: 0; margin-bottom: 4px; }
+.fw-step-num {
+  display: grid; place-items: center; width: 30px; height: 30px; border-radius: 2px;
+  font: 700 11px/1 var(--sc-font-label); letter-spacing: 1px; color: #fff; background: #1488FC;
+}
+.fw-step-title { font-size: 18px; font-weight: 600; letter-spacing: -0.2px; color: var(--sc-ink); }
+.fw-entry > .fw-check { margin: 20px 32px 0; }
+.fw-entry > .fw-field-error { margin: 6px 32px 0; }
+.fw-entry > .fw-form-foot { margin: 20px 32px 0; }
+/* the form owns its bottom space (it used to come from the preview note's
+   margin, so with a live backend the button sat on the card edge — Donald) */
+form.fw-entry { padding-bottom: 32px; }
+.fw-entry > .fw-preview-note { margin: 16px 32px 0; }
+.fw-entry .fw-field input:focus, .fw-entry .fw-field textarea:focus { box-shadow: 0 0 0 4px rgba(20, 136, 252, 0.16); }
+
+@media (max-width: 1024px) {
+  .fw-prizes { grid-template-columns: 1fr 1fr; align-items: stretch; }
+  .fw-prize.is-first { grid-column: 1 / -1; order: 0; min-height: 300px; }
+  .fw-prize { min-height: 240px; }
+  .fw-gallery { grid-template-columns: 1fr 1fr; }
+  .fw-enter { grid-template-columns: 1fr; gap: 16px; margin-top: 72px; padding: 56px 0; }
+  .fw-enter-head { position: relative; top: auto; }
+    .fw-subhead { margin-top: 72px; }
+}
+@media (max-width: 768px) {
+  .fw-prizes { grid-template-columns: 1fr; }
+  /* past winners on phones: stacked one per row (the 2 + 1 grid read odd,
+     2026-10-08), template-card style — framed landscape preview, label +
+     name underneath with no box */
+  .fw-gallery { grid-template-columns: 1fr; gap: 28px; }
+  .fw-entry-card.fw-winner, .fw-entry-card.fw-winner:hover { border: 0; background: transparent; border-radius: 0; overflow: visible; }
+  .fw-winner-shot { aspect-ratio: 16 / 10; border: 1px solid rgba(var(--sc-ink-rgb), 0.08); border-radius: 4px; }
+  .fw-winner-foot { padding: 12px 2px 0; }
+  .fw-winner .fw-entry-name { font-size: 16px; line-height: 1.3; }
+  .fw-prize { min-height: 210px; } .fw-prize.is-first { min-height: 260px; padding: 32px 24px 28px; }
+  .fw-prize-rank { font-size: 140px; } .fw-prize.is-first .fw-prize-rank { font-size: 170px; }
+  .fw-subhead { margin-top: 56px; }
+  .fw-enter { margin-top: 56px; padding: 40px 0; }
+  .fw-enter-head { padding: 28px 22px; }
+  .fw-enter-prize-amount { font-size: 44px; }
+  .fw-progress, .fw-step { padding-left: 18px; padding-right: 18px; }
+  .fw-entry > .fw-check, .fw-entry > .fw-form-foot, .fw-entry > .fw-field-error, .fw-entry > .fw-preview-note { margin-left: 18px; margin-right: 18px; }
+  .fw-progress-label { min-width: 0; }
+}
+
+/* ── FAQ ────────────────────────────────────────────────────────────────── */
+.fw-faq-layout { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 64px; align-items: start; }
+.fw-faq-head .ms-faq-headline { margin: 0; }
+/* the eyebrow is a span: block it so the shared 16 / 12 / 12 margin applies */
+.fw-faq-head .ms-faq-eyebrow { display: block; }
+@media (max-width: 1024px) {
+  .fw-faq-layout { grid-template-columns: 1fr; gap: 32px; }
+}
+
+/* ── Footer CTA ─────────────────────────────────────────────────────────── */
+/* Footer zone: one BoltGrad02 video behind the CTA + site footer. The copy
+   inside is .sc-on-dark (white) in both themes. Layers: video 0, fades and
+   scrim 1, content 2. */
+.fw-footer-zone { position: relative; overflow: hidden; isolation: isolate; background: #021a57; }
+.fw-footer-video {
+  position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0;
+  object-fit: cover; object-position: 50% 100%; pointer-events: none; /* the bottom of BoltGrad02 is all blue; its top has a black corner + pale glow */
+  filter: blur(10px); transform: scale(1.04); /* same de-banding as the hero */
+}
+/* Hard top edge (Gary): the footer is the page's last block, so the video
+   simply starts — no fade from the page ground. */
+.fw-footer-zone::after {
+  /* legibility: a navy pool behind the CTA copy (the video's pale glow sits
+     right there) and a darker floor under the footer links */
+  content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    radial-gradient(ellipse 55% 42% at 50% 42%, rgba(2, 14, 52, 0.55), rgba(2, 14, 52, 0.15) 65%, transparent 85%),
+    linear-gradient(to bottom, transparent 60%, rgba(1, 6, 24, 0.55) 100%);
+}
+.fw-footer-zone > :not(video) { position: relative; z-index: 2; }
+@media (max-width: 768px) {
+  /* the copy column is narrow and tall on phones: widen the pool to cover it */
+  .fw-footer-zone::after {
+    background:
+      radial-gradient(ellipse 95% 48% at 50% 40%, rgba(2, 14, 52, 0.6), rgba(2, 14, 52, 0.2) 65%, transparent 90%),
+      linear-gradient(to bottom, transparent 60%, rgba(1, 6, 24, 0.55) 100%);
+  }
+}
+:root[data-theme="dark"] .fw-footer-video { filter: blur(10px) brightness(0.72) saturate(1.35); }
+.fw-footer-zone .footer-eyebrow { color: #8cc4ff; }
+.fw-footer-zone .fw-footer-sub { color: rgba(255, 255, 255, 0.82); }
+
+.fw-footer-cta { position: relative; overflow: hidden; padding: clamp(80px, 12vh, 140px) 16px 88px; text-align: center; }
+.fw-footer-cta-inner { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; }
+/* header rhythm: eyebrow→H2 16/12/12, H2→sub 16/12/8, sub→button 32/32/24.
+   Shared's .footer-eyebrow + .dsa-reveal pull-up assumes the 24px flex gap of
+   .footer-section, which this stack does not have — cancel it. */
+.fw-footer-cta .footer-eyebrow { display: block; margin-bottom: 16px; }
+.fw-footer-cta .footer-eyebrow + .dsa-reveal { margin-top: 0; }
+.fw-footer-sub { margin-top: 16px; max-width: 560px; font-size: clamp(15px, 1.1vw, 17px); line-height: 1.65; color: var(--sc-text-sub); }
+.fw-footer-btns { margin-top: 32px; }
+@media (max-width: 1024px) {
+  .fw-footer-cta .footer-eyebrow { margin-bottom: 12px; }
+  .fw-footer-sub { margin-top: 12px; }
+}
+@media (max-width: 768px) {
+  .fw-footer-sub { margin-top: 8px; font-size: 15px; line-height: 1.4; }
+  .fw-footer-btns { margin-top: 24px; }
+}
+
+/* ── Site footer ────────────────────────────────────────────────────────── */
+.fw-site-footer { border-top: 1px solid rgba(255, 255, 255, 0.16); padding: 28px 0 32px; }
+.fw-footer-zone .fw-footer-links a { color: rgba(255, 255, 255, 0.75); }
+.fw-footer-zone .fw-footer-links a:hover { color: #fff; }
+.fw-footer-zone .fw-footer-copy { color: rgba(255, 255, 255, 0.6); }
+.fw-site-footer-row { display: flex; align-items: center; gap: 32px; flex-wrap: wrap; }
+.fw-footer-logo { color: var(--sc-ink); }
+.fw-footer-logo svg { height: 20px; width: auto; }
+.fw-footer-links { display: flex; gap: 24px; flex-wrap: wrap; }
+.fw-footer-links a { font-size: 14px; color: var(--sc-text-muted); text-decoration: none; }
+.fw-footer-links a:hover { color: var(--sc-ink); }
+.fw-footer-copy { margin-left: auto; font-size: 13px; color: var(--sc-text-faint); }
+@media (max-width: 768px) {
+  .fw-site-footer-row { flex-direction: column; align-items: flex-start; gap: 20px; }
+  .fw-footer-copy { margin-left: 0; }
+}
+
+/* ── Terms page ─────────────────────────────────────────────────────────
+   Legal reading layout: header + key-facts strip, sticky contents rail on
+   desktop, a ~700px reading measure, numbered section heads. */
+/* top gap = the family below-nav standard (hero tops use the same clamp);
+   a flat 72px read tight under the fixed nav (Gary, 2026-10-14) */
+.fw-terms { padding: calc(var(--sc-nav-overlap) + clamp(90px, calc(24px + 8.5vh), 148px)) 0 120px; counter-reset: fw-sec; }
+.fw-terms-head, .fw-terms-layout { width: min(1200px, calc(100vw - 160px)); margin: 0 auto; }
+.fw-terms-head { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; padding-bottom: 40px; border-bottom: 1px solid var(--sc-line); }
+.fw-terms-h1 { max-width: 880px; font-size: clamp(40px, 4vw, 52px); font-weight: 500; letter-spacing: -1px; line-height: 1.15; text-wrap: balance; }
+.fw-terms-facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; width: 100%; margin: 24px 0 0; border: 1px solid var(--sc-line); border-radius: 2px; }
+.fw-terms-facts > div { padding: 18px 20px; border-right: 1px solid var(--sc-line); }
+.fw-terms-facts > div:last-child { border-right: 0; }
+.fw-terms-facts dt { font: 700 11px/1.4 var(--sc-font-label); letter-spacing: 1.5px; text-transform: uppercase; color: var(--sc-text-faint); }
+.fw-terms-facts dd { margin: 6px 0 0; font-size: 16px; font-weight: 500; color: var(--sc-ink); }
+
+.fw-terms-layout { display: grid; grid-template-columns: 240px minmax(0, 720px); gap: 80px; padding-top: 56px; }
+.fw-terms-toc { position: sticky; top: 100px; align-self: start; max-height: calc(100vh - 140px); overflow-y: auto; }
+.fw-terms-toc-label { display: block; margin-bottom: 16px; font: 700 11px/1 var(--sc-font-label); letter-spacing: 1.5px; text-transform: uppercase; color: var(--sc-text-faint); }
+.fw-terms-toc ol { list-style: none; margin: 0; padding: 0; counter-reset: fw-toc; border-left: 1px solid var(--sc-line); }
+.fw-terms-toc li { counter-increment: fw-toc; }
+.fw-terms-toc a { display: flex; gap: 10px; padding: 7px 0 7px 16px; margin-left: -1px; border-left: 1px solid transparent; font-size: 13px; line-height: 1.4; color: var(--sc-text-muted); text-decoration: none; transition: color 0.2s, border-color 0.2s; }
+.fw-terms-toc a::before { content: counter(fw-toc, decimal-leading-zero); flex: none; width: 18px; font: 700 11px/1.6 var(--sc-font-label); font-variant-numeric: tabular-nums; color: var(--sc-text-faint); }
+.fw-terms-toc a:hover { color: var(--sc-ink); border-left-color: var(--sc-blue); }
+
+.fw-terms-body { font-size: 15px; line-height: 1.75; color: var(--sc-text-desc); }
+.fw-terms-body h2 {
+  counter-increment: fw-sec; scroll-margin-top: 96px;
+  display: flex; align-items: baseline; gap: 14px;
+  margin: 56px 0 16px; padding-top: 32px; border-top: 1px solid var(--sc-line-soft);
+  font-size: 22px; font-weight: 600; letter-spacing: -0.3px; line-height: 1.3; color: var(--sc-ink);
+}
+.fw-terms-body h2::before { content: counter(fw-sec, decimal-leading-zero); font: 700 12px/1 var(--sc-font-label); letter-spacing: 1.5px; color: var(--sc-blue-ink); flex: none; position: relative; top: -2px; }
+.fw-terms-body h2:first-of-type { margin-top: 48px; }
+.fw-terms-body p { margin: 0 0 16px; }
+.fw-terms-body strong { color: var(--sc-ink); font-weight: 600; }
+.fw-terms-body a { color: var(--sc-blue-ink); text-decoration: underline; text-decoration-color: rgba(20, 136, 252, 0.35); text-underline-offset: 3px; overflow-wrap: anywhere; }
+.fw-terms-body a:hover { text-decoration-color: currentColor; }
+.fw-terms-body ul, .fw-terms-body ol { margin: 0 0 20px; padding-left: 22px; }
+.fw-terms-body li { margin-bottom: 10px; padding-left: 4px; }
+.fw-terms-body ul li::marker { color: var(--sc-blue); }
+.fw-terms-body ol.fw-terms-criteria { list-style: none; padding: 0; counter-reset: fw-crit; border: 1px solid var(--sc-line); border-radius: 2px; }
+/* not a grid: the bold label and the sentence after it are separate nodes,
+   so a 2-column grid dropped the sentence into the 32px number column, one
+   word per line (Gary, 2026-10-14). The number hangs in the left padding. */
+.fw-terms-criteria li { counter-increment: fw-crit; position: relative; display: block; margin: 0; padding: 14px 18px 14px 58px; border-bottom: 1px solid var(--sc-line-soft); }
+.fw-terms-criteria li:last-child { border-bottom: 0; }
+.fw-terms-criteria li::before { content: '(' counter(fw-crit) ')'; position: absolute; left: 18px; top: 14px; font-weight: 600; color: var(--sc-blue-ink); }
+.fw-terms-notice {
+  margin: 0 0 32px !important; padding: 20px 24px; border-left: 2px solid var(--sc-blue); background: var(--sc-surface);
+  font-size: 13px; line-height: 1.7; font-weight: 600; letter-spacing: 0.2px; color: var(--sc-ink);
+}
+.fw-terms-note { font-size: 13px; line-height: 1.65; color: var(--sc-text-muted); }
+.fw-terms-body .fw-terms-back { margin-top: 40px; text-decoration: none; }
+
+@media (max-width: 1024px) {
+  .fw-terms-head, .fw-terms-layout { width: min(900px, calc(100vw - 80px)); }
+  .fw-terms-layout { grid-template-columns: 1fr; gap: 0; padding-top: 32px; }
+  .fw-terms-toc { position: static; max-height: none; padding-bottom: 8px; }
+  .fw-terms-toc ol { columns: 2; column-gap: 32px; border-left: 0; }
+  .fw-terms-toc a { padding-left: 0; break-inside: avoid; }
+  .fw-terms-facts { grid-template-columns: 1fr 1fr; }
+  .fw-terms-facts > div:nth-child(2) { border-right: 0; }
+  .fw-terms-facts > div:nth-child(-n + 2) { border-bottom: 1px solid var(--sc-line); }
+}
+@media (max-width: 768px) {
+  .fw-terms { padding: calc(var(--sc-nav-overlap) + 56px) 0 80px; }
+  .fw-terms-head, .fw-terms-layout { width: calc(100vw - 32px); }
+  .fw-terms-head { gap: 12px; padding-bottom: 32px; }
+  .fw-terms-h1 { font-size: clamp(28px, 8vw, 40px); }
+  .fw-terms-facts > div { padding: 14px 16px; }
+  .fw-terms-facts dd { font-size: 15px; }
+  .fw-terms-toc ol { columns: 1; }
+  .fw-terms-body h2 { font-size: 19px; margin-top: 40px; padding-top: 24px; }
+  .fw-terms-notice { padding: 16px; }
+  .fw-terms-criteria li { padding: 12px 14px 12px 50px; }
+  .fw-terms-criteria li::before { left: 14px; top: 12px; }
+}
+
+/* ── Theme switch — verbatim from the sandbox (solutions.html) ─────────── */
+.sc-theme-switch {
+  position: fixed; right: 16px; bottom: 16px; z-index: 10000;
+  display: flex; gap: 2px; padding: 3px;
+  background: var(--sc-surface); border: 1px solid var(--sc-line);
+  border-radius: 2px; box-shadow: 0 6px 20px var(--sc-shadow);
+  font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif);
+}
+.sc-theme-switch button {
+  appearance: none; border: 0; cursor: pointer; border-radius: 2px;
+  padding: 6px 11px; font-size: 11px; font-weight: 500; letter-spacing: 0.3px;
+  background: transparent; color: var(--sc-text-muted);
+}
+.sc-theme-switch button:hover { color: var(--sc-ink); }
+.sc-theme-switch button[aria-pressed="true"] { background: var(--sc-blue); color: #fff; }
+@media print { .sc-theme-switch { display: none; } }
+
+/* ── Responsive containers ──────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .fw-inner { width: min(900px, calc(100vw - 80px)); }
+  .fw-section { padding: 64px 0; }
+  .section-header { margin-bottom: 40px; }
+}
+@media (max-width: 768px) {
+  .fw-inner { width: calc(100vw - 32px); }
+  .fw-section { padding: 48px 0; }
+  .section-header { margin-bottom: 32px; }
+  .section-sub { font-size: 15px; }
+}
+
+/* Hero CTA, LIGHT only: the blue button sank into the blue hero video, so on
+   light it inverts to white with blue text (Gary, 2026-10-08). Dark keeps the
+   standard blue. Pixel hover fills with a pale blue; shared.js reads the token
+   at the button. */
+:root[data-theme="light"] .fw-hero .hero-btn-primary.fw-hero-cta {
+  background: #fff; color: #1488FC;
+  --sc-btn-pixel-primary: rgba(20, 136, 252, 0.3);
+  /* 1px blue edge drawn inset so the 52px height is unchanged */
+  box-shadow: inset 0 0 0 1px var(--sc-line-strong), 0 10px 28px -12px rgba(2, 26, 87, 0.45); /* same grey edge as the ghost buttons */
+}
+:root[data-theme="light"] .fw-hero .hero-btn-primary.fw-hero-cta .btn-bg-hover { background: #eaf3ff; }
+
+/* Hero on the family line at every desktop height (audit 2026-10-09). The
+   hero was top-anchored in min(64vh, 680px), so on tall screens its H1 sat
+   35-42px above Solutions/Security, which centre their stack in
+   min(65vh, 720px). Same box + centring here; the pill hangs above the H1
+   (a negative top margin takes it out of the centring) so the H1, not the pill, is what
+   lands on the line. Phones/tablets keep their own rules. */
+@media (min-width: 1025px) {
+  .fw-hero {
+    min-height: calc(min(65vh, 720px) + var(--sc-nav-overlap));
+    min-height: calc(min(65dvh, 720px) + var(--sc-nav-overlap));
+    justify-content: center;
+  }
+  .fw-hero-pill { margin-top: -65px; } /* tuned by measurement: H1 within a few px of Solutions */
+  /* Short windows: the stack outgrows the box and the pulled-up pill crowded
+     the nav (Gary, 2026-10-13). +20px top AND bottom keeps the centre (tall
+     screens unchanged) but floors the H1 on the family line, pill ~45px
+     under the nav. */
+  .fw-hero {
+    padding-top: calc(clamp(90px, calc(24px + 8.5vh), 148px) + var(--sc-nav-overlap) + 20px);
+    padding-bottom: calc(clamp(64px, 8vh, 96px) + 20px);
+  }
+  /* hero CTA -> "Free build weekend" read too far apart: 30px tighter (Gary, 2026-10-14) */
+  .fw-hero + .fw-section { padding-top: calc(clamp(80px, 12vh, 140px) - 30px); }
+}
+
+/* Co-founder photo, wide desktops: slide the shot right so Eric clears the
+   left fade (2026-10-09). The photo has ~10% empty backdrop right of Albert,
+   so 8% costs nothing there; the gap it opens on the left sits inside the
+   fade's transparent start. Below 1400 the frame is narrow enough that cover
+   already crops the sides, so the shift would clip Albert. */
+@media (min-width: 1400px) {
+  .fw-feature-photo img { left: calc(8% + 50px); }
+  .fw-feature-caption { left: calc(34% + 50px); }
+  /* the fade starts where the shifted photo starts, so its edge stays
+     fully transparent (no hard line) */
+  .fw-feature-photo {
+    --x: calc(8% + 50px);
+    -webkit-mask-image: linear-gradient(to right, transparent var(--x), rgba(0, 0, 0, 0.12) calc(var(--x) + 9%), rgba(0, 0, 0, 0.4) calc(var(--x) + 18%), rgba(0, 0, 0, 0.75) calc(var(--x) + 27%), #000 calc(var(--x) + 36%)), linear-gradient(to top, transparent 0%, #000 35%);
+            mask-image: linear-gradient(to right, transparent var(--x), rgba(0, 0, 0, 0.12) calc(var(--x) + 9%), rgba(0, 0, 0, 0.4) calc(var(--x) + 18%), rgba(0, 0, 0, 0.75) calc(var(--x) + 27%), #000 calc(var(--x) + 36%)), linear-gradient(to top, transparent 0%, #000 35%);
+  }
+}
+
+/* Grain over the gradient videos (2026-10-09): smooth 8-bit gradients step
+   into visible bands, and the white fade stretches them. A faint static noise
+   dithers the steps away. Overlay blend leaves pure white (the page ground
+   under the hero fade) untouched. Sits under the copy (z 1, before content). */
+.fw-grain {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+  opacity: 0.14; mix-blend-mode: overlay;
+}
+.fw-grain--footer { opacity: 0.1; }
+
+/* session cards link to their Luma events (2026-10-12): date line above the
+   title, host + RSVP link at the foot */
+a.fw-session-card { text-decoration: none; color: inherit; }
+.fw-session-card .fw-session-when { margin: 0 0 8px; font-size: 11px; letter-spacing: 1.6px; color: var(--sc-blue-ink); }
+:root[data-theme="dark"] .fw-session-card .fw-session-when { color: #4DA6FF; }
+.fw-session-card .fw-session-host { margin-top: 16px; }
+/* speaker + RSVP share the card's bottom row (2026-10-13) */
+.fw-session-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: auto; padding-top: 20px; }
+.fw-session-card .fw-session-foot .fw-session-host { margin-top: 0; min-width: 0; }
+.fw-session-card .fw-session-rsvp { flex: none; position: relative; z-index: 1; }
+/* on the dark corner glow the blue link sank in: white there */
+:root[data-theme="dark"] .fw-session-card .fw-session-rsvp { color: #fff; }
+.fw-session-card:hover .fw-session-rsvp .fw-arrow { transform: translateX(3px); }
+
+/* speaker row: avatar + name (ink, semibold) over role (muted) — 2026-10-12 */
+.fw-session-card .fw-session-host { display: flex; align-items: center; gap: 12px; margin-top: 20px; font-size: inherit; color: inherit; }
+.fw-host-avatar {
+  flex: none; width: 40px; height: 40px; border-radius: 50%; overflow: hidden;
+  display: grid; place-items: center;
+  font: 700 13px/1 var(--sc-font-label); letter-spacing: 0.5px; color: #fff;
+  background: linear-gradient(160deg, #1488FC, #0a4fb0);
+  /* no ring (2026-10-12): just a hairline so light photos keep an edge */
+  box-shadow: inset 0 0 0 1px rgba(var(--sc-ink-rgb), 0.08);
+}
+.fw-host-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.fw-host-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.fw-host-name { font-size: 15px; font-weight: 600; line-height: 1.3; color: var(--sc-ink); }
+.fw-host-role { font-size: 13px; line-height: 1.35; color: var(--sc-text-muted); }
+
+/* Session cards: the footer gradient clip behind each card (2026-10-12).
+   One small encode (hero/cards.*), three variants so no two cards match:
+   different crop, a mirror, a slight hue shift, and a different moment in
+   the loop (startAt). Light = a pale wash so dark copy stays readable;
+   dark = richer video under a near-black wash. Crops stay in the clip's
+   lower half, which is all blue (its top has a black corner that greys out
+   under the light wash). */
+.fw-session-card { isolation: isolate; }
+.fw-card > .fw-session-video {
+  position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%;
+  object-fit: cover; pointer-events: none;
+  filter: blur(6px) saturate(1.1); transform: scale(1.6); transform-origin: 50% 100%; /* zoomed into the lower half */
+  opacity: 0.6;
+  /* both themes: the clip shows only as a glow in the bottom-right corner (Gary) */
+  -webkit-mask-image: radial-gradient(ellipse 75% 70% at 100% 100%, #000 0%, rgba(0, 0, 0, 0.45) 40%, transparent 75%);
+          mask-image: radial-gradient(ellipse 75% 70% at 100% 100%, #000 0%, rgba(0, 0, 0, 0.45) 40%, transparent 75%);
+}
+.fw-session-video--1 { object-position: 0% 100%; }
+.fw-session-video--2 { object-position: 100% 100%; transform: scale(1.6) scaleX(-1); }
+.fw-session-video--3 { object-position: 35% 100%; filter: blur(6px) saturate(1.15) hue-rotate(-14deg); }
+/* wash over the video, under the copy: strongest top-left where the text starts */
+/* no wash needed now the glow is confined to the corner */
+/* dark: only a glow in the bottom-right corner (Gary: full video "too
+   crazy"); the rest of the card stays near-black */
+:root[data-theme="dark"] .fw-card > .fw-session-video { opacity: 0.7; }
+@media (prefers-reduced-motion: reduce) { .fw-card > .fw-session-video { transform: none; } }
+
+/* the free model name, bolded in running copy: same colour as the text, heavier */
+.fw-model { font-weight: 600; color: inherit; }
+
+/* ── Entry form: done + closed states (Donald, 2026-10-13) ───────────────── */
+.fw-progress--full .fw-progress-label { color: #0d9b7a; }
+.fw-state { display: flex; flex-direction: column; }
+.fw-state-body { display: flex; flex-direction: column; align-items: flex-start; padding: 40px 32px 36px; }
+.fw-state-check, .fw-state-lock { width: 48px; height: 48px; margin-bottom: 20px; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.fw-state-check circle { fill: #1488FC; stroke: none; transform-origin: 50% 50%; animation: fw-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.fw-state-check path { stroke: #fff; stroke-width: 3.5; stroke-dasharray: 36; stroke-dashoffset: 36; animation: fw-draw-check 0.45s ease-out 0.3s forwards; }
+@keyframes fw-pop { from { transform: scale(0.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes fw-draw-check { to { stroke-dashoffset: 0; } }
+.fw-state-lock { stroke: var(--sc-text-muted); stroke-width: 2.5; }
+.fw-state-lock circle { fill: var(--sc-text-muted); stroke: none; }
+.fw-state-eyebrow { margin: 0 0 8px; font: 700 11px/1 var(--sc-font-label); letter-spacing: 1.6px; text-transform: uppercase; color: var(--sc-blue-ink); }
+.fw-state--closed .fw-state-eyebrow { color: var(--sc-text-muted); }
+.fw-state-title { margin: 0; font-size: clamp(26px, 2.4vw, 32px); font-weight: 500; letter-spacing: -0.8px; line-height: 1.15; color: var(--sc-ink); }
+.fw-state-sub { margin: 12px 0 0; max-width: 520px; font-size: 15px; line-height: 1.6; color: var(--sc-text-desc); }
+.fw-state-sub strong { color: var(--sc-ink); font-weight: 600; overflow-wrap: anywhere; }
+.fw-state-label { margin: 32px 0 14px; font: 700 11px/1 var(--sc-font-label); letter-spacing: 1.6px; text-transform: uppercase; color: var(--sc-text-muted); }
+/* next steps: a short vertical timeline */
+.fw-next { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; width: 100%; max-width: 520px; }
+.fw-next-step { position: relative; display: grid; grid-template-columns: 20px 96px 1fr; align-items: baseline; gap: 0 12px; padding: 10px 0; }
+.fw-next-step + .fw-next-step::before { content: ''; position: absolute; left: 5px; top: -12px; height: 26px; width: 1px; background: var(--sc-line); }
+.fw-next-dot { width: 11px; height: 11px; border-radius: 50%; border: 1px solid var(--sc-line-strong); background: var(--sc-ground); align-self: center; position: relative; z-index: 1; }
+.fw-next-when { font: 700 11px/1.4 var(--sc-font-label); letter-spacing: 1px; text-transform: uppercase; color: var(--sc-text-muted); }
+.fw-next-what { font-size: 15px; line-height: 1.45; color: var(--sc-text-desc); }
+.fw-next-step.is-now .fw-next-dot { background: #1488FC; border-color: #1488FC; box-shadow: 0 0 0 4px rgba(20, 136, 252, 0.18); }
+.fw-next-step.is-now .fw-next-when { color: var(--sc-blue-ink); }
+.fw-next-step.is-now .fw-next-what { color: var(--sc-ink); font-weight: 600; }
+.fw-next-step.is-done .fw-next-dot { background: var(--sc-text-muted); border-color: var(--sc-text-muted); }
+.fw-next-step.is-done .fw-next-what { text-decoration: line-through; text-decoration-color: var(--sc-line-strong); }
+.fw-state-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-top: 32px; }
+/* closed: a muted strip where the progress bar sat */
+.fw-state-strip { display: flex; align-items: center; gap: 10px; padding: 16px 32px; border-bottom: 1px solid var(--sc-line-soft); font: 700 11px/1 var(--sc-font-label); letter-spacing: 1.4px; text-transform: uppercase; color: var(--sc-text-muted); }
+.fw-state-strip-dot, .fw-closed-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--sc-text-muted); flex: none; }
+.fw-closed-dot { background: rgba(255, 255, 255, 0.55); }
+@media (max-width: 768px) {
+  .fw-state-body { padding: 32px 18px 28px; }
+  .fw-state-strip { padding: 14px 18px; }
+  .fw-next-step { grid-template-columns: 20px 1fr; }
+  .fw-next-what { grid-column: 2; }
+  .fw-state-actions { width: 100%; }
+  .fw-state-actions .hero-btn-primary, .fw-state-actions .hero-btn-ghost { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { .fw-state-check circle, .fw-state-check path { animation: none; stroke-dashoffset: 0; } }
+
+/* ── Thank-you page (/thanks), 2026-10-13 ───────────────────────────────── */
+.fw-thanks { position: relative; overflow: hidden; padding: calc(var(--sc-nav-overlap) + 88px) 0 120px; }
+/* blue band behind the top of the page (2026-10-13): hero video + pixels,
+   ending where the receipt card is half way down */
+.fw-thanks-band { position: absolute; left: 0; right: 0; top: 0; height: calc(var(--sc-nav-overlap) + 600px); z-index: 0; overflow: hidden; background: #021a57; }
+.fw-thanks-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; filter: blur(10px); transform: scale(1.06); }
+.fw-thanks-band::after { content: ''; position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(180deg, rgba(2, 20, 70, 0.3) 0%, rgba(2, 20, 70, 0.1) 45%, rgba(var(--sc-ground-rgb), 0) 55%, rgba(var(--sc-ground-rgb), 0.6) 78%, var(--sc-ground) 100%); }
+:root[data-theme="dark"] .fw-thanks-video { filter: blur(10px) brightness(0.72) saturate(1.35); }
+.fw-thanks-field { position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, #000 30%, transparent 75%); mask-image: linear-gradient(to bottom, #000 30%, transparent 75%); }
+.fw-thanks-band .fw-grain { z-index: 1; }
+/* copy on the band reads white in both themes */
+.fw-thanks .fw-thanks-eyebrow { color: #cfe6ff; }
+.fw-thanks .fw-thanks-h1 { color: #fff; text-shadow: 0 2px 24px rgba(0, 20, 80, 0.35); }
+.fw-thanks .fw-thanks-sub { color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 14px rgba(0, 20, 80, 0.45); }
+.fw-thanks .fw-thanks-sub strong { color: #fff; }
+.fw-thanks .fw-thanks-check circle { fill: #fff; }
+.fw-thanks .fw-thanks-check path { stroke: #1488FC; }
+.fw-thanks-inner { position: relative; z-index: 1; width: min(640px, calc(100vw - 32px)); margin: 0 auto; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.fw-thanks-check { width: 64px; height: 64px; margin-bottom: 24px; }
+.fw-thanks-eyebrow { margin-bottom: 16px; }
+.fw-thanks-h1 { margin: 0; font-size: clamp(40px, 5vw, 60px); font-weight: 500; line-height: 1.08; letter-spacing: -1.5px; color: var(--sc-ink); }
+.fw-thanks-sub { margin: 16px 0 0; max-width: 520px; font-size: clamp(16px, 1.3vw, 18px); line-height: 1.6; color: var(--sc-text-sub, var(--sc-text-desc)); }
+.fw-thanks-sub strong { color: var(--sc-ink); font-weight: 600; overflow-wrap: anywhere; }
+.fw-thanks-card { width: 100%; margin-top: 40px; padding: 28px 32px 24px; text-align: left; border: 1px solid var(--sc-line); border-radius: 2px;
+  background: var(--sc-ground); box-shadow: 0 30px 60px -36px rgba(2, 26, 87, 0.35); }
+.fw-thanks-card .fw-state-label { margin-top: 0; }
+.fw-thanks-receipt { margin: 0 0 28px; padding-bottom: 20px; border-bottom: 1px solid var(--sc-line-soft); display: grid; gap: 12px; }
+.fw-thanks-receipt div { display: grid; grid-template-columns: 110px 1fr; gap: 12px; align-items: baseline; }
+.fw-thanks-receipt dt { font: 700 11px/1.4 var(--sc-font-label); letter-spacing: 1.4px; text-transform: uppercase; color: var(--sc-text-muted); }
+.fw-thanks-receipt dd { margin: 0; font-size: 15px; font-weight: 600; color: var(--sc-ink); overflow-wrap: anywhere; }
+.fw-thanks-receipt .fw-text-link { font-size: 15px; }
+.fw-thanks-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 32px; }
+.fw-thanks-wait { position: relative; z-index: 1; width: min(640px, calc(100vw - 32px)); margin: 72px auto 0; }
+.fw-thanks-links { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.fw-thanks-link { position: relative; display: flex; flex-direction: column; gap: 6px; padding: 20px 48px 20px 20px; text-decoration: none;
+  border: 1px solid var(--sc-line); border-radius: 2px; transition: border-color 0.3s ease; }
+.fw-thanks-link:hover { border-color: rgba(20, 136, 252, 0.45); }
+.fw-thanks-link-title { font-size: 16px; font-weight: 600; color: var(--sc-ink); }
+.fw-thanks-link-desc { font-size: 14px; line-height: 1.5; color: var(--sc-text-desc); }
+.fw-thanks-link .fw-arrow { position: absolute; right: 20px; top: 22px; color: var(--sc-blue-ink); transition: transform 0.25s ease; }
+.fw-thanks-link:hover .fw-arrow { transform: translateX(3px); }
+/* entrance once data is in, so the name doesn't pop in after the fade */
+.fw-thanks-inner > * { opacity: 0; transform: translateY(10px); }
+.fw-thanks-inner.is-ready > * { opacity: 1; transform: none; transition: opacity 0.6s ease, transform 0.6s ease; }
+.fw-thanks-inner.is-ready > :nth-child(2) { transition-delay: 0.15s; }
+.fw-thanks-inner.is-ready > :nth-child(3) { transition-delay: 0.2s; }
+.fw-thanks-inner.is-ready > :nth-child(4) { transition-delay: 0.25s; }
+.fw-thanks-inner.is-ready > :nth-child(n+5) { transition-delay: 0.35s; }
+@media (max-width: 768px) {
+  .fw-thanks { padding: calc(var(--sc-nav-overlap) + 48px) 0 80px; }
+  .fw-thanks-check { width: 56px; height: 56px; }
+  .fw-thanks-h1 { letter-spacing: -1px; }
+  .fw-thanks-card { padding: 22px 18px 18px; }
+  .fw-thanks-receipt div { grid-template-columns: 1fr; gap: 2px; }
+  .fw-thanks-actions { width: 100%; flex-direction: column; }
+  .fw-thanks-actions > * { width: 100%; }
+  .fw-thanks-links { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) { .fw-thanks-inner > * { opacity: 1; transform: none; } }
+/* thank-you: upcoming sessions with their hosts (2026-10-13) */
+.fw-thanks-sessions { display: grid; grid-template-columns: 1fr; gap: 12px; } /* one per row: the 640px column is too narrow for two host lines */
+.fw-thanks-session { display: flex; flex-direction: column; gap: 6px; padding: 20px; text-decoration: none; color: inherit;
+  border: 1px solid var(--sc-line); border-radius: 2px; background: var(--sc-ground); transition: border-color 0.3s ease; }
+.fw-thanks-session:hover { border-color: rgba(20, 136, 252, 0.45); }
+.fw-thanks-session-when { font: 700 11px/1.4 var(--sc-font-label); letter-spacing: 1.4px; text-transform: uppercase; color: var(--sc-blue-ink); }
+:root[data-theme="dark"] .fw-thanks-session-when { color: #4DA6FF; }
+.fw-thanks-session-title { font-size: 17px; font-weight: 600; line-height: 1.3; letter-spacing: -0.2px; color: var(--sc-ink); }
+.fw-thanks-session-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: auto; padding-top: 14px; }
+.fw-thanks-session .fw-session-host { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.fw-thanks-session .fw-host-avatar { width: 36px; height: 36px; }
+.fw-thanks-session .fw-host-name { font-size: 14px; }
+.fw-thanks-session .fw-host-role { font-size: 12px; }
+.fw-host-avatars { display: flex; flex: none; }
+.fw-host-avatars.is-pair .fw-host-avatar + .fw-host-avatar { margin-left: -10px; box-shadow: 0 0 0 2px var(--sc-ground); }
+.fw-thanks-session .fw-session-rsvp { flex: none; font-size: 14px; }
+.fw-thanks-session:hover .fw-arrow { transform: translateX(3px); }
+.fw-thanks-back { margin-top: 24px; }
+@media (max-width: 768px) { .fw-thanks-sessions { grid-template-columns: 1fr; } }
