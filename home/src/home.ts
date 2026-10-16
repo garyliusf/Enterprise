@@ -105,17 +105,16 @@ export const templatesHome = {
   ],
 };
 
-/* ── Solutions: the solutions page's platform tabs (replaces the feature
-   slider, Gary 2026-10-16). Copy + captures verbatim from solutions.html. */
+/* ── New this month: the three features, in the solutions page's tab
+   slider (Gary, 2026-10-16). Visuals are stand-in captures for now. */
 export const platform = {
-  eyebrow: 'Solutions',
-  title: 'Build exactly what you need',
-  subtitle: 'Whether you\u2019re building solo or shipping across a whole organization, Bolt fits the way you work.',
+  eyebrow: 'New this month',
+  title: 'Built to keep up with you.',
+  subtitle: 'Bolt keeps shipping new ways to build. Here is what just landed.',
   tabs: [
-    { label: 'Entrepreneur', title: 'Turn your idea into a live product', body: 'You know what you want to build. Bolt gets you there directly. You don\u2019t need a developer or a $12,000 agency invoice. It\u2019s your vision, made live.', points: ['Launch a working app without a technical co-founder', 'Build and revise it yourself instead of waiting on a developer', 'Deploy your MVP and test your assumptions'], shot: asset('/templates/catalog/premium-saas-dashboard-lp.webp'), scroll: 'long' as const },
-    { label: 'Small business', title: 'Replace the tools that cost you more than they help', body: 'Build the internal tools, customer-facing apps, and sales dashboards your business needs, without adding headcount or juggling five different subscriptions.', points: ['Internal tools and dashboards built in an afternoon, not a quarter', 'One platform instead of a stack of point solutions', 'No developer or expensive agency quotes needed'], shot: asset('/templates/catalog/ledger-finance.webp'), scroll: 'short' as const },
-    { label: 'Enterprise', title: 'Give every team the speed of a startup', body: 'Ship production-grade apps with the governance, security, and access controls your organization requires and the speed AI-coding provides.', points: ['SSO, audit logs, and role-based access control', 'Security scanning built into every deploy', 'Fits inside the workflows your engineering team already runs'], shot: asset('/templates/catalog/vantage-dashboard.webp'), scroll: 'static' as const },
-    { label: 'Agencies', title: 'Deliver more client work without more headcount', body: 'Build client sites, campaign pages, and custom tools fast enough to protect your margins, with the design control your clients expect from a finished deliverable.', points: ['Use client design systems', 'Faster turnaround on revision rounds', 'Deliver production ready products'], shot: asset('/templates/catalog/noir-agency.webp'), scroll: 'long' as const },
+    { label: 'Showcase Slides', title: 'Turn any project into a slide deck', body: 'Generate a polished deck straight from what you already built, with every slide matching your brand and copy.', points: ['Generated from the project you already built', 'Every slide matches your brand and copy', 'Export to PDF or present from Bolt'], link: { label: 'See Showcase Slides', href: 'https://bolt.new/blog' }, shot: asset('/templates/catalog/premium-saas-dashboard-lp.webp'), scroll: 'long' as const },
+    { label: 'Security engineer', title: 'An automatic security review on every publish', body: 'A security agent checks what was built and fixes what it finds before customers see it, with no setup.', points: ['Runs on every publish, no setup', 'Finds and fixes issues before customers see them', 'Plain-language report of what changed'], link: { label: 'See the security engineer', href: 'https://bolt.new/platform/security' }, shot: asset('/templates/catalog/vantage-dashboard.webp'), scroll: 'static' as const },
+    { label: 'Dictation mode', title: 'Say it instead of typing it', body: 'Describe your idea out loud. Bolt builds from your voice just as well as from the keyboard.', points: ['Describe the idea out loud, Bolt builds it', 'Works in the composer and in follow-ups', 'Available on every plan'], link: { label: 'Try dictation', href: 'https://bolt.new/' }, shot: asset('/templates/catalog/ledger-finance.webp'), scroll: 'short' as const },
   ],
 };
 

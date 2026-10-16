@@ -307,7 +307,7 @@ export function TemplatesHome() {
   );
 }
 
-/* ── Solutions: the solutions page's platform tabs ──────────────────────
+/* ── New this month: the three features in the solutions page's tab slider ─
    Horizontal tab bar with the sliding underline, auto-advance every 7s,
    copy + bullets on the left, the bolt browser mock on the right with the
    template capture drifting inside it (solutions.html's platBrowserScroll). */
@@ -384,7 +384,7 @@ export function Platform() {
     return () => { b.removeEventListener('scroll', update); window.removeEventListener('resize', update); };
   }, []);
   return (
-    <section className="fw-section hm-plat" id="solutions">
+    <section className="fw-section hm-new" id="whats-new">
       <div className="fw-inner">
         <SectionHeader center eyebrow={platform.eyebrow} title={platform.title} subtitle={platform.subtitle} />
         <div className="plat-stage">
@@ -406,6 +406,7 @@ export function Platform() {
                       <h3 className="plat-h3">{t.title}</h3>
                       <p className="plat-body">{t.body}</p>
                       <ul className="plat-list">{t.points.map((pt) => <li key={pt}>{pt}</li>)}</ul>
+                      <a className="fw-text-link plat-link" href={t.link.href}>{t.link.label} <i className="fw-arrow" aria-hidden="true" /></a>
                     </div>
                     <div className="plat-vcard plat-vcard--browser" aria-hidden="true">
                       <BrowserMock shot={t.shot} scroll={t.scroll} />
