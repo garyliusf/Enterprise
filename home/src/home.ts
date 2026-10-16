@@ -35,9 +35,10 @@ export const stats = [
   { value: '1 day', label: 'idea to live site' },
 ];
 
-/* ── Build anything: six use-case cards ────────────────────────────────────
-   The mockup repeats one landscaping card six times; these are six distinct
-   businesses so the section reads as real. Photos reuse the people set. */
+/* ── Build anything: five use-case cards ───────────────────────────────────
+   One feature + four standard cards close a 3-column grid exactly
+   (2+1 / 3); six always left an orphan. The mockup repeats one landscaping
+   card; these are distinct businesses. Photos reuse the people set. */
 export const useCases = {
   eyebrow: 'Build anything',
   title: 'Build anything you need, the way you need it.',
@@ -49,7 +50,6 @@ export const useCases = {
     { tag: 'Coaching', title: 'Sell sessions and run the calendar', body: 'Packages, payments and scheduling in one place, so you only have to show up.', photo: asset('/people/founder-coffee.webp'), focus: '55% 32%' },
     { tag: 'Retail', title: 'Open an online store this week', body: 'Catalog, checkout and inventory that updates itself as orders come in.', photo: asset('/people/founder-terracotta.webp'), focus: '50% 38%' },
     { tag: 'Agencies', title: 'Give every client a dashboard', body: 'Project status, files and messages in a portal your clients can log in to.', photo: asset('/people/founder-desk.webp'), focus: '58% 38%' },
-    { tag: 'Trades', title: 'Book jobs from your phone', body: 'A site that takes the call for you: services, availability and a deposit up front.', photo: asset('/people/founder-glasses.webp'), focus: '62% 30%' },
   ],
 };
 

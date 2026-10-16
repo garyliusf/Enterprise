@@ -116,7 +116,7 @@ export function UseCases() {
       <div className="fw-inner">
         <SectionHeader center eyebrow={useCases.eyebrow} title={useCases.title} subtitle={useCases.subtitle} />
         {/* one large feature (photo beside the copy), five standard cards around it */}
-        <div className="hm-uc-grid" data-uc={typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('uc') || 'a' : 'a'}>
+        <div className="hm-uc-grid">
           {useCases.items.map((u, i) => (
             <a key={u.title} className={`fw-card hm-uc-card${i === 0 ? ' hm-uc-card--feature' : ''}`} href={useCases.more.href}>
               <HoverField index={i} />
