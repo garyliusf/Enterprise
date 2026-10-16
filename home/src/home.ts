@@ -60,9 +60,14 @@ export const stories = {
   title: 'Built by people who had never built before.',
   subtitle: 'Real businesses, built and launched on Bolt.',
   items: [
-    /* PLACEHOLDER quotes from the mockup, until real customer stories land */
+    /* PLACEHOLDER quotes until real customer stories land — the first is the
+       mockup's; the rest are written to the same pattern so the rail has
+       enough voices to drift. Replace all five. */
     { quote: 'I quoted three agencies before I found Bolt. I built the whole booking system myself in a weekend, for less than one agency’s deposit.', name: 'Maria R.', role: 'Owner, Verde Landscaping' },
-    { quote: 'I quoted three agencies before I found Bolt. I built the whole booking system myself in a weekend, for less than one agency’s deposit.', name: 'Maria R.', role: 'Owner, Verde Landscaping' },
+    { quote: 'Our clients used to email for updates. Now they log in to a portal I built in an afternoon, and the emails stopped.', name: 'Daniel K.', role: 'Founder, Northline Studio' },
+    { quote: 'I had never built anything before. The first version of our store took a weekend, and it’s what we run on today.', name: 'Priya S.', role: 'Co-owner, Kiln & Clay' },
+    { quote: 'Reservations, deposits, reminders. All of it on our own domain, and nobody takes a cut of the table.', name: 'Tomás A.', role: 'Owner, Café Lumen' },
+    { quote: 'The site takes the call for me now. Customers pick a time, pay the deposit, and I just show up.', name: 'Jordan W.', role: 'Plumber, Flow State' },
   ],
 };
 
@@ -83,13 +88,20 @@ export const steps = {
 /* ── Templates ──────────────────────────────────────────────────────────── */
 export const templatesHome = {
   eyebrow: 'Templates',
-  title: 'Skip the blank page.',
-  subtitle: 'Start from something built for a business like yours, then make it your own.',
-  more: { label: 'Browse all templates', href: 'https://bolt.new/resources/templates' },
+  title: 'Start from a template, not a blank prompt',
+  subtitle: 'Bolt-built templates give you a working foundation, styled and wired up, so you’re customizing instead of starting from nothing.',
+  more: { label: 'Browse All Templates', href: 'https://bolt.new/resources/templates' },
+  /* the solutions page's rail: the catalog's cards (800px-wide full-page
+     shots, portrait frame, drift on hover), production's fork links */
   items: [
-    { name: 'Service business site', meta: 'Booking, quotes, contact', shot: asset('/templates/plumbing.webp'), url: fork('sb1-v6i8qmpp') },
-    { name: 'Online storefront', meta: 'Catalog, checkout, inventory', shot: asset('/templates/soda.webp'), url: fork('sb1-r5f2szok') },
-    { name: 'Client dashboard', meta: 'Status, files, messaging', shot: asset('/templates/catalog/ledger-finance.webp'), url: fork('github-7mpvjfb3'), fill: true },
+    { name: 'Architect Portfolio', tag: 'Portfolio', shot: asset('/templates/catalog/architect-portfolio.webp'), url: fork('github-gf8uflaz') },
+    { name: 'SaaS Landing', tag: 'SaaS', shot: asset('/templates/catalog/premium-saas-dashboard-lp.webp'), url: fork('github-xtrskmb3') },
+    { name: 'Finance Tracker', tag: 'Apps', shot: asset('/templates/catalog/ledger-finance.webp'), url: fork('github-7mpvjfb3'), w: 1100, h: 1447 },
+    { name: 'Travel Journal', tag: 'Editorial', shot: asset('/templates/catalog/maison-voyage.webp'), url: fork('github-mu7mffmh'), w: 1000, h: 1458 },
+    { name: 'Studio Portfolio', tag: 'Portfolio', shot: asset('/templates/catalog/noir-agency.webp'), url: fork('github-hnstivng') },
+    { name: 'Venture Capital', tag: 'Finance', shot: asset('/templates/catalog/meridian-capital.webp'), url: fork('github-9c8ejdg2') },
+    { name: 'Fashion Editorial', tag: 'Editorial', shot: asset('/templates/catalog/vestige-fashion.webp'), url: fork('github-nehpa2f2'), w: 1100, h: 1450 },
+    { name: 'Events Guide', tag: 'Websites', shot: asset('/templates/catalog/townhall-events.webp'), url: fork('github-pde6glqh') },
   ],
 };
 

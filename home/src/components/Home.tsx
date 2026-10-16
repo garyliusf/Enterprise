@@ -142,29 +142,42 @@ export function UseCases() {
 
 /* ── Customer stories ──────────────────────────────────────────────────── */
 export function Stories() {
+  /* the get-started / enterprise testimonial rail: hairline-separated quote
+     cards in a track that drifts left and pauses on hover; the row is
+     duplicated so the loop is seamless. No icons (Gary): name + company
+     under the hairline. The trailing card carries the pixel field. */
+  const loop = [...stories.items, ...stories.items, ...stories.items];
   return (
-    <section className="fw-section fw-section--band hm-stories">
+    <section className="fw-section hm-stories">
       <div className="fw-inner">
-        <SectionHeader center eyebrow={stories.eyebrow} title={stories.title} subtitle={stories.subtitle} />
-        <div className="hm-story-row">
-          {stories.items.map((s, i) => (
-            <figure key={i} className="hm-story">
-              <span className="hm-story-kicker">Customer story</span>
-              <blockquote className="hm-story-quote fw-serif">“{s.quote}”</blockquote>
-              <figcaption className="hm-story-who">
-                <span className="hm-story-avatar" aria-hidden="true" />
-                <span>
-                  <span className="hm-story-name">{s.name}</span>
-                  <span className="hm-story-role">{s.role}</span>
-                </span>
-              </figcaption>
-            </figure>
-          ))}
+        <SectionHeader eyebrow={stories.eyebrow} title={stories.title} subtitle={stories.subtitle} />
+        <div className="hm-rail">
+          <div className="hm-rail-track">
+            {loop.map((s, i) => (
+              <figure key={i} className="hm-rail-card" aria-hidden={i >= stories.items.length ? true : undefined}>
+                {i % stories.items.length === stories.items.length - 1 && (
+                  <PixelField wave={railWave} spacing={9} dot={2} opacity={0.5} className="hm-rail-field" color="20,136,252" />
+                )}
+                <blockquote className="hm-rail-quote fw-serif">“{s.quote}”</blockquote>
+                <figcaption className="hm-rail-who">
+                  <span className="hm-rail-name">{s.name}</span>
+                  <span className="hm-rail-role">{s.role}</span>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
         </div>
       </div>
     </section>
   );
 }
+
+const railWave: WaveFn = (c, r, t, phase, cols, rows) => {
+  const x = c / cols;
+  const y = r / rows;
+  const d = Math.max(0, 1 - Math.hypot((1 - x) * 1.3, (1 - y) * 1.2));
+  return d * d * (Math.sin(x * 9 - y * 5 - t / 700 + phase) * 0.5 + 0.5);
+};
 
 /* ── How it works: five moves; the visuals are one animated story (Story.tsx) */
 export function Steps() {
@@ -196,27 +209,94 @@ export function Steps() {
   );
 }
 
-/* ── Templates: three cards on a tinted panel ──────────────────────────── */
+/* ── Templates: the solutions page's template rail ───────────────────────
+   Portrait cards in a horizontally scrolling track that bleeds to the
+   viewport's right edge, with a right-edge fade that hides once scrolled to
+   the end, click-and-drag panning with a momentum glide for mouse users, and
+   the catalog hover (scrim + "Open in Bolt", the shot drifts up 40px). */
+function useTemplateRail() {
+  const rail = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const r = rail.current;
+    const track = r?.querySelector<HTMLDivElement>('.hm-tr-track');
+    if (!r || !track) return;
+    const update = () => r.classList.toggle('at-end', track.scrollLeft + track.clientWidth >= track.scrollWidth - 4);
+    track.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    update();
+    /* click-and-drag; touch keeps the browser's own momentum scrolling */
+    let down = false, startX = 0, startLeft = 0, moved = 0, captured = false, lastX = 0, lastT = 0, vel = 0, momentum: number | null = null;
+    const stop = () => { if (momentum) cancelAnimationFrame(momentum); momentum = null; track.classList.remove('is-dragging'); };
+    const onDown = (e: PointerEvent) => {
+      if (e.pointerType === 'touch' || e.button !== 0) return;
+      stop(); down = true; moved = 0; captured = false; vel = 0;
+      startX = e.clientX; startLeft = track.scrollLeft; lastX = e.clientX; lastT = e.timeStamp;
+    };
+    const onMove = (e: PointerEvent) => {
+      if (!down) return;
+      const dx = e.clientX - startX;
+      if (Math.abs(dx) > moved) moved = Math.abs(dx);
+      if (moved > 6 && !captured) { captured = true; track.classList.add('is-dragging'); try { track.setPointerCapture(e.pointerId); } catch { /* ignore */ } }
+      if (captured) {
+        track.scrollLeft = startLeft - dx;
+        const dt = e.timeStamp - lastT;
+        if (dt > 0) vel = vel * 0.8 + ((e.clientX - lastX) / dt) * 0.2;
+        lastX = e.clientX; lastT = e.timeStamp;
+      }
+    };
+    const onUp = (e: PointerEvent) => {
+      if (!down) return;
+      down = false;
+      try { track.releasePointerCapture(e.pointerId); } catch { /* ignore */ }
+      if (!captured) { stop(); return; }
+      let v = -vel * 16;
+      if (Math.abs(v) < 2) { stop(); return; }
+      const max = track.scrollWidth - track.clientWidth;
+      const glide = () => { track.scrollLeft += v; v *= 0.94; if (Math.abs(v) < 0.4 || track.scrollLeft <= 0 || track.scrollLeft >= max) { stop(); return; } momentum = requestAnimationFrame(glide); };
+      glide();
+    };
+    const onClick = (e: MouseEvent) => { if (moved > 6) { e.preventDefault(); e.stopPropagation(); } };
+    const noGhost = (e: Event) => e.preventDefault();
+    track.addEventListener('pointerdown', onDown);
+    track.addEventListener('pointermove', onMove);
+    track.addEventListener('pointerup', onUp);
+    track.addEventListener('pointercancel', onUp);
+    track.addEventListener('click', onClick, true);
+    track.querySelectorAll('img').forEach((img) => img.addEventListener('dragstart', noGhost));
+    return () => {
+      track.removeEventListener('scroll', update); window.removeEventListener('resize', update);
+      track.removeEventListener('pointerdown', onDown); track.removeEventListener('pointermove', onMove);
+      track.removeEventListener('pointerup', onUp); track.removeEventListener('pointercancel', onUp);
+      track.removeEventListener('click', onClick, true); stop();
+    };
+  }, []);
+  return rail;
+}
+
 export function TemplatesHome() {
+  const rail = useTemplateRail();
   return (
     <section className="fw-section hm-templates" id="templates">
       <div className="fw-inner">
-        <div className="hm-panel">
-          <SectionHeader center eyebrow={templatesHome.eyebrow} title={templatesHome.title} subtitle={templatesHome.subtitle} />
-          <div className="hm-tpl-grid">
+        <SectionHeader eyebrow={templatesHome.eyebrow} title={templatesHome.title} subtitle={templatesHome.subtitle} />
+        <div className="hm-tr" ref={rail}>
+          <div className="hm-tr-track">
             {templatesHome.items.map((t) => (
-              <a key={t.name} className="hm-tpl" href={t.url} target="_blank" rel="noopener">
-                <span className="hm-tpl-shot">
-                  <img src={t.shot} alt={`Preview of the ${t.name} template`} loading="lazy" decoding="async" className={t.fill ? 'is-fill' : undefined} />
+              <a key={t.name} className="hm-tr-card" href={t.url} target="_blank" rel="noopener">
+                <span className="hm-tr-preview">
+                  <img className="hm-tr-shot" src={t.shot} alt={`${t.name} template`} width={t.w ?? 800} height={t.h ?? 2245} loading="lazy" decoding="async" />
+                  <span className="hm-tr-overlay" aria-hidden="true"><span>Open in Bolt</span></span>
                 </span>
-                <span className="hm-tpl-name">{t.name}</span>
-                <span className="hm-tpl-meta">{t.meta}</span>
+                <span className="hm-tr-meta">
+                  <span className="hm-tr-name">{t.name}</span>
+                  <span className="hm-tr-tag">{t.tag}</span>
+                </span>
               </a>
             ))}
           </div>
-          <div className="hm-more-row">
-            <MoreLink {...templatesHome.more} />
-          </div>
+        </div>
+        <div className="hm-more-row">
+          <Btn href={templatesHome.more.href} external>{templatesHome.more.label}</Btn>
         </div>
       </div>
     </section>
