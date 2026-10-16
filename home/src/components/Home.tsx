@@ -176,11 +176,15 @@ export function Steps() {
           {steps.items.map((s, i) => (
             <li key={s.title} className={`hm-step${i % 2 ? ' hm-step--flip' : ''}`}>
               <div className="hm-step-copy">
+                {/* same scroll-in as the section headers: the kicker scrambles,
+                    the title reveals word by word, the body follows as a subtitle */}
                 <span className="hm-step-kicker">
                   <span className="hm-step-num">{String(i + 1).padStart(2, '0')}</span>
-                  {s.kicker}
+                  <span className="eyebrow-scramble">{s.kicker}</span>
                 </span>
-                <h3 className="hm-step-title">{s.title}</h3>
+                <div className="dsa-reveal">
+                  <h3 className="hm-step-title">{s.title}</h3>
+                </div>
                 <p className="hm-step-body">{s.body}</p>
               </div>
               <StepVisual kind={s.visual} />

@@ -1984,10 +1984,19 @@ a.fw-session-card { text-decoration: none; color: inherit; }
 
 /* 03 wired */
 .hm-scene--wired { display: grid; grid-template-columns: auto 1fr; gap: 28px; align-items: center; }
+.hm-scene--wired .hm-wire-list { --row: 38px; }
 .hm-wire-core { display: flex; flex-direction: column; gap: 2px; padding: 16px 18px; border-radius: 2px; background: var(--sc-ground); border: 1px solid var(--sc-line); box-shadow: 0 10px 24px -16px rgba(2, 26, 87, 0.4); white-space: nowrap; }
 .hm-wire-core b { font-size: 14px; color: var(--sc-ink); }
 .hm-wire-core span { font-size: 11px; color: var(--sc-text-muted); }
-.hm-wire-list { display: flex; flex-direction: column; gap: 8px; }
+.hm-wire-list { position: relative; display: flex; flex-direction: column; gap: 8px; margin-left: 28px; }
+/* trunk: from the first item's centre to the last item's centre, 28px left of the items; branches run from it */
+.hm-wire-trunk { position: absolute; left: -28px; width: 2px; top: calc(var(--row, 36px) / 2); bottom: calc(var(--row, 36px) / 2); background: var(--sc-line-soft); }
+.hm-wire-trunk::after { content: ''; position: absolute; inset: 0; background: #1488FC; transform: scaleY(0); transform-origin: 50% 0; }
+.hm-scene--wired.is-on .hm-wire-trunk::after { animation: hm-trunk 1.95s linear 0.3s forwards; }
+@keyframes hm-trunk { to { transform: scaleY(1); } }
+/* stub: from the project card's right edge to the trunk, at the trunk's midpoint */
+.hm-wire-stub { position: absolute; left: -56px; width: 28px; height: 2px; top: 50%; background: linear-gradient(90deg, #1488FC, #1488FC) no-repeat 0 0 / 0 100%, var(--sc-line-soft); }
+.hm-scene--wired.is-on .hm-wire-stub { animation: hm-wire 0.3s ease 0.05s forwards; }
 .hm-wire-item { position: relative; display: flex; align-items: center; gap: 10px; padding: 9px 12px 9px 12px; border-radius: 2px; background: var(--sc-ground); border: 1px solid var(--sc-line); font-size: 13px; color: var(--sc-ink); opacity: 0.35; transition: opacity 0.4s ease; }
 .hm-wire-item em { margin-left: auto; font: 700 9px/1 var(--sc-font-label); letter-spacing: 1.2px; text-transform: uppercase; color: #0d9b7a; opacity: 0; transition: opacity 0.3s ease; }
 .hm-wire-line { position: absolute; left: -28px; top: 50%; width: 28px; height: 2px; background: linear-gradient(90deg, #1488FC, #1488FC) no-repeat 0 0 / 0 100%, var(--sc-line-soft); }
@@ -2041,7 +2050,8 @@ a.fw-session-card { text-decoration: none; color: inherit; }
 
 @media (max-width: 768px) {
   .hm-scene--wired { grid-template-columns: 1fr; gap: 14px; }
-  .hm-wire-line { display: none; }
+  .hm-wire-line, .hm-wire-trunk, .hm-wire-stub { display: none; }
+  .hm-wire-list { margin-left: 0; }
   .hm-sc-status, .hm-scan-flag, .hm-dep-badge { right: 12px; top: 10px; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -2092,3 +2102,9 @@ a.fw-session-card { text-decoration: none; color: inherit; }
 .pp-core { background: #f6f1e7; border-color: #e8dfcf; }
 .pp-core .pp-logo { font-size: 14px; margin: 0; }
 .pp-core > span:last-child { font-size: 11px; color: #6b7a72; }
+
+/* step copy reveal: the h3 inside .dsa-reveal needs the word rules the shared
+   CSS only writes for h1/h2 containers (it keys on .dsa-reveal .word, so this
+   is just the margin the wrapper would otherwise add) */
+.hm-step-copy .dsa-reveal { margin: 18px 0 0; }
+.hm-step-copy .dsa-reveal .hm-step-title { margin: 0; }

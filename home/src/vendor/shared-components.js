@@ -452,7 +452,7 @@ __scShimmerInit_legacy();
       if (!entry.isIntersecting) return;
       var el = entry.target;
       if (el.classList.contains('dsa-reveal')) {
-        el.querySelectorAll('h1, h2').forEach(function (h) {
+        el.querySelectorAll('h1, h2, h3').forEach(function (h) {   /* HOME: h3 too (how-it-works step titles) */
           if (!h.dataset.wrapped) { wrapWords(h); h.dataset.wrapped = '1'; }
         });
         /* Fast-scroll catch-up: first noticed already DEEP in view (top above
@@ -489,7 +489,7 @@ __scShimmerInit_legacy();
      this code writes .sc-sub-* classes, and nothing else animates these
      elements. Subtitles containing child elements are still fine — this is a
      class toggle, not an innerHTML rewrite. */
-  var SUB_SEL = '.section-sub, .builtin-sub, .detail-sub, .controls-sub, .compliance-sub, .hiw-sub, .agent-desc, .run-callout-sub, .success-sub, .feat-subheadline, .footer-subtitle';   /* only classes that actually sit in/after a reveal container */
+  var SUB_SEL = '.section-sub, .hm-step-body, .builtin-sub, .detail-sub, .controls-sub, .compliance-sub, .hiw-sub, .agent-desc, .run-callout-sub, .success-sub, .feat-subheadline, .footer-subtitle';   /* only classes that actually sit in/after a reveal container */
   /* DOM-based word wrapper (microsoft.html's proven approach): splits text
      nodes into .word spans and wraps element children whole. Never touches
      innerHTML with a regex, so nested markup cannot be corrupted. The --i
@@ -526,7 +526,7 @@ __scShimmerInit_legacy();
          eyebrow and the subtitle itself, delaying the subtitle's first word
          by the full total and leaving a dead pause (caught by review on
          bolt-public-pages#250; same code, same bug). */
-      var heading = c.querySelector('h1, h2');
+      var heading = c.querySelector('h1, h2, h3');
       var idx = heading && heading.textContent.trim() ? heading.textContent.trim().split(/\s+/).length : 0;
       subs.forEach(function (s) { s.classList.add('sc-sub-words'); idx = wrapSubWords(s, idx); });
       var mo = new MutationObserver(function () {

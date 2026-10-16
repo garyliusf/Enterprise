@@ -177,6 +177,10 @@ function SceneWired() {
         <span>pawsandpaths.com</span>
       </div>
       <div className="hm-wire-list">
+        {/* the trunk: a vertical line the four branches hang off, with a stub
+            from the project card into it */}
+        <i className="hm-wire-trunk" />
+        <i className="hm-wire-stub" />
         {items.map((w, i) => (
           <span key={w} className="hm-wire-item" style={{ '--i': i } as React.CSSProperties}>
             <i className="hm-wire-line" />
