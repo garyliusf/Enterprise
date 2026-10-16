@@ -4,7 +4,7 @@ import { asset } from '../config';
 import { closing, enterprise, showcase, stats, steps, stories, platform, templatesHome, useCases, type ShowcaseCard } from '../home';
 import { PromptBox, TrustPills } from './Hero';
 import { StepVisual } from './Story';
-import { Btn, HoverField, PixelField, SectionHeader, type WaveFn } from './ui';
+import { BgVideo, Btn, HoverField, PixelField, SectionHeader, type WaveFn } from './ui';
 
 /* ── Showcase: two rows of "Tell bolt" cards drifting in opposite directions ─
    Each row is duplicated so the drift loops seamlessly; it pauses on hover. */
@@ -309,60 +309,8 @@ export function TemplatesHome() {
 
 /* ── New this month: the three features in the solutions page's tab slider ─
    Horizontal tab bar with the sliding underline, auto-advance every 7s,
-   copy + bullets on the left, the bolt browser mock on the right with the
-   template capture drifting inside it (solutions.html's platBrowserScroll). */
-const LEGS_LONG: [number, number, number][] = [[0.26, 2100, 2300], [0.52, 2100, 2300], [0.76, 2100, 2300], [1, 2100, 3500], [0.48, 1900, 800], [0, 2300, 1500]];
-const LEGS_SHORT: [number, number, number][] = [[0.52, 2200, 3000], [1, 2200, 3200], [0.44, 1900, 800], [0, 2200, 1500]];
-const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
-function BrowserMock({ shot, scroll }: { shot: string; scroll: 'long' | 'short' | 'static' }) {
-  const view = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const v = view.current;
-    if (!v || scroll === 'static') return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const legs = scroll === 'short' ? LEGS_SHORT : LEGS_LONG;
-    let leg = 0, moving = true, t0: number | null = null, from = 0;
-    let held = false, idle = 0, visible = true, lastWritten = -1, raf = 0;
-    const range = () => v.scrollHeight - v.clientHeight;
-    /* hand off to the visitor; resume after they've been still for a beat */
-    const yieldToUser = () => {
-      held = true;
-      window.clearTimeout(idle);
-      idle = window.setTimeout(() => {
-        const max = range(), pos = max > 0 ? v.scrollTop / max : 0;
-        const next = legs.findIndex((l) => l[0] > pos + 0.02);
-        leg = next === -1 ? legs.length - 1 : next;
-        held = false; moving = true; t0 = null;
-      }, 2400);
-    };
-    (['wheel', 'touchstart', 'pointerdown', 'keydown'] as const).forEach((e) => v.addEventListener(e, yieldToUser, { passive: true }));
-    const onScroll = () => { if (Math.abs(v.scrollTop - lastWritten) > 2) yieldToUser(); };
-    v.addEventListener('scroll', onScroll, { passive: true });
-    const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; }, { threshold: 0.05 });
-    io.observe(v);
-    const step = (ts: number) => {
-      raf = requestAnimationFrame(step);
-      const max = range();
-      if (held || !visible || max <= 0 || !v.clientHeight) { t0 = null; return; }
-      const l = legs[leg], dur = moving ? l[1] : l[2];
-      if (t0 === null) { t0 = ts; from = v.scrollTop; }
-      const p = Math.min(1, (ts - t0) / dur);
-      if (moving) { v.scrollTop = from + (l[0] * max - from) * easeOut(p); lastWritten = v.scrollTop; }
-      if (p >= 1) { if (moving) moving = false; else { moving = true; leg = (leg + 1) % legs.length; } t0 = null; }
-    };
-    raf = requestAnimationFrame(step);
-    return () => { cancelAnimationFrame(raf); io.disconnect(); window.clearTimeout(idle); v.removeEventListener('scroll', onScroll); };
-  }, [scroll]);
-  return (
-    <div className={`plat-browser${scroll === 'short' ? ' plat-browser--short' : scroll === 'static' ? ' plat-browser--static' : ''}`}>
-      <img className="plat-browser-bar" src={asset('/templates/bolt-browser-bar.svg')} alt="" />
-      <div className="plat-browser-view" ref={view}>
-        <img className="plat-browser-page" decoding="async" loading="lazy" src={shot} alt="" />
-      </div>
-    </div>
-  );
-}
-
+   copy + bullets + link on the left, the feature's clip on the right
+   (BgVideo: plays only while on screen, poster first). */
 export function Platform() {
   const [active, setActive] = useState(0);
   const [atEnd, setAtEnd] = useState(true);
@@ -408,8 +356,8 @@ export function Platform() {
                       <ul className="plat-list">{t.points.map((pt) => <li key={pt}>{pt}</li>)}</ul>
                       <a className="fw-text-link plat-link" href={t.link.href}>{t.link.label} <i className="fw-arrow" aria-hidden="true" /></a>
                     </div>
-                    <div className="plat-vcard plat-vcard--browser" aria-hidden="true">
-                      <BrowserMock shot={t.shot} scroll={t.scroll} />
+                    <div className="plat-vcard plat-vcard--video" aria-hidden="true">
+                      <BgVideo name={t.video} className="plat-video" lazy />
                     </div>
                   </div>
                 </div>

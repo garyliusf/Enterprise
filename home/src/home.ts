@@ -106,15 +106,15 @@ export const templatesHome = {
 };
 
 /* ── New this month: the three features, in the solutions page's tab
-   slider (Gary, 2026-10-16). Visuals are stand-in captures for now. */
+   slider (Gary, 2026-10-16). Visuals = Gary's clips (public/hero/new-*.webm/mp4 + poster). */
 export const platform = {
   eyebrow: 'New this month',
   title: 'Built to keep up with you.',
   subtitle: 'Bolt keeps shipping new ways to build. Here is what just landed.',
   tabs: [
-    { label: 'Showcase Slides', title: 'Turn any project into a slide deck', body: 'Generate a polished deck straight from what you already built, with every slide matching your brand and copy.', points: ['Generated from the project you already built', 'Every slide matches your brand and copy', 'Export to PDF or present from Bolt'], link: { label: 'See Showcase Slides', href: 'https://bolt.new/blog' }, shot: asset('/templates/catalog/premium-saas-dashboard-lp.webp'), scroll: 'long' as const },
-    { label: 'Security engineer', title: 'An automatic security review on every publish', body: 'A security agent checks what was built and fixes what it finds before customers see it, with no setup.', points: ['Runs on every publish, no setup', 'Finds and fixes issues before customers see them', 'Plain-language report of what changed'], link: { label: 'See the security engineer', href: 'https://bolt.new/platform/security' }, shot: asset('/templates/catalog/vantage-dashboard.webp'), scroll: 'static' as const },
-    { label: 'Dictation mode', title: 'Say it instead of typing it', body: 'Describe your idea out loud. Bolt builds from your voice just as well as from the keyboard.', points: ['Describe the idea out loud, Bolt builds it', 'Works in the composer and in follow-ups', 'Available on every plan'], link: { label: 'Try dictation', href: 'https://bolt.new/' }, shot: asset('/templates/catalog/ledger-finance.webp'), scroll: 'short' as const },
+    { label: 'Showcase Slides', title: 'Turn any project into a slide deck', body: 'Generate a polished deck straight from what you already built, with every slide matching your brand and copy.', points: ['Generated from the project you already built', 'Every slide matches your brand and copy', 'Export to PDF or present from Bolt'], link: { label: 'See Showcase Slides', href: 'https://bolt.new/blog' }, video: 'new-slides' },
+    { label: 'Security engineer', title: 'An automatic security review on every publish', body: 'A security agent checks what was built and fixes what it finds before customers see it, with no setup.', points: ['Runs on every publish, no setup', 'Finds and fixes issues before customers see them', 'Plain-language report of what changed'], link: { label: 'See the security engineer', href: 'https://bolt.new/platform/security' }, video: 'new-security' },
+    { label: 'Dictation mode', title: 'Say it instead of typing it', body: 'Describe your idea out loud. Bolt builds from your voice just as well as from the keyboard.', points: ['Describe the idea out loud, Bolt builds it', 'Works in the composer and in follow-ups', 'Available on every plan'], link: { label: 'Try dictation', href: 'https://bolt.new/' }, video: 'new-dictation' },
   ],
 };
 
