@@ -1,7 +1,7 @@
 import type React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { asset } from '../config';
-import { BgVideo, PixelField, type WaveFn } from './ui';
+import { PixelField, type WaveFn } from './ui';
 
 /* ============================================================================
    HOW IT WORKS — one project, five scenes. Every panel animates the SAME
@@ -16,10 +16,9 @@ const SITE = 'pawsandpaths.com';
 /* where the project lives while it's being built: Bolt's own hosting */
 const PREVIEW = 'pawsandpaths.bolt.host';
 
-/* brand ground for every scene panel: the small gradient clip (cards.*),
-   blurred and masked to a corner glow like the session cards, with a blue
-   pixel field drifting over it. Each scene starts the clip at a different
-   moment so the five panels never pulse in step. */
+/* brand ground for every scene panel: a still from the BoltGrad03 clip
+   (public/story/grad-N.webp, each a different moment + crop so the five
+   cards vary), soft grain on the ground only, a faint dot field. */
 const groundWave: WaveFn = (c, r, t, phase, cols, rows) => {
   const x = c / cols;
   const y = r / rows;
@@ -29,7 +28,7 @@ const groundWave: WaveFn = (c, r, t, phase, cols, rows) => {
 function SceneGround({ at }: { at: number }) {
   return (
     <>
-      <BgVideo name="cards" className="hm-scene-video" lazy startAt={at} />
+      <img src={asset(`/story/grad-${at}.webp`)} alt="" className="hm-scene-video" loading="lazy" decoding="async" />
       <div className="fw-grain hm-scene-grain" aria-hidden="true" />
       <PixelField wave={groundWave} spacing={8} dot={2} opacity={0.3} className="hm-scene-field" color="255,255,255" />
     </>
@@ -83,7 +82,7 @@ function SceneDescribe() {
   const done = n >= PROMPT.length;
   return (
     <div ref={ref} className={`hm-vis hm-scene hm-scene--describe${on ? ' is-on' : ''}`} aria-hidden="true">
-      <SceneGround at={0} />
+      <SceneGround at={1} />
       <div className="hm-sc-prompt">
         <span className="hm-sc-typed">
           {PROMPT.slice(0, n)}
@@ -159,7 +158,7 @@ function SceneBuild() {
   const { ref, on } = usePlayOnce<HTMLDivElement>();
   return (
     <div ref={ref} className={`hm-vis hm-scene hm-scene--build${on ? ' is-on' : ''}`} aria-hidden="true">
-      <SceneGround at={4} />
+      <SceneGround at={2} />
       <MiniSite stage="build" />
       <span className="hm-sc-status"><i />Building</span>
     </div>
@@ -172,7 +171,7 @@ function SceneWired() {
   const items = ['Hosting', 'Database', 'Payments', 'Auth'];
   return (
     <div ref={ref} className={`hm-vis hm-scene hm-scene--wired${on ? ' is-on' : ''}`} aria-hidden="true">
-      <SceneGround at={8} />
+      <SceneGround at={3} />
       <div className="hm-wire-core pp-core">
         <span className="pp-logo"><PawMark />Paws &amp; Paths</span>
         <span>pawsandpaths.com</span>
@@ -200,7 +199,7 @@ function SceneSecure() {
   const { ref, on } = usePlayOnce<HTMLDivElement>();
   return (
     <div ref={ref} className={`hm-vis hm-scene hm-scene--secure${on ? ' is-on' : ''}`} aria-hidden="true">
-      <SceneGround at={12} />
+      <SceneGround at={4} />
       {/* the site inside Bolt's own frame: a slim app bar with the project
           name and the Publish button. After the fix the page dims + blurs
           and Publish lights up (Gary: no green pill, the real button). */}
@@ -244,7 +243,7 @@ function SceneDeploy() {
   const typed = n >= SITE.length;
   return (
     <div ref={ref} className={`hm-vis hm-scene hm-scene--deploy${on ? ' is-on' : ''}${typed ? ' is-typed' : ''}`} aria-hidden="true">
-      <SceneGround at={16} />
+      <SceneGround at={5} />
       <div className="hm-dep-url">
         <span className="hm-dep-domain">
           {SITE.slice(0, n)}
