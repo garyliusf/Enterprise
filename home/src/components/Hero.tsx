@@ -23,8 +23,8 @@ function useRotatingExample(active: boolean) {
       window.setTimeout(() => {
         setIdx((i) => (i + 1) % EXAMPLES.length);
         setShown(true);
-      }, 450);
-    }, 4200);
+      }, 350);
+    }, 2800); /* faster (Gary): ~2.8s a prompt, 0.35s fade */
     return () => window.clearInterval(id);
   }, [active]);
   return { example: EXAMPLES[idx], shown };
