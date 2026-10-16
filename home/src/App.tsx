@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Hero } from './components/Hero';
-import { Nav } from './components/Nav';
-import { Competition, Faq, FooterCta, FooterZone, Schedule, SiteFooter, Templates, Timeline, Weekend } from './components/Sections';
+import { SiteFooterStd, SiteNav } from './components/SiteChrome';
+import { Competition, Faq, FooterCta, FooterZone, Schedule, Templates, Timeline, Weekend } from './components/Sections';
 import { Terms } from './components/Terms';
 import { ThemeSwitch } from './components/ThemeSwitch';
 import { TERMS_PATH, THANKS_PATH } from './config';
@@ -22,11 +22,9 @@ export default function App() {
   if (isThanks) {
     return (
       <>
-        <Nav overHero={false} />
+        <SiteNav overHero={false} />
         <Thanks />
-        <FooterZone compact>
-          <SiteFooter />
-        </FooterZone>
+        <SiteFooterStd />
         <ThemeSwitch />
       </>
     );
@@ -35,11 +33,9 @@ export default function App() {
   if (isTerms) {
     return (
       <>
-        <Nav overHero={false} />
+        <SiteNav overHero={false} />
         <Terms />
-        <FooterZone compact>
-          <SiteFooter />
-        </FooterZone>
+        <SiteFooterStd />
         <ThemeSwitch />
       </>
     );
@@ -47,7 +43,7 @@ export default function App() {
 
   return (
     <>
-      <Nav />
+      <SiteNav />
       <main>
         <Hero />
         <Weekend />
@@ -59,8 +55,8 @@ export default function App() {
       </main>
       <FooterZone>
         <FooterCta />
-        <SiteFooter />
       </FooterZone>
+      <SiteFooterStd />
       <ThemeSwitch />
     </>
   );

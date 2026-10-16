@@ -1,0 +1,935 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   SHARED NAVBAR + SITE FOOTER  —  canonical source of truth
+   ───────────────────────────────────────────────────────────────────────────
+   Extracted verbatim (2026-08-06) from marketing/templates/index.html, which
+   had grown an inline copy alongside marketing/templates/detail/index.html.
+   Pair with shared-nav-footer.js and the markup blocks documented there.
+
+   NOTE: marketing/templates/index.html and marketing/templates/detail/index.html
+   still carry their own INLINE copies of these rules — they have not been
+   migrated yet. Until they are, a change here must be mirrored there (or,
+   better, migrate them to this file). See CLAUDE.md "Shared-file hazards".
+
+   Class prefixes owned by this file: .mkt-nav*, .site-footer*, and the
+   body.mkt-nav-mobile-open scroll lock. Grep before adding new names.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     NAVBAR — sticky top chrome + mega-menu dropdown pattern (retool-inspired,
+     applied to our design tokens: Literata eyebrows, Schibsted Grotesk body, brand blue,
+     rgba(5,5,7,0.72) glass background with backdrop-blur, 2px borders/radii)
+     ═══════════════════════════════════════════════════════════════════════ */
+  .mkt-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    width: 100%;
+    background: var(--sc-nav-bg, rgba(5,5,7,0.72));
+    -webkit-backdrop-filter: saturate(140%) blur(18px);
+            backdrop-filter: saturate(140%) blur(18px);
+    /* no divider line under the nav in any state (prod nav-footer-ia-sync, #335) */
+    border-bottom: none;
+  }
+  /* an open dropdown/drawer must never leave the bar translucent (prod #335) */
+  .mkt-nav.has-menu-open {
+    background: var(--sc-nav-bg-solid, #050507);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  /* Light-page variant (beige blog-family pages: customers, press): the default
+     72%-alpha black composites with the beige page behind it and reads GREY —
+     these pages opt into a solid ground so the nav stays true black. Dark pages
+     keep the translucent glass look. */
+  /* beige-page bar: SOLID in both themes — opaque white on light, #050507 on
+     dark. The glass either way composites with the beige and reads grey. */
+  .mkt-nav--on-light {
+    background: var(--sc-nav-bg-solid, #050507);
+    /* fade, don't snap, between the at-rest transparent and the scrolled solid (Gary) */
+    transition: background-color 0.12s ease, border-color 0.12s ease;
+  }
+  /* keep it solid black when scrolled too: .mkt-nav.is-scrolled (0,2,0) otherwise
+     swaps in the translucent glass, which reads grey over the beige page (Gary) */
+  .mkt-nav.mkt-nav--on-light.is-scrolled { background: var(--sc-nav-bg-solid, #050507); }
+  /* On LIGHT the beige pages start with no bar at all — the beige runs under
+     the logo/links — and the solid white only arrives on scroll (Gary,
+     2026-09-29; supersedes the earlier always-solid call). Dark keeps the
+     solid black bar in every state. */
+  html[data-theme="light"] .mkt-nav--on-light:not(.is-scrolled):not(.has-menu-open) {
+    background: transparent;
+    border-bottom-color: transparent;
+    -webkit-backdrop-filter: none;
+            backdrop-filter: none;
+  }
+  .mkt-nav-inner {
+    /* 3-column grid with equal 1fr outer columns: the middle nav group is then
+       centred on the page regardless of the logo and right-side CTA having
+       different widths (flex:1 + justify-content:center left it leaning). */
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 24px;
+    /* Columns are pinned explicitly below. Without that, hiding .mkt-nav-items
+       at narrow widths removes its grid box and auto-placement slides the
+       right-hand group into the middle column. */
+    height: 68px;
+    /* Match .section-inner exactly so the logo + right-side CTA align with the page content below. */
+    width: min(1200px, calc(100vw - 160px));
+    margin: 0 auto;
+    padding: 0;
+    /* Anchor absolutely-positioned Back button (sibling of logo) so left:0 lines up with the nav's inner left edge, not the viewport edge. */
+    position: relative;
+  }
+  @media (max-width: 1024px) {
+    .mkt-nav-inner { width: min(900px, calc(100vw - 80px)); }
+  }
+  @media (max-width: 768px) {
+    .mkt-nav-inner { width: calc(100vw - 32px); }
+  }
+  /* Logo — inline bolt.new wordmark SVG, height 20px sits comfortably in the 68px bar. */
+  .mkt-nav-logo {
+    display: inline-flex;
+    align-items: center;
+    color: #fff;
+    text-decoration: none;
+    flex-shrink: 0;
+    transition: opacity 0.15s ease;
+  }
+  .mkt-nav-logo:hover { opacity: 0.85; }
+  .mkt-nav-logo svg { height: 20px; width: auto; display: block; }
+  /* Slight bump on tablet/phone — logo has more room to breathe here. */
+  @media (max-width: 1024px) {
+    .mkt-nav-logo svg { height: 24px; }
+  }
+  /* Logo ↔ Back slot: both live stacked in the same left-anchored slot. Both animations move on the horizontal axis — the outgoing element slides LEFT as it fades, the incoming element also slides in from the LEFT. Feels like the header is scrolling one label off the left edge while the next label follows behind. */
+  .mkt-nav-logo { grid-column: 1; justify-self: start; }
+  .mkt-nav-items { grid-column: 2; }
+  .mkt-nav-logo,
+  .mkt-nav-back {
+    /* Faster than the drawer view slide (0.32s) so the top row reads as a lighter, more decisive swap independent of the panel motion below. */
+    transition: opacity 0.22s ease-out,
+                transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+    transform-origin: left center;
+  }
+  .mkt-nav-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    padding: 8px 0;
+    color: #fff;
+    font-family: var(--sc-font-label, 'Literata', serif);
+    font-size: 12px;
+    font-weight: var(--sc-label-weight, 500);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    position: absolute;
+    /* Align the chevron with the drawer's content edge — nav-inner uses the same 16px gutter as the drawer's padding on mobile, so left:0 puts the chevron on the same vertical line as the feature title / section headings / link text (border-left rail was removed for a clean shared left edge). */
+    left: 0;
+    /* Start hidden below the header; rolls up into place when .is-on-submenu is toggled. Vertical axis to distinguish from the drawer's horizontal slide below. */
+    opacity: 0;
+    transform: translateY(12px);
+    pointer-events: none;
+  }
+  .mkt-nav-back svg { width: 16px; height: 16px;
+    /* -5px: the chevron's INK starts ~5px into its 16px viewBox (polyline
+       x=9..15 of 24 + stroke) — pull the box left so the ink edge, not the
+       box edge, sits on the shared 40/16px gutter line with the drawer text */
+    margin-left: -5px;
+    /* No nudge: align-items:center centers the LINE BOXES, and Schibsted
+       Grotesk (asc 2000 / desc 528 / cap 1440 per 2048) puts its caps-only
+       ink 0.008em = 0.09px from the line-box centre at 12px — dead centre.
+       The old +1px was derived for Literata and sat the chevron 1px low. */
+    transform: translateY(0); }
+  .mkt-nav-logo { position: relative; }
+  .mkt-nav.is-on-submenu .mkt-nav-logo {
+    /* Logo rolls up and out as it fades. */
+    opacity: 0;
+    transform: translateY(-12px);
+    pointer-events: none;
+  }
+  .mkt-nav.is-on-submenu .mkt-nav-back {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  /* Only show the back button target on mobile — desktop nav has real dropdowns and never enters submenu state. */
+  @media (min-width: 1025px) { .mkt-nav-back { display: none; } }
+  /* Nav items (center row) */
+  .mkt-nav-items {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    justify-content: center;
+  }
+  /* Each li fills the full 68px nav height so the whole vertical strip is hover-active — small cursor movements above/below the button label no longer break hover and cause the dropdown to flicker closed. */
+  .mkt-nav-items li { margin: 0; height: 68px; display: flex; align-items: center; }
+  .mkt-nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 14px;
+    font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--sc-nav-ink, rgba(255,255,255,0.75));
+    background: none;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.15s ease, background 0.15s ease;
+  }
+  .mkt-nav-link:hover { color: var(--sc-nav-ink-hover, #fff); background: var(--sc-nav-ink-hover-bg, rgba(255,255,255,0.05)); }
+  .mkt-nav-link.is-active { color: var(--sc-nav-ink-hover, #fff); }
+  .mkt-nav-link { position: relative; }
+  .mkt-nav-link .mkt-nav-chev {
+    width: 12px; height: 12px;
+    transition: transform 0.2s ease;
+  }
+  .mkt-nav-link.is-open .mkt-nav-chev { transform: rotate(180deg); }
+  .mkt-nav-link.is-open { color: var(--sc-nav-ink-hover, #fff); background: var(--sc-nav-ink-hover-bg, rgba(255,255,255,0.05)); }
+  /* Right-side actions */
+  .mkt-nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-shrink: 0;
+  }
+  .mkt-nav-signin {
+    font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--sc-nav-ink, rgba(255,255,255,0.75));
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+  .mkt-nav-signin:hover { color: var(--sc-nav-ink-hover, #fff); }
+  /* Nav CTA extends .hero-btn-primary so shared-components.js attaches the pixel-fill canvas hover — same as every other primary button on the site. These overrides shrink it to the compact nav pill size. */
+  .mkt-nav-cta.hero-btn-primary {
+    height: 38px;
+    padding: 0 18px;
+    font-size: 14px;
+    min-width: 0;
+  }
+  .mkt-nav-cta.hero-btn-primary .btn-text-wrap { height: 1.15em; }
+  /* Right group — actions + burger stay together on the right, no big gap between them on mobile. */
+  .mkt-nav-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+    grid-column: 3;
+    justify-self: end;
+  }
+  /* Hamburger (mobile) — 3 SVG-less lines drawn with spans so we can animate stroke on hover. Fully transparent: no border, no hover background, no tap-highlight, no focus box — just the lines. */
+  .mkt-nav-burger {
+    display: none;
+    width: 40px; height: 40px;
+    background: none;
+    border: none;
+    border-radius: 4px;
+    padding: 0;
+    cursor: pointer;
+    position: relative;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mkt-nav-burger:hover,
+  .mkt-nav-burger:focus,
+  .mkt-nav-burger:active { background: none; outline: none; }
+  .mkt-nav-burger span {
+    position: absolute;
+    left: 9px;
+    width: 22px;
+    height: 1.5px;
+    background: var(--sc-nav-logo, #fff);
+    border-radius: 1px;
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+                width 0.28s ease,
+                left 0.28s ease,
+                opacity 0.18s ease;
+    transform-origin: center;
+  }
+  .mkt-nav-burger span:nth-child(1) { top: 12px; }
+  .mkt-nav-burger span:nth-child(2) { top: 19px; }
+  .mkt-nav-burger span:nth-child(3) { top: 26px; }
+  /* Open state: three lines morph into an X. Top rotates 45° and drops to the middle row; middle fades; bottom rotates -45° and rises to the middle row. */
+  .mkt-nav-burger.is-open span { left: 9px; width: 22px; }
+  .mkt-nav-burger.is-open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .mkt-nav-burger.is-open span:nth-child(2) { opacity: 0; transform: scaleX(0.5); }
+  .mkt-nav-burger.is-open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* Mega-menu panel — one panel per data-panel, anchors under the sticky nav */
+  .mkt-nav-panel {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--sc-panel-bg, rgba(8,8,12,0.98));
+    -webkit-backdrop-filter: saturate(140%) blur(24px);
+            backdrop-filter: saturate(140%) blur(24px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    box-shadow: var(--sc-panel-shadow, 0 24px 60px rgba(0,0,0,0.55));
+    opacity: 0;
+    transform: translateY(-6px);
+    pointer-events: none;
+    transition: opacity 0.12s ease, transform 0.12s ease;   /* = the bar\'s background change, so panel and bar land together (Gary, 2026-10-02) */
+  }
+  .mkt-nav-panel.is-open {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  .mkt-nav-panel-inner {
+    display: grid;
+    /* Default: 2 link columns. Overridden per panel below. */
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 40px clamp(16px, 4vw, 80px) 48px;
+  }
+  .mkt-nav-panel[data-panel="platform"] .mkt-nav-panel-inner {
+    /* Platform has a single link column (Product Overview) — anchor it to the left, don't stretch. */
+    grid-template-columns: minmax(0, 320px);
+    max-width: 1120px;
+    justify-content: start;
+  }
+  .mkt-nav-panel[data-panel="solutions"] .mkt-nav-panel-inner,
+  .mkt-nav-panel[data-panel="resources"] .mkt-nav-panel-inner {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+  }
+  /* No gap between links — each link's vertical padding fills the space instead so the entire column is one continuous hover zone (no dead pixels between links that would drop focus-mode dim state). */
+  .mkt-nav-panel-col { display: flex; flex-direction: column; gap: 0; }
+
+  /* Featured card on the left of each panel — desktop only. Not a link column, so it doesn't participate in the focus-mode dim of sibling anchors. */
+  .mkt-nav-panel-feature {
+    display: none;
+    padding: 14px;
+    border-radius: 6px;
+    background: var(--sc-feature-bg, rgba(255,255,255,0.03));
+    border: 1px solid var(--sc-feature-border, rgba(255,255,255,0.08));
+    text-decoration: none;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  .mkt-nav-panel-feature:hover { border-color: var(--sc-feature-border-hover, rgba(255,255,255,0.22)); background: var(--sc-feature-bg-hover, rgba(255,255,255,0.045)); }
+  .mkt-nav-panel-feature-visual {
+    /* 7/4 matches the nav art (both cards are 700x400). At 3/2 the wider
+       image was cover-cropped ~14% off the left and right edges. */
+    aspect-ratio: 7 / 4;
+    border-radius: 4px;
+    margin-bottom: 14px;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, rgba(20,136,252,0.85) 0%, rgba(127,221,193,0.4) 100%);
+  }
+  .mkt-nav-panel[data-panel="platform"] .mkt-nav-panel-feature-visual {
+    /* SMB page art — 700x400, matching the tile's 7/4 ratio, so cover fills
+       it exactly with no crop. */
+    background: #0b57c9 url("images/nav-smb.webp") center / cover no-repeat;
+  }
+  .mkt-nav-panel[data-panel="solutions"] .mkt-nav-panel-feature-visual {
+    /* SMB art — the Solutions feature card is AI for Small Business now
+       (nav-footer-ia-sync); same 700x400, 7/4 ratio. */
+    background: #0b57c9 url("images/nav-smb.webp") center / cover no-repeat;
+  }
+  .mkt-nav-panel[data-panel="resources"] .mkt-nav-panel-feature-visual {
+    /* Bolt Templates collage — 700x400, matching the tile's 7/4 ratio, so
+       cover fills it exactly with no crop. */
+    background: #0b57c9 url("images/nav-templates.webp") center / cover no-repeat;
+  }
+  .mkt-nav-panel-feature-eyebrow {
+    font-family: var(--sc-font-label, 'Literata', serif); font-weight: var(--sc-label-weight, 500);
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    margin: 0 0 8px;
+  }
+  .mkt-nav-panel-feature-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif);
+    font-size: 18px;
+    font-weight: 500;
+    color: #fff;
+    letter-spacing: -0.2px;
+    line-height: 1.25;
+    margin: 0 0 10px;
+  }
+  .mkt-nav-panel-feature-title::after {
+    content: '→';
+    font-size: 15px;
+    transition: transform 0.18s ease;
+  }
+  .mkt-nav-panel-feature:hover .mkt-nav-panel-feature-title::after { transform: translateX(4px); }
+  .mkt-nav-panel-feature-desc {
+    font-size: 13px;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.55;
+    margin: 0;
+  }
+  @media (min-width: 1025px) {
+    .mkt-nav-panel-feature { display: block; }
+    .mkt-nav-panel[data-panel="platform"] .mkt-nav-panel-inner {
+      grid-template-columns: 260px minmax(0, 300px);
+      max-width: 1120px;
+      justify-content: start;
+      /* 20px column gap to match the solutions/resources panels — was 40px, so
+         the feature-to-first-column gap looked wider than the others. */
+      gap: 32px 44px;
+    }
+    .mkt-nav-panel[data-panel="solutions"] .mkt-nav-panel-inner,
+    .mkt-nav-panel[data-panel="resources"] .mkt-nav-panel-inner {
+      grid-template-columns: 260px repeat(3, minmax(0, 1fr));
+      gap: 32px 44px;
+    }
+  }
+  .mkt-nav-panel-heading {
+    font-family: var(--sc-font-label, 'Literata', serif); font-weight: var(--sc-label-weight, 500);
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--sc-panel-heading, rgba(255,255,255,0.4));
+    margin: 0 0 16px;
+  }
+  .mkt-nav-panel-col a {
+    position: relative;
+    /* display:flex (not inline-flex) + no align-self stretches the link across the whole column so cursor motion within the column stays hovered — even the empty right side of a link now counts as a hover, no cursor-triangle dropout between rows. */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif);
+    font-size: 17px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.85);
+    text-decoration: none;
+    line-height: 1.4;
+    /* Vertical padding replaces the column gap (12px) — total hit zone per link ≈ 20px + text height; no dead pixels between siblings. */
+    padding: 10px 0;
+    transition: color 0.18s ease, opacity 0.18s ease, transform 0.18s ease;
+  }
+  /* Slide-in arrow on the currently-hovered link — hidden until hover. */
+  .mkt-nav-panel-col a::after {
+    content: '→';
+    font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif);
+    color: currentColor;
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+  }
+  .mkt-nav-panel-col a:hover { color: var(--sc-panel-link-hover, #fff); }
+  .mkt-nav-panel-col a:hover::after { opacity: 1; transform: translateX(0); }
+  /* Focus-mode dim: when a specific link inside the panel is being hovered, dim every other link so the hovered item pops. Column headings (ROLES / SUPPORT / etc.) stay visible so the user always knows which category the highlighted link belongs to. */
+  .mkt-nav-panel:has(.mkt-nav-panel-col a:hover) .mkt-nav-panel-col a { opacity: 0.32; }
+  .mkt-nav-panel:has(.mkt-nav-panel-col a:hover) .mkt-nav-panel-col a:hover { opacity: 1; }
+  /* Overlay backdrop dim while a menu is open — subtle so the nav still shows through */
+  .mkt-nav-scrim {
+    position: fixed;
+    top: 68px; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.18s ease;
+    z-index: 99;
+  }
+  .mkt-nav-scrim.is-open { opacity: 1; pointer-events: auto; }
+
+  @media (max-width: 1024px) {
+    .mkt-nav-items { display: none; }
+    .mkt-nav-signin { display: none; }
+    .mkt-nav-burger { display: inline-flex; }
+    /* On tablet+phone the desktop mega-panels are hidden entirely — the mobile drawer below takes over. */
+    .mkt-nav-panel { display: none !important; }
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     MOBILE DRAWER — full-screen slide-in sheet with drill-down navigation.
+     Only visible on ≤1024px. Home view lists top-level items; tapping a
+     "Platform" / "Solutions" / "Resources" pushes a submenu view; a Back
+     button returns to home. Sticky footer holds primary CTAs.
+     ═══════════════════════════════════════════════════════════════════════ */
+  .mkt-nav-mobile {
+    position: fixed;
+    /* Sits below the 68px sticky nav so the morphing hamburger stays visible + interactive above the drawer. */
+    top: 68px;
+    left: 0; right: 0;
+    height: calc(100vh - 68px);
+    height: calc(100dvh - 68px);
+    z-index: 90;
+    background: rgba(10,10,16,0.98);
+    -webkit-backdrop-filter: blur(24px);
+            backdrop-filter: blur(24px);
+    display: flex;
+    flex-direction: column;
+    opacity: 0; transform: translateY(-8px); /* fade + settle both ways, 320ms = the JS unlock delay (mirror of bolt-public-pages#496) */ transition: opacity 0.32s ease, transform 0.32s cubic-bezier(0.2,0.7,0.2,1), visibility 0s linear 0.32s; visibility: hidden;
+  }
+  .mkt-nav-mobile.is-open { opacity: 1; transform: none; visibility: visible; transition: opacity 0.32s ease, transform 0.32s cubic-bezier(0.2,0.7,0.2,1), visibility 0s; }
+  @media (prefers-reduced-motion: reduce) { .mkt-nav-mobile, .mkt-nav-mobile.is-open { transform: none; transition: opacity 0.2s ease, visibility 0s linear 0.2s; } .mkt-nav-mobile.is-open { transition: opacity 0.2s ease, visibility 0s; } }
+  /* Drawer header is fully retired — the sticky nav bar above the drawer owns the logo/back/close controls now. */
+  .mkt-nav-mobile-header { display: none; }
+  .mkt-nav-mobile-close,
+  .mkt-nav-mobile-back {
+    background: none;
+    border: none;
+    color: #fff;
+    font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif);
+    font-size: 14px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    padding: 8px;
+  }
+  .mkt-nav-mobile-close svg { width: 20px; height: 20px; }
+  .mkt-nav-mobile-back svg { width: 16px; height: 16px; }
+  .mkt-nav-mobile-body {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+  .mkt-nav-mobile-view {
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+    padding: 28px 40px;  /* match .mkt-nav-inner's gutter exactly (40 tablet / 16 mobile below) — the old 4vw clamp only coincided at exact widths, so drawer text sat off the bar's Back chevron */
+    opacity: 0;
+    /* Off-screen to the left when not active — slides in from the left as it fades in, matching the logo/back header animation direction. */
+    transform: translateX(-24px);
+    transition: opacity 0.28s ease, transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+  }
+  .mkt-nav-mobile-view.is-active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+  }
+  .mkt-nav-mobile-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 14px 0;
+    font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif);
+    font-size: 20px;
+    font-weight: 500;
+    color: #fff;
+    background: none;
+    border: none;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .mkt-nav-mobile-item svg { width: 16px; height: 16px; color: var(--sc-panel-heading, rgba(255,255,255,0.4)); }  /* token, not the white literal: 0.4-white is invisible on the light drawer sheet (Gary) — dark value is the same 0.4 white */
+  .mkt-nav-mobile-heading {
+    font-family: var(--sc-font-label, 'Literata', serif); font-weight: var(--sc-label-weight, 500);
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+    margin: 20px 0 4px;
+  }
+  /* Dropped the border-left rail + 12px indent — links now align flush with the drawer's content edge (feature title, section headings, and the sticky-nav BACK button all share one left line). */
+  .mkt-nav-mobile-links {
+    display: flex;
+    flex-direction: column;
+    margin: 4px 0 12px;
+  }
+  .mkt-nav-mobile-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    align-self: flex-start;
+    padding: 10px 0;
+    font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif);
+    font-size: 18px;
+    font-weight: 500;
+    color: #fff;
+    text-decoration: none;
+    transition: opacity 0.18s ease, color 0.18s ease;
+  }
+  /* Slide-in arrow on the hovered link — mirrors the desktop mega-menu focus-mode. */
+  .mkt-nav-mobile-links a::after {
+    content: '→';
+    color: currentColor;
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+  }
+  .mkt-nav-mobile-links a:hover::after { opacity: 1; transform: translateX(0); }
+  /* Focus-mode dim: when a link is being hovered inside a mobile drawer view, dim the other links + the feature card so the hovered one pops. Headings (PRODUCT OVERVIEW / ROLES / SUPPORT etc.) stay visible so category context isn't lost. */
+  .mkt-nav-mobile-view:has(.mkt-nav-mobile-links a:hover) .mkt-nav-mobile-links a,
+  .mkt-nav-mobile-view:has(.mkt-nav-mobile-links a:hover) .mkt-nav-mobile-feature {
+    opacity: 0.32;
+    transition: opacity 0.18s ease;
+  }
+  .mkt-nav-mobile-view:has(.mkt-nav-mobile-links a:hover) .mkt-nav-mobile-links a:hover { opacity: 1; }
+  .mkt-nav-mobile-feature { transition: opacity 0.18s ease; }
+  .mkt-nav-mobile-feature {
+    display: block;
+    padding: 4px 0 16px;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    margin-bottom: 8px;
+  }
+  .mkt-nav-mobile-feature-title {
+    font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif);
+    font-size: 22px;
+    font-weight: 500;
+    color: #fff;
+    letter-spacing: -0.2px;
+    margin: 0 0 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .mkt-nav-mobile-feature-desc {
+    font-size: 14px;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.5;
+    margin: 0;
+  }
+  .mkt-nav-mobile-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px clamp(16px, 4vw, 40px);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    flex-shrink: 0;
+  }
+  /* Standard button spec (per CLAUDE.md): 2px radius, 44px height on mobile, natural width — no flex-fill. */
+  .mkt-nav-mobile-footer .hero-btn-primary {
+    height: 44px;
+    padding: 0 22px;
+    font-size: 14px;
+    border-radius: 2px;
+    min-width: 0;
+  }
+  .mkt-nav-mobile-footer .mkt-nav-mobile-signin {
+    color: rgba(255,255,255,0.75);
+    font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif);
+    font-size: 14px;
+    text-decoration: none;
+    padding: 0 8px;
+    flex-shrink: 0;
+  }
+  @media (min-width: 1025px) { .mkt-nav-mobile { display: none; } }
+  /* When the mobile drawer is open, lock body scroll. Class added by JS. */
+  /* Scroll lock while the drawer is open (mirror of bolt-public-pages#496): overflow:hidden
+     covers the mouse; iOS ignores it for touch panning, which the JS cancels with a
+     touchmove handler while open — no layout change (pinning the body shifted the page). */
+  html:has(> body.mkt-nav-mobile-open) { overflow: hidden; }   /* the lock on the ROOT: on a page that clips html, a body lock made body a scroll container and the sticky bar snapped away (mirror of bolt-public-pages#498) */
+  body.mkt-nav-mobile-open { touch-action: none; }
+  .mkt-nav-mobile { overscroll-behavior: contain; touch-action: pan-y; }
+
+  /* ─── SITE FOOTER (link columns, ported from the Retool footer pattern) ── */
+  .site-footer {
+    background: var(--sc-ground, #000);
+    width: 100%;
+    box-sizing: border-box;
+    padding: 92px min(80px, 5vw) 40px; /* was 132px — divider-to-links gap read too tall */
+    text-align: left;
+  }
+  /* Footer content centered at 1200px (aligns with the page's sections/nav).
+     The four text columns share the row equally (flex:1); the Connect column
+     is just icons, so it shrinks to its content and tucks at the right edge
+     instead of taking an equal slot (which left a dead gap before it). */
+  .site-footer-cols {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px 24px;
+  }
+  .site-footer-col { display: flex; flex-direction: column; gap: 0; flex: 1; }
+  .site-footer-label {
+    font-family: var(--sc-font-label, 'Literata', serif);
+    font-size: 11px;
+    font-weight: var(--sc-label-weight, 500);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(var(--sc-ink-rgb, 255,255,255),0.45);
+    margin: 0 0 16px;
+  }
+  /* gap:0 + per-link vertical padding so adjacent links touch (no dead pixels
+     between them) — moving down a column stays "on a link" the whole way, so
+     the focus overlay never flickers between rows (nav padding trick). */
+  .site-footer-links { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0; }
+  .site-footer-links a {
+    position: relative;
+    display: inline-flex; align-items: center; gap: 6px;
+    align-self: flex-start;
+    padding: 10px 0;
+    font-size: 16px; color: rgba(var(--sc-ink-rgb, 255,255,255),0.72); text-decoration: none;
+    transition: color 0.18s ease, opacity 0.18s ease;
+  }
+  /* Slide-in arrow on the hovered link — hidden until hover (matches the nav). */
+  .site-footer-links a::after {
+    content: '→'; color: currentColor;
+    opacity: 0; transform: translateX(-4px);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+  }
+  .site-footer-links a:hover { color: var(--sc-ink, #fff); }   /* was a literal #fff: white-on-white on light */
+  .site-footer-links a:hover::after { opacity: 1; transform: translateX(0); }
+
+/* Simple thin arrow (Gary, 2026-09-29): every nav/footer '→' pseudo swaps the
+   text glyph — whose head renders heavy in Schibsted — for the site's thin
+   shafted arrow (1.5px stroke, small open head — Gary's pick 2026-09-30, replacing the bare chevron) as a currentColor mask.
+   Appended last so it overrides only the glyph + box; each site keeps its
+   own colour, opacity, transform and transition behaviour. */
+.mkt-nav-panel-feature-title::after,
+.mkt-nav-mobile-feature-title::after,   /* the drawer's feature cards carried a typed '→' (Gary, 2026-09-30) */
+.mkt-nav-panel-col a::after,
+.mkt-nav-mobile-links a::after,
+.site-footer-links a::after {
+  content: '';
+  display: inline-block;
+  width: 14px; height: 12px;
+  margin-left: 6px;
+  vertical-align: -1px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 14' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 7h13M9 2l5 5-5 5'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 14' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 7h13M9 2l5 5-5 5'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+  /* Focus-mode dim: driven by hovering an actual link (:has(a:hover)) so the
+     overlay is off in the empty space beside/between columns and only turns on
+     over the links themselves. The padding trick above keeps it stable while
+     moving down a column. The hovered link stays lit; labels stay visible. */
+  .site-footer-cols:has(a:hover) a { opacity: var(--sc-dim, 0.5); }
+  .site-footer-cols:has(a:hover) a:hover { opacity: 1; }
+
+  .site-footer-col--connect { flex: 0 0 auto; min-width: 0; }
+
+  .site-footer-social { display: flex; gap: 10px; margin-top: 6px; }
+  .site-footer-social--col { flex-direction: column; align-items: flex-start; gap: 12px; margin-top: 0; }
+  .site-footer-social a {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: rgba(var(--sc-ink-rgb, 255,255,255),0.06);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: rgba(var(--sc-ink-rgb, 255,255,255),0.72);
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  .site-footer-social a:hover { background: rgba(var(--sc-ink-rgb, 255,255,255),0.12); color: var(--sc-ink, #fff); }
+  /* production sizes the icon by class; this fork sized the bare svg */
+  .site-footer-social-icon { width: 14px; height: 14px; }
+  .site-footer-social svg { width: 14px; height: 14px; }
+
+  /* Tail bar (logo + legal + copyright) — lives below the bolt animation to end the page, so it carries its own gutter. */
+  .site-footer-tail { background: #000; padding: 0 min(80px, 5vw) 40px; }
+    /* ink-composed so it survives the theme: rgba(10,12,20,0.2) over white is a
+     soft grey (~#cecfd0) and dark keeps exactly the rgba(255,255,255,0.2) it
+     had. A hard-coded white rule was invisible on the light page. */
+  .site-footer-divider { width: 100%; max-width: 1200px; margin: 0 auto; border-top: 1px solid rgba(var(--sc-ink-rgb, 255,255,255),0.2); }
+  .site-footer-bottom {
+    width: 100%; max-width: 1200px; margin: 0 auto;
+    padding-top: 24px;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+  }
+  .site-footer-logo { height: 22px; width: auto; display: block; }
+  .site-footer-logo svg { height: 100%; width: auto; display: block; }
+  .site-footer-legal { display: flex; align-items: center; flex-wrap: wrap; gap: 18px 20px; }
+  .site-footer-legal a { font-size: 12px; color: rgba(255,255,255,0.4); text-decoration: none; transition: color 0.2s ease; }
+  .site-footer-legal a:hover { color: rgba(255,255,255,0.8); }
+  .site-footer-copyright { font-size: 12px; color: rgba(255,255,255,0.35); }
+
+  @media (max-width: 768px) {
+    .site-footer { padding: 56px 20px 32px; }
+    .site-footer-cols { gap: 32px 20px; }
+    .site-footer-col { min-width: calc(50% - 10px); flex: 0 0 calc(50% - 10px); }
+    /* Larger tap targets on mobile — bump link text + a touch more vertical padding. */
+    .site-footer-links a { font-size: 17px; padding: 8px 0; }
+    .site-footer-tail { padding: 0 20px 32px; }
+    /* Keep the bottom bar as a single row on mobile: logo + 3 legal links.
+       Copyright moves under it (order:2 + basis:100%) to avoid crowding. */
+    /* Baseline alignment on the wordmark → text: shrink the logo a touch and
+       let the flex row center-align. The prior center alignment left the ~22px
+       SVG visually higher than the 10px caps-height legal links. */
+    .site-footer-bottom { flex-direction: row; align-items: center; flex-wrap: wrap; gap: 12px 20px; }
+    .site-footer-logo { height: 18px; }
+    .site-footer-legal { flex: 1; min-width: 0; gap: 12px 16px; }
+    .site-footer-legal a { font-size: 12px; }
+    .site-footer-copyright { flex: 0 0 100%; order: 2; margin-top: 4px; }
+  }
+
+
+/* ╔══════════════════════════════════════════════════════════════════════════╗
+   ║ CHROME THEME RULES — token-driven, one rule set for BOTH themes.          ║
+   ║ Light values are Forge Lite's (bolt.new/bolt-lite), carried in the        ║
+   ║ --sc-* chrome tokens in shared-components.css; dark values are the        ║
+   ║ sandbox's originals, so dark renders exactly as it did before.            ║
+   ║                                                                          ║
+   ║ These replace the verbatim html[data-theme='light'] port: that block      ║
+   ║ targeted production's class names (.mkt-nav-viewport, .mkt-nav-content),  ║
+   ║ which this fork of the nav does not use — the dropdown shell rule never   ║
+   ║ matched, so the panel stayed dark while its text went light.              ║
+   ╚══════════════════════════════════════════════════════════════════════════╝ */
+.mkt-nav { border-bottom: 1px solid var(--sc-nav-hairline, transparent); }
+/* Bar/panel seam while a menu is open (Gary). NOT the border: the panel is a
+   child at top:100% and children paint over the parent's border, which is why
+   the first attempt never showed. A pseudo laid over the panel's top edge. */
+.mkt-nav.has-menu-open::after {
+  content: ''; position: absolute; left: 0; right: 0; top: 100%; height: 1px;
+  background: var(--sc-nav-menu-divider, transparent); z-index: 300; pointer-events: none;
+}
+.mkt-nav.is-switching .mkt-nav-panel { transition: none; }  /* direct menu-to-menu swap: no crossfade flash (see setOpen) */
+.mkt-nav.is-scrolled { background: var(--sc-nav-bg-scrolled, rgba(5,5,7,0.72)); }
+/* scrolled AND a menu open: .is-scrolled (0,2,0) sits later than the has-menu-open
+   rule and was winning, so the open bar went back to glass with its blur off —
+   see-through text (Gary). This outranks both. */
+.mkt-nav.is-scrolled.has-menu-open { background: var(--sc-nav-bg-solid, #050507); -webkit-backdrop-filter: none; backdrop-filter: none; }
+/* the wordmark ships fill="#fff" as a markup attribute, so CSS has to win */
+.mkt-nav-logo svg path { fill: var(--sc-nav-logo, #fff); }
+/* Over-hero variant — opt-in per page via a class on <nav>. Only for pages
+   whose hero is dark enough for white ink; on a white-topped page (pricing,
+   customers, press, templates) the at-rest ink would vanish. The bar is
+   pulled over the hero by --sc-nav-overlap and the page adds the same amount
+   back to its hero's top padding + min-height, so the copy does not move.
+   Tokens carry the theme difference rather than a light-only selector: on
+   dark every --sc-nav-over-* equals its regular token and the overlap is 0,
+   so dark renders exactly as before. */
+.mkt-nav--over-hero {
+  margin-bottom: calc(-1 * var(--sc-nav-overlap, 0px));
+  transition: background-color 0.12s ease;
+}
+.mkt-nav--over-hero:not(.is-scrolled):not(.has-menu-open) {
+  --sc-nav-bg: var(--sc-nav-over-bg);
+  --sc-nav-hairline: var(--sc-nav-over-hairline);
+  --sc-nav-ink: var(--sc-nav-over-ink);
+  --sc-nav-ink-hover: var(--sc-nav-over-ink-hover);
+  --sc-nav-ink-hover-bg: var(--sc-nav-over-ink-hover-bg);
+  --sc-nav-logo: var(--sc-nav-over-logo);
+  -webkit-backdrop-filter: var(--sc-nav-over-blur);
+          backdrop-filter: var(--sc-nav-over-blur);
+}
+.mkt-nav--over-hero .mkt-nav-logo svg path { transition: fill 0.12s ease; }
+/* Menu open = ONE fade, in step (Gary, 2026-10-02). The panel fades with
+   opacity on the compositor; the bar's background-color change is a
+   main-thread repaint that started two frames late (his recording, frame by
+   frame). So on OPEN the bar is painted by this solid layer, which fades with
+   the same property, duration and easing as the panel — and the bar's own
+   background WAITS until the layer has covered it, then snaps underneath
+   (0s after 0.12s). Without that wait the two fades stacked and the bar ran
+   AHEAD of the panel (v1 of this fix — worse). The seam line fades with the
+   layer too. Ink and logo flip once, at the point where white and dark text
+   have equal contrast on the half-faded bar (~40ms), instead of crossfading
+   through grey on grey. On CLOSE the layer drops out instantly and the bar
+   fades back as it always did. Desktop only; the drawer paints its own bar. */
+@media (min-width: 1025px) {
+  .mkt-nav::before {
+    content: ''; position: absolute; inset: 0 0 -1px 0; /* -1px: also backs the bar's 1px border strip, or the hero shows through it as a dark line until the bar's own background lands */ z-index: -1; pointer-events: none;
+    background: var(--sc-nav-bg-solid, #050507);
+    opacity: 0; transition: opacity 0s; will-change: opacity;
+  }
+  .mkt-nav.has-menu-open::before { opacity: 1; transition: opacity 0.12s ease; }
+  .mkt-nav.has-menu-open {
+    transition: background-color 0s linear 0.12s, border-color 0s linear 0.12s,
+                -webkit-backdrop-filter 0s linear 0.12s, backdrop-filter 0s linear 0.12s;
+  }
+  .mkt-nav::after {
+    content: ''; position: absolute; left: 0; right: 0; top: 100%; height: 1px;
+    background: var(--sc-nav-menu-divider, transparent); z-index: 300; pointer-events: none;
+    opacity: 0; transition: opacity 0s;
+  }
+  .mkt-nav.has-menu-open::after { opacity: 1; transition: opacity 0.12s ease; }
+  /* no backdrop blur on the panel: its background is opaque (0.98 on dark), so
+     the 24px blur was invisible — but it is re-blurred on every frame of the
+     fade, and its edge row painted a dark line across the bottom of the bar
+     for the length of the fade (frozen-frame capture, both gone without it) */
+  .mkt-nav-panel { -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .mkt-nav .mkt-nav-link { transition: color 0s linear 0.04s, background 0.15s ease; }
+  .mkt-nav .mkt-nav-signin { transition: color 0s linear 0.04s; }
+  .mkt-nav .mkt-nav-logo svg path { transition: fill 0s linear 0.04s; }
+}
+.mkt-nav--over-hero.is-scrolled { background: var(--sc-nav-over-bg-scrolled, var(--sc-nav-bg-scrolled)); }
+/* Blend variant — opt-in per page. For light pages whose ground is NOT white
+   (the beige customers pages): at rest the bar is transparent so it takes the
+   page's own ground, and it turns solid once scrolled. Unlike over-hero it
+   keeps the normal ink and sits in flow, so it needs no overlap. (Gary) */
+.mkt-nav--blend:not(.is-scrolled):not(.has-menu-open) {
+  --sc-nav-bg: transparent;
+  --sc-nav-hairline: transparent;
+  -webkit-backdrop-filter: none;
+          backdrop-filter: none;
+}
+.mkt-nav.mkt-nav--blend.is-scrolled { background: var(--sc-ground, #fff); }
+.mkt-nav-scrim { background: var(--sc-scrim, rgba(0,0,0,0.5)); }
+
+/* dropdown panel */
+.mkt-nav-panel { background: var(--sc-panel-bg, rgba(8,8,12,0.98)); }
+.mkt-nav-panel-feature-eyebrow { color: var(--sc-panel-heading, rgba(255,255,255,0.4)); }
+.mkt-nav-panel-feature-title { color: var(--sc-panel-link-hover, #fff); }
+.mkt-nav-panel-feature-desc { color: var(--sc-panel-link, rgba(255,255,255,0.55)); }
+.mkt-nav-panel-col a { color: var(--sc-panel-link, rgba(255,255,255,0.55)); }
+.mkt-nav-panel-col a:hover { color: var(--sc-panel-link-hover, #fff); }
+.mkt-nav-content:has(.mkt-nav-panel-col a:hover) .mkt-nav-panel-col a,
+.mkt-nav-panel-inner:has(.mkt-nav-panel-col a:hover) .mkt-nav-panel-col a { opacity: var(--sc-dim, 0.5); }
+.mkt-nav-content:has(.mkt-nav-panel-col a:hover) .mkt-nav-panel-col a:hover,
+.mkt-nav-panel-inner:has(.mkt-nav-panel-col a:hover) .mkt-nav-panel-col a:hover { opacity: 1; }
+
+/* mobile drawer */
+.mkt-nav-mobile { background: var(--sc-drawer-bg, #000); }
+.mkt-nav-mobile-close, .mkt-nav-mobile-back, .mkt-nav-mobile-item,
+.mkt-nav-mobile-links a, .mkt-nav-mobile-feature-title { color: var(--sc-panel-link-hover, #fff); }
+.mkt-nav-mobile-chev, .mkt-nav-mobile-feature-desc,
+.mkt-nav-mobile-signin { color: var(--sc-panel-link, rgba(255,255,255,0.55)); }
+.mkt-nav-mobile-heading { color: var(--sc-panel-heading, rgba(255,255,255,0.4)); }
+.mkt-nav-mobile-feature { border-bottom-color: var(--sc-feature-border, rgba(255,255,255,0.08)); }
+.mkt-nav-mobile-footer { border-top-color: var(--sc-feature-border, rgba(255,255,255,0.08)); }
+@media (max-width: 1024px) {
+  /* drawer open: the bar strip above it must flip too, or a dark band is left */
+  .mkt-nav.has-menu-open { background: var(--sc-drawer-bg, #050507); }
+  .mkt-nav.has-menu-open .mkt-nav-burger span { background: var(--sc-nav-logo, #fff); }
+  .mkt-nav.has-menu-open .mkt-nav-logo svg path { fill: var(--sc-nav-logo, #fff); }
+  .mkt-nav.has-menu-open .mkt-nav-back { color: var(--sc-panel-link-hover, #fff); }
+  /* LIGHT (Gary, 2026-09-29): while the drawer is open the bar wears the
+     hero navy in BOTH views — it flipped to white on the home view and
+     jumped to navy on drill-in, an abrupt switch. The faint dot grid echoes
+     the hero dither. Dark keeps the drawer-bg flip above. */
+  html[data-theme="light"] .mkt-nav.has-menu-open {
+    background: radial-gradient(rgba(255,255,255,0.13) 1px, transparent 1.6px) 0 0 / 13px 13px, #0b2163;
+  }
+  html[data-theme="light"] .mkt-nav.has-menu-open .mkt-nav-logo svg path { fill: #fff; }
+  html[data-theme="light"] .mkt-nav.has-menu-open .mkt-nav-burger span { background: #fff; }
+  html[data-theme="light"] .mkt-nav.has-menu-open .mkt-nav-back { color: #fff; }
+  /* Divider under the bar while the drawer is open (Gary) — the desktop
+     seam token is transparent in dark and would vanish on the light navy
+     bar, so the drawer state carries its own colours. Same ::after overlay
+     as the desktop seam, so it needs no new element. */
+  .mkt-nav.has-menu-open::after { background: rgba(255,255,255,0.14); }
+  html[data-theme="light"] .mkt-nav.has-menu-open::after { background: rgba(255,255,255,0.22); }
+  /* Home view: the 28px view padding + 4px list margin left ~46px between
+     the divider and "Solutions", vs ~14px between the bar content and the
+     divider. Tightened so the two gaps read equal; submenu views keep 28px
+     (their header block wants the air). */
+    @media (max-width: 768px) {
+      .mkt-nav-mobile-view { padding-left: 16px; padding-right: 16px; }  /* nav-inner's mobile gutter */
+    }
+  .mkt-nav-mobile-view[data-view="home"] { padding-top: 10px; }  /* 2px sat the first link too close to the divider (Gary) */
+  .mkt-nav-mobile-view[data-view="home"] .mkt-nav-mobile-links { margin-top: 0; }
+}
+
+/* site footer + wordmark strip follow the page ground */
+.footer-image-section { background: var(--sc-ground, #000); }
+
+  /* Burger/X + Back chevron alignment (Gary, 2026-09-30; mirror of bolt-public-pages#496):
+     the X's ink sat 6px left of the drawer chevron tips and the Back chevron's
+     stroke 5px right of the drawer text edge. Buttons keep their tap size. */
+  @media (max-width: 1024px) {
+    .mkt-nav-burger { margin-right: -6px; }
+    .mkt-nav-back { left: -5px; }
+  }
+
+  /* Drawer (Gary, 2026-10-01; production fix in bolt-public-pages#498): a
+     submenu's lead title lands where the item you tapped sat — no jump when
+     Solutions opens — and a faint divider between bar and sheet in dark. */
+  .mkt-nav-mobile-feature { margin-top: -9px; }   /* staging's drawer is spaced differently from production: here the submenu title sat ~9px LOW, so it moves up instead */
+  html[data-theme="dark"] .mkt-nav-mobile { border-top: 1px solid rgba(255, 255, 255, 0.10); }

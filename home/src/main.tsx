@@ -5,6 +5,7 @@ import App from './App';
    canonical source and wins the cascade (it carries the tablet/phone header
    rhythm, subtitle leading and button sizes that page rules must not undo) */
 import './styles/page.css';
+import './styles/shared-nav-footer.css';
 import './styles/shared-components.css';
 
 createRoot(document.getElementById('root')!).render(
