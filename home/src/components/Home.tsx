@@ -308,7 +308,8 @@ export function TemplatesHome() {
 
 /* ── New this month: the enterprise page's timed feature tabs ──────────
    Left: stacked tabs, the active one lit with a noisy blue progress bar
-   that auto-advances; right: the slide (visual + three caption cells).
+   that auto-advances; right: the slide (visual only; the caption strip
+   was dropped, Gary 2026-10-16).
    Shorter than enterprise's (tabs 150 / area 360 instead of 240 / 480).
    On phones it stacks as cards with no timer. Visuals are placeholders. */
 const DURATION = 8000;
@@ -397,7 +398,6 @@ export function WhatsNew() {
                 </span>
                 <span className="hm-ft-mobile" aria-hidden="true">
                   <span className="hm-ft-ph"><i /><i /><i /></span>
-                  <span className="hm-ft-cards">{n.cards.map((c) => <span key={c} className="hm-ft-card">{c}</span>)}</span>
                 </span>
               </button>
             ))}
@@ -407,7 +407,6 @@ export function WhatsNew() {
             {whatsNew.items.map((n, i) => (
               <div key={n.title} className={`hm-ft-slide${active === i ? ' is-active' : ''}`}>
                 <span className="hm-ft-ph"><i /><i /><i /></span>
-                <span className="hm-ft-cards">{n.cards.map((c) => <span key={c} className="hm-ft-card">{c}</span>)}</span>
               </div>
             ))}
           </div>
