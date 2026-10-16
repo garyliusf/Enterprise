@@ -112,23 +112,37 @@ function MoreLink({ label, href }: { label: string; href: string }) {
   return <Btn href={href} variant="ghost" className="hm-more">{label}</Btn>;
 }
 
+const chipIcons: Record<string, React.ReactNode> = {
+  camera: <svg viewBox="0 0 20 20"><path d="M3 7.5A1.5 1.5 0 0 1 4.5 6H7l1.2-1.6h3.6L13 6h2.5A1.5 1.5 0 0 1 17 7.5v7A1.5 1.5 0 0 1 15.5 16h-11A1.5 1.5 0 0 1 3 14.5v-7z" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /><circle cx="10" cy="11" r="2.6" fill="none" stroke="currentColor" strokeWidth="1.5" /></svg>,
+  calendar: <svg viewBox="0 0 20 20"><rect x="3" y="4.5" width="14" height="12" rx="1.5" fill="none" stroke="currentColor" strokeWidth="1.5" /><path d="M3 8.5h14M7 3v3M13 3v3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>,
+  phone: <svg viewBox="0 0 20 20"><path d="M6.2 3.5l2 3.2-1.6 1.7a9 9 0 0 0 5 5l1.7-1.6 3.2 2-1.3 2.4c-.4.6-1.1.9-1.8.7A13 13 0 0 1 4 7.7c-.2-.7.1-1.4.7-1.8l1.5-.4z" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /></svg>,
+  cart: <svg viewBox="0 0 20 20"><path d="M3 4h2.2l1.6 8h8l1.7-5.5H6" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /><circle cx="8" cy="15.5" r="1.2" fill="currentColor" /><circle cx="14" cy="15.5" r="1.2" fill="currentColor" /></svg>,
+  users: <svg viewBox="0 0 20 20"><circle cx="8" cy="7" r="2.8" fill="none" stroke="currentColor" strokeWidth="1.5" /><path d="M3 16a5 5 0 0 1 10 0" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /><path d="M13.5 9.5a2.5 2.5 0 1 0-1.2-4.7M14 12.2a4 4 0 0 1 3 3.8" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>,
+};
+
+/* ── Build anything: photo-filled cards. The photo is the card; the copy
+   sits on a bottom scrim, the tag is a glass pill, and a floating product
+   chip (the notification the business actually gets) ties each one to
+   Bolt (Gary, 2026-10-16: the bordered photo + copy cards were too basic). */
 export function UseCases() {
   return (
     <section className="fw-section hm-usecases" id="use-cases">
       <div className="fw-inner">
         <SectionHeader center eyebrow={useCases.eyebrow} title={useCases.title} subtitle={useCases.subtitle} />
-        {/* one large feature (photo beside the copy), five standard cards around it */}
         <div className="hm-uc-grid">
           {useCases.items.map((u, i) => (
-            <a key={u.title} className={`fw-card hm-uc-card${i === 0 ? ' hm-uc-card--feature' : ''}`} href={useCases.more.href}>
-              <HoverField index={i} />
-              <span className="hm-uc-photo">
-                <img src={u.photo} alt={`${u.tag}: ${u.title}`} loading="lazy" decoding="async" style={{ objectPosition: u.focus }} />
+            <a key={u.title} className={`hm-uc-card${i === 0 ? ' hm-uc-card--feature' : ''}`} href={useCases.more.href} style={{ '--i': i } as React.CSSProperties}>
+              <img className="hm-uc-img" src={u.photo} alt={`${u.tag}: ${u.title}`} loading="lazy" decoding="async" style={{ objectPosition: u.focus }} />
+              <span className="hm-uc-scrim" aria-hidden="true" />
+              <span className="hm-uc-tag">{u.tag}</span>
+              <span className="hm-uc-chip" aria-hidden="true">
+                <span className="hm-uc-chip-ic">{chipIcons[u.chip.icon]}</span>
+                <span className="hm-uc-chip-copy"><b>{u.chip.title}</b><small>{u.chip.sub}</small></span>
               </span>
               <span className="hm-uc-copy">
-                <span className="hm-uc-tag">{u.tag}</span>
-                <span className="fw-card-title">{u.title}</span>
-                <span className="fw-card-desc">{u.body}</span>
+                <span className="hm-uc-title">{u.title}</span>
+                <span className="hm-uc-desc">{u.body}</span>
+                <span className="hm-uc-more">See how <i className="fw-arrow" aria-hidden="true" /></span>
               </span>
             </a>
           ))}
