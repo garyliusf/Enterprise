@@ -74,7 +74,10 @@ export function PromptBox({ id = 'hero', compact = false }: { id?: string; compa
         )}
         <button type="submit" className="hm-prompt-submit">
           {hero.promptCta}
-          <i className="fw-arrow" aria-hidden="true" />
+          {/* filled send arrowhead (Gary, 2026-10-16), not the thin link arrow */}
+          <svg className="hm-prompt-send" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M1.5 2.2c0-.9.95-1.5 1.75-1.1l11.4 6.1a1 1 0 0 1 0 1.76L3.25 15.1c-.8.42-1.75-.18-1.75-1.08V9.7L9 8 1.5 6.3V2.2z" />
+          </svg>
         </button>
       </div>
     </form>
