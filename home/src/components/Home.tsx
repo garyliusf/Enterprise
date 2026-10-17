@@ -356,7 +356,7 @@ export function Platform() {
                       <h3 className="plat-h3">{t.title}</h3>
                       <p className="plat-body">{t.body}</p>
                       <ul className="plat-list">{t.points.map((pt) => <li key={pt}>{pt}</li>)}</ul>
-                      <a className="fw-text-link plat-link" href={t.link.href}>{t.link.label} <i className="fw-arrow" aria-hidden="true" /></a>
+                      <Btn variant="ghost" className="plat-link" href={t.link.href} external>{t.link.label}</Btn>
                     </div>
                     <div className="plat-vcard plat-vcard--video" aria-hidden="true">
                       <BgVideo name={t.video} className="plat-video" lazy />
