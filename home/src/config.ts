@@ -101,7 +101,7 @@ export const weekend = {
     { src: asset('/people/founder-terracotta.webp'), alt: 'A woman typing on a laptop against a terracotta wall', focus: '50% 38%' },
     { src: asset('/people/founder-coffee.webp'), alt: 'A woman talking across her laptop in a bright café', focus: '55% 32%' },
     { src: asset('/people/founder-standing.webp'), alt: 'A woman standing at her desk, looking out of the window', focus: '50% 30%' },
-    { src: asset('/people/founder-apron.webp'), alt: 'A shop owner in an apron thinking in front of his laptop', focus: '60% 18%' },
+    { src: asset('/people/founder-chef.webp'), alt: 'A smiling chef in an apron, arms folded on the counter', focus: '50% 28%' },
     { src: asset('/people/founder-glasses.webp'), alt: 'A man in glasses and an apron reviewing notes at his counter', focus: '62% 30%' },
   ],
   /* Only shown once DigitalOcean confirms they are covering inference. */
