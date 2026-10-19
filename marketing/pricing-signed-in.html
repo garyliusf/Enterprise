@@ -518,7 +518,10 @@
        brand blue rather than the reference's lime, which is off-palette. */
     .term-switch {
       display: flex;
+      flex-wrap: wrap;             /* phones: the picker drops under the toggle, centred */
       justify-content: center;
+      align-items: stretch;        /* the picker takes the toggle's exact height */
+      gap: 12px;
       /* nothing protrudes above the grid on this variant, so this is the
          whole gap rather than tab-height plus gap */
       margin-bottom: 44px;
@@ -529,6 +532,24 @@
       background: #0d0d0f;
       border: 1px solid rgba(255,255,255,0.10);
     }
+    /* workspace picker beside the toggle: same height (stretched by the row),
+       same surface, hairline and 2px corners, so the two read as one control row */
+    .term-switch .workspace-picker,
+    .term-switch .workspace-anchor { display: flex; align-items: stretch; }
+    .term-switch .workspace-btn {
+      /* = the toggle: 6px pad + 1px border each side around a 35px segment (37px on phones,
+         where the picker wraps under the toggle and the row can't stretch it) */
+      min-height: 49px;
+      box-sizing: border-box;
+      padding: 0 16px 0 10px;
+      gap: 10px;
+      background: #0d0d0f;
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 2px;
+      font-size: 13px;
+    }
+    .term-switch .workspace-btn:hover { border-color: rgba(255,255,255,0.24); }
+    .term-switch .workspace-menu { left: 0; right: auto; min-width: 100%; text-align: left; }
     .term-switch .billing-thumb {
       top: 6px;
       bottom: 6px;
@@ -569,6 +590,7 @@
 
     @media (max-width: 768px) {
       .term-switch .billing-btn { padding: 10px 15px; font-size: 12px; letter-spacing: 1.1px; gap: 7px; }
+      .term-switch .workspace-btn { min-height: 51px; }
       .term-chip { padding: 2px 7px; font-size: 9px; letter-spacing: 0.6px; }
     }
 
@@ -622,21 +644,6 @@
        workspace name can't push it off-screen. Living in the sticky nav also
        keeps it above the page — in the hero it was trapped in a z-index:1
        stacking context that the cards grid painted over. */
-    .mkt-nav-actions .workspace-menu { left: auto; right: 0; }
-    /* PHONES + TABLETS (Gary, 2026-10-07): the nav grid is 1fr auto 1fr, so
-       with the middle links hidden the right group only gets HALF the bar —
-       the picker pushed the menu button 27–37px off-screen. Scoped to a nav
-       that holds the workspace picker; the shared navbar elsewhere is unchanged. */
-    @media (max-width: 1024px) {
-      .mkt-nav-inner:has(.workspace-picker) { grid-template-columns: auto 1fr auto; }
-    }
-    @media (max-width: 768px) {
-      .mkt-nav-inner:has(.workspace-picker) { column-gap: 12px; }
-      .mkt-nav-actions .workspace-btn { gap: 8px; padding: 6px 10px 6px 6px; font-size: 13px; }
-      /* logo, gaps, burger and the pill's own chrome leave the name ~100vw − 252px;
-         longer names truncate instead of pushing the menu button out */
-      .mkt-nav-actions .workspace-name { min-width: 0; max-width: calc(100vw - 252px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    }
     /* both pickers must out-rank what they open over: the workspace menu
        overlaps the cards below it, and the token menu overlaps its own card's
        later children — .card-teams > * gives every child z-index 1, and
@@ -1725,6 +1732,8 @@
     #pricing-pixel-skyline { display: none; }
     /* term switch: white pill on the dome (trust's chip inversion) */
     html[data-theme="light"] .term-switch .billing-toggle { background: #fff; border-color: #fff; box-shadow: 0 4px 16px rgba(15,26,42,0.10); }
+    html[data-theme="light"] .term-switch .workspace-btn { background: #fff; border-color: #fff; box-shadow: 0 4px 16px rgba(15,26,42,0.10); }
+    html[data-theme="light"] .term-switch .workspace-btn:hover { border-color: var(--sc-line-strong); }
     html[data-theme="light"] .term-switch .billing-btn { color: rgba(var(--sc-ink-rgb),0.6); }
     html[data-theme="light"] .term-switch .billing-btn:hover { color: var(--sc-ink); }
     html[data-theme="light"] .term-switch .billing-btn.active { color: #fff; }
@@ -2798,21 +2807,10 @@ html .page-header h1 { margin-bottom: 20px; }
 
     <div class="mkt-nav-right">
       <div class="mkt-nav-actions">
-      <div class="workspace-picker">
-        <span class="workspace-anchor">
-          <button class="workspace-btn" id="workspace-btn" aria-haspopup="listbox" aria-expanded="false">
-            <span class="workspace-mark" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg>
-            </span>
-            <span class="workspace-name" id="workspace-name">Enterprise · StackBlitz</span>
-            <svg class="workspace-caret" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-          <ul class="workspace-menu" id="workspace-menu" role="listbox">
-            <li role="option" aria-selected="true"  data-plan="teams">Enterprise · StackBlitz</li>
-            <li role="option" aria-selected="false" data-plan="pro">Personal workspace</li>
-          </ul>
-        </span>
-      </div>
+        <a href="https://bolt.new/" class="mkt-nav-cta hero-btn-primary">
+          <div class="btn-bg-hover"></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Dashboard</span><span>Dashboard</span></div></div>
+        </a>
       </div>
       <button class="mkt-nav-burger" aria-label="Open menu" aria-expanded="false">
         <span></span><span></span><span></span>
@@ -2986,6 +2984,23 @@ html .page-header h1 { margin-bottom: 20px; }
         <div class="billing-thumb"></div>
         <button class="billing-btn active" data-period="yearly" id="btn-yearly" onclick="setBilling('yearly')" aria-pressed="true">Yearly<svg class="billing-coupon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M11.17 2H4a2 2 0 0 0-2 2v7.17a2 2 0 0 0 .59 1.42l8.7 8.7a2.43 2.43 0 0 0 3.42 0l6.58-6.58a2.43 2.43 0 0 0 0-3.42l-8.7-8.7A2 2 0 0 0 11.17 2ZM7.5 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/></svg><span class="term-chip">Save up to 28%</span></button>
         <button class="billing-btn" data-period="monthly" id="btn-monthly" onclick="setBilling('monthly')" aria-pressed="false">Monthly</button>
+      </div>
+      <!-- the workspace you're buying for, beside the term it's billed on (Larin, 2026-10-19:
+           buyers upgraded the wrong account when the picker sat in the nav corner) -->
+      <div class="workspace-picker">
+        <span class="workspace-anchor">
+          <button class="workspace-btn" id="workspace-btn" aria-haspopup="listbox" aria-expanded="false">
+            <span class="workspace-mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg>
+            </span>
+            <span class="workspace-name" id="workspace-name">Enterprise · StackBlitz</span>
+            <svg class="workspace-caret" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <ul class="workspace-menu" id="workspace-menu" role="listbox">
+            <li role="option" aria-selected="true"  data-plan="teams">Enterprise · StackBlitz</li>
+            <li role="option" aria-selected="false" data-plan="pro">Personal workspace</li>
+          </ul>
+        </span>
       </div>
     </div>
 
