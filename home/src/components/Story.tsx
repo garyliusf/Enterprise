@@ -91,7 +91,7 @@ function SceneDescribe() {
           <i className={`hm-sc-caret${done ? ' is-idle' : ''}`} />
         </span>
         <span className={`hm-sc-send${done ? ' is-on' : ''}`}>
-          Build now
+          Build Now
           <svg viewBox="0 0 16 16"><path d="M1.5 2.2c0-.9.95-1.5 1.75-1.1l11.4 6.1a1 1 0 0 1 0 1.76L3.25 15.1c-.8.42-1.75-.18-1.75-1.08V9.7L9 8 1.5 6.3V2.2z" /></svg>
         </span>
       </div>

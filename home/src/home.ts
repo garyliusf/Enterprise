@@ -43,7 +43,7 @@ export const useCases = {
   eyebrow: 'Build anything',
   title: 'Build anything you need, the way you need it.',
   subtitle: 'No two businesses are alike, so no two Bolt.new projects are either.',
-  more: { label: 'See all use cases', href: 'https://bolt.new/use-cases' },
+  more: { label: 'See All Use Cases', href: 'https://bolt.new/use-cases' },
   items: [
     { tag: 'Landscaping', title: 'Take quote requests with photos', body: 'Customers snap a photo of their yard and get a quote back the same day.', photo: asset('/people/founder-laptop.webp'), focus: '62% 35%' },
     { tag: 'Restaurants', title: 'Take reservations without the fees', body: 'A booking page on your own domain, with reminders, instead of a cut of every table.', photo: asset('/people/founder-chef.webp'), focus: '50% 28%' },
@@ -113,8 +113,8 @@ export const platform = {
   subtitle: 'Bolt keeps shipping new ways to build. Here is what just landed.',
   tabs: [
     { label: 'Showcase Slides', title: 'Turn any project into a slide deck', body: 'Generate a polished deck straight from what you already built, with every slide matching your brand and copy.', points: ['Generated from the project you already built', 'Every slide matches your brand and copy', 'Export to PDF or present from Bolt'], link: { label: 'See Showcase Slides', href: 'https://bolt.new/blog' }, video: 'new-slides' },
-    { label: 'Security engineer', title: 'An automatic security review on every publish', body: 'A security agent checks what was built and fixes what it finds before customers see it, with no setup.', points: ['Runs on every publish, no setup', 'Finds and fixes issues before customers see them', 'Plain-language report of what changed'], link: { label: 'See the security engineer', href: 'https://bolt.new/platform/security' }, video: 'new-security' },
-    { label: 'Dictation mode', title: 'Say it instead of typing it', body: 'Describe your idea out loud. Bolt builds from your voice just as well as from the keyboard.', points: ['Describe the idea out loud, Bolt builds it', 'Works in the composer and in follow-ups', 'Available on every plan'], link: { label: 'Try dictation', href: 'https://bolt.new/' }, video: 'new-dictation' },
+    { label: 'Security engineer', title: 'An automatic security review on every publish', body: 'A security agent checks what was built and fixes what it finds before customers see it, with no setup.', points: ['Runs on every publish, no setup', 'Finds and fixes issues before customers see them', 'Plain-language report of what changed'], link: { label: 'See the Security Engineer', href: 'https://bolt.new/platform/security' }, video: 'new-security' },
+    { label: 'Dictation mode', title: 'Say it instead of typing it', body: 'Describe your idea out loud. Bolt builds from your voice just as well as from the keyboard.', points: ['Describe the idea out loud, Bolt builds it', 'Works in the composer and in follow-ups', 'Available on every plan'], link: { label: 'Try Dictation', href: 'https://bolt.new/' }, video: 'new-dictation' },
   ],
 };
 
@@ -126,7 +126,7 @@ export const enterprise = {
   pills: ['SSO & SAML', 'Audit logs', 'SOC 2 Type II', 'Role-based access', 'Dedicated support'],
   /* the enterprise page's 1:1 strip; the form hands the email to the enterprise page's own form anchor */
   strip: { lead: 'Schedule a 1:1 with', name: 'Mason', placeholder: 'Your work email', cta: 'Book a 1:1', action: 'https://bolt.new/enterprise#talk-to-sales' },
-  more: { label: 'See Bolt for enterprise', href: 'https://bolt.new/enterprise' },
+  more: { label: 'See Bolt for Enterprise', href: 'https://bolt.new/enterprise' },
 };
 
 /* ── Closing CTA ────────────────────────────────────────────────────────── */

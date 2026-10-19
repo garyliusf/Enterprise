@@ -38,7 +38,7 @@ export const hero = {
     { label: 'Client dashboard', prompt: 'A client dashboard for my design studio: project status, files and messaging' },
     { label: 'Online storefront', prompt: 'An online store for my ceramics studio that tracks inventory automatically' },
   ],
-  promptCta: 'Build now',
+  promptCta: 'Build Now',
   trust: ['Free to start', 'No credit card required'],
 };
 

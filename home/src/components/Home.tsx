@@ -29,7 +29,7 @@ function ShowcaseRow({ cards, reverse = false }: { cards: ShowcaseCard[]; revers
             <span className="hm-show-foot">
               <span className="hm-show-kicker">Tell bolt</span>
               <span className="hm-show-prompt">{c.prompt}</span>
-              <span className="hm-show-cta">Build now</span>
+              <span className="hm-show-cta">Build Now</span>
             </span>
           </a>
         ))}
@@ -130,7 +130,7 @@ export function UseCases() {
               <span className="hm-uc-copy">
                 <span className="hm-uc-title">{u.title}</span>
                 <span className="hm-uc-desc">{u.body}</span>
-                <span className="hm-uc-more">See how <i className="fw-arrow" aria-hidden="true" /></span>
+                <span className="hm-uc-more">See How <i className="fw-arrow" aria-hidden="true" /></span>
               </span>
             </a>
           ))}
