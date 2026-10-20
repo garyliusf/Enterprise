@@ -5,6 +5,7 @@ import { FooterZone } from './components/Sections';
 import { Closing, Enterprise, Showcase, Stats, Steps, Stories, Platform, TemplatesHome, UseCases } from './components/Home';
 import { Terms } from './components/Terms';
 import { ThemeSwitch } from './components/ThemeSwitch';
+import { VariantSwitch } from './components/VariantSwitch';
 import { TERMS_PATH, THANKS_PATH } from './config';
 import { Thanks } from './components/Thanks';
 
@@ -60,6 +61,7 @@ export default function App() {
         <Closing />
       </FooterZone>
       <SiteFooterStd />
+      <VariantSwitch />
       <ThemeSwitch />
     </>
   );
