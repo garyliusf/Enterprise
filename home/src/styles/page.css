@@ -2326,8 +2326,17 @@ body .site-footer-divider { display: none; }
 
 /* ── How it works on the stage (shares .hm-stage-* with showcase B) ── */
 .hm-stage--steps { margin-top: 48px; align-items: start; }
-.hm-stage-btn:focus:not(:focus-visible) { outline: none; }
-.hm-stage-btn:focus-visible { outline: 2px solid #1488FC; outline-offset: 4px; border-radius: 4px; }
+.hm-stage-btn { outline: none; -webkit-tap-highlight-color: transparent; }
+/* keyboard focus = a quiet underline on the title, not a box (Gary: the ring read clunky) */
+.hm-stage-btn:focus-visible .hm-stage-prompt { text-decoration: underline; text-decoration-color: rgba(20, 136, 252, 0.5); text-underline-offset: 4px; }
+/* smoother hand-off: the body opens a touch slower than the old one closes, the scene fades/rises in */
+.hm-stage--steps .hm-stage-body { transition: grid-template-rows 0.55s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.45s ease 0.1s; }
+.hm-stage--steps .hm-stage-item:not(.is-active) .hm-stage-body { transition: grid-template-rows 0.45s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease; }
+.hm-stage-scene { animation: hm-scene-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes hm-scene-in { from { opacity: 0; transform: translateY(10px) scale(0.99); } to { opacity: 1; transform: none; } }
+.hm-stage-btn { transition: background 0.25s ease; border-radius: 4px; }
+.hm-stage-item:not(.is-active) .hm-stage-btn:hover .hm-stage-num { color: var(--sc-text-muted); }
+@media (prefers-reduced-motion: reduce) { .hm-stage-scene { animation: none; } }
 .hm-stage-copy { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .hm-stage-kicker { font: 700 11px/1.4 var(--sc-font-label); letter-spacing: 1.4px; text-transform: uppercase; color: var(--sc-text-faint); transition: color 0.3s ease; }
 .hm-stage-item.is-active .hm-stage-kicker { color: var(--sc-blue-ink); }

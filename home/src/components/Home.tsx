@@ -207,10 +207,19 @@ export function Steps() {
     return () => io.disconnect();
   }, []);
   const running = inView && !paused && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* pause keeps the time already spent: resuming finishes the step instead of
+     restarting it (the bar holds its place too) */
+  const left = useRef(STEP_MS);
+  const started = useRef(0);
+  useEffect(() => { left.current = STEP_MS; }, [active]);
   useEffect(() => {
     if (!running) return;
-    const id = window.setTimeout(() => setActive((a) => (a + 1) % steps.items.length), STEP_MS);
-    return () => window.clearTimeout(id);
+    started.current = performance.now();
+    const id = window.setTimeout(() => setActive((a) => (a + 1) % steps.items.length), left.current);
+    return () => {
+      window.clearTimeout(id);
+      left.current = Math.max(0, left.current - (performance.now() - started.current));
+    };
   }, [active, running]);
   const cur = steps.items[active];
   return (
@@ -221,20 +230,20 @@ export function Steps() {
           <ol className="hm-stage-list">
             {steps.items.map((st, i) => (
               <li key={st.title} className={`hm-stage-item${i === active ? ' is-active' : ''}`}>
-                <button type="button" className="hm-stage-btn" onClick={() => setActive(i)} aria-pressed={i === active}>
+                <button type="button" className="hm-stage-btn" onClick={() => i !== active && setActive(i)} aria-pressed={i === active}>
                   <span className="hm-stage-num">{String(i + 1).padStart(2, '0')}</span>
                   <span className="hm-stage-copy">
                     <span className="hm-stage-kicker">{st.kicker}</span>
                     <span className="hm-stage-prompt">{st.title}</span>
                     <span className="hm-stage-body"><span>{st.body}</span></span>
                   </span>
-                  <span className="hm-stage-bar" aria-hidden="true"><i key={`${active}-${running}`} style={{ animationDuration: `${STEP_MS}ms`, animationPlayState: running ? 'running' : 'paused' }} /></span>
+                  <span className="hm-stage-bar" aria-hidden="true"><i key={active} style={{ animationDuration: `${STEP_MS}ms`, animationPlayState: running ? 'running' : 'paused' }} /></span>
                 </button>
               </li>
             ))}
           </ol>
           <div className="hm-stage-view">
-            <StepVisual key={active} kind={cur.visual} />
+            <div key={active} className="hm-stage-scene"><StepVisual kind={cur.visual} /></div>
           </div>
         </div>
       </div>
