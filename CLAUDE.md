@@ -33,7 +33,7 @@ All buttons must use these exact specs. No inline overrides unless absolutely ne
 - **Font weight:** `600`
 - **Background:** `#1488FC`
 - **Hover background:** `#0f6fd0` (via `.btn-bg-hover` slide-up layer)
-- **Border radius:** `6px` — **changed from 2px on 2026-10-20 (Gary): ALL marketing buttons (primary, ghost, form submit) take the design system's 6px; surfaces stay 2px. The prompt-box submit pill is the one exclusion.** Production sweep: bolt-public-pages `design/button-radius-6px` (85 rules, 21 files).
+- **Border radius:** `6px` — **changed from 2px on 2026-10-20 (Gary): ALL marketing buttons (primary, ghost, form submit) take the design system's 6px; surfaces stay 2px. The prompt-box submit pill is the one exclusion.** Production sweep: bolt-public-pages#599 (`design/button-radius-6px`, 85 rules, 21 files).
 - **Color:** `#fff`
 - **Hover animation:** Pixel-fill canvas effect (JS in `shared-components.js`). When `.btn-pixelized` class is applied by JS, the slide-up `.btn-bg-hover` is disabled and replaced with an animated pixel dot fill. Always include the `.btn-bg-hover` / `.btn-text-wrap` / `.btn-text-inner` HTML structure as a CSS-only fallback.
 
