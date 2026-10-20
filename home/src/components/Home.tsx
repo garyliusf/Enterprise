@@ -38,117 +38,14 @@ function ShowcaseRow({ cards, reverse = false }: { cards: ShowcaseCard[]; revers
   );
 }
 
-/* ── PROTOTYPE VARIANT SWITCHER (review only: strip before any port) ─────
-   A = the two drifting card rows. B = a prompt stage: the prompts as a
-   numbered list that auto-advances, the selected one's site large in a
-   browser frame that scrolls the full-page capture. C = a bento wall of
-   seven sites, each tile scrolling its page on hover with the prompt as
-   its caption. ?showcase=b|c deep-links;
-   the choice is remembered per browser. */
-type ShowVariant = 'a' | 'b' | 'c';
-function readShowVariant(): ShowVariant {
-  const q = new URLSearchParams(window.location.search).get('showcase');
-  if (q === 'a' || q === 'b' || q === 'c') return q;
-  try { const v = localStorage.getItem('hm-showcase'); return v === 'b' || v === 'c' ? v : 'a'; } catch { return 'a'; }
-}
-export function ShowcaseSwitch({ value, onChange }: { value: ShowVariant; onChange: (v: ShowVariant) => void }) {
-  return (
-    <div className="hm-variant-switch" role="group" aria-label="Showcase variant">
-      <span className="hm-variant-label">Showcase</span>
-      {(['a', 'b', 'c'] as const).map((v) => (
-        <button key={v} type="button" aria-pressed={value === v} onClick={() => onChange(v)}>{v.toUpperCase()}</button>
-      ))}
-    </div>
-  );
-}
-
-const STAGE_MS = 5000;
-function ShowcaseStage() {
-  const items = [...showcase.rowA, ...showcase.rowB].slice(0, 6);
-  const [active, setActive] = useState(0);
-  const [paused, setPaused] = useState(false);
-  useEffect(() => {
-    if (paused || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const id = window.setTimeout(() => setActive((a) => (a + 1) % items.length), STAGE_MS);
-    return () => window.clearTimeout(id);
-  }, [active, paused, items.length]);
-  const cur = items[active];
-  return (
-    <div className="fw-inner hm-stage" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
-      <ol className="hm-stage-list">
-        {items.map((c, i) => (
-          <li key={c.url} className={`hm-stage-item${i === active ? ' is-active' : ''}`}>
-            <button type="button" className="hm-stage-btn" onClick={() => setActive(i)} aria-pressed={i === active}>
-              <span className="hm-stage-num">{String(i + 1).padStart(2, '0')}</span>
-              <span className="hm-stage-prompt">{c.prompt}</span>
-              <span className="hm-stage-bar" aria-hidden="true"><i key={`${active}-${paused}`} style={{ animationDuration: `${STAGE_MS}ms`, animationPlayState: paused ? 'paused' : 'running' }} /></span>
-            </button>
-          </li>
-        ))}
-      </ol>
-      <div className="hm-stage-view">
-        <div className="hm-stage-browser">
-          <div className="hm-ms-bar"><i /><i /><i /><span className="hm-ms-url">{(cur.shot.split('/').pop() ?? 'site').replace(/\.\w+$/, '')}.bolt.host</span></div>
-          <div className="hm-stage-screen">
-            {items.map((c, i) => (
-              <img key={c.url} className={`hm-stage-shot${i === active ? ' is-active' : ''}`} src={c.shot} alt="" loading={i < 2 ? 'eager' : 'lazy'} decoding="async" />
-            ))}
-          </div>
-        </div>
-        <div className="hm-stage-foot">
-          <span className="hm-show-kicker">Tell bolt</span>
-          <span className="hm-stage-cur">{cur.prompt}</span>
-          <a className="hm-show-cta hm-stage-cta" href={cur.url} target="_blank" rel="noopener">Build Now</a>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ShowcaseMosaic() {
-  const items = [...showcase.rowA, ...showcase.rowB].slice(0, 7);
-  return (
-    <div className="fw-inner">
-      <div className="hm-mosaic">
-        {items.map((c, i) => (
-          <a key={c.url} className={`hm-mosaic-tile hm-mosaic-tile--${i + 1}`} href={c.url} target="_blank" rel="noopener">
-            <img className="hm-mosaic-shot" src={c.shot} alt="" loading="lazy" decoding="async" />
-            <span className="hm-mosaic-scrim" aria-hidden="true" />
-            <span className="hm-mosaic-cap">
-              <span className="hm-mosaic-kicker">Tell bolt</span>
-              <span className="hm-mosaic-prompt">{c.prompt}</span>
-            </span>
-            <span className="hm-show-cta hm-mosaic-cta">Build Now</span>
-          </a>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 export function Showcase() {
-  const [variant, setVariant] = useState<ShowVariant>(readShowVariant);
-  const choose = (v: ShowVariant) => {
-    setVariant(v);
-    try { localStorage.setItem('hm-showcase', v); } catch { /* private mode */ }
-  };
   return (
-    <section className={`hm-showcase hm-showcase--${variant}`} aria-label="Apps built on Bolt">
-      {variant === 'a' ? (
-        <>
-          <ShowcaseRow cards={showcase.rowA} />
-          <ShowcaseRow cards={showcase.rowB} reverse />
-        </>
-      ) : variant === 'b' ? (
-        <ShowcaseStage />
-      ) : (
-        <ShowcaseMosaic />
-      )}
-      <ShowcaseSwitch value={variant} onChange={choose} />
+    <section className="hm-showcase" aria-label="Apps built on Bolt">
+      <ShowcaseRow cards={showcase.rowA} />
+      <ShowcaseRow cards={showcase.rowB} reverse />
     </section>
   );
 }
-/* ── /PROTOTYPE VARIANT SWITCHER ───────────────────────────────────────── */
 
 /* ── Stats bar ─────────────────────────────────────────────────────────── */
 /* The template pages' stat char reveal (solutions/_template, from
