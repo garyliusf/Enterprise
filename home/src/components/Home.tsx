@@ -234,8 +234,13 @@ export function Steps() {
                 <button type="button" className="hm-stage-btn" onClick={() => i !== active && setActive(i)} aria-pressed={i === active}>
                   <span className="hm-stage-num">{String(i + 1).padStart(2, '0')}</span>
                   <span className="hm-stage-copy">
-                    <span className="hm-stage-kicker">{st.kicker}</span>
-                    <span className="hm-stage-prompt">{st.title}</span>
+                    {/* one slot: the eyebrow while idle, the title rolls up into
+                        its place when the step opens (both stacked, so the row
+                        never changes height) */}
+                    <span className="hm-stage-swap">
+                      <span className="hm-stage-kicker">{st.kicker}</span>
+                      <span className="hm-stage-prompt">{st.title}</span>
+                    </span>
                     <span className="hm-stage-body"><span>{st.body}</span></span>
                   </span>
                   <span className="hm-stage-bar" aria-hidden="true"><i key={active} style={{ animationDuration: `${STEP_MS}ms`, animationPlayState: running ? 'running' : 'paused' }} /></span>
