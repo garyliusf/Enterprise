@@ -123,7 +123,7 @@ export const enterprise = {
   eyebrow: 'For enterprise',
   title: 'Need it to scale across a team?',
   body: 'The same Bolt your builders already use, with the governance, security and support an organization needs to roll it out.',
-  logosLabel: 'Trusted by teams at',
+  logosLabel: 'Trusted by teams shipping with AI',
   logos: [
     { src: asset('/logos/intel.svg'), alt: 'Intel' },
     { src: asset('/logos/meta.svg'), alt: 'Meta' },

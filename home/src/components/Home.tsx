@@ -385,18 +385,26 @@ export function Enterprise() {
     <section className="fw-section fw-section--band hm-ent">
       <div className="fw-inner">
         <div className="hm-ent-head">
-          <div className="hm-ent-copy">
+          <div className="hm-ent-copy hm-ent-copy--center">
             <span className="section-eyebrow eyebrow-scramble">{enterprise.eyebrow}</span>
             <div className="dsa-reveal">
               <h2 className="sc-section-h2">{enterprise.title}</h2>
             </div>
             <p className="section-sub">{enterprise.body}</p>
           </div>
-          <div className="hm-ent-logos" aria-label={enterprise.logosLabel}>
-            <span className="hm-ent-logos-label">{enterprise.logosLabel}</span>
-            <span className="hm-ent-logos-row">
-              {enterprise.logos.map((l) => <img key={l.alt} src={l.src} alt={l.alt} loading="lazy" decoding="async" />)}
-            </span>
+        </div>
+        {/* the enterprise page's logo marquee, inside the container: the set
+            three times per half, the wrapper loops by -50% so it's seamless */}
+        <div className="hm-ent-logos">
+          <p className="hm-ent-logos-label">{enterprise.logosLabel}</p>
+          <div className="hm-ent-train" aria-hidden="true">
+            <div className="hm-ent-train-wrap">
+              {[0, 1, 2, 3, 4, 5].map((k) => (
+                <span key={k} className="hm-ent-train-set">
+                  {enterprise.logos.map((l) => <img key={l.alt} src={l.src} alt="" loading="lazy" decoding="async" />)}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
         <div className="hm-ent-layout">
@@ -404,6 +412,7 @@ export function Enterprise() {
             {enterprise.features.map((f, i) => (
               <li key={f.title} className="hm-ent-cell">
                 <HoverField index={i} />
+                <span className="hm-ent-num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
                 <span className="hm-ent-ic">{entIcons[f.icon]}</span>
                 <span className="hm-ent-cell-title">{f.title}</span>
                 <span className="hm-ent-cell-body">{f.body}</span>
