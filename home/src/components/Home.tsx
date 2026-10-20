@@ -281,7 +281,10 @@ function useTemplateRail() {
     const r = rail.current;
     const track = r?.querySelector<HTMLDivElement>('.hm-tr-track');
     if (!r || !track) return;
-    const update = () => r.classList.toggle('at-end', track.scrollLeft + track.clientWidth >= track.scrollWidth - 4);
+    const update = () => {
+      r.classList.toggle('at-end', track.scrollLeft + track.clientWidth >= track.scrollWidth - 4);
+      r.classList.toggle('is-scrolled', track.scrollLeft > 4);
+    };
     track.addEventListener('scroll', update, { passive: true });
     window.addEventListener('resize', update);
     update();
@@ -339,7 +342,7 @@ export function TemplatesHome() {
   return (
     <section className="fw-section hm-templates" id="templates">
       <div className="fw-inner">
-        <SectionHeader eyebrow={templatesHome.eyebrow} title={templatesHome.title} subtitle={templatesHome.subtitle} />
+        <SectionHeader center eyebrow={templatesHome.eyebrow} title={templatesHome.title} subtitle={templatesHome.subtitle} />
         <div className="hm-tr" ref={rail}>
           <div className="hm-tr-track">
             {templatesHome.items.map((t) => (
