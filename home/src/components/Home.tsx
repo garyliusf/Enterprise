@@ -196,6 +196,25 @@ const railWave: WaveFn = (c, r, t, phase, cols, rows) => {
    scene large on the right. The scene is keyed by step, so it remounts and
    replays each time its step comes round. Only cycles while on screen. */
 const STEP_MS = 7000;
+/* ── PROTOTYPE METER SWITCH (review-only; strip with the hm-variant-* CSS) ── */
+type MeterVariant = 'a' | 'b' | 'c' | 'd';
+const METERS: [MeterVariant, string][] = [['a', 'Bar'], ['b', 'Line'], ['c', 'Ring'], ['d', 'Thread']];
+function readMeter(): MeterVariant {
+  const q = new URLSearchParams(window.location.search).get('meter');
+  if (q === 'a' || q === 'b' || q === 'c' || q === 'd') return q;
+  try { const v = localStorage.getItem('hm-meter'); return v === 'b' || v === 'c' || v === 'd' ? v : 'a'; } catch { return 'a'; }
+}
+function MeterSwitch({ value, onChange }: { value: MeterVariant; onChange: (v: MeterVariant) => void }) {
+  return (
+    <div className="hm-variant-switch" role="group" aria-label="Timer style">
+      <span className="hm-variant-label">Timer</span>
+      {METERS.map(([v, label]) => (
+        <button key={v} type="button" aria-pressed={value === v} onClick={() => onChange(v)}>{label}</button>
+      ))}
+    </div>
+  );
+}
+/* ── /PROTOTYPE METER SWITCH ── */
 export function Steps() {
   const [active, setActive] = useState(0);
   const [inView, setInView] = useState(false);
@@ -223,16 +242,26 @@ export function Steps() {
     };
   }, [active, running]);
   const cur = steps.items[active];
+  const [meter, setMeter] = useState<MeterVariant>(readMeter);
+  const chooseMeter = (v: MeterVariant) => { setMeter(v); try { localStorage.setItem('hm-meter', v); } catch { /* review-only */ } };
+  const timed = { animationDuration: `${STEP_MS}ms`, animationPlayState: running ? 'running' : 'paused' } as const;
   return (
     <section className="fw-section hm-steps" id="how-it-works">
       <div className="fw-inner">
         <SectionHeader center eyebrow={steps.eyebrow} title={steps.title} subtitle={steps.subtitle} />
-        <div className="hm-stage hm-stage--steps" ref={root}>
+        <div className={`hm-stage hm-stage--steps hm-meter--${meter}`} ref={root}>
           <ol className="hm-stage-list">
             {steps.items.map((st, i) => (
               <li key={st.title} className={`hm-stage-item${i === active ? ' is-active' : ''}`}>
                 <button type="button" className="hm-stage-btn" onClick={() => i !== active && setActive(i)} aria-pressed={i === active}>
-                  <span className="hm-stage-num">{String(i + 1).padStart(2, '0')}</span>
+                  <span className="hm-stage-num">
+                    {String(i + 1).padStart(2, '0')}
+                    {/* ring meter: a hairline circle that closes around the numeral */}
+                    <svg className="hm-stage-ring" viewBox="0 0 28 28" aria-hidden="true">
+                      <circle cx="14" cy="14" r="12.5" pathLength="100" />
+                      {i === active && <circle key={active} className="hm-stage-ring-run" cx="14" cy="14" r="12.5" pathLength="100" style={timed} />}
+                    </svg>
+                  </span>
                   <span className="hm-stage-copy">
                     {/* one slot: the eyebrow while idle, the title rolls up into
                         its place when the step opens (both stacked, so the row
@@ -243,7 +272,7 @@ export function Steps() {
                     </span>
                     <span className="hm-stage-body"><span>{st.body}</span></span>
                   </span>
-                  <span className="hm-stage-bar" aria-hidden="true"><i key={active} style={{ animationDuration: `${STEP_MS}ms`, animationPlayState: running ? 'running' : 'paused' }} /></span>
+                  <span className="hm-stage-bar" aria-hidden="true"><i key={active} style={timed} /></span>
                 </button>
               </li>
             ))}
@@ -253,6 +282,7 @@ export function Steps() {
           </div>
         </div>
       </div>
+      <MeterSwitch value={meter} onChange={chooseMeter} />
     </section>
   );
 }
