@@ -41,19 +41,21 @@ function ShowcaseRow({ cards, reverse = false }: { cards: ShowcaseCard[]; revers
 /* ── PROTOTYPE VARIANT SWITCHER (review only: strip before any port) ─────
    A = the two drifting card rows. B = a prompt stage: the prompts as a
    numbered list that auto-advances, the selected one's site large in a
-   browser frame that scrolls the full-page capture. ?showcase=b deep-links;
+   browser frame that scrolls the full-page capture. C = a bento wall of
+   seven sites, each tile scrolling its page on hover with the prompt as
+   its caption. ?showcase=b|c deep-links;
    the choice is remembered per browser. */
-type ShowVariant = 'a' | 'b';
+type ShowVariant = 'a' | 'b' | 'c';
 function readShowVariant(): ShowVariant {
   const q = new URLSearchParams(window.location.search).get('showcase');
-  if (q === 'a' || q === 'b') return q;
-  try { return localStorage.getItem('hm-showcase') === 'b' ? 'b' : 'a'; } catch { return 'a'; }
+  if (q === 'a' || q === 'b' || q === 'c') return q;
+  try { const v = localStorage.getItem('hm-showcase'); return v === 'b' || v === 'c' ? v : 'a'; } catch { return 'a'; }
 }
 export function ShowcaseSwitch({ value, onChange }: { value: ShowVariant; onChange: (v: ShowVariant) => void }) {
   return (
     <div className="hm-variant-switch" role="group" aria-label="Showcase variant">
       <span className="hm-variant-label">Showcase</span>
-      {(['a', 'b'] as const).map((v) => (
+      {(['a', 'b', 'c'] as const).map((v) => (
         <button key={v} type="button" aria-pressed={value === v} onClick={() => onChange(v)}>{v.toUpperCase()}</button>
       ))}
     </div>
@@ -103,6 +105,27 @@ function ShowcaseStage() {
   );
 }
 
+function ShowcaseMosaic() {
+  const items = [...showcase.rowA, ...showcase.rowB].slice(0, 7);
+  return (
+    <div className="fw-inner">
+      <div className="hm-mosaic">
+        {items.map((c, i) => (
+          <a key={c.url} className={`hm-mosaic-tile hm-mosaic-tile--${i + 1}`} href={c.url} target="_blank" rel="noopener">
+            <img className="hm-mosaic-shot" src={c.shot} alt="" loading="lazy" decoding="async" />
+            <span className="hm-mosaic-scrim" aria-hidden="true" />
+            <span className="hm-mosaic-cap">
+              <span className="hm-mosaic-kicker">Tell bolt</span>
+              <span className="hm-mosaic-prompt">{c.prompt}</span>
+            </span>
+            <span className="hm-show-cta hm-mosaic-cta">Build Now</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function Showcase() {
   const [variant, setVariant] = useState<ShowVariant>(readShowVariant);
   const choose = (v: ShowVariant) => {
@@ -116,8 +139,10 @@ export function Showcase() {
           <ShowcaseRow cards={showcase.rowA} />
           <ShowcaseRow cards={showcase.rowB} reverse />
         </>
-      ) : (
+      ) : variant === 'b' ? (
         <ShowcaseStage />
+      ) : (
+        <ShowcaseMosaic />
       )}
       <ShowcaseSwitch value={variant} onChange={choose} />
     </section>
