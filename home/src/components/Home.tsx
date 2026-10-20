@@ -266,30 +266,55 @@ const railWave: WaveFn = (c, r, t, phase, cols, rows) => {
 };
 
 /* ── How it works: five moves; the visuals are one animated story (Story.tsx) */
+/* How it works = the showcase-B stage (Gary, 2026-10-20): the five steps as
+   a numbered list that auto-advances (fill bar, pause on hover, click to
+   jump), the active step's body opening under its title, and its animated
+   scene large on the right. The scene is keyed by step, so it remounts and
+   replays each time its step comes round. Only cycles while on screen. */
+const STEP_MS = 7000;
 export function Steps() {
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const [inView, setInView] = useState(false);
+  const root = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = root.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0.35 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  const running = inView && !paused && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  useEffect(() => {
+    if (!running) return;
+    const id = window.setTimeout(() => setActive((a) => (a + 1) % steps.items.length), STEP_MS);
+    return () => window.clearTimeout(id);
+  }, [active, running]);
+  const cur = steps.items[active];
   return (
     <section className="fw-section hm-steps" id="how-it-works">
       <div className="fw-inner">
         <SectionHeader center eyebrow={steps.eyebrow} title={steps.title} subtitle={steps.subtitle} />
-        <ol className="hm-step-list">
-          {steps.items.map((s, i) => (
-            <li key={s.title} className={`hm-step${i % 2 ? ' hm-step--flip' : ''}`}>
-              <div className="hm-step-copy">
-                {/* same scroll-in as the section headers: the kicker scrambles,
-                    the title reveals word by word, the body follows as a subtitle */}
-                <span className="hm-step-kicker">
-                  <span className="hm-step-num">{String(i + 1).padStart(2, '0')}</span>
-                  <span className="eyebrow-scramble">{s.kicker}</span>
-                </span>
-                <div className="dsa-reveal">
-                  <h3 className="hm-step-title">{s.title}</h3>
-                </div>
-                <p className="hm-step-body">{s.body}</p>
-              </div>
-              <StepVisual kind={s.visual} />
-            </li>
-          ))}
-        </ol>
+        <div className="hm-stage hm-stage--steps" ref={root} onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+          <ol className="hm-stage-list">
+            {steps.items.map((st, i) => (
+              <li key={st.title} className={`hm-stage-item${i === active ? ' is-active' : ''}`}>
+                <button type="button" className="hm-stage-btn" onClick={() => setActive(i)} aria-pressed={i === active}>
+                  <span className="hm-stage-num">{String(i + 1).padStart(2, '0')}</span>
+                  <span className="hm-stage-copy">
+                    <span className="hm-stage-kicker">{st.kicker}</span>
+                    <span className="hm-stage-prompt">{st.title}</span>
+                    <span className="hm-stage-body"><span>{st.body}</span></span>
+                  </span>
+                  <span className="hm-stage-bar" aria-hidden="true"><i key={`${active}-${running}`} style={{ animationDuration: `${STEP_MS}ms`, animationPlayState: running ? 'running' : 'paused' }} /></span>
+                </button>
+              </li>
+            ))}
+          </ol>
+          <div className="hm-stage-view">
+            <StepVisual key={active} kind={cur.visual} />
+          </div>
+        </div>
       </div>
     </section>
   );
