@@ -189,14 +189,15 @@ const railWave: WaveFn = (c, r, t, phase, cols, rows) => {
 
 /* ── How it works: five moves; the visuals are one animated story (Story.tsx) */
 /* How it works = the showcase-B stage (Gary, 2026-10-20): the five steps as
-   a numbered list that auto-advances (fill bar, pause on hover, click to
-   jump), the active step's body opening under its title, and its animated
+   a numbered list that auto-advances (fill bar, click to jump; no hover
+   pause and nothing changes height: every body is always there, the
+   inactive ones just dim, Gary 2026-10-20: the opening/closing read
+   clunky), and the active step's animated
    scene large on the right. The scene is keyed by step, so it remounts and
    replays each time its step comes round. Only cycles while on screen. */
 const STEP_MS = 7000;
 export function Steps() {
   const [active, setActive] = useState(0);
-  const [paused, setPaused] = useState(false);
   const [inView, setInView] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -206,7 +207,7 @@ export function Steps() {
     io.observe(el);
     return () => io.disconnect();
   }, []);
-  const running = inView && !paused && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const running = inView && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   /* pause keeps the time already spent: resuming finishes the step instead of
      restarting it (the bar holds its place too) */
   const left = useRef(STEP_MS);
@@ -226,7 +227,7 @@ export function Steps() {
     <section className="fw-section hm-steps" id="how-it-works">
       <div className="fw-inner">
         <SectionHeader center eyebrow={steps.eyebrow} title={steps.title} subtitle={steps.subtitle} />
-        <div className="hm-stage hm-stage--steps" ref={root} onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+        <div className="hm-stage hm-stage--steps" ref={root}>
           <ol className="hm-stage-list">
             {steps.items.map((st, i) => (
               <li key={st.title} className={`hm-stage-item${i === active ? ' is-active' : ''}`}>
