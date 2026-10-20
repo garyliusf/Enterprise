@@ -97,7 +97,7 @@ export const weekend = {
   /* flip: mirror horizontally so the edge tiles face into the grid (only
      for shots with no visible text) */
   photos: [
-    { src: asset('/people/founder-laptop.webp'), alt: 'A woman working on a laptop at a table full of potted herbs', focus: '62% 35%' },
+    { src: asset('/people/founder-greenhouse.webp'), alt: 'A gardener crouching among plants in a greenhouse, tablet in hand', focus: '38% 30%' },
     { src: asset('/people/founder-terracotta.webp'), alt: 'A woman typing on a laptop against a terracotta wall', focus: '50% 38%' },
     { src: asset('/people/founder-coffee.webp'), alt: 'A woman talking across her laptop in a bright café', focus: '55% 32%' },
     { src: asset('/people/founder-agency.webp'), alt: 'A woman planning on a glass wall of sticky notes with a colleague', focus: '62% 40%' },
