@@ -2385,3 +2385,26 @@ body .site-footer-divider { display: none; }
 /* a touch more room for the list so every title fits one line (no gap under an idle eyebrow) */
 .hm-stage--steps { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 @media (max-width: 1024px) { .hm-stage--steps { grid-template-columns: 1fr; } }
+
+/* steps, final (Gary, 2026-10-20): idle rows = number + eyebrow only; the one
+   open step (timed) rolls its title into the eyebrow's place and opens its
+   body. One easing for open and close, so the swap reads as one motion. */
+.hm-stage--steps .hm-stage-item, .hm-stage--steps .hm-stage-item:not(.is-active) { opacity: 1; }
+.hm-stage--steps .hm-stage-item:not(.is-active) .hm-stage-kicker { color: var(--sc-text-muted); }
+.hm-stage--steps .hm-stage-item:not(.is-active):hover .hm-stage-kicker { color: var(--sc-ink); }
+.hm-stage--steps .hm-stage-body, .hm-stage--steps .hm-stage-item:not(.is-active) .hm-stage-body { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows 0.6s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.35s ease; }
+.hm-stage--steps .hm-stage-item.is-active .hm-stage-body { grid-template-rows: 1fr; opacity: 1; transition: grid-template-rows 0.6s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.45s ease 0.15s; }
+.hm-stage--steps .hm-stage-body > span { display: block; overflow: hidden; min-height: 0; padding-top: 0; }
+.hm-stage--steps .hm-stage-item.is-active .hm-stage-body > span { padding-top: 8px; }
+.hm-stage--steps .hm-stage-body > span { transition: padding-top 0.6s cubic-bezier(0.65, 0, 0.35, 1); }
+.hm-stage--steps .hm-stage-bar { height: 2px; margin-top: 0; background: transparent; transition: margin-top 0.6s cubic-bezier(0.65, 0, 0.35, 1); }
+.hm-stage--steps .hm-stage-item.is-active .hm-stage-bar { margin-top: 14px; background: var(--sc-line-soft); }
+.hm-stage--steps .hm-stage-btn { padding: 20px 0 18px; }
+/* the eyebrow slot is one line (titles fit one line at this width) */
+.hm-stage--steps .hm-stage-swap { min-height: 27px; }
+/* scene panel: a fixed stage (the list breathes as steps open; the panel shouldn't) */
+.hm-stage--steps { align-items: start; }
+.hm-stage--steps .hm-stage-view { position: sticky; top: 96px; }
+.hm-stage--steps .hm-stage-scene > .hm-vis { min-height: 480px; }
+@media (max-width: 1024px) { .hm-stage--steps .hm-stage-view { position: static; } .hm-stage--steps .hm-stage-scene > .hm-vis { min-height: 380px; } }
+@media (max-width: 768px) { .hm-stage--steps .hm-stage-scene > .hm-vis { min-height: 0; } }
