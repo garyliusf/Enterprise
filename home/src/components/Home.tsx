@@ -285,6 +285,9 @@ function useTemplateRail() {
       r.classList.toggle('at-end', track.scrollLeft + track.clientWidth >= track.scrollWidth - 4);
       r.classList.toggle('is-scrolled', track.scrollLeft > 4);
     };
+    /* open already full width (Gary): start scrolled by the left gutter, so
+       the row runs edge to edge instead of starting on the content line */
+    track.scrollLeft = parseFloat(getComputedStyle(track).paddingLeft) || 0;
     track.addEventListener('scroll', update, { passive: true });
     window.addEventListener('resize', update);
     update();
