@@ -393,20 +393,6 @@ export function Enterprise() {
             <p className="section-sub">{enterprise.body}</p>
           </div>
         </div>
-        {/* the enterprise page's logo marquee, inside the container: the set
-            three times per half, the wrapper loops by -50% so it's seamless */}
-        <div className="hm-ent-logos">
-          <p className="hm-ent-logos-label">{enterprise.logosLabel}</p>
-          <div className="hm-ent-train" aria-hidden="true">
-            <div className="hm-ent-train-wrap">
-              {[0, 1, 2, 3, 4, 5].map((k) => (
-                <span key={k} className="hm-ent-train-set">
-                  {enterprise.logos.map((l) => <img key={l.alt} src={l.src} alt="" loading="lazy" decoding="async" />)}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
         <div className="hm-ent-layout">
           <ul className="hm-ent-grid">
             {enterprise.features.map((f, i) => (
@@ -419,35 +405,50 @@ export function Enterprise() {
               </li>
             ))}
           </ul>
+          {/* the enterprise page's logo marquee, inside the container: the set
+            three times per half, the wrapper loops by -50% so it's seamless */}
+          <div className="hm-ent-logos">
+          <p className="hm-ent-logos-label">{enterprise.logosLabel}</p>
+          <div className="hm-ent-train" aria-hidden="true">
+            <div className="hm-ent-train-wrap">
+              {[0, 1, 2, 3, 4, 5].map((k) => (
+                <span key={k} className="hm-ent-train-set">
+                  {enterprise.logos.map((l) => <img key={l.alt} src={l.src} alt="" loading="lazy" decoding="async" />)}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
           <div className="hm-ent-panel">
-            <span className="hm-ent-panel-kicker">Talk to us</span>
-            <form
-              className="hm-ent-strip"
-              action={enterprise.strip.action}
-              method="get"
-              target="_blank"
-              onSubmit={(e) => {
-                e.preventDefault();
-                const email = (e.currentTarget.elements.namedItem('email') as HTMLInputElement | null)?.value.trim() ?? '';
-                const url = new URL(enterprise.strip.action);
-                if (email) url.searchParams.set('email', email);
-                window.open(url.toString(), '_blank', 'noopener');
-              }}
-            >
-              <div className="card-strip-text">
-                <p className="card-strip-sub">{enterprise.strip.lead} <span className="strip-name">{enterprise.strip.name}</span></p>
-              </div>
-              <div className="hero-form-row">
-                <label className="sr-only" htmlFor="ent-email">{enterprise.strip.placeholder}</label>
-                <input id="ent-email" name="email" type="email" className="hero-email-input" placeholder={enterprise.strip.placeholder} autoComplete="email" required />
-                <button type="submit" className="hero-cta-button" aria-label="Book a 1:1 with sales">
-                  <div className="btn-bg-hover" />
-                  <div className="btn-text-wrap"><div className="btn-text-inner"><span>{enterprise.strip.cta}</span><span>{enterprise.strip.cta}</span></div></div>
-                </button>
-              </div>
-            </form>
-            <p className="hm-ent-panel-note">A 30-minute walkthrough with the enterprise team, no deck. Bring the project you want to ship.</p>
-            <Btn variant="ghost" href={enterprise.more.href} external>{enterprise.more.label}</Btn>
+            <div className="hm-ent-panel-copy">
+              <span className="hm-ent-panel-kicker">Talk to us</span>
+              <p className="card-strip-sub">{enterprise.strip.lead} <span className="strip-name">{enterprise.strip.name}</span></p>
+              <p className="hm-ent-panel-note">A 30-minute walkthrough with the enterprise team, no deck. Bring the project you want to ship.</p>
+            </div>
+            <div className="hm-ent-panel-actions">
+              <form
+                className="hm-ent-strip"
+                action={enterprise.strip.action}
+                method="get"
+                target="_blank"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const email = (e.currentTarget.elements.namedItem('email') as HTMLInputElement | null)?.value.trim() ?? '';
+                  const url = new URL(enterprise.strip.action);
+                  if (email) url.searchParams.set('email', email);
+                  window.open(url.toString(), '_blank', 'noopener');
+                }}
+              >
+                <div className="hero-form-row">
+                  <label className="sr-only" htmlFor="ent-email">{enterprise.strip.placeholder}</label>
+                  <input id="ent-email" name="email" type="email" className="hero-email-input" placeholder={enterprise.strip.placeholder} autoComplete="email" required />
+                  <button type="submit" className="hero-cta-button" aria-label="Book a 1:1 with sales">
+                    <div className="btn-bg-hover" />
+                    <div className="btn-text-wrap"><div className="btn-text-inner"><span>{enterprise.strip.cta}</span><span>{enterprise.strip.cta}</span></div></div>
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       </div>
