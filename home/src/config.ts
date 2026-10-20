@@ -100,7 +100,7 @@ export const weekend = {
     { src: asset('/people/founder-laptop.webp'), alt: 'A woman working on a laptop at a table full of potted herbs', focus: '62% 35%' },
     { src: asset('/people/founder-terracotta.webp'), alt: 'A woman typing on a laptop against a terracotta wall', focus: '50% 38%' },
     { src: asset('/people/founder-coffee.webp'), alt: 'A woman talking across her laptop in a bright café', focus: '55% 32%' },
-    { src: asset('/people/founder-standing.webp'), alt: 'A woman standing at her desk, looking out of the window', focus: '50% 30%' },
+    { src: asset('/people/founder-agency.webp'), alt: 'A woman planning on a glass wall of sticky notes with a colleague', focus: '62% 40%' },
     { src: asset('/people/founder-chef.webp'), alt: 'A smiling chef in an apron, arms folded on the counter', focus: '50% 28%' },
     { src: asset('/people/founder-glasses.webp'), alt: 'A man in glasses and an apron reviewing notes at his counter', focus: '62% 30%' },
   ],
