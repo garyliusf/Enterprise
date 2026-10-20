@@ -33,7 +33,7 @@ All buttons must use these exact specs. No inline overrides unless absolutely ne
 - **Font weight:** `600`
 - **Background:** `#1488FC`
 - **Hover background:** `#0f6fd0` (via `.btn-bg-hover` slide-up layer)
-- **Border radius:** `2px`
+- **Border radius:** `6px` — **changed from 2px on 2026-10-20 (Gary): ALL marketing buttons (primary, ghost, form submit) take the design system's 6px; surfaces stay 2px. The prompt-box submit pill is the one exclusion.** Production sweep: bolt-public-pages `design/button-radius-6px` (85 rules, 21 files).
 - **Color:** `#fff`
 - **Hover animation:** Pixel-fill canvas effect (JS in `shared-components.js`). When `.btn-pixelized` class is applied by JS, the slide-up `.btn-bg-hover` is disabled and replaced with an animated pixel dot fill. Always include the `.btn-bg-hover` / `.btn-text-wrap` / `.btn-text-inner` HTML structure as a CSS-only fallback.
 
@@ -57,7 +57,7 @@ All buttons must use these exact specs. No inline overrides unless absolutely ne
 - **Background:** `transparent`
 - **Border:** `1px solid rgba(255,255,255,0.22)`
 - **Hover border:** `1px solid rgba(255,255,255,0.4)`
-- **Border radius:** `2px`
+- **Border radius:** `6px` (2026-10-20, was 2px)
 - **Color:** `rgba(255,255,255,0.8)`
 - **Hover color:** `#fff`
 - Also receives pixel-fill canvas effect from JS.
@@ -69,7 +69,7 @@ All buttons must use these exact specs. No inline overrides unless absolutely ne
 - **Font weight:** `600`
 - **Background:** `#1488FC`
 - **Hover background:** `#0f6fd0`
-- **Border radius:** `0 2px 2px 0` (right side only, attached to input)
+- **Border radius:** `0 6px 6px 0` (right side only, attached to input; 2026-10-20, was `0 2px 2px 0`; the `.hero-form-row` strip is 6px too)
 
 ### Mobile (max-width: 768px)
 - Height stays `52px` — buttons do NOT shrink on mobile
@@ -112,7 +112,7 @@ rendered the desktop values; it now carries these.
 
 **Eyebrow color is always `#1488FC` — never use `rgba(20,136,252,0.7)` or any opacity variant.**
 
-**Border radius is always `2px` on surfaces (decision: Gary, 2026-08-05)** — cards, panels, tiles, icon tiles, video frames, stages. Exceptions: true circles (`50%` dots), pill buttons (`999px`), and partial-corner cases like the form-submit `0 2px 2px 0`. solutions.html is fully normalized; older pages may still carry 4–16px values — normalize when touching them.
+**Border radius is always `2px` on surfaces (decision: Gary, 2026-08-05)** — cards, panels, tiles, icon tiles, video frames, stages. Exceptions: true circles (`50%` dots), pill buttons (`999px`), and **buttons, which are `6px` since 2026-10-20** (the form-submit is `0 6px 6px 0`). solutions.html is fully normalized; older pages may still carry 4–16px values — normalize when touching them.
 
 ---
 
