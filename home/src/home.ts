@@ -8,20 +8,22 @@ import { asset } from './config';
 /* ── Showcase: two drifting rows of "Tell bolt" cards ─────────────────────
    Shots are the template captures we already have until the real app
    screenshots arrive. */
-export type ShowcaseCard = { shot: string; prompt: string; url: string };
+/* url = fork into Bolt ("Open in Bolt"); preview = the live site ("Preview"),
+   from production's template data — the sb1-* showcase sites have none yet */
+export type ShowcaseCard = { shot: string; prompt: string; url: string; preview?: string };
 const fork = (id: string) => `https://bolt.new/fork/${id}`;
 export const showcase: { rowA: ShowcaseCard[]; rowB: ShowcaseCard[] } = {
   rowA: [
     { shot: asset('/templates/soda.webp'), prompt: 'An online store for my soda brand with a build-your-own flavor menu', url: fork('sb1-r5f2szok') },
     { shot: asset('/templates/wedding.webp'), prompt: 'A portfolio site for my wedding planning business with an inquiry form', url: fork('sb1-xcpxwqz1') },
     { shot: asset('/templates/mow.webp'), prompt: 'A lawn care site that gives instant quotes and books recurring visits', url: fork('sb1-vipe17ab') },
-    { shot: asset('/templates/catalog/premium-saas-dashboard-lp.webp'), prompt: 'A landing page for my SaaS with pricing and a waitlist', url: fork('github-xtrskmb3') },
+    { shot: asset('/templates/catalog/premium-saas-dashboard-lp.webp'), prompt: 'A landing page for my SaaS with pricing and a waitlist', url: fork('github-xtrskmb3'), preview: 'https://template-premium-saas-dashboard-lp.bolt.host' },
     { shot: asset('/templates/cleaning.webp'), prompt: 'A home cleaning site with a service area map and quote requests', url: fork('sb1-33phwvdj') },
   ],
   rowB: [
-    { shot: asset('/templates/catalog/maison-voyage.webp'), prompt: 'A travel journal with destination guides and stories', url: fork('github-mu7mffmh') },
+    { shot: asset('/templates/catalog/maison-voyage.webp'), prompt: 'A travel journal with destination guides and stories', url: fork('github-mu7mffmh'), preview: 'https://template-maison-voyage.bolt.host' },
     { shot: asset('/templates/plumbing.webp'), prompt: 'A plumbing company site with online booking and recent jobs', url: fork('sb1-v6i8qmpp') },
-    { shot: asset('/templates/catalog/ledger-finance.webp'), prompt: 'A budgeting app with cash-flow charts for my freelance income', url: fork('github-7mpvjfb3') },
+    { shot: asset('/templates/catalog/ledger-finance.webp'), prompt: 'A budgeting app with cash-flow charts for my freelance income', url: fork('github-7mpvjfb3'), preview: 'https://template-ledger-finance.bolt.host' },
     { shot: asset('/templates/rootline.webp'), prompt: 'An editorial site for my landscape design studio', url: fork('sb1-nkwmdgm3') },
     { shot: asset('/templates/construction.webp'), prompt: 'A construction company site with projects and a quote form', url: fork('sb1-34h1wpsy') },
   ],
@@ -94,14 +96,14 @@ export const templatesHome = {
   /* the solutions page's rail: the catalog's cards (800px-wide full-page
      shots, portrait frame, drift on hover), production's fork links */
   items: [
-    { name: 'Architect Portfolio', tag: 'Portfolio', shot: asset('/templates/catalog/architect-portfolio.webp'), url: fork('github-gf8uflaz') },
-    { name: 'SaaS Landing', tag: 'SaaS', shot: asset('/templates/catalog/premium-saas-dashboard-lp.webp'), url: fork('github-xtrskmb3') },
-    { name: 'Finance Tracker', tag: 'Apps', shot: asset('/templates/catalog/ledger-finance.webp'), url: fork('github-7mpvjfb3'), w: 1100, h: 1447 },
-    { name: 'Travel Journal', tag: 'Editorial', shot: asset('/templates/catalog/maison-voyage.webp'), url: fork('github-mu7mffmh'), w: 1000, h: 1458 },
-    { name: 'Studio Portfolio', tag: 'Portfolio', shot: asset('/templates/catalog/noir-agency.webp'), url: fork('github-hnstivng') },
-    { name: 'Venture Capital', tag: 'Finance', shot: asset('/templates/catalog/meridian-capital.webp'), url: fork('github-9c8ejdg2') },
-    { name: 'Fashion Editorial', tag: 'Editorial', shot: asset('/templates/catalog/vestige-fashion.webp'), url: fork('github-nehpa2f2'), w: 1100, h: 1450 },
-    { name: 'Events Guide', tag: 'Websites', shot: asset('/templates/catalog/townhall-events.webp'), url: fork('github-pde6glqh') },
+    { name: 'Architect Portfolio', tag: 'Portfolio', shot: asset('/templates/catalog/architect-portfolio.webp'), url: fork('github-gf8uflaz'), preview: 'https://template-minimalist-architect-portfolio.bolt.host' },
+    { name: 'SaaS Landing', tag: 'SaaS', shot: asset('/templates/catalog/premium-saas-dashboard-lp.webp'), url: fork('github-xtrskmb3'), preview: 'https://template-premium-saas-dashboard-lp.bolt.host' },
+    { name: 'Finance Tracker', tag: 'Apps', shot: asset('/templates/catalog/ledger-finance.webp'), url: fork('github-7mpvjfb3'), preview: 'https://template-ledger-finance.bolt.host', w: 1100, h: 1447 },
+    { name: 'Travel Journal', tag: 'Editorial', shot: asset('/templates/catalog/maison-voyage.webp'), url: fork('github-mu7mffmh'), preview: 'https://template-maison-voyage.bolt.host', w: 1000, h: 1458 },
+    { name: 'Studio Portfolio', tag: 'Portfolio', shot: asset('/templates/catalog/noir-agency.webp'), url: fork('github-hnstivng'), preview: 'https://template-noir-agency.bolt.host' },
+    { name: 'Venture Capital', tag: 'Finance', shot: asset('/templates/catalog/meridian-capital.webp'), url: fork('github-9c8ejdg2'), preview: 'https://template-meridian-capital.bolt.host' },
+    { name: 'Fashion Editorial', tag: 'Editorial', shot: asset('/templates/catalog/vestige-fashion.webp'), url: fork('github-nehpa2f2'), preview: 'https://template-vestige-fashion.bolt.host', w: 1100, h: 1450 },
+    { name: 'Events Guide', tag: 'Websites', shot: asset('/templates/catalog/townhall-events.webp'), url: fork('github-pde6glqh'), preview: 'https://template-townhall-events.bolt.host' },
   ],
 };
 

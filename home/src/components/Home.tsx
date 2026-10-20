@@ -13,28 +13,35 @@ function ShowcaseRow({ cards, reverse = false }: { cards: ShowcaseCard[]; revers
   return (
     <div className={`hm-show-row${reverse ? ' hm-show-row--rev' : ''}`}>
       <div className="hm-show-track">
-        {loop.map((c, i) => (
-          <a
-            key={i}
-            className="hm-show-card"
-            href={c.url}
-            target="_blank"
-            rel="noopener"
-            aria-hidden={i >= cards.length ? true : undefined}
-            tabIndex={i >= cards.length ? -1 : undefined}
-          >
-            <span className="hm-show-shot">
-              <img src={c.shot} alt="" loading="lazy" decoding="async" />
-            </span>
-            <span className="hm-show-foot">
-              <span className="hm-show-kicker">Tell bolt</span>
-              <span className="hm-show-prompt">{c.prompt}</span>
-              <span className="hm-show-cta">Build Now</span>
-            </span>
-          </a>
-        ))}
+        {loop.map((c, i) => {
+          const dupe = i >= cards.length;
+          return (
+            <div key={i} className="hm-show-card" aria-hidden={dupe ? true : undefined}>
+              <a className="hm-show-shot" href={c.preview ?? c.url} target="_blank" rel="noopener" tabIndex={-1} aria-hidden="true">
+                <img src={c.shot} alt="" loading="lazy" decoding="async" />
+              </a>
+              <span className="hm-show-foot">
+                <span className="hm-show-kicker">Tell bolt</span>
+                <span className="hm-show-prompt">{c.prompt}</span>
+                <CardActions open={c.url} preview={c.preview} label={c.prompt} tabIndex={dupe ? -1 : undefined} />
+              </span>
+            </div>
+          );
+        })}
       </div>
     </div>
+  );
+}
+
+/* the template card action pair (production's catalog cards): Open in Bolt
+   forks the project, Preview opens the live site — two different jobs, so
+   both are always shown when a live site exists */
+function CardActions({ open, preview, label, tabIndex }: { open: string; preview?: string; label: string; tabIndex?: number }) {
+  return (
+    <span className="hm-card-actions">
+      <a className="hm-card-cta" href={open} target="_blank" rel="noopener" tabIndex={tabIndex} aria-label={`Open ${label} in Bolt`}>Open in Bolt</a>
+      {preview && <a className="hm-card-demo" href={preview} target="_blank" rel="noopener" tabIndex={tabIndex} aria-label={`Preview ${label}`}>Preview</a>}
+    </span>
   );
 }
 
@@ -332,16 +339,17 @@ export function TemplatesHome() {
         <div className="hm-tr" ref={rail}>
           <div className="hm-tr-track">
             {templatesHome.items.map((t) => (
-              <a key={t.name} className="hm-tr-card" href={t.url} target="_blank" rel="noopener">
-                <span className="hm-tr-preview">
+              <article key={t.name} className="hm-tr-card">
+                <a className="hm-tr-preview" href={t.preview ?? t.url} target="_blank" rel="noopener" tabIndex={-1}>
                   <img className="hm-tr-shot" src={t.shot} alt={`${t.name} template`} width={t.w ?? 800} height={t.h ?? 2245} loading="lazy" decoding="async" />
-                  <span className="hm-tr-overlay" aria-hidden="true"><span>Open in Bolt</span></span>
-                </span>
+                  <span className="hm-tr-overlay" aria-hidden="true"><span>{t.preview ? 'Preview' : 'Open in Bolt'}</span></span>
+                </a>
                 <span className="hm-tr-meta">
                   <span className="hm-tr-name">{t.name}</span>
                   <span className="hm-tr-tag">{t.tag}</span>
                 </span>
-              </a>
+                <CardActions open={t.url} preview={t.preview} label={t.name} />
+              </article>
             ))}
           </div>
         </div>
