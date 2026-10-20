@@ -2283,3 +2283,52 @@ body .site-footer-divider { display: none; }
 .hm-hero .hm-trust { background: none; border: 0; box-shadow: none; padding: 0; gap: 8px 22px; }
 .hm-hero .hm-trust-pill { color: #0d9b7a; }
 :root[data-theme="dark"] .hm-hero .hm-trust { background: none; border: 0; }
+
+/* ── Prototype variant switcher (review only: strip before any port) ── */
+.hm-variant-switch { position: fixed; right: 16px; bottom: 60px; z-index: 10000; display: flex; align-items: center; gap: 2px; padding: 3px 3px 3px 10px; background: var(--sc-surface); border: 1px solid var(--sc-line); border-radius: 2px; box-shadow: 0 6px 20px var(--sc-shadow); font-family: var(--sc-font-sans); }
+.hm-variant-label { margin-right: 6px; font: 700 10px/1 var(--sc-font-label); letter-spacing: 1.2px; text-transform: uppercase; color: var(--sc-text-faint); }
+.hm-variant-switch button { appearance: none; border: 0; cursor: pointer; border-radius: 2px; padding: 6px 11px; font-size: 11px; font-weight: 600; background: transparent; color: var(--sc-text-muted); }
+.hm-variant-switch button:hover { color: var(--sc-ink); }
+.hm-variant-switch button[aria-pressed="true"] { background: var(--sc-blue); color: #fff; }
+@media print { .hm-variant-switch { display: none; } }
+
+/* ── Showcase B: the prompt stage ── */
+.hm-showcase--b { padding-top: 24px; }
+.hm-stage { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 48px; align-items: center; }
+.hm-stage-list { list-style: none; margin: 0; padding: 0; counter-reset: none; }
+.hm-stage-item + .hm-stage-item { border-top: 1px solid var(--sc-line-soft); }
+.hm-stage-btn { appearance: none; border: 0; background: none; cursor: pointer; width: 100%; display: grid; grid-template-columns: 34px 1fr; gap: 4px 12px; padding: 18px 0 16px; text-align: left; font-family: var(--sc-font-sans); color: inherit; }
+.hm-stage-num { font: 700 12px/1.6 var(--sc-font-label); letter-spacing: 1px; color: var(--sc-text-faint); transition: color 0.3s ease; }
+.hm-stage-prompt { font-size: 17px; line-height: 1.4; letter-spacing: -0.2px; color: var(--sc-text-muted); transition: color 0.3s ease; }
+.hm-stage-btn:hover .hm-stage-prompt { color: var(--sc-ink); }
+.hm-stage-item.is-active .hm-stage-num { color: #1488FC; }
+.hm-stage-item.is-active .hm-stage-prompt { color: var(--sc-ink); }
+.hm-stage-bar { grid-column: 2; height: 2px; margin-top: 10px; background: var(--sc-line-soft); overflow: hidden; opacity: 0; transition: opacity 0.3s ease; }
+.hm-stage-item.is-active .hm-stage-bar { opacity: 1; }
+.hm-stage-bar i { display: block; height: 100%; background: #1488FC; transform: scaleX(0); transform-origin: 0 50%; }
+.hm-stage-item.is-active .hm-stage-bar i { animation: hm-stage-fill linear forwards; }
+@keyframes hm-stage-fill { to { transform: scaleX(1); } }
+.hm-stage-view { display: flex; flex-direction: column; gap: 16px; }
+.hm-stage-browser { border-radius: 16px; overflow: hidden; background: #fff; border: 1px solid var(--sc-line); box-shadow: 0 30px 60px -32px rgba(2, 26, 87, 0.45); color-scheme: light; }
+.hm-stage-browser .hm-ms-bar { display: flex; align-items: center; gap: 6px; padding: 10px 14px; border-bottom: 1px solid #ededf1; background: #f6f6f8; }
+.hm-stage-browser .hm-ms-bar i { width: 8px; height: 8px; border-radius: 50%; background: #d9dae0; }
+.hm-stage-browser .hm-ms-url { margin-left: 10px; padding: 3px 10px; border-radius: 999px; background: #fff; border: 1px solid #e6e7ec; font-size: 11px; color: #55565e; }
+:root[data-theme="dark"] .hm-stage-browser { background: #0b0c10; border-color: rgba(255, 255, 255, 0.1); }
+:root[data-theme="dark"] .hm-stage-browser .hm-ms-bar { background: #0b0c10; border-bottom-color: rgba(255, 255, 255, 0.08); }
+:root[data-theme="dark"] .hm-stage-browser .hm-ms-bar i { background: rgba(255, 255, 255, 0.18); }
+:root[data-theme="dark"] .hm-stage-browser .hm-ms-url { background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.6); }
+.hm-stage-screen { position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: #f6f6f8; }
+/* the shots are full-page captures: the active one fades in and slowly scrolls down its page */
+.hm-stage-shot { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0%; opacity: 0; transition: opacity 0.6s ease; }
+.hm-stage-shot.is-active { opacity: 1; animation: hm-stage-scroll 9s cubic-bezier(0.45, 0, 0.25, 1) 0.8s forwards; }
+@keyframes hm-stage-scroll { to { object-position: 50% 100%; } } /* scrolls the cover-cropped full-page capture top to bottom */
+.hm-stage-foot { display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; align-items: center; }
+.hm-stage-cur { grid-column: 1; font-size: 15px; line-height: 1.4; color: var(--sc-ink); }
+.hm-stage-cta { grid-column: 2; grid-row: 1 / 3; text-decoration: none; }
+@media (max-width: 1024px) { .hm-stage { grid-template-columns: 1fr; gap: 28px; } .hm-stage-view { order: -1; } .hm-stage-shot.is-active { animation: none; } }
+@media (max-width: 768px) { .hm-stage-prompt { font-size: 15px; } .hm-stage-btn { padding: 14px 0 12px; } .hm-stage-foot { grid-template-columns: 1fr; } .hm-stage-cta { grid-column: 1; grid-row: auto; justify-self: start; margin-top: 6px; } }
+@media (prefers-reduced-motion: reduce) { .hm-stage-shot.is-active { animation: none; } .hm-stage-bar i { animation: none; transform: scaleX(1); } }
+
+/* use-case photo cards: the Founders Week hover pixel field over the scrim, under the copy */
+.hm-uc-card > .fw-hover-field { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; opacity: 0; transition: opacity 0.45s ease; pointer-events: none; }
+.hm-uc-card:hover > .fw-hover-field { opacity: 1; }
