@@ -122,8 +122,24 @@ export const platform = {
 export const enterprise = {
   eyebrow: 'For enterprise',
   title: 'Need it to scale across a team?',
-  body: 'SSO, audit logs and compliance support come standard for teams that need to govern how Bolt gets used.',
-  pills: ['SSO & SAML', 'Audit logs', 'SOC 2 Type II', 'Role-based access', 'Dedicated support'],
+  body: 'The same Bolt your builders already use, with the governance, security and support an organization needs to roll it out.',
+  logosLabel: 'Trusted by teams at',
+  logos: [
+    { src: asset('/logos/intel.svg'), alt: 'Intel' },
+    { src: asset('/logos/meta.svg'), alt: 'Meta' },
+    { src: asset('/logos/salesforce.svg'), alt: 'Salesforce' },
+    { src: asset('/logos/shopify.svg'), alt: 'Shopify' },
+    { src: asset('/logos/mozilla.svg'), alt: 'Mozilla' },
+    { src: asset('/logos/hubspot-logo.svg'), alt: 'HubSpot' },
+  ],
+  features: [
+    { icon: 'key', title: 'SSO & SAML', body: 'Okta, Azure AD and every major SAML provider, with domain restrictions.' },
+    { icon: 'list', title: 'Audit logs', body: 'Every project, publish and seat change, exportable to your SIEM.' },
+    { icon: 'shield', title: 'SOC 2 Type II', body: 'Certified controls, DPA and MSA. Enterprise data is never used for training.' },
+    { icon: 'cloud', title: 'BYOK deployment', body: 'Run Bolt inside your own AWS or Azure tenant, fully isolated.' },
+    { icon: 'users', title: 'Role-based access', body: 'Admin, builder and viewer roles, provisioned from your directory.' },
+    { icon: 'chat', title: 'Dedicated support', body: 'A named customer success manager and a private Slack channel.' },
+  ],
   /* the enterprise page's 1:1 strip; the form hands the email to the enterprise page's own form anchor */
   strip: { lead: 'Schedule a 1:1 with', name: 'Mason', placeholder: 'Your work email', cta: 'Book a 1:1', action: 'https://bolt.new/enterprise#talk-to-sales' },
   more: { label: 'See Bolt for Enterprise', href: 'https://bolt.new/enterprise' },

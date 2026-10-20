@@ -356,7 +356,6 @@ export function Platform() {
                       <h3 className="plat-h3">{t.title}</h3>
                       <p className="plat-body">{t.body}</p>
                       <ul className="plat-list">{t.points.map((pt) => <li key={pt}>{pt}</li>)}</ul>
-                      <Btn variant="ghost" className="plat-link" href={t.link.href} external>{t.link.label}</Btn>
                     </div>
                     <div className="plat-vcard plat-vcard--video" aria-hidden="true">
                       <BgVideo name={t.video} className="plat-video" lazy />
@@ -372,55 +371,75 @@ export function Platform() {
   );
 }
 
-/* ── Enterprise band ───────────────────────────────────────────────────── */
+/* ── Enterprise band: logos, a tiled feature grid, the 1:1 panel ─────── */
+const entIcons: Record<string, React.ReactNode> = {
+  key: <svg viewBox="0 0 20 20"><circle cx="7" cy="10" r="3.5" fill="none" stroke="currentColor" strokeWidth="1.5" /><path d="M10.5 10H17M14.5 10v2.5M17 10v2" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>,
+  list: <svg viewBox="0 0 20 20"><path d="M7 5.5h9M7 10h9M7 14.5h9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /><circle cx="4" cy="5.5" r="1" fill="currentColor" /><circle cx="4" cy="10" r="1" fill="currentColor" /><circle cx="4" cy="14.5" r="1" fill="currentColor" /></svg>,
+  shield: <svg viewBox="0 0 20 20"><path d="M10 2.2l6.2 2.3v5c0 4-2.6 6.8-6.2 8.3-3.6-1.5-6.2-4.3-6.2-8.3v-5L10 2.2z" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /><path d="M7.4 10l1.8 1.8 3.4-3.6" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>,
+  cloud: <svg viewBox="0 0 20 20"><path d="M6 15.5a3.5 3.5 0 0 1-.4-7 4.5 4.5 0 0 1 8.7 1.2A2.9 2.9 0 0 1 14 15.5H6z" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /></svg>,
+  users: <svg viewBox="0 0 20 20"><circle cx="8" cy="7" r="2.8" fill="none" stroke="currentColor" strokeWidth="1.5" /><path d="M3 16a5 5 0 0 1 10 0" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /><path d="M13.5 9.5a2.5 2.5 0 1 0-1.2-4.7M14 12.2a4 4 0 0 1 3 3.8" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>,
+  chat: <svg viewBox="0 0 20 20"><path d="M4 4.5h12A1.5 1.5 0 0 1 17.5 6v6a1.5 1.5 0 0 1-1.5 1.5H9l-4 3v-3H4A1.5 1.5 0 0 1 2.5 12V6A1.5 1.5 0 0 1 4 4.5z" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /></svg>,
+};
 export function Enterprise() {
   return (
     <section className="fw-section fw-section--band hm-ent">
-      <div className="fw-inner hm-ent-layout">
-        <div className="hm-ent-copy">
-          <span className="section-eyebrow eyebrow-scramble">{enterprise.eyebrow}</span>
-          <div className="dsa-reveal">
-            <h2 className="sc-section-h2">{enterprise.title}</h2>
+      <div className="fw-inner">
+        <div className="hm-ent-head">
+          <div className="hm-ent-copy">
+            <span className="section-eyebrow eyebrow-scramble">{enterprise.eyebrow}</span>
+            <div className="dsa-reveal">
+              <h2 className="sc-section-h2">{enterprise.title}</h2>
+            </div>
+            <p className="section-sub">{enterprise.body}</p>
           </div>
-          <p className="section-sub">{enterprise.body}</p>
-          <ul className="hm-ent-pills" aria-label="Included">
-            {enterprise.pills.map((p) => (
-              <li key={p} className="hm-trust-pill">
-                <span className="hm-trust-dot" aria-hidden="true" />
-                {p}
+          <div className="hm-ent-logos" aria-label={enterprise.logosLabel}>
+            <span className="hm-ent-logos-label">{enterprise.logosLabel}</span>
+            <span className="hm-ent-logos-row">
+              {enterprise.logos.map((l) => <img key={l.alt} src={l.src} alt={l.alt} loading="lazy" decoding="async" />)}
+            </span>
+          </div>
+        </div>
+        <div className="hm-ent-layout">
+          <ul className="hm-ent-grid">
+            {enterprise.features.map((f, i) => (
+              <li key={f.title} className="hm-ent-cell">
+                <HoverField index={i} />
+                <span className="hm-ent-ic">{entIcons[f.icon]}</span>
+                <span className="hm-ent-cell-title">{f.title}</span>
+                <span className="hm-ent-cell-body">{f.body}</span>
               </li>
             ))}
           </ul>
-        </div>
-        <div className="hm-ent-actions">
-          <form
-            className="hm-ent-strip"
-            action={enterprise.strip.action}
-            method="get"
-            target="_blank"
-            onSubmit={(e) => {
-              e.preventDefault();
-              const email = (e.currentTarget.elements.namedItem('email') as HTMLInputElement | null)?.value.trim() ?? '';
-              const url = new URL(enterprise.strip.action);
-              if (email) url.searchParams.set('email', email);
-              window.open(url.toString(), '_blank', 'noopener');
-            }}
-          >
-            <div className="card-strip-text">
-              <p className="card-strip-sub">{enterprise.strip.lead} <span className="strip-name">{enterprise.strip.name}</span></p>
-            </div>
-            <div className="hero-form-row">
-              <label className="sr-only" htmlFor="ent-email">{enterprise.strip.placeholder}</label>
-              <input id="ent-email" name="email" type="email" className="hero-email-input" placeholder={enterprise.strip.placeholder} autoComplete="email" required />
-              <button type="submit" className="hero-cta-button" aria-label="Book a 1:1 with sales">
-                <div className="btn-bg-hover" />
-                <div className="btn-text-wrap"><div className="btn-text-inner"><span>{enterprise.strip.cta}</span><span>{enterprise.strip.cta}</span></div></div>
-              </button>
-            </div>
-          </form>
-          <a className="fw-text-link hm-more" href={enterprise.more.href}>
-            {enterprise.more.label} <i className="fw-arrow" aria-hidden="true" />
-          </a>
+          <div className="hm-ent-panel">
+            <span className="hm-ent-panel-kicker">Talk to us</span>
+            <form
+              className="hm-ent-strip"
+              action={enterprise.strip.action}
+              method="get"
+              target="_blank"
+              onSubmit={(e) => {
+                e.preventDefault();
+                const email = (e.currentTarget.elements.namedItem('email') as HTMLInputElement | null)?.value.trim() ?? '';
+                const url = new URL(enterprise.strip.action);
+                if (email) url.searchParams.set('email', email);
+                window.open(url.toString(), '_blank', 'noopener');
+              }}
+            >
+              <div className="card-strip-text">
+                <p className="card-strip-sub">{enterprise.strip.lead} <span className="strip-name">{enterprise.strip.name}</span></p>
+              </div>
+              <div className="hero-form-row">
+                <label className="sr-only" htmlFor="ent-email">{enterprise.strip.placeholder}</label>
+                <input id="ent-email" name="email" type="email" className="hero-email-input" placeholder={enterprise.strip.placeholder} autoComplete="email" required />
+                <button type="submit" className="hero-cta-button" aria-label="Book a 1:1 with sales">
+                  <div className="btn-bg-hover" />
+                  <div className="btn-text-wrap"><div className="btn-text-inner"><span>{enterprise.strip.cta}</span><span>{enterprise.strip.cta}</span></div></div>
+                </button>
+              </div>
+            </form>
+            <p className="hm-ent-panel-note">A 30-minute walkthrough with the enterprise team, no deck. Bring the project you want to ship.</p>
+            <Btn variant="ghost" href={enterprise.more.href} external>{enterprise.more.label}</Btn>
+          </div>
         </div>
       </div>
     </section>
