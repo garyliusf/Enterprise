@@ -85,48 +85,48 @@ function CrawlTile({ c, dupe, onHover }: { c: ShowcaseCard; dupe: boolean; onHov
   );
 }
 /* hover actions float right under the cursor (Gary, replacing the sticky
-   bottom bar, where any pause on the way down re-picked another card). The
-   row anchors where the pointer enters a tile and only re-anchors for a
-   different tile — or after resting > 120px away on the same one — so the
-   short move down onto it never crosses another card. The wall pauses while
-   the pointer is on a tile or the row. */
+   bottom bar). Anti-flicker rules: hiding waits 300ms (the 28px gaps between
+   tiles and the hop down onto the row never hide it); the wall stays paused
+   the whole time the row is up (a moving wall slid tiles under a still cursor
+   and looped show/hide); switching to another tile waits for a 160ms rest and
+   GLIDES the row there instead of remounting it; on the same tile it never
+   moves (re-anchoring within a tile read as jumping). */
 type CrawlFloat = { c: ShowcaseCard; x: number; y: number } | null;
 function CrawlWall({ all }: { all: ShowcaseCard[] }) {
   const loop = [...all, ...all, ...all, ...all];
   const wrap = useRef<HTMLDivElement>(null);
   const [fl, setFl] = useState<CrawlFloat>(null);
-  const [hold, setHold] = useState(false);
-  const restT = useRef<number>(0);
+  const flRef = useRef<CrawlFloat>(null);
+  flRef.current = fl;
+  const hideT = useRef<number>(0);
+  const moveT = useRef<number>(0);
   const onRow = useRef(false);
-  useEffect(() => () => window.clearTimeout(restT.current), []);
-  const place = (c: ShowcaseCard, cx: number, cy: number) => {
-    const w = wrap.current;
-    if (!w) return;
-    const r = w.getBoundingClientRect();
-    const x = Math.min(Math.max(cx - r.left, 150), r.width - 150);
-    setFl({ c, x, y: cy - r.top + 14 });
+  const clear = () => { window.clearTimeout(hideT.current); window.clearTimeout(moveT.current); };
+  useEffect(() => clear, []);
+  const at = (c: ShowcaseCard, cx: number, cy: number): CrawlFloat => {
+    const r = wrap.current!.getBoundingClientRect();
+    return { c, x: Math.min(Math.max(cx - r.left, 150), r.width - 150), y: cy - r.top + 14 };
+  };
+  const hideSoon = () => {
+    window.clearTimeout(hideT.current);
+    hideT.current = window.setTimeout(() => { if (!onRow.current) setFl(null); }, 300);
   };
   const onHover = (c: ShowcaseCard, e: React.MouseEvent<HTMLElement>) => {
-    if (onRow.current) return;
-    setHold(true);
+    if (onRow.current || !wrap.current) return;
+    window.clearTimeout(hideT.current);
     const { clientX, clientY } = e;
-    if (!fl || fl.c !== c) { window.clearTimeout(restT.current); place(c, clientX, clientY); return; }
-    const r = wrap.current?.getBoundingClientRect();
-    if (!r) return;
-    const far = Math.hypot(clientX - r.left - fl.x, clientY - r.top - (fl.y - 14)) > 120;
-    window.clearTimeout(restT.current);
-    if (far) restT.current = window.setTimeout(() => place(c, clientX, clientY), 220);
+    const cur = flRef.current;
+    if (!cur) { setFl(at(c, clientX, clientY)); return; }
+    if (cur.c === c) { window.clearTimeout(moveT.current); return; } // same card: the row never moves
+    window.clearTimeout(moveT.current);
+    moveT.current = window.setTimeout(() => { if (!onRow.current) setFl(at(c, clientX, clientY)); }, 160);
   };
   return (
     <div
-      className={`hm-crawl-wrap${hold ? ' is-popped' : ''}`}
+      className={`hm-crawl-wrap${fl ? ' is-popped' : ''}`}
       ref={wrap}
-      onMouseMove={(e) => {
-        const el = e.target as HTMLElement;
-        if (el.closest('.hm-crawl-float')) return;
-        if (!el.closest('.hm-crawl-tile')) { setHold(false); setFl(null); }
-      }}
-      onMouseLeave={() => { setHold(false); setFl(null); onRow.current = false; }}
+      onMouseMove={(e) => { const el = e.target as HTMLElement; if (!el.closest('.hm-crawl-tile, .hm-crawl-float')) hideSoon(); }}
+      onMouseLeave={() => { onRow.current = false; window.clearTimeout(moveT.current); hideSoon(); }}
     >
       <div className="hm-crawl">
         <div className="hm-crawl-plane">
@@ -135,10 +135,9 @@ function CrawlWall({ all }: { all: ShowcaseCard[] }) {
       </div>
       {fl && (
         <div
-          key={fl.c.prompt}
           className="hm-crawl-float"
           style={{ left: fl.x, top: fl.y }}
-          onMouseEnter={() => { onRow.current = true; window.clearTimeout(restT.current); setHold(true); }}
+          onMouseEnter={() => { onRow.current = true; clear(); }}
           onMouseLeave={() => { onRow.current = false; }}
         >
           <CrawlActions c={fl.c} />
