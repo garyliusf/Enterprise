@@ -1967,7 +1967,19 @@ body .site-footer-divider { display: none; }
 /* both columns centred in the fixed-height panel (Gary: the list sat at the
    top with a tall empty band below it); the stage no longer needs sticky */
 @media (min-width: 1025px) { .hm-stage--steps { align-items: center; } .hm-stage--steps .hm-stage-view { position: static; } }
-@media (max-width: 768px) { .hm-stage--steps .hm-stage-scene > .hm-vis { zoom: 0.74; min-height: 590px; } } /* shorter on phones (Gary): every scene zoomed to one ~436px box so the step list shows on the same screen */
+/* shorter on phones (Gary). `zoom` shrank the scene but iOS Safari kept the
+   box height, so: a FIXED 400px stage window, every scene laid out at one
+   common size (580px tall, 1/0.69 of the window wide) and scaled to 0.69 from
+   the centre. Flex centring keeps the overflowing layout box centred and the
+   window clips the unused layout space — same in every engine. */
+@media (max-width: 768px) {
+  .hm-stage--steps .hm-stage-view { height: 400px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+  .hm-stage--steps .hm-stage-view > .hm-stage-scene { flex: none; width: calc(100% / 0.69); }
+  /* scale the visual, not the scene: the scene's fade-in animation owns its transform */
+  .hm-stage--steps .hm-stage-scene > .hm-vis { min-height: 580px; transform: scale(0.69); transform-origin: 50% 50%; }
+  /* tighter step rows on phones (Gary) */
+  .hm-stage--steps .hm-stage-btn { padding: 13px 0 12px; }
+}
 
 
 /* timer = the thread (Gary, 2026-10-20; picked over the bar, a divider line
