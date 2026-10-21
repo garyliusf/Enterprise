@@ -29,7 +29,7 @@ export const hero = {
   titleSerif: 'Describe it.',
   titleSans: 'Bolt builds it.',
   subtitle:
-    'Describe your idea in your own words and get a real website or app you can publish today. No code. No developer. No agency invoice.',
+    'Describe your idea in your own words and get a real website or app you can publish today. No code. No developer.',
   /* the prompt box: example prompt (also the SEO-crawlable placeholder),
      suggestion pills that fill it, and the submit label */
   promptExample: 'A booking site for my dog walking business, with a calendar and deposits',
