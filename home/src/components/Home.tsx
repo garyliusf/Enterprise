@@ -50,33 +50,30 @@ function CardActions({ open, preview, label, tabIndex }: { open: string; preview
   );
 }
 
-/* VARIANT C (review): the showcase as a still grid instead of two drifting
-   rows (Gary: "another way to visually show the templates … grid?"). Each tile
-   is just the site (its full-page capture scrolls on hover), the prompt and a
-   text link — the bubble/browser-chrome card was "way too complicated". */
-function ShowcaseTile({ c }: { c: ShowcaseCard }) {
+/* VARIANT C (review): a "Star Wars" crawl (Gary) — the showcase as a wall of
+   sites tilted back in perspective, scrolling away toward a faded horizon;
+   hover pauses it. Each tile is the site with its prompt as a caption, and
+   opens the project in Bolt. */
+function CrawlTile({ c, dupe }: { c: ShowcaseCard; dupe: boolean }) {
   return (
-    <li className="hm-showc">
-      <a className="hm-showc-view" href={c.url} target="_blank" rel="noopener" tabIndex={-1} aria-hidden="true">
-        <img src={c.shot} alt="" loading="lazy" decoding="async" />
-      </a>
-      <p className="hm-showc-prompt">{c.prompt}</p>
-      <a className="hm-showc-link" href={c.url} target="_blank" rel="noopener" aria-label={`Open ${c.prompt} in Bolt`}>
-        Open in Bolt
-        <svg width="14" height="12" viewBox="0 0 16 14" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M1 7h13M9 2l5 5-5 5" /></svg>
-      </a>
-    </li>
+    <a className="hm-crawl-tile" href={c.url} target="_blank" rel="noopener" tabIndex={dupe ? -1 : undefined} aria-hidden={dupe ? true : undefined} aria-label={dupe ? undefined : `Open ${c.prompt} in Bolt`}>
+      <img src={c.shot} alt="" loading="lazy" decoding="async" />
+      <span className="hm-crawl-cap">{c.prompt}</span>
+    </a>
   );
 }
 
 export function Showcase() {
   const variant = useVariant();
   if (variant === 'c') {
-    const tiles = [...showcase.rowA.slice(0, 4), ...showcase.rowB.slice(0, 4)];
+    const all = [...showcase.rowA, ...showcase.rowB];
+    const loop = [...all, ...all];
     return (
-      <section className="hm-showcase hm-showcase--grid" aria-label="Apps built on Bolt">
-        <div className="fw-inner">
-          <ul className="hm-showgrid">{tiles.map((c) => <ShowcaseTile key={c.prompt} c={c} />)}</ul>
+      <section className="hm-showcase hm-showcase--crawl" aria-label="Apps built on Bolt">
+        <div className="hm-crawl">
+          <div className="hm-crawl-plane">
+            <div className="hm-crawl-track">{loop.map((c, i) => <CrawlTile key={i} c={c} dupe={i >= all.length} />)}</div>
+          </div>
         </div>
       </section>
     );
