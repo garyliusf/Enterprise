@@ -1136,6 +1136,9 @@ a.fw-session-card { text-decoration: none; color: inherit; }
 
 /* ═══ HOME HERO: prompt box + trust pills (Figma 2026-10-16) ═══════════════ */
 .hm-hero .fw-hero-inner { width: min(960px, calc(100vw - 160px)); }
+/* the standard gutters below desktop (it was 100vw − 160px at every width: a 230px prompt box on phones) */
+@media (max-width: 1024px) { .hm-hero .fw-hero-inner { width: min(900px, calc(100vw - 80px)); } }
+@media (max-width: 768px) { .hm-hero .fw-hero-inner { width: calc(100vw - 32px); } }
 .hm-hero .fw-hero-sub { max-width: 640px; }
 /* serif hero line (solutions rule): a 10px margin under it on desktop */
 @media (min-width: 1025px) { .hm-hero .fw-hero-h1 > .fw-serif { margin-bottom: 10px; } }
@@ -1180,13 +1183,15 @@ a.fw-session-card { text-decoration: none; color: inherit; }
 @media (max-width: 768px) {
   .hm-prompt { margin-top: 24px; padding: 16px 16px 14px; border-radius: 12px; }
   .hm-prompt-input { font-size: 16px; min-height: 72px; }
-  .hm-prompt-foot { flex-direction: column; align-items: stretch; margin-top: 14px; }
-  .hm-prompt-pills { order: 2; margin-top: 12px; }
-  .hm-prompt-submit { justify-content: center; height: 48px; font-size: 16px; }
+  /* the standard prompt box on phones (Gary): text, then the compact Build
+     Now pill bottom-right; the example pills are dropped (they stacked into a
+     column under a full-width button) */
+  .hm-prompt-foot { justify-content: flex-end; margin-top: 14px; }
+  .hm-prompt-pills { display: none; }
   .hm-trust { margin-top: 16px; } .hm-trust-pill { font-size: 11px; gap: 6px; }
 }
 /* each hero line stays whole on phones ("Bolt builds it." was breaking) */
-@media (max-width: 768px) { .hm-hero .fw-hero-h1 { font-size: clamp(34px, 9.6vw, 51px); } .hm-hero .fw-hero-h1 > span { text-wrap: nowrap; } }
+@media (max-width: 768px) { .hm-hero .fw-hero-h1 { font-size: clamp(37px, 10.45vw, 51px); } /* the hero H1 phone standard (was 9.6vw → 37px at 390) */ .hm-hero .fw-hero-h1 > span { text-wrap: nowrap; } }
 
 /* ═══ HOME SECTIONS (Figma 2026-10-16) ═════════════════════════════════════ */
 /* generic "see all" link row under a grid */
@@ -1248,6 +1253,8 @@ a.fw-session-card { text-decoration: none; color: inherit; }
 .hm-crawl-track { --crawl-gap: 28px; position: absolute; left: 0; right: 0; bottom: 0; transform-style: preserve-3d; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--crawl-gap); animation: hm-crawl-up 44s linear infinite; will-change: transform; }
 /* no container-wide pause (Gary): the wall stops only while a card is open */
 @keyframes hm-crawl-up { from { transform: translateY(calc(25% + var(--crawl-gap) / 4)); } to { transform: translateY(0); } }
+/* phones, 2 per row (Gary): 9 sites don't fill rows of 2, so one loop = TWO copies (18 tiles = 9 rows) */
+@keyframes hm-crawl-up2 { from { transform: translateY(calc(50% + var(--crawl-gap) / 2)); } to { transform: translateY(0); } }
 .hm-crawl-tile { position: relative; display: block; aspect-ratio: 4 / 3; overflow: hidden; border-radius: 10px; border: 1px solid var(--sc-line); background: var(--sc-surface-strong); box-shadow: 0 30px 60px -30px rgba(16, 24, 40, 0.45); text-decoration: none; transform-origin: 50% 100%; transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1), border-color 0.3s ease, box-shadow 0.3s ease; }
 .hm-crawl-tile img { position: absolute; inset: 0; width: 100%; height: auto; display: block; }
 /* the in-wall overlay is replaced by the focus card on pointer devices */
@@ -1306,7 +1313,7 @@ a.fw-session-card { text-decoration: none; color: inherit; }
 @media (prefers-reduced-motion: reduce) { .hm-crawl-track { animation: none; } }
 /* columns must divide the 9 sites evenly or the seam shows: 3 → 1 */
 @media (max-width: 1024px) { .hm-crawl-plane { width: 160vw; } .hm-crawl-track { --crawl-gap: 22px; } }
-@media (max-width: 768px) { .hm-crawl { height: 380px; perspective: 800px; } .hm-crawl { --crawl-tilt: 36deg; } .hm-crawl-plane { width: 104vw; height: 1400px; } .hm-crawl-track { grid-template-columns: 1fr; --crawl-gap: 14px; animation-duration: 80s; } .hm-crawl-cap { font-size: 12px; } }
+@media (max-width: 768px) { .hm-crawl { height: 380px; perspective: 800px; } .hm-crawl { --crawl-tilt: 36deg; } .hm-crawl-plane { width: 104vw; height: 1400px; } .hm-crawl-track { grid-template-columns: repeat(2, minmax(0, 1fr)); --crawl-gap: 12px; animation-name: hm-crawl-up2; animation-duration: 40s; } .hm-crawl-cap { font-size: 12px; } }
 /* ── Stats ────────────────────────────────────────────────────────────── */
 /* the stats bar sits a full section unit from the drifting cards above and
    from Build anything below (Gary: more gap) */
@@ -1747,7 +1754,7 @@ a.fw-session-card { text-decoration: none; color: inherit; }
   background: linear-gradient(to left, rgba(var(--sc-ground-rgb), 0) 0%, rgba(var(--sc-ground-rgb), 0.18) 28%, rgba(var(--sc-ground-rgb), 0.62) 60%, rgba(var(--sc-ground-rgb), 0.96) 90%, var(--sc-ground) 100%);
   opacity: 0; transition: opacity 0.25s ease; }
 .hm-tr.is-scrolled::before { opacity: 1; }
-@media (max-width: 768px) { .hm-tr::before { width: 64px; } }
+@media (max-width: 768px) { .hm-tr::before { width: 28px; opacity: 0.7 !important; } .hm-tr.is-scrolled::before { opacity: 0.7 !important; } } /* the left fade read as a dark band on phones (Gary) */
 @media (prefers-reduced-motion: reduce) { .hm-tr-shot, .hm-tr-card:hover .hm-tr-shot { transform: none; transition: none; } }
 
 /* ── Solutions: the platform tabs (solutions.html .plat-*, verbatim values) ─ */
@@ -1956,8 +1963,8 @@ body .site-footer-divider { display: none; }
 /* both columns centred in the fixed-height panel (Gary: the list sat at the
    top with a tall empty band below it); the stage no longer needs sticky */
 @media (min-width: 1025px) { .hm-stage--steps { align-items: center; } .hm-stage--steps .hm-stage-view { position: static; } }
-@media (max-width: 768px) { .hm-stage--steps .hm-stage-scene > .hm-vis { min-height: 600px; } }
-@media (max-width: 400px) { .hm-stage--steps .hm-stage-scene > .hm-vis { min-height: 620px; } }
+@media (max-width: 768px) { .hm-stage--steps .hm-stage-scene > .hm-vis { zoom: 0.74; min-height: 590px; } } /* shorter on phones (Gary): every scene zoomed to one ~436px box so the step list shows on the same screen */
+
 
 /* timer = the thread (Gary, 2026-10-20; picked over the bar, a divider line
    and a ring): a 1px line under the numeral fills down the open row */
