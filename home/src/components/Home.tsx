@@ -57,25 +57,70 @@ function CardActions({ open, preview, label, tabIndex }: { open: string; preview
 /* Preview's link comes later (Gary, 2026-10-21): until then the button is a
    placeholder that does nothing — set CRAWL_PREVIEW_HREF (or per-card URLs) */
 const CRAWL_PREVIEW_HREF: string | null = null;
-function CrawlTile({ c, dupe }: { c: ShowcaseCard; dupe: boolean }) {
-  const t = dupe ? -1 : undefined;
+function CrawlActions({ c, tabIndex }: { c: ShowcaseCard; tabIndex?: number }) {
   return (
-    <div className="hm-crawl-tile" aria-hidden={dupe ? true : undefined}>
+    <span className="hm-crawl-open">
+      <a className="hm-crawl-btn hm-crawl-btn--primary" href={c.url} target="_blank" rel="noopener" tabIndex={tabIndex} aria-label={`Open ${c.prompt} in Bolt`}>Open in Bolt</a>
+      <a
+        className="hm-crawl-btn hm-crawl-btn--ghost"
+        href={CRAWL_PREVIEW_HREF ?? '#'}
+        {...(CRAWL_PREVIEW_HREF ? { target: '_blank', rel: 'noopener' } : { onClick: (e: React.MouseEvent) => e.preventDefault() })}
+        tabIndex={tabIndex}
+        aria-label={`Preview ${c.prompt}`}
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z" /></svg>
+        Preview
+      </a>
+    </span>
+  );
+}
+function CrawlTile({ c, dupe, onEnter }: { c: ShowcaseCard; dupe: boolean; onEnter: (c: ShowcaseCard, el: HTMLElement) => void }) {
+  return (
+    <div className="hm-crawl-tile" aria-hidden={dupe ? true : undefined} onMouseEnter={(e) => onEnter(c, e.currentTarget)} onMouseMove={(e) => onEnter(c, e.currentTarget)}>
       <img src={c.shot} alt="" loading="lazy" decoding="async" />
       <span className="hm-crawl-cap">{c.prompt}</span>
-      <span className="hm-crawl-open">
-        <a className="hm-crawl-btn hm-crawl-btn--primary" href={c.url} target="_blank" rel="noopener" tabIndex={t} aria-label={`Open ${c.prompt} in Bolt`}>Open in Bolt</a>
-        <a
-          className="hm-crawl-btn hm-crawl-btn--ghost"
-          href={CRAWL_PREVIEW_HREF ?? '#'}
-          {...(CRAWL_PREVIEW_HREF ? { target: '_blank', rel: 'noopener' } : { onClick: (e: React.MouseEvent) => e.preventDefault() })}
-          tabIndex={t}
-          aria-label={`Preview ${c.prompt}`}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z" /></svg>
-          Preview
-        </a>
-      </span>
+      <CrawlActions c={c} tabIndex={dupe ? -1 : undefined} />
+    </div>
+  );
+}
+/* hover focus card (Gary: a back-row tile that stood up rose into the faded
+   horizon and washed out). The wall's fade masks everything inside it, so the
+   readable copy lives OUTSIDE it: a flat, opaque card over the hovered tile,
+   bottom-aligned to it and at least 380px wide; the crawl pauses while it's up. */
+type CrawlPop = { c: ShowcaseCard; left: number; top: number; width: number } | null;
+function CrawlWall({ all }: { all: ShowcaseCard[] }) {
+  const loop = [...all, ...all, ...all, ...all];
+  const wrap = useRef<HTMLDivElement>(null);
+  const [pop, setPop] = useState<CrawlPop>(null);
+  const onEnter = (c: ShowcaseCard, el: HTMLElement) => {
+    const w = wrap.current;
+    if (!w) return;
+    const wr = w.getBoundingClientRect(), r = el.getBoundingClientRect();
+    /* front row only (Gary): a tile answers once its centre is in the near
+       half of the window — the back row stays part of the moving wall. A
+       tile that slides forward under a resting cursor opens via mousemove. */
+    if (r.top + r.height / 2 < wr.top + wr.height * 0.5) { if (pop) setPop(null); return; }
+    if (pop && pop.c === c) return;
+    const width = Math.min(Math.max(r.width * 1.06, 380), wr.width - 32);
+    const height = width * 0.75 + 52;
+    const left = Math.min(Math.max(r.left - wr.left + r.width / 2 - width / 2, 16), wr.width - width - 16);
+    const top = Math.max(r.bottom - wr.top - height, 0);
+    setPop({ c, left, top, width });
+  };
+  return (
+    <div className={`hm-crawl-wrap${pop ? ' is-popped' : ''}`} ref={wrap} onMouseLeave={() => setPop(null)}>
+      <div className="hm-crawl">
+        <div className="hm-crawl-plane">
+          <div className="hm-crawl-track">{loop.map((c, i) => <CrawlTile key={i} c={c} dupe={i >= all.length} onEnter={onEnter} />)}</div>
+        </div>
+      </div>
+      {pop && (
+        <div key={pop.c.prompt} className="hm-crawl-pop" style={{ left: pop.left, top: pop.top, width: pop.width }}>
+          <span className="hm-crawl-pop-shot"><img src={pop.c.shot} alt="" /></span>
+          <span className="hm-crawl-pop-cap">{pop.c.prompt}</span>
+          <CrawlActions c={pop.c} />
+        </div>
+      )}
     </div>
   );
 }
@@ -86,15 +131,9 @@ export function Showcase() {
     /* 9 sites = three even rows of 3 (Gary: 3 across, bigger; "if they don't split
        evenly take out any" — construction is the one left out) */
     const all = [...showcase.rowA, ...showcase.rowB.slice(0, 4)];
-    /* four copies: the frame always has rows below the window, so the stream never runs dry */
-    const loop = [...all, ...all, ...all, ...all];
     return (
       <section className="hm-showcase hm-showcase--crawl" aria-label="Apps built on Bolt">
-        <div className="hm-crawl">
-          <div className="hm-crawl-plane">
-            <div className="hm-crawl-track">{loop.map((c, i) => <CrawlTile key={i} c={c} dupe={i >= all.length} />)}</div>
-          </div>
-        </div>
+        <CrawlWall all={all} />
       </section>
     );
   }
