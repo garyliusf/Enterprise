@@ -1266,9 +1266,20 @@ a.fw-session-card { text-decoration: none; color: inherit; }
 .hm-crawl-wrap { position: relative; }
 .hm-crawl-wrap.is-popped .hm-crawl-track { animation-play-state: paused; }
 /* the floating action row, just under the cursor, outside the wall's fade */
-.hm-crawl-float { position: absolute; left: 0; top: 0; z-index: 7; display: flex; align-items: center; padding: 6px; border-radius: 10px; background: rgba(255, 255, 255, 0.96); border: 1px solid rgba(16, 24, 40, 0.10); box-shadow: 0 14px 36px -12px rgba(16, 40, 90, 0.4); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); opacity: 0; visibility: hidden; pointer-events: none; will-change: transform; transition: opacity 0.18s ease, visibility 0s linear 0.18s; } /* positioned by JS transform; fades, never remounts */
-.hm-crawl-float.is-on { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity 0.18s ease; }
-.hm-crawl-float { gap: 6px; }
+/* positioned by JS (transform); the appear/leave uses the separate scale /
+   translate / filter properties so it never fights that transform. Organic
+   (Gary: "very harsh"): it rises from the tile's edge, a little small and
+   soft-focus, and settles on a gentle overshoot; leaving is quicker. */
+.hm-crawl-float { position: absolute; left: 0; top: 0; z-index: 7; padding: 12px; border-radius: 12px; background: rgba(255, 255, 255, 0.96); border: 1px solid rgba(16, 24, 40, 0.10); box-shadow: 0 14px 36px -12px rgba(16, 40, 90, 0.4); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); will-change: transform;
+  transform-origin: 50% 100%; opacity: 0; scale: 0.92; translate: 0 12px; filter: blur(6px); visibility: hidden; pointer-events: none;
+  transition: opacity 0.22s ease, scale 0.26s ease, translate 0.26s ease, filter 0.22s ease, visibility 0s linear 0.26s; }
+.hm-crawl-float.is-on { opacity: 1; scale: 1; translate: 0 0; filter: none; visibility: visible; pointer-events: auto;
+  transition: opacity 0.35s ease, scale 0.55s cubic-bezier(0.2, 0.9, 0.25, 1.06), translate 0.55s cubic-bezier(0.2, 0.9, 0.25, 1.06), filter 0.4s ease; }
+.hm-crawl-float-in { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 12px; }
+.hm-crawl-float-in > * { animation: hm-float-child 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.hm-crawl-float-in > :nth-child(2) { animation-delay: 0.06s; }
+.hm-crawl-float-in > :nth-child(3) { animation-delay: 0.12s; }
+@keyframes hm-float-child { from { opacity: 0; transform: translateY(6px); filter: blur(3px); } to { opacity: 1; transform: none; filter: none; } }
 .hm-crawl-float-thumb { flex: none; position: relative; width: 64px; height: 48px; overflow: hidden; border-radius: 5px; border: 1px solid rgba(16, 24, 40, 0.10); background: #fff; }
 .hm-crawl-float-thumb img { position: absolute; top: 0; left: 0; width: 100%; height: auto; display: block; }
 .hm-crawl-float-copy { display: flex; flex-direction: column; gap: 5px; min-width: 0; padding: 0 10px 0 4px; }
@@ -1287,7 +1298,7 @@ a.fw-session-card { text-decoration: none; color: inherit; }
 .hm-crawl-float .hm-crawl-btn--ghost { color: rgba(10, 13, 20, 0.6); }
 .hm-crawl-float .hm-crawl-btn--ghost:hover { color: #0a0d14; }
 /* card layout (Gary): thumb + title/category on top, the two buttons below */
-.hm-crawl-float { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 12px; width: 280px; padding: 12px; border-radius: 12px; }
+.hm-crawl-float { width: 280px; }
 .hm-crawl-float-copy { padding: 0; }
 .hm-crawl-float-name { white-space: normal; font-size: 15px; line-height: 1.2; }
 .hm-crawl-float .hm-crawl-open { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr auto; gap: 6px; }
@@ -1296,7 +1307,7 @@ a.fw-session-card { text-decoration: none; color: inherit; }
 :root[data-theme="dark"] .hm-crawl-float { background: rgba(14, 16, 22, 0.94); border-color: rgba(255, 255, 255, 0.10); box-shadow: 0 14px 36px -12px rgba(0, 0, 0, 0.6); }
 :root[data-theme="dark"] .hm-crawl-float .hm-crawl-btn--ghost { color: rgba(255, 255, 255, 0.7); }
 :root[data-theme="dark"] .hm-crawl-float .hm-crawl-btn--ghost:hover { color: #fff; }
-@media (prefers-reduced-motion: reduce) { .hm-crawl-float, .hm-crawl-float.is-on { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .hm-crawl-float, .hm-crawl-float.is-on { transition: opacity 0.2s ease; scale: 1; translate: 0 0; filter: none; } .hm-crawl-float-in > * { animation: none; } }
    bleed, content on the page measure — the templates page bar */
 .hm-crawl-cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 11px 14px 12px; border-top: 1px solid rgba(16, 24, 40, 0.08); background: #fff; font-size: 13px; line-height: 1.4; color: #0a0d14; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; } /* flush strip (Gary: the inset, padded card read worse) */
 /* hover overlay (Gary): a scrim over the standing tile + the action pair,

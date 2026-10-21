@@ -147,7 +147,8 @@ function CrawlWall({ all }: { all: ShowcaseCard[] }) {
         onMouseLeave={() => { st.current.onRow = false; }}
       >
         {c && (
-          <>
+          /* keyed: a new card's contents fade/settle in on their own */
+          <div key={c.prompt} className="hm-crawl-float-in">
             {/* which project this row belongs to (Gary): thumb, title, category */}
             <span className="hm-crawl-float-thumb" aria-hidden="true"><img src={c.shot} alt="" /></span>
             <span className="hm-crawl-float-copy">
@@ -155,7 +156,7 @@ function CrawlWall({ all }: { all: ShowcaseCard[] }) {
               {c.tag && <span className="hm-crawl-float-tag">{c.tag}</span>}
             </span>
             <CrawlActions c={c} />
-          </>
+          </div>
         )}
       </div>
     </div>
