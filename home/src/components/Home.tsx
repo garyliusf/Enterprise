@@ -76,85 +76,74 @@ function CrawlActions({ c, tabIndex }: { c: ShowcaseCard; tabIndex?: number }) {
     </span>
   );
 }
-function CrawlTile({ c, dupe, onEnter }: { c: ShowcaseCard; dupe: boolean; onEnter: (c: ShowcaseCard) => void }) {
+function CrawlTile({ c, dupe, onHover }: { c: ShowcaseCard; dupe: boolean; onHover: (c: ShowcaseCard, e: React.MouseEvent<HTMLElement>) => void }) {
   return (
-    <div className="hm-crawl-tile" aria-hidden={dupe ? true : undefined} onMouseEnter={() => onEnter(c)} onMouseMove={() => onEnter(c)}>
+    <div className="hm-crawl-tile" aria-hidden={dupe ? true : undefined} onMouseEnter={(e) => onHover(c, e)} onMouseMove={(e) => onHover(c, e)}>
       <img src={c.shot} alt="" loading="lazy" decoding="async" />
       <span className="hm-crawl-cap">{c.prompt}</span>
-      <CrawlActions c={c} tabIndex={dupe ? -1 : undefined} />
     </div>
   );
 }
-/* hover = the templates page's bottom action bar (Gary, replacing the flip-up
-   card): any tile selects itself into a bar along the bottom of the wall
-   (thumb, prompt, meta, Preview + Open in Bolt). The wall pauses only while
-   the pointer is ON a tile or the bar; the bar stays until another tile is
-   picked or the pointer leaves the section. */
+/* hover actions float right under the cursor (Gary, replacing the sticky
+   bottom bar, where any pause on the way down re-picked another card). The
+   row anchors where the pointer enters a tile and only re-anchors for a
+   different tile — or after resting > 120px away on the same one — so the
+   short move down onto it never crosses another card. The wall pauses while
+   the pointer is on a tile or the row. */
+type CrawlFloat = { c: ShowcaseCard; x: number; y: number } | null;
 function CrawlWall({ all }: { all: ShowcaseCard[] }) {
   const loop = [...all, ...all, ...all, ...all];
   const wrap = useRef<HTMLDivElement>(null);
-  const [sel, setSel] = useState<ShowcaseCard | null>(null);
+  const [fl, setFl] = useState<CrawlFloat>(null);
   const [hold, setHold] = useState(false);
-  /* grace period (Gary: the bar vanished on the way down to its buttons — the
-     path from the wall to the viewport-pinned bar crosses page outside the
-     wall): hiding waits 700ms and is cancelled by reaching a tile or the bar */
-  const hideT = useRef<number>(0);
-  const switchT = useRef<number>(0);
-  const pending = useRef<ShowcaseCard | null>(null);
-  const keep = () => window.clearTimeout(hideT.current);
-  const hideSoon = () => { keep(); hideT.current = window.setTimeout(() => { setHold(false); setSel(null); }, 700); };
-  useEffect(() => () => { keep(); window.clearTimeout(switchT.current); }, []);
-  /* scrolled out of the section → the bar fades away (Gary); a pointer that
-     doesn't move while the page scrolls never fires mouseleave */
-  useEffect(() => {
+  const restT = useRef<number>(0);
+  const onRow = useRef(false);
+  useEffect(() => () => window.clearTimeout(restT.current), []);
+  const place = (c: ShowcaseCard, cx: number, cy: number) => {
     const w = wrap.current;
     if (!w) return;
-    const io = new IntersectionObserver(([e]) => { if (e.intersectionRatio < 0.2) { keep(); setHold(false); setSel(null); } }, { threshold: [0, 0.2] });
-    io.observe(w);
-    return () => io.disconnect();
-  }, []);
-  const onEnter = (c: ShowcaseCard) => {
-    keep();
-    /* every tile answers (Gary): the bar, not the tile, carries the readable copy */
+    const r = w.getBoundingClientRect();
+    const x = Math.min(Math.max(cx - r.left, 150), r.width - 150);
+    setFl({ c, x, y: cy - r.top + 14 });
+  };
+  const onHover = (c: ShowcaseCard, e: React.MouseEvent<HTMLElement>) => {
+    if (onRow.current) return;
     setHold(true);
-    if (sel === c) { window.clearTimeout(switchT.current); pending.current = null; return; }
-    /* hover intent (Gary: passing over other tiles on the way down to the bar
-       re-picked them): the first pick is instant; switching needs the pointer
-       to rest on the new tile for 320ms */
-    if (!sel) { setSel(c); return; }
-    if (pending.current === c) return;
-    pending.current = c;
-    window.clearTimeout(switchT.current);
-    switchT.current = window.setTimeout(() => { if (pending.current === c) setSel(c); pending.current = null; }, 320);
+    const { clientX, clientY } = e;
+    if (!fl || fl.c !== c) { window.clearTimeout(restT.current); place(c, clientX, clientY); return; }
+    const r = wrap.current?.getBoundingClientRect();
+    if (!r) return;
+    const far = Math.hypot(clientX - r.left - fl.x, clientY - r.top - (fl.y - 14)) > 120;
+    window.clearTimeout(restT.current);
+    if (far) restT.current = window.setTimeout(() => place(c, clientX, clientY), 220);
   };
   return (
     <div
       className={`hm-crawl-wrap${hold ? ' is-popped' : ''}`}
       ref={wrap}
-      onMouseLeave={(e) => { if ((e.relatedTarget as HTMLElement | null)?.closest?.('.hm-crawl-bar')) return; setHold(false); hideSoon(); }}
       onMouseMove={(e) => {
         const el = e.target as HTMLElement;
-        if (el.closest('.hm-crawl-bar')) { if (!hold) setHold(true); return; }
-        if (!el.closest('.hm-crawl-tile') && hold) setHold(false);
+        if (el.closest('.hm-crawl-float')) return;
+        if (!el.closest('.hm-crawl-tile')) { setHold(false); setFl(null); }
       }}
+      onMouseLeave={() => { setHold(false); setFl(null); onRow.current = false; }}
     >
       <div className="hm-crawl">
         <div className="hm-crawl-plane">
-          <div className="hm-crawl-track">{loop.map((c, i) => <CrawlTile key={i} c={c} dupe={i >= all.length} onEnter={onEnter} />)}</div>
+          <div className="hm-crawl-track">{loop.map((c, i) => <CrawlTile key={i} c={c} dupe={i >= all.length} onHover={onHover} />)}</div>
         </div>
       </div>
-      <div className={`hm-crawl-bar${sel ? ' is-on' : ''}`} aria-hidden={sel ? undefined : true} onMouseEnter={() => { keep(); setHold(true); window.clearTimeout(switchT.current); pending.current = null; }} onMouseLeave={() => { setHold(false); hideSoon(); }}>
-        {sel && (
-          <>
-            <span className="hm-crawl-bar-thumb"><img src={sel.shot} alt="" /></span>
-            <span className="hm-crawl-bar-copy">
-              <span className="hm-crawl-bar-name">{sel.prompt}</span>
-              <span className="hm-crawl-bar-meta">Built on Bolt · Free to start</span>
-            </span>
-            <span className="hm-crawl-bar-actions"><CrawlActions c={sel} /></span>
-          </>
-        )}
-      </div>
+      {fl && (
+        <div
+          key={fl.c.prompt}
+          className="hm-crawl-float"
+          style={{ left: fl.x, top: fl.y }}
+          onMouseEnter={() => { onRow.current = true; window.clearTimeout(restT.current); setHold(true); }}
+          onMouseLeave={() => { onRow.current = false; }}
+        >
+          <CrawlActions c={fl.c} />
+        </div>
+      )}
     </div>
   );
 }
