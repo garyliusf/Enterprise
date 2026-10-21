@@ -31,8 +31,13 @@ export function useVariant(): Variant {
   return useSyncExternalStore((l) => { listeners.add(l); return () => listeners.delete(l); }, () => current);
 }
 
+/* ?showcase=1 hides the switch (the portfolio links here with ?variant=d&showcase=1 to show one
+   variant cleanly); the staging page without the flag keeps it */
+const hideSwitch = new URLSearchParams(window.location.search).get('showcase') === '1';
+
 export function VariantSwitch() {
   const v = useVariant();
+  if (hideSwitch) return null;
   return (
     <div className="hm-variant-switch" role="group" aria-label="Page variant">
       <span className="hm-variant-label">Variant</span>
