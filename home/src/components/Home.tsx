@@ -59,6 +59,7 @@ function CrawlTile({ c, dupe }: { c: ShowcaseCard; dupe: boolean }) {
     <a className="hm-crawl-tile" href={c.url} target="_blank" rel="noopener" tabIndex={dupe ? -1 : undefined} aria-hidden={dupe ? true : undefined} aria-label={dupe ? undefined : `Open ${c.prompt} in Bolt`}>
       <img src={c.shot} alt="" loading="lazy" decoding="async" />
       <span className="hm-crawl-cap">{c.prompt}</span>
+      <span className="hm-crawl-open" aria-hidden="true"><span>Open in Bolt</span></span>
     </a>
   );
 }
@@ -66,7 +67,8 @@ function CrawlTile({ c, dupe }: { c: ShowcaseCard; dupe: boolean }) {
 export function Showcase() {
   const variant = useVariant();
   if (variant === 'c') {
-    const all = [...showcase.rowA, ...showcase.rowB];
+    /* 8 sites = two even rows of 4 (Gary: "if they don't split evenly take out any") */
+    const all = [...showcase.rowA.slice(0, 4), ...showcase.rowB.slice(0, 4)];
     /* four copies: the frame always has rows below the window, so the stream never runs dry */
     const loop = [...all, ...all, ...all, ...all];
     return (
