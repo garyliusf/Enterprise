@@ -84,8 +84,7 @@ function CrawlTile({ c, dupe, onEnter }: { c: ShowcaseCard; dupe: boolean; onEnt
   );
 }
 /* hover = the templates page's bottom action bar (Gary, replacing the flip-up
-   card): a middle-row tile — fully in view, not in the horizon fade or cut by
-   the bottom edge — selects itself into a bar along the bottom of the wall
+   card): any tile selects itself into a bar along the bottom of the wall
    (thumb, prompt, meta, Preview + Open in Bolt). The wall pauses only while
    the pointer is ON a tile or the bar; the bar stays until another tile is
    picked or the pointer leaves the section. */
@@ -95,11 +94,9 @@ function CrawlWall({ all }: { all: ShowcaseCard[] }) {
   const [sel, setSel] = useState<ShowcaseCard | null>(null);
   const [hold, setHold] = useState(false);
   const onEnter = (c: ShowcaseCard, el: HTMLElement) => {
-    const w = wrap.current;
-    if (!w) return;
-    const wr = w.getBoundingClientRect(), r = el.getBoundingClientRect();
-    const inView = r.top + r.height / 2 >= wr.top + wr.height * 0.4 && r.bottom <= wr.bottom - 8;
-    if (!inView) { setHold(false); return; }
+    /* every tile answers now (Gary): the bar, not the tile, carries the
+       readable copy, so far or cut-off tiles are fine to pick */
+    void el;
     setHold(true);
     if (sel !== c) setSel(c);
   };
