@@ -11,34 +11,6 @@ import { useVariant } from './VariantSwitch';
    Each row is duplicated so the drift loops seamlessly; it pauses on hover. */
 function ShowcaseRow({ cards, reverse = false }: { cards: ShowcaseCard[]; reverse?: boolean }) {
   const loop = [...cards, ...cards];
-  const variant = useVariant();
-  /* VARIANT C (review): the prompt as a chat bubble, the site it built in a
-     small browser window that scrolls the full-page capture on hover */
-  if (variant === 'c') {
-    return (
-      <div className={`hm-show-row hm-show-row--c${reverse ? ' hm-show-row--rev' : ''}`}>
-        <div className="hm-show-track">
-          {loop.map((c, i) => {
-            const dupe = i >= cards.length;
-            const host = c.preview ? new URL(c.preview).host : 'your-site.bolt.host';
-            return (
-              <div key={i} className="hm-showc" aria-hidden={dupe ? true : undefined}>
-                <div className="hm-showc-ask">
-                  <span className="hm-showc-who">You</span>
-                  <p className="hm-showc-prompt">{c.prompt}</p>
-                </div>
-                <a className="hm-showc-browser" href={c.url} target="_blank" rel="noopener" tabIndex={-1} aria-hidden="true">
-                  <span className="hm-showc-bar"><i /><i /><i /><span className="hm-showc-url">{host}</span></span>
-                  <span className="hm-showc-view"><img src={c.shot} alt="" loading="lazy" decoding="async" /></span>
-                </a>
-                <CardActions open={c.url} preview={c.preview} label={c.prompt} tabIndex={dupe ? -1 : undefined} />
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    );
-  }
   return (
     <div className={`hm-show-row${reverse ? ' hm-show-row--rev' : ''}`}>
       <div className="hm-show-track">
@@ -78,7 +50,37 @@ function CardActions({ open, preview, label, tabIndex }: { open: string; preview
   );
 }
 
+/* VARIANT C (review): the showcase as a still grid instead of two drifting
+   rows (Gary: "another way to visually show the templates … grid?"). Each tile
+   is just the site (its full-page capture scrolls on hover), the prompt and a
+   text link — the bubble/browser-chrome card was "way too complicated". */
+function ShowcaseTile({ c }: { c: ShowcaseCard }) {
+  return (
+    <li className="hm-showc">
+      <a className="hm-showc-view" href={c.url} target="_blank" rel="noopener" tabIndex={-1} aria-hidden="true">
+        <img src={c.shot} alt="" loading="lazy" decoding="async" />
+      </a>
+      <p className="hm-showc-prompt">{c.prompt}</p>
+      <a className="hm-showc-link" href={c.url} target="_blank" rel="noopener" aria-label={`Open ${c.prompt} in Bolt`}>
+        Open in Bolt
+        <svg width="14" height="12" viewBox="0 0 16 14" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M1 7h13M9 2l5 5-5 5" /></svg>
+      </a>
+    </li>
+  );
+}
+
 export function Showcase() {
+  const variant = useVariant();
+  if (variant === 'c') {
+    const tiles = [...showcase.rowA.slice(0, 4), ...showcase.rowB.slice(0, 4)];
+    return (
+      <section className="hm-showcase hm-showcase--grid" aria-label="Apps built on Bolt">
+        <div className="fw-inner">
+          <ul className="hm-showgrid">{tiles.map((c) => <ShowcaseTile key={c.prompt} c={c} />)}</ul>
+        </div>
+      </section>
+    );
+  }
   return (
     <section className="hm-showcase" aria-label="Apps built on Bolt">
       <ShowcaseRow cards={showcase.rowA} />
