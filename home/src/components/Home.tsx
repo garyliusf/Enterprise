@@ -100,6 +100,15 @@ function CrawlWall({ all }: { all: ShowcaseCard[] }) {
   const keep = () => window.clearTimeout(hideT.current);
   const hideSoon = () => { keep(); hideT.current = window.setTimeout(() => { setHold(false); setSel(null); }, 700); };
   useEffect(() => keep, []);
+  /* scrolled out of the section → the bar fades away (Gary); a pointer that
+     doesn't move while the page scrolls never fires mouseleave */
+  useEffect(() => {
+    const w = wrap.current;
+    if (!w) return;
+    const io = new IntersectionObserver(([e]) => { if (e.intersectionRatio < 0.2) { keep(); setHold(false); setSel(null); } }, { threshold: [0, 0.2] });
+    io.observe(w);
+    return () => io.disconnect();
+  }, []);
   const onEnter = (c: ShowcaseCard, el: HTMLElement) => {
     keep();
     /* every tile answers now (Gary): the bar, not the tile, carries the
