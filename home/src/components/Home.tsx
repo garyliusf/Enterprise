@@ -40,12 +40,17 @@ function ShowcaseRow({ cards, reverse = false }: { cards: ShowcaseCard[]; revers
    OFF since 2026-10-20 (Gary): every template-*.bolt.host site is down (no
    site at the name, last seen up 2026-08-28). The URLs stay in home.ts; flip
    this back to true once they are republished. */
-const SHOW_PREVIEW = false;
+const SHOW_PREVIEW = true; // back on 2026-10-21: the template-*.bolt.host sites answer 200 again
 function CardActions({ open, preview, label, tabIndex }: { open: string; preview?: string; label: string; tabIndex?: number }) {
   return (
     <span className="hm-card-actions">
       <a className="hm-card-cta" href={open} target="_blank" rel="noopener" tabIndex={tabIndex} aria-label={`Open ${label} in Bolt`}>Open in Bolt</a>
-      {SHOW_PREVIEW && preview && <a className="hm-card-demo" href={preview} target="_blank" rel="noopener" tabIndex={tabIndex} aria-label={`Preview ${label}`}>Preview</a>}
+      {SHOW_PREVIEW && preview && (
+        <a className="hm-card-demo" href={preview} target="_blank" rel="noopener" tabIndex={tabIndex} aria-label={`Preview ${label}`}>
+          <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z" /></svg>
+          Preview
+        </a>
+      )}
     </span>
   );
 }
@@ -430,9 +435,50 @@ function useTemplateRail() {
       let v = -vel * 16;
       if (Math.abs(v) < 2) { stop(); return; }
       const max = track.scrollWidth - track.clientWidth;
-      const glide = () => { track.scrollLeft += v; v *= 0.94; if (Math.abs(v) < 0.4 || track.scrollLeft <= 0 || track.scrollLeft >= max) { stop(); return; } momentum = requestAnimationFrame(glide); };
+      const glide = () => { track.scrollLeft += v; v *= 0.94; if (Math.abs(v) < 0.4 || track.scrollLeft >= max) { stop(); pos = track.scrollLeft; return; } momentum = requestAnimationFrame(glide); };
       glide();
     };
+    /* slow auto-drift to the left (Gary), paused while hovered, dragged,
+       touched or off screen. The items are rendered twice; crossing one set's
+       width wraps by exactly that width, so it loops forever in both directions */
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const SPEED = 0.03; // px per ms ≈ 30px/s
+    const base = track.scrollLeft;
+    const setW = () => {
+      const cards = track.querySelectorAll<HTMLElement>('.hm-tr-card');
+      const half = cards.length / 2;
+      return half >= 1 ? cards[half].offsetLeft - cards[0].offsetLeft : 0;
+    };
+    let pos = track.scrollLeft, hovered = false, touchHold = 0, visible = false, raf = 0, last = 0, ours = false;
+    const wrapPos = () => {
+      const w = setW();
+      if (!w) return;
+      if (track.scrollLeft >= base + w) { ours = true; track.scrollLeft -= w; }
+      else if (track.scrollLeft < base - 1) { ours = true; track.scrollLeft += w; }
+    };
+    const onScrollSync = () => { if (ours) { ours = false; } else { pos = track.scrollLeft; } wrapPos(); };
+    track.addEventListener('scroll', onScrollSync, { passive: true });
+    const tick = (t: number) => {
+      raf = requestAnimationFrame(tick);
+      const dt = last ? Math.min(t - last, 50) : 0;
+      last = t;
+      if (reduce || hovered || down || momentum || touchHold || !visible) return;
+      pos += SPEED * dt;
+      ours = true;
+      track.scrollLeft = pos;
+      if (Math.abs(track.scrollLeft - pos) > 2) pos = track.scrollLeft; // wrapped
+    };
+    raf = requestAnimationFrame(tick);
+    const onEnter = () => { hovered = true; };
+    const onLeave = () => { hovered = false; pos = track.scrollLeft; };
+    const onTouchStart = () => { window.clearTimeout(touchHold); touchHold = window.setTimeout(() => {}, 1e9); };
+    const onTouchEnd = () => { window.clearTimeout(touchHold); touchHold = window.setTimeout(() => { touchHold = 0; pos = track.scrollLeft; }, 2500); };
+    track.addEventListener('mouseenter', onEnter);
+    track.addEventListener('mouseleave', onLeave);
+    track.addEventListener('touchstart', onTouchStart, { passive: true });
+    track.addEventListener('touchend', onTouchEnd, { passive: true });
+    const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; last = 0; });
+    io.observe(track);
     const onClick = (e: MouseEvent) => { if (moved > 6) { e.preventDefault(); e.stopPropagation(); } };
     const noGhost = (e: Event) => e.preventDefault();
     track.addEventListener('pointerdown', onDown);
@@ -446,6 +492,10 @@ function useTemplateRail() {
       track.removeEventListener('pointerdown', onDown); track.removeEventListener('pointermove', onMove);
       track.removeEventListener('pointerup', onUp); track.removeEventListener('pointercancel', onUp);
       track.removeEventListener('click', onClick, true); stop();
+      cancelAnimationFrame(raf); io.disconnect(); window.clearTimeout(touchHold);
+      track.removeEventListener('scroll', onScrollSync);
+      track.removeEventListener('mouseenter', onEnter); track.removeEventListener('mouseleave', onLeave);
+      track.removeEventListener('touchstart', onTouchStart); track.removeEventListener('touchend', onTouchEnd);
     };
   }, []);
   return rail;
@@ -459,8 +509,10 @@ export function TemplatesHome() {
         <SectionHeader center eyebrow={templatesHome.eyebrow} title={templatesHome.title} subtitle={templatesHome.subtitle} />
         <div className="hm-tr" ref={rail}>
           <div className="hm-tr-track">
-            {templatesHome.items.map((t) => (
-              <article key={t.name} className="hm-tr-card">
+            {[...templatesHome.items, ...templatesHome.items].map((t, i) => {
+              const dupe = i >= templatesHome.items.length;
+              return (
+              <article key={i} className="hm-tr-card" aria-hidden={dupe ? true : undefined}>
                 <a className="hm-tr-preview" href={(SHOW_PREVIEW && t.preview) || t.url} target="_blank" rel="noopener" tabIndex={-1}>
                   <img className="hm-tr-shot" src={t.shot} alt={`${t.name} template`} width={t.w ?? 800} height={t.h ?? 2245} loading="lazy" decoding="async" />
                   <span className="hm-tr-overlay" aria-hidden="true"><span>{SHOW_PREVIEW && t.preview ? 'Preview' : 'Open in Bolt'}</span></span>
@@ -471,7 +523,8 @@ export function TemplatesHome() {
                 </span>
                 <CardActions open={t.url} preview={t.preview} label={t.name} />
               </article>
-            ))}
+            );
+            })}
           </div>
         </div>
         <div className="hm-more-row">
