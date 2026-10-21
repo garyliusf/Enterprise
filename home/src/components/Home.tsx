@@ -83,8 +83,9 @@ function CrawlTile({ c, dupe }: { c: ShowcaseCard; dupe: boolean }) {
 export function Showcase() {
   const variant = useVariant();
   if (variant === 'c') {
-    /* 8 sites = two even rows of 4 (Gary: "if they don't split evenly take out any") */
-    const all = [...showcase.rowA.slice(0, 4), ...showcase.rowB.slice(0, 4)];
+    /* 9 sites = three even rows of 3 (Gary: 3 across, bigger; "if they don't split
+       evenly take out any" — construction is the one left out) */
+    const all = [...showcase.rowA, ...showcase.rowB.slice(0, 4)];
     /* four copies: the frame always has rows below the window, so the stream never runs dry */
     const loop = [...all, ...all, ...all, ...all];
     return (
