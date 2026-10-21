@@ -434,13 +434,24 @@ export function Platform() {
 }
 
 /* ── Enterprise band: logos, a tiled feature grid, the 1:1 panel ─────── */
+/* the standard marketing icon set (Feather / Lucide outline: 24 grid, 1.5
+   stroke, round caps — the _template / use-case unlock cards), drawn at 20px */
+const Fi = ({ children }: { children: React.ReactNode }) => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">{children}</svg>
+);
 const entIcons: Record<string, React.ReactNode> = {
-  key: <svg viewBox="0 0 20 20"><circle cx="7" cy="10" r="3.5" fill="none" stroke="currentColor" strokeWidth="1.5" /><path d="M10.5 10H17M14.5 10v2.5M17 10v2" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>,
-  list: <svg viewBox="0 0 20 20"><path d="M7 5.5h9M7 10h9M7 14.5h9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /><circle cx="4" cy="5.5" r="1" fill="currentColor" /><circle cx="4" cy="10" r="1" fill="currentColor" /><circle cx="4" cy="14.5" r="1" fill="currentColor" /></svg>,
-  shield: <svg viewBox="0 0 20 20"><path d="M10 2.2l6.2 2.3v5c0 4-2.6 6.8-6.2 8.3-3.6-1.5-6.2-4.3-6.2-8.3v-5L10 2.2z" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /><path d="M7.4 10l1.8 1.8 3.4-3.6" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>,
-  cloud: <svg viewBox="0 0 20 20"><path d="M6 15.5a3.5 3.5 0 0 1-.4-7 4.5 4.5 0 0 1 8.7 1.2A2.9 2.9 0 0 1 14 15.5H6z" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /></svg>,
-  users: <svg viewBox="0 0 20 20"><circle cx="8" cy="7" r="2.8" fill="none" stroke="currentColor" strokeWidth="1.5" /><path d="M3 16a5 5 0 0 1 10 0" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /><path d="M13.5 9.5a2.5 2.5 0 1 0-1.2-4.7M14 12.2a4 4 0 0 1 3 3.8" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>,
-  chat: <svg viewBox="0 0 20 20"><path d="M4 4.5h12A1.5 1.5 0 0 1 17.5 6v6a1.5 1.5 0 0 1-1.5 1.5H9l-4 3v-3H4A1.5 1.5 0 0 1 2.5 12V6A1.5 1.5 0 0 1 4 4.5z" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /></svg>,
+  key: <Fi><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" /></Fi>,
+  list: <Fi><line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" /><line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" /></Fi>,
+  shield: <Fi><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><path d="M9 12l2 2 4-4" /></Fi>,
+  cloud: <Fi><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" /></Fi>,
+  users: <Fi><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></Fi>,
+  chat: <Fi><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></Fi>,
+};
+/* card flashlight (solutions.html / smb standard): a soft glow follows the cursor */
+const flashlight = (e: React.MouseEvent<HTMLElement>) => {
+  const el = e.currentTarget, r = el.getBoundingClientRect();
+  el.style.setProperty('--mx', `${e.clientX - r.left}px`);
+  el.style.setProperty('--my', `${e.clientY - r.top}px`);
 };
 export function Enterprise() {
   return (
@@ -458,7 +469,7 @@ export function Enterprise() {
         <div className="hm-ent-layout">
           <ul className="hm-ent-grid">
             {enterprise.features.map((f, i) => (
-              <li key={f.title} className="hm-ent-cell">
+              <li key={f.title} className="hm-ent-cell" onMouseMove={flashlight}>
                 <HoverField index={i} />
                 <span className="hm-ent-num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
                 <span className="hm-ent-ic">{entIcons[f.icon]}</span>
