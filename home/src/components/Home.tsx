@@ -84,71 +84,93 @@ function CrawlTile({ c, dupe, onHover }: { c: ShowcaseCard; dupe: boolean; onHov
     </div>
   );
 }
-/* hover actions float right under the cursor (Gary, replacing the sticky
-   bottom bar). Anti-flicker rules: hiding waits 300ms (the 28px gaps between
-   tiles and the hop down onto the row never hide it); the wall stays paused
-   the whole time the row is up (a moving wall slid tiles under a still cursor
-   and looped show/hide); switching to another tile waits for a 160ms rest and
-   GLIDES the row there instead of remounting it; on the same tile it never
-   moves (re-anchoring within a tile read as jumping). */
-type CrawlFloat = { c: ShowcaseCard; x: number; y: number } | null;
+/* hover actions float under the cursor (Gary). The row FOLLOWS the pointer
+   with an eased glide (rAF lerp, transform only — no React render per frame)
+   while it's on a card and swaps to the next card the moment it enters it.
+   Moving DOWN toward the row freezes it, so the hop onto its buttons is a
+   short, steady move. Hiding waits 300ms so the gaps between cards never
+   blink it, and the wall stays paused while it's up. */
 function CrawlWall({ all }: { all: ShowcaseCard[] }) {
   const loop = [...all, ...all, ...all, ...all];
   const wrap = useRef<HTMLDivElement>(null);
-  const [fl, setFl] = useState<CrawlFloat>(null);
-  const flRef = useRef<CrawlFloat>(null);
-  flRef.current = fl;
+  const row = useRef<HTMLDivElement>(null);
+  const [c, setC] = useState<ShowcaseCard | null>(null);
+  const st = useRef({ tx: 0, ty: 0, x: 0, y: 0, raf: 0, onRow: false, lastX: 0, lastY: 0, shown: false, locked: false, lockY: 0 });
   const hideT = useRef<number>(0);
-  const moveT = useRef<number>(0);
-  const onRow = useRef(false);
-  const clear = () => { window.clearTimeout(hideT.current); window.clearTimeout(moveT.current); };
-  useEffect(() => clear, []);
-  const at = (c: ShowcaseCard, cx: number, cy: number): CrawlFloat => {
-    const r = wrap.current!.getBoundingClientRect();
-    return { c, x: Math.min(Math.max(cx - r.left, 150), r.width - 150), y: cy - r.top + 14 };
+  const tick = () => {
+    const s = st.current, el = row.current;
+    s.raf = 0;
+    if (!el) return;
+    s.x += (s.tx - s.x) * 0.2; s.y += (s.ty - s.y) * 0.2;
+    el.style.transform = `translate3d(${s.x}px, ${s.y}px, 0) translateX(-50%)`;
+    if (Math.abs(s.tx - s.x) > 0.3 || Math.abs(s.ty - s.y) > 0.3) s.raf = requestAnimationFrame(tick);
+  };
+  const kick = () => { if (!st.current.raf) st.current.raf = requestAnimationFrame(tick); };
+  useEffect(() => () => { cancelAnimationFrame(st.current.raf); window.clearTimeout(hideT.current); }, []);
+  const target = (cx: number, cy: number, snap: boolean) => {
+    const w = wrap.current, s = st.current;
+    if (!w) return;
+    const r = w.getBoundingClientRect();
+    s.tx = Math.min(Math.max(cx - r.left, 190), r.width - 190);
+    s.ty = cy - r.top + 16;
+    if (snap) { s.x = s.tx; s.y = s.ty; }
+    kick();
+  };
+  const onHover = (card: ShowcaseCard, e: React.MouseEvent<HTMLElement>) => {
+    const s = st.current;
+    if (s.onRow) return;
+    window.clearTimeout(hideT.current);
+    const dy = e.clientY - s.lastY;
+    s.lastX = e.clientX; s.lastY = e.clientY;
+    const first = !s.shown;
+    const switched = c !== card;
+    if (switched) { setC(card); s.locked = false; }
+    s.shown = true;
+    /* heading DOWN toward the row locks it in place (any direction after
+       that, e.g. right to Preview, can't drag it away); moving back UP 14px
+       or onto another card releases it */
+    if (!first && !switched) {
+      if (!s.locked && dy > 0) { s.locked = true; s.lockY = e.clientY; }
+      if (s.locked && e.clientY < s.lockY - 14) s.locked = false;
+      if (s.locked) return;
+    }
+    target(e.clientX, e.clientY, first);
   };
   const hideSoon = () => {
     window.clearTimeout(hideT.current);
-    hideT.current = window.setTimeout(() => { if (!onRow.current) setFl(null); }, 300);
-  };
-  const onHover = (c: ShowcaseCard, e: React.MouseEvent<HTMLElement>) => {
-    if (onRow.current || !wrap.current) return;
-    window.clearTimeout(hideT.current);
-    const { clientX, clientY } = e;
-    const cur = flRef.current;
-    if (!cur) { setFl(at(c, clientX, clientY)); return; }
-    if (cur.c === c) { window.clearTimeout(moveT.current); return; } // same card: the row never moves
-    window.clearTimeout(moveT.current);
-    moveT.current = window.setTimeout(() => { if (!onRow.current) setFl(at(c, clientX, clientY)); }, 160);
+    hideT.current = window.setTimeout(() => { if (!st.current.onRow) { st.current.shown = false; st.current.locked = false; setC(null); } }, 300);
   };
   return (
     <div
-      className={`hm-crawl-wrap${fl ? ' is-popped' : ''}`}
+      className={`hm-crawl-wrap${c ? ' is-popped' : ''}`}
       ref={wrap}
-      onMouseMove={(e) => { const el = e.target as HTMLElement; if (!el.closest('.hm-crawl-tile, .hm-crawl-float')) hideSoon(); }}
-      onMouseLeave={() => { onRow.current = false; window.clearTimeout(moveT.current); hideSoon(); }}
+      onMouseMove={(e) => { if (!(e.target as HTMLElement).closest('.hm-crawl-tile, .hm-crawl-float')) hideSoon(); }}
+      onMouseLeave={() => { st.current.onRow = false; hideSoon(); }}
     >
       <div className="hm-crawl">
         <div className="hm-crawl-plane">
-          <div className="hm-crawl-track">{loop.map((c, i) => <CrawlTile key={i} c={c} dupe={i >= all.length} onHover={onHover} />)}</div>
+          <div className="hm-crawl-track">{loop.map((card, i) => <CrawlTile key={i} c={card} dupe={i >= all.length} onHover={onHover} />)}</div>
         </div>
       </div>
-      {fl && (
-        <div
-          className="hm-crawl-float"
-          style={{ left: fl.x, top: fl.y }}
-          onMouseEnter={() => { onRow.current = true; clear(); }}
-          onMouseLeave={() => { onRow.current = false; }}
-        >
-          {/* which project this row belongs to (Gary): a small thumb of its site */}
-          <span className="hm-crawl-float-thumb" aria-hidden="true"><img src={fl.c.shot} alt="" /></span>
-          <span className="hm-crawl-float-copy">
-            <span className="hm-crawl-float-name">{fl.c.name ?? fl.c.prompt}</span>
-            {fl.c.tag && <span className="hm-crawl-float-tag">{fl.c.tag}</span>}
-          </span>
-          <CrawlActions c={fl.c} />
-        </div>
-      )}
+      <div
+        ref={row}
+        className={`hm-crawl-float${c ? ' is-on' : ''}`}
+        aria-hidden={c ? undefined : true}
+        onMouseEnter={() => { st.current.onRow = true; window.clearTimeout(hideT.current); }}
+        onMouseLeave={() => { st.current.onRow = false; }}
+      >
+        {c && (
+          <>
+            {/* which project this row belongs to (Gary): thumb, title, category */}
+            <span className="hm-crawl-float-thumb" aria-hidden="true"><img src={c.shot} alt="" /></span>
+            <span className="hm-crawl-float-copy">
+              <span className="hm-crawl-float-name">{c.name ?? c.prompt}</span>
+              {c.tag && <span className="hm-crawl-float-tag">{c.tag}</span>}
+            </span>
+            <CrawlActions c={c} />
+          </>
+        )}
+      </div>
     </div>
   );
 }
