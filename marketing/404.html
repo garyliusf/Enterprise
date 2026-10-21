@@ -1,0 +1,1193 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<script>if (window.self !== window.top) { try { document.documentElement.classList.add('sc-embedded'); } catch (e) {} }</script>
+<!-- Theme resolution. Light is the site default; a visitor whose OS is set to
+     dark gets dark. The attribute is ALWAYS stamped (never absent) so the
+     ported production chrome rules — which key on html[data-theme='light'] —
+     match verbatim. Runs before paint to avoid a flash; with JS off the
+     document keeps the data-theme="light" it ships with. -->
+<script>
+(function () {
+  var root = document.documentElement, stored = null;
+  try { stored = localStorage.getItem('sc-theme'); } catch (e) {}
+  try { var q = new URLSearchParams(location.search).get('theme'); if ((q === 'light' || q === 'dark') && window.self !== window.top) { stored = q; root.setAttribute('data-theme-locked', q); } } catch (e) {}
+  var t = stored || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  root.setAttribute('data-theme', t);
+  if (!stored && window.matchMedia) {
+    var mq = window.matchMedia('(prefers-color-scheme: dark)');
+    var onSys = function (e) {
+      var s = null; try { s = localStorage.getItem('sc-theme'); } catch (err) {}
+      if (s) return;                                  /* explicit choice wins */
+      if (root.getAttribute('data-theme-locked')) return;
+      root.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+      document.dispatchEvent(new CustomEvent('sc-themechange'));
+    };
+    if (mq.addEventListener) mq.addEventListener('change', onSys);
+    else if (mq.addListener) mq.addListener(onSys);
+  }
+})();
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page Not Found — Bolt</title>
+<meta name="description" content="This page doesn't exist yet. Find your way to Bolt use cases, templates, solutions, the blog and the Help Center, or describe the page and build it.">
+<!-- a 404 is never indexed; production must also answer with HTTP 404 (no redirect) -->
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400..900;1,400..900&family=Literata:ital,opsz,wght@0,7..72,200..900;1,7..72,200..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared-components.css?v=20261002c">
+<style>
+/* ═══ 404 — "This page hasn't been built yet" ══════════════════════════════
+   Navigational 404 (brief: keep the session alive instead of bouncing to the
+   home page). Fun = the dot-matrix 404 the cursor scatters; informative = the
+   "did you mean" guess + the destinations grid. Hero = the family recipe
+   (light dome + ordered dither / black + pale dither); cards = the
+   compliance-card treatment (hairline, blue hover border, rotating dot field,
+   numbered corner label). nf- prefix throughout so nothing collides with
+   shared-components.css. */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--sc-ground, #000); color: var(--sc-ink, #fff); font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif); overflow-x: hidden; overflow-x: clip; -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+/* ─── HERO ─────────────────────────────────────────────────────────────── */
+.nf-hero {
+  position: relative; overflow: hidden;
+  padding: calc(clamp(90px, calc(24px + 8.5vh), 148px) + var(--sc-nav-overlap, 0px)) 0 clamp(72px, 9vh, 120px);
+  background: #000;
+}
+/* LIGHT: the family's linear dome, with the stops pushed down — this stack
+   (404 art + 2-line H1 + subtitle + prompt) is taller than the family hero, so
+   the white subtitle needs the ramp to stay blue until the prompt box. */
+html[data-theme="light"] .nf-hero {
+  background:
+    linear-gradient(180deg,
+      #021a57 0%, #04246c 12%, #072f86 24%, #0a3f9e 36%,
+      #1259c3 50%, #2a6fca 60%, #4f93d4 69%, #8fbbe2 77%,
+      #c4dbef 84%, #e6eff7 90%, #f7f9fc 95%, #fff 100%),
+    #fff;
+}
+html[data-theme="dark"] .nf-hero::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 120px; z-index: 1; pointer-events: none;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, #000 100%);
+}
+.nf-hero .hero-dither {
+  position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none;
+  -webkit-mask-image: linear-gradient(180deg, #000 55%, rgba(0,0,0,0) 92%);
+          mask-image: linear-gradient(180deg, #000 55%, rgba(0,0,0,0) 92%);
+}
+.nf-hero-inner {
+  position: relative; z-index: 2;
+  width: min(820px, calc(100vw - 160px)); margin: 0 auto;
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+}
+
+/* the dot-matrix 404 — a canvas the cursor scatters; the real text is sr-only */
+.nf-art { position: relative; width: min(500px, 100%); aspect-ratio: 500 / 184; margin-bottom: 28px; cursor: crosshair; }
+.nf-art canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.nf-art-hint {
+  position: absolute; right: 8%; bottom: -14px;
+  font-family: var(--sc-font-label, var(--sc-font-sans)); font-size: 11px; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.55);
+  white-space: nowrap; pointer-events: none; transition: opacity 0.4s ease;
+}
+.nf-art-hint::before { content: "\2196\00a0"; letter-spacing: 0; }
+.nf-art.is-poked .nf-art-hint { opacity: 0; }
+
+.nf-h1 { font-size: 66px; font-weight: 500; line-height: 1.1; letter-spacing: normal; color: #fff; margin: 0; text-wrap: balance; }
+.nf-sub { margin-top: 20px; max-width: 620px; font-size: clamp(16px, 1.4vw, 20px); line-height: 1.4; color: rgba(255,255,255,0.94); text-wrap: pretty; }
+html[data-theme="dark"] .nf-sub { color: #ABABAB; }
+.nf-path {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.88em;
+  padding: 1px 7px; border-radius: 2px; background: rgba(255,255,255,0.14); color: #fff;
+  overflow-wrap: anywhere;
+}
+/* "did you mean" — only shown when the URL is close to a real route */
+.nf-dym {
+  margin-top: 16px; display: inline-block;
+  padding: 7px 14px; border-radius: 999px; font-size: 14px; color: rgba(255,255,255,0.86);
+  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.16);
+}
+.nf-dym[hidden] { display: none; }
+.nf-dym a { color: #fff; font-weight: 700; margin-left: 2px; overflow-wrap: anywhere; }
+.nf-dym a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+/* prompt box — the footer prompt shell from use-cases, sized for the hero */
+.nf-prompt { width: min(640px, 100%); margin-top: 32px; text-align: left; }
+.nf-dym:not([hidden]) + .nf-prompt { margin-top: 28px; }
+.nf-prompt .re-prompt-shell {
+  width: 100%; border: 1px solid rgba(255,255,255,0.10); border-radius: 16px;
+  background: rgba(28,28,32,0.92); overflow: hidden;
+  box-shadow: 0 20px 48px rgba(0,0,0,0.38);
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+.nf-prompt .re-prompt-shell:focus-within { border-color: #1488FC; box-shadow: 0 0 0 1px #1488FC, 0 20px 48px rgba(0,0,0,0.38); }
+html[data-theme="light"] .nf-prompt .re-prompt-shell { background: #fff; border-color: rgba(10,12,20,0.06); box-shadow: 0 18px 44px rgba(2,26,87,0.22); }
+html[data-theme="light"] .nf-prompt .re-prompt-shell:focus-within { border-color: #1488FC; box-shadow: 0 0 0 1px #1488FC, 0 18px 44px rgba(2,26,87,0.22); }
+.nf-prompt .re-prompt-input {
+  display: block; width: 100%; min-height: 84px; max-height: 200px; resize: none; border: 0; background: transparent;
+  color: var(--sc-ink); font-size: 15px; line-height: 1.5; font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif);
+  padding: 20px 22px 6px; outline: none;
+}
+html[data-theme="dark"] .nf-prompt .re-prompt-input { color: #fff; }
+/* the hero copy sits in .sc-on-dark (white ink tokens); the light card is white,
+   so its text has to be pinned back to ink */
+html[data-theme="light"] .nf-prompt .re-prompt-input { color: #0a0a0a; }
+html[data-theme="light"] .nf-prompt .re-prompt-input::placeholder { color: rgba(10,12,20,0.4); }
+html[data-theme="light"] .nf-prompt-note { color: rgba(10,12,20,0.5); }
+html[data-theme="dark"] .nf-prompt-note { color: rgba(255,255,255,0.4); }
+.nf-prompt .re-prompt-input::placeholder { color: rgba(var(--sc-ink-rgb), 0.38); }
+.nf-prompt .re-prompt-input:focus::placeholder { color: transparent; }
+.nf-prompt .re-prompt-actions { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 14px 14px 22px; }
+.nf-prompt-note { font-size: 12.5px; color: var(--sc-text-faint); }
+.nf-prompt .re-prompt-submit {
+  min-height: 36px; padding: 0 16px; border-radius: 999px; border: 0; background: #1488FC; color: #fff;
+  font-size: 14px; font-weight: 500; font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif);
+  display: inline-flex; align-items: center; gap: 8px; cursor: pointer; flex: 0 0 auto;
+  transition: filter 180ms ease, transform 180ms ease;
+}
+.nf-prompt .re-prompt-submit svg { width: 16px; height: 16px; }
+.nf-prompt .re-prompt-submit:hover { filter: brightness(0.94); transform: translateY(-1px); }
+
+/* ─── DESTINATIONS ─────────────────────────────────────────────────────── */
+/* hero foot is white on white (light) / black on black (dark): one padding
+   unit at the seam, not two (adjacent-section seam rule) */
+.nf-dest { padding: clamp(40px, 6vh, 72px) 0 0; }
+.nf-dest-inner { width: min(1200px, calc(100vw - 160px)); margin: 0 auto; }
+.nf-dest .section-header { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px; margin-bottom: 48px; }
+.nf-dest .section-sub { max-width: 560px; margin: 0; font-size: clamp(15px, 1.1vw, 17px); line-height: 1.65; color: var(--sc-text-muted); }
+
+.nf-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.nf-card {
+  position: relative; overflow: hidden; display: flex; flex-direction: column;
+  padding: 24px 24px 24px; border: 1px solid var(--sc-line); border-radius: 2px;
+  background:
+    linear-gradient(180deg, rgba(var(--sc-ink-rgb), 0.025) 0%, rgba(var(--sc-ink-rgb), 0) 55%),
+    var(--sc-surface);
+  transition: border-color 0.3s ease;
+  color: var(--sc-ink);
+}
+html[data-theme="dark"] .nf-card { background: linear-gradient(180deg, rgba(255,255,255,0.045) 0%, rgba(255,255,255,0.012) 34%, rgba(255,255,255,0) 62%), #09090b; }
+.nf-card:hover { border-color: rgba(20,136,252,0.45); }
+.nf-card--wide { grid-column: span 2; }
+.nf-card > *:not(.nf-field, .nf-num) { position: relative; z-index: 1; }
+.nf-field { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity 0.35s ease; z-index: 0; }
+.nf-card:hover .nf-field { opacity: 1; }
+.nf-num {
+  position: absolute; top: 20px; right: 22px; z-index: 1;
+  font-family: var(--sc-font-label, var(--sc-font-sans)); font-size: 12px; font-weight: 700; letter-spacing: 1.5px;
+  color: var(--sc-text-faint);
+}
+.nf-icon {
+  width: 44px; height: 44px; border-radius: 2px; display: grid; place-items: center; margin-bottom: 20px;
+  background: rgba(var(--sc-ink-rgb), 0.03); border: 1px solid var(--sc-icon-border); color: var(--sc-blue);
+}
+.nf-icon svg { width: 20px; height: 20px; }
+.nf-card-title { font-size: 18px; font-weight: 600; line-height: 1.35; letter-spacing: -0.2px; color: var(--sc-ink); }
+.nf-card-desc { margin-top: 8px; font-size: 14px; line-height: 1.55; color: var(--sc-text-desc); }
+.nf-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
+.nf-tags span { font-size: 12px; line-height: 1; padding: 6px 9px; border-radius: 2px; color: var(--sc-text-desc); background: rgba(var(--sc-ink-rgb), 0.04); border: 1px solid var(--sc-line-soft); }
+.nf-go {
+  margin-top: auto; padding-top: 24px; display: inline-flex; align-items: center; gap: 8px;
+  font-size: 14px; font-weight: 600; color: var(--sc-blue-ink);
+}
+/* the site's one arrow (thin shafted, 1.5px stroke) as a currentColor mask */
+.nf-arrow {
+  display: inline-block; width: 14px; height: 12px; flex: 0 0 auto; background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 14' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 7h13M9 2l5 5-5 5'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 14' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 7h13M9 2l5 5-5 5'/%3E%3C/svg%3E") center / contain no-repeat;
+  transition: transform 0.25s ease;
+}
+a.nf-card:hover .nf-go .nf-arrow, .nf-go:hover .nf-arrow, .nf-callout:hover .nf-arrow { transform: translateX(3px); }
+
+/* use-cases card: the two callouts the brief asks for, side by side */
+.nf-card--wide { padding-bottom: 24px; }
+.nf-callouts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+.nf-callout {
+  display: flex; flex-direction: column; gap: 6px; padding: 18px 18px 16px; border-radius: 2px;
+  border: 1px solid var(--sc-line); background: var(--sc-ground);
+  transition: border-color 0.25s ease, background-color 0.25s ease;
+}
+html[data-theme="dark"] .nf-callout { background: rgba(0,0,0,0.45); }
+.nf-callout:hover { border-color: rgba(20,136,252,0.45); background: var(--sc-hover-tint); }
+.nf-callout-label { font-family: var(--sc-font-label, var(--sc-font-sans)); font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--sc-blue-ink); }
+.nf-callout-title { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 16px; font-weight: 600; color: var(--sc-ink); }
+.nf-callout-title .nf-arrow { color: var(--sc-blue-ink); }
+.nf-callout-desc { font-size: 13.5px; line-height: 1.5; color: var(--sc-text-desc); }
+.nf-card--wide .nf-go { padding-top: 20px; }
+
+/* quick links under the grid — the long tail */
+.nf-quick { margin-top: 32px; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px 22px; font-size: 14px; color: var(--sc-text-muted); }
+.nf-quick a { color: var(--sc-blue-ink); font-weight: 500; }
+.nf-quick a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+/* wordmark (verbatim from use-cases) */
+.bolt-image-wrap { margin-top: 0; width: 100%; overflow: hidden; position: relative; height: 32vw; max-height: 32vw; isolation: isolate; background: var(--sc-ground); }
+.bolt-image-wrap img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; opacity: 0.20; }
+
+/* ─── TABLET ≤1024 ─────────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .nf-hero-inner { width: min(900px, calc(100vw - 80px)); }
+  .nf-h1 { font-size: 51px; }
+  .nf-sub { font-size: 18px; }
+  .nf-dest-inner { width: min(900px, calc(100vw - 80px)); }
+  .nf-dest .section-header { gap: 12px; }
+  .nf-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .nf-card--wide { grid-column: 1 / -1; }
+  .nf-art-hint { display: none; }
+}
+/* ─── PHONE ≤768 ───────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .nf-hero { padding: calc(100px + var(--sc-nav-overlap, 0px)) 0 56px; }
+  .nf-hero-inner { width: calc(100vw - 32px); }
+  .nf-art { width: min(330px, 92%); margin-bottom: 20px; }
+  .nf-h1 { font-size: clamp(37px, 10.45vw, 51px); }
+  .nf-sub { margin-top: 12px; font-size: 16px; }
+  .nf-prompt { margin-top: 24px; }
+  .nf-dym:not([hidden]) + .nf-prompt { margin-top: 24px; }
+  .nf-prompt-note { display: none; }
+  .nf-prompt .re-prompt-actions { justify-content: flex-end; }
+  .nf-dest-inner { width: calc(100vw - 32px); }
+  .nf-dest .section-header { gap: 8px; margin-bottom: 32px; }
+  .nf-dest .section-header .section-eyebrow { margin-bottom: 4px; }
+  .nf-grid { grid-template-columns: 1fr; gap: 12px; }
+  .nf-card--wide { grid-column: auto; }
+  .nf-callouts { grid-template-columns: 1fr; }
+  .bolt-image-wrap { height: 42vw; max-height: 42vw; }
+}
+@media (prefers-reduced-motion: reduce) { .nf-arrow, .nf-field { transition: none; } }
+</style>
+
+<link rel="stylesheet" href="shared-nav-footer.css?v=20261002e">
+</head>
+<body>
+
+<!-- ─── NAVBAR ────────────────────────────────────────────────────────────── -->
+<nav class="mkt-nav mkt-nav--over-hero" aria-label="Primary">
+  <div class="mkt-nav-inner">
+    <!-- Nav-bar Back button — only appears on mobile when a submenu is active (JS toggles .is-on-submenu on .mkt-nav). Replaces the logo in the same slot. -->
+    <button class="mkt-nav-back" data-mobile-back aria-label="Back to main menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+      Back
+    </button>
+    <a href="../" class="mkt-nav-logo" aria-label="bolt.new home">
+      <!-- Canonical bolt.new wordmark (from images/bolt-new.svg) — inlined so the nav renders without an extra network request. -->
+      <svg viewBox="0 0 85 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M26.1121 20.9491C21.0582 20.9491 18.4869 17.9995 18.4869 14.3126C18.4869 9.9472 21.9744 5.99476 27.0283 5.99476C32.0822 5.99476 34.6535 8.94434 34.6535 12.6313C34.6535 16.9967 31.166 20.9491 26.1121 20.9491ZM26.319 16.2593C28.0923 16.2593 29.2154 14.6665 29.2154 12.8968C29.2154 11.481 28.2992 10.6846 26.8214 10.6846C25.0481 10.6846 23.925 12.2774 23.925 14.0471C23.925 15.4629 24.8412 16.2593 26.319 16.2593Z" fill="#fff"/>
+        <path d="M40.0368 20.5952H34.717L39.0615 0.921487H44.3814L40.0368 20.5952Z" fill="#fff"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M10.4272 20.9491C8.80168 20.9491 7.20572 20.3592 6.28951 19.0909L5.96635 20.5867L0 23.75L0.644095 20.5867L4.9891 0.921487H10.309L8.77213 7.853C10.0134 6.49619 11.1661 5.99476 12.6438 5.99476C15.8358 5.99476 17.9637 8.08896 17.9637 11.9234C17.9637 15.8758 15.5107 20.9491 10.4272 20.9491ZM12.4665 13.0443C12.4665 14.873 11.1661 16.2593 9.48145 16.2593C8.53569 16.2593 7.6786 15.9053 7.11705 15.2859L7.94459 11.658C8.56524 11.0385 9.27456 10.6846 10.1021 10.6846C11.373 10.6846 12.4665 11.6285 12.4665 13.0443Z" fill="#fff"/>
+        <path d="M49.9163 20.9491C46.8426 20.9491 44.6555 19.8283 44.6555 17.3506C44.6555 17.1442 44.6851 16.6427 44.7737 16.2298L45.9264 10.9501H43.562L44.5964 6.34871H46.9608L47.8179 2.45527L53.7735 0L53.1378 2.46127L52.2807 6.34871H55.1771L54.1426 10.9501H51.2462L50.4778 14.4306C50.4187 14.696 50.3892 14.991 50.3892 15.109C50.3892 15.7874 50.8029 16.2593 51.7191 16.2593C51.9851 16.2593 52.3693 16.1708 52.458 16.1118V20.3592C51.8965 20.7427 50.8916 20.9491 49.9163 20.9491Z" fill="#fff"/>
+        <path d="M56.461 21.0087C55.7527 21.0087 55.1886 20.4196 55.1886 19.7127C55.1886 18.8879 55.897 18.1941 56.7234 18.1941C57.4317 18.1941 57.9958 18.7832 57.9958 19.4901C57.9958 20.3149 57.2875 21.0087 56.461 21.0087Z" fill="#fff"/>
+        <path d="M65.3576 20.8386H62.9964L63.7309 17.5133C63.7572 17.3955 63.8097 17.186 63.8097 17.0289C63.8097 16.5969 63.4292 16.4398 63.0488 16.4398C62.5372 16.4398 62.183 16.7016 61.9338 16.9242L61.068 20.8386H58.7068L60.1104 14.5153H62.4716L62.3011 15.2354C62.7602 14.8164 63.3374 14.3582 64.295 14.3582C65.6199 14.3582 66.3807 15.0783 66.3807 16.0209C66.3807 16.1256 66.3414 16.4136 66.3151 16.5314L65.3576 20.8386Z" fill="#fff"/>
+        <path d="M70.256 20.9956C68.2096 20.9956 66.7929 19.9745 66.7929 18.1155C66.7929 16.0994 68.3408 14.3582 70.5577 14.3582C72.1319 14.3582 73.5223 15.3139 73.5223 17.2384C73.5223 17.6704 73.4436 18.1679 73.3781 18.4035H69.1279V18.4166C69.1279 18.5083 69.5083 19.2021 70.4265 19.2021C70.925 19.2021 71.5153 19.0843 71.8039 18.8879L72.5254 20.4196C71.8826 20.8255 71.0169 20.9956 70.256 20.9956ZM69.3509 16.9111H71.4366V16.8718C71.4366 16.6885 71.2136 16.1518 70.4659 16.1518C69.8363 16.1518 69.4296 16.6362 69.3509 16.9111Z" fill="#fff"/>
+        <path d="M81.7599 20.8386H79.1888L78.9265 17.3038L77.1293 20.8386H74.5582L74.1254 14.5153H76.4866L76.5521 17.9977L78.4411 14.5153H80.5531L80.881 17.9977L82.4945 14.5153H85L81.7599 20.8386Z" fill="#fff"/>
+      </svg>
+    </a>
+
+    <ul class="mkt-nav-items">
+      <li data-menu="solutions">
+        <!-- Real link, not a button: clicking goes to the Solutions page, hovering
+             still opens the panel. The nav JS binds on '.mkt-nav-link[data-menu]'
+             (class + attribute, not tag), so the dropdown behaviour is unchanged. -->
+        <a href="https://garyliusf.github.io/Enterprise/marketing/solutions.html" class="mkt-nav-link" data-menu="solutions" aria-haspopup="true" aria-expanded="false">
+          Solutions
+          <svg class="mkt-nav-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </a>
+      </li>
+      <li data-menu="resources">
+        <button class="mkt-nav-link" data-menu="resources" aria-haspopup="true" aria-expanded="false">
+          Resources
+          <svg class="mkt-nav-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </li>
+      <li><a href="https://bolt.new/careers" class="mkt-nav-link">Careers</a></li>
+      <li><a href="pricing.html" class="mkt-nav-link">Pricing</a></li>
+    </ul>
+
+    <div class="mkt-nav-right">
+      <div class="mkt-nav-actions">
+        <a href="https://bolt.new/signin" class="mkt-nav-signin">Sign in</a>
+        <a href="https://bolt.new/" target="_blank" rel="noopener" class="mkt-nav-cta hero-btn-primary">
+          <div class="btn-bg-hover"></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Started</span><span>Get Started</span></div></div>
+        </a>
+      </div>
+      <button class="mkt-nav-burger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mega panels — one per top-level menu, JS toggles .is-open on the matching data-panel -->
+
+  <div class="mkt-nav-panel" data-panel="solutions" aria-hidden="true">
+    <div class="mkt-nav-panel-inner">
+      <a href="https://bolt.new/solutions/ai-for-small-business" class="mkt-nav-panel-feature">
+        <div class="mkt-nav-panel-feature-visual" aria-hidden="true"></div>
+        <p class="mkt-nav-panel-feature-eyebrow">Featured</p>
+        <p class="mkt-nav-panel-feature-title">AI for Small Business</p>
+        <p class="mkt-nav-panel-feature-desc">Custom apps for your business, built in an afternoon — no code, no developer, no $100K project.</p>
+      </a>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Top Use Cases</p>
+        <a href="https://bolt.new/use-cases/ai-app-builder">AI App Builder</a>
+        <a href="https://bolt.new/use-cases/ai-website-builder">AI Website Builder</a>
+        <a href="https://bolt.new/use-cases/custom-crm-software">SaaS Dev</a>
+        <a href="https://bolt.new/use-cases/ai-prototyping-tools">Prototyping</a>
+        <a href="https://bolt.new/use-cases">All Use Cases</a>
+      </div>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Business Type</p>
+        <a href="https://bolt.new/solutions/ai-for-entrepreneurs">Entrepreneurs</a>
+        <a href="https://bolt.new/solutions/ai-for-small-business">Small Business</a>
+        <a href="https://bolt.new/solutions/ai-for-agencies">Agencies</a>
+        <a href="https://bolt.new/enterprise">Enterprise</a>
+        <a href="https://bolt.new/solutions">All Solutions</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="mkt-nav-panel" data-panel="resources" aria-hidden="true">
+    <div class="mkt-nav-panel-inner">
+      <a href="https://bolt.new/resources/templates" class="mkt-nav-panel-feature">
+        <div class="mkt-nav-panel-feature-visual" aria-hidden="true"></div>
+        <p class="mkt-nav-panel-feature-eyebrow">Featured collection</p>
+        <p class="mkt-nav-panel-feature-title">Bolt Templates</p>
+        <p class="mkt-nav-panel-feature-desc">Production-ready starting points — dashboards, storefronts, portfolios, and more. Fork one and make it yours.</p>
+      </a>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Support</p>
+        <a href="https://discord.com/invite/stackblitz" target="_blank" rel="noopener">Community</a>
+        <a href="https://support.bolt.new/" target="_blank" rel="noopener">Help Center</a>
+        <a href="https://bolt.new/platform/security">Security &amp; Trust</a>
+      </div>
+      <div class="mkt-nav-panel-col">
+        <p class="mkt-nav-panel-heading">Build and Learn</p>
+        <a href="https://bolt.new/blog">Blog</a>
+        <a href="https://bolt.new/resources/templates">Templates</a>
+      </div>
+    </div>
+  </div>
+</nav>
+<div class="mkt-nav-scrim" aria-hidden="true"></div>
+
+<!-- Mobile drawer — full-screen slide-in sheet with drill-down. Only rendered on ≤1024px via CSS. -->
+<div class="mkt-nav-mobile" id="mkt-nav-mobile" aria-hidden="true" role="dialog" aria-label="Menu">
+  <div class="mkt-nav-mobile-header">
+    <!-- Left slot swaps: logo on home view, Back on submenu views. Both live in the DOM; JS toggles which is visible via a class on the drawer. -->
+    <a href="../" class="mkt-nav-logo" aria-label="bolt.new home" data-mobile-role="logo">
+      <svg viewBox="0 0 85 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M26.1121 20.9491C21.0582 20.9491 18.4869 17.9995 18.4869 14.3126C18.4869 9.9472 21.9744 5.99476 27.0283 5.99476C32.0822 5.99476 34.6535 8.94434 34.6535 12.6313C34.6535 16.9967 31.166 20.9491 26.1121 20.9491ZM26.319 16.2593C28.0923 16.2593 29.2154 14.6665 29.2154 12.8968C29.2154 11.481 28.2992 10.6846 26.8214 10.6846C25.0481 10.6846 23.925 12.2774 23.925 14.0471C23.925 15.4629 24.8412 16.2593 26.319 16.2593Z" fill="#fff"/>
+        <path d="M40.0368 20.5952H34.717L39.0615 0.921487H44.3814L40.0368 20.5952Z" fill="#fff"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M10.4272 20.9491C8.80168 20.9491 7.20572 20.3592 6.28951 19.0909L5.96635 20.5867L0 23.75L0.644095 20.5867L4.9891 0.921487H10.309L8.77213 7.853C10.0134 6.49619 11.1661 5.99476 12.6438 5.99476C15.8358 5.99476 17.9637 8.08896 17.9637 11.9234C17.9637 15.8758 15.5107 20.9491 10.4272 20.9491ZM12.4665 13.0443C12.4665 14.873 11.1661 16.2593 9.48145 16.2593C8.53569 16.2593 7.6786 15.9053 7.11705 15.2859L7.94459 11.658C8.56524 11.0385 9.27456 10.6846 10.1021 10.6846C11.373 10.6846 12.4665 11.6285 12.4665 13.0443Z" fill="#fff"/>
+        <path d="M49.9163 20.9491C46.8426 20.9491 44.6555 19.8283 44.6555 17.3506C44.6555 17.1442 44.6851 16.6427 44.7737 16.2298L45.9264 10.9501H43.562L44.5964 6.34871H46.9608L47.8179 2.45527L53.7735 0L53.1378 2.46127L52.2807 6.34871H55.1771L54.1426 10.9501H51.2462L50.4778 14.4306C50.4187 14.696 50.3892 14.991 50.3892 15.109C50.3892 15.7874 50.8029 16.2593 51.7191 16.2593C51.9851 16.2593 52.3693 16.1708 52.458 16.1118V20.3592C51.8965 20.7427 50.8916 20.9491 49.9163 20.9491Z" fill="#fff"/>
+        <path d="M56.461 21.0087C55.7527 21.0087 55.1886 20.4196 55.1886 19.7127C55.1886 18.8879 55.897 18.1941 56.7234 18.1941C57.4317 18.1941 57.9958 18.7832 57.9958 19.4901C57.9958 20.3149 57.2875 21.0087 56.461 21.0087Z" fill="#fff"/>
+        <path d="M65.3576 20.8386H62.9964L63.7309 17.5133C63.7572 17.3955 63.8097 17.186 63.8097 17.0289C63.8097 16.5969 63.4292 16.4398 63.0488 16.4398C62.5372 16.4398 62.183 16.7016 61.9338 16.9242L61.068 20.8386H58.7068L60.1104 14.5153H62.4716L62.3011 15.2354C62.7602 14.8164 63.3374 14.3582 64.295 14.3582C65.6199 14.3582 66.3807 15.0783 66.3807 16.0209C66.3807 16.1256 66.3414 16.4136 66.3151 16.5314L65.3576 20.8386Z" fill="#fff"/>
+        <path d="M70.256 20.9956C68.2096 20.9956 66.7929 19.9745 66.7929 18.1155C66.7929 16.0994 68.3408 14.3582 70.5577 14.3582C72.1319 14.3582 73.5223 15.3139 73.5223 17.2384C73.5223 17.6704 73.4436 18.1679 73.3781 18.4035H69.1279V18.4166C69.1279 18.5083 69.5083 19.2021 70.4265 19.2021C70.925 19.2021 71.5153 19.0843 71.8039 18.8879L72.5254 20.4196C71.8826 20.8255 71.0169 20.9956 70.256 20.9956ZM69.3509 16.9111H71.4366V16.8718C71.4366 16.6885 71.2136 16.1518 70.4659 16.1518C69.8363 16.1518 69.4296 16.6362 69.3509 16.9111Z" fill="#fff"/>
+        <path d="M81.7599 20.8386H79.1888L78.9265 17.3038L77.1293 20.8386H74.5582L74.1254 14.5153H76.4866L76.5521 17.9977L78.4411 14.5153H80.5531L80.881 17.9977L82.4945 14.5153H85L81.7599 20.8386Z" fill="#fff"/>
+      </svg>
+    </a>
+    <button class="mkt-nav-mobile-back" data-back hidden aria-label="Back to menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+      BACK
+    </button>
+    <button class="mkt-nav-mobile-close" aria-label="Close menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+    </button>
+  </div>
+
+  <div class="mkt-nav-mobile-body">
+    <!-- Home view — top-level items -->
+    <div class="mkt-nav-mobile-view is-active" data-view="home">
+      <button class="mkt-nav-mobile-item" data-drill="solutions">
+        Solutions
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <button class="mkt-nav-mobile-item" data-drill="resources">
+        Resources
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <a class="mkt-nav-mobile-item" href="https://bolt.new/careers">Careers</a>
+      <a class="mkt-nav-mobile-item" href="pricing.html">Pricing</a>
+    </div>
+
+    <!-- Solutions submenu -->
+    <div class="mkt-nav-mobile-view" data-view="solutions">
+      <a href="https://bolt.new/solutions/ai-for-small-business" class="mkt-nav-mobile-feature">
+        <p class="mkt-nav-mobile-feature-title">AI for Small Business</p>
+        <p class="mkt-nav-mobile-feature-desc">Custom apps for your business, built in an afternoon — no code, no developer, no $100K project.</p>
+      </a>
+      <p class="mkt-nav-mobile-heading">Top Use Cases</p>
+      <div class="mkt-nav-mobile-links">
+        <a href="https://bolt.new/use-cases/ai-app-builder">AI App Builder</a>
+        <a href="https://bolt.new/use-cases/ai-website-builder">AI Website Builder</a>
+        <a href="https://bolt.new/use-cases/custom-crm-software">SaaS Dev</a>
+        <a href="https://bolt.new/use-cases/ai-prototyping-tools">Prototyping</a>
+        <a href="https://bolt.new/use-cases">All Use Cases</a>
+      </div>
+      <p class="mkt-nav-mobile-heading">Business Type</p>
+      <div class="mkt-nav-mobile-links">
+        <a href="https://bolt.new/solutions/ai-for-entrepreneurs">Entrepreneurs</a>
+        <a href="https://bolt.new/solutions/ai-for-small-business">Small Business</a>
+        <a href="https://bolt.new/solutions/ai-for-agencies">Agencies</a>
+        <a href="https://bolt.new/enterprise">Enterprise</a>
+        <a href="https://bolt.new/solutions">All Solutions</a>
+      </div>
+    </div>
+
+    <!-- Resources submenu -->
+    <div class="mkt-nav-mobile-view" data-view="resources">
+      <a href="https://bolt.new/resources/templates" class="mkt-nav-mobile-feature">
+        <p class="mkt-nav-mobile-feature-title">Bolt Templates</p>
+        <p class="mkt-nav-mobile-feature-desc">Production-ready starting points — dashboards, storefronts, portfolios, and more. Fork one and make it yours.</p>
+      </a>
+      <p class="mkt-nav-mobile-heading">Support</p>
+      <div class="mkt-nav-mobile-links">
+        <a href="https://discord.com/invite/stackblitz" target="_blank" rel="noopener">Community</a>
+        <a href="https://support.bolt.new/" target="_blank" rel="noopener">Help Center</a>
+        <a href="https://bolt.new/platform/security">Security &amp; Trust</a>
+      </div>
+      <p class="mkt-nav-mobile-heading">Build and Learn</p>
+      <div class="mkt-nav-mobile-links">
+        <a href="https://bolt.new/blog">Blog</a>
+        <a href="https://bolt.new/resources/templates">Templates</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="mkt-nav-mobile-footer">
+    <a href="https://bolt.new/" target="_blank" rel="noopener" class="hero-btn-primary">
+      <div class="btn-bg-hover"></div>
+      <div class="btn-text-wrap"><div class="btn-text-inner"><span>Get Started</span><span>Get Started</span></div></div>
+    </a>
+    <a href="https://bolt.new/signin" class="mkt-nav-mobile-signin">Sign in</a>
+  </div>
+</div>
+
+
+
+<!-- ─── HERO ──────────────────────────────────────────────────────────────── -->
+<main>
+<section class="nf-hero">
+  <canvas class="hero-dither" aria-hidden="true"></canvas>
+  <div class="nf-hero-inner sc-on-dark">
+    <div class="nf-art" id="nf-art">
+      <canvas id="nf-404-canvas" aria-hidden="true"></canvas>
+      <span class="sr-only">Error 404</span>
+      <span class="nf-art-hint" aria-hidden="true">Poke it</span>
+    </div>
+    <h1 class="nf-h1">This page hasn't been built&nbsp;yet</h1>
+    <p class="nf-sub">We looked everywhere for <code class="nf-path" id="nf-path">/banana</code>. The link may be broken or the page has moved. Pick a destination below, or describe what you were after and Bolt will build it.</p>
+    <p class="nf-dym" id="nf-dym" hidden>Did you mean <a id="nf-dym-link" href="https://bolt.new/"></a>?</p>
+    <form class="nf-prompt" id="nf-prompt" action="https://bolt.new/" target="_blank">
+      <div class="re-prompt-shell">
+        <label class="sr-only" for="nf-prompt-input">Describe what you want to build</label>
+        <textarea id="nf-prompt-input" class="re-prompt-input" rows="2" placeholder="Build the banana page I was looking for…"></textarea>
+        <div class="re-prompt-actions">
+          <span class="nf-prompt-note">Opens Bolt in a new tab</span>
+          <button type="submit" class="re-prompt-submit">
+            <span>Build It</span>
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="m4.497 20.835 16.51-7.363c1.324-.59 1.324-2.354 0-2.944L4.497 3.164c-1.495-.667-3.047.814-2.306 2.202l3.152 5.904c.245.459.245 1 0 1.458l-3.152 5.904c-.74 1.388.81 2.87 2.306 2.202Z"></path></svg>
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- ─── DESTINATIONS ──────────────────────────────────────────────────────── -->
+<!-- First section after the hero: static H2, no .dsa-reveal (first-section rule). -->
+<section class="nf-dest">
+  <div class="nf-dest-inner">
+    <div class="section-header">
+      <p class="section-eyebrow eyebrow-scramble">Find Your Way</p>
+      <h2 class="sc-section-h2">Where people usually head next</h2>
+      <p class="section-sub">Everything on Bolt is one click from here: what you can build, where to start, and who to ask.</p>
+    </div>
+
+    <div class="nf-grid">
+      <!-- 01 Use cases — the brief's callouts: AI website builder + AI app builder -->
+      <div class="nf-card nf-card--wide">
+        <span class="nf-num">01</span>
+        <div class="nf-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M17.5 14v7M14 17.5h7"/></svg></div>
+        <h3 class="nf-card-title">Use Cases</h3>
+        <p class="nf-card-desc">Start from what you want to build. Portfolios, internal tools, MVPs, dashboards, stores and 70+ more.</p>
+        <div class="nf-callouts">
+          <a class="nf-callout" href="https://bolt.new/use-cases/ai-website-builder">
+            <span class="nf-callout-label">Most Popular</span>
+            <span class="nf-callout-title">AI Website Builder <span class="nf-arrow" aria-hidden="true"></span></span>
+            <span class="nf-callout-desc">Describe a site and get a live, editable website in minutes.</span>
+          </a>
+          <a class="nf-callout" href="https://bolt.new/use-cases/ai-app-builder">
+            <span class="nf-callout-label">Full Stack</span>
+            <span class="nf-callout-title">AI App Builder <span class="nf-arrow" aria-hidden="true"></span></span>
+            <span class="nf-callout-desc">Turn a plain-language prompt into a working app with auth and data.</span>
+          </a>
+        </div>
+        <a class="nf-go" href="https://bolt.new/use-cases">Browse all use cases <span class="nf-arrow" aria-hidden="true"></span></a>
+      </div>
+
+      <!-- 02 Templates -->
+      <a class="nf-card" href="https://bolt.new/resources/templates">
+        <span class="nf-num">02</span>
+        <div class="nf-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="1.5"/><path d="M3 9h18M9 9v11"/></svg></div>
+        <h3 class="nf-card-title">Templates</h3>
+        <p class="nf-card-desc">Production-ready starting points. Fork one and make it yours.</p>
+        <div class="nf-tags"><span>Dashboards</span><span>Storefronts</span><span>Portfolios</span></div>
+        <span class="nf-go">Browse templates <span class="nf-arrow" aria-hidden="true"></span></span>
+      </a>
+
+      <!-- 03 Solutions -->
+      <a class="nf-card" href="https://bolt.new/solutions">
+        <span class="nf-num">03</span>
+        <div class="nf-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="1.5"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M3 12.5h18"/></svg></div>
+        <h3 class="nf-card-title">Solutions</h3>
+        <p class="nf-card-desc">How teams of every size use Bolt to ship custom software.</p>
+        <div class="nf-tags"><span>Small Business</span><span>Entrepreneurs</span><span>Agencies</span><span>Enterprise</span></div>
+        <span class="nf-go">Explore solutions <span class="nf-arrow" aria-hidden="true"></span></span>
+      </a>
+
+      <!-- 04 Blog -->
+      <a class="nf-card" href="https://bolt.new/blog">
+        <span class="nf-num">04</span>
+        <div class="nf-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5zM20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/></svg></div>
+        <h3 class="nf-card-title">Blog</h3>
+        <p class="nf-card-desc">Product news, build guides and stories from people shipping with Bolt.</p>
+        <span class="nf-go">Read the blog <span class="nf-arrow" aria-hidden="true"></span></span>
+      </a>
+
+      <!-- 05 Help Center -->
+      <a class="nf-card" href="https://support.bolt.new/" target="_blank" rel="noopener">
+        <span class="nf-num">05</span>
+        <div class="nf-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><path d="m5.6 5.6 3.9 3.9M14.5 14.5l3.9 3.9M18.4 5.6l-3.9 3.9M9.5 14.5l-3.9 3.9"/></svg></div>
+        <h3 class="nf-card-title">Help Center</h3>
+        <p class="nf-card-desc">Docs, account and billing answers, and troubleshooting when something breaks.</p>
+        <span class="nf-go">Get help <span class="nf-arrow" aria-hidden="true"></span></span>
+      </a>
+    </div>
+
+    <p class="nf-quick">
+      <span>Or jump to</span>
+      <a href="https://bolt.new/">Home</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="https://bolt.new/enterprise">Enterprise</a>
+      <a href="https://bolt.new/careers">Careers</a>
+      <a href="https://discord.com/invite/stackblitz" target="_blank" rel="noopener">Community</a>
+    </p>
+  </div>
+</section>
+</main>
+
+<!-- Subtle divider between the prompt-box CTA and the footer columns -->
+<div class="site-footer-divider" style="max-width:1200px;margin:88px auto 0;padding:0 min(80px, 5vw);box-sizing:border-box;"></div>
+
+<!-- ─── SITE FOOTER (link columns, ported from the Retool footer pattern) ── -->
+<footer class="site-footer">
+  <div class="site-footer-cols">
+    <div class="site-footer-col">
+      <p class="site-footer-label">Solutions</p>
+      <ul class="site-footer-links">
+        <li><a href="https://bolt.new/use-cases/ai-app-builder">AI App Builder</a></li>
+        <li><a href="https://bolt.new/use-cases/ai-website-builder">AI Website Builder</a></li>
+        <li><a href="https://bolt.new/use-cases/custom-crm-software">SaaS Dev</a></li>
+        <li><a href="https://bolt.new/use-cases/ai-prototyping-tools">Prototyping</a></li>
+        <li><a href="https://bolt.new/solutions/ai-for-small-business">Small Business</a></li>
+        <li><a href="https://bolt.new/enterprise">Enterprise</a></li>
+      </ul>
+    </div>
+    <div class="site-footer-col">
+      <p class="site-footer-label">Resources</p>
+      <ul class="site-footer-links">
+        <li><a href="https://bolt.new/blog">Blog</a></li>
+        <li><a href="https://discord.com/invite/stackblitz" target="_blank" rel="noopener">Community</a></li>
+        <li><a href="https://support.bolt.new/" target="_blank" rel="noopener">Help Center</a></li>
+        <li><a href="https://bolt.new/platform/security">Security &amp; Trust</a></li>
+        <li><a href="https://bolt.new/resources/templates">Templates</a></li>
+      </ul>
+    </div>
+    <div class="site-footer-col">
+      <p class="site-footer-label">More</p>
+      <ul class="site-footer-links">
+        <li><a href="https://bolt.new/careers">Careers</a></li>
+        <li><a href="pricing.html">Pricing</a></li>
+        <li><a href="https://stackblitz.com/terms-of-service">Terms of Use</a></li>
+        <li><a href="https://stackblitz.com/privacy-policy">Privacy Policy</a></li>
+      </ul>
+    </div>
+    <div class="site-footer-col site-footer-col--connect">
+      <p class="site-footer-label">Connect</p>
+      <div class="site-footer-social site-footer-social--col">
+        <a href="https://x.com/boltdotnew" target="_blank" rel="noopener" aria-label="X (Twitter)">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a>
+        <a href="https://www.linkedin.com/company/boltdotnew/" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.03-1.85-3.03-1.86 0-2.14 1.45-2.14 2.94v5.66H9.34V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.61 0 4.28 2.38 4.28 5.47zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56z"/></svg>
+        </a>
+        <a href="https://discord.gg/stackblitz" target="_blank" rel="noopener" aria-label="Discord">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.32 4.37a19.8 19.8 0 0 0-4.89-1.52.07.07 0 0 0-.08.04c-.21.38-.45.86-.61 1.25a18.27 18.27 0 0 0-5.49 0 12.6 12.6 0 0 0-.62-1.25.08.08 0 0 0-.08-.04c-1.7.29-3.36.8-4.89 1.52a.07.07 0 0 0-.03.03C.53 8.6-.32 12.71.1 16.77a.08.08 0 0 0 .03.06 19.9 19.9 0 0 0 6 3.03.08.08 0 0 0 .08-.03c.46-.63.87-1.3 1.23-2a.08.08 0 0 0-.04-.11 13.1 13.1 0 0 1-1.87-.9.08.08 0 0 1-.01-.13c.13-.09.25-.19.37-.29a.07.07 0 0 1 .08-.01c3.93 1.79 8.18 1.79 12.06 0a.07.07 0 0 1 .08.01c.12.1.25.2.37.3a.08.08 0 0 1-.01.12c-.6.35-1.22.65-1.87.9a.08.08 0 0 0-.04.11c.36.7.78 1.36 1.23 2a.08.08 0 0 0 .08.03 19.83 19.83 0 0 0 6.01-3.03.08.08 0 0 0 .03-.06c.5-4.7-.83-8.78-3.5-12.4a.06.06 0 0 0-.03-.03zM8.02 14.24c-1.18 0-2.16-1.08-2.16-2.42s.96-2.42 2.16-2.42c1.21 0 2.18 1.1 2.16 2.42 0 1.34-.96 2.42-2.16 2.42zm7.97 0c-1.18 0-2.16-1.08-2.16-2.42s.96-2.42 2.16-2.42c1.21 0 2.18 1.1 2.16 2.42 0 1.34-.95 2.42-2.16 2.42z"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+<!-- bolt wordmark in its own section so the footer columns sit above it -->
+<section class="footer-image-section">
+  <div class="bolt-image-wrap">
+    <img id="bolt-wordmark-img" src="../images/bolt-bottom-light.webp" alt="bolt" decoding="async" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;opacity:0.20;">
+    <canvas id="bolt-shimmer-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;"></canvas>
+    <div style="position:absolute;inset:0;background:linear-gradient(to bottom, var(--sc-ground) 0%, transparent 22%, transparent 88%, var(--sc-ground) 100%);z-index:3;"></div>
+  </div>
+</section>
+
+<script src="shared-components.js?v=20261002b"></script>
+<script>
+/* ── 404: the missing path, "did you mean", prompt hand-off ────────────────
+   The sandbox serves this page at /Enterprise/marketing/404.html, so the
+   "missing" path falls back to /banana (the brief's examples). Preview any
+   path with ?path=/use-case/ai-websites. In production this reads the real
+   location.pathname — the server must answer with an HTTP 404 status (no
+   redirect) so search engines drop the dead URL. */
+(function () {
+  var q = null;
+  try { q = new URLSearchParams(location.search).get('path'); } catch (e) {}
+  var path = q || location.pathname;
+  if (/\/Enterprise\/|404(\.html)?$/.test(path) && !q) path = '/banana';
+  path = '/' + path.replace(/^\/+/, '').replace(/\/+$/, '');
+  var pathEl = document.getElementById('nf-path');
+  if (pathEl) pathEl.textContent = path.length > 48 ? path.slice(0, 45) + '…' : path;
+
+  /* slug → words for the prompt placeholder: /use-case/pet-groomer → "pet groomer" */
+  var last = decodeURIComponent(path.split('/').filter(Boolean).pop() || 'new');
+  var words = last.replace(/\.[a-z0-9]+$/i, '').replace(/[-_+]+/g, ' ').replace(/[^\w\s]/g, '').trim().slice(0, 40) || 'new';
+  var input = document.getElementById('nf-prompt-input');
+  var fallback = 'Build the ' + words + ' page I was looking for';
+  if (input) input.placeholder = fallback + '…';
+
+  var form = document.getElementById('nf-prompt');
+  function go(e) {
+    if (e) e.preventDefault();
+    var text = (input && input.value.trim()) || fallback;
+    window.open('https://bolt.new/#prompt=' + encodeURIComponent(text), '_blank', 'noopener');
+  }
+  if (form) form.addEventListener('submit', go);
+  if (input) input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) go(e);
+  });
+
+  /* "did you mean": fuzzy-match the dead path against live routes. Keyword
+     hits first (cheap, and they catch /pricing-plans → /pricing), then an
+     edit-distance score on the last segment and on the whole path. */
+  var ROUTES = [
+    ['/', 'bolt.new'],
+    ['/enterprise'], ['/pricing'], ['/careers'], ['/blog'], ['/news'], ['/customers'],
+    ['/solutions'], ['/solutions/ai-for-small-business'], ['/solutions/ai-for-entrepreneurs'],
+    ['/solutions/ai-for-agencies'], ['/solutions/ai-for-real-estate'],
+    ['/use-cases'], ['/use-cases/ai-website-builder'], ['/use-cases/ai-app-builder'],
+    ['/use-cases/custom-crm-software'], ['/use-cases/ai-prototyping-tools'],
+    ['/use-cases/ai-software-development'],
+    ['/resources/templates'], ['/platform/security'], ['/platform/features/cli'],
+    ['/platform/integrations/microsoft'], ['/platform/referral']
+  ];
+  var KEYWORDS = [
+    [/templ/, '/resources/templates'], [/pric|plan|billing/, '/pricing'], [/job|career|hiring/, '/careers'],
+    [/blog|post|article/, '/blog'], [/press|news/, '/news'], [/secur|trust|soc2|complian/, '/platform/security'],
+    [/\bcli\b|terminal/, '/platform/features/cli'], [/microsoft|teams|copilot/, '/platform/integrations/microsoft'],
+    [/refer|invite/, '/platform/referral'], [/enterprise|sales/, '/enterprise'],
+    [/website/, '/use-cases/ai-website-builder'], [/\bapps?\b|app-?builder/, '/use-cases/ai-app-builder'],
+    [/prototyp/, '/use-cases/ai-prototyping-tools'], [/crm|saas/, '/use-cases/custom-crm-software'],
+    [/use-?case/, '/use-cases'], [/small-?business|smb/, '/solutions/ai-for-small-business'],
+    [/agenc/, '/solutions/ai-for-agencies'], [/entrepreneur|founder/, '/solutions/ai-for-entrepreneurs'],
+    [/real-?estate|realtor/, '/solutions/ai-for-real-estate'], [/solution/, '/solutions'],
+    [/customer|case-?stud/, '/customers']
+  ];
+  function lev(a, b) {
+    var m = a.length, n = b.length, d = [], i, j;
+    for (i = 0; i <= m; i++) d[i] = [i];
+    for (j = 0; j <= n; j++) d[0][j] = j;
+    for (i = 1; i <= m; i++) for (j = 1; j <= n; j++)
+      d[i][j] = Math.min(d[i-1][j] + 1, d[i][j-1] + 1, d[i-1][j-1] + (a[i-1] === b[j-1] ? 0 : 1));
+    return d[m][n];
+  }
+  function sim(a, b) { return a && b ? 1 - lev(a, b) / Math.max(a.length, b.length) : 0; }
+  var p = path.toLowerCase();
+  var best = null, score = 0;
+  for (var k = 0; k < KEYWORDS.length && !best; k++) if (KEYWORDS[k][0].test(p)) { best = KEYWORDS[k][1]; score = 1; }
+  if (!best) {
+    var seg = p.split('/').filter(Boolean).pop() || '';
+    ROUTES.forEach(function (r) {
+      if (r[0] === '/') return;
+      var rs = r[0].split('/').pop();
+      var s = Math.max(sim(seg, rs), sim(p, r[0]));
+      if (s > score) { score = s; best = r[0]; }
+    });
+  }
+  if (best && score >= 0.6 && best !== p) {
+    var a = document.getElementById('nf-dym-link');
+    a.href = best === '/pricing' ? 'pricing.html' : 'https://bolt.new' + best;
+    a.textContent = 'bolt.new' + best;
+    document.getElementById('nf-dym').hidden = false;
+  }
+})();
+
+/* ── The dot-matrix 404 ────────────────────────────────────────────────────
+   "404" is drawn once offscreen in the page's sans, sampled on a square grid,
+   and every lit sample becomes a 2D particle with a home position. The cursor
+   pushes particles away (they spring home); a click or tap blows them apart.
+   Reduced motion: one static frame. */
+(function () {
+  var wrap = document.getElementById('nf-art');
+  var canvas = document.getElementById('nf-404-canvas');
+  if (!wrap || !canvas) return;
+  var ctx = canvas.getContext('2d');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var W = 0, H = 0, dpr = 1, pts = [], STEP = 7, DOT = 4;
+  var mx = -9999, my = -9999, R = 80, t0 = performance.now(), running = false, dark = false;
+
+  function readTheme() { dark = document.documentElement.getAttribute('data-theme') === 'dark'; }
+  readTheme();
+
+  function build() {
+    var r = canvas.getBoundingClientRect();
+    if (!r.width) return;
+    W = r.width; H = r.height; dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    STEP = W < 360 ? 5 : 7; DOT = W < 360 ? 3 : 4; R = W < 360 ? 56 : 84;
+    var off = document.createElement('canvas'); off.width = Math.ceil(W); off.height = Math.ceil(H);
+    var o = off.getContext('2d');
+    var fam = getComputedStyle(document.body).getPropertyValue('--sc-font-sans') || 'Schibsted Grotesk, sans-serif';
+    var size = H * 1.18;
+    o.font = '800 ' + size + 'px ' + fam;
+    o.textAlign = 'center'; o.textBaseline = 'alphabetic';
+    var m = o.measureText('404');
+    /* fit the width, then centre on the glyphs' real ink box */
+    var scale = Math.min(1, (W * 0.98) / m.width); size *= scale; o.font = '800 ' + size + 'px ' + fam;
+    m = o.measureText('404');
+    var asc = m.actualBoundingBoxAscent || size * 0.72, desc = m.actualBoundingBoxDescent || 0;
+    o.fillStyle = '#000';
+    o.fillText('404', W / 2, H / 2 + (asc - desc) / 2);
+    var data = o.getImageData(0, 0, off.width, off.height).data;
+    var old = pts; pts = [];
+    for (var y = Math.floor(STEP / 2); y < H; y += STEP) {
+      for (var x = Math.floor(STEP / 2); x < W; x += STEP) {
+        if (data[(y * off.width + x) * 4 + 3] > 128) {
+          pts.push({ hx: x, hy: y, x: x, y: y, vx: 0, vy: 0, acc: Math.random() < 0.07, ph: Math.random() * 6.28 });
+        }
+      }
+    }
+    /* first build: arrive from scattered positions so the art assembles */
+    if (!old.length && !reduce) pts.forEach(function (p) {
+      var a = Math.random() * 6.28, d = 60 + Math.random() * 220;
+      p.x = p.hx + Math.cos(a) * d; p.y = p.hy + Math.sin(a) * d;
+    });
+    if (reduce) draw(performance.now());
+  }
+
+  function draw(now) {
+    var t = (now - t0) / 1000;
+    ctx.clearRect(0, 0, W, H);
+    var moving = false;
+    for (var i = 0; i < pts.length; i++) {
+      var p = pts[i];
+      if (!reduce) {
+        var dx = p.x - mx, dy = p.y - my, d2 = dx * dx + dy * dy;
+        if (d2 < R * R) {
+          var d = Math.sqrt(d2) || 1, f = (1 - d / R) * 2.6;
+          p.vx += dx / d * f; p.vy += dy / d * f;
+        }
+        p.vx += (p.hx - p.x) * 0.045; p.vy += (p.hy - p.y) * 0.045;
+        p.vx *= 0.84; p.vy *= 0.84;
+        p.x += p.vx; p.y += p.vy;
+        if (Math.abs(p.vx) + Math.abs(p.vy) > 0.05) moving = true;
+      }
+      var off = Math.min(1, (Math.abs(p.x - p.hx) + Math.abs(p.y - p.hy)) / 40);
+      /* slow diagonal shimmer so the art breathes while nobody touches it */
+      var a = 0.62 + 0.38 * Math.sin(t * 1.6 - p.hx * 0.022 - p.hy * 0.03 + p.ph * 0.25);
+      if (p.acc || off > 0.15) {
+        /* accent dots + anything displaced go brand blue (lighter on the navy crown) */
+        ctx.fillStyle = dark ? 'rgba(20,136,252,' + Math.max(a, 0.8) + ')' : 'rgba(124,192,255,' + Math.max(a, 0.85) + ')';
+      } else {
+        ctx.fillStyle = 'rgba(255,255,255,' + a.toFixed(3) + ')';
+      }
+      ctx.fillRect(Math.round(p.x - DOT / 2), Math.round(p.y - DOT / 2), DOT, DOT);
+    }
+    return moving;
+  }
+
+  function loop(now) {
+    draw(now);
+    requestAnimationFrame(loop);
+  }
+
+  function local(e) {
+    var r = canvas.getBoundingClientRect();
+    return { x: e.clientX - r.left, y: e.clientY - r.top };
+  }
+  var hero = wrap.closest('.nf-hero') || wrap;
+  hero.addEventListener('pointermove', function (e) {
+    if (e.pointerType === 'touch') return;
+    var l = local(e); mx = l.x; my = l.y;
+    if (l.x > -20 && l.x < W + 20 && l.y > -20 && l.y < H + 20) wrap.classList.add('is-poked');
+  });
+  hero.addEventListener('pointerleave', function () { mx = my = -9999; });
+  /* click / tap on the art: blow the dots apart, they reassemble */
+  wrap.addEventListener('pointerdown', function (e) {
+    if (reduce) return;
+    wrap.classList.add('is-poked');
+    var l = local(e);
+    pts.forEach(function (p) {
+      var dx = p.x - l.x, dy = p.y - l.y, d = Math.sqrt(dx * dx + dy * dy) || 1;
+      var f = (10 + Math.random() * 16) * Math.max(0.25, 1 - d / (W * 0.9));
+      p.vx += dx / d * f + (Math.random() - 0.5) * 6; p.vy += dy / d * f + (Math.random() - 0.5) * 6;
+    });
+  });
+
+  var rt; window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(build, 120); });
+  document.addEventListener('sc-themechange', function () { readTheme(); if (reduce) draw(performance.now()); });
+  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(function () {
+    build();
+    if (!reduce && !running) { running = true; requestAnimationFrame(loop); }
+  });
+})();
+
+/* ── Hero dither (the family's ordered Bayer field, compact copy from
+   bolt-cli). Light: white squares over the dome. Dark: the pale crown. ── */
+(function () {
+  var BAYER = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]];
+  var light = true;
+  function readTheme() { light = document.documentElement.getAttribute('data-theme') !== 'dark'; }
+  readTheme(); document.addEventListener('sc-themechange', readTheme);
+  document.querySelectorAll('.hero-dither').forEach(function (canvas) {
+    var ctx = canvas.getContext('2d'), CELL = 5, SQ = 2, cols, rows, start = null;
+    function init() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; cols = Math.ceil(canvas.width / CELL) + 1; rows = Math.ceil(canvas.height / CELL) + 1; }
+    window.addEventListener('resize', init); init(); document.addEventListener('sc-themechange', init);
+    function draw(ts) {
+      if (!start) start = ts;
+      var t = (ts - start) / 1000, W = canvas.width, H = canvas.height;
+      if (!W || !H) { init(); requestAnimationFrame(draw); return; }
+      ctx.clearRect(0, 0, W, H);
+      for (var r = 0; r < rows; r++) {
+        var gy = r / rows, base = 1 - gy / (light ? 0.98 : 0.85);
+        if (base <= 0) continue;
+        base = light ? Math.pow(base, 0.75) : base * base;
+        for (var c = 0; c < cols; c++) {
+          var gx = c / cols;
+          var wave = Math.sin(gx * 4.1 + gy * 6.3 - t * 0.95) * 0.5 + Math.sin(gx * 7.7 - gy * 3.1 + t * 0.62) * 0.28;
+          var hm = 1 - Math.pow(Math.abs(gx - 0.5) * 2, 2.2) * 0.85;
+          if (base * hm + wave * 0.38 <= (BAYER[r & 3][c & 3] + 0.5) / 16) continue;
+          ctx.fillStyle = 'rgba(' + (light ? '255,255,255' : '160,185,230') + ',' + (0.085 + base * 0.13).toFixed(3) + ')';
+          ctx.fillRect(c * CELL, r * CELL, SQ, SQ);
+        }
+      }
+      requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
+  });
+})();
+
+/* ── Card hover dot field (attachHoverField — the compliance-card treatment).
+   Colour follows --sc-dot-rgb so it is blue on light, grey on dark. ── */
+(function () {
+  var rgb = '20,136,252';
+  function readRgb() { rgb = (getComputedStyle(document.documentElement).getPropertyValue('--sc-dot-rgb') || '20,136,252').trim(); }
+  readRgb(); document.addEventListener('sc-themechange', readRgb);
+  function attach(tile, canvas, idx) {
+    var ctx = canvas.getContext('2d');
+    var SPACING = 9, DOT = 2, cols = 0, rows = 0, phases = [], hovered = false, t = 0, phase = idx * 1.7;
+    function resize() {
+      var w = tile.offsetWidth, h = tile.offsetHeight; if (!w || !h) return;
+      canvas.width = w; canvas.height = h;
+      cols = Math.ceil(w / SPACING) + 1; rows = Math.ceil(h / SPACING) + 1;
+      phases = Array.from({ length: rows }, function () { return Array.from({ length: cols }, function () { return Math.random() * Math.PI * 2; }); });
+    }
+    try { new ResizeObserver(resize).observe(tile); } catch (e) {}
+    requestAnimationFrame(resize);
+    tile.addEventListener('mouseenter', function () { hovered = true; });
+    tile.addEventListener('mouseleave', function () { hovered = false; });
+    function draw() {
+      if (!hovered || !cols) { requestAnimationFrame(draw); return; }
+      t += 0.03;
+      var W = canvas.width, H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+      var angle = t * 0.16 + phase, ca = Math.cos(angle), sa = Math.sin(angle);
+      for (var r = 0; r < rows; r++) for (var c = 0; c < cols; c++) {
+        var px = c * SPACING, py = r * SPACING, ph = (phases[r] && phases[r][c]) || 0;
+        var wave = Math.sin((px * ca + py * sa) / 58 + t + ph) * Math.cos((px * -sa + py * ca) / 90 + t * 0.6);
+        var op = Math.max(0, wave) * 0.5 * (px / W);
+        if (op < 0.04) continue;
+        ctx.fillStyle = 'rgba(' + rgb + ',' + op.toFixed(3) + ')';
+        ctx.fillRect(px, py, DOT, DOT);
+      }
+      requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
+  }
+  document.querySelectorAll('.nf-card').forEach(function (el, i) {
+    var cv = document.createElement('canvas'); cv.className = 'nf-field'; cv.setAttribute('aria-hidden', 'true');
+    el.insertBefore(cv, el.firstChild); attach(el, cv, i);
+  });
+})();
+</script>
+<script src="shared-nav-footer.js?v=20261002e"></script>
+<!-- ╔═══ PROTOTYPE ONLY — THEME REVIEW TOGGLE ═══════════════════════════════╗
+     Light is the site default; "System" follows the OS, so a visitor whose
+     machine is set to dark sees dark — that is the agreed behaviour, not a
+     fallback to a dark default. Normally there is nothing to click. This switcher exists so the two themes can be compared
+     without changing System Settings. REMOVE BEFORE PORTING TO PRODUCTION —
+     delete this whole block, nothing else references it.
+     ╚════════════════════════════════════════════════════════════════════════╝ -->
+<style id="theme-review-toggle-style">
+  .sc-theme-switch {
+    position: fixed; right: 16px; bottom: 16px; z-index: 10000;
+    display: flex; gap: 2px; padding: 3px;
+    background: var(--sc-surface); border: 1px solid var(--sc-line);
+    border-radius: 2px; box-shadow: 0 6px 20px var(--sc-shadow);
+    font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif);
+  }
+  .sc-theme-switch button {
+    appearance: none; border: 0; cursor: pointer; border-radius: 2px;
+    padding: 6px 11px; font-size: 11px; font-weight: 500; letter-spacing: 0.3px;
+    background: transparent; color: var(--sc-text-muted);
+  }
+  .sc-theme-switch button:hover { color: var(--sc-ink); }
+  .sc-theme-switch button[aria-pressed="true"] { background: var(--sc-blue); color: var(--sc-ink); }
+  @media print { .sc-theme-switch { display: none; } }
+</style>
+<div class="sc-theme-switch" role="group" aria-label="Theme preview">
+  <button type="button" data-theme-set="">System</button>
+  <button type="button" data-theme-set="light">Light</button>
+  <button type="button" data-theme-set="dark">Dark</button>
+</div>
+<script>
+(function () {
+  var root = document.documentElement;
+  var btns = document.querySelectorAll('[data-theme-set]');
+  function sysTheme() {
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function apply(v, persist) {
+    /* '' = System: drop the stored choice and follow the OS. The attribute is
+       still stamped — it is never absent. */
+    root.setAttribute('data-theme', root.getAttribute('data-theme-locked') || v || sysTheme());
+    btns.forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-theme-set') === v));
+    });
+    if (persist) {
+      try { if (v) localStorage.setItem('sc-theme', v); else localStorage.removeItem('sc-theme'); } catch (e) {}
+    }
+    /* canvases cache their dot colour — tell them to re-read the token */
+    document.dispatchEvent(new CustomEvent('sc-themechange'));
+  }
+  btns.forEach(function (b) {
+    b.addEventListener('click', function () { apply(b.getAttribute('data-theme-set'), true); });
+  });
+  var saved = ''; try { saved = localStorage.getItem('sc-theme') || ''; } catch (e) {}
+  apply(saved, false);
+})();
+</script>
+<script>
+// ── Bolt strip shimmer ───────────────────────────────────────────────────────
+// Faithful vanilla port of production's FooterWordmark
+// (bolt-public-pages src/components/chrome/FooterWordmark.tsx), which is the
+// component the Forge Lite footer uses. The sandbox had a FORK of this that
+// drifted; every difference between them turned out to be a bug. Re-port from
+// the component, do not hand-tune here.
+//
+// Deltas from production, both deliberate:
+//   · theme switching: production picks light/dark once per render, this
+//     re-initialises on sc-themechange so the preview toggle works.
+//   · window.__shimmer debug hook.
+(function () {
+  var canvas = document.getElementById('bolt-shimmer-canvas');
+  if (!canvas) return;
+  var wrap = canvas.parentElement;
+  var img = wrap.querySelector('img');
+  var ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  var WORDMARK_SRC = '../images/bolt-bottom.png';
+  var WORDMARK_LIGHT_SRC = '../images/bolt-bottom-light.webp';
+  var SAMPLE_WIDTH = 400, SAMPLE_HEIGHT = 200, SAMPLE_WIDTH_FINE = 1600;
+  var STRIP_BRIGHTNESS_THRESHOLD = 28;
+  var HOVER_SPLASH_DURATION_MS = 300, TOUCH_SPLASH_DURATION_MS = 1500;
+
+  /* production bails entirely under reduced motion */
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+  var splashDuration = isTouch ? TOUCH_SPLASH_DURATION_MS : HOVER_SPLASH_DURATION_MS;
+
+  var strips = [], inView = false, width = 0, height = 0;
+  var time = Math.random() * 80, hoverAmount = 0, isHovered = false;
+  var splashStart, frame, light = false, frames = 0, lastError = null;
+
+  function isLight() { return document.documentElement.getAttribute('data-theme') !== 'dark'; }
+
+  function sampleStrips(image) {
+    var sampleWidth = light ? SAMPLE_WIDTH_FINE : SAMPLE_WIDTH;
+    var scratch = document.createElement('canvas');
+    scratch.width = sampleWidth; scratch.height = SAMPLE_HEIGHT;
+    var c = scratch.getContext('2d', { willReadFrequently: true });
+    if (!c) return [];
+    c.drawImage(image, 0, 0, sampleWidth, SAMPLE_HEIGHT);
+    var data = c.getImageData(0, 0, sampleWidth, SAMPLE_HEIGHT).data;
+    var out = [], inStrip = false, stripStart = 0;
+    for (var x = 0; x < sampleWidth; x++) {
+      var brightness = 0;
+      for (var y = 20; y < SAMPLE_HEIGHT - 20; y++) {
+        var i = (y * sampleWidth + x) * 4;
+        var lum = (data[i] + data[i + 1] + data[i + 2]) / 3;
+        brightness += light ? 255 - lum : lum;   /* light art is ink-on-white */
+      }
+      brightness /= SAMPLE_HEIGHT - 40;
+      if (brightness > STRIP_BRIGHTNESS_THRESHOLD && !inStrip) { inStrip = true; stripStart = x; }
+      else if (brightness <= STRIP_BRIGHTNESS_THRESHOLD && inStrip) {
+        inStrip = false;
+        out.push({ centerX: (stripStart + x) / 2 / sampleWidth, width: (x - stripStart) / sampleWidth,
+                   phase: Math.random() * Math.PI * 2, frequency: 0.5 + Math.random() * 1.2,
+                   yPhase: Math.random() * Math.PI * 2, yFrequency: 0.35 + Math.random() * 0.7,
+                   speedMultiplier: 0.6 + Math.random() * 0.8 });
+      }
+    }
+    return out;
+  }
+
+  function resize() {
+    var rect = wrap.getBoundingClientRect();
+    width = canvas.width = Math.round(rect.width);
+    height = canvas.height = Math.round(rect.height);
+  }
+
+  function tick() {
+    if (!inView) { frame = undefined; return; }
+    frames++;
+    try {
+      var splashRaw = splashStart ? Math.max(0, 1 - (Date.now() - splashStart) / splashDuration) : 0;
+      var splash = splashRaw * splashRaw * splashRaw;
+      time += 0.028 + hoverAmount * 0.016;
+      hoverAmount += ((isHovered ? 1 : 0) - hoverAmount) * (isHovered ? 0.07 : 0.025);
+      ctx.clearRect(0, 0, width, height);
+      for (var i = 0; i < strips.length; i++) {
+        var strip = strips[i];
+        var brightness = Math.sin(time * strip.frequency * strip.speedMultiplier + strip.phase) * 0.5 + 0.5;
+        if (brightness < 0.01) continue;
+        var x = strip.centerX * width;
+        var stripWidth = Math.max(strip.width * width, light ? 2 : 3);
+        var centerY = (Math.sin(time * strip.yFrequency * strip.speedMultiplier + strip.yPhase) * 0.5 + 0.5) * height;
+        var spread = height * (0.55 + hoverAmount * 0.25);
+        var boost = Math.max(hoverAmount, splash);
+        var alpha = brightness * 0.11 + (brightness * 0.28 - brightness * 0.11) * boost;
+        var peakAlpha = alpha * 1.4;
+        var edge = light ? '35,40,55' : '220,225,240';
+        var peak = light ? '10,12,20' : '255,255,255';
+        var g = ctx.createLinearGradient(0, centerY - spread, 0, centerY + spread);
+        g.addColorStop(0, 'rgba(' + edge + ',0)');
+        g.addColorStop(0.3, 'rgba(' + edge + ',' + alpha.toFixed(3) + ')');
+        g.addColorStop(0.5, 'rgba(' + peak + ',' + peakAlpha.toFixed(3) + ')');
+        g.addColorStop(0.7, 'rgba(' + edge + ',' + alpha.toFixed(3) + ')');
+        g.addColorStop(1, 'rgba(' + edge + ',0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(x - stripWidth / 2, 0, stripWidth, height);
+      }
+    } catch (e) { lastError = (e && e.message) || String(e); }
+    frame = requestAnimationFrame(tick);
+  }
+
+  /* Production gates the loop on inView from an IntersectionObserver. That is
+     correct but it is also a single point of failure: if the observer has not
+     reported by the time the art decodes, nothing ever starts. Compute
+     visibility directly as a fallback so start() can never be stranded. */
+  function computeInView() {
+    var r = wrap.getBoundingClientRect();
+    var vh = window.innerHeight || document.documentElement.clientHeight;
+    return r.bottom > 0 && r.top < vh;
+  }
+  function run() { if (frame === undefined && inView) frame = requestAnimationFrame(tick); }
+  function start() {
+    resize();
+    strips = sampleStrips(img);
+    if (!inView && computeInView()) { inView = true; if (!splashStart) splashStart = Date.now(); }
+    run();
+  }
+
+  /* Theme art. Production picks this once; we re-apply on the preview toggle.
+     NOTE: mix-blend-mode is set HERE, never authored in the markup — `screen`
+     on a white ground is invisible, so an authored default is a trap. */
+  var appliedTheme = null;
+  function applyTheme() {
+    light = isLight();
+    var now = light ? 'light' : 'dark';
+    if (now === appliedTheme) return;
+    appliedTheme = now;
+    canvas.style.mixBlendMode = light ? 'multiply' : 'screen';
+    img.style.opacity = light ? '0.32' : '0.20';
+    var want = light ? WORDMARK_LIGHT_SRC : WORDMARK_SRC;
+    if (img.getAttribute('src') !== want) {
+      img.setAttribute('src', want);
+      img.addEventListener('load', start, { once: true });
+    } else if (img.complete && img.naturalWidth) {
+      start();
+    } else {
+      /* src already correct but the image hasn't finished loading — without
+         this branch the shimmer never starts on pages that ship the themed
+         asset statically (the press race, Gary's "not animating") */
+      img.addEventListener('load', start, { once: true });
+    }
+  }
+  document.addEventListener('sc-themechange', applyTheme);
+
+  new ResizeObserver(resize).observe(wrap);
+  new IntersectionObserver(function (entries) {
+    setInView(entries[0].isIntersecting);
+  }, { threshold: 0.1 }).observe(wrap);
+
+  /* The observer is the efficient path, but it is not the only one: it can fail
+     to report (nested browsing contexts, some restored-scroll cases), and then
+     the loop never starts at all — which is exactly the failure mode being
+     chased here. A throttled scroll/resize check keeps inView honest
+     regardless, and costs one getBoundingClientRect per frame while scrolling. */
+  function setInView(v) {
+    if (v === inView) return;
+    inView = v;
+    if (inView) { if (!splashStart) splashStart = Date.now(); run(); }
+  }
+  var pending = false;
+  function onScroll() {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(function () { pending = false; setInView(computeInView()); });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+
+  if (!isTouch) {
+    wrap.addEventListener('mouseenter', function () { isHovered = true; });
+    wrap.addEventListener('mouseleave', function () { isHovered = false; });
+  }
+
+  window.__shimmer = {
+    get strips()  { return strips.length; },
+    get light()   { return light; },
+    get running() { return frame !== undefined; },
+    get inView()  { return inView; },
+    get frames()  { return frames; },
+    get err()     { return lastError; },
+    get t()       { return Math.round(time * 100) / 100; },
+    get src()     { return (img.currentSrc || img.getAttribute('src') || '').split('/').pop(); },
+    get canvas()  { return canvas.width + 'x' + canvas.height; },
+    get blend()   { return getComputedStyle(canvas).mixBlendMode; }
+  };
+
+  applyTheme();
+  if (img.complete && img.naturalWidth) start(); else img.addEventListener('load', start, { once: true });
+})();
+</script>
+<!-- shared-components.css re-linked at the END of body so it wins the cascade -->
+<link rel="stylesheet" href="shared-components.css?v=20261002c">
+<script id="sc-theme-lock-observer">(function(){var r=document.documentElement,l=r.getAttribute('data-theme-locked');if(!l)return;if(r.getAttribute('data-theme')!==l)r.setAttribute('data-theme',l);new MutationObserver(function(){if(r.getAttribute('data-theme')!==l)r.setAttribute('data-theme',l);}).observe(r,{attributes:true,attributeFilter:['data-theme']});})();</script>
+</body>
+</html>
