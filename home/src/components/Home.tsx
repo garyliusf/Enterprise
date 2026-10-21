@@ -84,61 +84,48 @@ function CrawlTile({ c, dupe, onHover }: { c: ShowcaseCard; dupe: boolean; onHov
     </div>
   );
 }
-/* hover actions float under the cursor (Gary). The row FOLLOWS the pointer
-   with an eased glide (rAF lerp, transform only — no React render per frame)
-   while it's on a card and swaps to the next card the moment it enters it.
-   Moving DOWN toward the row freezes it, so the hop onto its buttons is a
-   short, steady move. Hiding waits 300ms so the gaps between cards never
-   blink it, and the wall stays paused while it's up. */
+/* hover action card (Gary). It is ANCHORED TO THE HOVERED TILE — bottom
+   centre, inside the tile's own footprint — not to the cursor: moving around a
+   tile never moves it, moving down slides over it and off the tile's edge onto
+   the next one, and it never covers a neighbouring tile (a cursor-following
+   card got in the way of simply browsing down). It glides between tiles (rAF
+   lerp on transform, no React render per frame); hiding waits 300ms so the
+   gaps never blink it; the wall stays paused while it's up. */
 function CrawlWall({ all }: { all: ShowcaseCard[] }) {
   const loop = [...all, ...all, ...all, ...all];
   const wrap = useRef<HTMLDivElement>(null);
   const row = useRef<HTMLDivElement>(null);
   const [c, setC] = useState<ShowcaseCard | null>(null);
-  const st = useRef({ tx: 0, ty: 0, x: 0, y: 0, raf: 0, onRow: false, lastX: 0, lastY: 0, shown: false, locked: false, lockY: 0 });
+  const st = useRef({ tx: 0, ty: 0, x: 0, y: 0, raf: 0, onRow: false, shown: false, tile: null as HTMLElement | null });
   const hideT = useRef<number>(0);
   const tick = () => {
     const s = st.current, el = row.current;
     s.raf = 0;
     if (!el) return;
-    s.x += (s.tx - s.x) * 0.2; s.y += (s.ty - s.y) * 0.2;
+    s.x += (s.tx - s.x) * 0.22; s.y += (s.ty - s.y) * 0.22;
     el.style.transform = `translate3d(${s.x}px, ${s.y}px, 0) translateX(-50%)`;
     if (Math.abs(s.tx - s.x) > 0.3 || Math.abs(s.ty - s.y) > 0.3) s.raf = requestAnimationFrame(tick);
   };
-  const kick = () => { if (!st.current.raf) st.current.raf = requestAnimationFrame(tick); };
   useEffect(() => () => { cancelAnimationFrame(st.current.raf); window.clearTimeout(hideT.current); }, []);
-  const target = (cx: number, cy: number, snap: boolean) => {
-    const w = wrap.current, s = st.current;
-    if (!w) return;
-    const r = w.getBoundingClientRect();
-    s.tx = Math.min(Math.max(cx - r.left, 190), r.width - 190);
-    s.ty = cy - r.top + 16;
-    if (snap) { s.x = s.tx; s.y = s.ty; }
-    kick();
-  };
   const onHover = (card: ShowcaseCard, e: React.MouseEvent<HTMLElement>) => {
-    const s = st.current;
-    if (s.onRow) return;
+    const s = st.current, w = wrap.current;
+    if (!w) return;
     window.clearTimeout(hideT.current);
-    const dy = e.clientY - s.lastY;
-    s.lastX = e.clientX; s.lastY = e.clientY;
+    const tile = e.currentTarget;
+    if (s.shown && s.tile === tile) return;
     const first = !s.shown;
-    const switched = c !== card;
-    if (switched) { setC(card); s.locked = false; }
-    s.shown = true;
-    /* heading DOWN toward the row locks it in place (any direction after
-       that, e.g. right to Preview, can't drag it away); moving back UP 14px
-       or onto another card releases it */
-    if (!first && !switched) {
-      if (!s.locked && dy > 0) { s.locked = true; s.lockY = e.clientY; }
-      if (s.locked && e.clientY < s.lockY - 14) s.locked = false;
-      if (s.locked) return;
-    }
-    target(e.clientX, e.clientY, first);
+    s.tile = tile; s.shown = true;
+    if (c !== card) setC(card);
+    const r = w.getBoundingClientRect(), t = tile.getBoundingClientRect();
+    const h = Math.max(row.current?.offsetHeight ?? 0, 130); // empty before its first render
+    s.tx = Math.min(Math.max(t.left + t.width / 2 - r.left, 156), r.width - 156);
+    s.ty = Math.min(t.bottom - r.top, r.height) - h - 14;
+    if (first) { s.x = s.tx; s.y = s.ty; }
+    if (!s.raf) s.raf = requestAnimationFrame(tick);
   };
   const hideSoon = () => {
     window.clearTimeout(hideT.current);
-    hideT.current = window.setTimeout(() => { if (!st.current.onRow) { st.current.shown = false; st.current.locked = false; setC(null); } }, 300);
+    hideT.current = window.setTimeout(() => { if (!st.current.onRow) { st.current.shown = false; st.current.tile = null; setC(null); } }, 300);
   };
   return (
     <div
