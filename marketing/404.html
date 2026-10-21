@@ -218,16 +218,19 @@ html[data-theme="light"] .hero-prompt-example { color: rgba(10,12,20,0.4); }
 
 /* ─── Play button (replaces the "Poke it" hint) ─── */
 .nf-play {
-  position: absolute; right: 6%; bottom: -16px; z-index: 3;
-  display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 0 13px 0 11px;
-  border-radius: 999px; border: 1px solid rgba(255,255,255,0.28); background: rgba(5,10,30,0.35);
-  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
-  color: #fff; cursor: pointer; white-space: nowrap;
-  font: 700 11px/1 var(--sc-font-label, var(--sc-font-sans)); letter-spacing: 1.4px; text-transform: uppercase;
-  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  /* centring lives on `translate` so `transform` is free for the bob + press */
+  position: absolute; left: 50%; bottom: -24px; translate: -50% 0; z-index: 3;
+  display: inline-flex; align-items: center; gap: 10px; height: 38px; padding: 0 16px 0 14px;
+  border-radius: 6px; border: 0; background: #1488FC; color: #fff; cursor: pointer; white-space: nowrap;
+  font: 400 10px/1 'Press Start 2P', ui-monospace, monospace; letter-spacing: 0.5px; text-transform: uppercase;
+  box-shadow: 0 4px 0 #0a4f9a, 0 10px 24px rgba(2,20,70,0.35);
+  animation: nfBob 2.4s ease-in-out infinite;
+  transition: background-color 0.15s ease, box-shadow 0.08s ease;
 }
-.nf-play svg { width: 10px; height: 10px; }
-.nf-play:hover { background: #1488FC; border-color: #1488FC; transform: translateY(-1px); }
+.nf-play svg { width: 10px; height: 10px; color: #ffd166; animation: nfBlink 1.1s steps(1) infinite; }
+.nf-play:hover { background: #2a95ff; animation-play-state: paused; transform: translateY(-2px); box-shadow: 0 6px 0 #0a4f9a, 0 14px 28px rgba(2,20,70,0.35); }
+.nf-play:active { transform: translateY(4px); box-shadow: 0 0 0 #0a4f9a, 0 4px 12px rgba(2,20,70,0.3); }
+@keyframes nfBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
 .nf-play:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 
 /* ─── Catch the Bolt ─── */
@@ -235,7 +238,7 @@ html[data-theme="light"] .hero-prompt-example { color: rgba(10,12,20,0.4); }
    self-contained panel (the copy below just moves down), the 404 fades out
    and the game fades in. Everything else on the hero stays (Gary). */
 .nf-slot {
-  position: relative; width: min(500px, 100%); height: 184px; margin-bottom: 28px;
+  position: relative; width: min(500px, 100%); height: 184px; margin-bottom: 48px;
   transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1), height 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .nf-slot > .nf-art { width: 100%; height: 100%; aspect-ratio: auto; margin: 0; transition: opacity 0.3s ease; }
@@ -303,11 +306,10 @@ html[data-theme="dark"] .nf-game {
 .nf-game-btn--primary { background: #1488FC; border-color: #1488FC; color: #fff; min-width: 120px; }
 .nf-game-btn--primary:hover { background: #0f6fd0; border-color: #0f6fd0; }
 @media (max-width: 1024px) {
-  .nf-play { right: auto; left: 50%; transform: translateX(-50%); bottom: -20px; }
-  .nf-play:hover { transform: translateX(-50%); }
 }
 @media (max-width: 768px) {
-  .nf-slot { width: min(330px, 92%); height: 121px; margin-bottom: 32px; }
+  .nf-slot { width: min(330px, 92%); height: 121px; margin-bottom: 70px; }
+  .nf-play { bottom: -50px; }   /* fully under the art: the phone 404 fills its box to the foot */
   .nf-slot.is-playing { width: 100%; height: 400px; }
   .nf-game-hud { gap: 14px; padding: 8px 14px; top: 12px; left: 12px; transform: none; }
   .nf-game-exit { right: 10px; top: 10px; width: 36px; height: 36px; }
@@ -315,7 +317,7 @@ html[data-theme="dark"] .nf-game {
   .nf-game-text { font-size: 14px; }
   .nf-game-title { font-size: 22px; }
 }
-@media (prefers-reduced-motion: reduce) { .nf-play { display: none; } .nf-slot, .nf-game { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .nf-play { display: none; animation: none; } .nf-slot, .nf-game { transition: none; } }
 
 /* ─── Arcade type for the game only (Gary: more playful) ─── */
 .nf-game { --nf-arcade: 'Press Start 2P', ui-monospace, monospace; --nf-crt: 'VT323', ui-monospace, monospace; }
