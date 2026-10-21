@@ -18,12 +18,6 @@
    subfolder (the GitHub Pages staging preview). */
 export const asset = (p: string) => import.meta.env.BASE_URL + p.replace(/^\//, '');
 
-export const BOLT_URL = 'https://bolt.new/?utm_source=builders-week&utm_medium=landing';
-export const TERMS_PATH = asset('/terms/');
-/* post-submission thank-you page (the form redirects here) */
-export const THANKS_PATH = asset('/thanks/');
-export const HOME_PATH = asset('/');
-
 /* Home hero (Figma: "Marketing home page Sept 2026", 2026-10-16). */
 export const hero = {
   titleSerif: 'Describe it.',
@@ -160,7 +154,7 @@ export const sessions: Session[] = [
   },
 ];
 
-export type FounderTemplate = {
+type FounderTemplate = {
   name: string;
   blurb: string;
   url?: string;
@@ -200,8 +194,6 @@ export const templates = {
     { name: 'Travel Journal', blurb: 'Destinations and atelier stories.', url: 'https://bolt.new/fork/github-mu7mffmh', shot: asset('/templates/catalog/maison-voyage.webp'), w: 1000, h: 1458, tag: 'Editorial' },
   ] as FounderTemplate[],
 };
-
-export type Prize = { place: string; amount: string; extras: string };
 
 [] = [
   {
