@@ -156,7 +156,7 @@ function CrawlWall({ all }: { all: ShowcaseCard[] }) {
 
 export function Showcase() {
   const variant = useVariant();
-  if (variant === 'c') {
+  if (variant === 'c' || variant === 'd') { /* D builds on C: the crawl + the blended closing band */
     /* 9 sites = three even rows of 3 (Gary: 3 across, bigger; "if they don't split
        evenly take out any" — construction is the one left out) */
     const all = [...showcase.rowA, ...showcase.rowB.slice(0, 4)];

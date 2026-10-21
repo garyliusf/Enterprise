@@ -2,7 +2,7 @@ import { useSyncExternalStore } from 'react';
 
 /* ── PROTOTYPE VARIANT SWITCH (review-only; strip before any port) ──────────
    A = the approved page, B / C = experiments (B is still a copy of A;
-   C = the showcase crawl; D = the closing band fades into the footer).
+   C = the showcase crawl; D = C's crawl + the closing band fades into the footer).
    experiments branch on it either in CSS (html[data-variant="b"] …) or in a
    component (const v = useVariant(); v === 'b' ? … : …). The choice comes
    from ?variant=a|b|c|d, else the last one picked (localStorage), else B. */
