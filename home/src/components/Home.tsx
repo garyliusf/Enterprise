@@ -59,8 +59,8 @@ function CardActions({ open, preview, label, tabIndex }: { open: string; preview
    sites tilted back in perspective, scrolling away toward a faded horizon;
    hover pauses it. Each tile is the site with its prompt as a caption, and
    opens the project in Bolt. */
-/* Preview's link comes later (Gary, 2026-10-21): until then the button is a
-   placeholder that does nothing — set CRAWL_PREVIEW_HREF (or per-card URLs) */
+/* Preview opens the site's own live preview (home.ts `preview`, from Notion);
+   CRAWL_PREVIEW_HREF is only a fallback for a card without one */
 const CRAWL_PREVIEW_HREF: string | null = null;
 function CrawlActions({ c, tabIndex }: { c: ShowcaseCard; tabIndex?: number }) {
   return (
@@ -68,8 +68,9 @@ function CrawlActions({ c, tabIndex }: { c: ShowcaseCard; tabIndex?: number }) {
       <a className="hm-crawl-btn hm-crawl-btn--primary" href={c.url} target="_blank" rel="noopener" tabIndex={tabIndex} aria-label={`Open ${c.prompt} in Bolt`}>Open in Bolt</a>
       <a
         className="hm-crawl-btn hm-crawl-btn--ghost"
-        href={CRAWL_PREVIEW_HREF ?? '#'}
-        {...(CRAWL_PREVIEW_HREF ? { target: '_blank', rel: 'noopener' } : { onClick: (e: React.MouseEvent) => e.preventDefault() })}
+        href={c.preview ?? CRAWL_PREVIEW_HREF ?? c.url}
+        target="_blank"
+        rel="noopener"
         tabIndex={tabIndex}
         aria-label={`Preview ${c.prompt}`}
       >
