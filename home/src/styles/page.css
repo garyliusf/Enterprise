@@ -1828,7 +1828,7 @@ a.fw-session-card { text-decoration: none; color: inherit; }
 .hm-crawl { position: relative; height: clamp(420px, 44vw, 600px); overflow: hidden; perspective: 1100px; perspective-origin: 50% 0%; -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 32%, #000 90%, transparent 100%); mask-image: linear-gradient(180deg, transparent 0%, #000 32%, #000 90%, transparent 100%); }
 /* the wall, tilted back from its bottom edge; less skew than v1 (Gary):
    52deg → 38deg. preserve-3d so a hovered tile can stand up off it */
-.hm-crawl { --crawl-tilt: 38deg; }
+.hm-crawl-wrap, .hm-crawl { --crawl-tilt: 38deg; }
 .hm-crawl-plane { position: absolute; left: 50%; bottom: 0; width: min(1400px, 120vw); height: 1400px; transform: translateX(-50%) rotateX(var(--crawl-tilt)); transform-origin: 50% 100%; transform-style: preserve-3d; }
 /* the track holds the 9 sites 4× and is pinned to the frame's bottom: one
    loop = one copy (3 rows of 3, bigger tiles — Gary), starting a quarter of
@@ -1845,8 +1845,14 @@ a.fw-session-card { text-decoration: none; color: inherit; }
 /* focus card: flat, opaque, OUTSIDE the wall's fade mask, over the hovered tile */
 .hm-crawl-wrap { position: relative; }
 .hm-crawl-wrap.is-popped .hm-crawl-track { animation-play-state: paused; }
-.hm-crawl-pop { position: absolute; z-index: 6; display: flex; flex-direction: column; overflow: hidden; border-radius: 10px; border: 1px solid rgba(20, 136, 252, 0.55); background: #fff; box-shadow: 0 30px 70px -20px rgba(16, 40, 90, 0.45); animation: hm-crawl-pop-in 0.28s cubic-bezier(0.22, 0.61, 0.36, 1) both; }
-@keyframes hm-crawl-pop-in { from { opacity: 0; transform: translateY(10px) scale(0.97); } to { opacity: 1; transform: none; } }
+.hm-crawl-pop { position: absolute; z-index: 6; display: flex; flex-direction: column; overflow: hidden; border-radius: 10px; border: 1px solid rgba(20, 136, 252, 0.55); background: #fff; box-shadow: 0 30px 70px -20px rgba(16, 40, 90, 0.45); transform-origin: 50% 100%; animation: hm-crawl-pop-in 0.5s cubic-bezier(0.2, 0.9, 0.25, 1.08) both; }
+/* flip up out of the wall (Gary: "grows into it … like a game"): from the
+   tile's size, tipped back by the wall tilt, to flat and full size */
+@keyframes hm-crawl-pop-in { from { opacity: 0.6; transform: perspective(900px) rotateX(var(--crawl-tilt, 38deg)) scale(var(--pop-from, 0.8)); } to { opacity: 1; transform: perspective(900px) rotateX(0deg) scale(1); } }
+.hm-crawl-pop.is-closing { pointer-events: none; animation: hm-crawl-pop-out 0.26s cubic-bezier(0.4, 0, 0.6, 1) both; }
+@keyframes hm-crawl-pop-out { from { opacity: 1; transform: perspective(900px) rotateX(0deg) scale(1); } to { opacity: 0; transform: perspective(900px) rotateX(var(--crawl-tilt, 38deg)) scale(var(--pop-from, 0.8)); } }
+.hm-crawl-pop .hm-crawl-open { animation: hm-crawl-pop-fade 0.5s ease both; }
+@keyframes hm-crawl-pop-fade { 0%, 40% { opacity: 0; } 100% { opacity: 1; } }
 .hm-crawl-pop-shot { position: relative; display: block; aspect-ratio: 4 / 3; overflow: hidden; }
 .hm-crawl-pop-shot img { position: absolute; top: 0; left: 0; width: 100%; height: auto; display: block; }
 .hm-crawl-pop-cap { padding: 13px 16px 15px; border-top: 1px solid rgba(16, 24, 40, 0.08); font-size: 15px; line-height: 1.4; color: #0a0d14; }
@@ -1854,7 +1860,7 @@ a.fw-session-card { text-decoration: none; color: inherit; }
 .hm-crawl-pop .hm-crawl-btn { transform: none; }
 :root[data-theme="dark"] .hm-crawl-pop { background: #0c0e14; }
 :root[data-theme="dark"] .hm-crawl-pop-cap { color: #fff; border-top-color: rgba(255, 255, 255, 0.08); }
-@media (prefers-reduced-motion: reduce) { .hm-crawl-pop { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .hm-crawl-pop, .hm-crawl-pop.is-closing, .hm-crawl-pop .hm-crawl-open { animation: none; } }
 .hm-crawl-cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 11px 14px 12px; border-top: 1px solid rgba(16, 24, 40, 0.08); background: #fff; font-size: 13px; line-height: 1.4; color: #0a0d14; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; } /* flush strip (Gary: the inset, padded card read worse) */
 /* hover overlay (Gary): a scrim over the standing tile + the action pair,
    Open in Bolt (solid blue) and Preview (white ghost on the scrim) */

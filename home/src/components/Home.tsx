@@ -87,7 +87,7 @@ function CrawlTile({ c, dupe, onEnter }: { c: ShowcaseCard; dupe: boolean; onEnt
    horizon and washed out). The wall's fade masks everything inside it, so the
    readable copy lives OUTSIDE it: a flat, opaque card over the hovered tile,
    bottom-aligned to it and at least 380px wide; the crawl pauses while it's up. */
-type CrawlPop = { c: ShowcaseCard; left: number; top: number; width: number } | null;
+type CrawlPop = { c: ShowcaseCard; left: number; top: number; width: number; from: number; closing?: boolean } | null;
 function CrawlWall({ all }: { all: ShowcaseCard[] }) {
   const loop = [...all, ...all, ...all, ...all];
   const wrap = useRef<HTMLDivElement>(null);
@@ -99,23 +99,34 @@ function CrawlWall({ all }: { all: ShowcaseCard[] }) {
     /* front row only (Gary): a tile answers once its centre is in the near
        half of the window — the back row stays part of the moving wall. A
        tile that slides forward under a resting cursor opens via mousemove. */
-    if (r.top + r.height / 2 < wr.top + wr.height * 0.5) { if (pop) setPop(null); return; }
-    if (pop && pop.c === c) return;
+    /* only a tile that's fully in view: the back row sits in the horizon fade
+       and the bottom row is cut off by the window's edge */
+    const inView = r.top + r.height / 2 >= wr.top + wr.height * 0.4 && r.bottom <= wr.bottom - 8;
+    if (!inView) { if (pop && !pop.closing) close(); return; }
+    if (pop && pop.c === c && !pop.closing) return;
     const width = Math.min(Math.max(r.width * 1.06, 380), wr.width - 32);
     const height = width * 0.75 + 52;
     const left = Math.min(Math.max(r.left - wr.left + r.width / 2 - width / 2, 16), wr.width - width - 16);
     const top = Math.max(r.bottom - wr.top - height, 0);
-    setPop({ c, left, top, width });
+    /* the card grows out of the tile: it starts at the tile's width, tipped
+       back by the wall's tilt about its bottom edge, and flips up flat */
+    setPop({ c, left, top, width, from: r.width / width });
+  };
+  const timer = useRef<number>(0);
+  const close = () => {
+    setPop((p) => (p ? { ...p, closing: true } : p));
+    window.clearTimeout(timer.current);
+    timer.current = window.setTimeout(() => setPop((p) => (p && p.closing ? null : p)), 260);
   };
   return (
-    <div className={`hm-crawl-wrap${pop ? ' is-popped' : ''}`} ref={wrap} onMouseLeave={() => setPop(null)}>
+    <div className={`hm-crawl-wrap${pop && !pop.closing ? ' is-popped' : ''}`} ref={wrap} onMouseLeave={close}>
       <div className="hm-crawl">
         <div className="hm-crawl-plane">
           <div className="hm-crawl-track">{loop.map((c, i) => <CrawlTile key={i} c={c} dupe={i >= all.length} onEnter={onEnter} />)}</div>
         </div>
       </div>
       {pop && (
-        <div key={pop.c.prompt} className="hm-crawl-pop" style={{ left: pop.left, top: pop.top, width: pop.width }}>
+        <div key={pop.c.prompt} className={`hm-crawl-pop${pop.closing ? ' is-closing' : ''}`} style={{ left: pop.left, top: pop.top, width: pop.width, ['--pop-from' as string]: pop.from }} onMouseEnter={() => { window.clearTimeout(timer.current); setPop((p) => (p ? { ...p, closing: false } : p)); }}>
           <span className="hm-crawl-pop-shot"><img src={pop.c.shot} alt="" /></span>
           <span className="hm-crawl-pop-cap">{pop.c.prompt}</span>
           <CrawlActions c={pop.c} />
