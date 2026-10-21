@@ -5,14 +5,15 @@ import { useSyncExternalStore } from 'react';
    C = the showcase cards as prompt bubble + scrolling browser window).
    experiments branch on it either in CSS (html[data-variant="b"] …) or in a
    component (const v = useVariant(); v === 'b' ? … : …). The choice comes
-   from ?variant=a|b|c, else the last one picked (localStorage), else A. */
+   from ?variant=a|b|c, else the last one picked (localStorage), else B. */
 export type Variant = 'a' | 'b' | 'c';
 const KEY = 'hm-variant';
 
 function initial(): Variant {
   const q = new URLSearchParams(window.location.search).get('variant');
   if (q === 'a' || q === 'b' || q === 'c') return q;
-  try { const v = localStorage.getItem(KEY); return v === 'b' || v === 'c' ? v : 'a'; } catch { return 'a'; }
+  /* new visitors (nothing saved) land on B (Gary, 2026-10-21) */
+  try { const v = localStorage.getItem(KEY); return v === 'a' || v === 'b' || v === 'c' ? v : 'b'; } catch { return 'b'; }
 }
 
 let current: Variant = initial();
