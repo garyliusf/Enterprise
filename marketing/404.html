@@ -37,6 +37,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400..900;1,400..900&family=Literata:ital,opsz,wght@0,7..72,200..900;1,7..72,200..900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="shared-components.css?v=20261002c">
 <style>
 /* ═══ 404 — "This page hasn't been built yet" ══════════════════════════════
@@ -315,6 +316,27 @@ html[data-theme="dark"] .nf-game {
   .nf-game-title { font-size: 22px; }
 }
 @media (prefers-reduced-motion: reduce) { .nf-play { display: none; } .nf-slot, .nf-game { transition: none; } }
+
+/* ─── Arcade type for the game only (Gary: more playful) ─── */
+.nf-game { --nf-arcade: 'Press Start 2P', ui-monospace, monospace; --nf-crt: 'VT323', ui-monospace, monospace; }
+.nf-game-kicker { font: 400 10px/1 var(--nf-arcade); letter-spacing: 1px; color: #ffd166; animation: nfBlink 1.1s steps(1) infinite; }
+.nf-game-title { margin-top: 16px; font: 400 17px/1.6 var(--nf-arcade); letter-spacing: 0; text-transform: uppercase; color: #fff; text-shadow: 3px 3px 0 #1488FC; }
+.nf-game-text { margin-top: 12px; font: 400 21px/1.15 var(--nf-crt); color: rgba(220,235,255,0.82); }
+.nf-game-text b { color: #ffd166; font-weight: 400; }
+.nf-game-btn { font: 400 11px/1 var(--nf-arcade); letter-spacing: 0.5px; text-transform: uppercase; height: 44px; padding: 0 18px; border-radius: 6px; box-shadow: 0 4px 0 rgba(255,255,255,0.14); transition: transform 0.08s ease, box-shadow 0.08s ease, background-color 0.2s ease, border-color 0.2s ease; }
+.nf-game-btn--primary { box-shadow: 0 4px 0 #0a4f9a; }
+.nf-game-btn:active { transform: translateY(4px); box-shadow: 0 0 0 transparent; }
+.nf-game-hud { font: 400 9px/1 var(--nf-arcade); letter-spacing: 0.5px; }
+.nf-game-stat b { font: 400 12px/1 var(--nf-arcade); margin-left: 8px; }
+@keyframes nfBlink { 50% { opacity: 0.25; } }
+@media (max-width: 768px) {
+  .nf-game-title { font-size: 14px; }
+  .nf-game-text { font-size: 19px; }
+  .nf-game-btn { font-size: 10px; padding: 0 16px; height: 42px; }
+  .nf-game-actions { gap: 8px; margin-top: 16px; }
+  .nf-game-card { width: calc(100% - 24px); }
+}
+@media (prefers-reduced-motion: reduce) { .nf-game-kicker { animation: none; } }
 @media (prefers-reduced-motion: reduce) { .nf-img, .nf-more, .nf-field { transition: none; } .nf-card:hover .nf-img { transform: none; } }
 </style>
 
@@ -552,12 +574,12 @@ html[data-theme="dark"] .nf-game {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M6 18L18 6"/></svg>
         </button>
         <div class="nf-game-card" id="nf-game-card">
-          <p class="nf-game-kicker" id="nf-game-kicker">Catch the Bolt</p>
+          <p class="nf-game-kicker" id="nf-game-kicker">Player 1</p>
           <p class="nf-game-title" id="nf-game-title">Catch the bolts. Dodge the 404s.</p>
           <p class="nf-game-text" id="nf-game-text">Drag, move your mouse or use the arrow keys to slide the bag. Missing a bolt or catching a 404 costs a life. Gold bolts are worth 5.</p>
           <div class="nf-game-actions">
-            <button type="button" class="nf-game-btn nf-game-btn--primary" id="nf-game-start">Start</button>
-            <button type="button" class="nf-game-btn" id="nf-game-back">Back to Page</button>
+            <button type="button" class="nf-game-btn nf-game-btn--primary" id="nf-game-start">Press Start</button>
+            <button type="button" class="nf-game-btn" id="nf-game-back">Exit</button>
           </div>
         </div>
       </div>
@@ -990,9 +1012,9 @@ html[data-theme="dark"] .nf-game {
     isOpen = true; slot.classList.add('is-playing'); game.removeAttribute('aria-hidden');
     bag.x = 0; size(); items = []; sparks = []; pops = []; lives = 3; score = 0; hud();
     var touch = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
-    showCard('Catch the Bolt', 'Catch the bolts. Dodge the 404s.',
-      (touch ? 'Drag anywhere to slide the bag.' : 'Move your mouse or use the arrow keys to slide the bag.') +
-      ' Missing a bolt or catching a 404 costs a life. Gold bolts are worth 5.', 'Start');
+    showCard('Player 1', 'Catch the bolts. Dodge the 404s.',
+      (touch ? 'Drag to slide the bag.' : 'Mouse or arrow keys slide the bag.') +
+      ' Miss a bolt or catch a 404, lose a life. Gold bolts = 5 points.', 'Press Start');
     loopOnce();
   }
   function close() {
@@ -1009,7 +1031,7 @@ html[data-theme="dark"] .nf-game {
     var isBest = score > best;
     if (isBest) { best = score; try { localStorage.setItem('nf-bolt-best', best); } catch (e) {} }
     hud();
-    showCard(isBest && score ? 'New best' : 'Game over',
+    showCard(isBest && score ? 'New high score!' : 'Game over',
       'You caught ' + score + (score === 1 ? ' bolt' : ' bolts'),
       score >= 404 ? 'That is 404 bolts. The page is still missing, but you are clearly ready to build it.'
         : 'Best: ' + best + '. When you are done playing, the prompt below builds the page you came for.', 'Play Again');
@@ -1106,7 +1128,7 @@ html[data-theme="dark"] .nf-game {
       var s = it.size;
       ctx.shadowColor = 'rgba(255,90,70,0.6)'; ctx.shadowBlur = 16;
       rr(-s / 2, -s / 2, s, s * 0.78, 6); ctx.fillStyle = '#ff5a46'; ctx.fill(); ctx.shadowBlur = 0;
-      ctx.fillStyle = '#fff'; ctx.font = '800 13px ' + (getComputedStyle(document.body).getPropertyValue('--sc-font-sans') || 'sans-serif');
+      ctx.fillStyle = '#fff'; ctx.font = '400 9px "Press Start 2P", monospace';
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('404', 0, -s * 0.11);
     } else {
       var gold = it.type === 'gold';
@@ -1132,7 +1154,7 @@ html[data-theme="dark"] .nf-game {
       var q = pops[j]; q.t += dt; if (q.t > 0.8) { pops.splice(j, 1); continue; }
       ctx.globalAlpha = 1 - q.t / 0.8;
       ctx.fillStyle = q.bad ? '#ff8a7a' : q.gold ? '#ffd166' : '#fff';
-      ctx.font = '700 18px ' + (getComputedStyle(document.body).getPropertyValue('--sc-font-sans') || 'sans-serif');
+      ctx.font = '400 14px "Press Start 2P", monospace';
       ctx.textAlign = 'center'; ctx.fillText(q.txt, q.x, q.y - q.t * 50);
       ctx.globalAlpha = 1;
     }
@@ -1158,6 +1180,7 @@ html[data-theme="dark"] .nf-game {
   /* the panel animates its size open: re-measure whenever it changes */
   try { new ResizeObserver(function () { if (isOpen) { size(); draw(0); } }).observe(game); } catch (e) { window.addEventListener('resize', function () { if (isOpen) { size(); draw(0); } }); }
 
+  try { document.fonts.load('9px "Press Start 2P"'); } catch (e) {}
   playBtn.addEventListener('click', open);
   startBtn.addEventListener('click', function () {
     if (startBtn.dataset.resume) { delete startBtn.dataset.resume; card.hidden = true; playing = true; last = performance.now(); raf = requestAnimationFrame(tick); return; }
