@@ -54,13 +54,26 @@ function CardActions({ open, preview, label, tabIndex }: { open: string; preview
    sites tilted back in perspective, scrolling away toward a faded horizon;
    hover pauses it. Each tile is the site with its prompt as a caption, and
    opens the project in Bolt. */
+/* Preview's link comes later (Gary, 2026-10-21): until then the button is a
+   placeholder that does nothing — set CRAWL_PREVIEW_HREF (or per-card URLs) */
+const CRAWL_PREVIEW_HREF: string | null = null;
 function CrawlTile({ c, dupe }: { c: ShowcaseCard; dupe: boolean }) {
+  const t = dupe ? -1 : undefined;
   return (
-    <a className="hm-crawl-tile" href={c.url} target="_blank" rel="noopener" tabIndex={dupe ? -1 : undefined} aria-hidden={dupe ? true : undefined} aria-label={dupe ? undefined : `Open ${c.prompt} in Bolt`}>
+    <div className="hm-crawl-tile" aria-hidden={dupe ? true : undefined}>
       <img src={c.shot} alt="" loading="lazy" decoding="async" />
       <span className="hm-crawl-cap">{c.prompt}</span>
-      <span className="hm-crawl-open" aria-hidden="true"><span>Open in Bolt</span></span>
-    </a>
+      <span className="hm-crawl-open">
+        <a className="hm-crawl-btn hm-crawl-btn--primary" href={c.url} target="_blank" rel="noopener" tabIndex={t} aria-label={`Open ${c.prompt} in Bolt`}>Open in Bolt</a>
+        <a
+          className="hm-crawl-btn hm-crawl-btn--ghost"
+          href={CRAWL_PREVIEW_HREF ?? '#'}
+          {...(CRAWL_PREVIEW_HREF ? { target: '_blank', rel: 'noopener' } : { onClick: (e: React.MouseEvent) => e.preventDefault() })}
+          tabIndex={t}
+          aria-label={`Preview ${c.prompt}`}
+        >Preview</a>
+      </span>
+    </div>
   );
 }
 
