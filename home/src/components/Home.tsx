@@ -93,7 +93,15 @@ function CrawlWall({ all }: { all: ShowcaseCard[] }) {
   const wrap = useRef<HTMLDivElement>(null);
   const [sel, setSel] = useState<ShowcaseCard | null>(null);
   const [hold, setHold] = useState(false);
+  /* grace period (Gary: the bar vanished on the way down to its buttons — the
+     path from the wall to the viewport-pinned bar crosses page outside the
+     wall): hiding waits 700ms and is cancelled by reaching a tile or the bar */
+  const hideT = useRef<number>(0);
+  const keep = () => window.clearTimeout(hideT.current);
+  const hideSoon = () => { keep(); hideT.current = window.setTimeout(() => { setHold(false); setSel(null); }, 700); };
+  useEffect(() => keep, []);
   const onEnter = (c: ShowcaseCard, el: HTMLElement) => {
+    keep();
     /* every tile answers now (Gary): the bar, not the tile, carries the
        readable copy, so far or cut-off tiles are fine to pick */
     void el;
@@ -104,7 +112,7 @@ function CrawlWall({ all }: { all: ShowcaseCard[] }) {
     <div
       className={`hm-crawl-wrap${hold ? ' is-popped' : ''}`}
       ref={wrap}
-      onMouseLeave={() => { setHold(false); setSel(null); }}
+      onMouseLeave={(e) => { if ((e.relatedTarget as HTMLElement | null)?.closest?.('.hm-crawl-bar')) return; setHold(false); hideSoon(); }}
       onMouseMove={(e) => {
         const el = e.target as HTMLElement;
         if (el.closest('.hm-crawl-bar')) { if (!hold) setHold(true); return; }
@@ -116,7 +124,7 @@ function CrawlWall({ all }: { all: ShowcaseCard[] }) {
           <div className="hm-crawl-track">{loop.map((c, i) => <CrawlTile key={i} c={c} dupe={i >= all.length} onEnter={onEnter} />)}</div>
         </div>
       </div>
-      <div className={`hm-crawl-bar${sel ? ' is-on' : ''}`} aria-hidden={sel ? undefined : true}>
+      <div className={`hm-crawl-bar${sel ? ' is-on' : ''}`} aria-hidden={sel ? undefined : true} onMouseEnter={() => { keep(); setHold(true); }} onMouseLeave={() => { setHold(false); hideSoon(); }}>
         {sel && (
           <>
             <span className="hm-crawl-bar-thumb"><img src={sel.shot} alt="" /></span>
