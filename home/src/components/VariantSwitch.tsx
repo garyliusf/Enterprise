@@ -1,17 +1,18 @@
 import { useSyncExternalStore } from 'react';
 
 /* ── PROTOTYPE VARIANT SWITCH (review-only; strip before any port) ──────────
-   A = the approved page, B = the experiment. B starts as an exact copy of A;
+   A = the approved page, B / C = experiments (B is still a copy of A;
+   C = the showcase cards as prompt bubble + scrolling browser window).
    experiments branch on it either in CSS (html[data-variant="b"] …) or in a
    component (const v = useVariant(); v === 'b' ? … : …). The choice comes
-   from ?variant=a|b, else the last one picked (localStorage), else A. */
-export type Variant = 'a' | 'b';
+   from ?variant=a|b|c, else the last one picked (localStorage), else A. */
+export type Variant = 'a' | 'b' | 'c';
 const KEY = 'hm-variant';
 
 function initial(): Variant {
   const q = new URLSearchParams(window.location.search).get('variant');
-  if (q === 'a' || q === 'b') return q;
-  try { return localStorage.getItem(KEY) === 'b' ? 'b' : 'a'; } catch { return 'a'; }
+  if (q === 'a' || q === 'b' || q === 'c') return q;
+  try { const v = localStorage.getItem(KEY); return v === 'b' || v === 'c' ? v : 'a'; } catch { return 'a'; }
 }
 
 let current: Variant = initial();
@@ -34,7 +35,7 @@ export function VariantSwitch() {
   return (
     <div className="hm-variant-switch" role="group" aria-label="Page variant">
       <span className="hm-variant-label">Variant</span>
-      {(['a', 'b'] as const).map((x) => (
+      {(['a', 'b', 'c'] as const).map((x) => (
         <button key={x} type="button" aria-pressed={v === x} onClick={() => setVariant(x)}>{x.toUpperCase()}</button>
       ))}
     </div>

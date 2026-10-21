@@ -5,11 +5,40 @@ import { closing, enterprise, showcase, stats, steps, stories, platform, templat
 import { PromptBox, TrustPills } from './Hero';
 import { StepVisual } from './Story';
 import { BgVideo, Btn, HoverField, PixelField, SectionHeader, type WaveFn } from './ui';
+import { useVariant } from './VariantSwitch';
 
 /* ── Showcase: two rows of "Tell bolt" cards drifting in opposite directions ─
    Each row is duplicated so the drift loops seamlessly; it pauses on hover. */
 function ShowcaseRow({ cards, reverse = false }: { cards: ShowcaseCard[]; reverse?: boolean }) {
   const loop = [...cards, ...cards];
+  const variant = useVariant();
+  /* VARIANT C (review): the prompt as a chat bubble, the site it built in a
+     small browser window that scrolls the full-page capture on hover */
+  if (variant === 'c') {
+    return (
+      <div className={`hm-show-row hm-show-row--c${reverse ? ' hm-show-row--rev' : ''}`}>
+        <div className="hm-show-track">
+          {loop.map((c, i) => {
+            const dupe = i >= cards.length;
+            const host = c.preview ? new URL(c.preview).host : 'your-site.bolt.host';
+            return (
+              <div key={i} className="hm-showc" aria-hidden={dupe ? true : undefined}>
+                <div className="hm-showc-ask">
+                  <span className="hm-showc-who">You</span>
+                  <p className="hm-showc-prompt">{c.prompt}</p>
+                </div>
+                <a className="hm-showc-browser" href={c.url} target="_blank" rel="noopener" tabIndex={-1} aria-hidden="true">
+                  <span className="hm-showc-bar"><i /><i /><i /><span className="hm-showc-url">{host}</span></span>
+                  <span className="hm-showc-view"><img src={c.shot} alt="" loading="lazy" decoding="async" /></span>
+                </a>
+                <CardActions open={c.url} preview={c.preview} label={c.prompt} tabIndex={dupe ? -1 : undefined} />
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
   return (
     <div className={`hm-show-row${reverse ? ' hm-show-row--rev' : ''}`}>
       <div className="hm-show-track">
@@ -364,7 +393,7 @@ export function TemplatesHome() {
           </div>
         </div>
         <div className="hm-more-row">
-          <Btn href={templatesHome.more.href} external>{templatesHome.more.label}</Btn>
+          <Btn href={templatesHome.more.href} variant="ghost" external>{templatesHome.more.label}</Btn>
         </div>
       </div>
     </section>
