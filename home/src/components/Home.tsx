@@ -1,6 +1,5 @@
 import type React from 'react';
 import { useEffect, useRef, useState } from 'react';
-import { asset } from '../config';
 import { closing, enterprise, showcase, stats, steps, stories, platform, templatesHome, useCases, type ShowcaseCard } from '../home';
 import { PromptBox, TrustPills } from './Hero';
 import { StepVisual } from './Story';
@@ -59,16 +58,13 @@ function CardActions({ open, preview, label, tabIndex }: { open: string; preview
    sites tilted back in perspective, scrolling away toward a faded horizon;
    hover pauses it. Each tile is the site with its prompt as a caption, and
    opens the project in Bolt. */
-/* Preview opens the site's own live preview (home.ts `preview`, from Notion);
-   CRAWL_PREVIEW_HREF is only a fallback for a card without one */
-const CRAWL_PREVIEW_HREF: string | null = null;
 function CrawlActions({ c, tabIndex }: { c: ShowcaseCard; tabIndex?: number }) {
   return (
     <span className="hm-crawl-open">
       <a className="hm-crawl-btn hm-crawl-btn--primary" href={c.url} target="_blank" rel="noopener" tabIndex={tabIndex} aria-label={`Open ${c.prompt} in Bolt`}>Open in Bolt</a>
       <a
         className="hm-crawl-btn hm-crawl-btn--ghost"
-        href={c.preview ?? CRAWL_PREVIEW_HREF ?? c.url}
+        href={c.preview ?? c.url}
         target="_blank"
         rel="noopener"
         tabIndex={tabIndex}
@@ -80,9 +76,9 @@ function CrawlActions({ c, tabIndex }: { c: ShowcaseCard; tabIndex?: number }) {
     </span>
   );
 }
-function CrawlTile({ c, dupe, onEnter }: { c: ShowcaseCard; dupe: boolean; onEnter: (c: ShowcaseCard, el: HTMLElement) => void }) {
+function CrawlTile({ c, dupe, onEnter }: { c: ShowcaseCard; dupe: boolean; onEnter: (c: ShowcaseCard) => void }) {
   return (
-    <div className="hm-crawl-tile" aria-hidden={dupe ? true : undefined} onMouseEnter={(e) => onEnter(c, e.currentTarget)} onMouseMove={(e) => onEnter(c, e.currentTarget)}>
+    <div className="hm-crawl-tile" aria-hidden={dupe ? true : undefined} onMouseEnter={() => onEnter(c)} onMouseMove={() => onEnter(c)}>
       <img src={c.shot} alt="" loading="lazy" decoding="async" />
       <span className="hm-crawl-cap">{c.prompt}</span>
       <CrawlActions c={c} tabIndex={dupe ? -1 : undefined} />
@@ -117,11 +113,9 @@ function CrawlWall({ all }: { all: ShowcaseCard[] }) {
     io.observe(w);
     return () => io.disconnect();
   }, []);
-  const onEnter = (c: ShowcaseCard, el: HTMLElement) => {
+  const onEnter = (c: ShowcaseCard) => {
     keep();
-    /* every tile answers now (Gary): the bar, not the tile, carries the
-       readable copy, so far or cut-off tiles are fine to pick */
-    void el;
+    /* every tile answers (Gary): the bar, not the tile, carries the readable copy */
     setHold(true);
     if (sel === c) { window.clearTimeout(switchT.current); pending.current = null; return; }
     /* hover intent (Gary: passing over other tiles on the way down to the bar

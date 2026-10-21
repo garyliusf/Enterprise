@@ -8,7 +8,7 @@ type Entry = { name: string; project: string; url: string; email: string; at: nu
 const SAMPLE: Entry = { name: 'Ada Lovelace', project: 'Ledger Studio', url: 'https://ledger-studio.bolt.host', email: 'ada@example.com', at: Date.parse('2026-10-16T21:42:00Z') };
 
 /* pixels rising from the top edge, like a soft burst behind the check */
-const burst: WaveFn = (c, r, t, phase, cols, rows) => {
+const burst: WaveFn = (c, r, t, _phase, cols, rows) => {
   const x = c / cols - 0.5;
   const y = r / rows;
   const d = Math.max(0, 1 - Math.hypot(x * 1.6, y * 1.4));

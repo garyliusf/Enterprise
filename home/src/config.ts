@@ -42,31 +42,6 @@ export const hero = {
   trust: ['Free to start', 'No credit card required'],
 };
 
-export type Milestone = { date: string; title: string; body: string; tbc?: boolean };
-
-export const timeline: Milestone[] = [
-  {
-    date: 'Oct 13',
-    title: 'Contest Opens',
-    body: 'Turn your business idea into a product in Bolt, or grow the one you run. Submissions are open from Oct 13 to Oct 20.',
-  },
-  {
-    date: 'Oct 17–18',
-    title: 'Free Build Weekend',
-    body: 'Free building on GLM 5.3 Flash for everyone on Bolt, free and paid, Teams included. Starts Sat Oct 17 at 12:00am PDT, ends Sun Oct 18 at 11:59pm PDT.',
-  },
-  {
-    date: 'Oct 20–23',
-    title: 'Live Sessions',
-    body: 'A Q&A with Bolt’s co-founders and live workshops on SEO, growth and design for your business.',
-  },
-  {
-    date: 'Oct 31',
-    title: 'Winners Announced',
-    body: 'Submissions close Oct 20 and judging runs Oct 21 to 31. Winners are announced here and on social.',
-  },
-];
-
 import type { PixelIconName } from './components/ui';
 
 export const weekend = {
@@ -228,39 +203,7 @@ export const templates = {
 
 export type Prize = { place: string; amount: string; extras: string };
 
-/* From the official rules (Terms.tsx). Keep these in step with legal's text. */
-export const competition = {
-  eyebrow: 'The contest',
-  /* Business ideas or existing businesses only, so the entries are the right
-     kind (2026-10-09). The demo video is optional now; the rules still list it
-     as required — legal to reconcile. */
-  title: 'Show us the business you’re building',
-  subtitle:
-    'Turn a business idea into a product, or grow the business you already run. Build it in Bolt and submit it by Oct 20. Winners are announced on or about Oct 31.',
-  prizesTbc: false,
-  prizes: [
-    /* the 1:1 is not in the rules yet — legal to add */
-    { place: 'Grand prize', amount: '$10,000', extras: 'Paid in U.S. dollars, plus a 1:1 mentoring session with Eric Simons, Bolt’s co-founder and CEO.' },
-    { place: 'Second prize', amount: '$5,000', extras: 'Paid in U.S. dollars.' },
-    { place: 'Third prize', amount: '$2,500', extras: 'Paid in U.S. dollars.' },
-  ] as Prize[],
-  criteria: 'Judged on use of Bolt, the idea, implementation and design, and potential impact, weighted equally.',
-  prizeFinePrint:
-    'No purchase necessary. Open to individuals 18 and over, teams and organizations, subject to the eligibility rules. One entry per entrant.',
-};
-
-/* Pi Day 2026 winners, shown as past winners in the contest
-   section (from piday.bolt.host). */
-export const pastWinners = {
-  label: 'Pi Day 2026',
-  items: [
-    { name: 'Pi Symphony', url: 'https://pi-symphony.bolt.host/', img: asset('/winners/pi-symphony.webp') },
-    { name: 'AI Stylist', url: 'https://ai-stylist-web-app-u-w5mq.bolt.host/', img: asset('/winners/ai-stylist.webp') },
-    { name: 'Mindron Multi Agent System Builder', url: 'https://mindron-core-setup-arnx.bolt.host/', img: asset('/winners/mindron.webp') },
-  ],
-};
-
-export const faqs: { q: string; a: string }[] = [
+[] = [
   {
     q: 'Who can take part in Builders Week?',
     a: 'Anyone with a Bolt account can join the build weekend and the sessions. The contest is open to individuals 18 and over, teams and organizations, with some exclusions listed in the official rules.',
@@ -280,9 +223,3 @@ export const faqs: { q: string; a: string }[] = [
   },
 ];
 
-export const footerCta = {
-  eyebrow: 'Builders Week',
-  title: 'Your startup starts this weekend',
-  subtitle: 'Build it in Bolt, submit it by Oct 20 and compete for the $10k grand prize.',
-  cta: 'Compete for $10k',
-};
