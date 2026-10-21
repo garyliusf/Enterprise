@@ -103,9 +103,11 @@ function CrawlWall({ all }: { all: ShowcaseCard[] }) {
      path from the wall to the viewport-pinned bar crosses page outside the
      wall): hiding waits 700ms and is cancelled by reaching a tile or the bar */
   const hideT = useRef<number>(0);
+  const switchT = useRef<number>(0);
+  const pending = useRef<ShowcaseCard | null>(null);
   const keep = () => window.clearTimeout(hideT.current);
   const hideSoon = () => { keep(); hideT.current = window.setTimeout(() => { setHold(false); setSel(null); }, 700); };
-  useEffect(() => keep, []);
+  useEffect(() => () => { keep(); window.clearTimeout(switchT.current); }, []);
   /* scrolled out of the section → the bar fades away (Gary); a pointer that
      doesn't move while the page scrolls never fires mouseleave */
   useEffect(() => {
@@ -121,7 +123,15 @@ function CrawlWall({ all }: { all: ShowcaseCard[] }) {
        readable copy, so far or cut-off tiles are fine to pick */
     void el;
     setHold(true);
-    if (sel !== c) setSel(c);
+    if (sel === c) { window.clearTimeout(switchT.current); pending.current = null; return; }
+    /* hover intent (Gary: passing over other tiles on the way down to the bar
+       re-picked them): the first pick is instant; switching needs the pointer
+       to rest on the new tile for 320ms */
+    if (!sel) { setSel(c); return; }
+    if (pending.current === c) return;
+    pending.current = c;
+    window.clearTimeout(switchT.current);
+    switchT.current = window.setTimeout(() => { if (pending.current === c) setSel(c); pending.current = null; }, 320);
   };
   return (
     <div
@@ -139,7 +149,7 @@ function CrawlWall({ all }: { all: ShowcaseCard[] }) {
           <div className="hm-crawl-track">{loop.map((c, i) => <CrawlTile key={i} c={c} dupe={i >= all.length} onEnter={onEnter} />)}</div>
         </div>
       </div>
-      <div className={`hm-crawl-bar${sel ? ' is-on' : ''}`} aria-hidden={sel ? undefined : true} onMouseEnter={() => { keep(); setHold(true); }} onMouseLeave={() => { setHold(false); hideSoon(); }}>
+      <div className={`hm-crawl-bar${sel ? ' is-on' : ''}`} aria-hidden={sel ? undefined : true} onMouseEnter={() => { keep(); setHold(true); window.clearTimeout(switchT.current); pending.current = null; }} onMouseLeave={() => { setHold(false); hideSoon(); }}>
         {sel && (
           <>
             <span className="hm-crawl-bar-thumb"><img src={sel.shot} alt="" /></span>
