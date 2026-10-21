@@ -243,6 +243,9 @@
     document.querySelectorAll('.hero-btn-primary').forEach(function (b) { attach(b, '--sc-btn-pixel-primary', '#0a5aa8'); });
     document.querySelectorAll('.hero-btn-ghost').forEach(function (b) { attach(b, '--sc-btn-pixel-ghost', 'rgba(255,255,255,0.18)'); });
     document.querySelectorAll('.footer-cta-btn').forEach(function (b) { attach(b, '--sc-btn-pixel-primary', '#0a5aa8'); });
+    /* HOME DEVIATION (Gary, 2026-10-20): the email-strip submit gets the same
+       pixel fill, not the old slide-up — on home that's the 1:1 "Book a 1:1" */
+    document.querySelectorAll('.hero-cta-button').forEach(function (b) { attach(b, '--sc-btn-pixel-primary', '#0a5aa8'); });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
