@@ -119,7 +119,12 @@ function CrawlWall({ all }: { all: ShowcaseCard[] }) {
     timer.current = window.setTimeout(() => setPop((p) => (p && p.closing ? null : p)), 260);
   };
   return (
-    <div className={`hm-crawl-wrap${pop && !pop.closing ? ' is-popped' : ''}`} ref={wrap} onMouseLeave={close}>
+    <div className={`hm-crawl-wrap${pop && !pop.closing ? ' is-popped' : ''}`} ref={wrap} onMouseLeave={close} onMouseMove={(e) => {
+      /* the pointer has to be ON a tile or the open card — the gaps and margins
+         around them close it (and the wall moves again) */
+      const el = e.target as HTMLElement;
+      if (!el.closest('.hm-crawl-tile, .hm-crawl-pop') && pop && !pop.closing) close();
+    }}>
       <div className="hm-crawl">
         <div className="hm-crawl-plane">
           <div className="hm-crawl-track">{loop.map((c, i) => <CrawlTile key={i} c={c} dupe={i >= all.length} onEnter={onEnter} />)}</div>
