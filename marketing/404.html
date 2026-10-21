@@ -200,7 +200,6 @@ html[data-theme="light"] .hero-prompt-example { color: rgba(10,12,20,0.4); }
 @media (max-width: 768px) {
   .nf-hero { padding: calc(100px + var(--sc-nav-overlap, 0px)) 0 56px; }
   .nf-hero-inner { width: calc(100vw - 32px); }
-  .nf-art { width: min(330px, 92%); margin-bottom: 20px; }
   .nf-h1 { font-size: clamp(37px, 10.45vw, 51px); }
   .nf-sub { margin-top: 12px; font-size: 16px; }
   .nf-prompt { margin-top: 24px; }
@@ -231,23 +230,39 @@ html[data-theme="light"] .hero-prompt-example { color: rgba(10,12,20,0.4); }
 .nf-play:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 
 /* ─── Catch the Bolt ─── */
-.nf-game { position: absolute; inset: 0 0 auto 0; height: 100%; max-height: 100vh; max-height: 100svh; z-index: 5; }   /* never taller than the screen: the hero runs past the fold on phones and the bag would sit below it */
-/* the game ground: the hero's navy crown carried all the way down (the light
-   dome goes white at the foot, where the white bag would vanish), faded out
-   over the last stretch so it meets the next section softly */
-.nf-game::before {
-  content: ""; position: absolute; inset: 0; pointer-events: none;
-  background: radial-gradient(120% 60% at 50% 100%, rgba(20,136,252,0.35), rgba(20,136,252,0) 70%), linear-gradient(180deg, #021a57 0%, #072f86 55%, #0d4aa8 100%);
-  -webkit-mask-image: linear-gradient(180deg, #000 88%, rgba(0,0,0,0) 100%);
-          mask-image: linear-gradient(180deg, #000 88%, rgba(0,0,0,0) 100%);
+/* Catch the Bolt lives in the 404's slot: on Play the slot grows into a
+   self-contained panel (the copy below just moves down), the 404 fades out
+   and the game fades in. Everything else on the hero stays (Gary). */
+.nf-slot {
+  position: relative; width: min(500px, 100%); height: 184px; margin-bottom: 28px;
+  transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1), height 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
-html[data-theme="dark"] .nf-game::before { background: radial-gradient(120% 60% at 50% 100%, rgba(20,136,252,0.22), rgba(20,136,252,0) 70%), #000; }
-.nf-game[hidden] { display: none; }
+.nf-slot > .nf-art { width: 100%; height: 100%; aspect-ratio: auto; margin: 0; transition: opacity 0.3s ease; }
+.nf-slot.is-playing { width: min(760px, 100%); height: 420px; }
+.nf-slot.is-playing > .nf-art { opacity: 0; pointer-events: none; }
+.nf-game {
+  position: absolute; inset: 0; z-index: 2; overflow: hidden; isolation: isolate;
+  border-radius: 16px; border: 1px solid rgba(255,255,255,0.18);
+  background:
+    radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1.2px) 0 0 / 18px 18px,
+    radial-gradient(90% 60% at 50% 115%, rgba(20,136,252,0.4), rgba(20,136,252,0) 70%),
+    linear-gradient(180deg, #03112f 0%, #062063 100%);
+  box-shadow: 0 30px 80px rgba(2,10,40,0.4), inset 0 1px 0 rgba(255,255,255,0.08);
+  opacity: 0; visibility: hidden; transform: scale(0.98);
+  transition: opacity 0.35s ease, transform 0.35s ease, visibility 0s linear 0.35s;
+}
+.nf-slot.is-playing .nf-game { opacity: 1; visibility: visible; transform: none; transition-delay: 0.2s, 0.2s, 0s; }
+html[data-theme="dark"] .nf-game {
+  border-color: rgba(255,255,255,0.12);
+  background:
+    radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1.2px) 0 0 / 18px 18px,
+    radial-gradient(90% 60% at 50% 115%, rgba(20,136,252,0.24), rgba(20,136,252,0) 70%),
+    #07080c;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06);
+}
 .nf-game canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: none; }
-.nf-hero.is-playing .nf-hero-inner { opacity: 0; visibility: hidden; transition: opacity 0.25s ease, visibility 0s linear 0.25s; }
-.nf-hero-inner { transition: opacity 0.35s ease; }
 .nf-game-hud {
-  position: absolute; left: 50%; transform: translateX(-50%); top: calc(var(--sc-nav-overlap, 0px) + 20px);
+  position: absolute; left: 50%; transform: translateX(-50%); top: 16px;
   display: flex; align-items: center; gap: 22px; padding: 9px 18px; border-radius: 999px;
   background: rgba(5,10,30,0.45); border: 1px solid rgba(255,255,255,0.14);
   -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
@@ -259,7 +274,7 @@ html[data-theme="dark"] .nf-game::before { background: radial-gradient(120% 60% 
 .nf-game-lives i { width: 9px; height: 9px; background: #1488FC; box-shadow: 0 0 8px rgba(20,136,252,0.8); }
 .nf-game-lives i.is-lost { background: rgba(255,255,255,0.18); box-shadow: none; }
 .nf-game-exit {
-  position: absolute; right: 24px; top: calc(var(--sc-nav-overlap, 0px) + 16px); width: 40px; height: 40px;
+  position: absolute; right: 14px; top: 12px; width: 40px; height: 40px; z-index: 2;
   display: grid; place-items: center; border-radius: 999px; cursor: pointer;
   background: rgba(5,10,30,0.45); border: 1px solid rgba(255,255,255,0.18); color: #fff;
 }
@@ -267,16 +282,16 @@ html[data-theme="dark"] .nf-game::before { background: radial-gradient(120% 60% 
 .nf-game-exit:hover { background: rgba(255,255,255,0.14); }
 .nf-game-card {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-  width: min(440px, calc(100% - 32px)); padding: 32px 28px 28px; text-align: center;
+  width: min(420px, calc(100% - 32px)); padding: 26px 24px 24px; text-align: center;
   border-radius: 12px; background: rgba(4,10,32,0.78); border: 1px solid rgba(255,255,255,0.14);
   -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
   box-shadow: 0 30px 80px rgba(0,0,0,0.35); color: #fff;
 }
 .nf-game-card[hidden] { display: none; }
 .nf-game-kicker { font: 700 12px/1 var(--sc-font-label, var(--sc-font-sans)); letter-spacing: 2px; text-transform: uppercase; color: #7cc0ff; }
-.nf-game-title { margin-top: 14px; font-size: 28px; font-weight: 500; line-height: 1.15; letter-spacing: -0.5px; text-wrap: balance; }
+.nf-game-title { margin-top: 12px; font-size: 26px; font-weight: 500; line-height: 1.15; letter-spacing: -0.5px; text-wrap: balance; }
 .nf-game-text { margin-top: 10px; font-size: 15px; line-height: 1.5; color: rgba(255,255,255,0.72); text-wrap: pretty; }
-.nf-game-actions { display: flex; justify-content: center; gap: 10px; margin-top: 24px; flex-wrap: wrap; }
+.nf-game-actions { display: flex; justify-content: center; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
 .nf-game-btn {
   height: 44px; padding: 0 20px; border-radius: 6px; cursor: pointer;
   font: 600 14px/1 var(--sc-font-sans, sans-serif); color: rgba(255,255,255,0.85);
@@ -291,13 +306,15 @@ html[data-theme="dark"] .nf-game::before { background: radial-gradient(120% 60% 
   .nf-play:hover { transform: translateX(-50%); }
 }
 @media (max-width: 768px) {
-  .nf-art { margin-bottom: 32px; }
-  .nf-game-hud { gap: 14px; padding: 8px 14px; top: calc(var(--sc-nav-overlap, 0px) + 14px); }
-  .nf-game-exit { right: 12px; top: calc(var(--sc-nav-overlap, 0px) + 10px); width: 36px; height: 36px; }
-  .nf-game-hud { left: 16px; transform: none; }
-  .nf-game-title { font-size: 24px; }
+  .nf-slot { width: min(330px, 92%); height: 121px; margin-bottom: 32px; }
+  .nf-slot.is-playing { width: 100%; height: 400px; }
+  .nf-game-hud { gap: 14px; padding: 8px 14px; top: 12px; left: 12px; transform: none; }
+  .nf-game-exit { right: 10px; top: 10px; width: 36px; height: 36px; }
+  .nf-game-card { padding: 22px 18px 20px; }
+  .nf-game-text { font-size: 14px; }
+  .nf-game-title { font-size: 22px; }
 }
-@media (prefers-reduced-motion: reduce) { .nf-play { display: none; } }
+@media (prefers-reduced-motion: reduce) { .nf-play { display: none; } .nf-slot, .nf-game { transition: none; } }
 @media (prefers-reduced-motion: reduce) { .nf-img, .nf-more, .nf-field { transition: none; } .nf-card:hover .nf-img { transform: none; } }
 </style>
 
@@ -513,35 +530,37 @@ html[data-theme="dark"] .nf-game::before { background: radial-gradient(120% 60% 
 <main>
 <section class="nf-hero">
   <canvas class="hero-dither" aria-hidden="true"></canvas>
-  <!-- Catch the Bolt: a mini game that takes over the hero while playing -->
-  <div class="nf-game" id="nf-game" hidden>
-    <canvas id="nf-game-canvas" aria-label="Catch the Bolt game. Move the bag left and right to catch falling Bolt logos."></canvas>
-    <div class="nf-game-hud">
-      <span class="nf-game-stat">Score <b id="nf-score">0</b></span>
-      <span class="nf-game-lives" id="nf-lives" aria-label="Lives"></span>
-      <span class="nf-game-stat">Best <b id="nf-best">0</b></span>
-    </div>
-    <button type="button" class="nf-game-exit" id="nf-game-exit" aria-label="Exit game">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M6 18L18 6"/></svg>
-    </button>
-    <div class="nf-game-card" id="nf-game-card">
-      <p class="nf-game-kicker" id="nf-game-kicker">Catch the Bolt</p>
-      <p class="nf-game-title" id="nf-game-title">Catch the bolts. Dodge the 404s.</p>
-      <p class="nf-game-text" id="nf-game-text">Drag, move your mouse or use the arrow keys to slide the bag. Missing a bolt or catching a 404 costs a life. Gold bolts are worth 5.</p>
-      <div class="nf-game-actions">
-        <button type="button" class="nf-game-btn nf-game-btn--primary" id="nf-game-start">Start</button>
-        <button type="button" class="nf-game-btn" id="nf-game-back">Back to Page</button>
-      </div>
-    </div>
-  </div>
   <div class="nf-hero-inner sc-on-dark">
-    <div class="nf-art" id="nf-art">
-      <canvas id="nf-404-canvas" aria-hidden="true"></canvas>
-      <span class="sr-only">Error 404</span>
-      <button type="button" class="nf-play" id="nf-play">
-        <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.8v8.4L10 6z" fill="currentColor"/></svg>
-        Play Catch the Bolt
-      </button>
+    <div class="nf-slot" id="nf-slot">
+      <div class="nf-art" id="nf-art">
+        <canvas id="nf-404-canvas" aria-hidden="true"></canvas>
+        <span class="sr-only">Error 404</span>
+        <button type="button" class="nf-play" id="nf-play">
+          <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.8v8.4L10 6z" fill="currentColor"/></svg>
+          Play Catch the Bolt
+        </button>
+      </div>
+      <!-- Catch the Bolt: grows out of the 404 slot; the 404 fades out, the panel fades in -->
+      <div class="nf-game" id="nf-game" aria-hidden="true">
+        <canvas id="nf-game-canvas" aria-label="Catch the Bolt game. Move the bag left and right to catch falling Bolt logos."></canvas>
+        <div class="nf-game-hud">
+          <span class="nf-game-stat">Score <b id="nf-score">0</b></span>
+          <span class="nf-game-lives" id="nf-lives" aria-label="Lives"></span>
+          <span class="nf-game-stat">Best <b id="nf-best">0</b></span>
+        </div>
+        <button type="button" class="nf-game-exit" id="nf-game-exit" aria-label="Exit game">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M6 18L18 6"/></svg>
+        </button>
+        <div class="nf-game-card" id="nf-game-card">
+          <p class="nf-game-kicker" id="nf-game-kicker">Catch the Bolt</p>
+          <p class="nf-game-title" id="nf-game-title">Catch the bolts. Dodge the 404s.</p>
+          <p class="nf-game-text" id="nf-game-text">Drag, move your mouse or use the arrow keys to slide the bag. Missing a bolt or catching a 404 costs a life. Gold bolts are worth 5.</p>
+          <div class="nf-game-actions">
+            <button type="button" class="nf-game-btn nf-game-btn--primary" id="nf-game-start">Start</button>
+            <button type="button" class="nf-game-btn" id="nf-game-back">Back to Page</button>
+          </div>
+        </div>
+      </div>
     </div>
     <h1 class="nf-h1">This page hasn't been built yet</h1>
     <p class="nf-sub">We looked everywhere for <code class="nf-path" id="nf-path">/banana</code>. The link may be broken or the page has moved. Pick a destination below, or describe what you were after and Bolt will build it.</p>
@@ -919,6 +938,7 @@ html[data-theme="dark"] .nf-game::before { background: radial-gradient(120% 60% 
 (function () {
   var hero = document.querySelector('.nf-hero');
   var game = document.getElementById('nf-game');
+  var slot = document.getElementById('nf-slot'), isOpen = false;
   var canvas = document.getElementById('nf-game-canvas');
   var playBtn = document.getElementById('nf-play');
   if (!hero || !game || !canvas || !playBtn) return;
@@ -950,7 +970,7 @@ html[data-theme="dark"] .nf-game::before { background: radial-gradient(120% 60% 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     var small = W < 600;
     bag.w = small ? 84 : 104; bag.h = small ? 58 : 70;
-    bag.y = H - (small ? 120 : 150);
+    bag.y = H - (small ? 56 : 64);
     if (!bag.x) bag.x = bag.tx = W / 2;
     bag.x = Math.min(Math.max(bag.x, bag.w / 2 + 8), W - bag.w / 2 - 8);
   }
@@ -967,10 +987,8 @@ html[data-theme="dark"] .nf-game::before { background: radial-gradient(120% 60% 
   }
 
   function open() {
-    var top = hero.getBoundingClientRect().top + window.scrollY;
-    if (Math.abs(window.scrollY - top) > 4) window.scrollTo({ top: top, behavior: 'smooth' });
-    game.hidden = false; hero.classList.add('is-playing');
-    size(); items = []; sparks = []; pops = []; lives = 3; score = 0; hud();
+    isOpen = true; slot.classList.add('is-playing'); game.removeAttribute('aria-hidden');
+    bag.x = 0; size(); items = []; sparks = []; pops = []; lives = 3; score = 0; hud();
     var touch = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
     showCard('Catch the Bolt', 'Catch the bolts. Dodge the 404s.',
       (touch ? 'Drag anywhere to slide the bag.' : 'Move your mouse or use the arrow keys to slide the bag.') +
@@ -979,7 +997,7 @@ html[data-theme="dark"] .nf-game::before { background: radial-gradient(120% 60% 
   }
   function close() {
     playing = false; cancelAnimationFrame(raf);
-    game.hidden = true; hero.classList.remove('is-playing');
+    isOpen = false; slot.classList.remove('is-playing'); game.setAttribute('aria-hidden', 'true');
     playBtn.focus({ preventScroll: true });
   }
   function start() {
@@ -1127,7 +1145,7 @@ html[data-theme="dark"] .nf-game::before { background: radial-gradient(120% 60% 
   canvas.addEventListener('pointermove', aim);
   canvas.addEventListener('pointerdown', function (e) { aim(e); try { canvas.setPointerCapture(e.pointerId); } catch (err) {} });
   document.addEventListener('keydown', function (e) {
-    if (game.hidden) return;
+    if (!isOpen) return;
     if (e.key === 'Escape') { close(); return; }
     if (e.key === 'ArrowLeft' || e.key === 'a') { keys.left = true; e.preventDefault(); }
     if (e.key === 'ArrowRight' || e.key === 'd') { keys.right = true; e.preventDefault(); }
@@ -1137,7 +1155,8 @@ html[data-theme="dark"] .nf-game::before { background: radial-gradient(120% 60% 
     if (e.key === 'ArrowRight' || e.key === 'd') keys.right = false;
   });
   document.addEventListener('visibilitychange', function () { if (document.hidden && playing) { playing = false; showCard('Paused', 'Score: ' + score, 'Pick up where you left off.', 'Resume'); startBtn.dataset.resume = '1'; } });
-  window.addEventListener('resize', function () { if (!game.hidden) { size(); draw(0); } });
+  /* the panel animates its size open: re-measure whenever it changes */
+  try { new ResizeObserver(function () { if (isOpen) { size(); draw(0); } }).observe(game); } catch (e) { window.addEventListener('resize', function () { if (isOpen) { size(); draw(0); } }); }
 
   playBtn.addEventListener('click', open);
   startBtn.addEventListener('click', function () {
