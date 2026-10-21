@@ -1825,19 +1825,27 @@ a.fw-session-card { text-decoration: none; color: inherit; }
    .hm-crawl = the window (perspective, faded to the horizon at the top);
    .hm-crawl-plane = the wall tilted back; .hm-crawl-track = 5 columns of
    sites, the list twice, sliding up one copy per loop. Hover pauses. */
-.hm-crawl { position: relative; height: clamp(420px, 46vw, 620px); overflow: hidden; perspective: 900px; perspective-origin: 50% 0%; -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 38%, #000 88%, transparent 100%); mask-image: linear-gradient(180deg, transparent 0%, #000 38%, #000 88%, transparent 100%); }
-.hm-crawl-plane { position: absolute; left: 50%; bottom: -8%; width: min(1600px, 135vw); transform: translateX(-50%) rotateX(52deg); transform-origin: 50% 100%; transform-style: preserve-3d; }
-.hm-crawl-track { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 28px; animation: hm-crawl-up 60s linear infinite; will-change: transform; }
+.hm-crawl { position: relative; height: clamp(420px, 44vw, 600px); overflow: hidden; perspective: 1100px; perspective-origin: 50% 0%; -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 32%, #000 90%, transparent 100%); mask-image: linear-gradient(180deg, transparent 0%, #000 32%, #000 90%, transparent 100%); }
+/* the wall, tilted back from its bottom edge; less skew than v1 (Gary):
+   52deg → 38deg. preserve-3d so a hovered tile can stand up off it */
+.hm-crawl { --crawl-tilt: 38deg; }
+.hm-crawl-plane { position: absolute; left: 50%; bottom: 0; width: min(1600px, 135vw); height: 1400px; transform: translateX(-50%) rotateX(var(--crawl-tilt)); transform-origin: 50% 100%; transform-style: preserve-3d; }
+/* the track holds the list 4× and is pinned to the frame's bottom: it starts
+   one copy low and rises to rest, so the near edge is never empty */
+.hm-crawl-track { --crawl-gap: 28px; position: absolute; left: 0; right: 0; bottom: 0; transform-style: preserve-3d; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--crawl-gap); animation: hm-crawl-up 24s linear infinite; will-change: transform; }
 .hm-crawl:hover .hm-crawl-track { animation-play-state: paused; }
-@keyframes hm-crawl-up { from { transform: translateY(0); } to { transform: translateY(calc(-50% - 14px)); } }
-.hm-crawl-tile { position: relative; display: block; aspect-ratio: 4 / 3; overflow: hidden; border-radius: 10px; border: 1px solid var(--sc-line); background: var(--sc-surface-strong); box-shadow: 0 30px 60px -30px rgba(16, 24, 40, 0.45); text-decoration: none; transition: border-color 0.3s ease, box-shadow 0.3s ease; }
+@keyframes hm-crawl-up { from { transform: translateY(calc(25% + var(--crawl-gap) / 4)); } to { transform: translateY(0); } }
+.hm-crawl-tile { position: relative; display: block; aspect-ratio: 4 / 3; overflow: hidden; border-radius: 10px; border: 1px solid var(--sc-line); background: var(--sc-surface-strong); box-shadow: 0 30px 60px -30px rgba(16, 24, 40, 0.45); text-decoration: none; transform-origin: 50% 100%; transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1), border-color 0.3s ease, box-shadow 0.3s ease; }
 .hm-crawl-tile img { position: absolute; inset: 0; width: 100%; height: auto; display: block; }
-.hm-crawl-tile:hover { border-color: rgba(20, 136, 252, 0.6); box-shadow: 0 30px 60px -24px rgba(20, 136, 252, 0.45); }
+/* hover (Gary): the tile stands back up to face you — it rotates about its
+   bottom edge by the wall's tilt, so it reads flat and easy to scan */
+.hm-crawl-tile:hover { z-index: 5; transform: rotateX(calc(-1 * var(--crawl-tilt))) translateZ(24px) scale(1.04); border-color: rgba(20, 136, 252, 0.6); box-shadow: 0 30px 60px -24px rgba(20, 136, 252, 0.45); }
 .hm-crawl-cap { position: absolute; left: 10px; right: 10px; bottom: 10px; padding: 9px 12px; border-radius: 8px; background: rgba(255, 255, 255, 0.92); box-shadow: 0 6px 18px rgba(16, 24, 40, 0.18); font-size: 13px; line-height: 1.35; color: #0a0d14; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 :root[data-theme="dark"] .hm-crawl-cap { background: rgba(12, 14, 20, 0.9); color: #fff; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5); }
 @media (prefers-reduced-motion: reduce) { .hm-crawl-track { animation: none; } }
-@media (max-width: 1024px) { .hm-crawl-plane { width: 170vw; } .hm-crawl-track { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 22px; } }
-@media (max-width: 768px) { .hm-crawl { height: 360px; perspective: 600px; } .hm-crawl-plane { bottom: -2%; width: 230vw; transform: translateX(-50%) rotateX(48deg); } .hm-crawl-track { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; } .hm-crawl-cap { font-size: 12px; } }
+/* columns must divide the 10 sites evenly or the loop seam shows: 5 → 2 */
+@media (max-width: 1024px) { .hm-crawl-plane { width: 160vw; } .hm-crawl-track { --crawl-gap: 22px; } }
+@media (max-width: 768px) { .hm-crawl { height: 380px; perspective: 800px; } .hm-crawl { --crawl-tilt: 36deg; } .hm-crawl-plane { width: 150vw; height: 1400px; } .hm-crawl-track { grid-template-columns: repeat(2, minmax(0, 1fr)); --crawl-gap: 14px; animation-duration: 40s; } .hm-crawl-cap { font-size: 12px; } }
 /* ── Stats ────────────────────────────────────────────────────────────── */
 /* the stats bar sits a full section unit from the drifting cards above and
    from Build anything below (Gary: more gap) */

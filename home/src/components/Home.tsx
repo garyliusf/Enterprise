@@ -67,7 +67,8 @@ export function Showcase() {
   const variant = useVariant();
   if (variant === 'c') {
     const all = [...showcase.rowA, ...showcase.rowB];
-    const loop = [...all, ...all];
+    /* four copies: the frame always has rows below the window, so the stream never runs dry */
+    const loop = [...all, ...all, ...all, ...all];
     return (
       <section className="hm-showcase hm-showcase--crawl" aria-label="Apps built on Bolt">
         <div className="hm-crawl">
