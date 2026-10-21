@@ -140,6 +140,12 @@ function CrawlWall({ all }: { all: ShowcaseCard[] }) {
           onMouseEnter={() => { onRow.current = true; clear(); }}
           onMouseLeave={() => { onRow.current = false; }}
         >
+          {/* which project this row belongs to (Gary): a small thumb of its site */}
+          <span className="hm-crawl-float-thumb" aria-hidden="true"><img src={fl.c.shot} alt="" /></span>
+          <span className="hm-crawl-float-copy">
+            <span className="hm-crawl-float-name">{fl.c.name ?? fl.c.prompt}</span>
+            {fl.c.tag && <span className="hm-crawl-float-tag">{fl.c.tag}</span>}
+          </span>
           <CrawlActions c={fl.c} />
         </div>
       )}

@@ -11,22 +11,22 @@ import { asset } from './config';
 /* url = fork into Bolt ("Open in Bolt"); preview = the live site ("Preview"),
    from production's template data; the sb1-* ones from Notion's "Founders Week
    templates" database (2026-10-20). All are down right now — see SHOW_PREVIEW */
-export type ShowcaseCard = { shot: string; prompt: string; url: string; preview?: string };
+export type ShowcaseCard = { shot: string; prompt: string; url: string; preview?: string; name?: string; tag?: string };
 const fork = (id: string) => `https://bolt.new/fork/${id}`;
 export const showcase: { rowA: ShowcaseCard[]; rowB: ShowcaseCard[] } = {
   rowA: [
-    { shot: asset('/templates/soda.webp'), prompt: 'An online store for my soda brand with a build-your-own flavor menu', url: fork('sb1-r5f2szok'), preview: 'https://template-soda.bolt.host' },
-    { shot: asset('/templates/wedding.webp'), prompt: 'A portfolio site for my wedding planning business with an inquiry form', url: fork('sb1-xcpxwqz1'), preview: 'https://template-wedding-planner.bolt.host' },
-    { shot: asset('/templates/mow.webp'), prompt: 'A lawn care site that gives instant quotes and books recurring visits', url: fork('sb1-vipe17ab'), preview: 'https://template-lawn-care.bolt.host' },
-    { shot: asset('/templates/catalog/premium-saas-dashboard-lp.webp'), prompt: 'A landing page for my SaaS with pricing and a waitlist', url: fork('github-xtrskmb3'), preview: 'https://template-premium-saas-dashboard-lp.bolt.host' },
-    { shot: asset('/templates/cleaning.webp'), prompt: 'A home cleaning site with a service area map and quote requests', url: fork('sb1-33phwvdj'), preview: 'https://template-home-cleaning.bolt.host' },
+    { shot: asset('/templates/soda.webp'), prompt: 'An online store for my soda brand with a build-your-own flavor menu', url: fork('sb1-r5f2szok'), preview: 'https://template-soda.bolt.host', name: 'Soda Shop', tag: 'Retail' },
+    { shot: asset('/templates/wedding.webp'), prompt: 'A portfolio site for my wedding planning business with an inquiry form', url: fork('sb1-xcpxwqz1'), preview: 'https://template-wedding-planner.bolt.host', name: 'Wedding Planner', tag: 'Events' },
+    { shot: asset('/templates/mow.webp'), prompt: 'A lawn care site that gives instant quotes and books recurring visits', url: fork('sb1-vipe17ab'), preview: 'https://template-lawn-care.bolt.host', name: 'Lawn Care', tag: 'Trades' },
+    { shot: asset('/templates/catalog/premium-saas-dashboard-lp.webp'), prompt: 'A landing page for my SaaS with pricing and a waitlist', url: fork('github-xtrskmb3'), preview: 'https://template-premium-saas-dashboard-lp.bolt.host', name: 'SaaS Landing', tag: 'SaaS' },
+    { shot: asset('/templates/cleaning.webp'), prompt: 'A home cleaning site with a service area map and quote requests', url: fork('sb1-33phwvdj'), preview: 'https://template-home-cleaning.bolt.host', name: 'Home Cleaning', tag: 'Trades' },
   ],
   rowB: [
-    { shot: asset('/templates/catalog/maison-voyage.webp'), prompt: 'A travel journal with destination guides and stories', url: fork('github-mu7mffmh'), preview: 'https://template-maison-voyage.bolt.host' },
-    { shot: asset('/templates/plumbing.webp'), prompt: 'A plumbing company site with online booking and recent jobs', url: fork('sb1-v6i8qmpp'), preview: 'https://template-plumbing.bolt.host' },
-    { shot: asset('/templates/catalog/ledger-finance.webp'), prompt: 'A budgeting app with cash-flow charts for my freelance income', url: fork('github-7mpvjfb3'), preview: 'https://template-ledger-finance.bolt.host' },
-    { shot: asset('/templates/rootline.webp'), prompt: 'An editorial site for my landscape design studio', url: fork('sb1-nkwmdgm3'), preview: 'https://template-landscaping.bolt.host' },
-    { shot: asset('/templates/construction.webp'), prompt: 'A construction company site with projects and a quote form', url: fork('sb1-34h1wpsy'), preview: 'https://template-construction.bolt.host' },
+    { shot: asset('/templates/catalog/maison-voyage.webp'), prompt: 'A travel journal with destination guides and stories', url: fork('github-mu7mffmh'), preview: 'https://template-maison-voyage.bolt.host', name: 'Travel Journal', tag: 'Editorial' },
+    { shot: asset('/templates/plumbing.webp'), prompt: 'A plumbing company site with online booking and recent jobs', url: fork('sb1-v6i8qmpp'), preview: 'https://template-plumbing.bolt.host', name: 'Plumbing', tag: 'Trades' },
+    { shot: asset('/templates/catalog/ledger-finance.webp'), prompt: 'A budgeting app with cash-flow charts for my freelance income', url: fork('github-7mpvjfb3'), preview: 'https://template-ledger-finance.bolt.host', name: 'Finance Tracker', tag: 'Apps' },
+    { shot: asset('/templates/rootline.webp'), prompt: 'An editorial site for my landscape design studio', url: fork('sb1-nkwmdgm3'), preview: 'https://template-landscaping.bolt.host', name: 'Landscape Studio', tag: 'Trades' },
+    { shot: asset('/templates/construction.webp'), prompt: 'A construction company site with projects and a quote form', url: fork('sb1-34h1wpsy'), preview: 'https://template-construction.bolt.host', name: 'Construction', tag: 'Trades' },
   ],
 };
 
