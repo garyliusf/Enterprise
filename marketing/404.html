@@ -108,42 +108,34 @@ html[data-theme="dark"] .nf-sub { color: #ABABAB; }
 .nf-dym a { color: #fff; font-weight: 700; margin-left: 2px; overflow-wrap: anywhere; }
 .nf-dym a:hover { text-decoration: underline; text-underline-offset: 3px; }
 
-/* prompt box — the footer prompt shell from use-cases, sized for the hero */
-.nf-prompt { width: min(640px, 100%); margin-top: 32px; text-align: left; }
+/* prompt box — the STANDARD hero prompt (solutions/_template, synced from
+   production's use-case route): a 1px frame two glows orbit via a CSS motion
+   path, an opaque inner panel, a real crawlable example <p> as the
+   placeholder, the pill submit. Values verbatim; only the width + gap are
+   this hero's. */
+.nf-prompt { width: min(600px, 100%); margin-top: 32px; }
 .nf-dym:not([hidden]) + .nf-prompt { margin-top: 28px; }
-.nf-prompt .re-prompt-shell {
-  width: 100%; border: 1px solid rgba(255,255,255,0.10); border-radius: 16px;
-  background: rgba(28,28,32,0.92); overflow: hidden;
-  box-shadow: 0 20px 48px rgba(0,0,0,0.38);
-  transition: border-color 180ms ease, box-shadow 180ms ease;
-}
-.nf-prompt .re-prompt-shell:focus-within { border-color: #1488FC; box-shadow: 0 0 0 1px #1488FC, 0 20px 48px rgba(0,0,0,0.38); }
-html[data-theme="light"] .nf-prompt .re-prompt-shell { background: #fff; border-color: rgba(10,12,20,0.06); box-shadow: 0 18px 44px rgba(2,26,87,0.22); }
-html[data-theme="light"] .nf-prompt .re-prompt-shell:focus-within { border-color: #1488FC; box-shadow: 0 0 0 1px #1488FC, 0 18px 44px rgba(2,26,87,0.22); }
-.nf-prompt .re-prompt-input {
-  display: block; width: 100%; min-height: 84px; max-height: 200px; resize: none; border: 0; background: transparent;
-  color: var(--sc-ink); font-size: 15px; line-height: 1.5; font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif);
-  padding: 20px 22px 6px; outline: none;
-}
-html[data-theme="dark"] .nf-prompt .re-prompt-input { color: #fff; }
-/* the hero copy sits in .sc-on-dark (white ink tokens); the light card is white,
-   so its text has to be pinned back to ink */
-html[data-theme="light"] .nf-prompt .re-prompt-input { color: #0a0a0a; }
-html[data-theme="light"] .nf-prompt .re-prompt-input::placeholder { color: rgba(10,12,20,0.4); }
-html[data-theme="light"] .nf-prompt-note { color: rgba(10,12,20,0.5); }
-html[data-theme="dark"] .nf-prompt-note { color: rgba(255,255,255,0.4); }
-.nf-prompt .re-prompt-input::placeholder { color: rgba(var(--sc-ink-rgb), 0.38); }
-.nf-prompt .re-prompt-input:focus::placeholder { color: transparent; }
-.nf-prompt .re-prompt-actions { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 14px 14px 22px; }
-.nf-prompt-note { font-size: 12.5px; color: var(--sc-text-faint); }
-.nf-prompt .re-prompt-submit {
-  min-height: 36px; padding: 0 16px; border-radius: 999px; border: 0; background: #1488FC; color: #fff;
-  font-size: 14px; font-weight: 500; font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif);
-  display: inline-flex; align-items: center; gap: 8px; cursor: pointer; flex: 0 0 auto;
-  transition: filter 180ms ease, transform 180ms ease;
-}
-.nf-prompt .re-prompt-submit svg { width: 16px; height: 16px; }
-.nf-prompt .re-prompt-submit:hover { filter: brightness(0.94); transform: translateY(-1px); }
+.nf-prompt .re-prompt-shell { width: 100%; }
+.hero-prompt-shell { text-align: left; position: relative; overflow: hidden; border: 0; padding: 1px; border-radius: 16px; background: rgba(255,255,255,0.09); }
+.hero-prompt-glow { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 0; offset-anchor: 50% 50%; offset-distance: 0%; offset-path: inset(0.5px round 16px); offset-rotate: 0deg; animation: heroPromptOrbit 3.6s linear infinite; will-change: offset-distance; }
+.hero-prompt-glow--brand { width: 360px; height: 360px; background: radial-gradient(circle, #1488fc 0%, transparent 42%); }
+.hero-prompt-glow--accent { width: 120px; height: 120px; background: radial-gradient(circle, #8fc1ff 0%, transparent 48%); mix-blend-mode: overlay; }
+.hero-prompt-inner { position: relative; z-index: 1; border-radius: 15px; background: #1c1c20; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1fr); }
+.re-prompt-input { width: 100%; min-height: 88px; max-height: 220px; resize: none; border: 0; background: transparent; color: #fff; font-size: 15px; line-height: 1.5; font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif); padding: 16px 22px 8px; outline: none; }
+.hero-prompt-example { margin: 0; padding: 16px 22px 8px; font-size: 15px; line-height: 1.5; font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif); color: rgba(255,255,255,0.25); pointer-events: none; z-index: 1; position: relative; align-self: start; }
+.hero-prompt-example[hidden] { display: none; }
+.hero-prompt-inner > .re-prompt-input, .hero-prompt-inner > .hero-prompt-example { grid-area: 1 / 1; }
+.hero-prompt-inner > .re-prompt-actions { grid-area: 2 / 1; }
+.re-prompt-actions { display: flex; justify-content: flex-end; align-items: center; padding: 10px 14px 14px; background: transparent; }
+.re-prompt-submit { min-height: 36px; padding: 0 16px; border-radius: 999px; border: 0; background: #1488FC; color: #fff; font-size: 14px; font-weight: 500; font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif); text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: filter 180ms ease, transform 180ms ease; }
+.re-prompt-submit svg { width: 16px; height: 16px; flex: 0 0 auto; }
+.re-prompt-submit:hover { filter: brightness(0.94); transform: translateY(-1px); }
+@keyframes heroPromptOrbit { from { offset-distance: 0%; } to { offset-distance: 100%; } }
+@media (prefers-reduced-motion: reduce) { .hero-prompt-glow { animation: none; } }
+html[data-theme="light"] .hero-prompt-shell { background: rgba(255,255,255,0.55); }
+html[data-theme="light"] .hero-prompt-inner { background: #fff; }
+html[data-theme="light"] .hero-prompt-shell .re-prompt-input { color: #0a0a0a; }
+html[data-theme="light"] .hero-prompt-example { color: rgba(10,12,20,0.4); }
 
 /* ─── DESTINATIONS ─────────────────────────────────────────────────────── */
 /* hero foot is white on white (light) / black on black (dark): one padding
@@ -213,8 +205,6 @@ html[data-theme="dark"] .nf-prompt-note { color: rgba(255,255,255,0.4); }
   .nf-sub { margin-top: 12px; font-size: 16px; }
   .nf-prompt { margin-top: 24px; }
   .nf-dym:not([hidden]) + .nf-prompt { margin-top: 24px; }
-  .nf-prompt-note { display: none; }
-  .nf-prompt .re-prompt-actions { justify-content: flex-end; }
   .nf-dest-inner { width: calc(100vw - 32px); }
   .nf-dest .section-header { gap: 8px; margin-bottom: 32px; }
   .nf-dest .section-header .section-eyebrow { margin-bottom: 4px; }
@@ -556,19 +546,23 @@ html[data-theme="dark"] .nf-game::before { background: radial-gradient(120% 60% 
     <h1 class="nf-h1">This page hasn't been built yet</h1>
     <p class="nf-sub">We looked everywhere for <code class="nf-path" id="nf-path">/banana</code>. The link may be broken or the page has moved. Pick a destination below, or describe what you were after and Bolt will build it.</p>
     <p class="nf-dym" id="nf-dym" hidden>Did you mean <a id="nf-dym-link" href="https://bolt.new/"></a>?</p>
-    <form class="nf-prompt" id="nf-prompt" action="https://bolt.new/" target="_blank">
-      <div class="re-prompt-shell">
-        <label class="sr-only" for="nf-prompt-input">Describe what you want to build</label>
-        <textarea id="nf-prompt-input" class="re-prompt-input" rows="2" placeholder="Build the banana page I was looking for…"></textarea>
-        <div class="re-prompt-actions">
-          <span class="nf-prompt-note">Opens Bolt in a new tab</span>
-          <button type="submit" class="re-prompt-submit">
-            <span>Build It</span>
-            <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="m4.497 20.835 16.51-7.363c1.324-.59 1.324-2.354 0-2.944L4.497 3.164c-1.495-.667-3.047.814-2.306 2.202l3.152 5.904c.245.459.245 1 0 1.458l-3.152 5.904c-.74 1.388.81 2.87 2.306 2.202Z"></path></svg>
-          </button>
+    <div class="nf-prompt">
+      <div class="re-prompt-shell hero-prompt-shell">
+        <span class="hero-prompt-glow hero-prompt-glow--brand" aria-hidden="true"></span>
+        <span class="hero-prompt-glow hero-prompt-glow--accent" aria-hidden="true"></span>
+        <div class="hero-prompt-inner">
+          <label class="sr-only" for="nf-prompt-input">Describe what you want to build</label>
+          <textarea id="nf-prompt-input" class="re-prompt-input" rows="2" data-example="Build the banana page I was looking for."></textarea>
+          <p class="hero-prompt-example" id="nf-prompt-example">Build the banana page I was looking for.</p>
+          <div class="re-prompt-actions">
+            <a href="https://bolt.new/" class="re-prompt-submit" id="nf-prompt-submit">
+              <span>Get Started</span>
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="m4.497 20.835 16.51-7.363c1.324-.59 1.324-2.354 0-2.944L4.497 3.164c-1.495-.667-3.047.814-2.306 2.202l3.152 5.904c.245.459.245 1 0 1.458l-3.152 5.904c-.74 1.388.81 2.87 2.306 2.202Z"></path></svg>
+            </a>
+          </div>
         </div>
       </div>
-    </form>
+    </div>
   </div>
 </section>
 
@@ -722,19 +716,24 @@ html[data-theme="dark"] .nf-game::before { background: radial-gradient(120% 60% 
   var last = decodeURIComponent(path.split('/').filter(Boolean).pop() || 'new');
   var words = last.replace(/\.[a-z0-9]+$/i, '').replace(/[-_+]+/g, ' ').replace(/[^\w\s]/g, '').trim().slice(0, 40) || 'new';
   var input = document.getElementById('nf-prompt-input');
-  var fallback = 'Build the ' + words + ' page I was looking for';
-  if (input) input.placeholder = fallback + '…';
-
-  var form = document.getElementById('nf-prompt');
+  var example = document.getElementById('nf-prompt-example');
+  var fallback = 'Build the ' + words + ' page I was looking for.';
+  if (input) input.setAttribute('data-example', fallback);
+  if (example) example.textContent = fallback;
   function go(e) {
     if (e) e.preventDefault();
     var text = (input && input.value.trim()) || fallback;
     window.open('https://bolt.new/#prompt=' + encodeURIComponent(text), '_blank', 'noopener');
   }
-  if (form) form.addEventListener('submit', go);
-  if (input) input.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) go(e);
-  });
+  var submit = document.getElementById('nf-prompt-submit');
+  if (submit) submit.addEventListener('click', go);
+  if (input) {
+    input.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) go(e); });
+    /* the crawlable example stands in for the placeholder: gone on focus/typing */
+    input.addEventListener('input', function () { example.hidden = input.value.length > 0; });
+    input.addEventListener('focus', function () { example.hidden = true; });
+    input.addEventListener('blur', function () { example.hidden = input.value.length > 0; });
+  }
 
   /* "did you mean": fuzzy-match the dead path against live routes. Keyword
      hits first (cheap, and they catch /pricing-plans → /pricing), then an
