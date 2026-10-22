@@ -163,7 +163,7 @@ function CrawlWall({ all }: { all: ShowcaseCard[] }) {
   );
 }
 
-/* VARIANT B (review): the showcase as a coverflow (Gary's reference). One
+/* VARIANT E (review): the showcase as a coverflow (Gary's reference). One
    card flat in the centre with its prompt + actions; neighbours turn away in
    3D and fade; auto-advances every 4.5s (paused on hover / off screen);
    clicking a side card brings it to the centre. */
@@ -223,7 +223,7 @@ function ShowcaseCoverflow() {
 
 export function Showcase() {
   const variant = useVariant();
-  if (variant === 'b') return <ShowcaseCoverflow />;
+  if (variant === 'e') return <ShowcaseCoverflow />;
   if (variant === 'c' || variant === 'd') { /* D builds on C: the crawl + the blended closing band */
     /* 9 sites = three even rows of 3 (Gary: 3 across, bigger; "if they don't split
        evenly take out any" — construction is the one left out) */
