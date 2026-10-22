@@ -1313,6 +1313,10 @@ html .gl-hero .hero-eyebrow { margin-bottom: -8px; }            /* eyebrow→H1 
 .gl-def { font-size: 15px; line-height: 1.6; color: var(--sc-text-desc); margin: 0; max-width: 720px; }
 .gl-row .gl-arrow { color: var(--sc-blue, #1488FC); opacity: 0; transform: translateX(-6px); transition: opacity 0.2s ease, transform 0.2s ease; }
 .gl-row:hover .gl-arrow, .gl-row:focus-visible .gl-arrow { opacity: 1; transform: none; }
+/* letter switch: the list fades out, swaps, fades back in (JS toggles .is-fading) */
+#terms .section-inner { transition: opacity 0.28s ease, transform 0.28s ease; }
+#terms .section-inner.is-fading { opacity: 0; transform: translateY(6px); transition-duration: 0.16s; }
+@media (prefers-reduced-motion: reduce) { #terms .section-inner { transition: none; } }
 .gl-empty {
   padding: 56px 24px; margin-top: 32px; text-align: center;
   font-size: 15px; color: var(--sc-text-desc);
@@ -2291,6 +2295,21 @@ html[data-theme="dark"] .gl-reading-all:hover { color: #7CBFFF; }
     empty.hidden = shown > 0;
     emptyQ.textContent = q ? '\u201c' + input.value.trim() + '\u201d' : 'this letter';
   }
+  /* fade out → filter + scroll while hidden → fade in. A token drops stale
+     swaps when letters are clicked faster than the fade. */
+  var inner = list.querySelector('.section-inner');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var token = 0;
+  function swap() {
+    if (reduce) { apply(); scrollToList(); return; }
+    var mine = ++token;
+    inner.classList.add('is-fading');
+    setTimeout(function () {
+      if (mine !== token) return;
+      apply(); scrollToList();
+      requestAnimationFrame(function () { if (mine === token) inner.classList.remove('is-fading'); });
+    }, 160);
+  }
   function scrollToList() {
     var bar = document.querySelector('.gl-az');
     var pin = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--gl-nav-h')) || 68;
@@ -2303,7 +2322,7 @@ html[data-theme="dark"] .gl-reading-all:hover { color: #7CBFFF; }
       btns.forEach(function (x) { x.classList.remove('is-active'); x.setAttribute('aria-pressed', 'false'); });
       b.classList.add('is-active'); b.setAttribute('aria-pressed', 'true');
       letter = b.getAttribute('data-letter');
-      apply(); scrollToList();
+      swap();
     });
   });
   input.addEventListener('input', apply);
