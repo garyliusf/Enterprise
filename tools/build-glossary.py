@@ -594,6 +594,16 @@ def head(title, desc, canonical, extra):
             + '<meta property="og:title" content="' + esc(title) + '">\n'
             + '<meta property="og:description" content="' + esc(desc) + '">\n'
             + '<meta property="og:url" content="' + canonical + '">\n'
+            # share image + Twitter card: the production default set (same as marketing/404.html)
+            + '<meta property="og:site_name" content="Bolt">\n'
+            + '<meta property="og:image" content="https://bolt.new/public-page-assets/og-image-default-centred.jpg">\n'
+            + '<meta property="og:image:width" content="1200">\n'
+            + '<meta property="og:image:height" content="630">\n'
+            + '<meta property="og:image:alt" content="bolt.new">\n'
+            + '<meta name="twitter:card" content="summary_large_image">\n'
+            + '<meta name="twitter:title" content="' + esc(title) + '">\n'
+            + '<meta name="twitter:description" content="' + esc(desc) + '">\n'
+            + '<meta name="twitter:image" content="https://bolt.new/public-page-assets/og-image-default-centred.jpg">\n'
             + extra
             + HEAD_REST + GLOSSARY_CSS + '</head>\n<body>\n\n')
 
