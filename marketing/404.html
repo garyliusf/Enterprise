@@ -823,6 +823,7 @@ html[data-theme="dark"] .nf-game {
   function go(e) {
     if (e) e.preventDefault();
     var text = (input && input.value.trim()) || fallback;
+    track('not_found_prompt_submit', { typed: !!(input && input.value.trim()) });
     window.open('https://bolt.new/#prompt=' + encodeURIComponent(text), '_blank', 'noopener');
   }
   var submit = document.getElementById('nf-prompt-submit');
@@ -835,19 +836,47 @@ html[data-theme="dark"] .nf-game {
     input.addEventListener('blur', function () { example.hidden = input.value.length > 0; });
   }
 
-  /* "did you mean": fuzzy-match the dead path against live routes. Keyword
-     hits first (cheap, and they catch /pricing-plans → /pricing), then an
-     edit-distance score on the last segment and on the whole path. */
+  /* ── analytics: GTM dataLayer, the production pattern (templates-marketplace
+     / enterprise). The 404 view carries the dead path + referrer so marketing
+     can find and fix broken links; internal_referrer flags OUR OWN bad links. */
+  function track(event, extra) {
+    try {
+      window.dataLayer = window.dataLayer || [];
+      var e = { event: event, not_found_path: path };
+      for (var k in extra) e[k] = extra[k];
+      window.dataLayer.push(e);
+    } catch (err) {}
+  }
+  window.__nfTrack = track;
+  var ref = document.referrer || '';
+  var internalRef = /^https?:\/\/([\w-]+\.)*bolt\.new(\/|$)/.test(ref);
+
+  /* ── section-aware destinations: the card for the section the dead link
+     was under moves to the front (a broken /blog/... link leads with Blog) */
+  var first = path.split('/').filter(Boolean)[0] || '';
+  var SECTION_CARD = { 'use-cases': '/use-cases', 'resources': '/resources/templates', 'templates': '/resources/templates',
+    'solutions': '/solutions', 'enterprise': '/solutions', 'blog': '/blog', 'news': '/blog' };
+  var grid = document.querySelector('.nf-grid');
+  if (grid && SECTION_CARD[first]) {
+    var lead = grid.querySelector('.nf-card[href$="' + SECTION_CARD[first] + '"]');
+    if (lead && lead !== grid.firstElementChild) grid.insertBefore(lead, grid.firstElementChild);
+  }
+
+  /* ── "did you mean": the dead path against the LIVE routes. On bolt.new
+     (and its preview hosts) that is the whole CMS sitemap — every use case,
+     blog post and template — fetched only here, on a miss; elsewhere (the
+     staging sandbox) a built-in list of the main routes. Order: a close
+     sitemap match (same section preferred), then a keyword hit
+     (/pricing-plans → /pricing), then edit distance on the built-in list. */
   var ROUTES = [
-    ['/', 'bolt.new'],
-    ['/enterprise'], ['/pricing'], ['/careers'], ['/blog'], ['/news'], ['/customers'],
-    ['/solutions'], ['/solutions/ai-for-small-business'], ['/solutions/ai-for-entrepreneurs'],
-    ['/solutions/ai-for-agencies'], ['/solutions/ai-for-real-estate'],
-    ['/use-cases'], ['/use-cases/ai-website-builder'], ['/use-cases/ai-app-builder'],
-    ['/use-cases/custom-crm-software'], ['/use-cases/ai-prototyping-tools'],
-    ['/use-cases/ai-software-development'],
-    ['/resources/templates'], ['/platform/security'], ['/platform/features/cli'],
-    ['/platform/integrations/microsoft'], ['/platform/referral']
+    '/enterprise', '/pricing', '/careers', '/blog', '/news', '/customers',
+    '/solutions', '/solutions/ai-for-small-business', '/solutions/ai-for-entrepreneurs',
+    '/solutions/ai-for-agencies', '/solutions/ai-for-real-estate',
+    '/use-cases', '/use-cases/ai-website-builder', '/use-cases/ai-app-builder',
+    '/use-cases/custom-crm-software', '/use-cases/ai-prototyping-tools',
+    '/use-cases/ai-software-development',
+    '/resources/templates', '/platform/security', '/platform/features/cli',
+    '/platform/integrations/microsoft', '/platform/referral'
   ];
   var KEYWORDS = [
     [/templ/, '/resources/templates'], [/pric|plan|billing/, '/pricing'], [/job|career|hiring/, '/careers'],
@@ -871,23 +900,58 @@ html[data-theme="dark"] .nf-game {
   }
   function sim(a, b) { return a && b ? 1 - lev(a, b) / Math.max(a.length, b.length) : 0; }
   var p = path.toLowerCase();
-  var best = null, score = 0;
-  for (var k = 0; k < KEYWORDS.length && !best; k++) if (KEYWORDS[k][0].test(p)) { best = KEYWORDS[k][1]; score = 1; }
-  if (!best) {
-    var seg = p.split('/').filter(Boolean).pop() || '';
-    ROUTES.forEach(function (r) {
-      if (r[0] === '/') return;
-      var rs = r[0].split('/').pop();
-      var s = Math.max(sim(seg, rs), sim(p, r[0]));
-      if (s > score) { score = s; best = r[0]; }
+  var seg = p.split('/').filter(Boolean).pop() || '';
+  /* best fuzzy match of the dead path in a list of route paths */
+  function closest(list, sameSectionBonus) {
+    var best = null, score = 0;
+    list.forEach(function (r) {
+      if (r === p || r === '/') return;
+      var rs = r.split('/').pop();
+      var s = Math.max(sim(seg, rs), sim(p, r));
+      /* truncated links (a copy-paste cut short) are the commonest miss */
+      if (seg.length >= 4 && rs.indexOf(seg) === 0) s = Math.max(s, 0.9);
+      if (sameSectionBonus && r.split('/')[1] === first) s += 0.06;
+      if (s > score) { score = s; best = r; }
     });
+    return { to: best, score: score };
   }
-  if (best && score >= 0.6 && best !== p) {
-    var a = document.getElementById('nf-dym-link');
-    a.href = best === '/pricing' ? 'pricing.html' : 'https://bolt.new' + best;
-    a.textContent = 'bolt.new' + best;
-    document.getElementById('nf-dym').hidden = false;
+  function staticGuess() {
+    var c = closest(ROUTES, true); c.via = 'fuzzy';
+    if (c.score >= 0.75) return c;   /* a close route beats a broad keyword */
+    for (var k = 0; k < KEYWORDS.length; k++) if (KEYWORDS[k][0].test(p)) return { to: KEYWORDS[k][1], score: 1, via: 'keyword' };
+    return c;
   }
+  var dym = document.getElementById('nf-dym'), dymLink = document.getElementById('nf-dym-link');
+  function show(g) {
+    if (!g || !g.to || g.to === p) return false;
+    dymLink.href = 'https://bolt.new' + g.to;
+    dymLink.textContent = 'bolt.new' + g.to;
+    dym.hidden = false;
+    return true;
+  }
+  function report(g, shown) {
+    track('page_not_found', { referrer: ref, internal_referrer: internalRef,
+      suggestion: shown ? g.to : null, suggestion_source: shown ? g.via : null });
+  }
+  var guess = staticGuess();
+  var onBolt = /(^|\.)bolt\.new$|\.pages\.dev$|^localhost$/.test(location.hostname);
+  if (onBolt && window.fetch && window.DOMParser) {
+    fetch('/cms/sitemap.xml', { credentials: 'omit' }).then(function (r) { return r.ok ? r.text() : ''; }).then(function (xml) {
+      var locs = xml.match(/<loc>[^<]+<\/loc>/g) || [];
+      var live = locs.map(function (l) { try { return new URL(l.slice(5, -6)).pathname.replace(/\/+$/, '') || '/'; } catch (e) { return null; } }).filter(Boolean);
+      var c = closest(live.concat(ROUTES), true);
+      /* a close live match wins; otherwise the keyword/built-in guess */
+      var g = c.score >= 0.75 ? { to: c.to, score: c.score, via: 'sitemap' } : (guess.score >= 0.6 ? guess : null);
+      report(g, show(g));
+    }).catch(function () { var g = guess.score >= 0.6 ? guess : null; report(g, show(g)); });
+  } else {
+    var g0 = guess.score >= 0.6 ? guess : null; report(g0, show(g0));
+  }
+
+  /* where people go from here */
+  dymLink.addEventListener('click', function () { track('not_found_click', { kind: 'suggestion', target: dymLink.getAttribute('href') }); });
+  document.querySelectorAll('.nf-card').forEach(function (c, i) { c.addEventListener('click', function () { track('not_found_click', { kind: 'card', target: c.getAttribute('href'), position: i + 1 }); }); });
+  document.querySelectorAll('.nf-quick a').forEach(function (a) { a.addEventListener('click', function () { track('not_found_click', { kind: 'popular', target: a.getAttribute('href') }); }); });
 })();
 
 /* ── The dot-matrix 404 ────────────────────────────────────────────────────
@@ -1082,11 +1146,13 @@ html[data-theme="dark"] .nf-game {
     playBtn.focus({ preventScroll: true });
   }
   function start() {
+    if (window.__nfTrack) window.__nfTrack('not_found_game', { action: 'start' });
     card.hidden = true; items = []; sparks = []; pops = []; score = 0; lives = 3; spawnT = 0.4; hud();
     playing = true; last = performance.now(); cancelAnimationFrame(raf); raf = requestAnimationFrame(tick);
   }
   function over() {
     playing = false; items = [];
+    if (window.__nfTrack) window.__nfTrack('not_found_game', { action: 'over', score: score });
     var isBest = score > best;
     if (isBest) { best = score; try { localStorage.setItem('nf-bolt-best', best); } catch (e) {} }
     hud();
