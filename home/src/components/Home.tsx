@@ -207,6 +207,18 @@ function ShowcaseCoverflow() {
   const kick = () => { if (!st.current.raf) st.current.raf = requestAnimationFrame(tick); };
   const go = (t: number) => { st.current.target = t; st.current.lastT = 0; kick(); };
   useEffect(() => { paint(); return () => cancelAnimationFrame(st.current.raf); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  /* each card's caption space = its own caption's height, so a one-line name
+     leaves no gap under the buttons (Gary) */
+  useEffect(() => {
+    const fit = () => cards.current.forEach((el) => {
+      const foot = el?.querySelector<HTMLElement>('.hm-cover-foot');
+      if (el && foot) el.style.setProperty('--cap', `${foot.offsetHeight + 14}px`);
+    });
+    fit();
+    window.addEventListener('resize', fit);
+    document.fonts?.ready.then(fit);
+    return () => window.removeEventListener('resize', fit);
+  }, []);
   useEffect(() => {
     const el = root.current;
     if (!el) return;
@@ -271,9 +283,12 @@ function ShowcaseCoverflow() {
           >
             <span className="hm-cover-shot"><img src={c.shot} alt="" loading="lazy" decoding="async" draggable={false} /></span>
             <span className="hm-cover-foot">
-              {/* the template's category, as on the regular template cards (Gary; was "Tell bolt") */}
-              <span className="hm-cover-kicker">{c.tag ?? 'Template'}</span>
-              <span className="hm-cover-prompt">{c.prompt}</span>
+              {/* the regular template card's head (Gary): the name on the left, the
+                  type of app in the right corner */}
+              <span className="hm-cover-head">
+                <span className="hm-cover-prompt">{c.prompt}</span>
+                {c.tag && <span className="hm-cover-kicker">{c.tag}</span>}
+              </span>
               <CardActions open={c.url} preview={c.preview} label={c.prompt} tabIndex={i === active ? undefined : -1} />
             </span>
           </div>
