@@ -798,11 +798,6 @@ def build_term(t):
         </a>
         <p class="detail-cta-help">New to Bolt? <a href="https://bolt.new/?get_started=true" target="_blank" rel="noopener" class="detail-cta-help-em">Sign up</a> free.</p>
       </div>
-      <div class="detail-facts">
-        <div class="detail-fact"><span>Category</span><b>%(cat)s</b></div>
-        <div class="detail-fact"><span>Filed under</span><b>%(letter)s</b></div>
-        <div class="detail-fact"><span>Glossary</span><b>%(total)d terms</b></div>
-      </div>
     </aside>
   </section>
 
