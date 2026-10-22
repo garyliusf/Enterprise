@@ -271,7 +271,8 @@ function ShowcaseCoverflow() {
           >
             <span className="hm-cover-shot"><img src={c.shot} alt="" loading="lazy" decoding="async" draggable={false} /></span>
             <span className="hm-cover-foot">
-              <span className="hm-cover-kicker">Tell bolt</span>
+              {/* the template's category, as on the regular template cards (Gary; was "Tell bolt") */}
+              <span className="hm-cover-kicker">{c.tag ?? 'Template'}</span>
               <span className="hm-cover-prompt">{c.prompt}</span>
               <CardActions open={c.url} preview={c.preview} label={c.prompt} tabIndex={i === active ? undefined : -1} />
             </span>
