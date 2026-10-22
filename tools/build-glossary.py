@@ -801,23 +801,12 @@ def build_term(t):
       <div class="detail-facts">
         <div class="detail-fact"><span>Category</span><b>%(cat)s</b></div>
         <div class="detail-fact"><span>Filed under</span><b>%(letter)s</b></div>
-        <div class="detail-fact"><span>Related terms</span><b>%(nrel)d</b></div>
         <div class="detail-fact"><span>Glossary</span><b>%(total)d terms</b></div>
       </div>
     </aside>
   </section>
 
   <div class="section-divider" aria-hidden="true"><canvas id="divider-pixel-canvas"></canvas></div>
-
-  <section class="section-block">
-    <div class="dsa-reveal">
-      <p class="section-eyebrow eyebrow-scramble">Related Terms</p>
-      <h2 class="section-headline">Keep learning the language</h2>
-    </div>
-    <div class="gl-card-grid">
-%(rel_cards)s
-    </div>
-  </section>
 
   <section class="section-block">
     <div class="dsa-reveal">
