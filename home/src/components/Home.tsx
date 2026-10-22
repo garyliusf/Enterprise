@@ -437,7 +437,7 @@ export function Stories() {
   return (
     <section className="fw-section hm-stories">
       <div className="fw-inner">
-        <SectionHeader eyebrow={stories.eyebrow} title={stories.title} subtitle={stories.subtitle} />
+        <SectionHeader center eyebrow={stories.eyebrow} title={stories.title} subtitle={stories.subtitle} />
         <div className="hm-rail">
           {/* light-blue pixels gathering in the rail's bottom-right corner (the
               get-started rail's corner field), fixed to the rail, not a card */}
