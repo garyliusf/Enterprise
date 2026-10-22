@@ -861,30 +861,24 @@ html .hero-inner > .hero-subtitle { margin-top: -4px; }
   font-weight: 400; font-size: 1.06em; letter-spacing: 0;
   color: #EDDCC6;   /* warm beige (success pull-quote colour), as in the reference; the warm token reads salmon */
 }
+/* COMPACT hero (Gary, 2026-10-22): the templates catalog's browsing hero,
+   not the 65vh short variant — the list is the page, so it starts sooner.
+   Geometry copied from marketing/templates/index.html: 42vh/430px floor,
+   copy rides high (flex-start + 20px ease), viewport-height top pad. */
+html .hero-section.gl-hero {
+  min-height: calc(min(42vh, 430px) + var(--sc-nav-overlap, 0px));
+  min-height: calc(min(42dvh, 430px) + var(--sc-nav-overlap, 0px));
+  justify-content: flex-start;
+  /* bottom pad is the one deviation from templates (8–26px): this stack carries
+     an eyebrow the templates hero doesn't, which pushed the subtitle onto the
+     light dome's white rim. The extra room keeps it on blue (~78% of the box). */
+  padding: calc(clamp(90px, calc(24px + 8.5vh), 148px) + var(--sc-nav-overlap, 0px)) 0 clamp(96px, 13vh, 150px);
+}
+html .gl-hero .hero-inner { margin-top: 20px; }
+@media (max-width: 768px) {
+  html .hero-section.gl-hero { min-height: 0; padding: calc(52px + var(--sc-nav-overlap, 0px)) 0 96px; }
+}
 html .gl-hero .hero-eyebrow { margin-bottom: -8px; }            /* eyebrow→H1 16 (gap 24) */
-.gl-search {
-  margin-top: 8px;                                                /* subtitle→search 32 (gap 24) */
-  width: min(480px, 100%); height: 52px;
-  display: flex; align-items: center; gap: 10px; padding: 0 20px;
-  border-radius: 999px;
-  background: rgba(10,12,18,0.72); border: 1px solid rgba(255,255,255,0.12);
-  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-.gl-search:focus-within { border-color: #1488FC; box-shadow: 0 0 0 1px #1488FC; }
-.gl-search svg { color: rgba(255,255,255,0.5); flex-shrink: 0; }
-.gl-search input {
-  flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; background: transparent;
-  font: 400 15px/1 var(--sc-font-sans); color: #fff; caret-color: #1488FC;
-}
-.gl-search input::placeholder { color: rgba(255,255,255,0.5); }
-.gl-search input::-webkit-search-cancel-button { -webkit-appearance: none; }
-html[data-theme="light"] .gl-search { background: #fff; border-color: rgba(255,255,255,0.6); box-shadow: 0 8px 24px rgba(4,9,26,0.18); }
-/* literal inks: the hero copy sits in .sc-on-dark, where the ink tokens are white */
-html[data-theme="light"] .gl-search svg { color: rgba(11,18,32,0.45); }
-html[data-theme="light"] .gl-search input { color: #0b1220; }
-html[data-theme="light"] .gl-search input::placeholder { color: rgba(11,18,32,0.5); }
-
 /* ── INDEX: A–Z bar (pins under the nav) ─────────────────────────────────── */
 .gl-az {
   position: sticky; top: var(--gl-nav-h, 68px); z-index: 20;
@@ -894,12 +888,29 @@ html[data-theme="light"] .gl-search input::placeholder { color: rgba(11,18,32,0.
 }
 .gl-az-inner {
   width: min(1200px, calc(100vw - 160px)); margin: 0 auto;
-  display: flex; align-items: center; gap: 2px; padding: 10px 0;
-  overflow-x: auto; scrollbar-width: none;
+  display: flex; align-items: center; gap: 24px; padding: 10px 0;
 }
-.gl-az-inner::-webkit-scrollbar { display: none; }
+.gl-az-letters { flex: 1; min-width: 0; display: flex; align-items: center; gap: 2px; overflow-x: auto; scrollbar-width: none; }
+.gl-az-letters::-webkit-scrollbar { display: none; }
+/* search lives in the pinned bar (moved out of the compact hero, as on the templates catalog) */
+.gl-search {
+  flex: 0 0 auto; width: 200px; height: 36px;
+  display: flex; align-items: center; gap: 8px; padding: 0 14px;
+  border: 1px solid rgba(var(--sc-ink-rgb), 0.12); border-radius: 999px;
+  background: rgba(var(--sc-ink-rgb), 0.02);
+  transition: width 0.3s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.gl-search:focus-within { width: 260px; border-color: #1488FC; box-shadow: 0 0 0 1px #1488FC; }
+.gl-search svg { color: rgba(var(--sc-ink-rgb), 0.45); flex-shrink: 0; transition: color 0.2s ease; }
+.gl-search:focus-within svg { color: #1488FC; }
+.gl-search input {
+  flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; background: transparent;
+  font: 400 14px/1 var(--sc-font-sans); color: var(--sc-ink); caret-color: #1488FC;
+}
+.gl-search input::placeholder { color: rgba(var(--sc-ink-rgb), 0.45); }
+.gl-search input::-webkit-search-cancel-button { -webkit-appearance: none; }
 .gl-az-btn {
-  flex: 0 0 auto; min-width: 32px; height: 32px; padding: 0 8px;
+  flex: 0 0 auto; min-width: 30px; height: 32px; padding: 0 6px;
   display: inline-flex; align-items: center; justify-content: center;
   font-family: var(--sc-font-label); font-weight: var(--sc-label-weight, 700);
   font-size: 12px; letter-spacing: 1px; text-transform: uppercase;
@@ -1026,8 +1037,11 @@ html[data-theme="dark"] .gl-reading-all:hover { color: #7CBFFF; }
 }
 @media (max-width: 768px) {
   html .gl-hero .hero-eyebrow { margin-bottom: -12px; }            /* eyebrow→H1 12 on phones */
-  .gl-search { margin-top: 0; }                                    /* subtitle→search 24 */
-  .gl-az-inner { width: calc(100vw - 32px); }
+  /* phones: search takes its own full-width row above the letters */
+  .gl-az-inner { width: calc(100vw - 32px); flex-wrap: wrap; gap: 8px; }
+  .gl-search, .gl-search:focus-within { order: -1; width: 100%; height: 40px; }
+  .gl-search input { font-size: 16px; }   /* 16px stops iOS zooming on focus */
+  .gl-az-letters { flex-basis: 100%; }
   .gl-list-section, .gl-term-main { padding-bottom: 48px; }
   .gl-letter { margin-top: 32px; }
   .gl-row { padding: 18px 0; grid-template-columns: 1fr; }
