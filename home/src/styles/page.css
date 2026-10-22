@@ -1290,17 +1290,21 @@ a.fw-session-card { text-decoration: none; color: inherit; }
   filter: blur(calc(var(--ad2) * 0.7px)) brightness(calc(1 - var(--ad2) * 0.045)) saturate(calc(1 - var(--ad2) * 0.04)); opacity: clamp(0, calc(1.35 - var(--ad2) * 0.2), 1); }
 .hm-cover-card[data-off] { opacity: 0; pointer-events: none; }
 .hm-cover-card.is-active { cursor: default; }
-.hm-cover-shot { position: absolute; inset: 0; margin: 0; overflow: hidden; border-radius: inherit; border: 0; background: #f4f4f6; } /* edge to edge, no inner frame or hairline (Gary) */
+.hm-cover-shot { position: absolute; inset: -1px; margin: 0; overflow: hidden; border: 0; background: #f4f4f6; } /* edge to edge, no inner frame or hairline (Gary); 1px past the card so only the card's own rounded clip draws the edge (two stacked clips left a light fringe in dark mode) */
+:root[data-theme="dark"] .hm-cover-shot { background: #0d0f14; }
+/* dark mode: the card's rounded clip antialiases the light screenshot into a
+   faint pale rim; a 1px inset ring in the page ground covers those edge pixels */
+:root[data-theme="dark"] .hm-cover-card::after { content: ''; position: absolute; inset: 0; z-index: 3; border-radius: inherit; pointer-events: none; box-shadow: inset 0 0 0 1px #000; }
 .hm-cover-shot img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; display: block; } /* always fills the frame (Gary: shorter captures left a white strip above the border) */
 /* the lawn-care capture's hero ends 458px down the page (white below), and the
    frame shows ~478px of a capture: zoom that one in a touch so it ends on green */
 .hm-cover-shot img[src*="mow.webp"] { transform: scale(1.06); transform-origin: 50% 0; }
 /* caption = a bottom overlay on the screenshot, only on the centre card: a
    white panel that rises from the frame's bottom edge (Gary) */
-.hm-cover-foot { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; display: flex; flex-direction: column; align-items: stretch; gap: 0; padding: 14px 18px 16px; border-radius: 0 0 8px 8px; /* flush with the card's edges, so the screenshot's frame line doesn't outline it (Gary) */ background: rgba(255, 255, 255, 0.96); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); box-shadow: 0 -10px 30px -12px rgba(16, 24, 40, 0.25);
+.hm-cover-foot { position: absolute; left: -1px; right: -1px; bottom: -1px; z-index: 2; display: flex; flex-direction: column; align-items: stretch; gap: 0; padding: 14px 19px 17px; border-radius: 0; /* 1px past the card on 3 sides: the card's clip draws the corners, so the light screenshot can't peek round the dark panel's edge */ /* flush with the card's edges, so the screenshot's frame line doesn't outline it (Gary) */ background: #fff; box-shadow: 0 -10px 30px -12px rgba(16, 24, 40, 0.25); /* opaque, no backdrop blur: the blur sampled the light shot at the card edge and drew a rim in dark mode */
   opacity: 0; transform: translateY(10px); filter: blur(4px); transition: opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), filter 0.45s ease; pointer-events: none; } /* softer exit (Gary: rough): longer, eased, a slight blur instead of a quick cut */
 .hm-cover-card.is-active .hm-cover-foot { opacity: 1; transform: none; filter: none; pointer-events: auto; transition: opacity 0.4s ease 0.12s, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.12s, filter 0.4s ease 0.12s; }
-:root[data-theme="dark"] .hm-cover-foot { background: rgba(13, 15, 20, 0.94); box-shadow: 0 -10px 30px -12px rgba(0, 0, 0, 0.6); }
+:root[data-theme="dark"] .hm-cover-foot { background: #0d0f14; box-shadow: 0 -10px 30px -12px rgba(0, 0, 0, 0.6); }
 @media (prefers-reduced-motion: reduce) { .hm-cover-foot, .hm-cover-card.is-active .hm-cover-foot { transform: none; filter: none; transition: opacity 0.3s ease; } }
 .hm-cover-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
 .hm-cover-head .hm-cover-prompt { min-width: 0; }
