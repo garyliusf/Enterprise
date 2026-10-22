@@ -450,19 +450,8 @@ body { background: var(--sc-ground, #000); font-family: var(--sc-font-sans, 'Sch
   html[data-theme="light"] .demo-success-sub { color: var(--sc-text-desc); }
 
   /* ─── LEFT-COLUMN LEGIBILITY (Gary, 2026-10-22) ─────────────────────────
-     The copy sat straight on the dither, which peaks at the top and the
-     horizontal centre of the section (right under this column), and it used
-     the card-copy greys. A soft scrim in the section's own ground quiets the
-     squares behind the text while the field stays visible around it, and the
-     copy steps up to stronger text roles in both themes. */
-  .demo-copy { position: relative; }
-  .demo-copy::before {
-    content: ""; position: absolute; inset: -56px -72px; z-index: -1; pointer-events: none;
-    background: radial-gradient(closest-side, rgba(9,16,32,0.88) 0%, rgba(9,16,32,0.7) 55%, rgba(9,16,32,0) 100%);
-  }
-  html[data-theme="light"] .demo-copy::before {
-    background: radial-gradient(closest-side, rgba(var(--sc-ground-rgb),0.92) 0%, rgba(var(--sc-ground-rgb),0.75) 55%, rgba(var(--sc-ground-rgb),0) 100%);
-  }
+     The dither keeps out of the copy column (keep-out zone in the dither
+     script below), and the copy sits on stronger text roles in both themes. */
   .demo-subtitle { color: rgba(255,255,255,0.82); }
   .demo-body p { color: rgba(255,255,255,0.74); }
   .demo-points li { color: rgba(255,255,255,0.9); }
@@ -673,6 +662,17 @@ body { background: var(--sc-ground, #000); font-family: var(--sc-font-sans, 'Sch
   var CELL = 5, SQ = 2, cols, rows;
   var BAYER = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]];
   var light = false, rgb = '160,185,230';
+  /* Keep-out zone (Gary, 2026-10-22): no squares behind the copy column, only
+     around it. The field thins out (through the Bayer threshold, so the edge
+     stays pixel-art) over FEATHER px outside the column + PAD. */
+  var copy = canvas.parentElement.querySelector('.demo-copy');
+  var hole = null, PAD = 24, FEATHER = 64;
+  function measureHole() {
+    if (!copy) { hole = null; return; }
+    var cr = canvas.getBoundingClientRect(), r = copy.getBoundingClientRect();
+    hole = { x0: r.left - cr.left - PAD, y0: r.top - cr.top - PAD,
+             x1: r.right - cr.left + PAD, y1: r.bottom - cr.top + PAD };
+  }
   function readTheme() {
     light = document.documentElement.getAttribute('data-theme') !== 'dark';
     rgb = light ? (getComputedStyle(canvas).getPropertyValue('--sc-dot-rgb').trim() || '20,136,252') : '160,185,230';
@@ -681,8 +681,11 @@ body { background: var(--sc-ground, #000); font-family: var(--sc-font-sans, 'Sch
     canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
     cols = Math.ceil(canvas.width / CELL) + 1;
     rows = Math.ceil(canvas.height / CELL) + 1;
+    measureHole();
   }
   readTheme(); window.addEventListener('resize', init); init();
+  if (copy && window.ResizeObserver) new ResizeObserver(measureHole).observe(copy);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(measureHole);
   document.addEventListener('sc-themechange', function () { readTheme(); init(); });
   var start = null;
   function draw(ts) {
@@ -696,12 +699,19 @@ body { background: var(--sc-ground, #000); font-family: var(--sc-font-sans, 'Sch
       var base = 1 - gy / (light ? 0.98 : 0.85);
       if (base <= 0) continue;
       base = light ? Math.pow(base, 0.75) : base * base;
+      var y = r * CELL;
+      var dy = hole ? Math.max(hole.y0 - y, 0, y - hole.y1) : FEATHER;
       for (var c = 0; c < cols; c++) {
         var gx = c / cols;
         var wave = Math.sin(gx * 4.1 + gy * 6.3 - t * 0.95) * 0.5
                  + Math.sin(gx * 7.7 - gy * 3.1 + t * 0.62) * 0.28;
         var hm = 1 - Math.pow(Math.abs(gx - 0.5) * 2, 2.2) * 0.85;
         var level = base * hm + wave * 0.38;
+        if (dy < FEATHER) {
+          var x = c * CELL, dx = Math.max(hole.x0 - x, 0, x - hole.x1);
+          var d = Math.sqrt(dx * dx + dy * dy);
+          if (d < FEATHER) { if (d <= 0) continue; level *= d / FEATHER; }
+        }
         var th = (BAYER[r & 3][c & 3] + 0.5) / 16;
         if (level <= th) continue;
         var a = light ? 0.14 + base * 0.26 : 0.085 + base * 0.13;   /* light: dramatic */
