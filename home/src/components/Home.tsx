@@ -165,9 +165,9 @@ function CrawlWall({ all }: { all: ShowcaseCard[] }) {
 
 /* VARIANT E (review): the showcase as a coverflow (Gary's reference). One
    card flat in the centre with its prompt + actions; neighbours turn away in
-   3D and fade; auto-advances every 4.5s (paused on hover / off screen);
+   3D and fade; auto-advances every 3s (paused on hover / off screen);
    clicking a side card brings it to the centre. */
-const COVER_MS = 4500;
+const COVER_MS = 3000;
 function ShowcaseCoverflow() {
   const all = [...showcase.rowA, ...showcase.rowB];
   const n = all.length;
