@@ -107,6 +107,9 @@ READING = [
     ('Templates', 'Top 5 templates to jumpstart your next project', 'https://bolt.new/resources/templates'),
 ]
 
+CATS = {'ai': 'AI & LLMs', 'build': 'Building apps', 'web': 'Web & SEO',
+        'biz': 'Business & growth', 'design': 'Design'}
+
 LETTERS = ['#'] + [chr(c) for c in range(ord('A'), ord('Z') + 1)]
 
 
@@ -157,12 +160,11 @@ def lead_of(t):
 
 
 def related_of(t):
-    if t['slug'] in RELATED:
-        return [BY_SLUG[s] for s in RELATED[t['slug']]]
-    same = [x for x in TERMS if x['cat'] == t['cat'] and x['slug'] != t['slug']]
+    picked = [BY_SLUG[s] for s in RELATED.get(t['slug'], [])]
+    same = [x for x in TERMS if x['cat'] == t['cat'] and x['slug'] != t['slug'] and x not in picked]
     i = next(i for i, x in enumerate(TERMS) if x['slug'] == t['slug'])
     same.sort(key=lambda x: abs(TERMS.index(x) - i))     # nearest neighbours first
-    return same[:5]
+    return (picked + same)[:6]                           # 6 = two full rows of three
 
 
 def esc(s):
@@ -210,12 +212,6 @@ GLOSSARY_CSS = """
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 14'%3E%3Cpath d='M1 7h13M9 2l5 5-5 5' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
           mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 14'%3E%3Cpath d='M1 7h13M9 2l5 5-5 5' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat; }
 .gl-arrow--back { transform: scaleX(-1); }
-.gl-label {
-  font-family: var(--sc-font-label); font-weight: var(--sc-label-weight, 700);
-  font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase;
-  color: var(--sc-text-faint); margin: 0;
-}
-.gl-label--blue { color: var(--sc-blue, #1488FC); }
 
 /* ── INDEX: hero ─────────────────────────────────────────────────────────── */
 .gl-h1-serif {
@@ -331,82 +327,143 @@ html[data-theme="dark"] .gl-empty a { color: #4DA6FF; }
 .footer-section { padding-bottom: 24px !important; }
 .footer-section + .site-footer-divider { margin-top: 64px !important; }
 
-/* ── TERM PAGE ───────────────────────────────────────────────────────────── */
-.gl-term-main { padding: 32px 0 clamp(80px, 12vh, 140px); border-bottom: 1px solid var(--sc-line-soft, rgba(var(--sc-ink-rgb), 0.08)); }
-.gl-term-grid {
-  display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: clamp(48px, 7vw, 120px);
-  align-items: start;
+/* ── TERM PAGE — the template detail layout (marketing/templates/detail/index.html).
+   Values copied verbatim and scoped to .detail-shell, so they can't reach the
+   lifted chrome (whose .section-eyebrow / .section-header differ). */
+.detail-shell {
+  width: min(1200px, calc(100vw - 160px));
+  margin: 0 auto;
+  padding: clamp(40px, 5vh, 60px) 0 clamp(40px, 5vh, 56px);
 }
-.gl-back {
-  display: inline-flex; align-items: center; gap: 8px;
-  font-size: 14px; font-weight: 500; color: var(--sc-text-desc);
-  transition: color 0.2s ease;
+.detail-shell .breadcrumb {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+  font-family: var(--sc-font-label); font-weight: var(--sc-label-weight, 700);
+  font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+  color: rgba(var(--sc-ink-rgb), 0.45);
+  margin-bottom: 40px;
 }
-.gl-back:hover { color: var(--sc-ink); }
-.gl-crumbs { margin: 40px 0 16px; }
-.gl-crumbs ol { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 10px; }
-.gl-crumbs li { display: inline-flex; align-items: center; gap: 10px; }
-.gl-crumbs li + li::before { content: "/"; color: var(--sc-text-faint); font-weight: 400; }
-.gl-crumbs a, .gl-crumbs span { font-family: var(--sc-font-label); font-weight: var(--sc-label-weight, 700); font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--sc-text-faint); }
-.gl-crumbs a:hover { color: var(--sc-ink); }
-.gl-crumbs [aria-current] { color: var(--sc-blue, #1488FC); }
-/* The term H1 rides the canonical section-H2 curve: it heads an article, not a hero. */
-.gl-term-h1 {
-  font-size: clamp(40px, 4vw, 52px); font-weight: 500; line-height: 1.15; letter-spacing: -1px;
-  color: var(--sc-ink); margin: 0; max-width: 820px; text-wrap: balance;
+.detail-shell .breadcrumb a { color: var(--sc-text-desc); transition: color 0.2s ease; }
+.detail-shell .breadcrumb a:hover { color: var(--sc-ink); }
+.detail-shell .breadcrumb .sep { color: rgba(var(--sc-ink-rgb), 0.25); }
+.detail-shell .breadcrumb .current { color: rgba(var(--sc-ink-rgb), 0.85); }
+.detail-hero {
+  display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 48px; align-items: start;
+  margin-bottom: clamp(64px, 9vh, 120px);
 }
-.gl-term-lead {
-  margin: 24px 0 0; max-width: 680px;
-  font-size: clamp(17px, 1.3vw, 19px); line-height: 1.65; color: var(--sc-text-sub);
+.detail-info { display: flex; flex-direction: column; gap: 20px; }
+.detail-category {
+  margin: 0 0 -4px;
+  font-family: var(--sc-font-label); font-weight: var(--sc-label-weight, 700);
+  font-size: var(--sc-eyebrow-size, 13px); letter-spacing: 2px; text-transform: uppercase;
+  color: #1488FC;
 }
-.gl-term-lead strong { color: var(--sc-ink); font-weight: 600; }
-.gl-related { margin-top: clamp(64px, 10vh, 120px); }
-.gl-related .gl-label { padding-bottom: 16px; border-bottom: 1px solid var(--sc-line-soft, rgba(var(--sc-ink-rgb), 0.08)); }
-.gl-chips { list-style: none; margin: 20px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
-.gl-chip {
-  display: inline-flex; align-items: center; height: 36px; padding: 0 14px;
-  border: 1px solid rgba(var(--sc-ink-rgb), 0.14); border-radius: 999px;
-  font-size: 14px; font-weight: 500; color: var(--sc-text-sub);
-  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
-}
-.gl-chip:hover { color: var(--sc-ink); border-color: var(--sc-blue, #1488FC); background: rgba(20,136,252,0.05); }
+.detail-name { font-size: 40px; font-weight: 500; letter-spacing: -0.8px; line-height: 1.05; margin: 0; color: var(--sc-ink); text-wrap: balance; }
+.detail-desc { font-size: 16px; line-height: 1.6; color: rgba(var(--sc-ink-rgb), 0.65); margin: -10px 0 0; }
+.detail-desc strong { color: var(--sc-ink); font-weight: 600; }
+.detail-cta-row { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+.detail-cta-row .hero-btn-primary,
+.detail-cta-row .hero-btn-ghost { width: 100%; min-width: 0; height: 52px; }
+.detail-cta-help { font-size: 13px; font-weight: 500; color: rgba(var(--sc-ink-rgb), 0.45); line-height: 1.5; margin: 2px 0 0; }
+.detail-cta-help-em { color: #4DA6FF; font-weight: 600; transition: color 0.2s ease; }
+.detail-cta-help-em:hover { color: #7CBFFF; }
+html[data-theme="light"] .detail-cta-help-em { color: #1488FC; }
+html[data-theme="light"] .detail-cta-help-em:hover { color: #0f6fd0; }
+.detail-facts { margin-top: 8px; display: flex; flex-direction: column; gap: 12px; padding-top: 24px; border-top: 1px solid rgba(var(--sc-ink-rgb), 0.08); }
+.detail-fact { display: flex; justify-content: space-between; align-items: center; gap: 16px; font-size: 13px; color: var(--sc-text-desc); }
+.detail-fact b { color: rgba(var(--sc-ink-rgb), 0.85); font-weight: 500; text-align: right; }
 
-.gl-aside { position: sticky; top: calc(var(--gl-nav-h, 68px) + 32px); margin-top: 96px; }
-.gl-reading {
-  padding: 24px; border-radius: 2px;
+/* Term specimen — stands in for the template screenshot gallery: the same
+   preview frame (height follows the viewport) set as a typographic plate on
+   the family's navy, dark art in both themes (.sc-on-dark). */
+.gl-specimen {
+  position: relative; overflow: hidden; isolation: isolate;
+  height: clamp(300px, 58vh, 600px);
+  border-radius: 2px; border: 1px solid rgba(var(--sc-ink-rgb), 0.10);
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding: clamp(24px, 3vw, 44px);
+  color: #fff;
+  background:
+    radial-gradient(120% 90% at 85% 115%, rgba(20,136,252,0.38) 0%, rgba(20,136,252,0) 60%),
+    radial-gradient(90% 70% at 0% 0%, rgba(20,136,252,0.14) 0%, rgba(20,136,252,0) 60%),
+    #070b16;
+}
+html[data-theme="light"] .gl-specimen {
+  border-color: transparent;
+  background:
+    radial-gradient(120% 90% at 85% 115%, rgba(58,142,205,0.85) 0%, rgba(31,116,189,0.55) 30%, rgba(11,42,88,0) 70%),
+    linear-gradient(180deg, #061129 0%, #0b2a58 100%);
+}
+.gl-specimen canvas {
+  position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none;
+  -webkit-mask-image: linear-gradient(160deg, rgba(0,0,0,0.15) 30%, #000 100%);
+          mask-image: linear-gradient(160deg, rgba(0,0,0,0.15) 30%, #000 100%);
+}
+.gl-specimen > *:not(canvas) { position: relative; z-index: 1; }
+.gl-spec-top, .gl-spec-foot {
+  display: flex; justify-content: space-between; align-items: center; gap: 16px;
+  font-family: var(--sc-font-label); font-weight: var(--sc-label-weight, 700);
+  font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
+}
+.gl-spec-top b { color: #fff; font-weight: inherit; }
+.gl-spec-term {
+  margin: 0; font-size: clamp(44px, 5.6vw, 84px); font-weight: 500; line-height: 1.02; letter-spacing: -2px;
+  color: #fff; text-wrap: balance; overflow-wrap: anywhere;
+}
+.gl-spec-sub {
+  display: block; margin-top: 14px;
+  font-family: var(--sc-font-serif); font-style: var(--sc-serif-style, italic); font-weight: 400;
+  font-size: clamp(20px, 1.8vw, 26px); letter-spacing: 0; line-height: 1.3; color: rgba(255,255,255,0.78);
+}
+.gl-spec-foot { justify-content: flex-start; flex-wrap: wrap; gap: 6px 14px; }
+.gl-spec-foot span:first-child { color: rgba(255,255,255,0.45); }
+
+/* Divider + sections (verbatim template-detail values) */
+.detail-shell .section-divider {
+  position: relative; width: 100%; height: 210px; margin: -115px auto -72px;
+  overflow: hidden; pointer-events: none; z-index: 1;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 30%, #000 76%, transparent 100%);
+          mask-image: linear-gradient(to bottom, transparent 0%, #000 30%, #000 76%, transparent 100%);
+}
+.detail-shell .section-divider canvas { display: block; width: 100%; height: 100%; }
+@media (prefers-reduced-motion: reduce) { .detail-shell .section-divider { display: none; } }
+.detail-shell .section-block { margin-bottom: clamp(64px, 9vh, 120px); }
+.detail-shell .section-block:last-child { margin-bottom: 0; }
+.detail-shell .section-eyebrow { margin: 0 0 16px; display: inline-block; }
+.detail-shell .section-headline { font-size: clamp(28px, 3.4vw, 40px); font-weight: 500; letter-spacing: -0.6px; line-height: 1.15; margin: 0 0 32px; color: var(--sc-ink); }
+
+/* Related terms + related reading — the standard stack card (2px surface) */
+.gl-card-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.gl-card {
+  position: relative; display: flex; flex-direction: column; gap: 10px;
+  padding: 24px 24px 28px; border-radius: 2px;
   border: 1px solid rgba(var(--sc-ink-rgb), 0.10);
   background: linear-gradient(180deg, rgba(var(--sc-ink-rgb), 0.03) 0%, rgba(var(--sc-ink-rgb), 0.005) 100%);
+  transition: border-color 0.3s ease, transform 0.25s ease;
 }
-html[data-theme="light"] .gl-reading { background: var(--sc-surface); box-shadow: 0 4px 16px rgba(15,26,42,0.04); }
-.gl-reading > .gl-label { margin-bottom: 8px; }
-.gl-reading-item {
-  display: block; padding: 16px 0;
-  border-bottom: 1px solid var(--sc-line-soft, rgba(var(--sc-ink-rgb), 0.08));
-}
-.gl-reading-kind { display: block; font-family: var(--sc-font-label); font-weight: var(--sc-label-weight, 700); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--sc-text-faint); margin-bottom: 6px; }
-.gl-reading-title { display: block; font-size: 15px; font-weight: 500; line-height: 1.4; color: var(--sc-text-sub); transition: color 0.2s ease; }
-.gl-reading-item:hover .gl-reading-title { color: var(--sc-ink); }
-.gl-reading-all { display: inline-flex; align-items: center; gap: 8px; margin-top: 20px; font-size: 14px; font-weight: 600; color: #1488FC; }
-.gl-reading-all:hover { color: #0f6fd0; }
-html[data-theme="dark"] .gl-reading-all { color: #4DA6FF; }
-html[data-theme="dark"] .gl-reading-all:hover { color: #7CBFFF; }
+.gl-card:hover { border-color: rgba(var(--sc-ink-rgb), 0.22); transform: translateY(-2px); }
+.gl-card-kind { font-family: var(--sc-font-label); font-weight: var(--sc-label-weight, 700); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--sc-text-faint); }
+.gl-card-title { margin: 0; font-size: 18px; font-weight: 600; line-height: 1.35; letter-spacing: -0.2px; color: var(--sc-ink); }
+.gl-card-desc { margin: 0; font-size: 14px; line-height: 1.55; color: var(--sc-text-desc); }
+.gl-card-more { margin-top: auto; padding-top: 8px; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: #1488FC; }
+html[data-theme="dark"] .gl-card-more { color: #4DA6FF; }
+.gl-card-more .gl-arrow { transition: transform 0.2s ease; }
+.gl-card:hover .gl-card-more .gl-arrow { transform: translateX(3px); }
 
 /* "Get to know Bolt.new" — three standard stack cards */
 .gl-know .section-header { align-items: center; text-align: center; }
 .gl-know .section-sub { max-width: 600px; }
-.gl-know-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.gl-know-grid .int-card { min-height: 0; }
-.gl-know-grid .int-name { font-size: 18px; font-weight: 600; letter-spacing: -0.2px; display: inline-flex; align-items: center; gap: 10px; }
-.gl-know-grid .int-name .gl-arrow { color: var(--sc-blue, #1488FC); transition: transform 0.2s ease; }
-.gl-know-grid .int-card:hover .int-name .gl-arrow { transform: translateX(3px); }
-.gl-know-grid .int-desc { font-size: 14px; line-height: 1.55; }
 
 @media (max-width: 1024px) {
   .gl-az-inner { width: min(900px, calc(100vw - 80px)); }
-  .gl-list-section, .gl-term-main { padding-bottom: 64px; }
-  .gl-term-grid { grid-template-columns: 1fr; gap: 56px; }
-  .gl-aside { position: static; margin-top: 0; max-width: 560px; }
-  .gl-related { margin-top: 56px; }
+  .gl-list-section { padding-bottom: 64px; }
+  .detail-shell { width: min(900px, calc(100vw - 80px)); }
+  .detail-hero { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+  .detail-info { max-width: 700px; }
+  .detail-shell .section-divider { height: 160px; margin: -92px auto -56px; }
+  .detail-shell .section-eyebrow { margin-bottom: 12px; }
+  .gl-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .gl-specimen { height: clamp(300px, 46vh, 460px); }
 }
 @media (max-width: 768px) {
   html .gl-hero .hero-eyebrow { margin-bottom: -12px; }            /* eyebrow→H1 12 on phones */
@@ -415,19 +472,22 @@ html[data-theme="dark"] .gl-reading-all:hover { color: #7CBFFF; }
   .gl-search, .gl-search:focus-within { order: -1; width: 100%; height: 40px; }
   .gl-search input { font-size: 16px; }   /* 16px stops iOS zooming on focus */
   .gl-az-letters { flex-basis: 100%; }
-  .gl-list-section, .gl-term-main { padding-bottom: 48px; }
+  .gl-list-section { padding-bottom: 48px; }
   .gl-letter { margin-top: 32px; }
   .gl-row { padding: 18px 0; grid-template-columns: 1fr; }
   .gl-row::before { inset: 0 -8px; }
   .gl-row .gl-arrow { display: none; }
   .gl-term { font-size: 17px; }
   .gl-def { font-size: 14px; }
-  .gl-term-main { padding-top: 20px; }
-  .gl-crumbs { margin-top: 28px; }
-  .gl-term-h1 { font-size: clamp(28px, 8vw, 40px); }
-  .gl-term-lead { font-size: 17px; margin-top: 16px; }
-  .gl-know-grid { grid-template-columns: 1fr; }
-}
+  .detail-shell { width: calc(100vw - 32px); padding-top: 40px; padding-bottom: 40px; }
+  .detail-shell .breadcrumb { margin-bottom: 28px; }
+  .detail-name { font-size: 32px; }
+  .detail-category { margin-bottom: -8px; }
+  .detail-shell .section-divider { height: 110px; margin: -60px auto -40px; }
+  .gl-specimen { height: 340px; }
+  .gl-spec-term { letter-spacing: -1.2px; }
+  .gl-card-grid { grid-template-columns: 1fr; gap: 12px; }
+  }
 </style>
 """
 
@@ -622,17 +682,38 @@ def build_index():
 
 
 # ── Template 2: term page ──────────────────────────────────────────────────
-KNOW = [
-    ('All solutions', 'https://bolt.new/solutions',
-     'From solo builders to enterprise organizations, build what your business needs to grow the way your business needs it.',
-     '<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>'),
-    ('All use cases', 'https://bolt.new/use-cases',
-     'Build apps, websites, internal tools, and dashboards from a single prompt.',
-     '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>'),
-    ('All templates', 'https://bolt.new/resources/templates',
-     'Start from a build that already works, then customize it until it matches what your business actually does. Quicker than starting from nothing.',
-     '<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>'),
+# "Get to know Bolt.new" — the 404 page's gallery cards (same photos and copy).
+GALLERY = [
+    ('https://bolt.new/use-cases', 'founder-greenhouse.webp', '38% 30%', 'Use Cases', 'Build anything you need',
+     'AI website builder, AI app builder and 70+ more ways people use Bolt.', 'Browse Use Cases'),
+    ('https://bolt.new/resources/templates', 'founder-terracotta.webp', '55% 38%', 'Templates', 'Start from a finished site',
+     'Production-ready starting points. Fork one and make it yours.', 'Browse Templates'),
+    ('https://bolt.new/solutions', 'founder-agency.webp', '50% 32%', 'Solutions', 'Software for how you work',
+     'For small businesses, entrepreneurs, agencies and enterprise teams.', 'Explore Solutions'),
+    ('https://bolt.new/blog', 'founder-coffee.webp', '50% 28%', 'Blog', 'Stories from people shipping',
+     'Product news, build guides and customer stories from the Bolt team.', 'Read the Blog'),
 ]
+GALLERY_CSS = '/* ── Gallery cards: verbatim from marketing/404.html ("Where people usually head\n   next", itself the home page\'s use-case card). Keep in step with that page. */\n/* four portrait photo cards — the home page\'s use-case card (home/\n   src/styles/page.css .hm-uc-card): full-bleed photo, scrim, glass tag,\n   white copy at the foot, the blue pixel field + "See how" line on hover */\n.nf-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }\n.nf-card {\n  position: relative; display: block; overflow: hidden; isolation: isolate;\n  aspect-ratio: 3 / 4; border-radius: 12px; background: var(--sc-surface-strong);\n  color: #fff; text-decoration: none;\n}\n.nf-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1); }\n.nf-card:hover .nf-img { transform: scale(1.04); }\n.nf-scrim { position: absolute; inset: 0; background: linear-gradient(to top, rgba(5,8,16,0.86) 0%, rgba(5,8,16,0.5) 34%, rgba(5,8,16,0) 64%), linear-gradient(to bottom, rgba(5,8,16,0.28), rgba(5,8,16,0) 30%); }\n.nf-field { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; opacity: 0; transition: opacity 0.45s ease; pointer-events: none; }\n.nf-card:hover .nf-field { opacity: 1; }\n.nf-tag {\n  position: absolute; left: 18px; top: 18px; z-index: 2; padding: 7px 11px; border-radius: 999px;\n  background: rgba(10,13,20,0.62); -webkit-backdrop-filter: blur(10px) saturate(1.2); backdrop-filter: blur(10px) saturate(1.2);\n  font: 700 10.5px/1 var(--sc-font-label, var(--sc-font-sans)); letter-spacing: 1.5px; text-transform: uppercase; color: #fff;\n}\n.nf-copy { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; display: flex; flex-direction: column; gap: 6px; padding: 22px; }\n.nf-title { font-size: 22px; font-weight: 600; letter-spacing: -0.4px; line-height: 1.2; text-wrap: balance; }\n.nf-desc { font-size: 14px; line-height: 1.5; color: rgba(255,255,255,0.78); }\n.nf-more { display: inline-flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 13px; font-weight: 600; color: #fff; opacity: 0; transform: translateY(6px); transition: opacity 0.35s ease, transform 0.35s ease; }\n.nf-card:hover .nf-more, .nf-card:focus-visible .nf-more { opacity: 1; transform: none; }\n.nf-card:focus-visible { outline: 2px solid #1488FC; outline-offset: 3px; }\n/* the site\'s one arrow (thin shafted, 1.5px stroke) as a currentColor mask */\n.nf-arrow {\n  display: inline-block; width: 14px; height: 12px; flex: 0 0 auto; background: currentColor;\n  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 16 14\' fill=\'none\' stroke=\'black\' stroke-width=\'1.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M1 7h13M9 2l5 5-5 5\'/%3E%3C/svg%3E") center / contain no-repeat;\n          mask: url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 16 14\' fill=\'none\' stroke=\'black\' stroke-width=\'1.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M1 7h13M9 2l5 5-5 5\'/%3E%3C/svg%3E") center / contain no-repeat;\n}\n\n@media (max-width: 1024px) {\n  .nf-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }\n  .nf-card { aspect-ratio: 4 / 5; }\n}\n@media (max-width: 768px) {\n  .nf-grid { grid-template-columns: 1fr; gap: 12px; }\n  .nf-card { aspect-ratio: auto; height: 340px; }\n  .nf-copy { padding: 20px; }\n  .nf-tag { left: 14px; top: 14px; }\n  .nf-more { display: none; }\n}\n/* cards: two portrait columns down to 600 (one 736px-wide card read as a\n   banner at 768), single column only on real phones */\n@media (max-width: 768px) and (min-width: 601px) {\n  .nf-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }\n  .nf-card { aspect-ratio: 4 / 5; height: auto; }\n  .nf-copy { padding: 20px; }\n}\n@media (prefers-reduced-motion: reduce) { .nf-img, .nf-more, .nf-field { transition: none; } .nf-card:hover .nf-img { transform: none; } }\n'
+GALLERY_JS = "/* ── Card hover dot field (attachHoverField — the compliance-card treatment).\n   Colour follows --sc-dot-rgb so it is blue on light, grey on dark. ── */\n(function () {\n  var rgb = '140,195,255';   /* over photos in both themes, as on the home cards */\n  function attach(tile, canvas, idx) {\n    var ctx = canvas.getContext('2d');\n    var SPACING = 9, DOT = 2, cols = 0, rows = 0, phases = [], hovered = false, t = 0, phase = idx * 1.7;\n    function resize() {\n      var w = tile.offsetWidth, h = tile.offsetHeight; if (!w || !h) return;\n      canvas.width = w; canvas.height = h;\n      cols = Math.ceil(w / SPACING) + 1; rows = Math.ceil(h / SPACING) + 1;\n      phases = Array.from({ length: rows }, function () { return Array.from({ length: cols }, function () { return Math.random() * Math.PI * 2; }); });\n    }\n    try { new ResizeObserver(resize).observe(tile); } catch (e) {}\n    requestAnimationFrame(resize);\n    tile.addEventListener('mouseenter', function () { hovered = true; });\n    tile.addEventListener('mouseleave', function () { hovered = false; });\n    function draw() {\n      if (!hovered || !cols) { requestAnimationFrame(draw); return; }\n      t += 0.03;\n      var W = canvas.width, H = canvas.height;\n      ctx.clearRect(0, 0, W, H);\n      var angle = t * 0.16 + phase, ca = Math.cos(angle), sa = Math.sin(angle);\n      for (var r = 0; r < rows; r++) for (var c = 0; c < cols; c++) {\n        var px = c * SPACING, py = r * SPACING, ph = (phases[r] && phases[r][c]) || 0;\n        var wave = Math.sin((px * ca + py * sa) / 58 + t + ph) * Math.cos((px * -sa + py * ca) / 90 + t * 0.6);\n        var op = Math.max(0, wave) * 0.45 * (px / W);\n        if (op < 0.04) continue;\n        ctx.fillStyle = 'rgba(' + rgb + ',' + op.toFixed(3) + ')';\n        ctx.fillRect(px, py, DOT, DOT);\n      }\n      requestAnimationFrame(draw);\n    }\n    requestAnimationFrame(draw);\n  }\n  document.querySelectorAll('.nf-card').forEach(function (el, i) {\n    var cv = document.createElement('canvas'); cv.className = 'nf-field'; cv.setAttribute('aria-hidden', 'true');\n    el.insertBefore(cv, el.firstChild); attach(el, cv, i);\n  });\n})();\n"
+
+# Divider: template detail's traveling shimmer (makePixelCanvas comes with the
+# lifted scripts). Specimen: a slow diagonal swell of blue dots on the plate.
+TERM_JS = """
+if (typeof makePixelCanvas === 'function' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  makePixelCanvas('divider-pixel-canvas', 11, 2,
+    function (c, r, t, p) {
+      var px = c * 11, py = r * 11;
+      var phase = (px * 0.012 + py * 0.018) - t * 0.0018 + 1.0;
+      var band = Math.sin(phase) * 0.5 + 0.5;
+      return 0.06 + Math.pow(band, 3) * 0.32 + (Math.sin(p * 53.7 + t * 0.004) * 0.5 + 0.5) * 0.07;
+    }, 1.0, '170,185,210');
+  makePixelCanvas('gl-specimen-canvas', 9, 2,
+    function (c, r, t, p) {
+      var w = Math.sin(c * 0.11 + r * 0.07 - t * 0.0011) * 0.5 + Math.sin(c * 0.05 - r * 0.13 + t * 0.0007 + p) * 0.35;
+      return Math.max(0, w) * 0.55;
+    }, 1.0, '120,175,255');
+}
+"""
 
 
 def build_term(t):
@@ -655,47 +736,98 @@ def build_term(t):
                 {'@type': 'ListItem', 'position': 3, 'name': t['name'], 'item': url}]},
         ]})
 
-    chips = '\n'.join('          <li><a class="gl-chip" href="../%s/">%s</a></li>' % (r['slug'], esc(r['name'])) for r in rel)
+    rel_cards = '\n'.join(
+        '      <a class="gl-card" href="../%s/">\n'
+        '        <span class="gl-card-kind">%s</span>\n'
+        '        <h3 class="gl-card-title">%s</h3>\n'
+        '        <p class="gl-card-desc">%s</p>\n'
+        '        <span class="gl-card-more">Read the definition <span class="gl-arrow" aria-hidden="true"></span></span>\n'
+        '      </a>' % (r['slug'], esc(CATS[r['cat']]), esc(r['name']), esc(r['def'])) for r in rel)
     reading = '\n'.join(
-        '        <a class="gl-reading-item" href="%s"><span class="gl-reading-kind">%s</span><span class="gl-reading-title">%s</span></a>'
-        % (u, esc(k), esc(ti)) for k, ti, u in READING)
+        '      <a class="gl-card" href="%s">\n'
+        '        <span class="gl-card-kind">%s</span>\n'
+        '        <h3 class="gl-card-title">%s</h3>\n'
+        '        <span class="gl-card-more">Read more <span class="gl-arrow" aria-hidden="true"></span></span>\n'
+        '      </a>' % (u, esc(k), esc(ti)) for k, ti, u in READING)
+    # specimen plate: the name big; an "(expansion)" moves to the serif line
+    m = re.match(r'^(.*?)\s*\((.*)\)$', t['name'])
+    spec_name, spec_sub = (m.group(1), m.group(2)) if m else (t['name'], CATS[t['cat']])
+    num = TERMS.index(t) + 1
+    see_also = ''.join('<span>%s</span>' % esc(r['name'].split(' (')[0]) for r in rel[:3])
     cards = '\n'.join(
-        '      <a href="%s" class="int-card">\n'
-        '        <canvas class="int-card-hover-canvas" aria-hidden="true"></canvas>\n'
-        '        <div class="int-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">%s</svg></div>\n'
-        '        <h3 class="int-name">%s <span class="gl-arrow" aria-hidden="true"></span></h3>\n'
-        '        <p class="int-desc">%s</p>\n'
-        '      </a>' % (u, icon, esc(n), esc(d)) for n, u, d, icon in KNOW)
+        '      <a class="nf-card" href="%s">\n'
+        '        <img class="nf-img" src="../../images/404/%s" alt="" loading="lazy" decoding="async" style="object-position:%s">\n'
+        '        <span class="nf-scrim" aria-hidden="true"></span>\n'
+        '        <span class="nf-tag">%s</span>\n'
+        '        <span class="nf-copy">\n'
+        '          <span class="nf-title">%s</span>\n'
+        '          <span class="nf-desc">%s</span>\n'
+        '          <span class="nf-more">%s <i class="nf-arrow" aria-hidden="true"></i></span>\n'
+        '        </span>\n'
+        '      </a>' % (u, img, pos, esc(tag), esc(ti), esc(d), esc(more)) for u, img, pos, tag, ti, d, more in GALLERY)
 
-    body = """<!-- ─── TERM ──────────────────────────────────────────────────────────────── -->
-<main class="gl-term-main">
-  <div class="section-inner gl-term-grid">
-    <article class="gl-article">
-      <a class="gl-back" href="../"><span class="gl-arrow gl-arrow--back" aria-hidden="true"></span>All terms</a>
-      <nav class="gl-crumbs" aria-label="Breadcrumb">
-        <ol>
-          <li><a href="https://bolt.new/resources">Resources</a></li>
-          <li><a href="../">Glossary</a></li>
-          <li><span aria-current="page">%s</span></li>
-        </ol>
-      </nav>
-      <h1 class="gl-term-h1">%s</h1>
-      <p class="gl-term-lead">%s</p>
-      <div class="gl-related">
-        <h2 class="gl-label">Related terms</h2>
-        <ul class="gl-chips">
-%s
-        </ul>
+    body = """<!-- ─── TERM (template-detail layout) ─────────────────────────────────────── -->
+<main class="detail-shell">
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="https://bolt.new/resources">Resources</a>
+    <span class="sep">/</span>
+    <a href="../">Glossary</a>
+    <span class="sep">/</span>
+    <span class="current" aria-current="page">%(name)s</span>
+  </nav>
+
+  <section class="detail-hero">
+    <div class="gl-specimen sc-on-dark" aria-hidden="true">
+      <canvas id="gl-specimen-canvas"></canvas>
+      <div class="gl-spec-top"><span>Bolt.new Glossary</span><span><b>%(letter)s</b> &middot; No. %(num)02d</span></div>
+      <p class="gl-spec-term">%(spec_name)s<span class="gl-spec-sub">%(spec_sub)s</span></p>
+      <div class="gl-spec-foot"><span>See also</span>%(see_also)s</div>
+    </div>
+    <aside class="detail-info">
+      <p class="detail-category">%(cat)s</p>
+      <h1 class="detail-name">%(h1)s</h1>
+      <p class="detail-desc">%(lead)s</p>
+      <div class="detail-cta-row">
+        <a href="https://bolt.new/" target="_blank" rel="noopener" class="hero-btn-primary">
+          <div class="btn-bg-hover"></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Start Building</span><span>Start Building</span></div></div>
+        </a>
+        <a href="../" class="hero-btn-ghost">
+          <div class="btn-bg-hover"></div>
+          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Browse All Terms</span><span>Browse All Terms</span></div></div>
+        </a>
+        <p class="detail-cta-help">New to Bolt? <a href="https://bolt.new/?get_started=true" target="_blank" rel="noopener" class="detail-cta-help-em">Sign up</a> free.</p>
       </div>
-    </article>
-    <aside class="gl-aside" aria-label="Related reading">
-      <div class="gl-reading">
-        <p class="gl-label gl-label--blue">Related reading</p>
-%s
-        <a class="gl-reading-all" href="https://bolt.new/blog">All articles <span class="gl-arrow" aria-hidden="true"></span></a>
+      <div class="detail-facts">
+        <div class="detail-fact"><span>Category</span><b>%(cat)s</b></div>
+        <div class="detail-fact"><span>Filed under</span><b>%(letter)s</b></div>
+        <div class="detail-fact"><span>Related terms</span><b>%(nrel)d</b></div>
+        <div class="detail-fact"><span>Glossary</span><b>%(total)d terms</b></div>
       </div>
     </aside>
-  </div>
+  </section>
+
+  <div class="section-divider" aria-hidden="true"><canvas id="divider-pixel-canvas"></canvas></div>
+
+  <section class="section-block">
+    <div class="dsa-reveal">
+      <p class="section-eyebrow eyebrow-scramble">Related Terms</p>
+      <h2 class="section-headline">Keep learning the language</h2>
+    </div>
+    <div class="gl-card-grid">
+%(rel_cards)s
+    </div>
+  </section>
+
+  <section class="section-block">
+    <div class="dsa-reveal">
+      <p class="section-eyebrow eyebrow-scramble">Related Reading</p>
+      <h2 class="section-headline">Put it into practice</h2>
+    </div>
+    <div class="gl-card-grid">
+%(reading)s
+    </div>
+  </section>
 </main>
 
 <!-- ─── GET TO KNOW BOLT.NEW ───────────────────────────────────────────────── -->
@@ -708,13 +840,16 @@ def build_term(t):
         <p class="section-sub">Describe what you need in plain language. Bolt.new writes the code, connects the database, and puts the result online.</p>
       </div>
     </div>
-    <div class="gl-know-grid">
+    <div class="nf-grid">
 %s
     </div>
   </div>
 </section>
 
-""" % (esc(t['name']), esc(h1), lead, chips, reading, cards)
+""".replace('%s\n    </div>\n  </div>\n</section>', '%(cards)s\n    </div>\n  </div>\n</section>') % dict(
+        name=esc(t['name']), letter=esc(t['letter']), num=num, spec_name=esc(spec_name), spec_sub=esc(spec_sub),
+        see_also=see_also, cat=esc(CATS[t['cat']]), h1=esc(h1), lead=lead, nrel=len(rel), total=len(TERMS),
+        rel_cards=rel_cards, reading=reading, cards=cards)
 
     # The term page has no hero, so the nav sits solid in flow (the over-hero
     # variant is transparent with white ink and would vanish on a light ground).
@@ -724,6 +859,8 @@ def build_term(t):
     # body's own links (../ = the index, ../<slug>/ = siblings) are already right.
     page = (rebase(head(h1 + ' Definition | Bolt.new Glossary', desc, url, ld) + nav)
             + body + rebase(FOOTER + NAV_H_JS + SCRIPTS))
+    page = page.replace('</style>\n</head>', '</style>\n<style id="glossary-gallery">\n' + GALLERY_CSS + '</style>\n</head>', 1)
+    page = page.replace('</body>', '<script>\n' + GALLERY_JS + TERM_JS + '</script>\n</body>', 1)
     write(os.path.join(OUT, t['slug'], 'index.html'), page)
 
 
