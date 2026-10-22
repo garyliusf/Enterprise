@@ -165,10 +165,9 @@ function CrawlWall({ all }: { all: ShowcaseCard[] }) {
 
 /* VARIANT E (review): the showcase as a coverflow (Gary's reference). One
    card flat in the centre with its prompt + actions; neighbours turn away a
-   little (2.5D, not full 3D). Position is continuous and spring-driven: every
-   move overshoots slightly and settles (momentum), and the row can be dragged
-   with mouse or touch; releasing keeps the drag's velocity, then snaps to the
-   nearest card. Auto-advances every 3s (paused on hover, drag or off screen);
+   little (2.5D, not full 3D). Position is continuous and eases smoothly to
+   each card (no overshoot); the row can be dragged with mouse or touch, and a
+   flick travels a little further before easing onto the nearest card. Auto-advances every 3s (paused on hover, drag or off screen);
    clicking a side card or a dot brings it to the centre. Per-frame updates
    write CSS vars straight to the cards (no React render per frame). */
 const COVER_MS = 3000;
@@ -196,16 +195,17 @@ function ShowcaseCoverflow() {
     const s = st.current;
     s.raf = 0;
     if (!s.drag) {
-      /* spring with a little overshoot = the "momentum per movement" */
-      s.v = s.v * 0.8 + (s.target - s.pos) * 0.075;
-      s.pos += s.v;
-      if (Math.abs(s.target - s.pos) < 0.0008 && Math.abs(s.v) < 0.0008) { s.pos = s.target; s.v = 0; paint(); return; }
+      /* smooth ease-out toward the target, no overshoot (Gary: the spring felt
+         jerky); frame-rate independent */
+      const now = performance.now(), dt = Math.min(now - (s.lastT || now), 50); s.lastT = now;
+      s.pos += (s.target - s.pos) * (1 - Math.exp(-dt / 140));
+      if (Math.abs(s.target - s.pos) < 0.001) { s.pos = s.target; paint(); s.lastT = 0; return; }
     }
     paint();
     s.raf = requestAnimationFrame(tick);
   };
   const kick = () => { if (!st.current.raf) st.current.raf = requestAnimationFrame(tick); };
-  const go = (t: number) => { st.current.target = t; kick(); };
+  const go = (t: number) => { st.current.target = t; st.current.lastT = 0; kick(); };
   useEffect(() => { paint(); return () => cancelAnimationFrame(st.current.raf); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     const el = root.current;
@@ -242,10 +242,10 @@ function ShowcaseCoverflow() {
     const s = st.current;
     if (!s.drag) return;
     s.drag = false;
-    /* fling: carry the release velocity ~250ms, then settle on a card */
-    const projected = s.pos + s.vel * 250;
-    s.v = s.vel * 16;
-    go(Math.round(projected));
+    /* a flick moves further (up to 3 cards), then eases onto a card */
+    const extra = Math.max(-3, Math.min(3, s.vel * 220));
+    s.lastT = 0;
+    go(Math.round(s.pos + extra));
   };
   return (
     <section className="hm-showcase hm-showcase--cover" aria-label="Apps built on Bolt">
