@@ -207,20 +207,15 @@ function ShowcaseCoverflow() {
   const kick = () => { if (!st.current.raf) st.current.raf = requestAnimationFrame(tick); };
   const go = (t: number) => { st.current.target = t; st.current.lastT = 0; kick(); };
   useEffect(() => { paint(); return () => cancelAnimationFrame(st.current.raf); }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  /* each card's caption space = its own caption's height, so a one-line name
-     leaves no gap under the buttons (Gary) */
+  /* the stage is as tall as its tallest card (+ the fan's drop and shadow), so
+     the pagination sits right under the cards */
   useEffect(() => {
-    const fit = () => cards.current.forEach((el) => {
-      const foot = el?.querySelector<HTMLElement>('.hm-cover-foot');
-      if (el && foot) el.style.setProperty('--cap', `${foot.offsetHeight + 14}px`);
-    });
-    /* the stage is as tall as its tallest card (+ the fan's drop and shadow), so
-       the pagination sits right under the cards (Gary: it floated far below) */
-    const tallest = Math.max(...cards.current.map((el) => el?.offsetHeight ?? 0));
-    if (root.current && tallest) root.current.style.height = `${tallest + 40}px`;
+    const fit = () => {
+      const tallest = Math.max(...cards.current.map((el) => el?.offsetHeight ?? 0));
+      if (root.current && tallest) root.current.style.height = `${tallest + 40}px`;
+    };
     fit();
     window.addEventListener('resize', fit);
-    document.fonts?.ready.then(fit);
     return () => window.removeEventListener('resize', fit);
   }, []);
   useEffect(() => {

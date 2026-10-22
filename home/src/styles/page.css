@@ -1275,8 +1275,8 @@ a.fw-session-card { text-decoration: none; color: inherit; }
    in perspective, tucked behind its edges, out of focus and dimmed, and showing
    the full site (no caption) — the shot grows into the caption's space as a
    card leaves the centre (driven by the continuous --ad, so it tracks drags) */
-.hm-cover-card { --w: clamp(340px, 30vw, 560px); --cap: 112px; --near: clamp(0, calc(1 - var(--ad)), 1);
-  position: absolute; left: 50%; top: 8px; width: var(--w); height: calc(var(--w) * 0.5625 + 28px + var(--cap)); margin-left: calc(var(--w) / -2);
+.hm-cover-card { --w: clamp(340px, 30vw, 560px); --near: clamp(0, calc(1 - var(--ad)), 1);
+  position: absolute; left: 50%; top: 8px; width: var(--w); height: calc(var(--w) * 0.78); margin-left: calc(var(--w) / -2);
   background: #fff; border: 1px solid rgba(16, 24, 40, 0.08); border-radius: 8px; overflow: hidden; box-shadow: 0 26px 60px -30px rgba(16, 40, 90, 0.4);
   transform-origin: 50% 50%; cursor: pointer; touch-action: pan-y; user-select: none; -webkit-user-select: none;
   /* flatter (Gary: "less 3D gallery"): the centre card is lifted toward you so it always sits clearly in front; neighbours tuck behind its edges with a small turn */
@@ -1290,12 +1290,18 @@ a.fw-session-card { text-decoration: none; color: inherit; }
   filter: blur(calc(var(--ad2) * 0.7px)) brightness(calc(1 - var(--ad2) * 0.045)) saturate(calc(1 - var(--ad2) * 0.04)); opacity: clamp(0, calc(1.35 - var(--ad2) * 0.2), 1); }
 .hm-cover-card[data-off] { opacity: 0; pointer-events: none; }
 .hm-cover-card.is-active { cursor: default; }
-.hm-cover-shot { position: absolute; left: 14px; right: 14px; top: 14px; bottom: calc(14px + var(--cap)); margin: 0; /* one fixed frame on every card (Gary: growing into the caption as a card left the centre looked awkward) */ overflow: hidden; border-radius: 4px; border: 1px solid rgba(16, 24, 40, 0.06); background: #f4f4f6; }
+.hm-cover-shot { position: absolute; left: 14px; right: 14px; top: 14px; bottom: 14px; margin: 0; /* the site fills the whole card on every card (Gary); the caption overlays it */ overflow: hidden; border-radius: 4px; border: 1px solid rgba(16, 24, 40, 0.06); background: #f4f4f6; }
 .hm-cover-shot img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; display: block; } /* always fills the frame (Gary: shorter captures left a white strip above the border) */
 /* the lawn-care capture's hero ends 458px down the page (white below), and the
    frame shows ~478px of a capture: zoom that one in a touch so it ends on green */
 .hm-cover-shot img[src*="mow.webp"] { transform: scale(1.06); transform-origin: 50% 0; }
-.hm-cover-foot { position: absolute; left: 14px; right: 14px; bottom: 14px; display: flex; flex-direction: column; align-items: stretch; gap: 0; padding: 0; } /* its height sets the card's --cap (JS), so the gaps stay 14px */
+/* caption = a bottom overlay on the screenshot, only on the centre card: a
+   white panel that rises from the frame's bottom edge (Gary) */
+.hm-cover-foot { position: absolute; left: 15px; right: 15px; bottom: 15px; z-index: 2; display: flex; flex-direction: column; align-items: stretch; gap: 0; padding: 16px 16px 14px; border-radius: 0 0 4px 4px; background: rgba(255, 255, 255, 0.96); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); box-shadow: 0 -10px 30px -12px rgba(16, 24, 40, 0.25);
+  opacity: 0; transform: translateY(16px); transition: opacity 0.25s ease, transform 0.3s ease; pointer-events: none; }
+.hm-cover-card.is-active .hm-cover-foot { opacity: 1; transform: none; pointer-events: auto; transition: opacity 0.4s ease 0.1s, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.1s; }
+:root[data-theme="dark"] .hm-cover-foot { background: rgba(13, 15, 20, 0.94); box-shadow: 0 -10px 30px -12px rgba(0, 0, 0, 0.6); }
+@media (prefers-reduced-motion: reduce) { .hm-cover-foot, .hm-cover-card.is-active .hm-cover-foot { transform: none; transition: opacity 0.2s ease; } }
 .hm-cover-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
 .hm-cover-head .hm-cover-prompt { min-width: 0; }
 .hm-cover-head .hm-cover-kicker { flex: none; margin: 0; }
@@ -1317,7 +1323,7 @@ a.fw-session-card { text-decoration: none; color: inherit; }
 :root[data-theme="dark"] .hm-cover-card { background: #0d0f14; border-color: rgba(255, 255, 255, 0.08); box-shadow: 0 26px 60px -30px rgba(0, 0, 0, 0.7); }
 :root[data-theme="dark"] .hm-cover-kicker { color: rgba(255, 255, 255, 0.5); }
 :root[data-theme="dark"] .hm-cover-prompt { color: #fff; }
-@media (max-width: 768px) { .hm-cover { height: 340px; perspective: 900px; } .hm-cover-card { --w: min(76vw, 300px); --cap: 112px; } .hm-cover-prompt { font-size: 13px; } }
+@media (max-width: 768px) { .hm-cover { height: 340px; perspective: 900px; } .hm-cover-card { --w: min(80vw, 320px); } .hm-cover-prompt { font-size: 13px; } }
 
 /* ── VARIANT C showcase (review): the "Star Wars" crawl ──
    .hm-crawl = the window (perspective, faded to the horizon at the top);
