@@ -786,7 +786,7 @@ def build_term(t):
   <section class="detail-hero">
     <div class="gl-specimen sc-on-dark" aria-hidden="true">
       <canvas id="gl-specimen-canvas"></canvas>
-      <div class="gl-spec-top"><span>Bolt.new Glossary</span><span><b>%(letter)s</b> &middot; No. %(num)02d</span></div>
+      <div class="gl-spec-top"><span>Bolt.new Glossary</span></div>
       <p class="gl-spec-term">%(spec_name)s<span class="gl-spec-sub">%(spec_sub)s</span></p>
       <div class="gl-spec-foot"><span>See also</span>%(see_also)s</div>
     </div>
