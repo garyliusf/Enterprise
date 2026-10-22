@@ -164,58 +164,125 @@ function CrawlWall({ all }: { all: ShowcaseCard[] }) {
 }
 
 /* VARIANT E (review): the showcase as a coverflow (Gary's reference). One
-   card flat in the centre with its prompt + actions; neighbours turn away in
-   3D and fade; auto-advances every 3s (paused on hover / off screen);
-   clicking a side card brings it to the centre. */
+   card flat in the centre with its prompt + actions; neighbours turn away a
+   little (2.5D, not full 3D). Position is continuous and spring-driven: every
+   move overshoots slightly and settles (momentum), and the row can be dragged
+   with mouse or touch; releasing keeps the drag's velocity, then snaps to the
+   nearest card. Auto-advances every 3s (paused on hover, drag or off screen);
+   clicking a side card or a dot brings it to the centre. Per-frame updates
+   write CSS vars straight to the cards (no React render per frame). */
 const COVER_MS = 3000;
 function ShowcaseCoverflow() {
   const all = [...showcase.rowA, ...showcase.rowB];
   const n = all.length;
   const [active, setActive] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const [vis, setVis] = useState(false);
   const root = useRef<HTMLDivElement>(null);
+  const cards = useRef<(HTMLDivElement | null)[]>([]);
+  const st = useRef({ pos: 0, v: 0, target: 0, raf: 0, drag: false, startX: 0, startPos: 0, lastX: 0, lastT: 0, vel: 0, moved: 0, hover: false, vis: false });
+  const wrapD = (d: number) => { d = ((d % n) + n) % n; return d > n / 2 ? d - n : d; };
+  const paint = () => {
+    const s = st.current;
+    cards.current.forEach((el, i) => {
+      if (!el) return;
+      const d = wrapD(i - s.pos);
+      el.style.setProperty('--d', d.toFixed(4));
+      el.style.setProperty('--ad', Math.abs(d).toFixed(4));
+      el.toggleAttribute('data-off', Math.abs(d) > 2.6);
+    });
+    const a = ((Math.round(s.pos) % n) + n) % n;
+    setActive((p) => (p === a ? p : a));
+  };
+  const tick = () => {
+    const s = st.current;
+    s.raf = 0;
+    if (!s.drag) {
+      /* spring with a little overshoot = the "momentum per movement" */
+      s.v = s.v * 0.8 + (s.target - s.pos) * 0.075;
+      s.pos += s.v;
+      if (Math.abs(s.target - s.pos) < 0.0008 && Math.abs(s.v) < 0.0008) { s.pos = s.target; s.v = 0; paint(); return; }
+    }
+    paint();
+    s.raf = requestAnimationFrame(tick);
+  };
+  const kick = () => { if (!st.current.raf) st.current.raf = requestAnimationFrame(tick); };
+  const go = (t: number) => { st.current.target = t; kick(); };
+  useEffect(() => { paint(); return () => cancelAnimationFrame(st.current.raf); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     const el = root.current;
     if (!el) return;
-    const io = new IntersectionObserver(([e]) => setVis(e.isIntersecting), { threshold: 0.3 });
+    const io = new IntersectionObserver(([e]) => { st.current.vis = e.isIntersecting; }, { threshold: 0.3 });
     io.observe(el);
-    return () => io.disconnect();
-  }, []);
-  useEffect(() => {
-    if (paused || !vis || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const id = window.setTimeout(() => setActive((a) => (a + 1) % n), COVER_MS);
-    return () => window.clearTimeout(id);
-  }, [active, paused, vis, n]);
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const id = window.setInterval(() => {
+      const s = st.current;
+      if (reduce || s.hover || s.drag || !s.vis || Math.abs(s.target - s.pos) > 0.05) return;
+      go(Math.round(s.target) + 1);
+    }, COVER_MS);
+    return () => { io.disconnect(); window.clearInterval(id); };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const spacing = () => (cards.current[0]?.offsetWidth ?? 500) * 0.62;
+  const onDown = (e: React.PointerEvent) => {
+    if (e.button !== 0) return;
+    const s = st.current;
+    s.drag = true; s.moved = 0; s.startX = s.lastX = e.clientX; s.startPos = s.pos; s.lastT = e.timeStamp; s.vel = 0; s.v = 0;
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    kick();
+  };
+  const onMove = (e: React.PointerEvent) => {
+    const s = st.current;
+    if (!s.drag) return;
+    const dx = e.clientX - s.startX;
+    s.moved = Math.max(s.moved, Math.abs(dx));
+    s.pos = s.startPos - dx / spacing();
+    const dt = e.timeStamp - s.lastT;
+    if (dt > 0) s.vel = s.vel * 0.7 + (-(e.clientX - s.lastX) / spacing() / dt) * 0.3;
+    s.lastX = e.clientX; s.lastT = e.timeStamp;
+  };
+  const onUp = () => {
+    const s = st.current;
+    if (!s.drag) return;
+    s.drag = false;
+    /* fling: carry the release velocity ~250ms, then settle on a card */
+    const projected = s.pos + s.vel * 250;
+    s.v = s.vel * 16;
+    go(Math.round(projected));
+  };
   return (
     <section className="hm-showcase hm-showcase--cover" aria-label="Apps built on Bolt">
-      <div className="hm-cover" ref={root} onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
-        {all.map((c, i) => {
-          let d = i - active;
-          if (d > n / 2) d -= n;
-          if (d < -n / 2) d += n;
-          const off = Math.abs(d) > 2;
-          return (
-            <div
-              key={c.prompt}
-              className={`hm-cover-card${d === 0 ? ' is-active' : ''}`}
-              style={{ '--d': d, '--ad': Math.abs(d) } as React.CSSProperties}
-              aria-hidden={d !== 0 ? true : undefined}
-              data-off={off ? '' : undefined}
-              onClick={() => d !== 0 && setActive(i)}
-            >
-              <span className="hm-cover-shot"><img src={c.shot} alt="" loading="lazy" decoding="async" /></span>
-              <span className="hm-cover-foot">
-                <span className="hm-cover-kicker">Tell bolt</span>
-                <span className="hm-cover-prompt">{c.prompt}</span>
-                <CardActions open={c.url} preview={c.preview} label={c.prompt} tabIndex={d === 0 ? undefined : -1} />
-              </span>
-            </div>
-          );
-        })}
+      <div
+        className="hm-cover"
+        ref={root}
+        onMouseEnter={() => { st.current.hover = true; }}
+        onMouseLeave={() => { st.current.hover = false; }}
+        onPointerDown={onDown}
+        onPointerMove={onMove}
+        onPointerUp={onUp}
+        onPointerCancel={onUp}
+        onClickCapture={(e) => { if (st.current.moved > 6) { e.preventDefault(); e.stopPropagation(); } }}
+        onDragStart={(e) => e.preventDefault()}
+      >
+        {all.map((c, i) => (
+          <div
+            key={c.prompt}
+            ref={(el) => { cards.current[i] = el; }}
+            className={`hm-cover-card${i === active ? ' is-active' : ''}`}
+            aria-hidden={i !== active ? true : undefined}
+            onClick={() => { const d = wrapD(i - st.current.target); if (Math.abs(d) > 0.5) go(Math.round(st.current.target + d)); }}
+          >
+            <span className="hm-cover-shot"><img src={c.shot} alt="" loading="lazy" decoding="async" draggable={false} /></span>
+            <span className="hm-cover-foot">
+              <span className="hm-cover-kicker">Tell bolt</span>
+              <span className="hm-cover-prompt">{c.prompt}</span>
+              <CardActions open={c.url} preview={c.preview} label={c.prompt} tabIndex={i === active ? undefined : -1} />
+            </span>
+          </div>
+        ))}
       </div>
       <div className="hm-cover-dots" role="tablist" aria-label="Choose a site">
-        {all.map((c, i) => <button key={c.prompt} type="button" role="tab" aria-selected={i === active} aria-label={c.name ?? c.prompt} onClick={() => setActive(i)} />)}
+        {all.map((c, i) => (
+          <button key={c.prompt} type="button" role="tab" aria-selected={i === active} aria-label={c.name ?? c.prompt}
+            onClick={() => go(Math.round(st.current.target + wrapD(i - st.current.target)))} />
+        ))}
       </div>
     </section>
   );
