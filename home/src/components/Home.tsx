@@ -163,8 +163,67 @@ function CrawlWall({ all }: { all: ShowcaseCard[] }) {
   );
 }
 
+/* VARIANT B (review): the showcase as a coverflow (Gary's reference). One
+   card flat in the centre with its prompt + actions; neighbours turn away in
+   3D and fade; auto-advances every 4.5s (paused on hover / off screen);
+   clicking a side card brings it to the centre. */
+const COVER_MS = 4500;
+function ShowcaseCoverflow() {
+  const all = [...showcase.rowA, ...showcase.rowB];
+  const n = all.length;
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const [vis, setVis] = useState(false);
+  const root = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = root.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => setVis(e.isIntersecting), { threshold: 0.3 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  useEffect(() => {
+    if (paused || !vis || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const id = window.setTimeout(() => setActive((a) => (a + 1) % n), COVER_MS);
+    return () => window.clearTimeout(id);
+  }, [active, paused, vis, n]);
+  return (
+    <section className="hm-showcase hm-showcase--cover" aria-label="Apps built on Bolt">
+      <div className="hm-cover" ref={root} onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+        {all.map((c, i) => {
+          let d = i - active;
+          if (d > n / 2) d -= n;
+          if (d < -n / 2) d += n;
+          const off = Math.abs(d) > 2;
+          return (
+            <div
+              key={c.prompt}
+              className={`hm-cover-card${d === 0 ? ' is-active' : ''}`}
+              style={{ '--d': d, '--ad': Math.abs(d) } as React.CSSProperties}
+              aria-hidden={d !== 0 ? true : undefined}
+              data-off={off ? '' : undefined}
+              onClick={() => d !== 0 && setActive(i)}
+            >
+              <span className="hm-cover-shot"><img src={c.shot} alt="" loading="lazy" decoding="async" /></span>
+              <span className="hm-cover-foot">
+                <span className="hm-cover-kicker">Tell bolt</span>
+                <span className="hm-cover-prompt">{c.prompt}</span>
+                <CardActions open={c.url} preview={c.preview} label={c.prompt} tabIndex={d === 0 ? undefined : -1} />
+              </span>
+            </div>
+          );
+        })}
+      </div>
+      <div className="hm-cover-dots" role="tablist" aria-label="Choose a site">
+        {all.map((c, i) => <button key={c.prompt} type="button" role="tab" aria-selected={i === active} aria-label={c.name ?? c.prompt} onClick={() => setActive(i)} />)}
+      </div>
+    </section>
+  );
+}
+
 export function Showcase() {
   const variant = useVariant();
+  if (variant === 'b') return <ShowcaseCoverflow />;
   if (variant === 'c' || variant === 'd') { /* D builds on C: the crawl + the blended closing band */
     /* 9 sites = three even rows of 3 (Gary: 3 across, bigger; "if they don't split
        evenly take out any" — construction is the one left out) */
