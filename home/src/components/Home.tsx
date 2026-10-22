@@ -214,6 +214,10 @@ function ShowcaseCoverflow() {
       const foot = el?.querySelector<HTMLElement>('.hm-cover-foot');
       if (el && foot) el.style.setProperty('--cap', `${foot.offsetHeight + 14}px`);
     });
+    /* the stage is as tall as its tallest card (+ the fan's drop and shadow), so
+       the pagination sits right under the cards (Gary: it floated far below) */
+    const tallest = Math.max(...cards.current.map((el) => el?.offsetHeight ?? 0));
+    if (root.current && tallest) root.current.style.height = `${tallest + 40}px`;
     fit();
     window.addEventListener('resize', fit);
     document.fonts?.ready.then(fit);
