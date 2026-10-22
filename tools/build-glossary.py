@@ -195,10 +195,9 @@ FOOTER = FOOTER.replace('>Start Building</p>', '>Stop Reading, Start Building</p
 FOOTER = FOOTER.replace("Don't see your use case? Build it.", 'You know the words.<br>Now build the thing.')
 FOOTER = re.sub(r'<p class="footer-subtitle">.*?</p>',
                 '<p class="footer-subtitle">No code. No developer. No $100K project.</p>', FOOTER, flags=re.S)
-FOOTER = FOOTER.replace('placeholder="Describe what you want to build…"',
-                        'placeholder="Build a client portal where each customer signs in to see their own invoices, documents, and project status."')
-FOOTER = re.sub(r'\s*<ul class="hero-pills footer-cta-pills">.*?</ul>', '', FOOTER, flags=re.S)
-assert 'Now build the thing' in FOOTER and 'hero-pills' not in FOOTER
+# The prompt box stays the standard one (placeholder + pill row) — dropping the
+# pills left the box flush with the section's clipped bottom edge.
+assert 'Now build the thing' in FOOTER and 'hero-pills footer-cta-pills' in FOOTER
 
 ARROW_PATH = "M1 7h13M9 2l5 5-5 5"
 
