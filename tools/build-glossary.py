@@ -450,6 +450,13 @@ html[data-theme="dark"] .gl-card-more { color: #4DA6FF; }
 .gl-card-more .gl-arrow { transition: transform 0.2s ease; }
 .gl-card:hover .gl-card-more .gl-arrow { transform: translateX(3px); }
 
+/* Seam (CLAUDE.md adjacent-section rule): the term hero and "Get to know"
+   share the ground, so the seam is trimmed to ~one unit on the lower side. */
+.detail-shell { padding-bottom: 0 !important; }   /* the hero is now the shell's last block */
+.detail-shell + .gl-know { padding-top: clamp(24px, 4vh, 48px); }
+@media (max-width: 1024px) { .detail-shell + .gl-know { padding-top: 24px; } }
+@media (max-width: 768px) { .detail-shell + .gl-know { padding-top: 16px; } }
+
 /* "Get to know Bolt.new" — three standard stack cards */
 .gl-know .section-header { align-items: center; text-align: center; }
 .gl-know .section-sub { max-width: 600px; }
@@ -803,15 +810,6 @@ def build_term(t):
 
   <div class="section-divider" aria-hidden="true"><canvas id="divider-pixel-canvas"></canvas></div>
 
-  <section class="section-block">
-    <div class="dsa-reveal">
-      <p class="section-eyebrow eyebrow-scramble">Related Reading</p>
-      <h2 class="section-headline">Put it into practice</h2>
-    </div>
-    <div class="gl-card-grid">
-%(reading)s
-    </div>
-  </section>
 </main>
 
 <!-- ─── GET TO KNOW BOLT.NEW ───────────────────────────────────────────────── -->
