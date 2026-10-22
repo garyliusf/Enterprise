@@ -221,7 +221,7 @@ GLOSSARY_CSS = """
 .gl-h1-serif {
   font-family: var(--sc-font-serif); font-style: var(--sc-serif-style, italic);
   font-weight: 400; font-size: 1.06em; letter-spacing: 0;
-  color: #EDDCC6;   /* warm beige (success pull-quote colour), as in the reference; the warm token reads salmon */
+  color: #fff;   /* white like the rest of the H1 (Gary) — the serif face alone carries the accent */
 }
 /* COMPACT hero (Gary, 2026-10-22): the templates catalog's browsing hero,
    not the 65vh short variant — the list is the page, so it starts sooner.
