@@ -1066,17 +1066,36 @@ html[data-variant="d"] .fw-footer-zone, html[data-variant="e"] .fw-footer-zone {
    its art (video + dither) dissolves into black through soft, uneven blobs
    that drift slowly — no horizontal line anywhere */
 html[data-variant="d"] .fw-footer-zone, html[data-variant="e"] .fw-footer-zone { background: #000 !important; } /* runs straight into the dark footer — no bottom fade needed now the footer is dark in both themes */
-@property --hmd-bx { syntax: '<percentage>'; inherits: true; initial-value: 30%; }
-@property --hmd-by { syntax: '<percentage>'; inherits: true; initial-value: 30%; }
-html[data-variant="d"] .fw-footer-zone, html[data-variant="e"] .fw-footer-zone { animation: hmd-drift 18s ease-in-out infinite alternate; }
-@keyframes hmd-drift { 0% { --hmd-bx: 24%; --hmd-by: 26%; } 50% { --hmd-bx: 40%; --hmd-by: 36%; } 100% { --hmd-bx: 30%; --hmd-by: 30%; } }
+/* the lower edge is a moving shape, not a bowl (Gary): a flat floor ends the
+   art above the trust row, and four soft blobs hanging below it wander on
+   their own clocks (x and depth), so the colour dips into the footer in
+   different places over time; the cap layer stops every blob at the first
+   row of footer links */
+@property --hmd-ax { syntax: '<percentage>'; inherits: true; initial-value: 12%; }
+@property --hmd-bx { syntax: '<percentage>'; inherits: true; initial-value: 38%; }
+@property --hmd-cx { syntax: '<percentage>'; inherits: true; initial-value: 64%; }
+@property --hmd-dx { syntax: '<percentage>'; inherits: true; initial-value: 90%; }
+@property --hmd-ay { syntax: '<length>'; inherits: true; initial-value: 640px; }
+@property --hmd-by { syntax: '<length>'; inherits: true; initial-value: 600px; }
+@property --hmd-cy { syntax: '<length>'; inherits: true; initial-value: 660px; }
+@property --hmd-dy { syntax: '<length>'; inherits: true; initial-value: 610px; }
+html[data-variant="d"] .fw-footer-zone, html[data-variant="e"] .fw-footer-zone {
+  animation: hmd-a 11s ease-in-out infinite alternate, hmd-b 14s ease-in-out infinite alternate, hmd-c 16s ease-in-out infinite alternate, hmd-d 9s ease-in-out infinite alternate; }
+@keyframes hmd-a { 0% { --hmd-ax: -4%; --hmd-ay: 720px; } 35% { --hmd-ax: 26%; --hmd-ay: 540px; } 70% { --hmd-ax: 8%;  --hmd-ay: 620px; } 100% { --hmd-ax: 34%; --hmd-ay: 700px; } }
+@keyframes hmd-b { 0% { --hmd-bx: 22%; --hmd-by: 560px; } 40% { --hmd-bx: 56%; --hmd-by: 710px; } 75% { --hmd-bx: 38%; --hmd-by: 530px; } 100% { --hmd-bx: 48%; --hmd-by: 640px; } }
+@keyframes hmd-c { 0% { --hmd-cx: 80%; --hmd-cy: 700px; } 30% { --hmd-cx: 50%; --hmd-cy: 550px; } 65% { --hmd-cx: 70%; --hmd-cy: 720px; } 100% { --hmd-cx: 58%; --hmd-cy: 560px; } }
+@keyframes hmd-d { 0% { --hmd-dx: 104%; --hmd-dy: 560px; } 45% { --hmd-dx: 76%; --hmd-dy: 700px; } 80% { --hmd-dx: 96%; --hmd-dy: 530px; } 100% { --hmd-dx: 84%; --hmd-dy: 650px; } }
 html[data-variant="d"] .fw-footer-zone > .fw-footer-video, html[data-variant="e"] .fw-footer-zone > .fw-footer-video,
 html[data-variant="d"] .fw-footer-zone > .fw-footer-dither, html[data-variant="e"] .fw-footer-zone > .fw-footer-dither {
-  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 calc(100% - 720px), rgba(0,0,0,0.6) calc(100% - 620px), rgba(0,0,0,0.22) calc(100% - 550px), transparent calc(100% - 505px)), radial-gradient(80% 46% at var(--hmd-bx) 14%, #000 38%, rgba(0,0,0,0.5) 64%, transparent 94%), radial-gradient(62% 40% at 72% var(--hmd-by), #000 24%, rgba(0,0,0,0.45) 60%, transparent 96%), linear-gradient(180deg, #000 0%, #000 26%, transparent 52%);
-          mask-image: linear-gradient(180deg, #000 0%, #000 calc(100% - 720px), rgba(0,0,0,0.6) calc(100% - 620px), rgba(0,0,0,0.22) calc(100% - 550px), transparent calc(100% - 505px)), radial-gradient(80% 46% at var(--hmd-bx) 14%, #000 38%, rgba(0,0,0,0.5) 64%, transparent 94%), radial-gradient(62% 40% at 72% var(--hmd-by), #000 24%, rgba(0,0,0,0.45) 60%, transparent 96%), linear-gradient(180deg, #000 0%, #000 26%, transparent 52%);
-  /* first layer caps the whole art: it reaches the column labels and the first
-     row of links, and no further (Gary) */
-  -webkit-mask-composite: source-in, source-over, source-over; mask-composite: intersect, add, add; }
+  --hmd-cap: linear-gradient(180deg, #000 0%, #000 calc(100% - 640px), rgba(0,0,0,0.5) calc(100% - 560px), transparent calc(100% - 505px));
+  --hmd-blobs: radial-gradient(30% 230px at var(--hmd-ax) calc(100% - var(--hmd-ay)), #000 20%, rgba(0,0,0,0.45) 60%, transparent 100%),
+               radial-gradient(34% 240px at var(--hmd-bx) calc(100% - var(--hmd-by)), #000 20%, rgba(0,0,0,0.45) 60%, transparent 100%),
+               radial-gradient(32% 230px at var(--hmd-cx) calc(100% - var(--hmd-cy)), #000 20%, rgba(0,0,0,0.45) 60%, transparent 100%),
+               radial-gradient(28% 220px at var(--hmd-dx) calc(100% - var(--hmd-dy)), #000 20%, rgba(0,0,0,0.45) 60%, transparent 100%);
+  --hmd-floor: linear-gradient(180deg, #000 0%, #000 calc(100% - 720px), rgba(0,0,0,0.6) calc(100% - 660px), transparent calc(100% - 590px));
+  -webkit-mask-image: var(--hmd-cap), var(--hmd-blobs), var(--hmd-floor);
+          mask-image: var(--hmd-cap), var(--hmd-blobs), var(--hmd-floor);
+  -webkit-mask-composite: source-in, source-over, source-over, source-over, source-over; mask-composite: intersect, add, add, add, add; }
 @media (prefers-reduced-motion: reduce) { html[data-variant="d"] .fw-footer-zone, html[data-variant="e"] .fw-footer-zone { animation: none; } }
 /* the dark area ends under the columns, then the page's own ground returns
    below them through a long soft fade (light theme: to white before the wordmark) */
