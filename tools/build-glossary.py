@@ -372,51 +372,69 @@ html[data-theme="light"] .detail-cta-help-em:hover { color: #0f6fd0; }
 .detail-fact { display: flex; justify-content: space-between; align-items: center; gap: 16px; font-size: 13px; color: var(--sc-text-desc); }
 .detail-fact b { color: rgba(var(--sc-ink-rgb), 0.85); font-weight: 500; text-align: right; }
 
-/* Term specimen — stands in for the template screenshot gallery: the same
-   preview frame (height follows the viewport) set as a typographic plate on
-   the family's navy, dark art in both themes (.sc-on-dark). */
-.gl-specimen {
-  position: relative; overflow: hidden; isolation: isolate;
-  height: clamp(300px, 58vh, 600px);
-  border-radius: 2px; border: 1px solid rgba(var(--sc-ink-rgb), 0.10);
-  display: flex; flex-direction: column; justify-content: space-between;
-  padding: clamp(24px, 3vw, 44px);
-  color: #fff;
-  background:
-    radial-gradient(120% 90% at 85% 115%, rgba(20,136,252,0.38) 0%, rgba(20,136,252,0) 60%),
-    radial-gradient(90% 70% at 0% 0%, rgba(20,136,252,0.14) 0%, rgba(20,136,252,0) 60%),
-    #070b16;
+/* Reading column (single column since 2026-10-23: the term plate was
+   duplicative — SEO review). Type = template detail's prose scale. */
+.gl-article { max-width: 780px; margin-bottom: clamp(64px, 9vh, 120px); }   /* the divider's offsets are tuned against this gap (it was .detail-hero's) */
+.gl-article .detail-category { margin: 0 0 16px; }
+.gl-article .detail-name { font-size: clamp(40px, 4vw, 52px); letter-spacing: -1px; line-height: 1.15; }
+.gl-lead { margin: 20px 0 0; font-size: 17px; line-height: 1.75; color: rgba(var(--sc-ink-rgb), 0.72); }
+.gl-lead strong { color: var(--sc-ink); font-weight: 600; }
+.gl-cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+.gl-cta-row .hero-btn-primary, .gl-cta-row .hero-btn-ghost { min-width: 180px; }
+.gl-article .detail-cta-help { margin-top: 14px; }
+
+/* Body prose — template detail's .about-* values */
+.gl-body { margin-top: 56px; padding-top: 48px; border-top: 1px solid rgba(var(--sc-ink-rgb), 0.08); }
+.gl-body h2 { font-size: 20px; font-weight: 600; color: var(--sc-ink); letter-spacing: -0.2px; line-height: 1.35; margin: 48px 0 14px; }
+.gl-body > h2:first-child { margin-top: 0; }
+.gl-body p { font-size: 16px; line-height: 1.75; color: rgba(var(--sc-ink-rgb), 0.72); margin: 0 0 20px; }
+.gl-body ul, .gl-body ol { list-style: none; padding: 0; margin: 0 0 20px; display: grid; gap: 12px; }
+.gl-body li { position: relative; padding-left: 22px; font-size: 15px; line-height: 1.65; color: rgba(var(--sc-ink-rgb), 0.62); }
+.gl-body ul > li::before { content: ''; position: absolute; left: 2px; top: 9px; width: 5px; height: 5px; border-radius: 50%; background: #1488FC; }
+.gl-body ol { counter-reset: gl; }
+.gl-body ol > li { counter-increment: gl; padding-left: 30px; }
+.gl-body ol > li::before { content: counter(gl, decimal-leading-zero); position: absolute; left: 0; top: 1px; font-family: var(--sc-font-label); font-weight: var(--sc-label-weight, 700); font-size: 11px; letter-spacing: 1px; color: #1488FC; }
+.gl-body li b { color: rgba(var(--sc-ink-rgb), 0.92); font-weight: 600; }
+.gl-body code { font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 0.88em; padding: 1px 6px; border-radius: 2px; background: rgba(var(--sc-ink-rgb), 0.06); color: var(--sc-ink); }
+.gl-body pre { margin: 0 0 20px; padding: 16px 18px; border-radius: 2px; overflow-x: auto; border: 1px solid rgba(var(--sc-ink-rgb), 0.10); background: rgba(var(--sc-ink-rgb), 0.03); }
+.gl-body pre code { padding: 0; background: none; font-size: 13px; line-height: 1.6; }
+.gl-code-label { display: block; margin: 0 0 8px; font-family: var(--sc-font-label); font-weight: var(--sc-label-weight, 700); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--sc-text-faint); }
+.gl-table-wrap { margin: 0 0 20px; overflow-x: auto; border: 1px solid rgba(var(--sc-ink-rgb), 0.10); border-radius: 2px; }
+.gl-body table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 1.5; }
+.gl-body th { text-align: left; padding: 12px 16px; font-family: var(--sc-font-label); font-weight: var(--sc-label-weight, 700); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--sc-text-desc); background: rgba(var(--sc-ink-rgb), 0.03); border-bottom: 1px solid rgba(var(--sc-ink-rgb), 0.10); }
+.gl-body td { padding: 14px 16px; color: rgba(var(--sc-ink-rgb), 0.72); border-top: 1px solid rgba(var(--sc-ink-rgb), 0.06); vertical-align: top; }
+.gl-body tr:first-child td { border-top: 0; }
+.gl-body td:first-child { color: var(--sc-ink); font-weight: 600; white-space: nowrap; }
+.gl-body .ms-faq-list { margin-top: 8px; border-bottom: 1px solid var(--sc-line-soft); }
+
+/* See also — clickable pills, below all the content */
+.gl-see-also { margin-top: 64px; padding-top: 32px; border-top: 1px solid rgba(var(--sc-ink-rgb), 0.08); }
+.gl-pills { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+.gl-pill {
+  display: inline-flex; align-items: center; gap: 10px; height: 44px; padding: 0 18px;
+  border-radius: 999px; border: 1px solid rgba(var(--sc-ink-rgb), 0.14);
+  background: var(--sc-surface); box-shadow: 0 2px 8px rgba(15,26,42,0.04);
+  font-size: 15px; font-weight: 500; color: var(--sc-ink);
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
-html[data-theme="light"] .gl-specimen {
-  border-color: transparent;
-  background:
-    radial-gradient(120% 90% at 85% 115%, rgba(58,142,205,0.85) 0%, rgba(31,116,189,0.55) 30%, rgba(11,42,88,0) 70%),
-    linear-gradient(180deg, #061129 0%, #0b2a58 100%);
+.gl-pill .gl-arrow { color: #1488FC; transition: transform 0.2s ease; }
+.gl-pill:hover { border-color: #1488FC; background: rgba(20,136,252,0.06); color: #1488FC; transform: translateY(-1px); }
+.gl-pill:hover .gl-arrow { transform: translateX(3px); }
+html[data-theme="dark"] .gl-pill { box-shadow: none; }
+html[data-theme="dark"] .gl-pill:hover { color: #4DA6FF; border-color: #4DA6FF; }
+html[data-theme="dark"] .gl-pill .gl-arrow { color: #4DA6FF; }
+@media (max-width: 768px) {
+  .gl-article .detail-name { font-size: clamp(28px, 8vw, 40px); }
+  .gl-lead { font-size: 16px; margin-top: 12px; }
+  .gl-cta-row { flex-direction: column; margin-top: 24px; }
+  .gl-cta-row .hero-btn-primary, .gl-cta-row .hero-btn-ghost { width: 100%; }
+  .gl-body { margin-top: 40px; padding-top: 36px; }
+  .gl-body h2 { font-size: 18px; margin-top: 36px; }
+  .gl-body p { font-size: 15px; }
+  .gl-body li { font-size: 14px; }
+  .gl-see-also { margin-top: 48px; }
+  .gl-pill { height: 40px; padding: 0 16px; font-size: 14px; }
 }
-.gl-specimen canvas {
-  position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none;
-  -webkit-mask-image: linear-gradient(160deg, rgba(0,0,0,0.15) 30%, #000 100%);
-          mask-image: linear-gradient(160deg, rgba(0,0,0,0.15) 30%, #000 100%);
-}
-.gl-specimen > *:not(canvas) { position: relative; z-index: 1; }
-.gl-spec-top, .gl-spec-foot {
-  display: flex; justify-content: space-between; align-items: center; gap: 16px;
-  font-family: var(--sc-font-label); font-weight: var(--sc-label-weight, 700);
-  font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
-  color: rgba(255,255,255,0.6);
-}
-.gl-spec-top b { color: #fff; font-weight: inherit; }
-.gl-spec-term {
-  margin: 0; font-size: clamp(44px, 5.6vw, 84px); font-weight: 500; line-height: 1.02; letter-spacing: -2px;
-  color: #fff; text-wrap: balance; overflow-wrap: anywhere;
-}
-.gl-spec-sub {
-  display: block; margin-top: 14px;
-  font-family: var(--sc-font-serif); font-style: var(--sc-serif-style, italic); font-weight: 400;
-  font-size: clamp(20px, 1.8vw, 26px); letter-spacing: 0; line-height: 1.3; color: rgba(255,255,255,0.78);
-}
-.gl-spec-foot { justify-content: flex-start; flex-wrap: wrap; gap: 6px 14px; }
-.gl-spec-foot span:first-child { color: rgba(255,255,255,0.45); }
 
 /* Divider + sections (verbatim template-detail values) */
 .detail-shell .section-divider {
@@ -470,7 +488,6 @@ html[data-theme="dark"] .gl-card-more { color: #4DA6FF; }
   .detail-shell .section-divider { height: 160px; margin: -92px auto -56px; }
   .detail-shell .section-eyebrow { margin-bottom: 12px; }
   .gl-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .gl-specimen { height: clamp(300px, 46vh, 460px); }
 }
 @media (max-width: 768px) {
   html .gl-hero .hero-eyebrow { margin-bottom: -12px; }            /* eyebrow→H1 12 on phones */
@@ -491,8 +508,6 @@ html[data-theme="dark"] .gl-card-more { color: #4DA6FF; }
   .detail-name { font-size: 32px; }
   .detail-category { margin-bottom: -8px; }
   .detail-shell .section-divider { height: 110px; margin: -60px auto -40px; }
-  .gl-specimen { height: 340px; }
-  .gl-spec-term { letter-spacing: -1.2px; }
   .gl-card-grid { grid-template-columns: 1fr; gap: 12px; }
   }
 </style>
@@ -646,11 +661,11 @@ def build_index():
             '      <ul class="gl-rows">\n%s\n      </ul>\n'
             '    </div>' % (letter_id(L), letter_id(L), esc(L), '\n'.join(rows)))
 
-    desc = 'Every term you will meet while building software with AI, explained in plain language. %d definitions, from 301 redirect to workflow automation.' % len(TERMS)
+    desc = 'Get the definition of every term you will meet while building apps and websites with AI, explained in plain language.'
     ld = jsonld({
         '@context': 'https://schema.org',
         '@graph': [
-            {'@type': 'DefinedTermSet', '@id': SITE + '#set', 'name': 'Bolt.new Glossary', 'url': SITE,
+            {'@type': 'DefinedTermSet', '@id': SITE + '#set', 'name': 'AI Building Glossary', 'url': SITE,
              'description': desc,
              'hasDefinedTerm': [{'@type': 'DefinedTerm', 'name': t['name'], 'description': t['def'],
                                  'url': SITE + '/' + t['slug']} for t in TERMS]},
@@ -665,8 +680,8 @@ def build_index():
   <canvas id="hero-dither-light" aria-hidden="true"></canvas>
   <div class="hero-inner sc-on-dark">
     <p class="hero-eyebrow eyebrow-scramble">Glossary</p>
-    <h1 class="hero-h1">Know what it all <em class="gl-h1-serif">means</em></h1>
-    <p class="hero-subtitle">Every term you will meet while building software with AI, explained in plain language. No jargon, no computer science degree.</p>
+    <h1 class="hero-h1">AI Building <em class="gl-h1-serif">Glossary</em></h1>
+    <p class="hero-subtitle">Get the definition of every term you will meet while building apps and websites with AI, explained in plain language.</p>
   </div>
 </section>
 
@@ -693,7 +708,7 @@ def build_index():
 
 """ % ('\n    '.join(az), '\n'.join(groups))
 
-    page = (head('Glossary: AI App Building Terms, Explained | Bolt.new', desc, SITE, ld)
+    page = (head('AI Building Glossary | Bolt.new', desc, SITE, ld)
             + NAV + body + FOOTER + NAV_H_JS + INDEX_JS + SCRIPTS)
     write(os.path.join(OUT, 'index.html'), page)
 
@@ -714,7 +729,7 @@ GALLERY_CSS = '/* ── Gallery cards: verbatim from marketing/404.html ("Where
 GALLERY_JS = "/* ── Card hover dot field (attachHoverField — the compliance-card treatment).\n   Colour follows --sc-dot-rgb so it is blue on light, grey on dark. ── */\n(function () {\n  var rgb = '140,195,255';   /* over photos in both themes, as on the home cards */\n  function attach(tile, canvas, idx) {\n    var ctx = canvas.getContext('2d');\n    var SPACING = 9, DOT = 2, cols = 0, rows = 0, phases = [], hovered = false, t = 0, phase = idx * 1.7;\n    function resize() {\n      var w = tile.offsetWidth, h = tile.offsetHeight; if (!w || !h) return;\n      canvas.width = w; canvas.height = h;\n      cols = Math.ceil(w / SPACING) + 1; rows = Math.ceil(h / SPACING) + 1;\n      phases = Array.from({ length: rows }, function () { return Array.from({ length: cols }, function () { return Math.random() * Math.PI * 2; }); });\n    }\n    try { new ResizeObserver(resize).observe(tile); } catch (e) {}\n    requestAnimationFrame(resize);\n    tile.addEventListener('mouseenter', function () { hovered = true; });\n    tile.addEventListener('mouseleave', function () { hovered = false; });\n    function draw() {\n      if (!hovered || !cols) { requestAnimationFrame(draw); return; }\n      t += 0.03;\n      var W = canvas.width, H = canvas.height;\n      ctx.clearRect(0, 0, W, H);\n      var angle = t * 0.16 + phase, ca = Math.cos(angle), sa = Math.sin(angle);\n      for (var r = 0; r < rows; r++) for (var c = 0; c < cols; c++) {\n        var px = c * SPACING, py = r * SPACING, ph = (phases[r] && phases[r][c]) || 0;\n        var wave = Math.sin((px * ca + py * sa) / 58 + t + ph) * Math.cos((px * -sa + py * ca) / 90 + t * 0.6);\n        var op = Math.max(0, wave) * 0.45 * (px / W);\n        if (op < 0.04) continue;\n        ctx.fillStyle = 'rgba(' + rgb + ',' + op.toFixed(3) + ')';\n        ctx.fillRect(px, py, DOT, DOT);\n      }\n      requestAnimationFrame(draw);\n    }\n    requestAnimationFrame(draw);\n  }\n  document.querySelectorAll('.nf-card').forEach(function (el, i) {\n    var cv = document.createElement('canvas'); cv.className = 'nf-field'; cv.setAttribute('aria-hidden', 'true');\n    el.insertBefore(cv, el.firstChild); attach(el, cv, i);\n  });\n})();\n"
 
 # Divider: template detail's traveling shimmer (makePixelCanvas comes with the
-# lifted scripts). Specimen: a slow diagonal swell of blue dots on the plate.
+# lifted scripts).
 TERM_JS = """
 if (typeof makePixelCanvas === 'function' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   makePixelCanvas('divider-pixel-canvas', 11, 2,
@@ -724,13 +739,15 @@ if (typeof makePixelCanvas === 'function' && !window.matchMedia('(prefers-reduce
       var band = Math.sin(phase) * 0.5 + 0.5;
       return 0.06 + Math.pow(band, 3) * 0.32 + (Math.sin(p * 53.7 + t * 0.004) * 0.5 + 0.5) * 0.07;
     }, 1.0, '170,185,210');
-  makePixelCanvas('gl-specimen-canvas', 9, 2,
-    function (c, r, t, p) {
-      var w = Math.sin(c * 0.11 + r * 0.07 - t * 0.0011) * 0.5 + Math.sin(c * 0.05 - r * 0.13 + t * 0.0007 + p) * 0.35;
-      return Math.max(0, w) * 0.55;
-    }, 1.0, '120,175,255');
 }
 """
+
+
+# Long-form body per term (optional). 301 redirect carries a DRAFT written to
+# show the content blocks; replace it with the SEO brief's copy.
+BODY = {
+    '301-redirect': {'html': '      <h2>How a 301 redirect works</h2>\n      <p>When a browser or a search engine asks for the old address, the server answers with status code 301 and a <code>Location</code> header naming the new one. The browser follows it on its own, so the visitor lands on the right page without doing anything.</p>\n      <ol>\n        <li>A visitor or crawler requests <code>example.com/old-page</code>.</li>\n        <li>The server replies <code>301 Moved Permanently</code> with <code>Location: example.com/new-page</code>.</li>\n        <li>The browser requests the new address and loads it.</li>\n        <li>Search engines swap the old URL for the new one in their index and pass its ranking signals along.</li>\n      </ol>\n\n      <h2>301 vs. 302, 307 and 308 redirects</h2>\n      <p>The status code tells search engines whether a move is permanent. Pick the wrong one and the old URL can linger in results.</p>\n      <div class="gl-table-wrap"><table>\n        <thead><tr><th>Code</th><th>Type</th><th>Use it when</th></tr></thead>\n        <tbody>\n          <tr><td>301</td><td>Permanent</td><td>A page has moved for good</td></tr>\n          <tr><td>302</td><td>Temporary</td><td>A short-term swap, like a seasonal promo page</td></tr>\n          <tr><td>307</td><td>Temporary, keeps the request method</td><td>Temporary moves for forms or API calls</td></tr>\n          <tr><td>308</td><td>Permanent, keeps the request method</td><td>Permanent moves for forms or API endpoints</td></tr>\n        </tbody>\n      </table></div>\n\n      <h2>When to use a 301 redirect</h2>\n      <ul>\n        <li><b>Changing a URL:</b> a new slug, a renamed section or a restructured site.</li>\n        <li><b>Moving domains:</b> a rebrand, or the switch from http to https.</li>\n        <li><b>Merging pages:</b> two pages that cover the same topic become one.</li>\n        <li><b>Retiring a page:</b> send it to the closest replacement, not the homepage.</li>\n        <li><b>Picking one version:</b> www or non-www, with or without a trailing slash.</li>\n      </ul>\n\n      <h2>How to set up a 301 redirect</h2>\n      <p>Where the rule lives depends on your host. Two common setups:</p>\n      <span class="gl-code-label">Netlify (_redirects file)</span>\n      <pre><code>/old-page   /new-page   301</code></pre>\n      <span class="gl-code-label">Nginx</span>\n      <pre><code>location = /old-page {\n  return 301 /new-page;\n}</code></pre>\n      <p>Building in Bolt? Ask for it in plain language, like &ldquo;redirect /pricing-old to /pricing with a 301&rdquo;, and Bolt can add the rule for you.</p>\n\n      <h2>Common 301 redirect mistakes</h2>\n      <ul>\n        <li><b>Redirect chains:</b> A goes to B goes to C. Each hop slows the page, so point A straight at C.</li>\n        <li><b>Redirect loops:</b> two URLs that redirect to each other, so the page never loads.</li>\n        <li><b>Everything to the homepage:</b> search engines can treat it as a soft 404 and drop the old page\'s signals.</li>\n        <li><b>A 302 for a permanent move:</b> the old URL can stay in search results.</li>\n      </ul>\n\n      <h2>Frequently asked questions</h2>\n      <div class="ms-faq-list">\n        <div class="ms-faq-item">\n          <button class="ms-faq-q">Do 301 redirects hurt SEO?<span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>\n          <div class="ms-faq-a"><div class="ms-faq-a-inner">No. Google passes a 301\'s ranking signals to the new address. Expect some movement while search engines recrawl the old URL, then the new page carries the old page\'s standing.</div></div>\n        </div>\n        <div class="ms-faq-item">\n          <button class="ms-faq-q">How long should I keep a 301 redirect in place?<span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>\n          <div class="ms-faq-a"><div class="ms-faq-a-inner">At least a year, and ideally for good, especially when other sites still link to the old URL. Removing it turns those links into 404 errors.</div></div>\n        </div>\n        <div class="ms-faq-item">\n          <button class="ms-faq-q">Can I undo a 301 redirect?<span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>\n          <div class="ms-faq-a"><div class="ms-faq-a-inner">Yes, by removing the rule. Browsers cache 301s, though, so people who already followed it may keep landing on the new page until their cache clears.</div></div>\n        </div>\n      </div>', 'faq': [('Do 301 redirects hurt SEO?', "No. Google passes a 301's ranking signals to the new address. Expect some movement while search engines recrawl the old URL, then the new page carries the old page's standing."), ('How long should I keep a 301 redirect in place?', 'At least a year, and ideally for good, especially when other sites still link to the old URL. Removing it turns those links into 404 errors.'), ('Can I undo a 301 redirect?', 'Yes, by removing the rule. Browsers cache 301s, though, so people who already followed it may keep landing on the new page until their cache clears.')]},
+}
 
 
 def build_term(t):
@@ -744,33 +761,22 @@ def build_term(t):
         '@context': 'https://schema.org',
         '@graph': [
             {'@type': 'DefinedTerm', '@id': url + '#term', 'name': t['name'], 'description': t['def'],
-             'url': url, 'inDefinedTermSet': {'@type': 'DefinedTermSet', '@id': SITE + '#set', 'name': 'Bolt.new Glossary', 'url': SITE}},
+             'url': url, 'inDefinedTermSet': {'@type': 'DefinedTermSet', '@id': SITE + '#set', 'name': 'AI Building Glossary', 'url': SITE}},
             {'@type': 'WebPage', '@id': url, 'url': url, 'name': h1, 'description': plain_lead,
              'about': {'@id': url + '#term'}},
             {'@type': 'BreadcrumbList', 'itemListElement': [
                 {'@type': 'ListItem', 'position': 1, 'name': 'Resources', 'item': 'https://bolt.new/resources'},
                 {'@type': 'ListItem', 'position': 2, 'name': 'Glossary', 'item': SITE},
                 {'@type': 'ListItem', 'position': 3, 'name': t['name'], 'item': url}]},
-        ]})
+        ] + ([{'@type': 'FAQPage', 'mainEntity': [
+                {'@type': 'Question', 'name': q, 'acceptedAnswer': {'@type': 'Answer', 'text': a}}
+                for q, a in BODY[t['slug']]['faq']]}] if BODY.get(t['slug'], {}).get('faq') else [])})
 
-    rel_cards = '\n'.join(
-        '      <a class="gl-card" href="../%s/">\n'
-        '        <span class="gl-card-kind">%s</span>\n'
-        '        <h3 class="gl-card-title">%s</h3>\n'
-        '        <p class="gl-card-desc">%s</p>\n'
-        '        <span class="gl-card-more">Read the definition <span class="gl-arrow" aria-hidden="true"></span></span>\n'
-        '      </a>' % (r['slug'], esc(CATS[r['cat']]), esc(r['name']), esc(r['def'])) for r in rel)
-    reading = '\n'.join(
-        '      <a class="gl-card" href="%s">\n'
-        '        <span class="gl-card-kind">%s</span>\n'
-        '        <h3 class="gl-card-title">%s</h3>\n'
-        '        <span class="gl-card-more">Read more <span class="gl-arrow" aria-hidden="true"></span></span>\n'
-        '      </a>' % (u, esc(k), esc(ti)) for k, ti, u in READING)
-    # specimen plate: the name big; an "(expansion)" moves to the serif line
-    m = re.match(r'^(.*?)\s*\((.*)\)$', t['name'])
-    spec_name, spec_sub = (m.group(1), m.group(2)) if m else (t['name'], CATS[t['cat']])
-    num = TERMS.index(t) + 1
-    see_also = ''.join('<span>%s</span>' % esc(r['name'].split(' (')[0]) for r in rel[:3])
+    pills = '\n'.join(
+        '        <li><a class="gl-pill" href="../%s/">%s <span class="gl-arrow" aria-hidden="true"></span></a></li>'
+        % (r['slug'], esc(r['name'])) for r in rel)
+    body = BODY.get(t['slug'], {}).get('html', '')
+    body = ('    <div class="gl-body">\n' + body + '\n    </div>\n') if body else ''
     cards = '\n'.join(
         '      <a class="nf-card" href="%s">\n'
         '        <img class="nf-img" src="../../images/404/%s" alt="" loading="lazy" decoding="async" style="object-position:%s">\n'
@@ -783,7 +789,7 @@ def build_term(t):
         '        </span>\n'
         '      </a>' % (u, img, pos, esc(tag), esc(ti), esc(d), esc(more)) for u, img, pos, tag, ti, d, more in GALLERY)
 
-    body = """<!-- ─── TERM (template-detail layout) ─────────────────────────────────────── -->
+    page_body = """<!-- ─── TERM (template-detail layout) ─────────────────────────────────────── -->
 <main class="detail-shell">
   <nav class="breadcrumb" aria-label="Breadcrumb">
     <a href="https://bolt.new/resources">Resources</a>
@@ -793,30 +799,29 @@ def build_term(t):
     <span class="current" aria-current="page">%(name)s</span>
   </nav>
 
-  <section class="detail-hero">
-    <div class="gl-specimen sc-on-dark" aria-hidden="true">
-      <canvas id="gl-specimen-canvas"></canvas>
-      <div class="gl-spec-top"><span>Bolt.new Glossary</span></div>
-      <p class="gl-spec-term">%(spec_name)s<span class="gl-spec-sub">%(spec_sub)s</span></p>
-      <div class="gl-spec-foot"><span>See also</span>%(see_also)s</div>
+  <article class="gl-article">
+    <p class="detail-category">%(cat)s</p>
+    <h1 class="detail-name">%(h1)s</h1>
+    <p class="gl-lead">%(lead)s</p>
+    <div class="gl-cta-row">
+      <a href="https://bolt.new/" target="_blank" rel="noopener" class="hero-btn-primary">
+        <div class="btn-bg-hover"></div>
+        <div class="btn-text-wrap"><div class="btn-text-inner"><span>Start Building</span><span>Start Building</span></div></div>
+      </a>
+      <a href="../" class="hero-btn-ghost">
+        <div class="btn-bg-hover"></div>
+        <div class="btn-text-wrap"><div class="btn-text-inner"><span>Browse All Terms</span><span>Browse All Terms</span></div></div>
+      </a>
     </div>
-    <aside class="detail-info">
-      <p class="detail-category">%(cat)s</p>
-      <h1 class="detail-name">%(h1)s</h1>
-      <p class="detail-desc">%(lead)s</p>
-      <div class="detail-cta-row">
-        <a href="https://bolt.new/" target="_blank" rel="noopener" class="hero-btn-primary">
-          <div class="btn-bg-hover"></div>
-          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Start Building</span><span>Start Building</span></div></div>
-        </a>
-        <a href="../" class="hero-btn-ghost">
-          <div class="btn-bg-hover"></div>
-          <div class="btn-text-wrap"><div class="btn-text-inner"><span>Browse All Terms</span><span>Browse All Terms</span></div></div>
-        </a>
-        <p class="detail-cta-help">New to Bolt? <a href="https://bolt.new/?get_started=true" target="_blank" rel="noopener" class="detail-cta-help-em">Sign up</a> free.</p>
-      </div>
-    </aside>
-  </section>
+    <p class="detail-cta-help">New to Bolt? <a href="https://bolt.new/?get_started=true" target="_blank" rel="noopener" class="detail-cta-help-em">Sign up</a> free.</p>
+%(body)s
+    <nav class="gl-see-also" aria-label="See also">
+      <p class="detail-category">See also</p>
+      <ul class="gl-pills">
+%(pills)s
+      </ul>
+    </nav>
+  </article>
 
   <div class="section-divider" aria-hidden="true"><canvas id="divider-pixel-canvas"></canvas></div>
 
@@ -839,9 +844,8 @@ def build_term(t):
 </section>
 
 """.replace('%s\n    </div>\n  </div>\n</section>', '%(cards)s\n    </div>\n  </div>\n</section>') % dict(
-        name=esc(t['name']), letter=esc(t['letter']), num=num, spec_name=esc(spec_name), spec_sub=esc(spec_sub),
-        see_also=see_also, cat=esc(CATS[t['cat']]), h1=esc(h1), lead=lead, nrel=len(rel), total=len(TERMS),
-        rel_cards=rel_cards, reading=reading, cards=cards)
+        name=esc(t['name']), cat=esc(CATS[t['cat']]), h1=esc(h1), lead=lead,
+        body=body, pills=pills, cards=cards)
 
     # The term page has no hero, so the nav sits solid in flow (the over-hero
     # variant is transparent with white ink and would vanish on a light ground).
@@ -850,7 +854,7 @@ def build_term(t):
     # Only the lifted chrome sits one level deeper than its source; the
     # body's own links (../ = the index, ../<slug>/ = siblings) are already right.
     page = (rebase(head(h1 + ' Definition | Bolt.new Glossary', desc, url, ld) + nav)
-            + body + rebase(FOOTER + NAV_H_JS + SCRIPTS))
+            + page_body + rebase(FOOTER + NAV_H_JS + SCRIPTS))
     page = page.replace('</style>\n</head>', '</style>\n<style id="glossary-gallery">\n' + GALLERY_CSS + '</style>\n</head>', 1)
     page = page.replace('</body>', '<script>\n' + GALLERY_JS + TERM_JS + '</script>\n</body>', 1)
     write(os.path.join(OUT, t['slug'], 'index.html'), page)
