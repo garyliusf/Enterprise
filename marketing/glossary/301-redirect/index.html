@@ -1589,15 +1589,15 @@ html[data-theme="dark"] .gl-card-more { color: #4DA6FF; }
         <h2 class="gl-sec-label">Frequently asked questions</h2>
       <div class="ms-faq-list">
         <div class="ms-faq-item">
-          <button class="ms-faq-q">Do 301 redirects hurt SEO?<span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
+          <button type="button" class="ms-faq-q">Do 301 redirects hurt SEO?<span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
           <div class="ms-faq-a"><div class="ms-faq-a-inner">No. Google passes a 301's ranking signals to the new address. Expect some movement while search engines recrawl the old URL, then the new page carries the old page's standing.</div></div>
         </div>
         <div class="ms-faq-item">
-          <button class="ms-faq-q">How long should I keep a 301 redirect in place?<span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
+          <button type="button" class="ms-faq-q">How long should I keep a 301 redirect in place?<span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
           <div class="ms-faq-a"><div class="ms-faq-a-inner">At least a year, and ideally for good, especially when other sites still link to the old URL. Removing it turns those links into 404 errors.</div></div>
         </div>
         <div class="ms-faq-item">
-          <button class="ms-faq-q">Can I undo a 301 redirect?<span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
+          <button type="button" class="ms-faq-q">Can I undo a 301 redirect?<span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
           <div class="ms-faq-a"><div class="ms-faq-a-inner">Yes, by removing the rule. Browsers cache 301s, though, so people who already followed it may keep landing on the new page until their cache clears.</div></div>
         </div>
       </div>
@@ -2509,6 +2509,20 @@ window.addEventListener('load', function () {
   });
 })();
 
+/* FAQ accordion (single-open, as on pricing). The shared CSS expands
+   .ms-faq-item.is-open; shared JS only draws the open-state dot field. */
+document.querySelectorAll('.gl-body .ms-faq-q').forEach(function (btn) {
+  btn.setAttribute('aria-expanded', 'false');
+  btn.addEventListener('click', function () {
+    var item = btn.closest('.ms-faq-item');
+    var open = item.classList.contains('is-open');
+    item.parentElement.querySelectorAll('.ms-faq-item.is-open').forEach(function (el) {
+      el.classList.remove('is-open');
+      var q = el.querySelector('.ms-faq-q'); if (q) q.setAttribute('aria-expanded', 'false');
+    });
+    if (!open) { item.classList.add('is-open'); btn.setAttribute('aria-expanded', 'true'); }
+  });
+});
 if (typeof makePixelCanvas === 'function' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   makePixelCanvas('divider-pixel-canvas', 11, 2,
     function (c, r, t, p) {

@@ -2413,6 +2413,20 @@ window.addEventListener('load', function () {
   });
 })();
 
+/* FAQ accordion (single-open, as on pricing). The shared CSS expands
+   .ms-faq-item.is-open; shared JS only draws the open-state dot field. */
+document.querySelectorAll('.gl-body .ms-faq-q').forEach(function (btn) {
+  btn.setAttribute('aria-expanded', 'false');
+  btn.addEventListener('click', function () {
+    var item = btn.closest('.ms-faq-item');
+    var open = item.classList.contains('is-open');
+    item.parentElement.querySelectorAll('.ms-faq-item.is-open').forEach(function (el) {
+      el.classList.remove('is-open');
+      var q = el.querySelector('.ms-faq-q'); if (q) q.setAttribute('aria-expanded', 'false');
+    });
+    if (!open) { item.classList.add('is-open'); btn.setAttribute('aria-expanded', 'true'); }
+  });
+});
 if (typeof makePixelCanvas === 'function' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   makePixelCanvas('divider-pixel-canvas', 11, 2,
     function (c, r, t, p) {
