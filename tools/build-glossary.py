@@ -102,10 +102,13 @@ RELATED = {
 
 # Sidebar on every term page (Gary's reference: guide / use cases / templates).
 READING = [
-    ('Guide', 'Vibe Coding Tools That Ship Real Products (2026)', 'https://bolt.new/blog/vibe-coding-tools'),
-    ('Guide', 'Prompting like a pro: 8 tips to get the best out of Bolt', 'https://bolt.new/blog/prompt-engineering-tips-for-bolt'),
+    ('Guide', 'Vibe Coding Tools That Ship Real Products (2026)', 'https://bolt.new/blog/vibe-coding-tools',
+     'https://bolt.new/public-page-assets/media/solutions/vibe-coding-tools/vibe-coding-tools.webp'),
+    ('Guide', 'Prompting like a pro: 8 tips to get the best out of Bolt', 'https://bolt.new/blog/prompt-engineering-tips-for-bolt',
+     'https://bolt.new/public-page-assets/media/blog/framer-import/pVEoBEVtYDiVY99sYBIE69wFsIs.png'),
     # no page found for this title yet; points at the prototyping use case until the URL is known
-    ('Product', 'Build prototypes engineers will ship', 'https://bolt.new/use-cases/ai-prototyping-tools'),
+    ('Product', 'Build prototypes engineers will ship', 'https://bolt.new/use-cases/ai-prototyping-tools',
+     '../../use-cases/images/prototype-builder.webp'),
 ]
 
 CATS = {'ai': 'AI & LLMs', 'build': 'Building apps', 'web': 'Web & SEO',
@@ -381,30 +384,31 @@ html[data-theme="light"] .detail-cta-help-em:hover { color: #0f6fd0; }
   margin-bottom: clamp(64px, 9vh, 120px);   /* the divider's offsets are tuned against this gap (it was .detail-hero's) */
 }
 .gl-article { min-width: 0; }
-/* Related reading — sticky sidebar card (SEO reference), standard 2px surface */
+/* Related reading — sticky sidebar (SEO reference). Redesigned 2026-10-23
+   (Gary): no boxed card; each article is a thumbnail row (cover image + label
+   + title), the blog's own pattern, so the links read as content to open. */
 .gl-aside { position: sticky; top: calc(var(--gl-nav-h, 68px) + 32px); }
-.gl-reading {
-  padding: 28px; border-radius: 2px;
-  border: 1px solid rgba(var(--sc-ink-rgb), 0.10);
-  background: linear-gradient(180deg, rgba(var(--sc-ink-rgb), 0.03) 0%, rgba(var(--sc-ink-rgb), 0.005) 100%);
+.gl-reading-head {
+  margin: 0 0 8px; padding-bottom: 14px; border-bottom: 1px solid rgba(var(--sc-ink-rgb), 0.10);
+  font-family: var(--sc-font-label); font-weight: var(--sc-label-weight, 700);
+  font-size: var(--sc-eyebrow-size, 13px); letter-spacing: 2px; text-transform: uppercase; color: #1488FC;
 }
-html[data-theme="light"] .gl-reading { background: var(--sc-surface); box-shadow: 0 4px 16px rgba(15,26,42,0.04); }
-.gl-reading .detail-category { margin: 0 0 4px; }
-/* rows read as links: a standing blue arrow; on hover the title turns blue
-   and the arrow nudges (no tint box — Gary) */
-.gl-reading-item {
-  position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 16px;
-  padding: 18px 0; border-bottom: 1px solid rgba(var(--sc-ink-rgb), 0.08);
+.gl-reading-item { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 16px; align-items: start; padding: 16px 0; }
+.gl-reading-thumb {
+  position: relative; display: block; aspect-ratio: 4 / 3; overflow: hidden; border-radius: 2px;
+  background: var(--sc-surface); border: 1px solid rgba(var(--sc-ink-rgb), 0.08);
 }
-.gl-reading-item > .gl-arrow { position: relative; color: #1488FC; transition: transform 0.2s ease; }
-.gl-reading-item:hover > .gl-arrow { transform: translateX(3px); }
+.gl-reading-thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
+.gl-reading-item:hover .gl-reading-thumb img { transform: scale(1.06); }
+.gl-reading-kind { display: block; margin: 2px 0 6px; font-family: var(--sc-font-label); font-weight: var(--sc-label-weight, 700); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--sc-text-faint); }
+.gl-reading-title {
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden;
+  font-size: 15px; font-weight: 500; line-height: 1.4; color: var(--sc-ink); transition: color 0.2s ease;
+}
 .gl-reading-item:hover .gl-reading-title { color: #1488FC; }
-html[data-theme="dark"] .gl-reading-item > .gl-arrow,
 html[data-theme="dark"] .gl-reading-item:hover .gl-reading-title { color: #4DA6FF; }
 .gl-reading-item:focus-visible { outline: 2px solid #1488FC; outline-offset: 4px; border-radius: 2px; }
-.gl-reading-kind { display: block; margin-bottom: 8px; font-family: var(--sc-font-label); font-weight: var(--sc-label-weight, 700); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--sc-text-faint); }
-.gl-reading-title { display: block; font-size: 16px; font-weight: 500; line-height: 1.45; color: rgba(var(--sc-ink-rgb), 0.78); transition: color 0.2s ease; }
-.gl-reading-all { display: inline-flex; align-items: center; gap: 8px; margin-top: 20px; font-size: 14px; font-weight: 600; color: #1488FC; }
+.gl-reading-all { display: inline-flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 14px; font-weight: 600; color: #1488FC; }
 .gl-reading-all:hover { color: #0f6fd0; }
 .gl-reading-all .gl-arrow { transition: transform 0.2s ease; }
 .gl-reading-all:hover .gl-arrow { transform: translateX(3px); }
@@ -815,8 +819,10 @@ def build_term(t):
         '        <li><a class="gl-pill" href="../%s/">%s <span class="gl-arrow" aria-hidden="true"></span></a></li>'
         % (r['slug'], esc(r['name'])) for r in rel)
     reading = '\n'.join(
-        '      <a class="gl-reading-item" href="%s"><span class="gl-reading-text"><span class="gl-reading-kind">%s</span><span class="gl-reading-title">%s</span></span><span class="gl-arrow" aria-hidden="true"></span></a>'
-        % (u, esc(k), esc(ti)) for k, ti, u in READING)
+        '      <a class="gl-reading-item" href="%s">\n'
+        '        <span class="gl-reading-thumb"><img src="%s" alt="" loading="lazy" decoding="async"></span>\n'
+        '        <span class="gl-reading-text"><span class="gl-reading-kind">%s</span><span class="gl-reading-title">%s</span></span>\n'
+        '      </a>' % (u, img, esc(k), esc(ti)) for k, ti, u, img in READING)
     body = BODY.get(t['slug'], {}).get('html', '')
     body = ('    <div class="gl-body">\n' + body + '\n    </div>\n') if body else ''
     cards = '\n'.join(
@@ -867,7 +873,7 @@ def build_term(t):
   </article>
   <aside class="gl-aside" aria-label="Related reading">
     <div class="gl-reading">
-      <p class="detail-category">Related reading</p>
+      <p class="gl-reading-head">Related reading</p>
 %(reading)s
       <a class="gl-reading-all" href="https://bolt.new/blog">All articles <span class="gl-arrow" aria-hidden="true"></span></a>
     </div>
