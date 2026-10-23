@@ -354,7 +354,7 @@ const ditherWave: WaveFn = (c, r, t, phase, cols, rows) => {
   const lit = Math.max(0, 1 - y * 1.05); // fades out toward the band's dark bottom
   const shimmer = Math.sin(x * 22 + y * 14 - t / 1400 + phase) * 0.5 + 0.5;
   const grain = ((c * 73 + r * 151) % 7) / 7; // a fixed halftone jitter
-  return lit * (0.35 + shimmer * 0.45) * (0.6 + grain * 0.4);
+  return Math.min(1, lit * (0.55 + shimmer * 0.45) * (0.7 + grain * 0.4) * 1.25); // stronger (Gary)
 };
 
 export function FooterZone({ children, compact = false }: { children: React.ReactNode; compact?: boolean }) {
@@ -364,7 +364,7 @@ export function FooterZone({ children, compact = false }: { children: React.Reac
       <span className="fw-grain fw-grain--footer" aria-hidden="true" />
       {/* the mockup's dither (Gary, 2026-10-23): a fine, slowly shimmering dot
           screen over the gradient, strongest where the gradient is lit */}
-      <PixelField wave={ditherWave} spacing={4} dot={1.5} opacity={0.75} className="fw-footer-dither" color="255,255,255" />
+      <PixelField wave={ditherWave} spacing={4} dot={1.8} opacity={1} className="fw-footer-dither" color="255,255,255" />
       {children}
     </div>
   );
