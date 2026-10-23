@@ -7,13 +7,13 @@ import { useSyncExternalStore } from 'react';
    component (const v = useVariant(); v === 'b' ? … : …). The choice comes
    from ?variant=a|b|c|d|e, else the last one picked (localStorage), else B. */
 export type Variant = 'a' | 'b' | 'c' | 'd' | 'e';
-const KEY = 'hm-variant';
 
 function initial(): Variant {
+  /* E is the home page (Gary, 2026-10-23): the switch is gone and nothing is
+     remembered; ?variant=a|b|c|d still opens an older one by link (the
+     portfolio's ?variant=d&showcase=1) */
   const q = new URLSearchParams(window.location.search).get('variant');
-  if (q === 'a' || q === 'b' || q === 'c' || q === 'd' || q === 'e') return q;
-  /* new visitors (nothing saved) land on B (Gary, 2026-10-21) */
-  try { const v = localStorage.getItem(KEY); return v === 'a' || v === 'b' || v === 'c' || v === 'd' || v === 'e' ? v : 'b'; } catch { return 'b'; }
+  return q === 'a' || q === 'b' || q === 'c' || q === 'd' ? q : 'e';
 }
 
 let current: Variant = initial();
@@ -23,7 +23,6 @@ const listeners = new Set<() => void>();
 export function setVariant(v: Variant) {
   current = v;
   document.documentElement.dataset.variant = v;
-  try { localStorage.setItem(KEY, v); } catch { /* review-only */ }
   listeners.forEach((l) => l());
 }
 

@@ -2,9 +2,8 @@ import { useEffect } from 'react';
 import { Hero } from './components/Hero';
 import { SiteFooterStd, SiteNav } from './components/SiteChrome';
 import { FooterZone } from './components/Sections';
+import './components/VariantSwitch'; /* stamps html[data-variant] (E unless ?variant=) before first paint of the sections */
 import { Closing, Enterprise, Showcase, Stats, Steps, Stories, Platform, TemplatesHome, UseCases } from './components/Home';
-import { ThemeSwitch } from './components/ThemeSwitch';
-import { VariantSwitch } from './components/VariantSwitch';
 
 export default function App() {
   /* shared-components.js scans the DOM once when it runs (pixel-fill button
@@ -32,8 +31,6 @@ export default function App() {
         <Closing />
       </FooterZone>
       <SiteFooterStd />
-      <VariantSwitch />
-      <ThemeSwitch />
     </>
   );
 }
