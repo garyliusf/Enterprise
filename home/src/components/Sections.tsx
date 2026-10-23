@@ -1,7 +1,7 @@
 import type React from 'react';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { sessions, templates, weekend, type Session } from '../config';
-import { BgVideo, Btn, HoverField, PixelField, PixelIcon, PixelRise, SectionHeader, Tbc, type WaveFn } from './ui';
+import { BayerDither, BgVideo, Btn, HoverField, PixelField, PixelIcon, PixelRise, SectionHeader, Tbc, type WaveFn } from './ui';
 
 /* Bold the free weekend model wherever it's named (Gary, 2026-10-13). */
 const MODEL = 'GLM 5.3 Flash';
@@ -349,22 +349,13 @@ export function Templates() {
 
 /* The closing CTA and the site footer share one video ground (BoltGrad02).
    Its top fades in from the page so the section has no hard top edge. */
-const ditherWave: WaveFn = (c, r, t, phase, cols, rows) => {
-  const x = c / cols, y = r / rows;
-  const lit = Math.max(0, 1 - y * 1.05); // fades out toward the band's dark bottom
-  const shimmer = Math.sin(x * 22 + y * 14 - t / 1400 + phase) * 0.5 + 0.5;
-  const grain = ((c * 73 + r * 151) % 7) / 7; // a fixed halftone jitter
-  return lit * (0.45 + shimmer * 0.45) * (0.65 + grain * 0.4); // between the two earlier strengths (Gary)
-};
-
 export function FooterZone({ children, compact = false }: { children: React.ReactNode; compact?: boolean }) {
   return (
     <div className={`fw-footer-zone sc-on-dark${compact ? ' fw-footer-zone--compact' : ''}`}>
       <BgVideo name="footer" className="fw-footer-video" lazy />
       <span className="fw-grain fw-grain--footer" aria-hidden="true" />
-      {/* the mockup's dither (Gary, 2026-10-23): a fine, slowly shimmering dot
-          screen over the gradient, strongest where the gradient is lit */}
-      <PixelField wave={ditherWave} spacing={4} dot={1.6} opacity={0.85} className="fw-footer-dither" color="255,255,255" />
+      {/* the family's ordered Bayer dither (the 404 hero's, Gary 2026-10-23) */}
+      <BayerDither className="fw-footer-dither" />
       {children}
     </div>
   );
