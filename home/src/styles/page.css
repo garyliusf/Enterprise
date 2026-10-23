@@ -1307,7 +1307,7 @@ a.fw-session-card { text-decoration: none; color: inherit; }
    in perspective, tucked behind its edges, out of focus and dimmed, and showing
    the full site (no caption) — the shot grows into the caption's space as a
    card leaves the centre (driven by the continuous --ad, so it tracks drags) */
-.hm-cover-card { --w: clamp(340px, 30vw, 560px); --near: clamp(0, calc(1 - var(--ad)), 1);
+.hm-cover-card { --w: clamp(367px, 32.4vw, 604px); /* the size it used to reach only via translateZ (+7.8% at perspective 2200) */ --near: clamp(0, calc(1 - var(--ad)), 1);
   position: absolute; left: 50%; top: 8px; width: var(--w); height: calc(var(--w) * 0.78); margin-left: calc(var(--w) / -2);
   background: #fff; border: 0; border-radius: 8px; overflow: hidden; box-shadow: 0 26px 60px -30px rgba(16, 40, 90, 0.4);
   transform-origin: 50% 50%; cursor: pointer; touch-action: pan-y; user-select: none; -webkit-user-select: none;
@@ -1315,11 +1315,11 @@ a.fw-session-card { text-decoration: none; color: inherit; }
   /* the reference: neighbours sit beside the centre card (not under it), a
      little lower, fanned with a slight tilt and a gentle turn */
   /* a fan, like a hand of cards: each neighbour tilts out and drops on an arc */
-  transform: translateX(calc(var(--d) * var(--w) * 0.84)) translateY(calc(var(--ad) * var(--ad) * 22px + min(var(--ad), 1) * 18px)) translateZ(calc(var(--near) * 160px - var(--ad) * 30px)) rotateZ(calc(var(--d) * 6deg)) rotateY(calc(var(--d) * -6deg)) scale(calc(1 - min(var(--ad), 2) * 0.04));
+  transform: translateX(calc(var(--d) * var(--w) * 0.84)) translateY(calc(var(--ad) * var(--ad) * 22px + min(var(--ad), 1) * 18px)) translateZ(calc((var(--near) - 1) * 160px - var(--ad) * 30px)) /* centre card at Z 0 = drawn 1:1; it was lifted +160px, which scaled a 1x raster up and read blurry once it settled (Gary, 2026-10-23) */ rotateZ(calc(var(--d) * 6deg)) rotateY(calc(var(--d) * -6deg)) scale(calc(1 - min(var(--ad), 2) * 0.04));
   /* progressive (Gary): the two neighbours stay nearly clear, the outer pair
      carries the blur / dim / fade — all scale with distance squared */
   --ad2: calc(min(var(--ad), 2.6) * min(var(--ad), 2.6));
-  filter: blur(calc(var(--ad2) * 0.7px)) brightness(calc(1 - var(--ad2) * 0.045)) saturate(calc(1 - var(--ad2) * 0.04)); opacity: clamp(0, calc(1.35 - var(--ad2) * 0.2), 1); }
+  filter: blur(calc(max(0, var(--ad) - 1) * max(0, var(--ad) - 1) * 1.1px)) brightness(calc(1 - var(--ad2) * 0.045)) saturate(calc(1 - var(--ad2) * 0.04)); opacity: clamp(0, calc(1.35 - var(--ad2) * 0.2), 1); }
 .hm-cover-card[data-off] { opacity: 0; pointer-events: none; }
 .hm-cover-card.is-active { cursor: default; }
 .hm-cover-shot { position: absolute; inset: -1px; margin: 0; overflow: hidden; border: 0; background: #f4f4f6; } /* edge to edge, no inner frame or hairline (Gary); 1px past the card so only the card's own rounded clip draws the edge (two stacked clips left a light fringe in dark mode) */
@@ -1335,7 +1335,11 @@ a.fw-session-card { text-decoration: none; color: inherit; }
    white panel that rises from the frame's bottom edge (Gary) */
 .hm-cover-foot { position: absolute; left: -1px; right: -1px; bottom: -1px; z-index: 2; display: flex; flex-direction: column; align-items: stretch; gap: 0; padding: 14px 19px 17px; border-radius: 0; /* 1px past the card on 3 sides: the card's clip draws the corners, so the light screenshot can't peek round the dark panel's edge */ /* flush with the card's edges, so the screenshot's frame line doesn't outline it (Gary) */ background: #fff; box-shadow: 0 -10px 30px -12px rgba(16, 24, 40, 0.25); /* opaque, no backdrop blur: the blur sampled the light shot at the card edge and drew a rim in dark mode */
   opacity: 0; transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1); pointer-events: none; } /* a plain fade, in and out: the blur + 10px rise read as blurry and jumping up while dragging (Gary, 2026-10-23) */
-.hm-cover-card.is-active .hm-cover-foot { opacity: 1; pointer-events: auto; transition: opacity 0.3s ease 0.08s; }
+.hm-cover-card.is-active .hm-cover-foot { pointer-events: auto; }
+/* the caption follows the card's own distance from centre (set per frame), so it
+   only shows once the card has landed: no caption riding up on a card that is
+   still sliding, sharpening and rising into place (Gary, 2026-10-23) */
+.hm-cover-foot { opacity: clamp(0, calc(1 - var(--ad, 1) * 6), 1) !important; transition: none !important; }
 :root[data-theme="dark"] .hm-cover-foot { background: #0d0f14; box-shadow: 0 -10px 30px -12px rgba(0, 0, 0, 0.6); }
 @media (prefers-reduced-motion: reduce) { .hm-cover-foot, .hm-cover-card.is-active .hm-cover-foot { transform: none; filter: none; transition: opacity 0.3s ease; } }
 .hm-cover-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
@@ -1354,7 +1358,7 @@ a.fw-session-card { text-decoration: none; color: inherit; }
 :root[data-theme="dark"] .hm-cover-card { background: #0d0f14; border: 0; box-shadow: 0 26px 60px -30px rgba(0, 0, 0, 0.7); }
 :root[data-theme="dark"] .hm-cover-kicker { color: rgba(255, 255, 255, 0.5); }
 :root[data-theme="dark"] .hm-cover-prompt { color: #fff; }
-@media (max-width: 768px) { .hm-cover { height: 340px; perspective: 900px; } .hm-cover-card { --w: min(80vw, 320px); } .hm-cover-prompt { font-size: 13px; } }
+@media (max-width: 768px) { .hm-cover { height: 340px; perspective: 900px; } .hm-cover-card { --w: min(97vw, 379px); } /* = the old 312px × the 1.22 perspective lift, now real pixels */ .hm-cover-prompt { font-size: 13px; } }
 
 /* ── VARIANT C showcase (review): the "Star Wars" crawl ──
    .hm-crawl = the window (perspective, faded to the horizon at the top);
