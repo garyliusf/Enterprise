@@ -1492,6 +1492,25 @@ html[data-theme="dark"] .gl-pill .gl-arrow { color: #4DA6FF; }
   .gl-pill { height: 40px; padding: 0 16px; font-size: 14px; }
 }
 
+/* ── Tablet + phone audit fixes (2026-10-23) ─────────────────────────── */
+@media (max-width: 1024px) {
+  .gl-article .detail-category { margin-bottom: 12px; }   /* header rhythm 16/12/12 */
+  .gl-article { max-width: 720px; }                       /* reading measure on the 900 tablet column */
+}
+@media (max-width: 768px) {
+  /* Letter bar on phones: 40px tap targets, and the search row tucks under
+     the nav once pinned (negative sticky offset), so only the letters stay
+     on screen — the full bar was 102px on top of the 69px nav. */
+  .gl-az-btn { min-width: 36px; height: 40px; }
+  .gl-az { top: calc(var(--gl-nav-h, 68px) - 58px); }   /* 10 pad + 40 search + 8 gap */
+}
+@media (pointer: coarse) {
+  .gl-az-btn { min-width: 36px; height: 40px; }   /* touch tablets too, not just phone widths */
+  /* bigger hit areas for the small inline links, without changing their look */
+  .detail-shell .breadcrumb a, .detail-cta-help-em, .gl-reading-all { position: relative; }
+  .detail-shell .breadcrumb a::after, .detail-cta-help-em::after, .gl-reading-all::after { content: ""; position: absolute; inset: -13px -6px; }
+}
+
 /* Divider + sections (verbatim template-detail values) */
 .detail-shell .section-divider {
   position: relative; width: 100%; height: 210px; margin: -115px auto -72px;
@@ -2460,8 +2479,10 @@ html[data-theme="dark"] .gl-card-more { color: #4DA6FF; }
   }
   function scrollToList() {
     var bar = document.querySelector('.gl-az');
-    var pin = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--gl-nav-h')) || 68;
-    var target = list.offsetTop - pin - bar.offsetHeight;
+    /* where the pinned bar's bottom edge lands (on phones its search row
+       tucks under the nav, so this is less than nav + bar height) */
+    var pinTop = parseFloat(getComputedStyle(bar).top) || 68;
+    var target = list.offsetTop - (pinTop + bar.offsetHeight);
     if (window.scrollY > target) window.scrollTo({ top: target, behavior: 'smooth' });
   }
   btns.forEach(function (b) {
@@ -2470,6 +2491,9 @@ html[data-theme="dark"] .gl-card-more { color: #4DA6FF; }
       btns.forEach(function (x) { x.classList.remove('is-active'); x.setAttribute('aria-pressed', 'false'); });
       b.classList.add('is-active'); b.setAttribute('aria-pressed', 'true');
       letter = b.getAttribute('data-letter');
+      /* keep the chosen letter in view when the row scrolls (phones/tablets) */
+      var row = b.parentElement;
+      if (row.scrollWidth > row.clientWidth) row.scrollTo({ left: b.offsetLeft - (row.clientWidth - b.offsetWidth) / 2, behavior: 'smooth' });
       swap();
     });
   });
