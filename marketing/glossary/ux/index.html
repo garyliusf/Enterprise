@@ -1034,10 +1034,23 @@ html[data-theme="light"] .detail-cta-help-em:hover { color: #0f6fd0; }
 }
 html[data-theme="light"] .gl-reading { background: var(--sc-surface); box-shadow: 0 4px 16px rgba(15,26,42,0.04); }
 .gl-reading .detail-category { margin: 0 0 4px; }
-.gl-reading-item { display: block; padding: 18px 0; border-bottom: 1px solid rgba(var(--sc-ink-rgb), 0.08); }
+/* rows read as links: a standing blue arrow, title + arrow move on hover,
+   and a faint tint that bleeds past the text column */
+.gl-reading-item {
+  position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 16px;
+  padding: 18px 0; border-bottom: 1px solid rgba(var(--sc-ink-rgb), 0.08);
+}
+.gl-reading-item::before { content: ""; position: absolute; inset: 0 -12px; border-radius: 2px; background: rgba(20,136,252,0.05); opacity: 0; transition: opacity 0.2s ease; pointer-events: none; }
+.gl-reading-item:hover::before { opacity: 1; }
+.gl-reading-text { position: relative; }
+.gl-reading-item > .gl-arrow { position: relative; color: #1488FC; transition: transform 0.2s ease; }
+.gl-reading-item:hover > .gl-arrow { transform: translateX(3px); }
+.gl-reading-item:hover .gl-reading-title { color: #1488FC; }
+html[data-theme="dark"] .gl-reading-item > .gl-arrow,
+html[data-theme="dark"] .gl-reading-item:hover .gl-reading-title { color: #4DA6FF; }
+.gl-reading-item:focus-visible { outline: 2px solid #1488FC; outline-offset: 4px; border-radius: 2px; }
 .gl-reading-kind { display: block; margin-bottom: 8px; font-family: var(--sc-font-label); font-weight: var(--sc-label-weight, 700); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--sc-text-faint); }
 .gl-reading-title { display: block; font-size: 16px; font-weight: 500; line-height: 1.45; color: rgba(var(--sc-ink-rgb), 0.78); transition: color 0.2s ease; }
-.gl-reading-item:hover .gl-reading-title { color: var(--sc-ink); }
 .gl-reading-all { display: inline-flex; align-items: center; gap: 8px; margin-top: 20px; font-size: 14px; font-weight: 600; color: #1488FC; }
 .gl-reading-all:hover { color: #0f6fd0; }
 .gl-reading-all .gl-arrow { transition: transform 0.2s ease; }
@@ -1088,13 +1101,13 @@ html[data-theme="dark"] .gl-reading-all:hover { color: #7CBFFF; }
   border-radius: 999px; border: 1px solid rgba(var(--sc-ink-rgb), 0.14);
   background: var(--sc-surface); box-shadow: 0 2px 8px rgba(15,26,42,0.04);
   font-size: 15px; font-weight: 500; color: var(--sc-ink);
-  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
 }
 .gl-pill .gl-arrow { color: #1488FC; transition: transform 0.2s ease; }
-.gl-pill:hover { border-color: #1488FC; background: rgba(20,136,252,0.06); color: #1488FC; transform: translateY(-1px); }
+.gl-pill:hover { border-color: #1488FC; background: #E6F1FE; color: #1488FC; }   /* light-blue fill, no lift (Gary) */
 .gl-pill:hover .gl-arrow { transform: translateX(3px); }
 html[data-theme="dark"] .gl-pill { box-shadow: none; }
-html[data-theme="dark"] .gl-pill:hover { color: #4DA6FF; border-color: #4DA6FF; }
+html[data-theme="dark"] .gl-pill:hover { color: #7CBFFF; border-color: #4DA6FF; background: rgba(20,136,252,0.18); }
 html[data-theme="dark"] .gl-pill .gl-arrow { color: #4DA6FF; }
 @media (max-width: 768px) {
   .gl-article .detail-name { font-size: clamp(28px, 8vw, 40px); }
@@ -1485,9 +1498,9 @@ html[data-theme="dark"] .gl-card-more { color: #4DA6FF; }
   <aside class="gl-aside" aria-label="Related reading">
     <div class="gl-reading">
       <p class="detail-category">Related reading</p>
-      <a class="gl-reading-item" href="https://bolt.new/blog/vibe-coding-tools"><span class="gl-reading-kind">Guide</span><span class="gl-reading-title">Vibe Coding Tools That Ship Real Products (2026)</span></a>
-      <a class="gl-reading-item" href="https://bolt.new/blog/prompt-engineering-tips-for-bolt"><span class="gl-reading-kind">Guide</span><span class="gl-reading-title">Prompting like a pro: 8 tips to get the best out of Bolt</span></a>
-      <a class="gl-reading-item" href="https://bolt.new/use-cases/ai-prototyping-tools"><span class="gl-reading-kind">Product</span><span class="gl-reading-title">Build prototypes engineers will ship</span></a>
+      <a class="gl-reading-item" href="https://bolt.new/blog/vibe-coding-tools"><span class="gl-reading-text"><span class="gl-reading-kind">Guide</span><span class="gl-reading-title">Vibe Coding Tools That Ship Real Products (2026)</span></span><span class="gl-arrow" aria-hidden="true"></span></a>
+      <a class="gl-reading-item" href="https://bolt.new/blog/prompt-engineering-tips-for-bolt"><span class="gl-reading-text"><span class="gl-reading-kind">Guide</span><span class="gl-reading-title">Prompting like a pro: 8 tips to get the best out of Bolt</span></span><span class="gl-arrow" aria-hidden="true"></span></a>
+      <a class="gl-reading-item" href="https://bolt.new/use-cases/ai-prototyping-tools"><span class="gl-reading-text"><span class="gl-reading-kind">Product</span><span class="gl-reading-title">Build prototypes engineers will ship</span></span><span class="gl-arrow" aria-hidden="true"></span></a>
       <a class="gl-reading-all" href="https://bolt.new/blog">All articles <span class="gl-arrow" aria-hidden="true"></span></a>
     </div>
   </aside>
