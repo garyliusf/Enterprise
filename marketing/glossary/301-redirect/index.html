@@ -1097,9 +1097,15 @@ html[data-theme="dark"] .gl-reading-all:hover { color: #7CBFFF; }
 .gl-article .detail-cta-help { margin-top: 14px; }
 
 /* Body prose — template detail's .about-* values */
-.gl-body { margin-top: 56px; padding-top: 48px; border-top: 1px solid rgba(var(--sc-ink-rgb), 0.08); }
-.gl-body h2 { font-size: 20px; font-weight: 600; color: var(--sc-ink); letter-spacing: -0.2px; line-height: 1.35; margin: 48px 0 14px; }
-.gl-body > h2:first-child { margin-top: 0; }
+.gl-body { margin-top: 64px; }
+.gl-sec + .gl-sec { margin-top: 56px; }
+/* the brief's section label: small caps label over a hairline */
+.gl-sec-label {
+  margin: 0 0 24px; padding-bottom: 14px; border-bottom: 1px solid rgba(var(--sc-ink-rgb), 0.10);
+  font-family: var(--sc-font-label); font-weight: var(--sc-label-weight, 700);
+  font-size: var(--sc-eyebrow-size, 13px); letter-spacing: 2px; text-transform: uppercase; color: #1488FC;
+}
+.gl-sec > :last-child { margin-bottom: 0; }
 .gl-body p { font-size: 16px; line-height: 1.75; color: rgba(var(--sc-ink-rgb), 0.72); margin: 0 0 20px; }
 .gl-body ul, .gl-body ol { list-style: none; padding: 0; margin: 0 0 20px; display: grid; gap: 12px; }
 .gl-body li { position: relative; padding-left: 22px; font-size: 15px; line-height: 1.65; color: rgba(var(--sc-ink-rgb), 0.62); }
@@ -1118,7 +1124,8 @@ html[data-theme="dark"] .gl-reading-all:hover { color: #7CBFFF; }
 .gl-body td { padding: 14px 16px; color: rgba(var(--sc-ink-rgb), 0.72); border-top: 1px solid rgba(var(--sc-ink-rgb), 0.06); vertical-align: top; }
 .gl-body tr:first-child td { border-top: 0; }
 .gl-body td:first-child { color: var(--sc-ink); font-weight: 600; white-space: nowrap; }
-.gl-body .ms-faq-list { margin-top: 8px; border-bottom: 1px solid var(--sc-line-soft); }
+.gl-body .ms-faq-list { margin-top: -24px; border-bottom: 1px solid var(--sc-line-soft); }
+.gl-body .ms-faq-list .ms-faq-item:first-child { border-top: 0; }
 
 /* See also — clickable pills, below all the content */
 .gl-see-also { margin-top: 64px; padding-top: 32px; border-top: 1px solid rgba(var(--sc-ink-rgb), 0.08); }
@@ -1141,8 +1148,9 @@ html[data-theme="dark"] .gl-pill .gl-arrow { color: #4DA6FF; }
   .gl-lead { font-size: 16px; margin-top: 12px; }
   .gl-cta-row { flex-direction: column; margin-top: 24px; }
   .gl-cta-row .hero-btn-primary, .gl-cta-row .hero-btn-ghost { width: 100%; }
-  .gl-body { margin-top: 40px; padding-top: 36px; }
-  .gl-body h2 { font-size: 18px; margin-top: 36px; }
+  .gl-body { margin-top: 48px; }
+  .gl-sec + .gl-sec { margin-top: 44px; }
+  .gl-sec-label { margin-bottom: 18px; }
   .gl-body p { font-size: 15px; }
   .gl-body li { font-size: 14px; }
   .gl-see-also { margin-top: 48px; }
@@ -1512,17 +1520,15 @@ html[data-theme="dark"] .gl-card-more { color: #4DA6FF; }
     </div>
     <p class="detail-cta-help">New to Bolt? <a href="https://bolt.new/?get_started=true" target="_blank" rel="noopener" class="detail-cta-help-em">Sign up</a> free.</p>
     <div class="gl-body">
-      <h2>How a 301 redirect works</h2>
-      <p>When a browser or a search engine asks for the old address, the server answers with status code 301 and a <code>Location</code> header naming the new one. The browser follows it on its own, so the visitor lands on the right page without doing anything.</p>
+      <section class="gl-sec">
+        <h2 class="gl-sec-label">Technical definition</h2>
+      <p>A 301 is an HTTP status code meaning &ldquo;moved permanently.&rdquo; When someone requests the old URL, the server answers with a 301 and a <code>Location</code> header naming the new one, and the browser follows it automatically. Search engines read the 301 as permanent: they replace the old URL in their index and pass its ranking signals to the new address.</p>
       <ol>
         <li>A visitor or crawler requests <code>example.com/old-page</code>.</li>
         <li>The server replies <code>301 Moved Permanently</code> with <code>Location: example.com/new-page</code>.</li>
         <li>The browser requests the new address and loads it.</li>
-        <li>Search engines swap the old URL for the new one in their index and pass its ranking signals along.</li>
+        <li>Search engines swap the old URL for the new one and carry its ranking signals over.</li>
       </ol>
-
-      <h2>301 vs. 302, 307 and 308 redirects</h2>
-      <p>The status code tells search engines whether a move is permanent. Pick the wrong one and the old URL can linger in results.</p>
       <div class="gl-table-wrap"><table>
         <thead><tr><th>Code</th><th>Type</th><th>Use it when</th></tr></thead>
         <tbody>
@@ -1532,17 +1538,25 @@ html[data-theme="dark"] .gl-card-more { color: #4DA6FF; }
           <tr><td>308</td><td>Permanent, keeps the request method</td><td>Permanent moves for forms or API endpoints</td></tr>
         </tbody>
       </table></div>
-
-      <h2>When to use a 301 redirect</h2>
+      </section>
+      <section class="gl-sec">
+        <h2 class="gl-sec-label">In plain terms</h2>
+      <p>Think of a 301 as a change-of-address card that never expires. Anyone who shows up at the old door is sent to the new one, and the directory updates its listing so new visitors go straight there.</p>
+      <p>A 302 is a &ldquo;back soon&rdquo; sign. Visitors are sent elsewhere for now, but the old door keeps its place in the directory.</p>
+      </section>
+      <section class="gl-sec">
+        <h2 class="gl-sec-label">Why it matters</h2>
+      <p>Every renamed page, reorganized section or domain move leaves old addresses behind in bookmarks, search results and links from other sites. Without a 301, each of those becomes a dead end, and the search ranking the old page earned goes with it.</p>
       <ul>
         <li><b>Changing a URL:</b> a new slug, a renamed section or a restructured site.</li>
         <li><b>Moving domains:</b> a rebrand, or the switch from http to https.</li>
         <li><b>Merging pages:</b> two pages that cover the same topic become one.</li>
         <li><b>Retiring a page:</b> send it to the closest replacement, not the homepage.</li>
-        <li><b>Picking one version:</b> www or non-www, with or without a trailing slash.</li>
       </ul>
-
-      <h2>How to set up a 301 redirect</h2>
+      <p>The common mistakes undo that benefit: redirect chains (A to B to C), loops between two URLs, sending everything to the homepage, and using a 302 for a permanent move.</p>
+      </section>
+      <section class="gl-sec">
+        <h2 class="gl-sec-label">How to set it up</h2>
       <p>Where the rule lives depends on your host. Two common setups:</p>
       <span class="gl-code-label">Netlify (_redirects file)</span>
       <pre><code>/old-page   /new-page   301</code></pre>
@@ -1551,16 +1565,9 @@ html[data-theme="dark"] .gl-card-more { color: #4DA6FF; }
   return 301 /new-page;
 }</code></pre>
       <p>Building in Bolt? Ask for it in plain language, like &ldquo;redirect /pricing-old to /pricing with a 301&rdquo;, and Bolt can add the rule for you.</p>
-
-      <h2>Common 301 redirect mistakes</h2>
-      <ul>
-        <li><b>Redirect chains:</b> A goes to B goes to C. Each hop slows the page, so point A straight at C.</li>
-        <li><b>Redirect loops:</b> two URLs that redirect to each other, so the page never loads.</li>
-        <li><b>Everything to the homepage:</b> search engines can treat it as a soft 404 and drop the old page's signals.</li>
-        <li><b>A 302 for a permanent move:</b> the old URL can stay in search results.</li>
-      </ul>
-
-      <h2>Frequently asked questions</h2>
+      </section>
+      <section class="gl-sec">
+        <h2 class="gl-sec-label">Frequently asked questions</h2>
       <div class="ms-faq-list">
         <div class="ms-faq-item">
           <button class="ms-faq-q">Do 301 redirects hurt SEO?<span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
@@ -1575,6 +1582,7 @@ html[data-theme="dark"] .gl-card-more { color: #4DA6FF; }
           <div class="ms-faq-a"><div class="ms-faq-a-inner">Yes, by removing the rule. Browsers cache 301s, though, so people who already followed it may keep landing on the new page until their cache clears.</div></div>
         </div>
       </div>
+      </section>
     </div>
 
     <nav class="gl-see-also" aria-label="See also">
