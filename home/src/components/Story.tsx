@@ -13,8 +13,6 @@ import { PixelField, type WaveFn } from './ui';
 
 const PROMPT = 'A booking site for my dog walking business, with a calendar and deposits';
 const SITE = 'pawsandpaths.com';
-/* where the project lives while it's being built: Bolt's own hosting */
-const PREVIEW = 'pawsandpaths.bolt.host';
 
 /* brand ground for every scene panel: a still from the BoltGrad03 clip
    (public/story/grad-N.webp, each a different moment + crop so the five
@@ -118,7 +116,7 @@ function MiniSite({ stage }: { stage: 'build' | 'scan' | 'live' }) {
     <div className={`hm-ms hm-ms--${stage}`}>
       <div className="hm-ms-bar">
         <i /><i /><i />
-        <span className="hm-ms-url">{stage === 'live' ? SITE : PREVIEW}</span>
+        <span className="hm-ms-url">{SITE}</span>
       </div>
       <div className="pp">
         <div className="pp-nav" style={{ '--i': 0 } as React.CSSProperties}>
@@ -206,7 +204,7 @@ function SceneSecure() {
           and Publish lights up (Gary: no green pill, the real button). */}
       <div className="hm-app">
         <div className="hm-app-bar">
-          {/* the real bolt.new wordmark (the nav's SVG) + the project's bolt.host URL */}
+          {/* the real bolt.new wordmark (the nav's SVG) + the site's real URL (Gary / website sync: show the .com, not the .host build URL) */}
           <svg viewBox="0 0 85 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="hm-app-logo">
                   <path d="M26.1121 20.9491C21.0582 20.9491 18.4869 17.9995 18.4869 14.3126C18.4869 9.9472 21.9744 5.99476 27.0283 5.99476C32.0822 5.99476 34.6535 8.94434 34.6535 12.6313C34.6535 16.9967 31.166 20.9491 26.1121 20.9491ZM26.319 16.2593C28.0923 16.2593 29.2154 14.6665 29.2154 12.8968C29.2154 11.481 28.2992 10.6846 26.8214 10.6846C25.0481 10.6846 23.925 12.2774 23.925 14.0471C23.925 15.4629 24.8412 16.2593 26.319 16.2593Z" fill="#fff"/>
                   <path d="M40.0368 20.5952H34.717L39.0615 0.921487H44.3814L40.0368 20.5952Z" fill="#fff"/>
@@ -217,7 +215,7 @@ function SceneSecure() {
                   <path d="M70.256 20.9956C68.2096 20.9956 66.7929 19.9745 66.7929 18.1155C66.7929 16.0994 68.3408 14.3582 70.5577 14.3582C72.1319 14.3582 73.5223 15.3139 73.5223 17.2384C73.5223 17.6704 73.4436 18.1679 73.3781 18.4035H69.1279V18.4166C69.1279 18.5083 69.5083 19.2021 70.4265 19.2021C70.925 19.2021 71.5153 19.0843 71.8039 18.8879L72.5254 20.4196C71.8826 20.8255 71.0169 20.9956 70.256 20.9956ZM69.3509 16.9111H71.4366V16.8718C71.4366 16.6885 71.2136 16.1518 70.4659 16.1518C69.8363 16.1518 69.4296 16.6362 69.3509 16.9111Z" fill="#fff"/>
                   <path d="M81.7599 20.8386H79.1888L78.9265 17.3038L77.1293 20.8386H74.5582L74.1254 14.5153H76.4866L76.5521 17.9977L78.4411 14.5153H80.5531L80.881 17.9977L82.4945 14.5153H85L81.7599 20.8386Z" fill="#fff"/>
                 </svg>
-          <span className="hm-app-proj">{PREVIEW}</span>
+          <span className="hm-app-proj">{SITE}</span>
           <span className="hm-app-pub">
             <i className="hm-app-pub-dot" />Publish
           </span>
