@@ -355,7 +355,7 @@ export function FooterZone({ children, compact = false }: { children: React.Reac
       <BgVideo name="footer" className="fw-footer-video" lazy />
       <span className="fw-grain fw-grain--footer" aria-hidden="true" />
       {/* the family's ordered Bayer dither (the 404 hero's, Gary 2026-10-23) */}
-      <BayerDither className="fw-footer-dither" fade={1.6} strength={0.9} />
+      <BayerDither className="fw-footer-dither" fade={1.6} strength={0.6} />
       {children}
     </div>
   );
