@@ -102,7 +102,7 @@ export function BayerDither({ className, rgb = '255,255,255', fade = 0.9, streng
           const gx = c / cols;
           const wave = Math.sin(gx * 4.1 + gy * 6.3 - t * 0.95) * 0.5 + Math.sin(gx * 7.7 - gy * 3.1 + t * 0.62) * 0.28;
           if (base + wave * 0.38 <= (BAYER[r & 3][c & 3] + 0.5) / 16) continue;
-          ctx.fillStyle = `rgba(${rgb},${(0.085 + base * 0.13).toFixed(3)})`;
+          ctx.fillStyle = `rgba(${rgb},${Math.min(0.5, 0.085 + base * 0.13).toFixed(3)})`;
           ctx.fillRect(c * CELL, r * CELL, SQ, SQ);
         }
       }

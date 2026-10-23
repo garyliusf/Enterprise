@@ -926,14 +926,14 @@ img, svg { display: block; }
    room under the trust pill so the fade never runs under the copy ── */
 html[data-variant="d"] .fw-footer-zone .hm-closing , html[data-variant="e"] .fw-footer-zone .hm-closing { padding-bottom: calc(clamp(80px, 12vh, 140px) + clamp(70px, 9vh, 110px)); } /* tighter (Gary: footer closer to the gradient) */
 /* the PAGE ground: the zone is .sc-on-dark, which redefines --sc-ground to black */
-:root { --hmd-ground: 255, 255, 255; } :root[data-theme="dark"] { --hmd-ground: 0, 0, 0; }
+:root { --hmd-ground: 0, 0, 0; } /* the footer below is dark in both themes, so the band always lands on black */
 /* above the zone's navy floor (::after, z 1), below the copy (z 2, later in order) */
 html[data-variant="d"] .fw-footer-zone::after , html[data-variant="e"] .fw-footer-zone::after { background: radial-gradient(ellipse 55% 42% at 50% 34%, rgba(2, 14, 52, 0.55), rgba(2, 14, 52, 0.15) 65%, transparent 85%); }
 /* bottom only (Gary: top back to a hard edge, the bottom more blended): a
    longer eased fade into the footer's ground; it runs 2px past the edge and the
    zone's own ground matches the page so no navy sub-pixel line shows */
 html[data-variant="d"] .fw-footer-zone , html[data-variant="e"] .fw-footer-zone { background: rgb(var(--hmd-ground)); }
-html[data-variant="d"] .fw-footer-zone::before , html[data-variant="e"] .fw-footer-zone::before { content: ''; position: absolute; left: 0; right: 0; bottom: -2px; height: calc(clamp(200px, 26vh, 290px) + 2px); z-index: 2; pointer-events: none; background: linear-gradient(180deg, rgba(var(--hmd-ground), 0) 0%, rgba(var(--hmd-ground), 0.02) 8%, rgba(var(--hmd-ground), 0.08) 18%, rgba(var(--hmd-ground), 0.2) 30%, rgba(var(--hmd-ground), 0.36) 42%, rgba(var(--hmd-ground), 0.54) 54%, rgba(var(--hmd-ground), 0.72) 66%, rgba(var(--hmd-ground), 0.86) 78%, rgba(var(--hmd-ground), 0.95) 89%, rgba(var(--hmd-ground), 1) 100%); }
+html[data-variant="d"] .fw-footer-zone::before , html[data-variant="e"] .fw-footer-zone::before { content: none; } /* the straight fade is replaced by the organic mask below */
 .fw-footer-zone .footer-eyebrow { color: #8cc4ff; }
 .fw-footer-zone .fw-footer-sub { color: rgba(255, 255, 255, 0.82); }
 
@@ -1053,11 +1053,41 @@ html[data-variant="d"] .fw-footer-zone::before , html[data-variant="e"] .fw-foot
   opacity: 0.14; mix-blend-mode: overlay;
 }
 .fw-grain--footer { opacity: 0.1; }
-.fw-footer-zone > .fw-footer-dither { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; pointer-events: none; }
+.fw-footer-zone > .fw-footer-dither { position: absolute; inset: 0; z-index: 3; width: 100%; height: 100%; pointer-events: none; -webkit-mask-image: linear-gradient(180deg, #000 60%, transparent 100%); mask-image: linear-gradient(180deg, #000 60%, transparent 100%); } /* reaches the zone's edge and dies out softly into it (Gary) */
 
 /* D / E (the mockup): the footer columns sit up inside the gradient's dark
    lower edge instead of below it */
-html[data-variant="d"] .home-chrome .site-footer, html[data-variant="e"] .home-chrome .site-footer { position: relative; z-index: 3; margin-top: clamp(-170px, -16vh, -110px); background: transparent !important; } /* see-through, so the band's fade shows behind the columns */
+/* D / E: the band carries on BEHIND the footer columns (Gary: "extend the
+   background inside the footer"): the zone gains ~360px of floor below its
+   content, the link columns are pulled up over it by the same amount, so the
+   gradient and dither keep fading out under the links instead of stopping */
+html[data-variant="d"] .fw-footer-zone, html[data-variant="e"] .fw-footer-zone { padding-bottom: 560px; }
+/* the mockup's organic edge (Gary): the band is dark in BOTH themes here and
+   its art (video + dither) dissolves into black through soft, uneven blobs
+   that drift slowly — no horizontal line anywhere */
+html[data-variant="d"] .fw-footer-zone, html[data-variant="e"] .fw-footer-zone { background: #000 !important; } /* runs straight into the dark footer — no bottom fade needed now the footer is dark in both themes */
+@property --hmd-bx { syntax: '<percentage>'; inherits: true; initial-value: 30%; }
+@property --hmd-by { syntax: '<percentage>'; inherits: true; initial-value: 30%; }
+html[data-variant="d"] .fw-footer-zone, html[data-variant="e"] .fw-footer-zone { animation: hmd-drift 18s ease-in-out infinite alternate; }
+@keyframes hmd-drift { 0% { --hmd-bx: 24%; --hmd-by: 26%; } 50% { --hmd-bx: 40%; --hmd-by: 36%; } 100% { --hmd-bx: 30%; --hmd-by: 30%; } }
+html[data-variant="d"] .fw-footer-zone > .fw-footer-video, html[data-variant="e"] .fw-footer-zone > .fw-footer-video,
+html[data-variant="d"] .fw-footer-zone > .fw-footer-dither, html[data-variant="e"] .fw-footer-zone > .fw-footer-dither {
+  -webkit-mask-image: radial-gradient(80% 46% at var(--hmd-bx) 14%, #000 38%, rgba(0,0,0,0.5) 64%, transparent 94%), radial-gradient(62% 40% at 72% var(--hmd-by), #000 24%, rgba(0,0,0,0.45) 60%, transparent 96%), linear-gradient(180deg, #000 0%, #000 26%, transparent 52%);
+          mask-image: radial-gradient(80% 46% at var(--hmd-bx) 14%, #000 38%, rgba(0,0,0,0.5) 64%, transparent 94%), radial-gradient(62% 40% at 72% var(--hmd-by), #000 24%, rgba(0,0,0,0.45) 60%, transparent 96%), linear-gradient(180deg, #000 0%, #000 26%, transparent 52%);
+  -webkit-mask-composite: source-over; mask-composite: add; }
+@media (prefers-reduced-motion: reduce) { html[data-variant="d"] .fw-footer-zone, html[data-variant="e"] .fw-footer-zone { animation: none; } }
+/* the dark area ends under the columns, then the page's own ground returns
+   below them through a long soft fade (light theme: to white before the wordmark) */
+html[data-variant="d"] .home-chrome .site-footer, html[data-variant="e"] .home-chrome .site-footer { background: transparent !important; }
+/* the columns now sit ON the dark band in both themes: white labels + links,
+   glass social chips (light mode's ink was unreadable on the blue) */
+html[data-variant="d"] .home-chrome .site-footer, html[data-variant="e"] .home-chrome .site-footer { --sc-ink-rgb: 255, 255, 255; color: #fff; }
+html[data-variant="d"] .home-chrome .site-footer-label, html[data-variant="e"] .home-chrome .site-footer-label { color: rgba(255, 255, 255, 0.55) !important; }
+html[data-variant="d"] .home-chrome .site-footer-links a, html[data-variant="e"] .home-chrome .site-footer-links a { color: rgba(255, 255, 255, 0.82) !important; }
+html[data-variant="d"] .home-chrome .site-footer-links a:hover, html[data-variant="e"] .home-chrome .site-footer-links a:hover { color: #fff !important; }
+html[data-variant="d"] .home-chrome .site-footer-social a, html[data-variant="e"] .home-chrome .site-footer-social a { background: rgba(255, 255, 255, 0.08) !important; color: rgba(255, 255, 255, 0.85) !important; }
+html[data-variant="d"] .home-chrome .site-footer, html[data-variant="e"] .home-chrome .site-footer { margin-top: -670px !important; }
+html[data-variant="d"] .home-chrome .site-footer, html[data-variant="e"] .home-chrome .site-footer { position: relative; z-index: 3; margin-top: clamp(-170px, -16vh, -110px); } /* see-through, so the band's fade shows behind the columns */
 
 /* session cards link to their Luma events (2026-10-12): date line above the
    title, host + RSVP link at the foot */
@@ -2119,3 +2149,11 @@ body .site-footer-divider { display: none; }
 .hm-stage--steps .hm-stage-item.is-active .hm-stage-bar i { animation-name: hm-thread-run; }
 @keyframes hm-thread-run { to { transform: scaleY(1); } }
 @media (prefers-reduced-motion: reduce) { .hm-stage--steps .hm-stage-bar i { transform: scaleY(1); } }
+
+/* the home page's footer is DARK in both themes (Gary, 2026-10-23): links,
+   labels, chips and the wordmark ground, whatever the page theme */
+.home-chrome .site-footer, .home-chrome .footer-image-section { --sc-ground: #000; --sc-ink-rgb: 255, 255, 255; --sc-ink: #fff; background: #000; color: #fff; }
+.home-chrome .site-footer-label { color: rgba(255, 255, 255, 0.55) !important; }
+.home-chrome .site-footer-links a { color: rgba(255, 255, 255, 0.8) !important; }
+.home-chrome .site-footer-links a:hover { color: #fff !important; }
+.home-chrome .site-footer-social a { background: rgba(255, 255, 255, 0.08) !important; color: rgba(255, 255, 255, 0.85) !important; }

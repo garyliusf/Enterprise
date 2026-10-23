@@ -31,7 +31,8 @@ function __scShimmerInit() {
   var time = Math.random() * 80, hoverAmount = 0, isHovered = false;
   var splashStart, frame, light = false, frames = 0, lastError = null;
 
-  function isLight() { return document.documentElement.getAttribute('data-theme') !== 'dark'; }
+  /* the home page's footer is dark in both themes (Gary, 2026-10-23) */
+  function isLight() { return false; }
 
   function sampleStrips(image) {
     var sampleWidth = light ? SAMPLE_WIDTH_FINE : SAMPLE_WIDTH;
