@@ -1307,7 +1307,7 @@ a.fw-session-card { text-decoration: none; color: inherit; }
    in perspective, tucked behind its edges, out of focus and dimmed, and showing
    the full site (no caption) — the shot grows into the caption's space as a
    card leaves the centre (driven by the continuous --ad, so it tracks drags) */
-.hm-cover-card { --w: clamp(367px, 32.4vw, 604px); /* the size it used to reach only via translateZ (+7.8% at perspective 2200) */ --near: clamp(0, calc(1 - var(--ad)), 1);
+.hm-cover-card { --w: round(down, clamp(367px, 32.4vw, 604px), 2px); /* whole, even pixels: a fractional width put the centred card on a half pixel, and the 3D layer resampled its text soft at rest */ /* the size it used to reach only via translateZ (+7.8% at perspective 2200) */ --near: clamp(0, calc(1 - var(--ad)), 1);
   position: absolute; left: 50%; top: 8px; width: var(--w); height: calc(var(--w) * 0.78); margin-left: calc(var(--w) / -2);
   background: #fff; border: 0; border-radius: 8px; overflow: hidden; box-shadow: 0 26px 60px -30px rgba(16, 40, 90, 0.4);
   transform-origin: 50% 50%; cursor: pointer; touch-action: pan-y; user-select: none; -webkit-user-select: none;
@@ -1315,7 +1315,7 @@ a.fw-session-card { text-decoration: none; color: inherit; }
   /* the reference: neighbours sit beside the centre card (not under it), a
      little lower, fanned with a slight tilt and a gentle turn */
   /* a fan, like a hand of cards: each neighbour tilts out and drops on an arc */
-  transform: translateX(calc(var(--d) * var(--w) * 0.84)) translateY(calc(var(--ad) * var(--ad) * 22px + min(var(--ad), 1) * 18px)) translateZ(calc((var(--near) - 1) * 160px - var(--ad) * 30px)) /* centre card at Z 0 = drawn 1:1; it was lifted +160px, which scaled a 1x raster up and read blurry once it settled (Gary, 2026-10-23) */ rotateZ(calc(var(--d) * 6deg)) rotateY(calc(var(--d) * -6deg)) scale(calc(1 - min(var(--ad), 2) * 0.04));
+  transform: translateX(calc(var(--d) * var(--w) * 0.84 + var(--snap-x, 0px))) translateY(calc(var(--ad) * var(--ad) * 22px + min(var(--ad), 1) * 18px + var(--snap-y, 0px))) translateZ(calc((var(--near) - 1) * 160px - var(--ad) * 30px)) /* centre card at Z 0 = drawn 1:1; it was lifted +160px, which scaled a 1x raster up and read blurry once it settled (Gary, 2026-10-23) */ rotateZ(calc(var(--d) * 6deg)) rotateY(calc(var(--d) * -6deg)) scale(calc(1 - min(var(--ad), 2) * 0.04));
   /* progressive (Gary): the two neighbours stay nearly clear, the outer pair
      carries the blur / dim / fade — all scale with distance squared */
   --ad2: calc(min(var(--ad), 2.6) * min(var(--ad), 2.6));
@@ -1354,7 +1354,7 @@ a.fw-session-card { text-decoration: none; color: inherit; }
 :root[data-theme="dark"] .hm-cover-card { background: #0d0f14; border: 0; box-shadow: 0 26px 60px -30px rgba(0, 0, 0, 0.7); }
 :root[data-theme="dark"] .hm-cover-kicker { color: rgba(255, 255, 255, 0.5); }
 :root[data-theme="dark"] .hm-cover-prompt { color: #fff; }
-@media (max-width: 768px) { .hm-cover { height: 340px; perspective: 900px; } .hm-cover-card { --w: min(97vw, 379px); } /* = the old 312px × the 1.22 perspective lift, now real pixels */ .hm-cover-prompt { font-size: 13px; } }
+@media (max-width: 768px) { .hm-cover { height: 340px; perspective: 900px; } .hm-cover-card { --w: round(down, min(97vw, 378px), 2px); } /* = the old 312px × the 1.22 perspective lift, now real pixels */ .hm-cover-prompt { font-size: 13px; } }
 
 /* ── VARIANT C showcase (review): the "Star Wars" crawl ──
    .hm-crawl = the window (perspective, faded to the horizon at the top);

@@ -218,6 +218,30 @@ function ShowcaseCoverflow() {
     window.addEventListener('resize', fit);
     return () => window.removeEventListener('resize', fit);
   }, []);
+  /* the cards are 3D layers, which the browser does NOT snap to the pixel grid:
+     wherever the page layout leaves the stage on a fraction of a device pixel,
+     the resting centre card's text was resampled soft (Gary: "still a bit of
+     blur"). Nudge the cards by that fraction so the centre card lands exactly */
+  useEffect(() => {
+    const el = root.current;
+    if (!el) return;
+    let raf = 0;
+    const snap = () => {
+      raf = 0;
+      const r = el.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+      const fx = (Math.round(r.left * dpr) - r.left * dpr) / dpr, fy = (Math.round(r.top * dpr) - r.top * dpr) / dpr;
+      el.style.setProperty('--snap-x', `${fx.toFixed(3)}px`);
+      el.style.setProperty('--snap-y', `${fy.toFixed(3)}px`);
+    };
+    const later = () => { if (!raf) raf = requestAnimationFrame(snap); };
+    snap();
+    window.addEventListener('scroll', later, { passive: true });
+    window.addEventListener('resize', later);
+    /* images and fonts above settle after first paint and move the stage */
+    const ro = new ResizeObserver(later); ro.observe(document.body);
+    document.fonts?.ready.then(later);
+    return () => { window.removeEventListener('scroll', later); window.removeEventListener('resize', later); ro.disconnect(); cancelAnimationFrame(raf); };
+  }, []);
   useEffect(() => {
     const el = root.current;
     if (!el) return;
