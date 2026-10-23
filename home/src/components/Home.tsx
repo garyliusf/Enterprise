@@ -221,14 +221,26 @@ function ShowcaseCoverflow() {
   useEffect(() => {
     const el = root.current;
     if (!el) return;
-    const io = new IntersectionObserver(([e]) => { st.current.vis = e.isIntersecting; }, { threshold: 0.3 });
+    /* starts as soon as any of the stage shows (Gary: it only began once you
+       scrolled), and the first turn comes ~1.2s after it appears rather than
+       on whatever tick of a fixed interval happens next */
+    let due = Infinity;
+    const io = new IntersectionObserver(([e]) => {
+      const was = st.current.vis;
+      st.current.vis = e.isIntersecting;
+      if (e.isIntersecting && !was) due = performance.now() + 1200;
+    }, { threshold: 0 });
     io.observe(el);
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const id = window.setInterval(() => {
       const s = st.current;
-      if (reduce || s.hover || s.drag || !s.vis || Math.abs(s.target - s.pos) > 0.05) return;
+      const now = performance.now();
+      if (reduce || !s.vis) return;
+      if (s.hover || s.drag || Math.abs(s.target - s.pos) > 0.05) { due = Math.max(due, now + COVER_MS); return; }
+      if (now < due) return;
       go(Math.round(s.target) + 1);
-    }, COVER_MS);
+      due = now + COVER_MS;
+    }, 200);
     return () => { io.disconnect(); window.clearInterval(id); };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const spacing = () => (cards.current[0]?.offsetWidth ?? 500) * 0.62;

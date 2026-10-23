@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { ThemeSwitch } from './components/ThemeSwitch';
 import { Hero } from './components/Hero';
 import { SiteFooterStd, SiteNav } from './components/SiteChrome';
 import { FooterZone } from './components/Sections';
@@ -31,6 +32,7 @@ export default function App() {
         <Closing />
       </FooterZone>
       <SiteFooterStd />
+      <ThemeSwitch /> {/* review-only light/dark switch, back for testing (Gary, 2026-10-23) */}
     </>
   );
 }
