@@ -468,11 +468,9 @@ __scShimmerInit_legacy();
         if (entry.boundingClientRect.top < vh * 0.45) el.classList.add('is-instant');
         el.classList.add('is-revealed');
       } else if (el.classList.contains('eyebrow-scramble')) {
+        /* HOME: once only — the 6s re-scramble read as text that was already
+           shown being animated again, i.e. a bug (review, 2026-10-23) */
         scrambleEl(el);
-        if (!el.dataset.scrambleLoop) {
-          el.dataset.scrambleLoop = '1';
-          setInterval(function () { scrambleEl(el); }, 6000);
-        }
       }
       io.unobserve(el);
     });
