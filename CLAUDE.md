@@ -55,8 +55,8 @@ All buttons must use these exact specs. No inline overrides unless absolutely ne
 - **Font size:** `15px`
 - **Font weight:** `500`
 - **Background:** `transparent`
-- **Border:** `1px solid rgba(255,255,255,0.22)`
-- **Hover border:** `1px solid rgba(255,255,255,0.4)`
+- **Border:** `1px solid rgba(255,255,255,0.4)` — **raised from 0.22 on 2026-10-23 (Gary)**; light theme `rgba(ink,0.4)`. Set on the button itself, not via `--sc-line-strong` (the token still holds 0.22 for other lines).
+- **Hover border:** `1px solid rgba(255,255,255,0.65)` (was 0.4)
 - **Border radius:** `6px` (2026-10-20, was 2px)
 - **Color:** `rgba(255,255,255,0.8)`
 - **Hover color:** `#fff`
