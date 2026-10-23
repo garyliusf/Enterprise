@@ -875,7 +875,7 @@ def build_term(t):
     <div class="gl-reading">
       <p class="gl-reading-head">Related reading</p>
 %(reading)s
-      <a class="gl-reading-all" href="https://bolt.new/blog">All articles <span class="gl-arrow" aria-hidden="true"></span></a>
+      <a class="gl-reading-all" href="https://bolt.new/blog">All Articles <span class="gl-arrow" aria-hidden="true"></span></a>
     </div>
   </aside>
   </div>
