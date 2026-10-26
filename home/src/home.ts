@@ -93,8 +93,8 @@ export const steps = {
 /* ── Templates ──────────────────────────────────────────────────────────── */
 export const templatesHome = {
   eyebrow: 'Templates',
-  title: 'Start from a template, not a blank prompt',
-  subtitle: 'Bolt-built templates give you a working foundation, styled and wired up, so you’re customizing instead of starting from nothing.',
+  title: 'Start from a template', /* review copy, 2026-10-26 (the mockup's "so you can tou can" typo fixed) */
+  subtitle: 'Discover our templates so you can start building your project even faster.',
   more: { label: 'Browse All Templates', href: 'https://bolt.new/resources/templates' },
   /* the solutions page's rail: the catalog's cards (800px-wide full-page
      shots, portrait frame, drift on hover), production's fork links */
