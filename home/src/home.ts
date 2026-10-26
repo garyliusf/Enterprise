@@ -146,7 +146,7 @@ export const enterprise = {
     { icon: 'chat', title: 'Dedicated support', body: 'You’ll get your own customer rep, a private Slack channel, and more.' },
   ],
   /* the enterprise page's 1:1 strip; the form hands the email to the enterprise page's own form anchor */
-  strip: { lead: 'Schedule a 1:1 with', name: 'Mason', placeholder: 'Your work email', cta: 'Book a 1:1', action: 'https://bolt.new/enterprise#talk-to-sales' },
+  strip: { lead: 'Schedule a 1:1', /* review 2026-10-26: no 'with Mason' */ placeholder: 'Your work email', cta: 'Book a 1:1', action: 'https://bolt.new/enterprise#talk-to-sales' },
   more: { label: 'See Bolt for Enterprise', href: 'https://bolt.new/enterprise' },
 };
 

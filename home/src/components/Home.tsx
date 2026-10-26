@@ -884,7 +884,7 @@ export function Enterprise() {
           <div className="hm-ent-panel">
             <div className="hm-ent-panel-copy">
               <span className="hm-ent-panel-kicker">Talk to us</span>
-              <p className="card-strip-sub">{enterprise.strip.lead} <span className="strip-name">{enterprise.strip.name}</span></p>
+              <p className="card-strip-sub">{enterprise.strip.lead}</p>
               <p className="hm-ent-panel-note">A 30-minute walkthrough with the enterprise team, no deck. Bring the project you want to ship.</p>
             </div>
             <div className="hm-ent-panel-actions">
