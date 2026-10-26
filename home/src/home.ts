@@ -32,10 +32,11 @@ export const showcase: { rowA: ShowcaseCard[]; rowB: ShowcaseCard[] } = {
 
 /* ── Stats ──────────────────────────────────────────────────────────────── */
 export const stats = [
-  { value: '10M+', label: 'builders on bolt.new' },
-  { value: '80%', label: 'never shipped an app before' },
-  { value: '4.9/5', label: 'average user rating' },
-  { value: '1 day', label: 'idea to live site' },
+  /* review 2026-10-26: Bolt.new capitalised, time second (1 day → 5 min),
+     new 80% line, the 4.9/5 rating dropped */
+  { value: '10M+', label: 'builders on Bolt.new' },
+  { value: '5 min', label: 'from idea to live site' },
+  { value: '80%', label: 'of Bolt.new users are first-time builders' },
 ];
 
 /* ── Build anything: five use-case cards ───────────────────────────────────
