@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent, type KeyboardEvent, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode } from 'react';
 import { hero } from '../config';
 import { BgVideo } from './ui';
 
@@ -49,7 +49,16 @@ export function PromptBox({ id = 'hero', compact = false, types = false }: { id?
   const [intent, setIntent] = useState<string | undefined>();
   const picked = hero.projectTypes.find((t) => t.id === intent);
   const { full: example, shown } = useTypewriter(text === '');
-  const send = () => goToBolt(text || example, picked?.instruction);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  /* the app clears the intent once a send has used it (Chat.client.tsx) */
+  const send = () => { goToBolt(text || example, picked?.instruction); setIntent(undefined); };
+  /* IntentButtons.handleSelect: same tile again clears it; picking one moves
+     focus into the composer (BaseChat's onIntentSelect) */
+  const pick = (id: string) => {
+    const next = intent === id ? undefined : id;
+    setIntent(next);
+    if (next) inputRef.current?.focus();
+  };
   const submit = (e: FormEvent) => {
     e.preventDefault();
     send();
@@ -72,6 +81,7 @@ export function PromptBox({ id = 'hero', compact = false, types = false }: { id?
           </span>
           <textarea
             id={`${id}-prompt`}
+            ref={inputRef}
             className="hm-prompt-input"
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -104,7 +114,7 @@ export function PromptBox({ id = 'hero', compact = false, types = false }: { id?
       {types && (
         <div className="hm-types" role="group" aria-label="What do you want to build?">
           {hero.projectTypes.map((t) => (
-            <button key={t.id} type="button" className="hm-type" aria-pressed={intent === t.id} onClick={() => setIntent((v) => (v === t.id ? undefined : t.id))}>
+            <button key={t.id} type="button" className="hm-type" aria-pressed={intent === t.id} onClick={() => pick(t.id)}>
               <span className="hm-type-tile">
                 {t.isNew && <span className="hm-type-new">New</span>}
                 <svg viewBox="0 0 24 24" aria-hidden="true">{TYPE_ICONS[t.icon]}</svg>
