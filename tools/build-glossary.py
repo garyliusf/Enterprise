@@ -22,7 +22,8 @@ SRC = os.path.join(ROOT, 'marketing', 'use-cases', 'index.html')
 OUT = os.path.join(ROOT, 'marketing', 'glossary')
 SITE = 'https://bolt.new/glossary'
 
-# name | article | category | definition  (article: '', 'a', 'an' — used in
+# name | article | category | definition  (article: '', 'a', 'an', or 'pl' for a
+# plural term like "UTM parameters" → "What are …?" — used in
 # the "What is ...?" H1 and the term page's lead sentence)
 TERMS_RAW = """
 301 redirect|a|web|An instruction that permanently sends anyone requesting one URL to a different one, and tells search engines to transfer the old page's standing to the new address.
@@ -41,7 +42,9 @@ Client portal|a|biz|A private, signed-in area of a website where each customer c
 CMS (content management system)|a|web|Software that lets people create, edit, and publish website content without touching code.
 Context engineering||ai|The practice of choosing what information an AI model sees alongside a request, such as files, rules, and examples, so its answer fits the task.
 Context window|a|ai|The maximum amount of text, measured in tokens, that an AI model can consider at once, including the prompt and its own reply.
+Click-through rate (CTR)||biz|The share of people who see a link, ad, or search result and click it, shown as a percentage.
 Conversion rate||biz|The percentage of visitors who complete a goal, such as buying, signing up, or booking a call.
+Conversion rate optimization (CRO)||biz|The practice of improving a page or flow so a larger share of visitors complete the goal, such as signing up or buying.
 CRM (customer relationship management)|a|biz|A system for tracking every contact, conversation, and deal a business has with its customers and leads.
 Database|a|build|An organized store of information, such as users, orders, or bookings, that an application reads from and writes to.
 Deployment||build|The step that takes an application from your workspace and puts it on a server so anyone with the link can use it.
@@ -50,7 +53,7 @@ Edge function|an|build|A small piece of server code that runs in data centers cl
 Environment variable|an|build|A setting stored outside the code, such as an API key, that an app reads at run time so secrets never sit in the source.
 Frontend|a|build|The part of an application people see and click, built from the pages, layouts, and interactions that run in the browser.
 Full-stack app|a|build|An application that includes both the frontend people use and the backend that stores data and runs logic.
-Funnel|a|biz|The series of steps a visitor takes toward a goal, such as visiting, signing up, and paying, with some dropping off at each step.
+Conversion funnel|a|biz|The series of steps a visitor takes toward a goal, such as visiting, signing up, and paying, with some dropping off at each step.
 Hallucination|a|ai|An answer from an AI model that sounds confident but is false or made up.
 Hosting||web|The service that keeps a website or app on a server connected to the internet so people can reach it at any time.
 Integration|an|build|A connection between two pieces of software that lets them share data or trigger actions, like syncing new orders to a spreadsheet.
@@ -77,14 +80,17 @@ Serverless||build|A way of running backend code where the hosting provider manag
 SSL certificate|an|web|A file that lets a website use an encrypted HTTPS connection, shown as a padlock in the browser.
 Staging environment|a|build|A private copy of an app used to test changes before they go live to real users.
 Template|a|build|A ready-made starting point for an app or site that already works, which you customize instead of starting from nothing.
+Tracking pixel|a|web|A tiny invisible image or script on a page that tells an analytics or ad platform when someone views the page or takes an action.
 Token|a|ai|A small chunk of text, often part of a word, that AI models read and write; usage and limits are counted in tokens.
 UI (user interface)|a|design|Everything a person sees and interacts with on screen, including buttons, menus, forms, and text.
 Uptime||web|The share of time a website or service is online and working, usually given as a percentage like 99.9%.
+UTM parameters|pl|web|Tags added to the end of a link, such as utm_source and utm_campaign, that tell your analytics tool where a visitor came from.
 UX (user experience)||design|How easy and pleasant a product is to use from start to finish, beyond how it looks.
 Version control||build|A system that records every change to a project's files so you can see who changed what and roll back mistakes.
 Vibe coder|a|ai|Someone who builds software mainly by describing what they want to an AI and refining the result, rather than writing code line by line.
 Vibe coding||ai|Building software by describing what you want in plain language and letting AI write the code, then steering it by reacting to what it builds.
 Web app|a|build|An application that runs in a web browser, so people can use it from any device without installing anything.
+Website analytics||web|The measurement of who visits a website and what they do there.
 Webhook|a|build|An automatic message one app sends to another the moment something happens, like a new payment or a form submission.
 White label software||biz|A product built by one company and sold under another company's brand, so the reseller's customers see only the reseller.
 Wireframe|a|design|A stripped-down layout sketch of a page or screen that shows structure, hierarchy, and placement before any visual design is applied.
@@ -94,6 +100,7 @@ Workflow automation||biz|The use of software to run a sequence of business steps
 # Hand-picked related terms (slugs); anything not listed falls back to five
 # terms from the same category.
 RELATED = {
+    'website-analytics': ['conversion-funnel', 'bounce-rate', 'click-through-rate', 'utm-parameters', 'tracking-pixel', 'conversion-rate-optimization'],
     'vibe-coding': ['vibe-coder', 'prompt', 'prompt-engineering', 'context-engineering', 'ai-app-builder'],
     'vibe-coder': ['vibe-coding', 'prompt', 'ai-app-builder', 'no-code', 'prototype'],
     'white-label-software': ['saas', 'client-portal', 'internal-tool', 'crm', 'workflow-automation'],
@@ -147,17 +154,21 @@ assert len(BY_SLUG) == len(TERMS), 'duplicate slug'
 
 def h1_of(t):
     n = lower_name(t['name'])
+    if t['art'] == 'pl':
+        return 'What are ' + n + '?'
     return 'What is ' + (t['art'] + ' ' if t['art'] else '') + n + '?'
 
 
 def lead_of(t):
     """'White label software is a product built ...' with the term in bold."""
     n = lower_name(t['name'])
-    subject = (t['art'].capitalize() + ' ' + n) if t['art'] else (n[0].upper() + n[1:])
+    subject = (t['art'].capitalize() + ' ' + n) if t['art'] and t['art'] != 'pl' else (n[0].upper() + n[1:])
     d = t['def']
     first = d.split(' ', 1)[0]
     if first in ('A', 'An', 'The') or (first[0].isupper() and first[1:].islower()):
         d = d[0].lower() + d[1:]
+    if t['art'] == 'pl':
+        return '<strong>' + esc(n[0].upper() + n[1:]) + '</strong> are ' + esc(d)
     if t['art']:
         return t['art'].capitalize() + ' <strong>' + esc(n) + '</strong> is ' + esc(d)
     return '<strong>' + esc(subject) + '</strong> is ' + esc(d)
@@ -837,6 +848,22 @@ if (typeof makePixelCanvas === 'function' && !window.matchMedia('(prefers-reduce
 # 301 redirect carries a DRAFT in that shape; replace it with the brief's copy.
 # A term without an entry shows just the definition + See also.
 BODY = {
+    'website-analytics': {
+        # SEO brief copy (Gary, 2026-10-26) — verbatim
+        'title': 'What Is Website Analytics? Metrics That Actually Matter',
+        'description': 'Website analytics measures who visits your site and what they do. Learn the handful of numbers worth watching and the ones that waste your time.',
+        'sections': [
+            ('Technical definition',
+             '<p>Analytics platforms collect events from a visitor\'s browser, through a script or a tag manager, and aggregate them into reports covering acquisition, behavior, and conversion. Modern platforms model activity as a stream of events rather than page views alone, which lets clicks, form submissions, and purchases be counted the same way.</p>\n'
+             '      <p>Measurement is imperfect by design. Ad blockers, cookie consent rejections, and cross-device journeys all remove or fragment data, so figures should be read as directional trends rather than exact counts.</p>'),
+            ('In plain terms',
+             '<p>How many people came, where they came from, what they looked at, and how many did the thing you wanted.</p>\n'
+             '      <p>Most analytics tools show hundreds of numbers. About five of them will change what you do.</p>'),
+            ('Why it matters',
+             '<p>The common failure is not missing analytics, it is having analytics nobody acts on. A dashboard showing sessions, users, and average time on page tells you the site exists. It does not tell you anything you can do something about.</p>\n'
+             '      <p>The short list worth watching for a small business: how many enquiries or sales you got, where those people came from, which pages preceded them, and which pages people leave from before converting. That means setting up conversion tracking, which is the step most sites skip, because without it every other number is disconnected from money. Set up the events that matter, check them monthly, and ignore the rest of the dashboard.</p>'),
+        ],
+    },
     '301-redirect': {
         'sections': [('Technical definition', '<p>A 301 is an HTTP status code meaning &ldquo;moved permanently.&rdquo; When someone requests the old URL, the server answers with a 301 and a <code>Location</code> header naming the new one, and the browser follows it automatically. Search engines read the 301 as permanent: they replace the old URL in their index and pass its ranking signals to the new address.</p>\n      <ol>\n        <li>A visitor or crawler requests <code>example.com/old-page</code>.</li>\n        <li>The server replies <code>301 Moved Permanently</code> with <code>Location: example.com/new-page</code>.</li>\n        <li>The browser requests the new address and loads it.</li>\n        <li>Search engines swap the old URL for the new one and carry its ranking signals over.</li>\n      </ol>\n      <div class="gl-table-wrap"><table>\n        <thead><tr><th>Code</th><th>Type</th><th>Use it when</th></tr></thead>\n        <tbody>\n          <tr><td>301</td><td>Permanent</td><td>A page has moved for good</td></tr>\n          <tr><td>302</td><td>Temporary</td><td>A short-term swap, like a seasonal promo page</td></tr>\n          <tr><td>307</td><td>Temporary, keeps the request method</td><td>Temporary moves for forms or API calls</td></tr>\n          <tr><td>308</td><td>Permanent, keeps the request method</td><td>Permanent moves for forms or API endpoints</td></tr>\n        </tbody>\n      </table></div>'), ('In plain terms', '<p>Think of a 301 as a change-of-address card that never expires. Anyone who shows up at the old door is sent to the new one, and the directory updates its listing so new visitors go straight there.</p>\n      <p>A 302 is a &ldquo;back soon&rdquo; sign. Visitors are sent elsewhere for now, but the old door keeps its place in the directory.</p>'), ('Why it matters', '<p>Every renamed page, reorganized section or domain move leaves old addresses behind in bookmarks, search results and links from other sites. Without a 301, each of those becomes a dead end, and the search ranking the old page earned goes with it.</p>\n      <ul>\n        <li><b>Changing a URL:</b> a new slug, a renamed section or a restructured site.</li>\n        <li><b>Moving domains:</b> a rebrand, or the switch from http to https.</li>\n        <li><b>Merging pages:</b> two pages that cover the same topic become one.</li>\n        <li><b>Retiring a page:</b> send it to the closest replacement, not the homepage.</li>\n      </ul>\n      <p>The common mistakes undo that benefit: redirect chains (A to B to C), loops between two URLs, sending everything to the homepage, and using a 302 for a permanent move.</p>'), ('How to set it up', '<p>Where the rule lives depends on your host. Two common setups:</p>\n      <span class="gl-code-label">Netlify (_redirects file)</span>\n      <pre><code>/old-page   /new-page   301</code></pre>\n      <span class="gl-code-label">Nginx</span>\n      <pre><code>location = /old-page {\n  return 301 /new-page;\n}</code></pre>\n      <p>Building in Bolt? Ask for it in plain language, like &ldquo;redirect /pricing-old to /pricing with a 301&rdquo;, and Bolt can add the rule for you.</p>'), ('Frequently asked questions', '<div class="ms-faq-list">\n        <div class="ms-faq-item">\n          <button type="button" class="ms-faq-q">Do 301 redirects hurt SEO?<span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>\n          <div class="ms-faq-a"><div class="ms-faq-a-inner">No. Google passes a 301\'s ranking signals to the new address. Expect some movement while search engines recrawl the old URL, then the new page carries the old page\'s standing.</div></div>\n        </div>\n        <div class="ms-faq-item">\n          <button type="button" class="ms-faq-q">How long should I keep a 301 redirect in place?<span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>\n          <div class="ms-faq-a"><div class="ms-faq-a-inner">At least a year, and ideally for good, especially when other sites still link to the old URL. Removing it turns those links into 404 errors.</div></div>\n        </div>\n        <div class="ms-faq-item">\n          <button type="button" class="ms-faq-q">Can I undo a 301 redirect?<span class="ms-faq-icon"><svg class="ms-faq-icon-plus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><svg class="ms-faq-icon-minus" width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>\n          <div class="ms-faq-a"><div class="ms-faq-a-inner">Yes, by removing the rule. Browsers cache 301s, though, so people who already followed it may keep landing on the new page until their cache clears.</div></div>\n        </div>\n      </div>')],
         'faq': [('Do 301 redirects hurt SEO?', "No. Google passes a 301's ranking signals to the new address. Expect some movement while search engines recrawl the old URL, then the new page carries the old page's standing."), ('How long should I keep a 301 redirect in place?', 'At least a year, and ideally for good, especially when other sites still link to the old URL. Removing it turns those links into 404 errors.'), ('Can I undo a 301 redirect?', 'Yes, by removing the rule. Browsers cache 301s, though, so people who already followed it may keep landing on the new page until their cache clears.')],
@@ -961,9 +988,11 @@ def build_term(t):
     # variant is transparent with white ink and would vanish on a light ground).
     nav = NAV.replace('class="mkt-nav mkt-nav--over-hero"', 'class="mkt-nav"')
     desc = plain_lead if len(plain_lead) <= 158 else plain_lead[:155].rsplit(' ', 1)[0] + '…'
+    desc = BODY.get(t['slug'], {}).get('description', desc)
     # Only the lifted chrome sits one level deeper than its source; the
     # body's own links (../ = the index, ../<slug>/ = siblings) are already right.
-    page = (rebase(head(h1 + ' Definition | Bolt.new Glossary', desc, url, ld) + nav)
+    title = BODY.get(t['slug'], {}).get('title', h1 + ' Definition | Bolt.new Glossary')
+    page = (rebase(head(title, desc, url, ld) + nav)
             + page_body + rebase(FOOTER + NAV_H_JS + SCRIPTS))
     page = page.replace('</style>\n</head>', '</style>\n<style id="glossary-gallery">\n' + GALLERY_CSS + '</style>\n</head>', 1)
     page = page.replace('</body>', '<script>\n' + GALLERY_JS + TERM_JS + '</script>\n</body>', 1)
@@ -980,4 +1009,9 @@ if __name__ == '__main__':
     build_index()
     for t in TERMS:
         build_term(t)
+    # prune pages for terms that were renamed or removed
+    import shutil
+    for d in os.listdir(OUT):
+        if os.path.isdir(os.path.join(OUT, d)) and d not in BY_SLUG:
+            shutil.rmtree(os.path.join(OUT, d)); print('pruned stale page:', d)
     print('glossary: index + %d term pages -> %s' % (len(TERMS), os.path.relpath(OUT, ROOT)))
