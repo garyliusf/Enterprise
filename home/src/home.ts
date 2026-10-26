@@ -80,12 +80,13 @@ export const steps = {
   eyebrow: 'How it works',
   title: 'Bring your idea to life instantly', /* review copy, 2026-10-26 */
   subtitle: 'Describe what you want and Bolt builds it in minutes.',
+  /* step titles + copy: review, 2026-10-26 (the collapsed caps labels are unchanged) */
   items: [
-    { kicker: 'Describe what you need', title: 'Just tell it, like you would a friend', body: 'No forms, no templates to pick through, no technical spec to write. Type what you need the way you would explain it out loud, and that is enough to start.', visual: 'prompt' as const },
-    { kicker: 'Watch it build instantly', title: 'See a real, working version take shape', body: 'Bolt writes and assembles an actual website or app in front of you, live. Not a mockup, not a wireframe, not a preview you wait days to see.', visual: 'build' as const },
-    { kicker: 'Everything configured', title: 'Hosting, database, payments and auth, already wired up', body: 'You do not connect a single service yourself. Every project ships with its backend configured, so the thing you described actually works the moment it exists.', visual: 'wired' as const },
-    { kicker: 'Built securely', title: 'Every project is reviewed before it goes live', body: 'A security agent checks what was built and fixes what it finds, so the version your customers touch is safe by default. You do not need to know what any of it means.', visual: 'secure' as const },
-    { kicker: 'Deployed with one click', title: 'Publish it live, whenever you are ready', body: 'No hosting setup, no server configuration, no separate deploy step. One click and it is on the web, on your own domain, in front of customers.', visual: 'deploy' as const },
+    { kicker: 'Describe what you need', title: 'Explain in your own words', body: 'Describe your idea and Bolt can start building right away.', visual: 'prompt' as const },
+    { kicker: 'Watch it build instantly', title: 'Watch Bolt build', body: 'Bolt builds a real, working website or app in front of you in real time.', visual: 'build' as const },
+    { kicker: 'Everything configured', title: 'No backend configuration', body: 'Whether your site needs payments, a user database, auth, or something else, Bolt automatically configures the backend for you.', visual: 'wired' as const },
+    { kicker: 'Built securely', title: 'Secure by design', body: 'All your data is secure by default. Bolt’s security agent automatically finds and fixes issues as you build.', visual: 'secure' as const },
+    { kicker: 'Deployed with one click', title: 'Publish in one click', body: 'Go live in one click. No hosting setup or configuration necessary.', visual: 'deploy' as const },
   ],
 };
 
