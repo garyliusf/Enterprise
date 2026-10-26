@@ -43,7 +43,7 @@ export const hero = {
   projectTypes: [
     { id: 'website', label: 'Website', icon: 'globe', instruction: 'Build this as a website or web app.' },
     { id: 'app', label: 'App', icon: 'devices', instruction: 'Build this as a web app.' },
-    { id: 'slides', label: 'Slides', icon: 'slides', isNew: true, instruction: 'Build this as a presentation slide deck.' },
+    { id: 'slides', label: 'Slides', icon: 'slides', instruction: 'Build this as a presentation slide deck.' },
     { id: 'prototype', label: 'Prototype', icon: 'flask', instruction: 'Build this as an interactive UI prototype.' },
   ] as { id: string; label: string; icon: 'globe' | 'devices' | 'slides' | 'flask'; instruction: string; isNew?: boolean }[],
 };

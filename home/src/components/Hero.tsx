@@ -146,7 +146,6 @@ export function Hero() {
         </h1>
         {/* no subtitle (Gary, 2026-10-26): H1 straight to the prompt */}
         <PromptBox types />
-        <TrustPills items={hero.trust} />
       </div>
     </section>
   );
