@@ -216,7 +216,11 @@ function ShowcaseCoverflow() {
     };
     fit();
     window.addEventListener('resize', fit);
-    return () => window.removeEventListener('resize', fit);
+    /* re-fit whenever a card's own size changes (styles or fonts landing
+       after the first measure left a phone stage 3,400px tall) */
+    const ro = new ResizeObserver(fit);
+    cards.current.forEach((el) => el && ro.observe(el));
+    return () => { window.removeEventListener('resize', fit); ro.disconnect(); };
   }, []);
   /* the cards are 3D layers, which the browser does NOT snap to the pixel grid:
      wherever the page layout leaves the stage on a fraction of a device pixel,
