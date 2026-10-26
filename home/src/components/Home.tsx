@@ -272,7 +272,9 @@ function ShowcaseCoverflow() {
     if (e.button !== 0) return;
     const s = st.current;
     s.drag = true; s.moved = 0; s.startX = s.lastX = e.clientX; s.startPos = s.pos; s.lastT = e.timeStamp; s.vel = 0; s.v = 0;
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    /* no pointer capture yet: capturing on press retargeted the release and
+       click to the stage, so Open in Bolt / Preview did nothing (2026-10-26).
+       It's taken once the press becomes a drag (onMove), like the rail */
     kick();
   };
   const onMove = (e: React.PointerEvent) => {
@@ -280,6 +282,7 @@ function ShowcaseCoverflow() {
     if (!s.drag) return;
     const dx = e.clientX - s.startX;
     s.moved = Math.max(s.moved, Math.abs(dx));
+    if (s.moved > 6) { const el = e.currentTarget as HTMLElement; if (!el.hasPointerCapture(e.pointerId)) el.setPointerCapture(e.pointerId); }
     s.pos = s.startPos - dx / spacing();
     const dt = e.timeStamp - s.lastT;
     if (dt > 0) s.vel = s.vel * 0.7 + (-(e.clientX - s.lastX) / spacing() / dt) * 0.3;
