@@ -59,10 +59,10 @@ export const useCases = {
 
 /* ── Customer stories ───────────────────────────────────────────────────── */
 export const stories = {
-  /* PLACEHOLDER: the mockup's header still reads Label / Title / A sentence */
+  /* review copy, 2026-10-26 */
   eyebrow: 'Customer stories',
-  title: 'Built by people who had never built before.',
-  subtitle: 'Real businesses, built and launched on Bolt.',
+  title: 'Real businesses, built with Bolt',
+  subtitle: 'Testimonies from first-time builders who launched their businesses using Bolt.',
   items: [
     /* PLACEHOLDER quotes until real customer stories land — the first is the
        mockup's; the rest are written to the same pattern so the rail has
@@ -78,8 +78,8 @@ export const stories = {
 /* ── How it works: five moves ──────────────────────────────────────────── */
 export const steps = {
   eyebrow: 'How it works',
-  title: 'From idea to live, in five moves.',
-  subtitle: 'You never have to learn a complicated tool. You just describe what you want.',
+  title: 'Bring your idea to life instantly', /* review copy, 2026-10-26 */
+  subtitle: 'Describe what you want and Bolt builds it in minutes.',
   items: [
     { kicker: 'Describe what you need', title: 'Just tell it, like you would a friend', body: 'No forms, no templates to pick through, no technical spec to write. Type what you need the way you would explain it out loud, and that is enough to start.', visual: 'prompt' as const },
     { kicker: 'Watch it build instantly', title: 'See a real, working version take shape', body: 'Bolt writes and assembles an actual website or app in front of you, live. Not a mockup, not a wireframe, not a preview you wait days to see.', visual: 'build' as const },
