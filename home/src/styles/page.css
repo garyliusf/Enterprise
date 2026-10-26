@@ -2102,11 +2102,16 @@ body .site-footer-divider { display: none; }
    the centre. Flex centring keeps the overflowing layout box centred and the
    window clips the unused layout space — same in every engine. */
 @media (max-width: 768px) {
-  .hm-stage--steps { row-gap: 4px; padding-top: 6px; } /* visual → first step 28 → 14, panel top 20 → 6 (Gary) */
-  .hm-stage--steps .hm-stage-view { height: 360px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-  .hm-stage--steps .hm-stage-view > .hm-stage-scene { flex: none; width: calc(100% / 0.69); }
+  .hm-stage--steps { row-gap: 4px; padding-top: 6px; padding-bottom: 14px; } /* visual → first step 28 → 14, panel top 20 → 6 (Gary); bottom 24 → 14 so the whole panel fits an iPhone 16 screen (2026-10-26) */
+  /* a 270px window (was 360) and a scale PER SCENE (2026-10-26, fit the panel on
+     an iPhone 16): the short scenes keep 0.69, the two tall ones (build 463px,
+     secure 519px of content) scale further so nothing is clipped */
+  .hm-stage--steps .hm-stage-view { height: 270px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+  .hm-stage--steps .hm-stage-view > .hm-stage-scene { --s: 0.69; flex: none; width: calc(100% / var(--s)); }
+  .hm-stage--steps .hm-stage-view > .hm-stage-scene:has(> .hm-scene--build) { --s: 0.56; }
+  .hm-stage--steps .hm-stage-view > .hm-stage-scene:has(> .hm-scene--secure) { --s: 0.5; }
   /* scale the visual, not the scene: the scene's fade-in animation owns its transform */
-  .hm-stage--steps .hm-stage-scene > .hm-vis { min-height: 520px; padding: 0 26px; transform: scale(0.69); transform-origin: 50% 50%; }
+  .hm-stage--steps .hm-stage-scene > .hm-vis { min-height: calc(270px / var(--s)); padding: 0 26px; transform: scale(var(--s)); transform-origin: 50% 50%; }
   /* the stage is laid out wide and scaled, so the scenes keep their DESKTOP
      layout (Gary: the wired scene stacked into one column, card and list
      pushed apart and the wires gone) */
@@ -2117,7 +2122,7 @@ body .site-footer-divider { display: none; }
   .hm-stage--steps .hm-stage-prompt { padding-top: 0; }
   .hm-stage--steps .hm-stage-item.is-active .hm-stage-num { font-size: 16px; line-height: 1.4; }
   /* tighter step rows on phones (Gary) */
-  .hm-stage--steps .hm-stage-btn { padding: 13px 0 12px; }
+  .hm-stage--steps .hm-stage-btn { padding: 11px 0 10px; } /* 13/12 → 11/10 (2026-10-26) */
 }
 
 
