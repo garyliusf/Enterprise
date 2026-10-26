@@ -45,8 +45,8 @@ export const stats = [
    card; these are distinct businesses. Photos reuse the people set. */
 export const useCases = {
   eyebrow: 'Build anything',
-  title: 'Build anything you need, the way you need it.',
-  subtitle: 'No two businesses are alike, so no two Bolt.new projects are either.',
+  title: 'Build exactly what you want.',
+  subtitle: 'Make every feature fit your needs.',
   more: { label: 'See All Use Cases', href: 'https://bolt.new/use-cases' },
   items: [
     { tag: 'Landscaping', title: 'Take quote requests with photos', body: 'Customers snap a photo of their yard and get a quote back the same day.', photo: asset('/people/founder-greenhouse.webp'), focus: '38% 30%' },
