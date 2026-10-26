@@ -80,13 +80,13 @@ export const steps = {
   eyebrow: 'How it works',
   title: 'Bring your idea to life instantly', /* review copy, 2026-10-26 */
   subtitle: 'Describe what you want and Bolt builds it in minutes.',
-  /* step titles + copy: review, 2026-10-26 (the collapsed caps labels are unchanged) */
+  /* step titles + copy: review, 2026-10-26 — one header per step, the same open or closed (Gary) */
   items: [
-    { kicker: 'Describe what you need', title: 'Explain in your own words', body: 'Describe your idea and Bolt can start building right away.', visual: 'prompt' as const },
-    { kicker: 'Watch it build instantly', title: 'Watch Bolt build', body: 'Bolt builds a real, working website or app in front of you in real time.', visual: 'build' as const },
-    { kicker: 'Everything configured', title: 'No backend configuration', body: 'Whether your site needs payments, a user database, auth, or something else, Bolt automatically configures the backend for you.', visual: 'wired' as const },
-    { kicker: 'Built securely', title: 'Secure by design', body: 'All your data is secure by default. Bolt’s security agent automatically finds and fixes issues as you build.', visual: 'secure' as const },
-    { kicker: 'Deployed with one click', title: 'Publish in one click', body: 'Go live in one click. No hosting setup or configuration necessary.', visual: 'deploy' as const },
+    { kicker: 'Explain in your own words', title: 'Explain in your own words', body: 'Describe your idea and Bolt can start building right away.', visual: 'prompt' as const },
+    { kicker: 'Watch Bolt build', title: 'Watch Bolt build', body: 'Bolt builds a real, working website or app in front of you in real time.', visual: 'build' as const },
+    { kicker: 'No backend configuration', title: 'No backend configuration', body: 'Whether your site needs payments, a user database, auth, or something else, Bolt automatically configures the backend for you.', visual: 'wired' as const },
+    { kicker: 'Secure by design', title: 'Secure by design', body: 'All your data is secure by default. Bolt’s security agent automatically finds and fixes issues as you build.', visual: 'secure' as const },
+    { kicker: 'Publish in one click', title: 'Publish in one click', body: 'Go live in one click. No hosting setup or configuration necessary.', visual: 'deploy' as const },
   ],
 };
 
