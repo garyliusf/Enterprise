@@ -27,7 +27,7 @@ function useTypewriter(active: boolean) {
   useEffect(() => {
     if (!active || reduce) return;
     let t: number;
-    if (!erasing && len < full.length) t = window.setTimeout(() => setLen(len + 1), 34 + Math.random() * 30);
+    if (!erasing && len < full.length) t = window.setTimeout(() => setLen(len + 1), 26 + Math.random() * 23) /* ~30% faster (Gary, 2026-10-26): avg 49ms → 37.5ms a letter */;
     else if (!erasing) t = window.setTimeout(() => setErasing(true), 1800);
     else if (len > 0) t = window.setTimeout(() => setLen(len - 1), 14);
     else t = window.setTimeout(() => { setErasing(false); setIdx((i) => (i + 1) % EXAMPLES.length); }, 350);
