@@ -34,7 +34,6 @@ export const hero = {
     { label: 'Booking site', prompt: 'My dog walking business needs a booking site that takes customer deposits' },
   ],
   promptCta: 'Build Now',
-  trust: ['Free to start', 'No credit card required'],
   /* what to build, under the prompt: bolt.new's intent picker, same ids,
      labels and instructions as the app (packages/bolt/app/components/chat/
      intents.ts); App second here (Gary, 2026-10-26). A tile selects one

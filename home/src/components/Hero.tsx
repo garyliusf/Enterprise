@@ -128,19 +128,6 @@ export function PromptBox({ id = 'hero', compact = false, types = false }: { id?
   );
 }
 
-export function TrustPills({ items }: { items: string[] }) {
-  return (
-    <ul className="hm-trust" aria-label="Good to know">
-      {items.map((t) => (
-        <li key={t} className="hm-trust-pill">
-          <span className="hm-trust-dot" aria-hidden="true" />
-          {t}
-        </li>
-      ))}
-    </ul>
-  );
-}
-
 export function Hero() {
   return (
     <section className="fw-hero hm-hero" id="top">

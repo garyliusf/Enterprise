@@ -152,8 +152,8 @@ export const enterprise = {
 
 /* ── Closing CTA ────────────────────────────────────────────────────────── */
 export const closing = {
-  eyebrow: 'Really',
-  title: 'You can just build it.',
-  subtitle: 'Free to start. Pro plans from $25/month.',
-  trust: ['No credit card', 'No install'],
+  /* review copy, 2026-10-26: no subtitle, no trust line; the button is the
+     hero's (the shared PromptBox) */
+  eyebrow: 'Start building',
+  title: 'Try Bolt now',
 };

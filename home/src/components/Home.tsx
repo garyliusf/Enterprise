@@ -1,7 +1,7 @@
 import type React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { closing, enterprise, showcase, stats, steps, stories, platform, templatesHome, useCases, type ShowcaseCard } from '../home';
-import { PromptBox, TrustPills } from './Hero';
+import { PromptBox } from './Hero';
 import { StepVisual } from './Story';
 import { BgVideo, Btn, HoverField, PixelField, SectionHeader, type WaveFn } from './ui';
 import { useVariant } from './VariantSwitch';
@@ -927,9 +927,7 @@ export function Closing() {
         <div className="dsa-reveal">
           <h2 className="sc-section-h2">{closing.title}</h2>
         </div>
-        <p className="fw-footer-sub">{closing.subtitle}</p>
         <PromptBox id="closing" compact />
-        <TrustPills items={closing.trust} />
       </div>
     </section>
   );
