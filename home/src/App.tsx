@@ -4,7 +4,7 @@ import { Hero } from './components/Hero';
 import { SiteFooterStd, SiteNav } from './components/SiteChrome';
 import { FooterZone } from './components/Sections';
 import './components/VariantSwitch'; /* stamps html[data-variant] (E unless ?variant=) before first paint of the sections */
-import { Closing, Enterprise, Showcase, Stats, Steps, Stories, Platform, TemplatesHome, UseCases } from './components/Home';
+import { Closing, Enterprise, Showcase, Stats, Steps, Stories, TemplatesHome, UseCases } from './components/Home';
 
 export default function App() {
   /* shared-components.js scans the DOM once when it runs (pixel-fill button
@@ -25,7 +25,8 @@ export default function App() {
         <Stories />
         <Steps />
         <TemplatesHome />
-        <Platform />
+        {/* "New this month" (<Platform />) removed (Gary, 2026-10-26) — the
+            component + copy in home.ts stay for a quick restore */}
         <Enterprise />
       </main>
       <FooterZone>
