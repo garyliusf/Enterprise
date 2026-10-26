@@ -137,13 +137,13 @@ export const enterprise = {
     { src: asset('/logos/mozilla.svg'), alt: 'Mozilla' },
     { src: asset('/logos/hubspot-logo.svg'), alt: 'HubSpot' },
   ],
+  /* review copy, 2026-10-26: plain language, SSO dropped (5 cards) */
   features: [
-    { icon: 'key', title: 'SSO & SAML', body: 'Okta, Azure AD and every major SAML provider, with domain restrictions.' },
-    { icon: 'list', title: 'Audit logs', body: 'Every project, publish and seat change, exportable to your SIEM.' },
-    { icon: 'shield', title: 'SOC 2 Type II', body: 'Certified controls, DPA and MSA. Enterprise data is never used for training.' },
-    { icon: 'cloud', title: 'BYOK deployment', body: 'Run Bolt inside your own AWS or Azure tenant, fully isolated.' },
-    { icon: 'users', title: 'Role-based access', body: 'Admin, builder and viewer roles, provisioned from your directory.' },
-    { icon: 'chat', title: 'Dedicated support', body: 'A named customer success manager and a private Slack channel.' },
+    { icon: 'users', title: 'Customize your plan', body: 'Decide which team members can build or just view.' },
+    { icon: 'list', title: 'Monitor your team’s activity', body: 'Get audit logs so you can know exactly what changed.' },
+    { icon: 'shield', title: 'Best-in-class security', body: 'Data protections are written into your contract. Plus, your data is never used for training.' },
+    { icon: 'cloud', title: 'Customize your cloud setup', body: 'Run Bolt inside your own AWS or Azure tenant, fully isolated.' },
+    { icon: 'chat', title: 'Dedicated support', body: 'You’ll get your own customer rep, a private Slack channel, and more.' },
   ],
   /* the enterprise page's 1:1 strip; the form hands the email to the enterprise page's own form anchor */
   strip: { lead: 'Schedule a 1:1 with', name: 'Mason', placeholder: 'Your work email', cta: 'Book a 1:1', action: 'https://bolt.new/enterprise#talk-to-sales' },
