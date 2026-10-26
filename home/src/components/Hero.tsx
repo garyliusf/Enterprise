@@ -12,27 +12,28 @@ export function goToBolt(prompt: string, instruction?: string) {
 }
 
 /* The hero prompt box: white card, textarea, suggestion pills, Build now. */
-/* The example prompts, rotated through the empty box: each fades out, the
-   next fades in. Stops the moment there is text, and under reduced motion. */
-const EXAMPLES = [hero.promptExample, ...hero.promptPills.map((p) => p.prompt).filter((p) => p !== hero.promptExample)];
-function useRotatingExample(active: boolean) {
+/* The example prompts, typed out in the empty box (Gary, 2026-10-26: a
+   typewriter instead of the fade): type → hold → erase → next. Stops the
+   moment there is text; under reduced motion the first one simply sits there.
+   `full` is always the whole example, so submitting an empty box mid-typing
+   still sends a complete prompt. */
+const EXAMPLES = hero.promptPills.map((p) => p.prompt);
+function useTypewriter(active: boolean) {
   const [idx, setIdx] = useState(0);
-  /* 'in' = resting; 'out' = rolling up and fading; 'enter' = the next one
-     placed below, about to roll up into place */
-  const [phase, setPhase] = useState<'in' | 'out' | 'enter'>('in');
+  const [len, setLen] = useState(0);
+  const [erasing, setErasing] = useState(false);
+  const reduce = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const full = EXAMPLES[idx];
   useEffect(() => {
-    if (!active || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const id = window.setInterval(() => {
-      setPhase('out');
-      window.setTimeout(() => {
-        setIdx((i) => (i + 1) % EXAMPLES.length);
-        setPhase('enter');
-        requestAnimationFrame(() => requestAnimationFrame(() => setPhase('in')));
-      }, 350);
-    }, 2800); /* ~2.8s a prompt (Gary), 0.35s roll */
-    return () => window.clearInterval(id);
-  }, [active]);
-  return { example: EXAMPLES[idx], phase };
+    if (!active || reduce) return;
+    let t: number;
+    if (!erasing && len < full.length) t = window.setTimeout(() => setLen(len + 1), 34 + Math.random() * 30);
+    else if (!erasing) t = window.setTimeout(() => setErasing(true), 1800);
+    else if (len > 0) t = window.setTimeout(() => setLen(len - 1), 14);
+    else t = window.setTimeout(() => { setErasing(false); setIdx((i) => (i + 1) % EXAMPLES.length); }, 350);
+    return () => window.clearTimeout(t);
+  }, [active, reduce, erasing, len, full]);
+  return { full, shown: reduce ? full : full.slice(0, len) };
 }
 
 /* bolt.new's project-type row: outline icons, 1.5px stroke, 24px */
@@ -47,7 +48,7 @@ export function PromptBox({ id = 'hero', compact = false, types = false }: { id?
   const [text, setText] = useState('');
   const [intent, setIntent] = useState<string | undefined>();
   const picked = hero.projectTypes.find((t) => t.id === intent);
-  const { example, phase } = useRotatingExample(text === '');
+  const { full: example, shown } = useTypewriter(text === '');
   const send = () => goToBolt(text || example, picked?.instruction);
   const submit = (e: FormEvent) => {
     e.preventDefault();
@@ -66,8 +67,8 @@ export function PromptBox({ id = 'hero', compact = false, types = false }: { id?
         <div className="hm-prompt-field">
           {/* the example sits under a transparent textarea so it can fade; the
               native placeholder stays for screen readers / no-JS */}
-          <span className={`hm-prompt-example is-${phase}${text ? ' is-hidden' : ''}`} aria-hidden="true">
-            {example}
+          <span className={`hm-prompt-example${text ? ' is-hidden' : ''}`} aria-hidden="true">
+            {shown}<span className="hm-prompt-caret" />
           </span>
           <textarea
             id={`${id}-prompt`}

@@ -26,11 +26,12 @@ export const hero = {
     'Describe your idea in your own words and get a real website or app you can publish today. No code. No developer.',
   /* the prompt box: example prompt (also the SEO-crawlable placeholder),
      suggestion pills that fill it, and the submit label */
-  promptExample: 'A booking site for my dog walking business, with a calendar and deposits',
+  promptExample: 'Create a client dashboard for my design studio that includes files and messaging',
+  /* the examples typed out in the empty box, in order (Gary, 2026-10-26) */
   promptPills: [
-    { label: 'Booking site', prompt: 'A booking site for my dog walking business, with a calendar and deposits' },
-    { label: 'Client dashboard', prompt: 'A client dashboard for my design studio: project status, files and messaging' },
-    { label: 'Online storefront', prompt: 'An online store for my ceramics studio that tracks inventory automatically' },
+    { label: 'Client dashboard', prompt: 'Create a client dashboard for my design studio that includes files and messaging' },
+    { label: 'Online storefront', prompt: 'Build an online store for my ceramics studio that tracks inventory automatically' },
+    { label: 'Booking site', prompt: 'My dog walking business needs a booking site that takes customer deposits' },
   ],
   promptCta: 'Build Now',
   trust: ['Free to start', 'No credit card required'],
