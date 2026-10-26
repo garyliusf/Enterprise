@@ -468,7 +468,7 @@ export function UseCases() {
               <span className="hm-uc-copy">
                 <span className="hm-uc-title">{u.title}</span>
                 <span className="hm-uc-desc">{u.body}</span>
-                <span className="hm-uc-more">See How <i className="fw-arrow" aria-hidden="true" /></span>
+                <span className="hm-uc-more">See how <i className="fw-arrow" aria-hidden="true" /></span>
               </span>
             </a>
           ))}
