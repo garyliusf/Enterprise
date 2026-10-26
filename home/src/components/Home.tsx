@@ -343,6 +343,10 @@ function ShowcaseCoverflow() {
             aria-hidden={i !== active ? true : undefined}
             onClick={() => { const d = wrapD(i - st.current.target); if (Math.abs(d) > 0.5) go(Math.round(st.current.target + d)); }}
           >
+            {/* the clip lives on this inner layer, not the card: WebKit let the sliding
+                caption escape the card's own radius clip, and a clip on the card
+                cut its drop shadow down to a hairline while dragging */}
+            <span className="hm-cover-clip">
             <span className="hm-cover-shot"><img src={c.shot} alt="" loading="lazy" decoding="async" draggable={false} /></span>
             <span className="hm-cover-foot">
               {/* the regular template card's head (Gary): the name on the left, the
@@ -352,6 +356,7 @@ function ShowcaseCoverflow() {
                 {c.tag && <span className="hm-cover-kicker">{c.tag}</span>}
               </span>
               <CardActions open={c.url} preview={c.preview} label={c.prompt} tabIndex={i === active ? undefined : -1} />
+            </span>
             </span>
           </div>
         ))}
