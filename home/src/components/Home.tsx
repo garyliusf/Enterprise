@@ -535,15 +535,6 @@ const railWave: WaveFn = (c, r, t, phase, cols, rows) => {
   return d * d * (Math.sin(x * 12 - y * 6 - t / 700 + phase) * 0.35 + 0.65);
 };
 
-/* How it works panel corner (Gary): the subtle pixel field, a quarter-circle of
-   dots in the bottom-LEFT corner (the visual owns the right), drifting slowly */
-const stepsCornerWave: WaveFn = (c, r, t, phase, cols, rows) => {
-  const x = c / cols;
-  const y = r / rows;
-  const d = Math.max(0, 1 - Math.hypot(x * 2.6, (1 - y) * 1.9));
-  return d * d * (Math.sin(x * 10 + y * 7 - t / 900 + phase) * 0.35 + 0.65);
-};
-
 /* ── How it works: five moves; the visuals are one animated story (Story.tsx) */
 /* How it works = the showcase-B stage (Gary, 2026-10-20): the five steps as
    a numbered list that auto-advances (fill bar, click to jump; no hover
@@ -586,7 +577,6 @@ export function Steps() {
       <div className="fw-inner">
         <SectionHeader center eyebrow={steps.eyebrow} title={steps.title} subtitle={steps.subtitle} />
         <div className="hm-stage hm-stage--steps" ref={root}>
-          <PixelField wave={stepsCornerWave} spacing={9} dot={2} opacity={0.9} className="hm-steps-field" color="100,170,255" />
           <ol className="hm-stage-list">
             {steps.items.map((st, i) => (
               <li key={st.title} className={`hm-stage-item${i === active ? ' is-active' : ''}`}>
