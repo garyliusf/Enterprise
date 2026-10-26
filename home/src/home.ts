@@ -126,8 +126,8 @@ export const platform = {
 /* ── Enterprise ─────────────────────────────────────────────────────────── */
 export const enterprise = {
   eyebrow: 'For enterprise',
-  title: 'Need it to scale across a team?',
-  body: 'The same Bolt your builders already use, with the governance, security and support an organization needs to roll it out.',
+  title: 'Bolt works for teams', /* review copy, 2026-10-26 */
+  body: 'Bring Bolt to your organization so your entire team can build.',
   logosLabel: 'Trusted by teams shipping with AI',
   logos: [
     { src: asset('/logos/intel.svg'), alt: 'Intel' },
