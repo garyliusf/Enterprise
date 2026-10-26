@@ -34,6 +34,17 @@ export const hero = {
   ],
   promptCta: 'Build Now',
   trust: ['Free to start', 'No credit card required'],
+  /* what to build, under the prompt: bolt.new's intent picker, same ids,
+     labels and instructions as the app (packages/bolt/app/components/chat/
+     intents.ts); App second here (Gary, 2026-10-26). A tile selects one
+     intent (click again to clear) and its instruction is prepended to the
+     prompt on send, exactly as Chat.client.tsx does */
+  projectTypes: [
+    { id: 'website', label: 'Website', icon: 'globe', instruction: 'Build this as a website or web app.' },
+    { id: 'app', label: 'App', icon: 'devices', instruction: 'Build this as a web app.' },
+    { id: 'slides', label: 'Slides', icon: 'slides', isNew: true, instruction: 'Build this as a presentation slide deck.' },
+    { id: 'prototype', label: 'Prototype', icon: 'flask', instruction: 'Build this as an interactive UI prototype.' },
+  ] as { id: string; label: string; icon: 'globe' | 'devices' | 'slides' | 'flask'; instruction: string; isNew?: boolean }[],
 };
 
 import type { PixelIconName } from './components/ui';
