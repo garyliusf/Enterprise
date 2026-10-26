@@ -268,6 +268,26 @@ function ShowcaseCoverflow() {
     return () => { io.disconnect(); window.clearInterval(id); };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const spacing = () => (cards.current[0]?.offsetWidth ?? 500) * 0.62;
+  /* trackpad (review 2026-10-26: "my first instinct was to scroll"): a
+     sideways swipe moves the cards 1:1 under the fingers, then eases onto the
+     nearest card once the swipe stops; vertical swipes still scroll the page */
+  useEffect(() => {
+    const el = root.current;
+    if (!el) return;
+    let settle = 0;
+    const onWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+      e.preventDefault();
+      const s = st.current;
+      s.pos += e.deltaX / spacing();
+      s.target = s.pos;
+      paint();
+      window.clearTimeout(settle);
+      settle = window.setTimeout(() => go(Math.round(st.current.pos)), 140);
+    };
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => { el.removeEventListener('wheel', onWheel); window.clearTimeout(settle); };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const onDown = (e: React.PointerEvent) => {
     if (e.button !== 0) return;
     const s = st.current;
@@ -468,11 +488,14 @@ export function Stories() {
      duplicated so the loop is seamless. No icons (Gary): name + company
      under the hairline. The trailing card carries the pixel field. */
   const loop = [...stories.items, ...stories.items, ...stories.items];
+  /* same scroller as the templates rail (trackpad, drag, drift, loop) —
+     replaced the CSS marquee, which a trackpad couldn't move */
+  const rail = useScrollRail({ scroller: '.hm-rail-clip', card: '.hm-rail-card', copies: 3, speed: 0.04 });
   return (
     <section className="fw-section hm-stories">
       <div className="fw-inner">
         <SectionHeader center eyebrow={stories.eyebrow} title={stories.title} subtitle={stories.subtitle} />
-        <div className="hm-rail">
+        <div className="hm-rail" ref={rail}>
           {/* light-blue pixels gathering in the rail's bottom-right corner (the
               get-started rail's corner field), fixed to the rail, not a card */}
           <PixelField wave={railWave} spacing={9} dot={2.5} opacity={0.55} className="hm-rail-field" color="120,180,252" />
@@ -590,11 +613,16 @@ export function Steps() {
    viewport's right edge, with a right-edge fade that hides once scrolled to
    the end, click-and-drag panning with a momentum glide for mouse users, and
    the catalog hover (scrim + "Open in Bolt", the shot drifts up 40px). */
-function useTemplateRail() {
+/* The rail behaviour, shared (2026-10-26, review: "reuse the scrolling we
+   already have"): a native horizontal scroller, so a trackpad / shift-wheel /
+   touch all scroll it; click-and-drag with a glide for mice; a slow drift that
+   pauses on hover / drag / touch / off screen; and an endless loop over the
+   `copies` rendered sets. Used by the templates rail and the customer stories. */
+function useScrollRail({ scroller, card, copies = 2, speed = 0.03 }: { scroller: string; card: string; copies?: number; speed?: number }) {
   const rail = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const r = rail.current;
-    const track = r?.querySelector<HTMLDivElement>('.hm-tr-track');
+    const track = r?.querySelector<HTMLDivElement>(scroller);
     if (!r || !track) return;
     const update = () => {
       r.classList.toggle('at-end', track.scrollLeft + track.clientWidth >= track.scrollWidth - 4);
@@ -641,12 +669,12 @@ function useTemplateRail() {
        touched or off screen. The items are rendered twice; crossing one set's
        width wraps by exactly that width, so it loops forever in both directions */
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const SPEED = 0.03; // px per ms ≈ 30px/s
+    const SPEED = speed; // px per ms (0.03 ≈ 30px/s)
     const base = track.scrollLeft;
     const setW = () => {
-      const cards = track.querySelectorAll<HTMLElement>('.hm-tr-card');
-      const half = cards.length / 2;
-      return half >= 1 ? cards[half].offsetLeft - cards[0].offsetLeft : 0;
+      const cards = track.querySelectorAll<HTMLElement>(card);
+      const one = cards.length / copies;
+      return one >= 1 ? cards[one].offsetLeft - cards[0].offsetLeft : 0;
     };
     let pos = track.scrollLeft, hovered = false, touchHold = 0, visible = false, raf = 0, last = 0, ours = false;
     const wrapPos = () => {
@@ -696,12 +724,12 @@ function useTemplateRail() {
       track.removeEventListener('mouseenter', onEnter); track.removeEventListener('mouseleave', onLeave);
       track.removeEventListener('touchstart', onTouchStart); track.removeEventListener('touchend', onTouchEnd);
     };
-  }, []);
+  }, [scroller, card, copies, speed]);
   return rail;
 }
 
 export function TemplatesHome() {
-  const rail = useTemplateRail();
+  const rail = useScrollRail({ scroller: '.hm-tr-track', card: '.hm-tr-card' });
   return (
     <section className="fw-section hm-templates" id="templates">
       <div className="fw-inner">
