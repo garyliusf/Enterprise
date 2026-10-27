@@ -17,9 +17,9 @@ export const showcase: { rowA: ShowcaseCard[]; rowB: ShowcaseCard[] } = {
   rowA: [
     { shot: asset('/templates/soda.webp'), prompt: 'An online store for my soda brand with a build-your-own flavor menu', url: fork('sb1-r5f2szok'), preview: 'https://template-soda.bolt.host', name: 'Soda Shop', tag: 'Retail' },
     { shot: asset('/templates/wedding.webp'), prompt: 'A portfolio site for my wedding planning business with an inquiry form', url: fork('sb1-xcpxwqz1'), preview: 'https://template-wedding-planner.bolt.host', name: 'Wedding Planner', tag: 'Events' },
+    { shot: asset('/templates/catalog/vantage-dashboard.webp'), prompt: 'A real-time analytics dashboard for my product metrics', url: fork('github-bhayfs7z'), preview: 'https://template-vantage-dashboard.bolt.host', name: 'Pooled analytics dashboard', tag: 'Internal tools' },
     { shot: asset('/templates/mow.webp'), prompt: 'A lawn care site that gives instant quotes and books recurring visits', url: fork('sb1-vipe17ab'), preview: 'https://template-lawn-care.bolt.host', name: 'Lawn Care', tag: 'Trades' },
     { shot: asset('/templates/catalog/premium-saas-dashboard-lp.webp'), prompt: 'A landing page for my SaaS with pricing and a waitlist', url: fork('github-xtrskmb3'), preview: 'https://template-premium-saas-dashboard-lp.bolt.host', name: 'SaaS Landing', tag: 'SaaS' },
-    { shot: asset('/templates/cleaning.webp'), prompt: 'A home cleaning site with a service area map and quote requests', url: fork('sb1-33phwvdj'), preview: 'https://template-home-cleaning.bolt.host', name: 'Home Cleaning', tag: 'Trades' },
   ],
   rowB: [
     { shot: asset('/templates/catalog/maison-voyage.webp'), prompt: 'A travel journal with destination guides and stories', url: fork('github-mu7mffmh'), preview: 'https://template-maison-voyage.bolt.host', name: 'Travel Journal', tag: 'Editorial' },
