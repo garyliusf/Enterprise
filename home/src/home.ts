@@ -24,7 +24,7 @@ export const showcase: { rowA: ShowcaseCard[]; rowB: ShowcaseCard[] } = {
   rowB: [
     { shot: asset('/templates/catalog/maison-voyage.webp'), prompt: 'A travel journal with destination guides and stories', url: fork('github-mu7mffmh'), preview: 'https://template-maison-voyage.bolt.host', name: 'Travel Journal', tag: 'Editorial' },
     { shot: asset('/templates/plumbing.webp'), prompt: 'A plumbing company site with online booking and recent jobs', url: fork('sb1-v6i8qmpp'), preview: 'https://template-plumbing.bolt.host', name: 'Plumbing', tag: 'Trades' },
-    { shot: asset('/templates/catalog/kern-studio.webp'), prompt: 'A portfolio site for my creative agency that leads with our work', url: fork('github-kwsc4fm6'), preview: 'https://template-kern-studio.bolt.host', name: 'Creative agency website', tag: 'Agency' },
+    { shot: asset('/templates/catalog/kern-studio.webp'), prompt: 'A portfolio site for my creative agency that leads with our work', url: fork('github-kwsc4fm6'), preview: 'https://template-kern-studio.bolt.host', name: 'Creative agency website', tag: 'Portfolio' },
     { shot: asset('/templates/catalog/ledger-finance.webp'), prompt: 'A budgeting app with cash-flow charts for my freelance income', url: fork('github-7mpvjfb3'), preview: 'https://template-ledger-finance.bolt.host', name: 'Finance Tracker', tag: 'Apps' },
     { shot: asset('/templates/rootline.webp'), prompt: 'An editorial site for my landscape design studio', url: fork('sb1-nkwmdgm3'), preview: 'https://template-landscaping.bolt.host', name: 'Landscape Studio', tag: 'Trades' },
   ],
