@@ -44,7 +44,7 @@ export const stats = [
    card; these are distinct businesses. Photos reuse the people set. */
 export const useCases = {
   eyebrow: 'Build anything',
-  title: 'Build exactly what you want.',
+  title: 'Build what you have in mind',
   subtitle: 'Make every feature fit your needs.',
   more: { label: 'See All Use Cases', href: 'https://bolt.new/use-cases' },
   items: [
