@@ -652,7 +652,7 @@ function useScrollRail({ scroller, card, copies = 2, speed = 0.03 }: { scroller:
       if (!down) return;
       const dx = e.clientX - startX;
       if (Math.abs(dx) > moved) moved = Math.abs(dx);
-      if (moved > 6 && !captured) { captured = true; track.classList.add('is-dragging'); try { track.setPointerCapture(e.pointerId); } catch { /* ignore */ } }
+      if (moved > 6 && !captured) { captured = true; track.classList.add('is-dragging'); window.getSelection()?.removeAllRanges(); /* the selection began at pointerdown, before user-select: none applied (the stray selected letter, Gary 2026-10-27) */ try { track.setPointerCapture(e.pointerId); } catch { /* ignore */ } }
       if (captured) {
         track.scrollLeft = startLeft - dx;
         const dt = e.timeStamp - lastT;
