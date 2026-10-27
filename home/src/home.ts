@@ -66,8 +66,8 @@ export const stories = {
     /* the Customer Showcase page's quotes, as Gary pasted them (2026-10-27).
        logo = the company's own mark (home/public/customers, 96px tiles cut from
        each site's header/icon); plate = dark ink, gets a white plate in dark
-       mode. No logo → initials (Super LLM's site uses a stock icon, VISION-LINK
-       has no mark, Moj-kat has no site). The Scratch tile is the golf store Sky
+       mode. No logo → initials (Super LLM's site uses a stock icon). VISION-LINK
+       and Moj-kat were cut (Gary, 2026-10-27). The Scratch tile is the golf store Sky
        Lubreski runs the command center for. */
     { quote: "We were paying $70,000 a year for EDI software, so we had Bolt build our own. Two days in, I knew it would work. What would have taken years and a fortune in development was live in weeks, and ten carriers are now paying us every month.", name: "Paul Laviolette", role: "Founder, TradeWeave", logo: asset('/customers/tradeweave.webp') },
     { quote: "We set out to bring GPT, Claude, and Gemini together in one app. The moment authentication, chat history, model switching, and the whole core UI clicked into place, it stopped feeling like a prototype and started feeling like a real product. As a tiny team, we’ve shipped an MVP and won investors over faster than we thought possible.", name: "Mubarak", role: "Founder, Super LLM" },
@@ -80,8 +80,6 @@ export const stories = {
     { quote: "After a few simple Bolt sites, I set out to rebuild my clients’ complex WooCommerce stores as headless Shopify sites. The built-in IDE is what sealed it for me. Ancient Tallow came out fast and beautiful, the founder is genuinely proud of it, and we launched on the biggest sales day the business has ever had.", name: "Michael Mastropasqua", role: "Agency/freelancer, Ancient Tallow", logo: asset('/customers/ancient-tallow.webp') },
     { quote: "I acquired a golf-simulator store and the operations were a mess. Once I realized I could wire the app into absolutely everything, it went from a neat idea to the thing our whole team relies on every day. We replaced a dozen separate tools, like Quo, Tidio, and QuickBooks, with one system built in-house, and the storefront was landing high-ticket sales in its first week.", name: "Sky Lubreski", role: "Founder, Ecom Command Center", logo: asset('/customers/scratch-golf.webp'), plate: true },
     { quote: "I’m building several businesses in Uganda, and traditional development was going to slow everything down. With Bolt, systems that would normally take weeks of engineering started working in hours. I realized it wasn’t just helping me build pages, it was helping me build an entire payments platform: mobile money, cards, QR, merchant onboarding. What used to take months now takes days.", name: "Ssebandeke Dullaart", role: "Founder, Orventa Payments", logo: asset('/customers/orventa.webp') },
-    { quote: "We’re a deep-tech startup in Sub-Saharan Africa, and vendor quotes for a prototype ran past four thousand dollars and six weeks. With Bolt I watched a production-grade control room interface, tracking grids, Hausa audio, live metrics, come to life in minutes. In a few hours we had a live dashboard we could put in front of partners and funding boards. It gave us institutional-grade velocity instantly.", name: "Buhari Salisu", role: "Founder, VISION-LINK" },
-    { quote: "I hadn’t worked in a year, and I wanted to build something of my own and become my own boss. It clicked immediately, right after I entered my first command. I’m building a real-estate portal, and I want to enter the market ready to go and surprise the competition.", name: "Rafael", role: "Founder, Moj-kat" },
   ],
 };
 
