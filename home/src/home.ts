@@ -47,7 +47,7 @@ export const useCases = {
   eyebrow: 'Build anything',
   title: 'Build what you have in mind',
   subtitle: 'Whether you’re building a customer-facing app or an internal tool for your team, Bolt allows you to customize every feature to fit your needs.',
-  more: { label: 'See All Use Cases', href: 'https://bolt.new/use-cases' },
+  more: { label: 'See all use cases', href: 'https://bolt.new/use-cases' },
   items: [
     { tag: 'Landscaping', title: 'Take quote requests with photos', body: 'Customers snap a photo of their yard and get a quote back the same day.', photo: asset('/people/founder-greenhouse.webp'), focus: '38% 30%', href: 'https://bolt.new/use-cases/contractor-invoice-app-builder' },
     { tag: 'Trades', title: 'Book jobs from your phone', body: 'A site that takes the call for you: services, availability and a deposit up front.', photo: asset('/people/founder-glasses.webp'), focus: '62% 30%', href: 'https://bolt.new/use-cases/appointment-booking-app-builder' },
@@ -103,7 +103,7 @@ export const templatesHome = {
   eyebrow: 'Templates',
   title: 'Start from a template', /* review copy, 2026-10-26 (the mockup's "so you can tou can" typo fixed) */
   subtitle: 'Discover our templates so you can start building your project even faster.',
-  more: { label: 'Browse All Templates', href: 'https://bolt.new/resources/templates' },
+  more: { label: 'Browse all templates', href: 'https://bolt.new/resources/templates' },
   /* the solutions page's rail: the catalog's cards (800px-wide full-page
      shots, portrait frame, drift on hover), production's fork links */
   items: [
@@ -125,9 +125,9 @@ export const platform = {
   title: 'Built to keep up with you.',
   subtitle: 'Bolt keeps shipping new ways to build. Here is what just landed.',
   tabs: [
-    { label: 'Showcase Slides', title: 'Turn any project into a slide deck', body: 'Generate a polished deck straight from what you already built, with every slide matching your brand and copy.', points: ['Generated from the project you already built', 'Every slide matches your brand and copy', 'Export to PDF or present from Bolt'], link: { label: 'See Showcase Slides', href: 'https://bolt.new/blog' }, video: 'new-slides' },
-    { label: 'Security Engineer', title: 'An automatic security review on every publish', body: 'A security agent checks what was built and fixes what it finds before customers see it, with no setup.', points: ['Runs on every publish, no setup', 'Finds and fixes issues before customers see them', 'Plain-language report of what changed'], link: { label: 'See the Security Engineer', href: 'https://bolt.new/platform/security' }, video: 'new-security' },
-    { label: 'Dictation Mode', title: 'Say it instead of typing it', body: 'Describe your idea out loud. Bolt builds from your voice just as well as from the keyboard.', points: ['Describe the idea out loud, Bolt builds it', 'Works in the composer and in follow-ups', 'Available on every plan'], link: { label: 'Try Dictation', href: 'https://bolt.new/' }, video: 'new-dictation' },
+    { label: 'Showcase Slides', title: 'Turn any project into a slide deck', body: 'Generate a polished deck straight from what you already built, with every slide matching your brand and copy.', points: ['Generated from the project you already built', 'Every slide matches your brand and copy', 'Export to PDF or present from Bolt'], link: { label: 'See showcase slides', href: 'https://bolt.new/blog' }, video: 'new-slides' },
+    { label: 'Security Engineer', title: 'An automatic security review on every publish', body: 'A security agent checks what was built and fixes what it finds before customers see it, with no setup.', points: ['Runs on every publish, no setup', 'Finds and fixes issues before customers see them', 'Plain-language report of what changed'], link: { label: 'See the security engineer', href: 'https://bolt.new/platform/security' }, video: 'new-security' },
+    { label: 'Dictation Mode', title: 'Say it instead of typing it', body: 'Describe your idea out loud. Bolt builds from your voice just as well as from the keyboard.', points: ['Describe the idea out loud, Bolt builds it', 'Works in the composer and in follow-ups', 'Available on every plan'], link: { label: 'Try dictation', href: 'https://bolt.new/' }, video: 'new-dictation' },
   ],
 };
 

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>WebContainers Visual v3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #ddd; }
+  .frame {
+    width: 1024px; height: 410px; position: relative; overflow: hidden;
+    background: #f7f7f5; color: #141414;
+    font-family: 'Schibsted Grotesk', sans-serif;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  canvas { position: absolute; inset: 0; }
+  .eyebrow {
+    position: relative; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500;
+    color: #6b6b6b; margin-bottom: 22px; letter-spacing: 0.2px;
+  }
+  .eyebrow b { color: #c0362c; font-weight: 500; }
+  h1 {
+    position: relative; text-align: center;
+    font-size: 58px; font-weight: 600; line-height: 1.08; letter-spacing: -1.6px;
+  }
+  h1 em { font-style: normal; color: #1488FC; }
+  .cursor {
+    display: inline-block; width: 0.46em; height: 0.82em; background: #141414;
+    vertical-align: -0.06em; margin-left: 0.12em;
+  }
+</style>
+</head>
+<body>
+<div class="frame">
+  <canvas id="c"></canvas>
+  <div class="eyebrow"><b>●</b>&nbsp; node.js CVE-2026-111497 · remote code execution</div>
+  <h1 id="h"></h1>
+</div>
+<script>
+  const titles = {
+    a: 'Running Untrusted Code<br>in <em>WebContainers</em><span class="cursor"></span>',
+    b: 'What Can Untrusted Code<br>Reach in a <em>Browser Tab?</em><span class="cursor"></span>',
+  };
+  const v = new URLSearchParams(location.search).get('t') || 'a';
+  document.getElementById('h').innerHTML = titles[v];
+
+  // Quiet brand dot field: only along the bottom edge, fading upward.
+  document.fonts.ready.then(() => {
+    const c = document.getElementById('c');
+    const W = 1024, H = 410, dpr = window.devicePixelRatio || 1;
+    c.width = W * dpr; c.height = H * dpr; c.style.width = W + 'px'; c.style.height = H + 'px';
+    const x = c.getContext('2d'); x.scale(dpr, dpr);
+    for (let px = 4; px < W; px += 9) {
+      for (let py = 4; py < H; py += 9) {
+        const rise = Math.max(0, (py - 300) / 110);
+        const wave = 0.5 + 0.5 * Math.sin(px / 40 + Math.sin(py / 24) * 1.6);
+        const a = rise * rise * wave * 0.5;
+        if (a < 0.02) continue;
+        x.fillStyle = `rgba(20,136,252,${a.toFixed(3)})`;
+        x.fillRect(px, py, 2, 2);
+      }
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>WebContainers Visual v4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #ddd; }
+  .frame {
+    width: 1024px; height: 410px; position: relative; overflow: hidden;
+    background: #f7f7f5; color: #141414;
+    font-family: 'Schibsted Grotesk', sans-serif;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #6b6b6b; margin-bottom: 22px; }
+  .eyebrow b { color: #c0362c; font-weight: 500; }
+  h1 { text-align: center; font-size: 58px; font-weight: 600; line-height: 67.64px; letter-spacing: -1.6px; }
+  h1 em { font-style: normal; color: #1488FC; }
+  .boxed { outline: 2px solid #1488FC; outline-offset: -2px; padding: 0 12px; line-height: 1; border-radius: 2px; }
+  .jar { margin-top: 30px; }
+  .boxed { position: relative; }
+  .h-red .boxed { color: #c0362c; }
+  .h-devtools .eyebrow { margin-bottom: 62px; }
+  .h-devtools .boxed {
+    outline: none; border-radius: 0; padding: 0 12px;
+    background:
+      linear-gradient(rgba(111,168,220,0.66), rgba(111,168,220,0.66)) 12px 0 / calc(100% - 24px) 100% no-repeat,
+      rgba(147,196,125,0.55);
+  }
+  .dt-tip {
+    position: absolute; left: -12px; bottom: calc(100% + 9px); white-space: nowrap;
+    background: #fff; border-radius: 3px; padding: 5px 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.06);
+    font: 400 12px/1.2 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; letter-spacing: 0;
+    display: flex; gap: 14px; align-items: baseline;
+  }
+  .dt-tip::after {
+    content: ''; position: absolute; left: 14px; top: 100%;
+    border: 6px solid transparent; border-top-color: #fff; border-bottom: 0;
+    filter: drop-shadow(0 1px 1px rgba(0,0,0,0.18));
+  }
+  .dt-tag { color: #881280; font-weight: 600; }
+  .dt-cls { color: #1a1aa6; font-weight: 600; }
+  .dt-dim { color: #6e6e6e; }
+  .h-inspect .eyebrow { margin-bottom: 44px; }
+  .h-inspect .boxed { background: rgba(20,136,252,0.10); }
+  .h-inspect .boxed::before {
+    content: 'webcontainer'; position: absolute; left: -2px; top: -24px;
+    font: 500 11px/1 'JetBrains Mono', monospace; letter-spacing: 0; color: #fff;
+    background: #1488FC; padding: 5px 7px 4px; border-radius: 2px 2px 0 0;
+  }
+  .h-dots .boxed {
+    background-image: radial-gradient(rgba(20,136,252,0.28) 1px, transparent 1.3px);
+    background-size: 7px 7px; background-position: 3px 3px;
+  }
+  body.jar-v .frame { justify-content: center; padding-top: 10px; }
+</style>
+</head>
+<body>
+<div class="frame">
+  <div class="eyebrow"><b>● high</b>&nbsp; CVE-2026-111497 · Node.js Brotli decoder RCE</div>
+  <h1 id="h"></h1>
+  <canvas class="jar" id="jar" width="90" height="96" style="display:none"></canvas>
+</div>
+<script>
+  const v = new URLSearchParams(location.search).get('v') || 'jar';
+  const h = document.getElementById('h');
+  const hl = new URLSearchParams(location.search).get('h');
+  if (hl) document.body.classList.add('h-' + hl);
+  if (v === 'box') {
+    h.innerHTML = 'Running <span class="boxed">Untrusted</span> Code<br>in <em>WebContainers</em>';
+    if (hl === 'devtools') document.fonts.ready.then(() => {
+      const b = h.querySelector('.boxed'), r = b.getBoundingClientRect();
+      const fmt = n => (Math.round(n * 100) / 100).toString();
+      b.insertAdjacentHTML('beforeend',
+        `<span class="dt-tip"><span><span class="dt-tag">span</span><span class="dt-cls">.untrusted</span></span><span class="dt-dim">${fmt(r.width)} × ${fmt(r.height)}</span></span>`);
+    });
+  } else {
+    h.innerHTML = 'Running Untrusted Code<br>in <em>WebContainers</em>';
+    const c = document.getElementById('jar');
+    c.style.display = 'block';
+    const dpr = window.devicePixelRatio || 1, W = 90, H = 96;
+    c.width = W * dpr; c.height = H * dpr; c.style.width = W + 'px'; c.style.height = H + 'px';
+    const x = c.getContext('2d'); x.scale(dpr, dpr);
+
+    // Jar: lid + glass, thin ink lines
+    x.strokeStyle = '#141414'; x.lineWidth = 1.5; x.lineJoin = 'round';
+    x.fillStyle = '#141414';
+    x.fillRect(22, 4, 46, 9);
+    x.beginPath();
+    x.moveTo(26, 13); x.lineTo(26, 20);
+    x.quadraticCurveTo(10, 24, 10, 40);
+    x.lineTo(10, 82); x.quadraticCurveTo(10, 92, 20, 92);
+    x.lineTo(70, 92); x.quadraticCurveTo(80, 92, 80, 82);
+    x.lineTo(80, 40); x.quadraticCurveTo(80, 24, 64, 20);
+    x.lineTo(64, 13);
+    x.stroke();
+    // glint
+    x.strokeStyle = 'rgba(20,20,20,0.25)'; x.lineWidth = 1.5;
+    x.beginPath(); x.moveTo(16, 44); x.lineTo(16, 58); x.stroke();
+
+    // Pixel bug, brand blue
+    const bug = [
+      '..X.....X..',
+      '...X...X...',
+      '...XXXXX...',
+      'X.XXXXXXX.X',
+      '.XXXX.XXXX.',
+      'X.XXX.XXX.X',
+      '.XXXX.XXXX.',
+      'X.XXX.XXX.X',
+      '...XXXXX...',
+    ];
+    const s = 3.8, ox = 47 - (11 * s) / 2, oy = 60 - (9 * s) / 2;
+    x.fillStyle = '#1488FC';
+    bug.forEach((row, j) => [...row].forEach((ch, i) => {
+      if (ch === 'X') x.fillRect(ox + i * s, oy + j * s, s - 0.6, s - 0.6);
+    }));
+  }
+</script>
+</body>
+</html>

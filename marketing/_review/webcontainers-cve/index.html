@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>WebContainers CVE Visual</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ground: #f7f7f5;
+    --ink: #141414;
+    --sub: #5c5c5c;
+    --blue: #1488FC;
+    --term: #161618;
+    --line: rgba(20,20,20,0.12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #ddd; }
+  .frame {
+    width: 1024px; height: 410px;
+    background: var(--ground);
+    position: relative; overflow: hidden;
+    display: grid; grid-template-columns: 470px 1fr;
+    font-family: 'Schibsted Grotesk', sans-serif;
+    color: var(--ink);
+  }
+  #dots { position: absolute; inset: 0; z-index: 0; }
+
+  .copy { position: relative; z-index: 1; padding: 0 0 0 68px; display: flex; flex-direction: column; justify-content: center; }
+  .rule { width: 32px; height: 4px; background: var(--blue); margin-bottom: 26px; }
+  .cve {
+    align-self: flex-start;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 500;
+    color: #9b1c1c; background: #fdecec; border: 1px solid #f3c4c4;
+    padding: 5px 9px; border-radius: 4px; margin-bottom: 18px; letter-spacing: 0.2px;
+  }
+  h1 { font-size: 40px; font-weight: 500; line-height: 1.12; letter-spacing: -0.8px; }
+  h1 em { font-style: normal; color: var(--blue); }
+  .sub { margin-top: 16px; font-size: 16px; line-height: 1.45; color: var(--sub); max-width: 360px; }
+
+  .stage { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; padding-right: 56px; }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; }
+
+  .side-label {
+    font-family: 'Schibsted Grotesk', sans-serif; font-size: 11px; font-weight: 700;
+    letter-spacing: 1.6px; text-transform: uppercase; margin: 0 0 10px 2px;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .side-label i { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+  .local .side-label { color: #a32d2d; }
+  .local .side-label i { background: #e24b4a; }
+  .wc .side-label { color: var(--blue); }
+  .wc .side-label i { background: var(--blue); }
+
+  .term {
+    background: var(--term); border-radius: 6px; overflow: hidden;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.7;
+    color: #d6d6d6; height: 236px; display: flex; flex-direction: column;
+  }
+  .wc .term { outline: 1.5px solid var(--blue); outline-offset: 4px; }
+  .bar { height: 26px; display: flex; align-items: center; gap: 6px; padding: 0 11px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+  .bar b { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.18); }
+  .bar span { margin-left: 8px; font-size: 10.5px; color: rgba(255,255,255,0.4); }
+  .body { padding: 12px 14px; flex: 1; }
+  .p { color: rgba(255,255,255,0.4); }
+  .cmd { color: #fff; }
+  .str { color: #9fd3ff; }
+  .key { margin-top: 8px; color: #f09595; }
+  .redact { display: inline-block; height: 9px; background: #f09595; opacity: 0.55; border-radius: 1px; vertical-align: middle; }
+  .err { margin-top: 8px; color: #7cbfff; }
+  .note { margin-top: 10px; color: rgba(255,255,255,0.38); font-size: 11px; }
+  .cursor { display: inline-block; width: 7px; height: 13px; background: var(--blue); vertical-align: -2px; }
+</style>
+</head>
+<body>
+<div class="frame" id="frame">
+  <canvas id="dots"></canvas>
+
+  <div class="copy">
+    <div class="rule"></div>
+    <div class="cve">Node.js · CVE-2026-111497</div>
+    <h1>Same exploit.<br>Different <em>reach.</em></h1>
+    <p class="sub">What untrusted code can touch when Node.js runs inside a browser tab.</p>
+  </div>
+
+  <div class="stage">
+    <div class="pair">
+      <div class="local">
+        <div class="side-label"><i></i>Your machine</div>
+        <div class="term">
+          <div class="bar"><b></b><b></b><b></b><span>node</span></div>
+          <div class="body">
+            <div><span class="p">&gt;</span> <span class="cmd">fs.readFileSync(</span></div>
+            <div>&nbsp;&nbsp;<span class="str">"~/.ssh/id_ed25519"</span><span class="cmd">)</span></div>
+            <div class="key">-----BEGIN OPENSSH</div>
+            <div><span class="redact" style="width:138px"></span></div>
+            <div><span class="redact" style="width:118px"></span></div>
+            <div><span class="redact" style="width:132px"></span></div>
+            <div><span class="redact" style="width:74px"></span></div>
+          </div>
+        </div>
+      </div>
+      <div class="wc">
+        <div class="side-label"><i></i>WebContainer</div>
+        <div class="term">
+          <div class="bar"><b></b><b></b><b></b><span>node · in browser</span></div>
+          <div class="body">
+            <div><span class="p">&gt;</span> <span class="cmd">fs.readFileSync(</span></div>
+            <div>&nbsp;&nbsp;<span class="str">"~/.ssh/id_ed25519"</span><span class="cmd">)</span></div>
+            <div class="err">Error: ENOENT:<br>no such file or<br>directory</div>
+            <div class="note">// virtual fs: project only</div>
+            <div><span class="p">&gt;</span> <span class="cursor"></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Faint brand dot field, densest behind the WebContainer card, fading left.
+  (function () {
+    const c = document.getElementById('dots');
+    const W = 1024, H = 410, dpr = window.devicePixelRatio || 1;
+    c.width = W * dpr; c.height = H * dpr;
+    c.style.width = W + 'px'; c.style.height = H + 'px';
+    const x = c.getContext('2d'); x.scale(dpr, dpr);
+    const S = 9;
+    for (let px = 4; px < W; px += S) {
+      for (let py = 4; py < H; py += S) {
+        const fade = Math.max(0, (px - 420) / 600);
+        const wave = Math.max(0, Math.sin((px * 0.6 + py) / 46));
+        const a = fade * wave * 0.22;
+        if (a < 0.01) continue;
+        x.fillStyle = `rgba(20,136,252,${a.toFixed(3)})`;
+        x.fillRect(px, py, 2, 2);
+      }
+    }
+  })();
+</script>
+</body>
+</html>

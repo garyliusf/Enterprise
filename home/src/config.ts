@@ -33,7 +33,7 @@ export const hero = {
     { label: 'Online storefront', prompt: 'Build an online store for my ceramics studio that tracks inventory automatically' },
     { label: 'Booking site', prompt: 'My dog walking business needs a booking site that takes customer deposits' },
   ],
-  promptCta: 'Build Now',
+  promptCta: 'Build now',
   /* what to build, under the prompt: bolt.new's intent picker, same ids,
      labels and instructions as the app (packages/bolt/app/components/chat/
      intents.ts); App second here (Gary, 2026-10-26). A tile selects one
