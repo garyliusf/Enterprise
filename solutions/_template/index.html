@@ -5339,12 +5339,13 @@ window.addEventListener('load', function () {
     var ctx = canvas.getContext('2d'); if (!ctx) return;
     var CELL = 5, SQ = 2, FADE = 1.6, STRENGTH = 0.6, BAYER = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]];
     var cols = 0, rows = 0, start = 0, raf = 0, vis = false, reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    function init() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; cols = Math.ceil(canvas.width / CELL) + 1; rows = Math.ceil(canvas.height / CELL) + 1; }
+    var rowsVis = 0, MASK_FLOOR = 520; /* the CSS mask is fully transparent over the zone's bottom 520px — no point drawing there (Greptile) */
+    function init() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; cols = Math.ceil(canvas.width / CELL) + 1; rows = Math.ceil(canvas.height / CELL) + 1; rowsVis = Math.min(rows, Math.ceil(Math.max(0, canvas.height - MASK_FLOOR) / CELL) + 1); }
     function draw(ts) {
       raf = 0; if (!start) start = ts;
       var t = reduce ? 0 : (ts - start) / 1000, W = canvas.width, H = canvas.height; if (!W || !H) init();
       ctx.clearRect(0, 0, W, H);
-      for (var r = 0; r < rows; r++) { var gy = r / rows, base = 1 - gy / FADE; if (base <= 0) continue; base = Math.pow(base, 0.75) * STRENGTH;
+      for (var r = 0; r < rowsVis; r++) { var gy = r / rows, base = 1 - gy / FADE; /* gy keeps the full-height coordinates so the pattern is unchanged */ if (base <= 0) continue; base = Math.pow(base, 0.75) * STRENGTH;
         for (var c = 0; c < cols; c++) { var gx = c / cols; var wave = Math.sin(gx * 4.1 + gy * 6.3 - t * 0.95) * 0.5 + Math.sin(gx * 7.7 - gy * 3.1 + t * 0.62) * 0.28;
           if (base + wave * 0.38 <= (BAYER[r & 3][c & 3] + 0.5) / 16) continue;
           ctx.fillStyle = 'rgba(255,255,255,' + Math.min(0.5, 0.085 + base * 0.13).toFixed(3) + ')'; ctx.fillRect(c * CELL, r * CELL, SQ, SQ); } }
