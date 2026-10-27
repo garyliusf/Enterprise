@@ -468,7 +468,7 @@ export function UseCases() {
         <SectionHeader center eyebrow={useCases.eyebrow} title={useCases.title} subtitle={useCases.subtitle} />
         <div className="hm-uc-grid">
           {useCases.items.map((u, i) => (
-            <a key={u.title} className={`hm-uc-card${i === 0 ? ' hm-uc-card--feature' : ''}`} href={useCases.more.href} style={{ '--i': i } as React.CSSProperties}>
+            <a key={u.title} className={`hm-uc-card${i === 0 ? ' hm-uc-card--feature' : ''}`} href={u.href ?? useCases.more.href} style={{ '--i': i } as React.CSSProperties}>
               <img className="hm-uc-img" src={u.photo} alt={`${u.tag}: ${u.title}`} loading="lazy" decoding="async" style={{ objectPosition: u.focus }} />
               <span className="hm-uc-scrim" aria-hidden="true" />
               {/* the Founders Week cards' hover: the rotating pixel field, fading in over the photo */}
