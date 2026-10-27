@@ -63,14 +63,13 @@ export const stories = {
   title: 'Real businesses, built with Bolt',
   subtitle: 'Testimonies from first-time builders who launched their businesses using Bolt.',
   items: [
-    /* PLACEHOLDER quotes until real customer stories land — the first is the
-       mockup's; the rest are written to the same pattern so the rail has
-       enough voices to drift. Replace all five. */
-    { quote: 'I quoted three agencies before I found Bolt. I built the whole booking system myself in a weekend, for less than one agency’s deposit.', name: 'Maria R.', role: 'Owner, Verde Landscaping' },
-    { quote: 'Our clients used to email for updates. Now they log in to a portal I built in an afternoon, and the emails stopped.', name: 'Daniel K.', role: 'Founder, Northline Studio' },
-    { quote: 'I had never built anything before. The first version of our store took a weekend, and it’s what we run on today.', name: 'Priya S.', role: 'Co-owner, Kiln & Clay' },
-    { quote: 'Reservations, deposits, reminders. All of it on our own domain, and nobody takes a cut of the table.', name: 'Tomás A.', role: 'Owner, Café Lumen' },
-    { quote: 'The site takes the call for me now. Customers pick a time, pay the deposit, and I just show up.', name: 'Jordan W.', role: 'Plumber, Flow State' },
+    /* real quotes, verbatim (filler trimmed), from the Notion Customer Interview Transcripts — all consent "Full", First L. naming per the guidelines (2026-10-27) */
+    { quote: 'I have no idea how to code, so this would’ve been impossible to build on my own without Bolt. I’m a writer and filmmaker, not a developer.', name: 'Angela H.', role: 'Founder, Honeyblocks' },
+    { quote: 'The aha moment came when I was able to describe a feature in plain English and see Bolt generate a working implementation in minutes.', name: 'Jai S.', role: 'Founder, Ginger Pulse' },
+    { quote: 'Bolt transformed an idea that could have remained a document into a functioning healthcare platform used by real people.', name: 'Martin F.', role: 'Founder, NetDoctor' },
+    { quote: 'I would have to have hired software engineers and developers and a whole team of people before I could try anything like this. And I’m currently doing it on my own.', name: 'Charles R.', role: 'Founder, EightCountyDigital' },
+    { quote: 'Everything has been done by Bolt, just telling it, “Do this, do that,” and it’s magically just done for me.', name: 'Per N.', role: 'Founder, Westcoast Whisky Association' },
+    { quote: 'We are shipping EDI software for transportation companies. We have almost 10 carriers using our software and paying us a subscription fee.', name: 'Paul L.', role: 'Founder, TradeWeave' },
   ],
 };
 
