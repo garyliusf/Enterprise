@@ -512,6 +512,8 @@ export function Stories() {
           <div className="hm-rail-track">
             {loop.map((s, i) => (
               <figure key={i} className="hm-rail-card" aria-hidden={i >= stories.items.length ? true : undefined}>
+                {/* the unlock cards' hover dot field, waking under the cursor (Gary, 2026-10-27) */}
+                <HoverField index={i} />
                 <blockquote className="hm-rail-quote fw-serif">“{s.quote}”</blockquote>
                 <figcaption className="hm-rail-who">
                   {/* the company mark, or initials where there is none (the CMS
