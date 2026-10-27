@@ -26,7 +26,6 @@ export const showcase: { rowA: ShowcaseCard[]; rowB: ShowcaseCard[] } = {
     { shot: asset('/templates/plumbing.webp'), prompt: 'A plumbing company site with online booking and recent jobs', url: fork('sb1-v6i8qmpp'), preview: 'https://template-plumbing.bolt.host', name: 'Plumbing', tag: 'Trades' },
     { shot: asset('/templates/catalog/ledger-finance.webp'), prompt: 'A budgeting app with cash-flow charts for my freelance income', url: fork('github-7mpvjfb3'), preview: 'https://template-ledger-finance.bolt.host', name: 'Finance Tracker', tag: 'Apps' },
     { shot: asset('/templates/rootline.webp'), prompt: 'An editorial site for my landscape design studio', url: fork('sb1-nkwmdgm3'), preview: 'https://template-landscaping.bolt.host', name: 'Landscape Studio', tag: 'Trades' },
-    { shot: asset('/templates/construction.webp'), prompt: 'A construction company site with projects and a quote form', url: fork('sb1-34h1wpsy'), preview: 'https://template-construction.bolt.host', name: 'Construction', tag: 'Trades' },
   ],
 };
 
