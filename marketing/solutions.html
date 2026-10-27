@@ -812,7 +812,9 @@ body { background: var(--sc-ground); color: var(--sc-ink); font-family: var(--sc
      so the rail still reads as running off-screen. `clip` (not `hidden`) keeps
      this from becoming a scroll container; body's own overflow-x: clip does NOT
      propagate to the viewport in Chrome, which is why this has to be fixed here. */
-  .tmpl-section { width: 100%; background: var(--sc-band); position: relative; overflow-x: clip; }
+  .tmpl-section { width: 100%; background: var(--sc-band); position: relative; overflow-x: clip; --rail-w: min(1200px, calc(100vw - 160px)); /* = .section-inner per breakpoint; the left bleed below reads it */ }
+  @media (max-width: 1024px) { .tmpl-section { --rail-w: min(900px, calc(100vw - 80px)); } }
+  @media (max-width: 768px) { .tmpl-section { --rail-w: calc(100vw - 32px); } }
   .section-cta { margin-top: 46px; display: flex; justify-content: center; }
 
   /* Rail bleeds past the container's right edge to the viewport, so the row
@@ -908,6 +910,22 @@ body { background: var(--sc-ground); color: var(--sc-ink); font-family: var(--sc
     opacity: 1; transition: opacity 0.25s ease;
   }
   .tmpl-rail.at-end::after { opacity: 0; }
+/* Full bleed, like the home page's rail (Gary, 2026-10-27): the track also
+   bleeds LEFT by the gutter and opens scrolled by it, so the row runs edge to
+   edge instead of starting on the content line; a left fade appears once
+   scrolled (JS adds .is-scrolled); no snapping, the snap points can't reach
+   the gutter so a drag toward the start snapped back. */
+  .tmpl-track { margin-left: calc((var(--rail-w) - 100vw) / 2); padding-left: calc((100vw - var(--rail-w)) / 2); scroll-padding-left: 0; scroll-snap-type: none; }
+  .tmpl-card { scroll-snap-align: none; }
+  .tmpl-rail::before {
+  content: ""; position: absolute; top: 0; left: 0; bottom: 0; z-index: 2;
+  width: clamp(120px, 14vw, 200px); pointer-events: none;
+  margin-left: calc((var(--rail-w) - 100vw) / 2);
+  background: linear-gradient(to left, rgba(var(--sc-band-rgb),0) 0%, rgba(var(--sc-band-rgb),0.18) 28%, rgba(var(--sc-band-rgb),0.62) 60%, rgba(var(--sc-band-rgb),0.96) 90%, var(--sc-band) 100%);
+  opacity: 0; transition: opacity 0.25s ease;
+}
+  .tmpl-rail.is-scrolled::before { opacity: 1; }
+@media (max-width: 768px) {   .tmpl-rail::before { width: 28px; opacity: 0.7 !important; } } /* the full fade read as a dark band on phones (home) */
 
 
   /* ─── SECTION 6: TRUST BAND ───────────────────────────────────────────── */
@@ -2374,9 +2392,12 @@ window.addEventListener('load', function() {
   function update() {
     var atEnd = track.scrollLeft + track.clientWidth >= track.scrollWidth - 4;
     rail.classList.toggle('at-end', atEnd);
+    rail.classList.toggle('is-scrolled', track.scrollLeft > 4);
   }
   track.addEventListener('scroll', update, { passive: true });
   window.addEventListener('resize', update);
+  // open already full width (home rail): start scrolled by the left gutter
+  track.scrollLeft = parseFloat(getComputedStyle(track).paddingLeft) || 0;
   update();
 
   // Click-and-drag panning. Touch is left to the browser's own momentum
