@@ -45,7 +45,7 @@ export const stats = [
 export const useCases = {
   eyebrow: 'Build anything',
   title: 'Build what you have in mind',
-  subtitle: 'Make every feature fit your needs.',
+  subtitle: 'Whether you’re building a customer-facing app or an internal tool for your team, Bolt allows you to customize every feature to fit your needs.',
   more: { label: 'See All Use Cases', href: 'https://bolt.new/use-cases' },
   items: [
     { tag: 'Landscaping', title: 'Take quote requests with photos', body: 'Customers snap a photo of their yard and get a quote back the same day.', photo: asset('/people/founder-greenhouse.webp'), focus: '38% 30%', href: 'https://bolt.new/use-cases/contractor-invoice-app-builder' },
