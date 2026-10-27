@@ -2068,7 +2068,7 @@ html[data-theme="dark"] .hm-closing-video { filter: blur(10px) brightness(0.72) 
 .hm-closing-zone::before { content: none; }
 .hm-closing-dither { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; pointer-events: none; }
 .hm-closing-video, .hm-closing-dither { -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 calc(100% - 860px), rgba(0,0,0,0.86) calc(100% - 790px), rgba(0,0,0,0.62) calc(100% - 720px), rgba(0,0,0,0.36) calc(100% - 650px), rgba(0,0,0,0.14) calc(100% - 585px), transparent calc(100% - 520px)); mask-image: linear-gradient(180deg, #000 0%, #000 calc(100% - 860px), rgba(0,0,0,0.86) calc(100% - 790px), rgba(0,0,0,0.62) calc(100% - 720px), rgba(0,0,0,0.36) calc(100% - 650px), rgba(0,0,0,0.14) calc(100% - 585px), transparent calc(100% - 520px)); }
-.hm-closing-zone ~ .site-footer, .site-footer.site-footer--dark { position: relative; z-index: 3; margin-top: -670px; background: transparent !important; border-top: 0; } /* home pulls the columns 670px up: into the dissolve, not onto dead floor */
+.hm-closing-zone ~ .site-footer, .site-footer.site-footer--dark { position: relative; z-index: 3; margin-top: -670px; border-top: 0; background: linear-gradient(to bottom, transparent 0, transparent 150px, #000 150px) !important; } /* home pulls the columns 670px up: into the dissolve, not onto dead floor. See-through only across the dissolve's tail (its top 150px); below that the footer paints its own black, so a tall stacked footer (phones) never runs past the band onto the page ground (Greptile) */
 .hm-closing-zone .hm-closing { padding-bottom: calc(clamp(80px, 12vh, 140px) + clamp(70px, 9vh, 110px)); } /* the CTA keeps clear of the pulled-up columns (home, variant E) */
 @media (max-width: 1024px) { .hm-closing-zone .hm-closing { padding-bottom: calc(64px + clamp(70px, 9vh, 110px)); } }
 @media (max-width: 768px) { .hm-closing-zone .hm-closing { padding-bottom: calc(56px + 70px); } .hm-closing-zone ~ .site-footer, .site-footer.site-footer--dark { margin-top: -610px; } } /* phones: the taller stack left 16px between the pills and the columns at -670 */
@@ -4266,7 +4266,7 @@ window.addEventListener('load', function () {
     function setW() { var cards = track.querySelectorAll('.hm-rail-card'); return ONE >= 1 && cards.length > ONE ? cards[ONE].offsetLeft - cards[0].offsetLeft : 0; }
     function fill() { /* a wide window can show more than one set: clone sets until the track holds the window plus two sets, or the wrap thresholds would sit past the scroll range and the rail would stall at the end */
       var inner = track.firstElementChild, w = setW(); if (!inner || !w) return;
-      var guard = 0; while (track.scrollWidth < track.clientWidth + 2 * w && guard++ < 12) { var cards = inner.querySelectorAll('.hm-rail-card'); for (var i = 0; i < ONE; i++) { var c = cards[i].cloneNode(true); c.setAttribute('aria-hidden', 'true'); var hc = c.querySelector('.hm-rail-hover'); if (hc) hc.remove(); inner.appendChild(c); } }
+      var guard = 0; while (track.scrollWidth < track.clientWidth + 2 * w && guard++ < 12) { var cards = inner.querySelectorAll('.hm-rail-card'); for (var i = 0; i < ONE; i++) { var c = cards[i].cloneNode(true); c.setAttribute('aria-hidden', 'true'); var hc = c.querySelector('.hm-rail-hover'); if (hc) hc.remove(); inner.appendChild(c); if (!reduce && typeof attachHover === 'function') attachHover(c); } }
     }
     var down = false, startX = 0, startLeft = 0, moved = 0, captured = false, lastX = 0, lastT = 0, vel = 0, momentum = null;
     var pos = 0, hovered = false, touching = false, visible = false, last = 0, ours = false, base = 0;
@@ -4329,7 +4329,9 @@ window.addEventListener('load', function () {
     }
 
     /* each card: the unlock cards' hover dot field, waking under the cursor */
-    if (!reduce) track.querySelectorAll('.hm-rail-card').forEach(function (card, i) { /* no hover dot field under reduced motion */
+    var hoverSeq = 0;
+    function attachHover(card) { /* the unlock cards' hover dot field, waking under the cursor */
+      var i = hoverSeq++;
       var cv = document.createElement('canvas'); cv.className = 'hm-rail-hover'; cv.setAttribute('aria-hidden', 'true'); card.insertBefore(cv, card.firstChild);
       var ctx = cv.getContext('2d'), S = 9, DOT = 2, cols = 0, rows = 0, phs = [], on = false, t = 0, phase = i * 1.7;
       function rs() { var w = card.offsetWidth, h = card.offsetHeight; if (!w || !h) return; cv.width = w; cv.height = h; cols = Math.ceil(w / S) + 1; rows = Math.ceil(h / S) + 1; phs = Array.from({ length: rows }, function () { return Array.from({ length: cols }, function () { return Math.random() * Math.PI * 2; }); }); }
@@ -4349,7 +4351,8 @@ window.addEventListener('load', function () {
           ctx.fillStyle = 'rgba(60,140,235,' + op.toFixed(3) + ')'; ctx.fillRect(px, py, DOT, DOT);
         }
       }
-    });
+    }
+    if (!reduce) track.querySelectorAll('.hm-rail-card').forEach(attachHover); /* no hover dot field under reduced motion */
   });
 
   /* ── Closing band video: load + play only near / on screen ── */
