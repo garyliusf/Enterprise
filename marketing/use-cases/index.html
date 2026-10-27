@@ -820,6 +820,20 @@ html[data-theme="dark"] .hm-closing-video { filter: blur(10px) brightness(0.72) 
 .site-footer-links a:hover { color: #fff !important; }
 .site-footer-social a { background: rgba(255, 255, 255, 0.08) !important; color: rgba(255, 255, 255, 0.85) !important; }
 .footer-image-section .bolt-shimmer, .footer-section--wordmark .bolt-shimmer { mix-blend-mode: screen !important; }
+
+/* ── the home page's footer blend (Gary, 2026-10-27: "they all be all the same"):
+   the zone is black with a 560px floor, the video + the Bayer dither dissolve
+   into it through one long eased mask (no line anywhere), and the site footer
+   is pulled up onto that floor — see-through, so the band's fade shows behind
+   the columns. Synced with home/src/styles/page.css (variant E). ── */
+.hm-closing-zone { background: #000; padding-bottom: 560px; }
+.hm-closing-zone::before { content: none; }
+.hm-closing-dither { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; pointer-events: none; }
+.hm-closing-video, .hm-closing-dither { -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 calc(100% - 860px), rgba(0,0,0,0.86) calc(100% - 790px), rgba(0,0,0,0.62) calc(100% - 720px), rgba(0,0,0,0.36) calc(100% - 650px), rgba(0,0,0,0.14) calc(100% - 585px), transparent calc(100% - 520px)); mask-image: linear-gradient(180deg, #000 0%, #000 calc(100% - 860px), rgba(0,0,0,0.86) calc(100% - 790px), rgba(0,0,0,0.62) calc(100% - 720px), rgba(0,0,0,0.36) calc(100% - 650px), rgba(0,0,0,0.14) calc(100% - 585px), transparent calc(100% - 520px)); }
+.hm-closing-zone ~ .site-footer, .site-footer.site-footer--dark { position: relative; z-index: 3; margin-top: clamp(-170px, -16vh, -110px); background: transparent !important; border-top: 0; }
+.hm-closing-zone ~ .site-footer .site-footer-label, .site-footer.site-footer--dark .site-footer-label { color: rgba(255, 255, 255, 0.55) !important; }
+.hm-closing-zone ~ .site-footer .site-footer-links a, .site-footer.site-footer--dark .site-footer-links a { color: rgba(255, 255, 255, 0.82) !important; }
+.hm-closing-zone ~ .site-footer .site-footer-links a:hover, .site-footer.site-footer--dark .site-footer-links a:hover { color: #fff !important; }
 </style>
 </head>
 <body>
@@ -1103,6 +1117,7 @@ html[data-theme="dark"] .hm-closing-video { filter: blur(10px) brightness(0.72) 
 <div class="hm-closing-zone" id="start-building">
   <video class="hm-closing-video" muted loop playsinline preload="none" poster="../../images/home-kit/footer-poster.jpg" aria-hidden="true"><source src="../../images/home-kit/footer.webm" type="video/webm"><source src="../../images/home-kit/footer.mp4" type="video/mp4"></video>
   <span class="hm-closing-grain" aria-hidden="true"></span>
+  <canvas class="hm-closing-dither" aria-hidden="true"></canvas>
   <section class="hm-closing">
     <p class="footer-eyebrow eyebrow-scramble">Start building</p>
     <div class="dsa-reveal"><h2 class="footer-headline">Don't see your use case? Build it.</h2></div>
@@ -2090,6 +2105,29 @@ window.addEventListener('load', function () {
       if (es[0].isIntersecting) { if (v.preload === 'none') { v.preload = 'auto'; v.load(); } v.play().catch(function () {}); }
       else v.pause();
     }, { rootMargin: '300px 0px' }).observe(v);
+  });
+
+  /* ── Closing band: the family's ordered Bayer dither over the video (home's BayerDither, fade 1.6 / strength 0.6) ── */
+  document.querySelectorAll('.hm-closing-dither').forEach(function (canvas) {
+    if (canvas.__hmWired) return; canvas.__hmWired = true;
+    var ctx = canvas.getContext('2d'); if (!ctx) return;
+    var CELL = 5, SQ = 2, FADE = 1.6, STRENGTH = 0.6, BAYER = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]];
+    var cols = 0, rows = 0, start = 0, raf = 0, vis = false, reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function init() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; cols = Math.ceil(canvas.width / CELL) + 1; rows = Math.ceil(canvas.height / CELL) + 1; }
+    function draw(ts) {
+      raf = 0; if (!start) start = ts;
+      var t = reduce ? 0 : (ts - start) / 1000, W = canvas.width, H = canvas.height; if (!W || !H) init();
+      ctx.clearRect(0, 0, W, H);
+      for (var r = 0; r < rows; r++) { var gy = r / rows, base = 1 - gy / FADE; if (base <= 0) continue; base = Math.pow(base, 0.75) * STRENGTH;
+        for (var c = 0; c < cols; c++) { var gx = c / cols; var wave = Math.sin(gx * 4.1 + gy * 6.3 - t * 0.95) * 0.5 + Math.sin(gx * 7.7 - gy * 3.1 + t * 0.62) * 0.28;
+          if (base + wave * 0.38 <= (BAYER[r & 3][c & 3] + 0.5) / 16) continue;
+          ctx.fillStyle = 'rgba(255,255,255,' + Math.min(0.5, 0.085 + base * 0.13).toFixed(3) + ')'; ctx.fillRect(c * CELL, r * CELL, SQ, SQ); } }
+      if (vis && !reduce) raf = requestAnimationFrame(draw);
+    }
+    init();
+    new IntersectionObserver(function (es) { vis = es[0].isIntersecting; if (vis && !raf) raf = requestAnimationFrame(draw); }).observe(canvas);
+    window.addEventListener('resize', function () { init(); if (!raf) raf = requestAnimationFrame(draw); });
+    raf = requestAnimationFrame(draw);
   });
 })();
 </script>
