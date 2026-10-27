@@ -686,8 +686,9 @@ function useScrollRail({ scroller, card, copies = 2, speed = 0.03 }: { scroller:
     const wrapPos = () => {
       const w = setW();
       if (!w) return;
-      if (track.scrollLeft >= base + w) { ours = true; track.scrollLeft -= w; }
-      else if (track.scrollLeft < base - 1) { ours = true; track.scrollLeft += w; }
+      /* the drift position + drag anchor move with the jump, or the next frame undoes it and the loop stalls after two copies */
+      if (track.scrollLeft >= base + w) { ours = true; track.scrollLeft -= w; pos -= w; startLeft -= w; }
+      else if (track.scrollLeft < base - 1) { ours = true; track.scrollLeft += w; pos += w; startLeft += w; }
     };
     const onScrollSync = () => { if (ours) { ours = false; } else { pos = track.scrollLeft; } wrapPos(); };
     track.addEventListener('scroll', onScrollSync, { passive: true });
