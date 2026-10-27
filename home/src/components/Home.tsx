@@ -514,8 +514,15 @@ export function Stories() {
               <figure key={i} className="hm-rail-card" aria-hidden={i >= stories.items.length ? true : undefined}>
                 <blockquote className="hm-rail-quote fw-serif">“{s.quote}”</blockquote>
                 <figcaption className="hm-rail-who">
-                  <span className="hm-rail-name">{s.name}</span>
-                  <span className="hm-rail-role">{s.role}</span>
+                  {/* the company mark, or initials where there is none (the CMS
+                      testimonial avatar pattern) */}
+                  {s.logo
+                    ? <span className={`hm-rail-logo${s.plate ? ' hm-rail-logo--plate' : ''}`}><img src={s.logo} alt="" width={40} height={40} loading="lazy" decoding="async" /></span>
+                    : <span className="hm-rail-logo hm-rail-logo--initials" aria-hidden="true">{s.role.split(', ').pop()!.charAt(0)}</span>}
+                  <span className="hm-rail-who-text">
+                    <span className="hm-rail-name">{s.name}</span>
+                    <span className="hm-rail-role">{s.role}</span>
+                  </span>
                 </figcaption>
               </figure>
             ))}
