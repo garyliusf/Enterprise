@@ -6,53 +6,52 @@
       icon: 'web_asset',
       label: 'Bolt Email Footer',
       content: '<bolt-email-footer></bolt-email-footer>',
-      description: 'Standard Bolt.new email footer with bolt.new logo, social icons (X, LinkedIn, Instagram), address, and unsubscribe link.'
+      description: 'Standard Bolt.new email footer: black band with the grey bolt.new wordmark, grey social icons (X, LinkedIn, Instagram), the StackBlitz address and the unsubscribe link. Same design as the CX weekly footer (standardized 2026-10-28).'
     }]
   };
 
+  // Icon props are kept so emails that override them keep validating; the defaults
+  // are the grey set that matches the wordmark. The Instagram one is hosted on the
+  // HubSpot CDN for now — re-host in Customer.io Assets when convenient.
   export const props = Component.defineProps({
     twitterIcon: {
       label: 'X (Twitter) Icon',
       section: 'Social Icons',
-      schema: Component.props.string().optional().default('https://userimg-assets.customeriomail.com/images/client-env-224051/01M4Y84EJHHPRCBJTNJYNWCG6D.png'),
+      schema: Component.props.string().optional().default('https://userimg-assets.customeriomail.com/images/client-env-224051/01M0V1C801MFSMJNWQ7A9GVXFM.png'),
       type: 'media',
     },
     linkedinIcon: {
       label: 'LinkedIn Icon',
       section: 'Social Icons',
-      schema: Component.props.string().optional().default('https://userimg-assets.customeriomail.com/images/client-env-224051/01M4Y84EP11P231VVZ2HJ2HMRQ.png'),
+      schema: Component.props.string().optional().default('https://userimg-assets.customeriomail.com/images/client-env-224051/01M0V1C8J3NTCFD4NV89K4SBJ2.png'),
       type: 'media',
     },
     instagramIcon: {
       label: 'Instagram Icon',
       section: 'Social Icons',
-      schema: Component.props.string().optional().default('https://userimg-assets.customeriomail.com/images/client-env-224051/01M4Y84ESFE190BB9WH55KB2TF.png'),
+      schema: Component.props.string().optional().default('https://45403856.fs1.hubspotusercontent-na1.net/hubfs/45403856/email/cx-weekly/social-instagram.png'),
       type: 'media',
     },
   });
 </script>
 
 <template>
-  <div #root style="background-color: #f3f4f6; padding: 32px 24px; text-align: center; font-family: Helvetica, Arial, sans-serif;">
-    <div style="margin-bottom: 16px; line-height: 0;">
-      <img src="https://userimg-assets.customeriomail.com/images/client-env-224051/01M0V1C7ZQGCC0PS8WFGWQRCR7.png" width="88" alt="bolt.new" style="width: 88px; height: auto; display: inline-block; border: 0;" />
-    </div>
-    <div style="margin-bottom: 20px;">
-      <a href="https://x.com/boltdotnew" target="_blank" style="text-decoration: none; display: inline-block; margin: 0 6px; border: 0;">
-        <img :src="props.twitterIcon" alt="X (Twitter)" width="24" height="24" style="width: 24px; height: 24px; display: inline-block; border: 0;" />
-      </a>
-      <a href="https://www.linkedin.com/company/boltdotnew/" target="_blank" style="text-decoration: none; display: inline-block; margin: 0 6px; border: 0;">
-        <img :src="props.linkedinIcon" alt="LinkedIn" width="24" height="24" style="width: 24px; height: 24px; display: inline-block; border: 0;" />
-      </a>
-      <a href="https://www.instagram.com/boltdotnew/" target="_blank" style="text-decoration: none; display: inline-block; margin: 0 6px; border: 0;">
-        <img :src="props.instagramIcon" alt="Instagram" width="24" height="24" style="width: 24px; height: 24px; display: inline-block; border: 0;" />
-      </a>
-    </div>
-    <div style="font-size: 11px; color: #9ca3af; line-height: 1.7; margin-bottom: 12px;">
-      StackBlitz, Inc. 2443 Fillmore Street #380-16814 San Francisco, CA, 94115, United States
-    </div>
-    <div style="font-size: 11px;">
-      <a href="{% unsubscribe_url %}" style="color: #2ba6ff; text-decoration: underline;">Click here to unsubscribe.</a>
-    </div>
-  </div>
+  <!-- Table root, not a div: a div root leaks its children's margins into the page
+       background (see the CX weekly README). Black band like the CX weekly footer; no
+       font-family so it inherits the email's global font. -->
+  <table #root role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:separate;width:100%;">
+    <tr><td style="background:#000000;padding:8px 36px 8px;"><div style="font-size:0;line-height:0;">&nbsp;</div></td></tr>
+    <tr><td align="center" style="background:#000000;padding:28px 36px 0;"><img src="https://userimg-assets.customeriomail.com/images/client-env-224051/01M0V1C7ZQGCC0PS8WFGWQRCR7.png" width="88" style="width:88px;display:block;margin:0 auto;" alt="bolt.new" /></td></tr>
+    <tr><td align="center" style="background:#000000;padding:26px 36px 0;">
+      <a href="https://x.com/boltdotnew" style="text-decoration:none;display:inline-block;margin:0 10px;"><img :src="props.twitterIcon" width="16" height="16" alt="X" style="width:16px;height:16px;display:inline-block;" /></a>
+      <a href="https://www.linkedin.com/company/boltdotnew/" style="text-decoration:none;display:inline-block;margin:0 10px;"><img :src="props.linkedinIcon" width="16" height="16" alt="LinkedIn" style="width:16px;height:16px;display:inline-block;" /></a>
+      <a href="https://www.instagram.com/boltdotnew/" style="text-decoration:none;display:inline-block;margin:0 10px;"><img :src="props.instagramIcon" width="16" height="16" alt="Instagram" style="width:16px;height:16px;display:inline-block;" /></a>
+    </td></tr>
+    <tr><td align="center" style="background:#000000;padding:26px 36px 44px;font-size:12px;line-height:1.8;color:#8a8f96;">
+      StackBlitz, Inc.<br />
+      2443 Fillmore Street #380-16814<br />
+      San Francisco, CA 94115, United States<br />
+      <a href="{% unsubscribe_url %}" style="color:#8a8f96;">Click here to unsubscribe.</a>
+    </td></tr>
+  </table>
 </template>
