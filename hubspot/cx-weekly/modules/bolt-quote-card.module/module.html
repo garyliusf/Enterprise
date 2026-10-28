@@ -1,0 +1,49 @@
+{# Bolt — Quote card. Black customer-quote card: blue opening quote mark, the quote,
+   then a round avatar + name + role. Built 2026-10-28 for the E1 Bolt Welcome patch
+   (replaces the two baked quote-card images). Self-contained 600px table.
+   GMAIL iOS DARK (same defences as bolt-hero): live text sits inside a plain-black td
+   + a background:#000 / mix-blend-mode:difference div, so it stays light-on-black
+   whether the client inverts both layers (Gmail), neither (Apple Mail) or ignores
+   blend modes (Outlook). The avatar IMAGE sits in its own td with a gradient-black
+   background (never inverted, never inside the blend layer). The blue quote mark
+   survives inversion too: difference(inverted blue over white) = blue again. #}
+{% require_css %}
+<style>
+  @media only screen and (max-width: 600px) {
+    .qc-wrap { padding-left: 16px !important; padding-right: 16px !important; }
+    .qc-top { padding: 22px 22px 0 !important; }
+    .qc-quote { font-size: 19px !important; }
+    .qc-who { padding: 16px 22px 24px !important; }
+    .qc-name { padding-left: 14px !important; }
+  }
+</style>
+{% end_require_css %}
+<table role="presentation" class="wrap" width="100%" align="center" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;margin:0 auto;">
+<tr><td bgcolor="#fffffe" class="qc-wrap k-light" style="background:#fffffe;padding:8px 36px 8px;font-family:'Schibsted Grotesk',Arial,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:separate;">
+    {# Quote mark + quote: blend layer carries the padding #}
+    <tr><td class="k-dark" bgcolor="#000000" style="background-color:#000000;border-radius:12px 12px 0 0;padding:0;">
+      <div class="qc-top" style="background-color:#000000;mix-blend-mode:difference;border-radius:12px 12px 0 0;padding:26px 28px 0;">
+        <div style="font-family:Georgia,'Times New Roman',serif;font-size:64px;line-height:0.55;height:34px;color:#1488FC;">&ldquo;</div>
+        <div class="qc-quote" style="font-family:'Schibsted Grotesk',Arial,sans-serif;font-size:21px;font-weight:500;line-height:1.4;color:#FFFFFF;letter-spacing:0.1px;">{{ module.quote }}</div>
+      </div>
+    </td></tr>
+    {# Avatar (image cell, gradient black) + name/role (blend layer) #}
+    <tr><td class="k-dark" bgcolor="#000000" style="background-color:#000000;border-radius:0 0 12px 12px;padding:0;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
+        {% if module.avatar.src %}
+        <td width="76" valign="middle" class="qc-who" style="background-color:#000000;background-image:linear-gradient(#000000,#000000);padding:20px 0 26px 28px;width:76px;border-radius:0 0 0 12px;">
+          <img src="{{ module.avatar.src }}" width="48" height="48" alt="{{ module.avatar.alt }}" style="display:block;width:48px;height:48px;border-radius:999px;border:0;">
+        </td>
+        {% endif %}
+        <td valign="middle" style="background-color:#000000;padding:0;border-radius:0 0 12px 0;">
+          <div class="qc-name" style="background-color:#000000;mix-blend-mode:difference;padding:20px 28px 26px {% if module.avatar.src %}14px{% else %}28px{% endif %};font-family:'Schibsted Grotesk',Arial,sans-serif;">
+            <div style="font-size:15px;font-weight:700;line-height:1.3;color:#FFFFFF;">{{ module.author_name }}</div>
+            {% if module.role %}<div style="font-size:14px;line-height:1.3;color:#C9CDD3;margin-top:2px;">{{ module.role }}</div>{% endif %}
+          </div>
+        </td>
+      </tr></table>
+    </td></tr>
+  </table>
+</td></tr>
+</table>
