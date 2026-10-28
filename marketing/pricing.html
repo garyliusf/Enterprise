@@ -481,9 +481,9 @@
          and nothing below — the CTA's own 20px top margin is the gap, same
          as B. */
       margin: 0;
-      /* every note is exactly two lines now (the copy is short enough not to
-         wrap) — Free's single line pads up to it so the CTAs stay level */
-      min-height: 42px;
+      /* no fixed reserve: the equaliser script matches each row's notes to the
+         tallest, so the CTAs stay level on both terms (Gary, 2026-10-28) */
+      min-height: 0;
     }
     .price-total {
       font-size: 13px;
@@ -3664,6 +3664,7 @@ html .page-header h1 { margin-bottom: 20px; }
       });
       document.querySelectorAll('.billing-toggle, .billing-row').forEach(function (t) { t.setAttribute('data-billing', val); });
       renderPriceNotes(val);
+      if (window.__equaliseLedes) window.__equaliseLedes();
       currentBilling = val;
       positionBillingThumb();
     }
@@ -4569,7 +4570,26 @@ window.__pageOwnsScrollAnims = true;
   (function () {
     var ledes = document.querySelectorAll('.cards .card-lede');
     if (!ledes.length) return;
+    /* price notes first: each row's notes match the tallest one, so on
+       Monthly (one-line notes) the CTA sits right under the note instead of
+       under a two-line reserve, and on Yearly the CTAs still line up
+       (Gary, 2026-10-28 — was a fixed 42px min-height) */
+    function equaliseNotes() {
+      var notes = [].slice.call(document.querySelectorAll('.cards .price-note'));
+      notes.forEach(function (n) { n.style.minHeight = ''; });
+      if (window.matchMedia('(max-width: 640px)').matches) return;
+      var rows = {};
+      notes.forEach(function (n) {
+        var k = Math.round(n.closest('.card').getBoundingClientRect().top);
+        (rows[k] = rows[k] || []).push(n);
+      });
+      Object.keys(rows).forEach(function (k) {
+        var h = Math.max.apply(null, rows[k].map(function (n) { return n.getBoundingClientRect().height; }));
+        rows[k].forEach(function (n) { n.style.minHeight = Math.ceil(h) + 'px'; });
+      });
+    }
     function equalise() {
+      equaliseNotes();
       ledes.forEach(function (l) { l.style.minHeight = ''; });
       if (window.matchMedia('(max-width: 640px)').matches) return;   /* stacked cards size to content */
       var rows = [], target = 0;
@@ -4582,6 +4602,7 @@ window.__pageOwnsScrollAnims = true;
       });
       rows.forEach(function (r) { r.l.style.minHeight = Math.ceil(target - r.pre) + 'px'; });
     }
+    window.__equaliseLedes = equalise;   /* setBilling re-runs it: the notes change height with the term */
     equalise();
     window.addEventListener('resize', equalise);
     window.addEventListener('load', equalise);
