@@ -5296,29 +5296,41 @@ window.__pageOwnsScrollAnims = true;
   </script>
 
   <script>
-    /* Signed-in: equalise the lede band above each card's divider so the
-       dividers + bullet lists line up across the row. Re-runs on resize and
-       once webfonts settle (line wraps change the heights). */
+    /* Signed-in: line up the cards row by row. 1) Every description starts on
+       the same line: the Pro card's token slider pushes its "Everything in
+       Free…" lede furthest down, so the other ledes in the row are padded down
+       to it (Gary, 2026-10-28). 2) The dividers + bullet lists line up: each
+       lede's band is stretched to the lowest divider in the row. Re-runs on
+       resize, once webfonts settle, and after every render (slider moves,
+       workspace switches). */
     (function () {
       var ledes = document.querySelectorAll('.cards .card-lede');
       if (!ledes.length) return;
+      function offsetIn(l) { return l.getBoundingClientRect().top - l.closest('.card').getBoundingClientRect().top; }
       function equalise() {
         var stacked = window.matchMedia('(max-width: 640px)').matches;
-        ledes.forEach(function (l) { l.style.minHeight = ''; });
+        ledes.forEach(function (l) { l.style.minHeight = ''; l.style.paddingTop = ''; });
         if (stacked) return;
-        /* Equalise the DIVIDER's offset from the card top, not just the lede's
-           height: at 2-up the MOST POPULAR chip drops in-flow above Teams'
-           plan name and pushes everything in that card ~35px down, so the
-           lede alone matching still left its divider lower. */
-        var rows = [], target = 0;
-        ledes.forEach(function (l) {
-          var card = l.closest('.card');
-          var pre = l.getBoundingClientRect().top - card.getBoundingClientRect().top;
-          var h = l.getBoundingClientRect().height;
-          rows.push({ l: l, pre: pre, h: h });
-          target = Math.max(target, pre + h);
+        /* group by row (2-up on tablets), skipping the Free card while it's
+           detached for a subscribed workspace */
+        var rows = {};
+        [].forEach.call(ledes, function (l) {
+          if (!l.isConnected) return;
+          var key = Math.round(l.closest('.card').getBoundingClientRect().top);
+          (rows[key] = rows[key] || []).push(l);
         });
-        rows.forEach(function (r) { r.l.style.minHeight = Math.ceil(target - r.pre) + 'px'; });
+        Object.keys(rows).forEach(function (key) {
+          var row = rows[key];
+          var tops = row.map(offsetIn), maxTop = Math.max.apply(null, tops);
+          row.forEach(function (l, i) { if (maxTop - tops[i] > 0.5) l.style.paddingTop = (maxTop - tops[i]) + 'px'; });
+          /* Equalise the DIVIDER's offset from the card top, not just the
+             lede's height: an in-flow MOST POPULAR chip at 2-up pushes its
+             card's content down. border-box, so min-height includes the pad. */
+          var target = 0, pre = row.map(function (l) {
+            var top = offsetIn(l); target = Math.max(target, top + l.getBoundingClientRect().height); return top;
+          });
+          row.forEach(function (l, i) { l.style.minHeight = Math.ceil(target - pre[i]) + 'px'; });
+        });
       }
       window.__equaliseLedes = equalise;
       equalise();
