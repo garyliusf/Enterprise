@@ -6,54 +6,46 @@
       icon: 'image',
       label: 'Bolt Email Header',
       content: '<bolt-email-header></bolt-email-header>',
-      description: 'Standard Bolt.new email header. Style "Blue banner" (default) is the blue gradient image with the bolt.new logo, for emails that start with text. Use "Black bar" (white logo centered on black) when a large image sits right under the header.'
+      description: 'Standard Bolt.new email header: the white bolt.new logo centered on a black bar. One style for every email (the blue banner was retired 2026-10-28).'
     }]
   };
 
   export const props = Component.defineProps({
-    variant: {
-      label: 'Header style',
-      section: 'Content',
-      helpText: 'Blue banner for emails that start with text. Black bar when a large image sits right under the header.',
-      schema: Component.props.enum(['banner', 'black']).optional().default('banner'),
-      type: 'toggle',
-      options: [
-        { label: 'Blue banner', value: 'banner' },
-        { label: 'Black bar', value: 'black' },
-      ],
-    },
-    src: {
-      label: 'Header Image',
-      section: 'Content',
-      schema: Component.props.string().optional().default('https://userimg-assets.customeriomail.com/images/client-env-224051/01M0DX8MWFA5CC8VQPP0C8DA38.png'),
-      type: 'media',
-      hidden: (props) => props.variant === 'black',
-    },
     href: {
       label: 'Link URL',
       section: 'Action',
       schema: Component.props.string().optional().default('https://bolt.new'),
       type: 'url',
     },
+    // Legacy. Older emails still pass variant="black" / src="…"; neither changes the
+    // output any more (the blue banner is gone), they are kept so those emails keep
+    // validating. Hidden from the sidebar.
+    variant: {
+      label: 'Header style (retired)',
+      schema: Component.props.enum(['banner', 'black']).optional().default('black'),
+      type: 'hidden',
+    },
+    src: {
+      label: 'Header image (retired)',
+      schema: Component.props.string().optional().default(''),
+      type: 'hidden',
+    },
   });
 </script>
 
 <template>
+  <!-- Gmail iOS dark inverts plain background colours but never repaints CSS gradients
+       or images: the gradient on the td keeps this bar black, so the plain white logo
+       stays visible (2026-10-28; a baked-halo logo was tried and rejected by Gary). -->
   <div #root style="margin: 0; padding: 0; line-height: 0; font-size: 0;">
-    <table #if="props.variant === 'black'" role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#000000" style="width: 100%; background-color: #000000; border-collapse: collapse;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#000000" style="width: 100%; background-color: #000000; border-collapse: collapse;">
       <tr>
-        <td align="center" bgcolor="#000000" style="background-color: #000000; padding: 24px 24px; line-height: 0; font-size: 0; text-align: center;">
+        <td align="center" bgcolor="#000000" style="background-color: #000000; background-image: linear-gradient(#000000, #000000); padding: 24px 24px; line-height: 0; font-size: 0; text-align: center;">
           <a :href="props.href || 'https://bolt.new'" style="display: inline-block; text-decoration: none; border: none; line-height: 0; font-size: 0;">
-            <!-- HALO logo (2026-10-28): Gmail iOS dark inverts this black bar to white but
-                 never repaints images — the plain white logo vanished. Hosted on the
-                 HubSpot CDN for now; re-host in Customer.io Assets when convenient. -->
-            <img src="https://45403856.fs1.hubspotusercontent-na1.net/hubfs/45403856/email/cx-weekly/bolt-logo-white-halo2.png" alt="bolt.new" width="96" height="27" style="width: 96px; height: auto; display: inline-block; border: 0;" />
+            <img src="https://userimg-assets.customeriomail.com/images/client-env-224051/01M0JYRBDYNR0RJDV1Y0GTMADF.png" alt="bolt.new" width="96" height="27" style="width: 96px; height: auto; display: inline-block; border: 0;" />
           </a>
         </td>
       </tr>
     </table>
-    <a #else :href="props.href || 'https://bolt.new'" style="display: block; text-decoration: none; border: none; line-height: 0; font-size: 0;">
-      <img :src="props.src" alt="bolt.new" width="600" style="width: 100%; max-width: 600px; height: auto; display: block; border: 0;" />
-    </a>
   </div>
 </template>
