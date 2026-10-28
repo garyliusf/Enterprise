@@ -3,33 +3,55 @@
    so bare <tr> rows can't splice into a template table). #}
 {# The template sets hero_bg_url / wordmark_white_url; the fallbacks keep the
    module whole on its own (Design Manager preview, other templates). #}
-{# STRUCTURE RULE (2026-10-28, Gary's Gmail-iOS find): live text NEVER sits on an
-   image. Gmail iOS dark fully inverts text and background COLORS but never
-   repaints images — text over art goes dark-on-dark. So the copy lives on a
-   solid declared-black td (inverts as a pair -> stays legible) and the dome art
-   is its own row below; the art's near-black crown meets the black block
-   seamlessly, so the composition reads the same as before. #}
+{# GMAIL iOS DARK MODE (2026-10-28, Gary). Gmail's iOS app inverts every text and
+   background COLOUR (black -> white, white -> near-black) and never repaints
+   images or CSS gradients. Three rows, three defences, so the hero stays black
+   with white copy there too:
+     1. Wordmark row + button row: background-image:linear-gradient(#000,#000).
+        Gmail leaves gradients alone, so the row stays black under the white
+        wordmark image. (Button label still inverts to dark-on-blue: accepted.)
+     2. Headline + subline: a plain-black td (Gmail inverts it to white) holding a
+        div with background:#000 + mix-blend-mode:difference. difference(X over X)
+        is black and difference(~X over X) is white for any X, so in a client that
+        inverts both layers the result is still black with light text; in a client
+        that inverts nothing it is the identity; in a client that ignores blend
+        modes it is plain black + white text. Images/the blue button must NOT sit
+        inside this layer (they are not inverted, so they'd flip the wrong way).
+     3. The dome art is a background-image row — never touched.
+   Live text NEVER sits on the art (that is what went dark-on-dark on 2026-10-27). #}
 {% set hero_bg = hero_bg_url|default("https://45403856.fs1.hubspotusercontent-na1.net/hubfs/45403856/email/cx-weekly/hero-bg-dome.jpg") %}
 {% set wordmark_white = wordmark_white_url|default("https://45403856.fs1.hubspotusercontent-na1.net/hubfs/45403856/email/cx-weekly/wordmark-white-halo2.png") %}
 <table role="presentation" class="wrap" width="100%" align="center" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;margin:0 auto;">
 <tr><td class="k-dark hero-pad" bgcolor="#000000" align="center"
-  style="background-color:#000000;border-radius:12px 12px 0 0;padding:34px 36px 24px;">
-  <img src="{{ wordmark_white }}" class="hlogo" width="83" style="width:83px;display:block;margin:0 auto 26px;" alt="Bolt">
-  <div class="disp k-w" style="font-family:'Schibsted Grotesk',Arial,sans-serif;font-size:33px;font-weight:500;line-height:1.25;color:#ffffff;letter-spacing:0.2px;">{{ module.headline }}</div>
-  {% if module.subline %}
-  <div class="k-sub" style="font-family:'Schibsted Grotesk',Arial,sans-serif;font-size:16px;color:#C9CDD3;margin:14px 0 22px;">{{ module.subline }}</div>
-  {% endif %}
+  style="background-color:#000000;background-image:linear-gradient(#000000,#000000);border-radius:12px 12px 0 0;padding:34px 36px 0;">
+  <img src="{{ wordmark_white }}" class="hlogo" width="83" style="width:83px;display:block;margin:0 auto;" alt="Bolt">
+</td></tr>
+<tr><td class="k-dark" bgcolor="#000000" align="center" style="background-color:#000000;padding:0;">
+  {# the blend layer carries the row's padding so it covers the whole td — any td
+     padding outside it would show as a white frame once Gmail inverts the td #}
+  <div class="k-dark hero-copy" style="background-color:#000000;mix-blend-mode:difference;padding:26px 36px 0;">
+    <div class="disp k-w" style="font-family:'Schibsted Grotesk',Arial,sans-serif;font-size:33px;font-weight:500;line-height:1.25;color:#ffffff;letter-spacing:0.2px;">{{ module.headline }}</div>
+    {% if module.subline %}
+    <div class="k-sub" style="font-family:'Schibsted Grotesk',Arial,sans-serif;font-size:16px;color:#C9CDD3;margin:14px 0 0;">{{ module.subline }}</div>
+    {% endif %}
+  </div>
+</td></tr>
+<tr><td class="k-dark hero-cta" bgcolor="#000000" align="center"
+  style="background-color:#000000;background-image:linear-gradient(#000000,#000000);padding:22px 36px 24px;">
   {% if module.cta_label %}
-  <table class="btn-t" cellpadding="0" cellspacing="0" align="center" style="margin:0 auto;"><tr>
+  <table role="presentation" class="btn-t" cellpadding="0" cellspacing="0" align="center" style="margin:0 auto;"><tr>
     <td class="k-btn" style="background:#1389fd;border-radius:2px;"><a href="{{ module.cta_url.url.href }}" style="display:inline-block;min-width:180px;box-sizing:border-box;padding:15px 28px;font-family:'Schibsted Grotesk',Arial,sans-serif;font-size:15px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;white-space:nowrap;">{{ module.cta_label }}</a></td>
   </tr></table>
   {% endif %}
 </td></tr>
-{# Dome art band — image only, no text. 115% sizing crops the palest bottom
-   strip, same treatment as before; falls back to solid black where background
-   images don't render. .hero-band in the template CSS trims it on phones. #}
-<tr><td class="k-dark hero-band" bgcolor="#000000" height="72"
-  style="background-color:#000000;background-image:url({{ hero_bg }});background-size:100% 115%;background-position:center top;height:72px;font-size:0;line-height:0;">&nbsp;</td></tr>
-{# 34px white gap before the first body block (design: body starts padding-top 34px) #}
-<tr><td bgcolor="#ffffff" class="k-light" style="background:#ffffff;padding:0;font-size:0;line-height:0;height:34px;">&nbsp;</td></tr>
+{# Dome art band — image only, no text. The whole dome is fitted into the row
+   (100% 100%) so the blue glow is always in view; falls back to solid black
+   where background images don't render. .hero-band in the template CSS sets
+   the phone height (72). #}
+<tr><td class="k-dark hero-band" bgcolor="#000000" height="96"
+  style="background-color:#000000;background-image:url({{ hero_bg }});background-size:100% 100%;background-position:center top;background-repeat:no-repeat;height:96px;font-size:0;line-height:0;">&nbsp;</td></tr>
+{# 34px white gap before the first body block (design: body starts padding-top 34px).
+   #fffffe, not #ffffff: Apple Mail dark mode swaps pure-white backgrounds for its
+   dark default and leaves the black text alone (Gary's Apple Mail test, 2026-10-28). #}
+<tr><td bgcolor="#fffffe" class="k-light" style="background:#fffffe;padding:0;font-size:0;line-height:0;height:34px;">&nbsp;</td></tr>
 </table>
