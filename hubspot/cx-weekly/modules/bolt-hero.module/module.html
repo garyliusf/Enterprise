@@ -3,13 +3,19 @@
    so bare <tr> rows can't splice into a template table). #}
 {# The template sets hero_bg_url / wordmark_white_url; the fallbacks keep the
    module whole on its own (Design Manager preview, other templates). #}
+{# STRUCTURE RULE (2026-10-28, Gary's Gmail-iOS find): live text NEVER sits on an
+   image. Gmail iOS dark fully inverts text and background COLORS but never
+   repaints images — text over art goes dark-on-dark. So the copy lives on a
+   solid declared-black td (inverts as a pair -> stays legible) and the dome art
+   is its own row below; the art's near-black crown meets the black block
+   seamlessly, so the composition reads the same as before. #}
 {% set hero_bg = hero_bg_url|default("https://45403856.fs1.hubspotusercontent-na1.net/hubfs/45403856/email/cx-weekly/hero-bg-dome.jpg") %}
 {% set wordmark_white = wordmark_white_url|default("https://45403856.fs1.hubspotusercontent-na1.net/hubfs/45403856/email/cx-weekly/wordmark-white.png") %}
-<table role="presentation" class="wrap" width="600" align="center" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;margin:0 auto;">
+<table role="presentation" class="wrap" width="100%" align="center" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;margin:0 auto;">
 <tr><td class="k-dark hero-pad" bgcolor="#000000" align="center"
-  style="background-color:#000000;background-image:url({{ hero_bg }});background-size:100% 115%;background-position:center top;border-radius:12px 12px 0 0;padding:34px 36px 0;">
+  style="background-color:#000000;border-radius:12px 12px 0 0;padding:34px 36px 24px;">
   <img src="{{ wordmark_white }}" class="hlogo" width="83" style="width:83px;display:block;margin:0 auto 26px;" alt="Bolt">
-  <div class="disp" style="font-family:'Schibsted Grotesk',Arial,sans-serif;font-size:33px;font-weight:500;line-height:1.25;color:#ffffff;letter-spacing:0.2px;">{{ module.headline }}</div>
+  <div class="disp k-w" style="font-family:'Schibsted Grotesk',Arial,sans-serif;font-size:33px;font-weight:500;line-height:1.25;color:#ffffff;letter-spacing:0.2px;">{{ module.headline }}</div>
   {% if module.subline %}
   <div class="k-sub" style="font-family:'Schibsted Grotesk',Arial,sans-serif;font-size:16px;color:#C9CDD3;margin:14px 0 22px;">{{ module.subline }}</div>
   {% endif %}
@@ -18,11 +24,12 @@
     <td class="k-btn" style="background:#1389fd;border-radius:2px;"><a href="{{ module.cta_url.url.href }}" style="display:inline-block;min-width:180px;box-sizing:border-box;padding:15px 28px;font-family:'Schibsted Grotesk',Arial,sans-serif;font-size:15px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;white-space:nowrap;">{{ module.cta_label }}</a></td>
   </tr></table>
   {% endif %}
-  {# Glow room under the button: 75px (100px on phones, via .hero-glow in the
-     template). The background is sized to 115% so its palest bottom strip is
-     cropped off and the blue rim stays below the subline. #}
-  <div class="hero-glow" style="height:75px;font-size:0;line-height:0;">&nbsp;</div>
 </td></tr>
+{# Dome art band — image only, no text. 115% sizing crops the palest bottom
+   strip, same treatment as before; falls back to solid black where background
+   images don't render. .hero-band in the template CSS trims it on phones. #}
+<tr><td class="k-dark hero-band" bgcolor="#000000" height="180"
+  style="background-color:#000000;background-image:url({{ hero_bg }});background-size:100% 115%;background-position:center top;height:180px;font-size:0;line-height:0;">&nbsp;</td></tr>
 {# 34px white gap before the first body block (design: body starts padding-top 34px) #}
 <tr><td bgcolor="#ffffff" class="k-light" style="background:#ffffff;padding:0;font-size:0;line-height:0;height:34px;">&nbsp;</td></tr>
 </table>
