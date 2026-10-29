@@ -42,7 +42,7 @@ BASE = json.dumps({
     "containerW": 600, "logoW": 125,
     "hColor": "#000000", "hLh": 120, "hTrack": 0,
     "bColor": "#000000",
-    "btnBg": "#1389fd", "btnFg": "#ffffff", "btnSize": 16,
+    "btnBg": "#1488FC", "btnFg": "#ffffff", "btnSize": 16,
     "fSize": 12, "fColor": "#999999",
     "headerBanner": "", "logoSrc": "", "footerImg": "",
     "footerImgW": 180, "footerImgPad": 24,
@@ -110,7 +110,7 @@ VARIANT_A = f'''<!doctype html><html><head><meta charset="utf-8">
       <li style="margin:0;font-size:16px;line-height:1.6;color:#000000;">Think through common payment edge cases like failed or cancelled payments and confirmation</li>
     </ul>
     <table cellpadding="0" cellspacing="0" style="margin:0 0 36px;"><tr>
-      <td style="background:#1389fd;border-radius:2px;"><a href="#" style="display:inline-block;min-width:220px;box-sizing:border-box;padding:16px 28px;font-family:{_F};font-size:16px;font-weight:600;line-height:1.25;color:#fff;text-align:center;text-decoration:none;border-radius:8px;">Register here</a></td>
+      <td style="background:#1488FC;border-radius:6px;"><a href="#" style="display:inline-block;min-width:220px;box-sizing:border-box;padding:16px 28px;font-family:{_F};font-size:16px;font-weight:600;line-height:1.25;color:#fff;text-align:center;text-decoration:none;border-radius:8px;">Register here</a></td>
     </tr></table>
   </td></tr>
 
@@ -163,13 +163,13 @@ def _b_event(img, title, date):
     <tr><td style="padding:0 40px 52px;font-family:{_F};"><a class="rsvp" href="#" style="font-size:16px;color:#1488FC;font-weight:600;text-decoration:none;">RSVP <span style="letter-spacing:1px;">&rarr;</span></a></td></tr>'''
 
 def _b_ghost(label, band=False):
-    # standard blue button (token spec): #1389fd, radius 8, 16/600, hug min-220
+    # standard blue button (token spec): #1488FC, radius 8, 16/600, hug min-220
     # band: light-mode section tint; #000001 renders as black in dark mode
     td = ('<td class="band" bgcolor="#000001" style="background:#000001;padding:8px 40px 8px;">'
           if band else '<td style="padding:8px 40px 44px;">')
     return f'''<tr>{td}
       <table cellpadding="0" cellspacing="0"><tr>
-        <td class="gbtn" style="background:#1389fd;border-radius:2px;">
+        <td class="gbtn" style="background:#1488FC;border-radius:6px;">
           <a href="#" style="display:inline-block;min-width:180px;box-sizing:border-box;padding:15px 28px;font-family:{_F};font-size:15px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;white-space:nowrap;">{label}</a>
         </td></tr></table></td></tr>'''
 
@@ -185,7 +185,7 @@ def _b_callout(eyebrow, title, body, inset='', cta=''):
     + optional inset + optional CTA. Use for tips, feature launches, notices."""
     ins = ('<div style="height:4px;font-size:0;line-height:0;">&nbsp;</div>' + inset) if inset else ''
     btn = (('<div style="height:24px;font-size:0;line-height:0;">&nbsp;</div>'
-            '<table class="btn-t" cellpadding="0" cellspacing="0" align="center" style="margin:0 auto;"><tr><td class="gbtn" style="background:#1389fd;border-radius:2px;">'
+            '<table class="btn-t" cellpadding="0" cellspacing="0" align="center" style="margin:0 auto;"><tr><td class="gbtn" style="background:#1488FC;border-radius:6px;">'
             f'<a href="#" style="display:inline-block;min-width:180px;box-sizing:border-box;padding:15px 28px;font-family:{_F};font-size:15px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;white-space:nowrap;">{cta}</a>'
             '</td></tr></table>') if cta else '')
     return (f'<table width="100%" cellpadding="0" cellspacing="0" class="ann" style="background-color:#0D0E10;background-image:url(va/callout-bg.jpg);background-size:cover;background-position:center;border:1px solid #232323;border-radius:10px;"><tr><td class="ann-i" style="padding:26px 28px;font-family:{_F};">'
@@ -345,7 +345,7 @@ VARIANT_C = f'''<!doctype html><html><head><meta charset="utf-8">
       <li style="margin:0;font-size:15px;line-height:1.65;color:#3c3c3c;">Think through failed or cancelled payments and confirmation</li>
     </ul>
     <table cellpadding="0" cellspacing="0" style="margin:0 0 10px;"><tr>
-      <td bgcolor="#1389fd" style="background:#1389fd;border-radius:2px;"><a href="#" style="display:inline-block;min-width:220px;box-sizing:border-box;padding:16px 28px;font-family:{_F};font-size:16px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;">Register here</a></td>
+      <td bgcolor="#1488FC" style="background:#1488FC;border-radius:6px;"><a href="#" style="display:inline-block;min-width:220px;box-sizing:border-box;padding:16px 28px;font-family:{_F};font-size:16px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;">Register here</a></td>
     </tr></table>
   </td></tr>
 
@@ -482,7 +482,7 @@ _OGS = """
   [data-ogsc] .c-fine { color:#8a8a8a !important; }
   [data-ogsb] .band { background-color:#000001 !important; }
   [data-ogsb] .ann { background-color:#0D0E10 !important; border-color:#232323 !important; }
-  [data-ogsb] .gbtn { background-color:#1389fd !important; }
+  [data-ogsb] .gbtn { background-color:#1488FC !important; }
   [data-ogsc] .gbtn a { color:#FFFFFF !important; }
   [data-ogsb] .pbox { background-color:#1E1F22 !important; }
   [data-ogsc] .pbx-t { color:#E8E8EA !important; }
@@ -564,7 +564,7 @@ _SER = _F  # brand rule (Gary): Inter everywhere
 def _e_pill(label, bg, fg):
     # standard blue button (token spec) — bg/fg params kept for signature stability
     return f'''<table class="btn-t" cellpadding="0" cellspacing="0" align="center" style="margin:0 auto;"><tr>
-      <td style="background:#1389fd;border-radius:2px;"><a href="#" style="display:inline-block;min-width:180px;box-sizing:border-box;padding:15px 28px;font-family:{_F};font-size:15px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;white-space:nowrap;">{label}</a></td>
+      <td style="background:#1488FC;border-radius:6px;"><a href="#" style="display:inline-block;min-width:180px;box-sizing:border-box;padding:15px 28px;font-family:{_F};font-size:15px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;white-space:nowrap;">{label}</a></td>
     </tr></table>'''
 
 VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
@@ -652,7 +652,7 @@ VARIANT_E = f'''<!doctype html><html><head><meta charset="utf-8">
       </td></tr></table>
       </td></tr></table>
       <table class="btn-t" cellpadding="0" cellspacing="0" align="center" style="margin:24px auto 0;"><tr>
-      <td style="background:#1389fd;border-radius:2px;"><a href="#" style="display:inline-block;min-width:180px;box-sizing:border-box;padding:15px 28px;font-family:{_F};font-size:15px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;white-space:nowrap;">Start Building</a></td>
+      <td style="background:#1488FC;border-radius:6px;"><a href="#" style="display:inline-block;min-width:180px;box-sizing:border-box;padding:15px 28px;font-family:{_F};font-size:15px;font-weight:600;line-height:1.25;color:#FFFFFF;text-decoration:none;text-align:center;white-space:nowrap;">Start Building</a></td>
     </tr></table>
     </td></tr></table>
     <p style="margin:32px 0 0;font-size:16px;line-height:1.6;color:#000000;text-align:center;">Keep building,<br><span style="font-weight:600;">Monika &amp; The Bolt Team &#9889;</span></p>
@@ -679,7 +679,7 @@ VARIANT_E = VARIANT_E.replace('<tr><td bgcolor="#000000" class="px"', '<tr><td b
 VARIANT_E = VARIANT_E.replace('<tr><td bgcolor="#ffffff" class="px"', '<tr><td bgcolor="#ffffff" class="px k-light"')
 VARIANT_E = VARIANT_E.replace('<table width="100%" cellpadding="0" cellspacing="0" style="background:#F2F1EF;border:1px solid #E2E0DC;border-radius:8px;">', '<table width="100%" cellpadding="0" cellspacing="0" class="k-tint-w" style="background-color:#E2E0DC;background-image:linear-gradient(135deg,#4DA6FF 0%,#1488FC 22%,#E2E0DC 58%);border-radius:9px;"><tr><td style="padding:1px;"><table width="100%" cellpadding="0" cellspacing="0" class="k-tint" style="background:#F2F1EF;border-radius:8px;">', 1)
 VARIANT_E = VARIANT_E.replace('cancel pages."</i>\n    </td></tr></table>', 'cancel pages."</i>\n    </td></tr></table></td></tr></table>', 1)
-VARIANT_E = VARIANT_E.replace('<td style="background:#1389fd;border-radius:2px;">', '<td class="k-btn" style="background:#1389fd;border-radius:2px;">')
+VARIANT_E = VARIANT_E.replace('<td style="background:#1488FC;border-radius:6px;">', '<td class="k-btn" style="background:#1488FC;border-radius:6px;">')
 _K = """
   /* modern-Outlook dark-mode overrides (data-ogsc/-ogsb) */
   [data-ogsb] .k-dark { background-color:#000000 !important; }
@@ -692,7 +692,7 @@ _K = """
   [data-ogsb] .pbx-a { background-color:#1488FC !important; }
   [data-ogsc] .pbx-a { color:#FFFFFF !important; }
   [data-ogsb] .k-tint-w { background-color:#E2E0DC !important; }
-  [data-ogsb] .k-btn { background-color:#1389fd !important; }
+  [data-ogsb] .k-btn { background-color:#1488FC !important; }
   [data-ogsc] .k-w, [data-ogsc] .k-btn a, [data-ogsc] .disp { color:#ffffff !important; }
   [data-ogsc] .k-sub { color:#C9CDD3 !important; }
   [data-ogsc] .k-ink { color:#000000 !important; }
@@ -711,7 +711,7 @@ def _ap_event(img, title, date, last=False):
       <p style="margin:0 0 {'0' if last else '28px'};"><a href="#" style="font-size:15px;color:#1488FC;font-weight:600;text-decoration:none;">RSVP <span style="letter-spacing:1px;">&rarr;</span></a></p>'''
 
 _AP_BTN = ('<table cellpadding="0" cellspacing="0" style="margin:24px 0 0;"><tr>'
-           '<td style="background:#1389fd;border-radius:2px;"><a href="#" style="display:inline-block;min-width:220px;'
+           '<td style="background:#1488FC;border-radius:6px;"><a href="#" style="display:inline-block;min-width:220px;'
            'box-sizing:border-box;padding:16px 28px;font-family:{_F};font-size:16px;font-weight:600;line-height:1.25;'
            'color:#FFFFFF;text-decoration:none;text-align:center;">LABEL</a></td></tr></table>')
 
@@ -790,7 +790,7 @@ VARIANT_AP = f'''<!doctype html><html><head><meta charset="utf-8">
 # ---- D armor: modern-Outlook dark overrides ----
 for _col, _cls in [('#111;','d-ink'), ('#26251f','d-body'), ('#777;','d-date'), ('#8a8880','d-fine')]:
     VARIANT_AP = re.sub(r'<(p|li|div|span|a|td|h1|h2)( (?![^>]*class=)[^>]*?color:' + _col + ')', r'<\1 class="' + _cls + r'"\2', VARIANT_AP)
-VARIANT_AP = VARIANT_AP.replace('<td style="background:#1389fd;border-radius:2px;">', '<td class="d-btn" style="background:#1389fd;border-radius:2px;">')
+VARIANT_AP = VARIANT_AP.replace('<td style="background:#1488FC;border-radius:6px;">', '<td class="d-btn" style="background:#1488FC;border-radius:6px;">')
 VARIANT_AP = VARIANT_AP.replace('<table width="100%" cellpadding="0" cellspacing="0" style="background:#E8E9EB;border-radius:8px;">', '<table width="100%" cellpadding="0" cellspacing="0" class="d-inset" style="background:#E8E9EB;border-radius:8px;">')
 VARIANT_AP = VARIANT_AP.replace('<table width="100%" cellpadding="0" cellspacing="0" class="d-inset" style="background:#E8E9EB;border-radius:8px;"><tr><td style="padding:14px 16px;', '<table width="100%" cellpadding="0" cellspacing="0" class="d-inset-w" style="background-color:#DDDFE3;background-image:linear-gradient(135deg,#4DA6FF 0%,#1488FC 22%,#DDDFE3 58%);border-radius:9px;"><tr><td style="padding:1px;"><table width="100%" cellpadding="0" cellspacing="0" class="d-inset" style="background:#E8E9EB;border-radius:8px;"><tr><td style="padding:14px 16px;')
 VARIANT_AP = VARIANT_AP.replace('cancel pages."</i>\n    </td></tr></table>', 'cancel pages."</i>\n    </td></tr></table></td></tr></table>', 1)
@@ -802,7 +802,7 @@ _KD = """
   [data-ogsb] .card { background-color:#ffffff !important; }
   [data-ogsb] .d-inset { background-color:#E8E9EB !important; }
   [data-ogsb] .d-inset-w { background-color:#DDDFE3 !important; }
-  [data-ogsb] .d-btn { background-color:#1389fd !important; }
+  [data-ogsb] .d-btn { background-color:#1488FC !important; }
   [data-ogsc] .d-btn a { color:#FFFFFF !important; }
   [data-ogsc] .d-ink { color:#111111 !important; }
   [data-ogsc] .d-body { color:#26251f !important; }
@@ -823,7 +823,7 @@ SHELL = r"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <title>Email variants</title>
 <style>
 *{box-sizing:border-box}
-:root{--bg:#faf9f8;--panel:#fff;--line:#e6e4e1;--ink:#16151a;--mute:#6d6a66;--accent:#1389fd}
+:root{--bg:#faf9f8;--panel:#fff;--line:#e6e4e1;--ink:#16151a;--mute:#6d6a66;--accent:#1488FC}
 @media (prefers-color-scheme:dark){:root{--bg:#131316;--panel:#1b1b1f;--line:#2c2c32;--ink:#f0eff2;--mute:#94919b}}
 html,body{margin:0;height:100%}
 body{background:var(--bg);color:var(--ink);display:flex;flex-direction:column;height:100vh;overflow:hidden;

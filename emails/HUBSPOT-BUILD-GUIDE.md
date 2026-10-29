@@ -118,7 +118,7 @@ Locked: card border/background, badge styling, composer chrome, corner glow, but
 | Label | Text |
 | URL | URL |
 
-Locked: `#1389fd`, 15px/600, 15×28 padding, 180px min-width, 2px radius (14px label on mobile).
+Locked: `#1488FC`, 15px/600, 15×28 padding, 180px min-width, 6px radius (14px label on mobile).
 
 ---
 

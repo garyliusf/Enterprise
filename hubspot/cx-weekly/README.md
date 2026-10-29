@@ -103,7 +103,7 @@ event rows (image, title, date, RSVP link — with **+ Add event** to add or rem
 announcement card (eyebrow, title, body, prompt, CTA) · signature.
 
 **Locked in the template:** page and card colours, 600px width, type scale, spacing,
-button spec (`#1389fd`, 15px/600, 15×28, 180px min-width, 2px radius), badge styling,
+button spec (`#1488FC`, 15px/600, 15×28, 180px min-width, 6px radius), badge styling,
 composer chrome, footer layout, and the Outlook dark-mode overrides.
 
 Changing anything locked = a template edit, not an editor edit. That's deliberate.
