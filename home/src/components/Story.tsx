@@ -160,7 +160,7 @@ function BoltFrame({ children }: { children: React.ReactNode }) {
           <span className="hm-wb-user">{PROMPT}</span>
           <span className="hm-wb-reply">
             <BoltMark className="hm-wb-reply-mark" />
-            I've built the booking site: a hero, an availability calendar and a $10 deposit checkout. What would you like to work on next?
+            Your booking site is ready, with a calendar and $10 deposits. What's next?
           </span>
           <span className="hm-wb-label">Follow up</span>
           <span className="hm-wb-chips">{follow.map((f) => <i key={f}>{f}</i>)}</span>
