@@ -110,14 +110,81 @@ function PawMark() {
   );
 }
 function MiniSite({ stage }: { stage: 'build' | 'scan' | 'live' }) {
-  const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-  const cells = [null, null, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19];
   return (
     <div className={`hm-ms hm-ms--${stage}`}>
       <div className="hm-ms-bar">
         <i /><i /><i />
         <span className="hm-ms-url">{SITE}</span>
       </div>
+      <PawsSite />
+    </div>
+  );
+}
+
+/* Bolt's own workbench around the site (Gary, 2026-10-29: "less abstract,
+   accurate to bolt's actual UI"): the app's top bar (breadcrumb, Preview /
+   Code toggle, Share, Publish), the chat column (the prompt, Bolt's reply,
+   follow-up chips, the composer with the model picker, Select, Plan, mic,
+   send) and the preview pane holding the site. Decoration only. */
+function BoltMark({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 18 24" aria-hidden="true">
+      <path fillRule="evenodd" clipRule="evenodd" d="M10.4272 20.9491C8.80168 20.9491 7.20572 20.3592 6.28951 19.0909L5.96635 20.5867L0 23.75L0.644095 20.5867L4.9891 0.921487H10.309L8.77213 7.853C10.0134 6.49619 11.1661 5.99476 12.6438 5.99476C15.8358 5.99476 17.9637 8.08896 17.9637 11.9234C17.9637 15.8758 15.5107 20.9491 10.4272 20.9491ZM12.4665 13.0443C12.4665 14.873 11.1661 16.2593 9.48145 16.2593C8.53569 16.2593 7.6786 15.9053 7.11705 15.2859L7.94459 11.658C8.56524 11.0385 9.27456 10.6846 10.1021 10.6846C11.373 10.6846 12.4665 11.6285 12.4665 13.0443Z" fill="currentColor" />
+    </svg>
+  );
+}
+function BoltFrame({ children }: { children: React.ReactNode }) {
+  const follow = ['Add group walks', 'Set up reminders', 'Refine pricing page'];
+  return (
+    <div className="hm-wb">
+      <div className="hm-wb-bar">
+        <BoltMark className="hm-wb-mark" />
+        <i className="hm-wb-sep">/</i>
+        <span className="hm-wb-avatar" />
+        <i className="hm-wb-sep">/</i>
+        <span className="hm-wb-proj">Paws &amp; Paths</span>
+        <span className="hm-wb-toggle">
+          <em className="is-on">
+            <svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></svg>
+            Preview
+          </em>
+          <em>
+            <svg viewBox="0 0 24 24"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M13.5 4l-3 16" /></svg>
+          </em>
+        </span>
+        <span className="hm-wb-share">Share</span>
+        <span className="hm-wb-publish">Publish</span>
+      </div>
+      <div className="hm-wb-body">
+        <div className="hm-wb-chat">
+          <span className="hm-wb-user">{PROMPT}</span>
+          <span className="hm-wb-reply">
+            <BoltMark className="hm-wb-reply-mark" />
+            I've built the booking site: a hero, an availability calendar and a $10 deposit checkout. What would you like to work on next?
+          </span>
+          <span className="hm-wb-label">Follow up</span>
+          <span className="hm-wb-chips">{follow.map((f) => <i key={f}>{f}</i>)}</span>
+          <div className="hm-wb-composer">
+            <span className="hm-wb-ph">How can Bolt help you today? (or /command)</span>
+            <span className="hm-wb-tools">
+              <i className="hm-wb-plus">+</i>
+              <b className="hm-wb-model"><BoltMark /> bolt <em>forge</em> ⌄</b>
+              <i>Plan</i>
+              <i className="hm-wb-mic"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" /></svg></i>
+              <i className="hm-wb-send"><svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6" /></svg></i>
+            </span>
+          </div>
+        </div>
+        <div className="hm-wb-preview">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+function PawsSite() {
+  const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  const cells = [null, null, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19];
+  return (
       <div className="pp">
         <div className="pp-nav" style={{ '--i': 0 } as React.CSSProperties}>
           <span className="pp-logo"><PawMark />Paws &amp; Paths</span>
@@ -149,7 +216,6 @@ function MiniSite({ stage }: { stage: 'build' | 'scan' | 'live' }) {
           </div>
         </div>
       </div>
-    </div>
   );
 }
 
@@ -159,7 +225,7 @@ function SceneBuild() {
   return (
     <div ref={ref} className={`hm-vis hm-scene hm-scene--build${on ? ' is-on' : ''}`} aria-hidden="true">
       <SceneGround at={2} />
-      <MiniSite stage="build" />
+      <BoltFrame><PawsSite /></BoltFrame>
     </div>
   );
 }
