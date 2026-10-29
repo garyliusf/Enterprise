@@ -180,7 +180,7 @@ function BoltFrame({ children }: { children: React.ReactNode }) {
   );
 }
 
-function PawsSite() {
+function PawsSite({ full = false }: { full?: boolean }) {
   const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
   const cells = [null, null, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19];
   return (
@@ -214,6 +214,20 @@ function PawsSite() {
             <em className="pp-btn">Pay deposit &amp; book</em>
           </div>
         </div>
+        {full && (
+          <>
+            {/* the rest of the page (workbench preview only) */}
+            <div className="pp-feats" style={{ '--i': 4 } as React.CSSProperties}>
+              {[['Insured & bonded', 'Every walker is vetted and covered.'], ['GPS walk reports', 'A map and photos after each walk.'], ['Easy rescheduling', 'Move a walk up to 2 hours before.']].map(([t, d]) => (
+                <span key={t} className="pp-feat"><b>{t}</b><i>{d}</i></span>
+              ))}
+            </div>
+            <div className="pp-foot" style={{ '--i': 5 } as React.CSSProperties}>
+              <span className="pp-logo"><PawMark />Paws &amp; Paths</span>
+              <i>Portland, OR · hello@pawsandpaths.com</i>
+            </div>
+          </>
+        )}
       </div>
   );
 }
@@ -224,7 +238,7 @@ function SceneBuild() {
   return (
     <div ref={ref} className={`hm-vis hm-scene hm-scene--build${on ? ' is-on' : ''}`} aria-hidden="true">
       <SceneGround at={2} />
-      <BoltFrame><PawsSite /></BoltFrame>
+      <BoltFrame><PawsSite full /></BoltFrame>
     </div>
   );
 }
