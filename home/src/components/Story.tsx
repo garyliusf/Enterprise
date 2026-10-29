@@ -168,7 +168,6 @@ function BoltFrame({ children }: { children: React.ReactNode }) {
             <span className="hm-wb-ph">How can Bolt help you today? (or /command)</span>
             <span className="hm-wb-tools">
               <i className="hm-wb-plus">+</i>
-              <b className="hm-wb-model"><BoltMark /> bolt <em>forge</em> ⌄</b>
               <i>Plan</i>
               <i className="hm-wb-mic"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" /></svg></i>
               <i className="hm-wb-send"><svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6" /></svg></i>
