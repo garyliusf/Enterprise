@@ -319,8 +319,8 @@ function SceneDeploy() {
       return;
     }
     const t1 = window.setTimeout(() => setPhase('aim'), 300);
-    const t2 = window.setTimeout(() => setPhase('click'), 1100);
-    const t3 = window.setTimeout(() => setPhase('live'), 1500);
+    const t2 = window.setTimeout(() => setPhase('click'), 900);
+    const t3 = window.setTimeout(() => setPhase('live'), 1300);
     let i = 0;
     let id = 0;
     const t4 = window.setTimeout(() => {
@@ -329,7 +329,7 @@ function SceneDeploy() {
         setN(i);
         if (i >= SITE.length) window.clearInterval(id);
       }, 55);
-    }, 1800);
+    }, 1600);
     return () => { [t1, t2, t3, t4].forEach(window.clearTimeout); window.clearInterval(id); };
   }, [on]);
   const typed = n >= SITE.length;
@@ -338,7 +338,7 @@ function SceneDeploy() {
     <div ref={ref} className={`hm-vis hm-scene hm-scene--deploy${on ? ' is-on' : ''}${live ? ' is-live' : ''}${typed ? ' is-typed' : ''}`} aria-hidden="true">
       <SceneGround at={5} />
       {/* beat 1: Bolt, with the site dimmed and Publish lit (how scene 4 ended);
-          the cursor crosses to Publish and presses it */}
+          the cursor is already on Publish and presses it */}
       <div className={`hm-app hm-app--ready hm-dep-app hm-dep-app--${phase}`}>
         <AppBar />
         <div className="hm-app-page">
