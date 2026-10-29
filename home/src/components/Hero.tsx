@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode } from 'react';
 import { hero } from '../config';
-import { BgVideo } from './ui';
+import { BayerDither, BgVideo } from './ui';
 
 /* Carries the prompt into Bolt's composer and submits it there (the
    use-case pages' goToBolt). Opens in a new tab. */
@@ -133,6 +133,10 @@ export function Hero() {
     <section className="fw-hero hm-hero" id="top">
       {/* BoltGrad03 */}
       <BgVideo name="hero" className="fw-hero-video" />
+      {/* the family's ordered Bayer dither over the video (the 404 hero's /
+          closing band's; Gary, 2026-10-29): white squares in light, the pale
+          crown in dark, weighted to the middle, dying out above the hero's foot */}
+      <BayerDither className="fw-hero-dither" rgbDark="160,185,230" fade={0.98} center />
       <span className="fw-grain" aria-hidden="true" />
       <div className="fw-hero-inner sc-on-dark">
         {/* Above the fold: no scroll reveal on the H1 (CLAUDE.md). Serif first

@@ -77,7 +77,9 @@ export function SectionHeader({
    slow drifting waves, so the pattern breathes. `fade` = how far down the box
    it reaches before dying out (0–1). Paused off screen and with reduced motion. */
 const BAYER = [[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]];
-export function BayerDither({ className, rgb = '255,255,255', fade = 0.9, strength = 1 }: { className?: string; rgb?: string; fade?: number; strength?: number }) {
+/* `rgbDark` = the colour once the page resolves dark (the 404 hero's pale
+   crown); `center` weights the field to the middle like the 404 hero */
+export function BayerDither({ className, rgb = '255,255,255', rgbDark, fade = 0.9, strength = 1, center = false }: { className?: string; rgb?: string; rgbDark?: string; fade?: number; strength?: number; center?: boolean }) {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const canvas = ref.current;
@@ -86,6 +88,9 @@ export function BayerDither({ className, rgb = '255,255,255', fade = 0.9, streng
     const CELL = 5, SQ = 2;
     let cols = 0, rows = 0, start = 0, raf = 0, vis = false;
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let color = rgb;
+    const readTheme = () => { color = rgbDark && document.documentElement.getAttribute('data-theme') === 'dark' ? rgbDark : rgb; };
+    readTheme();
     const init = () => { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; cols = Math.ceil(canvas.width / CELL) + 1; rows = Math.ceil(canvas.height / CELL) + 1; };
     const draw = (ts: number) => {
       raf = 0;
@@ -101,8 +106,9 @@ export function BayerDither({ className, rgb = '255,255,255', fade = 0.9, streng
         for (let c = 0; c < cols; c++) {
           const gx = c / cols;
           const wave = Math.sin(gx * 4.1 + gy * 6.3 - t * 0.95) * 0.5 + Math.sin(gx * 7.7 - gy * 3.1 + t * 0.62) * 0.28;
-          if (base + wave * 0.38 <= (BAYER[r & 3][c & 3] + 0.5) / 16) continue;
-          ctx.fillStyle = `rgba(${rgb},${Math.min(0.5, 0.085 + base * 0.13).toFixed(3)})`;
+          const hm = center ? 1 - Math.pow(Math.abs(gx - 0.5) * 2, 2.2) * 0.85 : 1;
+          if (base * hm + wave * 0.38 <= (BAYER[r & 3][c & 3] + 0.5) / 16) continue;
+          ctx.fillStyle = `rgba(${color},${Math.min(0.5, 0.085 + base * 0.13).toFixed(3)})`;
           ctx.fillRect(c * CELL, r * CELL, SQ, SQ);
         }
       }
@@ -113,9 +119,11 @@ export function BayerDither({ className, rgb = '255,255,255', fade = 0.9, streng
     io.observe(canvas);
     const onResize = () => { init(); if (!raf) raf = requestAnimationFrame(draw); };
     window.addEventListener('resize', onResize);
+    const onTheme = () => { readTheme(); if (!raf) raf = requestAnimationFrame(draw); };
+    document.addEventListener('sc-themechange', onTheme);
     raf = requestAnimationFrame(draw);
-    return () => { io.disconnect(); window.removeEventListener('resize', onResize); cancelAnimationFrame(raf); };
-  }, [rgb, fade, strength]);
+    return () => { io.disconnect(); window.removeEventListener('resize', onResize); document.removeEventListener('sc-themechange', onTheme); cancelAnimationFrame(raf); };
+  }, [rgb, rgbDark, fade, strength, center]);
   return <canvas ref={ref} className={className} aria-hidden="true" />;
 }
 
