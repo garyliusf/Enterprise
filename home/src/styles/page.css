@@ -1691,10 +1691,11 @@ a.fw-session-card { text-decoration: none; color: inherit; }
 .hm-wb-preview .pp { flex: 1; zoom: 0.78; }
 /* vertical hero in the preview (Gary): copy on top, the photo below it,
    the photo taking whatever height is left */
-.hm-wb-preview .pp-hero { display: flex; flex-direction: column; padding: 0; min-height: 0; flex: 1; }
+.hm-wb-preview .pp { min-height: 0; }
+.hm-wb-preview .pp-hero { display: flex; flex-direction: column; padding: 0; min-height: 0; flex: 1 1 0; }
 .hm-wb-preview .pp-hero-copy { padding: 14px 14px 12px; }
 .hm-wb-preview .pp-hero p { max-width: none; }
-.hm-wb-preview .pp-hero img { position: static; width: 100%; height: 110px; flex: 1; object-position: 50% 45%; }
+.hm-wb-preview .pp-hero img { position: static; width: 100%; height: auto; min-height: 0; flex: 1 1 0; object-position: 50% 45%; } /* min-height 0: a replaced flex item otherwise refuses to shrink below its intrinsic height, which pushed the booking grid past the pane on phones */
 @media (max-width: 768px) { .hm-wb-body { grid-template-columns: 150px 1fr; } }
 /* one height with scene 4's app frame (Gary, 2026-10-29: "the same size, or at
    least the same height"): the frame's natural height at each width; the chat
@@ -1702,7 +1703,14 @@ a.fw-session-card { text-decoration: none; color: inherit; }
 .hm-wb { height: 418px; display: flex; flex-direction: column; }
 .hm-wb-body { flex: 1; min-height: 0; }
 @media (max-width: 1024px) { .hm-wb { height: 401px; } }
-@media (max-width: 768px) { .hm-wb { height: auto; } }
+@media (max-width: 768px) {
+  /* the stage scales the scene (0.56) rather than reflowing it, so the frame
+     keeps its desktop height and the preview keeps the two-column booking
+     grid — the site's phone rule stacked it and the page ran past the window (Gary) */
+  .hm-wb { height: 418px; }
+  .hm-wb-preview .pp-book { grid-template-columns: 1.15fr 1fr; }
+  .hm-wb-preview .pp-hero img { width: 100%; }
+}
 
 /* 02 build: pieces slide in, in order (nav → hero → calendar → slot) */
 /* skeleton → content: each block (nav, hero, calendar, slot) starts as a
@@ -2238,7 +2246,7 @@ body .site-footer-divider { display: none; }
   /* the open step's number = the title's size + line (16px / 1.4), so the two
      share one baseline in every engine (Gary: 'same font size on mobile') */
   .hm-stage--steps .hm-stage-prompt { padding-top: 0; }
-  .hm-stage--steps .hm-stage-item.is-active .hm-stage-num { font-size: 16px; line-height: 1.4; }
+  .hm-stage--steps .hm-stage-item.is-active .hm-stage-num { font-size: 13px; line-height: 22.4px; } /* same size as the other numbers, no scale-up (Gary, 2026-10-29); the line box still equals the 16px/1.4 title's so the row stays put */
   /* tighter step rows on phones (Gary) */
   .hm-stage--steps .hm-stage-btn { padding: 11px 0 10px; } /* 13/12 → 11/10 (2026-10-26) */
 }
