@@ -363,7 +363,11 @@ function SceneDeploy() {
           </span>
         </div>
         <div className="hm-dep-site">
-          <MiniSite stage="live" />
+          {/* two copies: the grey, blurred ghost underneath and the colour site
+              on top, wiped in left → right behind a bright sweep edge */}
+          <div className="hm-dep-ghost"><MiniSite stage="live" /></div>
+          <div className="hm-dep-color"><MiniSite stage="live" /></div>
+          <i className="hm-dep-sweep" />
           {/* the same success toast as the audit's "Fixed" (Gary) */}
           <span className="hm-scan-flag hm-scan-flag--fixed hm-dep-live">Live</span>
         </div>
