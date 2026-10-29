@@ -136,7 +136,7 @@ export function Hero() {
       {/* the family's ordered Bayer dither over the video (the 404 hero's /
           closing band's; Gary, 2026-10-29): white squares in light, the pale
           crown in dark, weighted to the middle, dying out above the hero's foot */}
-      <BayerDither className="fw-hero-dither" rgbDark="160,185,230" fade={0.98} center />
+      <BayerDither className="fw-hero-dither" rgbDark="160,185,230" fade={0.98} strength={0.55} center /> {/* 0.55: subtler (Gary, 2026-10-29); the closing band runs 0.6 */}
       <span className="fw-grain" aria-hidden="true" />
       <div className="fw-hero-inner sc-on-dark">
         {/* Above the fold: no scroll reveal on the H1 (CLAUDE.md). Serif first
