@@ -165,7 +165,7 @@ function BoltFrame({ children }: { children: React.ReactNode }) {
           <span className="hm-wb-label">Follow up</span>
           <span className="hm-wb-chips">{follow.map((f) => <i key={f}>{f}</i>)}</span>
           <div className="hm-wb-composer">
-            <span className="hm-wb-ph">How can Bolt help you today? (or /command)</span>
+            <span className="hm-wb-ph">How can Bolt help you today?</span>
             <span className="hm-wb-tools">
               <i className="hm-wb-plus">+</i>
               <i>Plan</i>
