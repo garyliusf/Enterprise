@@ -155,8 +155,11 @@ img, svg { display: block; }
    the 404 hero so it fades out before the ground ramp (2026-10-29) */
 .fw-hero > .fw-hero-dither {
   position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none;
-  -webkit-mask-image: linear-gradient(180deg, #000 55%, rgba(0,0,0,0) 92%);
-          mask-image: linear-gradient(180deg, #000 55%, rgba(0,0,0,0) 92%);
+  /* a long, eased fade (Gary saw a band where the 404's 55→92 mask met the
+     video's own ramp): the field thins from a third of the way down and is
+     gone before the pale zone */
+  -webkit-mask-image: linear-gradient(180deg, #000 28%, rgba(0,0,0,0.72) 45%, rgba(0,0,0,0.38) 58%, rgba(0,0,0,0.12) 70%, rgba(0,0,0,0) 80%);
+          mask-image: linear-gradient(180deg, #000 28%, rgba(0,0,0,0.72) 45%, rgba(0,0,0,0.38) 58%, rgba(0,0,0,0.12) 70%, rgba(0,0,0,0) 80%);
 }
 [data-fx~="nodither"] .fw-hero-dither { display: none; }
 :root[data-theme="dark"] .fw-hero-video { filter: blur(10px) brightness(0.72) saturate(1.35); }
@@ -1255,7 +1258,8 @@ a.fw-session-card { text-decoration: none; color: inherit; }
 /* ── Showcase rows ────────────────────────────────────────────────────── */
 .hm-showcase { position: relative; overflow: hidden; padding: 8px 0 0; display: flex; flex-direction: column; gap: 20px; }
 /* the rows start inside the hero's fade: pull up so the first row overlaps it */
-.hm-hero + .hm-showcase { margin-top: 0; }
+.hm-hero + .hm-showcase { margin-top: -24px; } /* tiles→cards a little tighter (Gary, 2026-10-29): 136 → 112px on desktop; the slider rides up into the hero's ground ramp */
+@media (max-width: 768px) { .hm-hero + .hm-showcase { margin-top: -16px; } }
 .hm-show-row { overflow: hidden; padding: 6px 0; margin: -6px 0; /* headroom for the 3px hover lift: the row clips, so the lifted card's top border was cut (Gary) */ -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent); mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent); }
 .hm-show-track { display: flex; gap: 20px; width: max-content; animation: hm-drift 70s linear infinite; }
 .hm-show-row--rev .hm-show-track { animation-direction: reverse; animation-duration: 84s; }
