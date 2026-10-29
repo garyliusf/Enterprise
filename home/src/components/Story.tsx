@@ -134,7 +134,7 @@ function BoltMark({ className }: { className?: string }) {
   );
 }
 function BoltFrame({ children }: { children: React.ReactNode }) {
-  const follow = ['Add group walks', 'Set up reminders', 'Refine pricing page'];
+  const follow = ['Add a reviews section', 'Set up email receipts', 'Refine pricing page'];
   return (
     <div className="hm-wb">
       <div className="hm-wb-bar">
