@@ -3620,8 +3620,10 @@ html[data-theme="dark"] .uc2-pg-frame { box-shadow: 0 30px 70px -24px rgba(0, 0,
 .uc2-pg-panel { --uc2-pg-h: 486px; }
 .uc2-pg-view { position: relative; height: var(--uc2-pg-h); overflow: hidden; }
 .uc2-pg-panel::after { content: ''; position: absolute; z-index: 1; left: 0; right: 0; bottom: 0; height: calc(var(--uc2-pg-h, 486px) * 0.8); border-radius: 0 0 12px 12px; pointer-events: none; background: linear-gradient(to top, rgba(6, 10, 20, 0.9), rgba(6, 10, 20, 0.7) 40%, rgba(6, 10, 20, 0)); }
-.uc2-pg-shot { display: block; width: 100%; height: auto; min-height: 100%; object-fit: cover; object-position: 50% 0; transition: opacity 0.35s ease; } /* holds still on hover (Gary) */
-.uc2-pg-shot.is-out { opacity: 0; }
+.uc2-pg-shot { display: block; width: 100%; height: auto; min-height: 100%; object-fit: cover; object-position: 50% 0; } /* holds still on hover (Gary) */
+.uc2-pg-frame { position: relative; }
+.uc2-pg-ghost { position: absolute; left: 0; right: 0; z-index: 1; pointer-events: none; background: #fff no-repeat; background-size: 100% auto; transition: opacity 0.45s ease; }
+.uc2-pg-ghost.is-gone { opacity: 0; }
 .uc2-pg-box, html[data-theme] .uc2-pg-box { border-color: transparent; } /* no outline, shadow only (Gary) */
 .uc2-pg-box { position: absolute; z-index: 2; left: 50%; bottom: 32px; width: min(560px, calc(100% - 64px)); transform: translateX(-50%); box-shadow: 0 30px 60px -20px rgba(2, 10, 30, 0.6), 0 10px 24px -10px rgba(2, 10, 30, 0.35); }
 html[data-theme="dark"] .uc2-pg-box { background: #17181d; } /* opaque over the screenshot (the shell's dark fill is translucent) */
@@ -3646,7 +3648,7 @@ html[data-theme="dark"] .uc2-pg-box { background: #17181d; } /* opaque over the 
   /* on a phone the box would cover the result: it tucks under the frame's foot instead */
   .uc2-pg-box { position: relative; left: auto; bottom: auto; width: auto; transform: none; margin: -40px 12px 0; }
 }
-@media (prefers-reduced-motion: reduce) { .uc2-pg-shot { transition: none; } .uc2-pg-box.is-swapped { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .uc2-pg-ghost { transition: none; } .uc2-pg-box.is-swapped { animation: none; } }
 </style>
 <style id="uc2-seams">
 /* Use Cases v2 — seams (Gary, 2026-11-03). Same ground on both sides, so each seam is
@@ -6664,6 +6666,36 @@ window.addEventListener('load', function () {
       if (n >= text.length) clearInterval(typing);
     }, 18);
   };
+  /* example results: decoded ahead (once the section is near) so a switch never waits on the
+     network, and swapped under a frozen copy of the old one that fades away — the frame never
+     shows its white ground between the two (the flash in Gary's recording) */
+  var view = shot.parentElement, frame = root.querySelector('.uc2-pg-frame'), ready = {};
+  var preload = function (src) {
+    if (ready[src]) return ready[src];
+    var im = new Image(); im.decoding = 'async'; im.src = src;
+    return (ready[src] = (im.decode ? im.decode() : Promise.resolve()).catch(function () {}));
+  };
+  new IntersectionObserver(function (es, io) {
+    if (!es[0].isIntersecting) return;
+    items.forEach(function (x) { preload(x.getAttribute('data-shot')); }); io.disconnect();
+  }, { rootMargin: '800px 0px' }).observe(root);
+  var swapId = 0;
+  var crossfade = function (src, alt) {
+    var id = ++swapId;
+    preload(src).then(function () {
+      if (id !== swapId) return; /* a newer pick won */
+      var old = frame.querySelector('.uc2-pg-ghost'); if (old) old.remove();
+      var g = document.createElement('div');
+      g.className = 'uc2-pg-ghost'; g.setAttribute('aria-hidden', 'true');
+      g.style.top = view.offsetTop + 'px'; g.style.height = view.clientHeight + 'px';
+      g.style.backgroundImage = 'url("' + shot.currentSrc + '")';
+      g.style.backgroundPosition = '0 ' + (-view.scrollTop) + 'px';
+      frame.appendChild(g);
+      shot.src = src; shot.alt = alt; view.scrollTop = 0;
+      requestAnimationFrame(function () { requestAnimationFrame(function () { g.classList.add('is-gone'); }); });
+      setTimeout(function () { g.remove(); }, reduce ? 0 : 520);
+    });
+  };
   var pick = function (i, focus) {
     cur = (i + items.length) % items.length;
     var it = items[cur];
@@ -6673,10 +6705,7 @@ window.addEventListener('load', function () {
     typeIn(p);
     box.classList.remove('is-swapped'); void box.offsetWidth; box.classList.add('is-swapped');
     var src = it.getAttribute('data-shot'), label = it.querySelector('.uc2-pg-label').textContent;
-    if (shot.getAttribute('src') !== src) {
-      shot.classList.add('is-out');
-      setTimeout(function () { shot.parentElement.scrollTop = 0; shot.src = src; shot.alt = 'Example of a ' + label.toLowerCase() + ' built with Bolt'; shot.style.transform = ''; shot.classList.remove('is-out'); }, 250);
-    }
+    if (shot.getAttribute('src') !== src) crossfade(src, 'Example of a ' + label.toLowerCase() + ' built with Bolt');
     if (focus) it.focus({ preventScroll: true });
     /* the chip row (tablet / phone) scrolls itself, never the page */
     if (list.scrollWidth > list.clientWidth) list.scrollTo({ left: it.offsetLeft - (list.clientWidth - it.offsetWidth) / 2, behavior: 'smooth' });
