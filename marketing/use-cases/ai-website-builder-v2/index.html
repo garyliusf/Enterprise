@@ -3616,8 +3616,9 @@ html body .uc2-hiw + .uc2-built, html body .uc2-built + #templates { padding-top
 .uc2-pg-frame { border-radius: 12px; overflow: hidden; border: 1px solid var(--sc-line); background: #fff; box-shadow: 0 24px 60px -36px rgba(2, 26, 87, 0.5); color-scheme: light; }
 .uc2-pg-bar { display: flex; align-items: center; gap: 6px; padding: 10px 14px; background: #f6f6f8; border-bottom: 1px solid #ededf1; }
 .uc2-pg-bar i { width: 8px; height: 8px; border-radius: 50%; background: #d9dae0; }
-.uc2-pg-view { --uc2-pg-h: 540px; position: relative; height: var(--uc2-pg-h); overflow: hidden; }
-.uc2-pg-view::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(to top, rgba(6, 10, 20, 0.42), rgba(6, 10, 20, 0) 55%); }
+.uc2-pg-panel { --uc2-pg-h: 540px; }
+.uc2-pg-view { position: relative; height: var(--uc2-pg-h); overflow: hidden; }
+.uc2-pg-panel::after { content: ''; position: absolute; z-index: 1; left: 1px; right: 1px; bottom: 1px; height: calc(var(--uc2-pg-h, 540px) * 0.55); border-radius: 0 0 11px 11px; pointer-events: none; background: linear-gradient(to top, rgba(6, 10, 20, 0.42), rgba(6, 10, 20, 0)); }
 .uc2-pg-shot { display: block; width: 100%; height: auto; min-height: 100%; object-fit: cover; object-position: 50% 0; transition: opacity 0.35s ease; } /* holds still on hover (Gary) */
 .uc2-pg-shot.is-out { opacity: 0; }
 .uc2-pg-box { position: absolute; z-index: 2; left: 50%; bottom: 36px; width: min(720px, calc(100% - 64px)); transform: translateX(-50%); box-shadow: 0 30px 60px -24px rgba(2, 10, 30, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.06); }
@@ -3627,8 +3628,10 @@ html[data-theme="dark"] .uc2-pg-box { background: #17181d; border-color: rgba(25
 .uc2-pg-box .re-prompt-submit { margin-left: auto; }
 .uc2-pg-box.is-swapped { animation: uc2-pg-pulse 0.6s ease; }
 @keyframes uc2-pg-pulse { 0% { box-shadow: 0 30px 60px -24px rgba(2, 10, 30, 0.55), 0 0 0 0 rgba(20, 136, 252, 0.4); } 100% { box-shadow: 0 30px 60px -24px rgba(2, 10, 30, 0.55), 0 0 0 10px rgba(20, 136, 252, 0); } }
+/* with a mouse over it the example site scrolls by hand (wheel / trackpad); at either end the page takes over */
+@media (hover: hover) and (pointer: fine) { .uc2-pg-view { overflow-y: auto; overscroll-behavior-y: auto; scrollbar-width: none; } .uc2-pg-view::-webkit-scrollbar { display: none; } }
 @media (max-width: 1024px) {
-  .uc2-pg-view { --uc2-pg-h: 440px; }
+  .uc2-pg-panel { --uc2-pg-h: 440px; }
   .uc2-pg-box { bottom: 28px; width: calc(100% - 48px); }
 }
 @media (max-width: 768px) {
@@ -3636,12 +3639,24 @@ html[data-theme="dark"] .uc2-pg-box { background: #17181d; border-color: rgba(25
   /* tabs scroll as a row, flush to the gutters */
   .uc2-pg-list { gap: 22px; align-self: stretch; margin: 0 -16px; padding: 0 16px; }
   .uc2-pg-label { font-size: 15px; }
-  .uc2-pg-view { --uc2-pg-h: 260px; }
-  .uc2-pg-view::after { display: none; }
+  .uc2-pg-panel { --uc2-pg-h: 260px; }
+  .uc2-pg-panel::after { display: none; }
   /* on a phone the box would cover the result: it tucks under the frame's foot instead */
   .uc2-pg-box { position: relative; left: auto; bottom: auto; width: auto; transform: none; margin: -40px 12px 0; }
 }
 @media (prefers-reduced-motion: reduce) { .uc2-pg-shot { transition: none; } .uc2-pg-box.is-swapped { animation: none; } }
+</style>
+<style id="uc2-seams">
+/* Use Cases v2 — seams (Gary, 2026-11-03). Same ground on both sides, so each seam is
+   about one unit (CLAUDE.md seam rule), not two sections' full pads. */
+/* features panel → pixel band → included panel: trim the pads either side of the band */
+html body .section.has-connect-pixels { padding-bottom: clamp(24px, 4vh, 48px); }
+html body .why-who-transition + .included-section { padding-top: clamp(24px, 4vh, 48px); }
+/* included panel → stories */
+html body .included-section + .hm-stories { padding-top: clamp(24px, 4vh, 48px); }
+/* no hairline above the FAQ, so stories → FAQ is one seam too (a <script> sits between them: ~, not +) */
+html[data-theme] body .ms-faq-section { border-top: 0; }
+html body .hm-stories ~ .ms-faq-section { padding-top: clamp(24px, 4vh, 48px); }
 </style>
 </head>
 <body>
@@ -6621,7 +6636,7 @@ window.addEventListener('load', function () {
 })();
 </script>
 <script id="uc2-pg-js">
-/* Use Cases v2 — prompt playground with the timer slider: the active row's bar fills
+/* Use Cases v2 — prompt playground with the timer slider (prompts type in): the active row's bar fills
    (CSS animation) and on its end the next prompt loads into the box. It runs while
    the section is on screen, pauses on hover and while the box has focus, and stops
    for good once someone types (the box is theirs then). The page's .re-prompt-shell
@@ -6634,17 +6649,31 @@ window.addEventListener('load', function () {
   var box = root.querySelector('.uc2-pg-box'), ta = root.querySelector('#uc2-pg-input'), shot = root.querySelector('.uc2-pg-shot');
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches, cur = 0;
   if (reduce) root.classList.add('is-manual');
+  /* the prompt types itself into the box (a programmatic value change fires no
+     'input', so it never counts as the visitor editing) */
+  var typing = 0;
+  var typeIn = function (text) {
+    clearInterval(typing);
+    if (reduce) { ta.value = text; return; }
+    var n = 0, step = Math.max(1, Math.round(text.length / 70)); /* ~1.3s whatever the length */
+    ta.value = '';
+    typing = setInterval(function () {
+      n = Math.min(text.length, n + step); ta.value = text.slice(0, n);
+      if (n >= text.length) clearInterval(typing);
+    }, 18);
+  };
   var pick = function (i, focus) {
     cur = (i + items.length) % items.length;
     var it = items[cur];
     items.forEach(function (x) { var on = x === it; x.classList.toggle('is-active', on); x.setAttribute('aria-selected', on ? 'true' : 'false'); x.tabIndex = on ? 0 : -1; });
     var p = it.getAttribute('data-prompt');
-    ta.value = p; ta.setAttribute('data-example', p);
+    ta.setAttribute('data-example', p);
+    typeIn(p);
     box.classList.remove('is-swapped'); void box.offsetWidth; box.classList.add('is-swapped');
     var src = it.getAttribute('data-shot'), label = it.querySelector('.uc2-pg-label').textContent;
     if (shot.getAttribute('src') !== src) {
       shot.classList.add('is-out');
-      setTimeout(function () { shot.src = src; shot.alt = 'Example of a ' + label.toLowerCase() + ' built with Bolt'; shot.style.transform = ''; shot.classList.remove('is-out'); }, 250);
+      setTimeout(function () { shot.parentElement.scrollTop = 0; shot.src = src; shot.alt = 'Example of a ' + label.toLowerCase() + ' built with Bolt'; shot.style.transform = ''; shot.classList.remove('is-out'); }, 250);
     }
     if (focus) it.focus({ preventScroll: true });
     /* the chip row (tablet / phone) scrolls itself, never the page */
@@ -6663,7 +6692,7 @@ window.addEventListener('load', function () {
   grid.addEventListener('mouseleave', function () { if (document.activeElement !== ta) root.classList.remove('is-paused'); });
   ta.addEventListener('focus', function () { root.classList.add('is-paused'); });
   ta.addEventListener('blur', function () { root.classList.remove('is-paused'); });
-  ta.addEventListener('input', function () { root.classList.add('is-manual'); });
+  ta.addEventListener('input', function () { clearInterval(typing); root.classList.add('is-manual'); });
   new IntersectionObserver(function (es) { root.classList.toggle('is-running', es[0].isIntersecting); }, { threshold: 0.35 }).observe(grid);
 })();
 </script>
