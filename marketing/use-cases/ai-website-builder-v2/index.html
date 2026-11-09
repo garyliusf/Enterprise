@@ -3600,6 +3600,10 @@ html[data-theme="dark"] .uc2-pg-frame { box-shadow: 0 30px 70px -24px rgba(0, 0,
 .uc2-pg-frame { position: relative; }
 .uc2-pg-ghost { position: absolute; left: 0; right: 0; z-index: 1; pointer-events: none; background: #fff no-repeat; background-size: 100% auto; transition: opacity 0.45s ease; }
 .uc2-pg-ghost.is-gone { opacity: 0; }
+/* a tab may open its result part-way down (data-start) with the site's navbar pinned on top (data-nav), as a
+   sticky nav would be (Gary, 2026-11-09). Both in px of the 1280-wide capture. The pin fades out along its
+   last quarter so a navbar that floats over a photo meets the scrolled photo without a seam. */
+.uc2-pg-pin { position: absolute; left: 0; right: 0; z-index: 1; display: none; pointer-events: none; background: no-repeat 0 0 / 100% auto; -webkit-mask-image: linear-gradient(#000 75%, transparent); mask-image: linear-gradient(#000 75%, transparent); }
 .uc2-pg-box, html[data-theme] .uc2-pg-box { border-color: transparent; } /* no outline, shadow only (Gary) */
 .uc2-pg-box { position: absolute; z-index: 2; left: 50%; bottom: 32px; width: min(560px, calc(100% - 64px)); transform: translateX(-50%); box-shadow: 0 30px 60px -20px rgba(2, 10, 30, 0.6), 0 10px 24px -10px rgba(2, 10, 30, 0.35); }
 html[data-theme="dark"] .uc2-pg-box { background: #17181d; } /* opaque over the screenshot (the shell's dark fill is translucent) */
@@ -6033,7 +6037,9 @@ window.addEventListener('load', function () {
     {
      "label": "Restaurant website",
      "shot": "pizzeria",
-     "text": "Make a website for my pizza parlor with the full menu, daily specials, party packages, and our hours and location."
+     "text": "Make a website for my pizza parlor with the full menu, daily specials, party packages, and our hours and location.",
+     "start": 400,
+     "nav": 84
     },
     {
      "label": "Business website",
@@ -6171,7 +6177,8 @@ window.addEventListener('load', function () {
   if (list && P.length) {
     list.innerHTML = P.map(function (p, i) {
       var on = i === 0;
-      return '<button type="button" class="uc2-pg-item' + (on ? ' is-active' : '') + '" role="tab" aria-selected="' + on + '" aria-controls="uc2-pg-panel" data-prompt="' + esc(p.text) + '" data-shot="../images/prompt-results/' + esc(p.shot) + '.webp">' +
+      return '<button type="button" class="uc2-pg-item' + (on ? ' is-active' : '') + '" role="tab" aria-selected="' + on + '" aria-controls="uc2-pg-panel" data-prompt="' + esc(p.text) + '" data-shot="../images/prompt-results/' + esc(p.shot) + '.webp"' +
+        (p.start ? ' data-start="' + (+p.start) + '"' : '') + (p.nav ? ' data-nav="' + (+p.nav) + '"' : '') + '>' +
         '<i class="uc2-pg-timer" aria-hidden="true"></i><span class="uc2-pg-label">' + esc(p.label) + '</span><span class="uc2-pg-body"><span class="uc2-pg-text">' + esc(p.text) + '</span></span></button>';
     }).join('');
     var shot = document.querySelector('.uc2-pg-shot'), ta = document.getElementById('uc2-pg-input');
@@ -7121,6 +7128,26 @@ window.addEventListener('load', function () {
     if (!es[0].isIntersecting) return;
     items.forEach(function (x) { preload(x.getAttribute('data-shot')); }); io.disconnect();
   }, { rootMargin: '800px 0px' }).observe(root);
+  /* data-start / data-nav (px of the 1280-wide capture): open part-way down, navbar pinned */
+  var pin = document.createElement('div');
+  pin.className = 'uc2-pg-pin'; pin.setAttribute('aria-hidden', 'true');
+  frame.appendChild(pin);
+  var scale = function () { return view.clientWidth / (shot.naturalWidth || 1280); };
+  var pinFit = function (it) {
+    var nav = +(it.getAttribute('data-nav') || 0);
+    if (!nav) { pin.style.display = 'none'; return; }
+    pin.style.display = 'block';
+    pin.style.top = view.offsetTop + 'px';
+    pin.style.height = Math.round(nav * scale()) + 'px';
+    pin.style.backgroundImage = 'url("' + it.getAttribute('data-shot') + '")';
+  };
+  var place = function (it) {
+    view.scrollTop = Math.round(+(it.getAttribute('data-start') || 0) * scale());
+    pinFit(it);
+  };
+  if (shot.complete && shot.naturalWidth) place(items[0]);
+  else shot.addEventListener('load', function first() { shot.removeEventListener('load', first); place(items[cur]); });
+  addEventListener('resize', function () { pinFit(items[cur]); });
   var swapId = 0;
   var crossfade = function (src, alt) {
     var id = ++swapId;
@@ -7134,6 +7161,7 @@ window.addEventListener('load', function () {
       g.style.backgroundPosition = '0 ' + (-view.scrollTop) + 'px';
       frame.appendChild(g);
       shot.src = src; shot.alt = alt; view.scrollTop = 0;
+      requestAnimationFrame(function () { place(items[cur]); });
       requestAnimationFrame(function () { requestAnimationFrame(function () { g.classList.add('is-gone'); }); });
       setTimeout(function () { g.remove(); }, reduce ? 0 : 520);
     });
