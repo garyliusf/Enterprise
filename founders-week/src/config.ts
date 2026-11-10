@@ -24,18 +24,23 @@ export const TERMS_PATH = asset('/terms/');
 export const THANKS_PATH = asset('/thanks/');
 export const HOME_PATH = asset('/');
 
+/* The contest is over and the winners are announced (2026-11-10). Flips the
+   hero pill to a static dot, the contest podium to the winners, drops the
+   entry panel + form, and points every CTA at #compete (the winners). */
+export const CONTEST_ENDED = true;
+export const WINNERS_CTA = 'See the winners';
+
 export const hero = {
-  eyebrow: 'Builders Week · Oct 17–24',
+  eyebrow: 'Builders Week · The contest has ended',
   /* Tagline is an open decision (Marketing drafts, Haily refines, CX signs
      off), and so is "Bolt" in front of the name. */
   /* Business-first messaging (2026-10-09): the week is for people starting
      or running a business, so the hero leads with that. */
-  titleSerif: 'Build your business.',
-  titleSans: 'Win $10,000 to scale it.',
-  subtitle:
-    /* the headline carries the $10k now, so the subtitle keeps the "on us" idea */
-    'A free build weekend and a week of live sessions with the Bolt team, on us.',
-  primaryCta: 'Compete for $10k',
+  /* post-contest (2026-11-10); was "Build your business." / "Win $10,000 to scale it." */
+  titleSerif: 'Builders Week is a wrap.',
+  titleSans: 'Meet the winners.',
+  subtitle: 'Three businesses built in Bolt took home $17,500 in prizes. See what they made, then build your own.',
+  primaryCta: WINNERS_CTA,
 };
 
 export type Milestone = { date: string; title: string; body: string; tbc?: boolean };
@@ -44,22 +49,23 @@ export const timeline: Milestone[] = [
   {
     date: 'Oct 13',
     title: 'Contest Opens',
-    body: 'Turn your business idea into a product in Bolt, or grow the one you run. Submissions are open from Oct 13 to Oct 20.',
+    body: 'Builders turned business ideas into products in Bolt, or grew the ones they already run. Submissions were open from Oct 13 to Oct 20.',
   },
   {
     date: 'Oct 17–18',
     title: 'Free Build Weekend',
-    body: 'Free building on GLM 5.3 Flash for everyone on Bolt, free and paid, Teams included. Starts Sat Oct 17 at 12:00am PDT, ends Sun Oct 18 at 11:59pm PDT.',
+    body: 'Free building on GLM 5.3 Flash for everyone on Bolt, free and paid, Teams included, from Sat Oct 17 to Sun Oct 18.',
   },
   {
     date: 'Oct 20–23',
     title: 'Live Sessions',
-    body: 'A Q&A with Bolt’s co-founders and live workshops on SEO, growth and design for your business.',
+    body: 'A Q&A with Bolt’s co-founders and live workshops on SEO, growth and design.',
   },
   {
-    date: 'Oct 31',
+    /* the day the winners were announced (Kate, Slack) */
+    date: 'Nov 10',
     title: 'Winners Announced',
-    body: 'Submissions close Oct 20 and judging runs Oct 21 to 31. Winners are announced here and on social.',
+    body: 'QuoteSnap took the $10,000 grand prize, Rotari Bakes second and Nightdesk third.',
   },
 ];
 
@@ -69,22 +75,22 @@ export const weekend = {
   eyebrow: 'Free build weekend',
   title: 'Two days of free building', /* not "unlimited": rate limits apply */
   subtitle:
-    'From Saturday morning to Sunday night, every Bolt user gets GLM 5.3 Flash free in the model picker. No plan change, no code to redeem.',
+    'From Saturday morning to Sunday night, every Bolt user got GLM 5.3 Flash free in the model picker. No plan change, no code to redeem.',
   points: [
     {
       icon: 'plus' as PixelIconName,
-      title: 'Everyone gets access',
-      body: 'Free, personal paid and Teams accounts all get it. On Teams, every member gets their own allowance.',
+      title: 'Everyone got access',
+      body: 'Free, personal paid and Teams accounts all got it. On Teams, every member got their own allowance.',
     },
     {
       icon: 'clock' as PixelIconName,
       title: 'A fresh block every six hours',
-      body: 'Your allowance comes in six-hour blocks. A block starts when you open Bolt, and your first visit after it ends starts the next one.',
+      body: 'Allowances came in six-hour blocks. A block started when you opened Bolt, and your first visit after it ended started the next one.',
     },
     {
       icon: 'up' as PixelIconName,
       title: 'More on paid plans',
-      body: 'Paid plans get five times the free allowance in every block.',
+      body: 'Paid plans got five times the free allowance in every block.',
     },
   ],
   /* Mosaic photos (public/people). Placeholders: three photos repeat until
@@ -103,7 +109,7 @@ export const weekend = {
   /* Only shown once DigitalOcean confirms they are covering inference. */
   partner: { show: false, name: 'DigitalOcean', line: 'Free inference for the weekend is provided by DigitalOcean.' },
   finePrint:
-    'The free weekend runs from Saturday Oct 17 at 12:00am PDT to Sunday Oct 18 at 11:59pm PDT. GLM 5.3 Flash is the only free model during the weekend. Rate limits apply. Blocks you miss do not carry over.',
+    'The free weekend ran from Saturday Oct 17 at 12:00am PDT to Sunday Oct 18 at 11:59pm PDT. GLM 5.3 Flash was the only free model during the weekend, and rate limits applied.',
 };
 
 export type Session = {
@@ -223,16 +229,18 @@ export const templates = {
 };
 
 export type Prize = { place: string; amount: string; extras: string };
+export type Winner = { name: string; blurb: string; url: string; img: string };
 
 /* From the official rules (Terms.tsx). Keep these in step with legal's text. */
 export const competition = {
-  eyebrow: 'The contest',
+  eyebrow: 'The winners',
   /* Business ideas or existing businesses only, so the entries are the right
      kind (2026-10-09). The demo video is optional now; the rules still list it
      as required — legal to reconcile. */
-  title: 'Show us the business you’re building',
+  /* post-contest; was "Show us the business you’re building" */
+  title: 'Meet the Builders Week winners',
   subtitle:
-    'Turn a business idea into a product, or grow the business you already run. Build it in Bolt and submit it by Oct 20. Winners are announced on or about Oct 31.',
+    'Three businesses built in Bolt, judged from every entry. Thanks to everyone who took part, and congratulations to our winners.',
   prizesTbc: false,
   prizes: [
     /* the 1:1 is not in the rules yet — legal to add */
@@ -240,6 +248,29 @@ export const competition = {
     { place: 'Second prize', amount: '$5,000', extras: 'Paid in U.S. dollars.' },
     { place: 'Third prize', amount: '$2,500', extras: 'Paid in U.S. dollars.' },
   ] as Prize[],
+  /* in prize order (1st, 2nd, 3rd), from Kate in Slack 2026-11-10. Names are
+     the sites' own (Kate called them Quotesnap / Cake Estimator / Nightshift).
+     Shots: 1440x810 captures of each landing page, 1200x675 webp. */
+  winners: [
+    {
+      name: 'QuoteSnap',
+      blurb: 'Snap a photo of a patio, driveway or remodel and get an itemized quote in 60 seconds, then book the crew in one tap.',
+      url: 'https://quotesnap-platform-fe29.bolt.host/',
+      img: asset('/winners/bw-quotesnap.webp'),
+    },
+    {
+      name: 'Rotari Bakes',
+      blurb: 'A cake estimator for a Nottingham bakery: upload a reference photo and get a personalised quote in minutes.',
+      url: 'https://getmycakequote.co.uk/',
+      img: asset('/winners/bw-rotari-bakes.webp'),
+    },
+    {
+      name: 'Nightdesk',
+      blurb: 'Ava, an AI front desk for small businesses, answers every call, flags emergencies and handles the follow-ups.',
+      url: 'https://nightdesk.bolt.host/',
+      img: asset('/winners/bw-nightdesk.webp'),
+    },
+  ] as Winner[],
   criteria: 'Judged on use of Bolt, the idea, implementation and design, and potential impact, weighted equally.',
   prizeFinePrint:
     'No purchase necessary. Open to individuals 18 and over, teams and organizations, subject to the eligibility rules. One entry per entrant.',
@@ -257,28 +288,29 @@ export const pastWinners = {
 };
 
 export const faqs: { q: string; a: string }[] = [
+  /* post-contest set (2026-11-10): the entry questions are gone */
   {
-    q: 'Who can take part in Builders Week?',
-    a: 'Anyone with a Bolt account can join the build weekend and the sessions. The contest is open to individuals 18 and over, teams and organizations, with some exclusions listed in the official rules.',
+    q: 'Who won Builders Week?',
+    a: 'QuoteSnap won the $10,000 grand prize and a 1:1 mentoring session with Eric Simons. Rotari Bakes took second place ($5,000) and Nightdesk third ($2,500). Thanks to everyone who entered.',
   },
   {
-    q: 'Is the build weekend really free?',
-    a: 'Yes. From Saturday Oct 17 at 12:00am PDT to Sunday Oct 18 at 11:59pm PDT, GLM 5.3 Flash is free in the model picker for every account, free and paid. It is the only free model that weekend. Your allowance comes in six-hour blocks and rate limits apply. No paid plan is needed to enter the contest either.',
+    q: 'How were the winners picked?',
+    a: 'Judges scored every eligible entry on use of Bolt, the idea, implementation and design, and potential impact, weighted equally. The full criteria are in the official rules.',
   },
   {
-    q: 'Does my project have to be new?',
-    /* Gary, 2026-10-09: projects don't have to be new. NOTE the rules page (Terms.tsx, legal's text) still says "a new application, created during the Submission Period" — legal to reconcile. */
-    a: 'No. Your project doesn’t have to be new, it just has to be built in Bolt. Submit it between Oct 13 and Oct 20. Other tools can play a supporting role if you disclose them.',
+    q: 'Who could take part?',
+    a: 'Anyone with a Bolt account could join the build weekend and the sessions. The contest was open to individuals 18 and over, teams and organizations, with some exclusions listed in the official rules.',
   },
   {
-    q: 'When are the winners announced?',
-    a: 'Submissions close on Tuesday Oct 20. Judging runs Oct 21 to 31, and winners are announced on or about Oct 31 on this page and on social.',
+    q: 'Was the build weekend really free?',
+    a: 'Yes. From Saturday Oct 17 to Sunday Oct 18, GLM 5.3 Flash was free in the model picker for every account, free and paid. Allowances came in six-hour blocks and rate limits applied.',
   },
 ];
 
 export const footerCta = {
   eyebrow: 'Builders Week',
-  title: 'Your startup starts this weekend',
-  subtitle: 'Build it in Bolt, submit it by Oct 20 and compete for the $10k grand prize.',
-  cta: 'Compete for $10k',
+  /* post-contest: the closing CTA sends people to Bolt, not back up the page */
+  title: 'Build the next winner',
+  subtitle: 'The contest has ended, but Bolt is open every day. Turn your business idea into a product, or grow the one you run.',
+  cta: 'Start building',
 };

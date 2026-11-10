@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { asset, BOLT_URL } from '../config';
+import { asset, BOLT_URL, CONTEST_ENDED, WINNERS_CTA } from '../config';
 import { BoltLogo, Btn } from './ui';
 
 const LINKS = [
   { href: '#weekend', label: 'Build Weekend' },
   { href: '#schedule', label: 'Sessions' },
-  { href: '#compete', label: 'Contest' },
+  { href: '#compete', label: CONTEST_ENDED ? 'Winners' : 'Contest' },
   { href: '#faq', label: 'FAQ' },
 ];
 
@@ -77,7 +77,7 @@ export function Nav({ overHero = true }: { overHero?: boolean }) {
           </a>
           {overHero && (
             <Btn href="#compete" className="fw-nav-cta">
-              Compete for $10k
+              {CONTEST_ENDED ? WINNERS_CTA : 'Compete for $10k'}
             </Btn>
           )}
           {overHero && (
@@ -107,10 +107,13 @@ export function Nav({ overHero = true }: { overHero?: boolean }) {
               <svg className="fw-drawer-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6" /></svg>
             </a>
           ))}
-          <a href="#compete" onClick={() => setOpen(false)}>
-            Compete for $10k
-            <svg className="fw-drawer-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6" /></svg>
-          </a>
+          {/* once the contest has ended, the "Winners" link above already goes there */}
+          {!CONTEST_ENDED && (
+            <a href="#compete" onClick={() => setOpen(false)}>
+              Compete for $10k
+              <svg className="fw-drawer-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6" /></svg>
+            </a>
+          )}
           </div>
         </div>
       )}

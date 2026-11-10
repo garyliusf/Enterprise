@@ -1,4 +1,4 @@
-import { hero } from '../config';
+import { CONTEST_ENDED, hero } from '../config';
 import { BgVideo, Btn } from './ui';
 
 export function Hero() {
@@ -12,7 +12,8 @@ export function Hero() {
         {/* glass pill: pulsing live dot + label + a light sweep (no scramble).
             The pixel x read as a close button (reviewer, 2026-10-08). */}
         <span className="fw-hero-pill">
-          <span className="fw-live-dot fw-hero-pill-dot" aria-hidden="true" />
+          {/* static grey dot once the contest is over (no "live" pulse) */}
+          <span className={`${CONTEST_ENDED ? 'fw-closed-dot' : 'fw-live-dot'} fw-hero-pill-dot`} aria-hidden="true" />
           <span className="section-eyebrow fw-hero-eyebrow">{hero.eyebrow}</span>
         </span>
         <h1 className="fw-hero-h1">
@@ -22,7 +23,7 @@ export function Hero() {
         </h1>
         <p className="fw-hero-sub">{hero.subtitle}</p>
         <div className="hero-btn-group fw-hero-ctas">
-          {/* one CTA: straight to the contest + prizes */}
+          {/* one CTA: straight to the contest (the winners once it has ended) */}
           <Btn href="#compete" className="fw-hero-cta">{hero.primaryCta}</Btn>
         </div>
       </div>

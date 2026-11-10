@@ -1,6 +1,6 @@
 import type React from 'react';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
-import { BOLT_URL, competition, faqs, footerCta, pastWinners, sessions, templates, TERMS_PATH, timeline, weekend, type Session } from '../config';
+import { BOLT_URL, competition, CONTEST_ENDED, faqs, footerCta, pastWinners, sessions, templates, TERMS_PATH, timeline, weekend, type Session } from '../config';
 import { EntryForm, useEntriesClosed } from './Forms';
 import { BgVideo, Btn, BoltLogo, HoverField, PixelField, PixelIcon, PixelRise, SectionHeader, Tbc, type WaveFn } from './ui';
 
@@ -95,7 +95,7 @@ export function Timeline() {
         <SectionHeader
           eyebrow="How the week runs"
           title="Build, learn, then show it off"
-          subtitle="Builders Week runs Oct 17 to 24: a free build weekend, a week of sessions, and a contest."
+          subtitle="Builders Week ran Oct 17 to 24: a free build weekend, a week of sessions, and a contest."
         />
         {/* The shared "How it works" step line (solutions/_template, bolt-cli):
             the line draws, a glow travels it, nodes pop and the copy rises in
@@ -269,8 +269,8 @@ function FeaturedSession({ s }: { s: Session }) {
       </div>
       <div className="fw-feature-body">
         <span className="fw-feature-kicker">
-          <span className="fw-live-dot" aria-hidden="true" />
-          {cd?.state === 'live' ? 'Live now' : 'Coming up'}
+          <span className={cd?.state === 'ended' ? 'fw-closed-dot' : 'fw-live-dot'} aria-hidden="true" />
+          {cd?.state === 'live' ? 'Live now' : cd?.state === 'ended' ? 'Past session' : 'Coming up'}
         </span>
         <h3 className="fw-feature-title">{s.title}</h3>
         <p className="fw-feature-blurb">{s.blurb}</p>
@@ -352,7 +352,7 @@ export function Schedule() {
                   <SessionHost s={s} />
                   {s.url && (
                     <span className="fw-text-link fw-session-rsvp">
-                      RSVP <i className="fw-arrow" aria-hidden="true" />
+                      {s.end && Date.parse(s.end) < Date.now() ? 'Event page' : 'RSVP'} <i className="fw-arrow" aria-hidden="true" />
                     </span>
                   )}
                 </div>
@@ -506,9 +506,34 @@ export function Competition() {
             <feComposite in="SourceGraphic" in2="inner" operator="out" />
           </filter>
         </svg>
-        {/* podium: 2nd | 1st | 3rd on desktop, 1-2-3 stacked on phones */}
-        <div className="fw-prizes">
-          {competition.prizes.map((p, i) => (
+        {/* podium: 2nd | 1st | 3rd on desktop, 1-2-3 stacked on phones.
+            Once the contest has ended each card carries its winner. */}
+        <div className={`fw-prizes${CONTEST_ENDED ? ' fw-prizes--won' : ''}`}>
+          {CONTEST_ENDED && competition.winners.map((w, i) => {
+            const p = competition.prizes[i];
+            return (
+              <a key={w.name} className={`fw-prize fw-prize--won sc-on-dark fw-prize--${i + 1}${i === 0 ? ' is-first' : ''}`} href={w.url} target="_blank" rel="noopener">
+                <PixelField wave={cornerWave} spacing={8} dot={2} opacity={i === 0 ? 0.9 : 0.45} className="fw-card-field is-on" color="140,190,255" />
+                <PixelRise colors={['255,255,255', '200,228,255', '140,196,255', '77,166,255']} alpha={0.55} />
+                <span className="fw-prize-rank" aria-hidden="true">{i + 1}</span>
+                {/* top row: prize pill + the link cue; the bottom row stays the
+                    prize card's own (amount left, ghost numeral right) */}
+                <span className="fw-won-top">
+                  <span className="fw-prize-place">{p.place}</span>
+                  <span className="fw-won-link">
+                    View app <i className="fw-arrow" aria-hidden="true" />
+                  </span>
+                </span>
+                <span className="fw-won-shot">
+                  <img src={w.img} alt={`Screenshot of ${w.name}`} loading="lazy" decoding="async" />
+                </span>
+                <span className="fw-won-name">{w.name}</span>
+                <p className="fw-card-desc">{w.blurb}</p>
+                <span className="fw-won-amount">{p.amount}</span>
+              </a>
+            );
+          })}
+          {!CONTEST_ENDED && competition.prizes.map((p, i) => (
             <div key={p.place} className={`fw-prize sc-on-dark fw-prize--${i + 1}${i === 0 ? ' is-first' : ''}`}>
               <PixelField wave={cornerWave} spacing={8} dot={2} opacity={i === 0 ? 0.9 : 0.45} className="fw-card-field is-on" color="140,190,255" />
               {/* button-style pixel fill: rises on hover, falls on leave */}
@@ -524,7 +549,7 @@ export function Competition() {
           ))}
         </div>
         <p className="fw-fine fw-fine--center">
-          {competition.criteria} {competition.prizeFinePrint}{' '}
+          {competition.criteria} {!CONTEST_ENDED && competition.prizeFinePrint}{' '}
           <a className="fw-text-link" href={TERMS_PATH} target="_blank" rel="noopener">
             Read the official rules
           </a>
@@ -545,7 +570,8 @@ export function Competition() {
         </div>
         <PastWinners />
 
-        <EnterBlock />
+        {/* the entry panel + form go once the winners are up */}
+        {!CONTEST_ENDED && <EnterBlock />}
 
       </div>
     </section>
@@ -605,7 +631,11 @@ export function FooterCta() {
         </div>
         <p className="fw-footer-sub">{footerCta.subtitle}</p>
         <div className="hero-btn-group fw-footer-btns">
-          <Btn href="#compete">{footerCta.cta}</Btn>
+          {CONTEST_ENDED ? (
+            <Btn href={BOLT_URL} external>{footerCta.cta}</Btn>
+          ) : (
+            <Btn href="#compete">{footerCta.cta}</Btn>
+          )}
         </div>
       </div>
     </section>
