@@ -2208,45 +2208,6 @@ html[data-theme="dark"] .hm-closing-video { filter: blur(10px) brightness(0.72) 
 <!-- pixel canvas bridging the hero into the catalog -->
 <div class="featured-bridge" aria-hidden="true"></div>
 
-<!-- ─── HOLIDAY SEASON (TEMPORARY — MKT-563, 2026-11-10) ───────────────────────
-     Seasonal highlight band above the catalog. Remove this whole section (+ the
-     Holiday filter button + the holiday CATALOG entries) after the season. ── -->
-<style id="holiday-feature-css">
-  .holiday-feature {
-    position: relative;
-    border-top: 1px solid rgba(var(--sc-ink-rgb), 0.08);
-    border-bottom: 1px solid rgba(var(--sc-ink-rgb), 0.08);
-    background: radial-gradient(120% 140% at 50% 0%, rgba(20,136,252,0.055) 0%, rgba(20,136,252,0) 60%);
-    padding-top: clamp(40px, 7vh, 72px);
-    padding-bottom: clamp(40px, 7vh, 72px);
-  }
-  .holiday-feature-head { max-width: 680px; margin: 0 0 clamp(28px, 4vh, 44px); }
-  .holiday-eyebrow { display: inline-flex; align-items: center; gap: 8px; color: #1488FC; }
-  .holiday-eyebrow svg { width: 15px; height: 15px; }
-  .holiday-feature-sub {
-    margin: 16px 0 0; font-size: clamp(15px, 1.1vw, 17px); line-height: 1.65;
-    color: rgba(var(--sc-ink-rgb), 0.5); max-width: 620px;
-  }
-  .holiday-feature-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px 24px;
-  }
-  @media (max-width: 1024px) { .holiday-feature-grid { grid-template-columns: repeat(2, 1fr); gap: 24px 16px; } }
-  @media (max-width: 560px)  { .holiday-feature-grid { grid-template-columns: 1fr; } }
-</style>
-<section class="section holiday-feature" id="holiday-featured">
-  <div class="section-inner">
-    <div class="holiday-feature-head">
-      <p class="section-eyebrow eyebrow-scramble holiday-eyebrow">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
-        <span>Limited time · Holiday 2026</span>
-      </p>
-      <div class="dsa-reveal"><h2 class="sc-section-h2">Holiday season templates</h2></div>
-      <p class="holiday-feature-sub">Launch-ready pages for your biggest sales weekend — a Black Friday sale page, a gift guide, last-minute e-gift cards, and more. Clone one and make it yours in minutes.</p>
-    </div>
-    <div class="holiday-feature-grid" id="holiday-featured-grid"><!-- holiday cards injected by JS --></div>
-  </div>
-</section>
-
 <!-- ─── CATALOG ───────────────────────────────────────────────────────────── -->
 <section class="section catalog-section" id="catalog">
   <div class="section-inner">
@@ -2418,7 +2379,7 @@ html[data-theme="dark"] .hm-closing-video { filter: blur(10px) brightness(0.72) 
    site, which the card pans through on hover.
    Live: https://template-minimalist-architect-portfolio.bolt.host/ */
 var CATALOG = [
-  /* ── Holiday season templates (TEMPORARY — MKT-563, added 2026-11-10). Remove this block + the Holiday filter + #holiday-featured section after the season. ── */
+  /* ── Holiday season templates (TEMPORARY — MKT-563, added 2026-11-10). Remove this block + the Holiday filter button after the season. ── */
   { name: 'Holiday Sale Page',      abbr: 'HS', color: 'salmon', tag: 'holiday', desc: 'A warm Black Friday to Cyber Monday sale page with a live countdown, copy-to-clipboard promo code, and a gift-forward product grid.', shot: 'images/holiday-sale-page.webp' },
   { name: 'Pre-Order & Pickup Page', abbr: 'PP', color: 'mint', tag: 'holiday', desc: 'A holiday pre-order flow for bakeries: a filterable menu, built-in order summary, and a pickup date-and-time picker.', shot: 'images/pre-order-pickup-page.webp' },
   { name: 'E-Gift Card Page',       abbr: 'GC', color: 'mint', tag: 'holiday', desc: 'An elegant last-minute e-gift card builder with preset and custom amounts, a personal message, and scheduled delivery.', shot: 'images/e-gift-card-page.webp' },
@@ -2613,30 +2574,6 @@ function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace
   });
   search.addEventListener('input', apply);
   render(CATALOG);
-
-  /* ── Holiday featured band (TEMPORARY — MKT-563) ───────────────────────────
-     Renders the holiday-tagged templates into #holiday-featured-grid, reusing
-     the catalog-card markup so the cards match the grid below. All holiday
-     entries carry a `shot`, so the standard shot-pan preview is used. */
-  (function () {
-    var hgrid = document.getElementById('holiday-featured-grid');
-    if (!hgrid) return;
-    var holiday = CATALOG.filter(function (i) { return i.tag === 'holiday'; });
-    hgrid.innerHTML = holiday.map(function (i, idx) {
-      var media = i.shot
-        ? '<div class="catalog-card-shot-wrap"><img class="catalog-card-shot" src="' + i.shot + '" alt="" width="800" height="2245" loading="eager" decoding="async"></div>'
-        : previewFor(idx);
-      return '<a href="./detail/?slug=' + slugify(i.name) + '" class="catalog-card" style="--i:' + idx + ';">'
-        + '<div class="catalog-card-preview" aria-hidden="true">' + media
-        +   '<div class="catalog-card-overlay"><span>View details</span></div>'
-        + '</div>'
-        + '<div class="catalog-card-foot">'
-        +   '<span class="catalog-card-name">' + i.name + '</span>'
-        +   '<span class="catalog-card-tag">' + TAG_LABELS[i.tag] + '</span>'
-        + '</div>'
-        + '</a>';
-    }).join('');
-  })();
 
   /* Click-hold-drag horizontal scroll on the filter row — mirrors the detail gallery pattern. Window-bound pointermove/pointerup so a drag survives the cursor leaving the row; click swallowed above 5px of movement so an accidental drag doesn't fire a filter button. */
   (function () {
