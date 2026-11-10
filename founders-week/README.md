@@ -37,10 +37,10 @@ entries. A small note under each form says so.
 
 ## Staging preview
 
-`npm run build:preview` builds a static copy into `preview/`, served by the
+`npm run build:preview` builds a static copy into `../builders-week/` (repo root), served by the
 sandbox's GitHub Pages at
-https://garyliusf.github.io/Enterprise/founders-week/preview/ (rules page:
-`…/preview/terms/`). Rebuild and commit `preview/` to update it. Forms run in
+https://garyliusf.github.io/Enterprise/builders-week/ (rules page:
+`…/builders-week/terms/`). Rebuild and commit `builders-week/` to update it. Forms run in
 preview mode there (nothing is saved).
 
 ## Exporting to Bolt
