@@ -88,7 +88,8 @@ function nextMilestone(): number {
 export function Timeline() {
   /* client-only: the prerendered markup carries no "next" step */
   const [nextIdx, setNextIdx] = useState(-1);
-  useEffect(() => setNextIdx(nextMilestone()), []);
+  /* after the contest the last step (winners) is the live one */
+  useEffect(() => setNextIdx(CONTEST_ENDED ? timeline.length - 1 : nextMilestone()), []);
   return (
     <section className="fw-section fw-section--timeline" aria-label="How the week runs">
       <div className="fw-inner">
@@ -102,10 +103,11 @@ export function Timeline() {
             sequence once it scrolls into view. Four steps = bolt-cli's timing. */}
         <HowSteps>
           {timeline.map((m, i) => (
-            <div key={m.title} className="how-step">
+            /* steps already behind us grey out (all of them if none is next) */
+            <div key={m.title} className={`how-step${nextIdx === -1 ? '' : i < nextIdx ? ' is-past' : ''}`}>
               <div className={`how-step-node${i === nextIdx ? ' is-next' : ''}`}>
                 <span className="how-step-number">{String(i + 1).padStart(2, '0')}</span>
-                {i === nextIdx && <span className="fw-sr">Next up</span>}
+                {i === nextIdx && <span className="fw-sr">{CONTEST_ENDED ? 'Latest' : 'Next up'}</span>}
               </div>
               <CalendarDate label={m.date} next={i === nextIdx} tbc={m.tbc} />
               <h3 className="how-step-title">{m.title}</h3>
@@ -338,6 +340,8 @@ export function Schedule() {
         {featured && <FeaturedSession s={featured} />}
         <div className="fw-grid fw-grid--3 fw-session-cards">
           {rest.map((s, i) => {
+            /* past sessions: no Luma link (Gary, 2026-11-10) */
+            const link = s.url && !(s.end && Date.parse(s.end) < Date.now()) ? s.url : undefined;
             const inner = (
               <>
                 {/* the footer gradient clip, each card a different crop / flip / tint / moment */}
@@ -350,17 +354,17 @@ export function Schedule() {
                 {/* one bottom row: speaker left, RSVP right */}
                 <div className="fw-session-foot">
                   <SessionHost s={s} />
-                  {s.url && (
+                  {link && (
                     <span className="fw-text-link fw-session-rsvp">
-                      {s.end && Date.parse(s.end) < Date.now() ? 'Event page' : 'RSVP'} <i className="fw-arrow" aria-hidden="true" />
+                      RSVP <i className="fw-arrow" aria-hidden="true" />
                     </span>
                   )}
                 </div>
               </>
             );
             /* whole card links to the Luma event */
-            return s.url ? (
-              <a key={s.title} className="fw-card fw-session-card" href={s.url} target="_blank" rel="noopener">
+            return link ? (
+              <a key={s.title} className="fw-card fw-session-card" href={link} target="_blank" rel="noopener">
                 {inner}
               </a>
             ) : (

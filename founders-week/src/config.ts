@@ -142,7 +142,7 @@ export const sessions: Session[] = [
     time: '10–11am PT',
     title: 'Ask Eric & Albert anything',
     host: 'Eric Simons, CEO, and Albert Pai, CTO',
-    blurb: 'Bolt’s co-founders take your questions live and unscripted: the turnaround, the riskiest product bets, and the advice they think is overrated. Send your questions in advance.',
+    blurb: 'Bolt’s co-founders took your questions live and unscripted: the turnaround, the riskiest product bets, and the advice they think is overrated.',
     photo: asset('/people/eric-pai.webp'),
     photoCaption: 'Eric Simons & Albert Pai',
     url: 'https://luma.com/bolt-y5tz',
