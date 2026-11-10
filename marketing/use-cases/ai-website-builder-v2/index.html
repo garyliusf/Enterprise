@@ -3316,6 +3316,7 @@ html[data-theme] .uc2-fan + .why-section { border-top: 0; }
 /* ── How it works on the stage (shares .hm-stage-* with showcase B) ── */
 .hm-stage--steps { margin-top: 48px; align-items: start; }
 .hm-stage-btn { outline: none; -webkit-tap-highlight-color: transparent; }
+.hm-stage-btn:focus-visible { outline: 2px solid #1488FC; outline-offset: 4px; } /* keyboard users see which step Enter picks (Greptile, bolt-public-pages#678) */
 /* smoother hand-off: the body opens a touch slower than the old one closes, the scene fades/rises in */
 .hm-stage--steps .hm-stage-body { transition: grid-template-rows 0.55s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.45s ease 0.1s; }
 .hm-stage--steps .hm-stage-item:not(.is-active) .hm-stage-body { transition: grid-template-rows 0.45s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease; }
@@ -3612,8 +3613,9 @@ html[data-theme="dark"] .uc2-pg-box { background: #17181d; } /* opaque over the 
 .uc2-pg-box .re-prompt-submit { margin-left: auto; }
 .uc2-pg-box.is-swapped { animation: uc2-pg-pulse 0.6s ease; }
 @keyframes uc2-pg-pulse { 0% { box-shadow: 0 30px 60px -24px rgba(2, 10, 30, 0.55), 0 0 0 0 rgba(20, 136, 252, 0.4); } 100% { box-shadow: 0 30px 60px -24px rgba(2, 10, 30, 0.55), 0 0 0 10px rgba(20, 136, 252, 0); } }
-/* with a mouse over it the example site scrolls by hand (wheel / trackpad); at either end the page takes over */
-@media (hover: hover) and (pointer: fine) { .uc2-pg-view { overflow-y: auto; overscroll-behavior-y: auto; scrollbar-width: none; } .uc2-pg-view::-webkit-scrollbar { display: none; } }
+/* the example site scrolls by hand (wheel / trackpad / finger); at either end the page takes over.
+   Touch too since #678: phones could only ever see the top of each example */
+.uc2-pg-view { overflow-y: auto; overscroll-behavior-y: auto; scrollbar-width: none; } .uc2-pg-view::-webkit-scrollbar { display: none; }
 @media (max-width: 1024px) {
   .uc2-pg-panel { --uc2-pg-h: 440px; }
   .uc2-pg-box { bottom: 28px; width: calc(100% - 48px); }
@@ -6355,7 +6357,11 @@ window.addEventListener('load', function () {
     settle = setTimeout(function () { go(Math.round(s.pos)); }, 140);
   }, { passive: false });
   root.addEventListener('mouseenter', function () { s.hover = true; });
-  root.addEventListener('mouseleave', function () { s.hover = false; });
+  /* KEYBOARD focus inside holds it too (a focused link must not slide away); a mouse click's focus doesn't */
+  var kbd = function (el) { try { return !!el.querySelector(':focus-visible'); } catch (e) { return false; } };
+  root.addEventListener('mouseleave', function () { s.hover = kbd(root); });
+  root.addEventListener('focusin', function () { if (kbd(root)) s.hover = true; });
+  root.addEventListener('focusout', function (e) { if (!root.contains(e.relatedTarget)) s.hover = root.matches(':hover'); });
   root.addEventListener('pointerdown', function (e) {
     if (e.button !== 0) return;
     s.drag = true; s.moved = 0; s.startX = s.lastX = e.clientX; s.startPos = s.pos; s.lastT = e.timeStamp; s.vel = 0;
@@ -6378,8 +6384,9 @@ window.addEventListener('load', function () {
     s.lastT = 0;
     go(Math.round(s.pos + extra));
   };
-  root.addEventListener('pointerup', up);
-  root.addEventListener('pointercancel', up);
+  /* on window: a press that leaves the fan before it turns into a drag (no capture yet) still ends */
+  addEventListener('pointerup', up);
+  addEventListener('pointercancel', up);
   root.addEventListener('click', function (e) { if (s.moved > 6) { e.preventDefault(); e.stopPropagation(); } }, true);
   root.addEventListener('dragstart', function (e) { e.preventDefault(); });
   cards.forEach(function (el, i) {
@@ -6967,7 +6974,8 @@ window.addEventListener('load', function () {
     var kind = items[active].querySelector('.hm-stage-btn').getAttribute('data-visual');
     view.innerHTML = '<div class="hm-stage-scene">' + SCENES[kind]() + '</div>';
     var scene = view.querySelector('.hm-scene');
-    cleanup.push(field(scene.querySelector('.hm-scene-field')));
+    var fc = scene.querySelector('.hm-scene-field');
+    if (fc && getComputedStyle(fc).display !== 'none') cleanup.push(field(fc));   /* the steps layout hides it: no frame loop for nothing */
     if (reduce) { cleanup.push(play(scene, kind)); return; }
     var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { io.disconnect(); cleanup.push(play(scene, kind)); } }, { threshold: 0.45 });
     io.observe(scene);
@@ -7081,7 +7089,10 @@ window.addEventListener('load', function () {
   };
   raf = requestAnimationFrame(tick);
   track.addEventListener('mouseenter', function () { hovered = true; });
-  track.addEventListener('mouseleave', function () { hovered = false; pos = track.scrollLeft; });
+  var kbd = function (el) { try { return !!el.querySelector(':focus-visible'); } catch (e) { return false; } };
+  track.addEventListener('mouseleave', function () { hovered = kbd(track); pos = track.scrollLeft; });
+  track.addEventListener('focusin', function () { if (kbd(track)) hovered = true; });
+  track.addEventListener('focusout', function (e) { if (!track.contains(e.relatedTarget)) { hovered = track.matches(':hover'); pos = track.scrollLeft; } });
   track.addEventListener('touchstart', function () { clearTimeout(touchHold); touchHold = setTimeout(function () {}, 1e9); }, { passive: true });
   track.addEventListener('touchend', function () { clearTimeout(touchHold); touchHold = setTimeout(function () { touchHold = 0; pos = track.scrollLeft; }, 2500); }, { passive: true });
   new IntersectionObserver(function (es) { visible = es[0].isIntersecting; last = 0; }).observe(track);
@@ -7197,6 +7208,16 @@ window.addEventListener('load', function () {
   ta.addEventListener('focus', function () { root.classList.add('is-paused'); });
   ta.addEventListener('blur', function () { root.classList.remove('is-paused'); });
   ta.addEventListener('input', function () { clearInterval(typing); root.classList.add('is-manual'); });
+  /* Build now / Enter while the prompt is still typing itself in: finish it first, so the
+     page's .re-prompt-shell script sends the whole prompt (capture phase = before that handler) */
+  var finish = function () { if (!root.classList.contains('is-manual')) { clearInterval(typing); ta.value = ta.getAttribute('data-example') || ta.value; } };
+  var go = box.querySelector('.re-prompt-submit');
+  if (go) go.addEventListener('click', finish, true);
+  ta.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey) finish(); }, true);
+  /* a finger scrolling the result holds the timer, so the tab doesn't change under it */
+  var held = 0;
+  view.addEventListener('touchstart', function () { clearTimeout(held); root.classList.add('is-paused'); }, { passive: true });
+  view.addEventListener('touchend', function () { clearTimeout(held); held = setTimeout(function () { if (document.activeElement !== ta) root.classList.remove('is-paused'); }, 4000); }, { passive: true });
   new IntersectionObserver(function (es) { root.classList.toggle('is-running', es[0].isIntersecting); }, { threshold: 0.35 }).observe(grid);
 })();
 </script>
