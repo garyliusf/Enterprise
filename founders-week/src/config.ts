@@ -26,7 +26,10 @@ export const HOME_PATH = asset('/');
 
 /* The contest is over and the winners are announced (2026-11-10). Flips the
    hero pill to a static dot, the contest podium to the winners, drops the
-   entry panel + form, and points every CTA at #compete (the winners). */
+   entry panel + form, and points every CTA at #compete (the winners).
+   It switches components only: the copy in this file is post-contest and is
+   not keyed on it, so setting it back to false does NOT restore the entry
+   page. The pre-contest copy is in git history. */
 export const CONTEST_ENDED = true;
 export const WINNERS_CTA = 'See the winners';
 
