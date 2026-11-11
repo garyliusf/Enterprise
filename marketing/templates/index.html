@@ -707,30 +707,48 @@ html[data-theme="light"] .hero-section {
   }
   .ccw-v { top: 0; bottom: 0; left: 12%; width: 2px;
     background-image: repeating-linear-gradient(180deg, rgba(255,250,242,0.92) 0 5px, transparent 5px 11px);
-    transform: scaleY(0); transform-origin: 50% 88%; }
+    transform: scaleY(0); transform-origin: 50% 0%; }      /* draw top → bottom */
   .ccw-h { left: 0; right: 0; top: 88%; height: 2px;
     background-image: repeating-linear-gradient(90deg, rgba(255,250,242,0.92) 0 5px, transparent 5px 11px);
-    transform: scaleX(0); transform-origin: 12% 50%; }
+    transform: scaleX(0); transform-origin: 100% 50%; }     /* draw right → left */
   .catalog-card-link:hover .ccw-v,
   .catalog-card-link:hover .ccw-h { opacity: 1; }
   .catalog-card-link:hover .ccw-v { transform: scaleY(1); }
   .catalog-card-link:hover .ccw-h { transform: scaleX(1); transition-delay: 0.14s; }
-  /* Green bow at the lower-left crossing — animates in on its own when the card renders. */
-  .ccw-bow {
+  /* Green bow at the lower-left crossing — assembles itself when the card renders:
+     the loops bloom out from the knot, then the two tails unfurl downward. */
+  /* `.catalog-card-preview svg` (placeholder mocks) sets svg to 100%×100% at higher
+     specificity, so the bow's size + its 100% overrides are scoped to the wrap. */
+  .catalog-card-wrap .ccw-bow {
     position: absolute; left: 12%; top: 88%;
     width: 48px; height: 48px;
     transform: translate(-50%, -50%);
     filter: drop-shadow(0 2px 5px rgba(0,0,0,0.32));
-    animation: ccwBowIn 0.55s cubic-bezier(0.34,1.56,0.64,1) both;
-    animation-delay: calc(var(--i, 0) * 55ms + 150ms);
+    overflow: visible;
   }
-  @keyframes ccwBowIn {
-    from { opacity: 0; transform: translate(-50%, -50%) scale(0.3) rotate(-16deg); }
-    to   { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0); }
+  .ccw-bow .rib-loops, .ccw-bow .rib-tails { transform-box: fill-box; opacity: 0; }
+  .ccw-bow .rib-loops {
+    transform-origin: center;
+    animation: ribLoops 0.55s cubic-bezier(0.34,1.56,0.64,1) both;
+    animation-delay: calc(var(--i, 0) * 55ms + 180ms);
   }
-  @media (max-width: 768px) { .ccw-bow { width: 40px; height: 40px; } }
+  .ccw-bow .rib-tails {
+    transform-origin: center top;
+    animation: ribTails 0.5s cubic-bezier(0.22,0.61,0.36,1) both;
+    animation-delay: calc(var(--i, 0) * 55ms + 430ms);
+  }
+  @keyframes ribLoops {
+    0%   { opacity: 0; transform: scale(0.06) rotate(-30deg); }
+    55%  { opacity: 1; }
+    100% { opacity: 1; transform: scale(1) rotate(0); }
+  }
+  @keyframes ribTails {
+    0%   { opacity: 0; transform: scaleY(0); }
+    100% { opacity: 1; transform: scaleY(1); }
+  }
+  @media (max-width: 768px) { .catalog-card-wrap .ccw-bow { width: 40px; height: 40px; } }
   @media (prefers-reduced-motion: reduce) {
-    .ccw-bow { animation: none; opacity: 1; }
+    .ccw-bow .rib-loops, .ccw-bow .rib-tails { animation: none; opacity: 1; transform: none; }
     .ccw-v, .ccw-h { transition: opacity 0.2s ease; transform: none; }
   }
 
@@ -2597,13 +2615,31 @@ function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace
       + '</div>';
   }
 
+  /* Holiday gift-wrap overlay markup (TEMPORARY — MKT-563/570). The bow is inline
+     SVG split into .rib-loops (the four bow loops/knot) and .rib-tails (the two
+     trailing ribbons) so each group can animate in independently. */
+  var CCW_WRAP = '<div class="catalog-card-wrap">'
+    + '<span class="ccw-v"></span><span class="ccw-h"></span>'
+    + '<svg class="ccw-bow" viewBox="0 0 512 512" aria-hidden="true">'
+    +   '<g class="rib-loops">'
+    +     '<path d="m256 104.712v141.05h-15.52c-21.33 0-38.79-17.46-38.79-38.8v-23.72h-85.35c-4.41 0-8-3.59-8-8 0-4.42 3.59-8 8-8h85.35v-23.73c0-21.34 17.46-38.8 38.79-38.8z" fill="#017b4d"/>'
+    +     '<path d="m403.66 175.242c0 4.41-3.59 8-8 8h-85.35v23.72c0 21.34-17.46 38.8-38.79 38.8h-15.52v-141.05h15.521c21.33 0 38.79 17.46 38.79 38.8v23.73h85.35c4.409 0 7.999 3.58 7.999 8z" fill="#00623d"/>'
+    +     '<path d="m481 131.872v86.73c0 32.01-25.76 53.51-57.25 47.78l-56.19-10.21c-6.55-1.19-12.86-3.48-18.73-6.63-22.37-12-38.52-36.63-38.52-61.97v-4.33h85.35c4.41 0 8-3.59 8-8 0-4.42-3.59-8-8-8h-85.35v-4.34c0-32 25.76-62.87 57.25-68.59l56.19-10.22c31.49-5.73 57.25 15.78 57.25 47.78z" fill="#017b4d"/>'
+    +     '<path d="m108.34 175.242c0 4.41 3.59 8 8 8h85.35v4.33c0 25.35-16.17 50-38.55 61.99-5.87 3.14-12.16 5.42-18.7 6.61l-56.19 10.21c-31.49 5.73-57.25-15.77-57.25-47.78v-86.73c0-32 25.76-53.51 57.25-47.78l56.19 10.22c31.49 5.72 57.25 36.59 57.25 68.59v4.34h-85.35c-4.41 0-8 3.58-8 8z" fill="#00935c"/>'
+    +   '</g>'
+    +   '<g class="rib-tails">'
+    +     '<path d="m435.07 389.062-67.05-21.02-22.16 60.79-75.21-183.07h.87c21.33 0 38.79-17.46 38.79-38.8v-19.39c0 25.34 16.15 49.97 38.52 61.97z" fill="#025733"/>'
+    +     '<path d="m241.23 245.762-75.22 183.07-22.16-60.79-67.04 21.02 86.33-139.5c22.38-11.99 38.55-36.64 38.55-61.99v19.39c0 21.34 17.46 38.8 38.79 38.8z" fill="#00623d"/>'
+    +   '</g>'
+    + '</svg></div>';
+
   function render(items) {
     grid.innerHTML = items.map(function (i, idx) {
       return '<div class="catalog-card" style="--i:' + idx + ';">'
         + '<a href="./detail/?slug=' + slugify(i.name) + '" class="catalog-card-link">'
         +   '<div class="catalog-card-preview" aria-hidden="true">' + mediaFor(i, idx)
         +     '<div class="catalog-card-overlay"><span>View details</span></div>'
-        +     (i.tag === 'holiday' ? '<div class="catalog-card-wrap"><span class="ccw-v"></span><span class="ccw-h"></span><img class="ccw-bow" src="images/ribbon.svg" alt=""></div>' : '')
+        +     (i.tag === 'holiday' ? CCW_WRAP : '')
         +   '</div>'
         +   '<div class="catalog-card-foot">'
         +     '<span class="catalog-card-name">' + i.name + '</span>'
