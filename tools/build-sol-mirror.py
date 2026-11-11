@@ -93,7 +93,7 @@ main = main.replace('/public-page-assets/', 'https://bolt.new/public-page-assets
 #    and the page's own pills in a cta stack. Markup from smb's markers.
 SPLIT_HERO = {'ai-for-small-business', 'ai-for-entrepreneurs', 'ai-for-agencies'}   # the persona pages (Gary, 2026-11-11); real-estate keeps the prompt hero + video card
 if slug in SPLIT_HERO:
-  _cta = re.search(r'<!-- hero-cta-stack -->  \s*(<div class="hero-cta-stack">.*?)(<ul class="hero-pills">)', tpl, re.S).group(1)
+  _cta = re.search(r'<!-- hero-cta-stack -->\s*(<div class="hero-cta-stack">.*?)(<ul class="hero-pills">)', tpl, re.S).group(1)
   _col = re.search(r'<!-- hero-collage:.*?-->\s*(<div class="hero-collage">.*?)\s*<!-- /hero-collage -->', tpl, re.S).group(1)
   _col = _col.replace('../../marketing/', '../../')
   main, _n = re.subn(r'<div class="re-prompt-shell hero-prompt-shell">.*?(<ul class="hero-pills">.*?</ul>)', lambda m: _cta + m.group(1) + '\n</div>\n' + _col, main, count=1, flags=re.S)
