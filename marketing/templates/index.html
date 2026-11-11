@@ -699,22 +699,25 @@ html[data-theme="light"] .hero-section {
      line, and the green bow at the lower-left crossing. Remove with the holiday
      block. ── */
   .catalog-card-wrap { position: absolute; inset: 0; z-index: 6; pointer-events: none; }  /* above the View Details wash (z-2) so the pool + bow stay dark on hover */
-  /* Holiday cards: the dark pool meets the rounded corner, where the card's light
-     1px border + light surface bg showed through the anti-aliased edge as a sliver.
-     Drop the border and darken the bg so the corner edge reads dark, not light. */
-  .catalog-card-preview:has(.catalog-card-wrap) { border-color: transparent; background: #0a0a10; }
-  /* Dark pool behind the bow (bottom-left). Rest: subtle; hover: wider + darker,
-     so the ribbon + bow read against any product shot. */
+  /* Holiday pool behind the bow (bottom-left). It matches the View Details wash:
+     a WHITE pool in light mode, a DARK pool in dark mode. Rest: compact; hover:
+     grows slightly (above the wash, z-6, so it holds through the transition). */
   .catalog-card-wrap::before {
     content: ""; position: absolute; left: 0; bottom: 0; width: 66%; height: 56%;
-    /* Darkest point pulled a few % off the exact corner so the near-black doesn't
-       sit hard against the card's rounded edge (that showed as a light sliver). */
+    /* default = dark theme */
     background: radial-gradient(ellipse 120% 120% at 6% 94%, rgba(1,5,3,0.97) 0%, rgba(1,5,3,0.6) 48%, transparent 78%);
     border-radius: 0 0 0 12px;   /* follow the card corner */
     transform-origin: 0% 100%; transform: scale(0.9);
     transition: transform 0.25s ease-out;
   }
+  html[data-theme="light"] .catalog-card-wrap::before {
+    background: radial-gradient(ellipse 120% 120% at 6% 94%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.6) 48%, transparent 78%);
+  }
   .catalog-card-link:hover .catalog-card-wrap::before { transform: scale(1.04); }
+  /* In DARK mode the dark pool met the card's 1px border + surface bg at the
+     rounded corner and showed a white sliver; drop the border + darken the bg
+     there. Light mode keeps the default border/bg (the white pool blends in). */
+  html[data-theme="dark"] .catalog-card.is-holiday .catalog-card-preview { border-color: transparent; background: #0a0a10; }
   /* Dotted ribbon lines — hidden at rest, drawn on hover with a clip wipe so the
      dots stay crisp as the ribbon lays down (vertical top→bottom, horizontal
      right→left), both meeting at the bow knot. */
@@ -2655,7 +2658,7 @@ function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace
 
   function render(items) {
     grid.innerHTML = items.map(function (i, idx) {
-      return '<div class="catalog-card" style="--i:' + idx + ';">'
+      return '<div class="catalog-card' + (i.tag === 'holiday' ? ' is-holiday' : '') + '" style="--i:' + idx + ';">'
         + '<a href="./detail/?slug=' + slugify(i.name) + '" class="catalog-card-link">'
         +   '<div class="catalog-card-preview" aria-hidden="true">' + mediaFor(i, idx)
         +     '<div class="catalog-card-overlay"><span>View details</span></div>'
@@ -2666,10 +2669,6 @@ function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace
         +     '<span class="catalog-card-tag">' + TAG_LABELS[i.tag] + '</span>'
         +   '</div>'
         + '</a>'
-        + '<div class="catalog-card-actions">'
-        +   '<a href="' + (i.cloneUrl || 'https://bolt.new/') + '" target="_blank" rel="noopener" class="catalog-card-cta" aria-label="Open ' + i.name + ' in Bolt">Open in Bolt</a>'
-        +   (i.url ? '<a href="' + i.url + '" target="_blank" rel="noopener" class="catalog-card-demo" aria-label="Preview ' + i.name + '">Preview</a>' : '')
-        + '</div>'
         + '</div>';
     }).join('');
     empty.hidden = items.length > 0;
