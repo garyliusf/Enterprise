@@ -96,6 +96,17 @@ if slug in SPLIT_HERO:
   _cta = re.search(r'<!-- hero-cta-stack -->\s*(<div class="hero-cta-stack">.*?</div>\s*</div>)\s*<!-- /hero-cta-stack -->', tpl, re.S).group(1)
   _col = re.search(r'<!-- hero-collage:.*?-->\s*(<div class="hero-collage[^"]*">.*?)\s*<!-- /hero-collage -->', tpl, re.S).group(1)
   _col = _col.replace('../../marketing/', '../../')
+  # per-page photos (Gary, 2026-11-11): [left, middle, right] as (file under marketing/images/people, alt, object-position);
+  # None keeps smb's photo for that slot.
+  SLUG_PHOTOS = {
+    'ai-for-agencies': [None,
+                        ('agencies-middle.jpg', 'Two agency teammates reviewing work on a laptop', '50% 30%'),
+                        None],
+  }
+  _imgs = re.findall(r'<img class="hero-uc-img"[^>]*>', _col)
+  for _i, _ph in enumerate(SLUG_PHOTOS.get(slug, [])):
+    if _ph and _i < len(_imgs):
+      _col = _col.replace(_imgs[_i], '<img class="hero-uc-img" src="../../images/people/%s" alt="%s" style="object-position:%s" loading="eager" decoding="async">' % _ph, 1)
   main, _n = re.subn(r'<div class="re-prompt-shell hero-prompt-shell">.*?<ul class="hero-pills">.*?</ul>', lambda m: _cta + '\n' + _col, main, count=1, flags=re.S)   # the pills go too (Gary, 2026-11-11)
   assert _n == 1
   main, _n = re.subn(r'<section class="hero-section hero-section--sol"', '<section class="hero-section hero-section--sol hero-section--split"', main, count=1)
