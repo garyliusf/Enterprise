@@ -699,22 +699,20 @@ html[data-theme="light"] .hero-section {
      line, and the green bow at the lower-left crossing. Remove with the holiday
      block. ── */
   .catalog-card-wrap { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
-  /* Dotted ribbon lines — hidden at rest, DRAW IN on hover from the bow outward. */
-  .ccw-v, .ccw-h {
-    position: absolute; opacity: 0;
-    filter: drop-shadow(0 0 1px rgba(0,0,0,0.3));
-    transition: opacity 0.25s ease, transform 0.45s cubic-bezier(0.22,0.61,0.36,1);
+  /* Ribbon wrap — an SVG stroke that DRAWS ON on hover like a ribbon being wrapped
+     around the gift: the vertical ribbon lays down top→bottom, then the horizontal
+     right→left, both meeting at the bow knot. */
+  .ccw-ribbon { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .ccw-ribbon .rib-line {
+    fill: none;
+    stroke: rgba(255,250,242,0.95); stroke-width: 2.5px; stroke-linecap: round;
+    vector-effect: non-scaling-stroke;          /* keep the ribbon 2.5px despite the stretched viewBox */
+    stroke-dasharray: 1; stroke-dashoffset: 1;  /* hidden at rest; dashoffset→0 draws it on */
+    filter: drop-shadow(0 0 1.5px rgba(0,0,0,0.4));
+    transition: stroke-dashoffset 0.55s cubic-bezier(0.22,0.61,0.36,1);
   }
-  .ccw-v { top: 0; bottom: 0; left: 12%; width: 2px;
-    background-image: repeating-linear-gradient(180deg, rgba(255,250,242,0.92) 0 5px, transparent 5px 11px);
-    transform: scaleY(0); transform-origin: 50% 0%; }      /* draw top → bottom */
-  .ccw-h { left: 0; right: 0; top: 88%; height: 2px;
-    background-image: repeating-linear-gradient(90deg, rgba(255,250,242,0.92) 0 5px, transparent 5px 11px);
-    transform: scaleX(0); transform-origin: 100% 50%; }     /* draw right → left */
-  .catalog-card-link:hover .ccw-v,
-  .catalog-card-link:hover .ccw-h { opacity: 1; }
-  .catalog-card-link:hover .ccw-v { transform: scaleY(1); }
-  .catalog-card-link:hover .ccw-h { transform: scaleX(1); transition-delay: 0.14s; }
+  .catalog-card-link:hover .ccw-ribbon .rib-line { stroke-dashoffset: 0; }
+  .catalog-card-link:hover .ccw-ribbon .rib-line-h { transition-delay: 0.18s; }  /* horizontal follows the vertical */
   /* Green bow at the lower-left crossing — assembles itself when the card renders:
      the loops bloom out from the knot, then the two tails unfurl downward. */
   /* `.catalog-card-preview svg` (placeholder mocks) sets svg to 100%×100% at higher
@@ -722,7 +720,9 @@ html[data-theme="light"] .hero-section {
   .catalog-card-wrap .ccw-bow {
     position: absolute; left: 12%; top: 88%;
     width: 48px; height: 48px;
-    transform: translate(-50%, -50%);
+    /* -39% (not -50%) centres the bow's KNOT on the line crossing — the knot sits
+       at ~39% down the 512 viewBox, above the element's geometric centre. */
+    transform: translate(-50%, -39%);
     filter: drop-shadow(0 2px 5px rgba(0,0,0,0.32));
     overflow: visible;
   }
@@ -2619,7 +2619,10 @@ function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace
      SVG split into .rib-loops (the four bow loops/knot) and .rib-tails (the two
      trailing ribbons) so each group can animate in independently. */
   var CCW_WRAP = '<div class="catalog-card-wrap">'
-    + '<span class="ccw-v"></span><span class="ccw-h"></span>'
+    + '<svg class="ccw-ribbon" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">'
+    +   '<path class="rib-line rib-line-v" d="M12 0 V100" pathLength="1"></path>'
+    +   '<path class="rib-line rib-line-h" d="M100 88 H0" pathLength="1"></path>'
+    + '</svg>'
     + '<svg class="ccw-bow" viewBox="0 0 512 512" aria-hidden="true">'
     +   '<g class="rib-loops">'
     +     '<path d="m256 104.712v141.05h-15.52c-21.33 0-38.79-17.46-38.79-38.8v-23.72h-85.35c-4.41 0-8-3.59-8-8 0-4.42 3.59-8 8-8h85.35v-23.73c0-21.34 17.46-38.8 38.79-38.8z" fill="#017b4d"/>'
