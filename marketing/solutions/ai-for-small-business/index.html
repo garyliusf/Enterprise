@@ -2049,6 +2049,8 @@ html[data-theme="light"] .hero-section--split .hero-pills li::before { backgroun
 .hero-uc-card { position: relative; flex: none; display: block; overflow: hidden; aspect-ratio: 3 / 4; border-radius: 12px; background: #111; color: #fff; text-decoration: none; isolation: isolate; box-shadow: 0 24px 48px -20px rgba(0, 0, 0, 0.65); }
 .hero-uc-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1); }
 .hero-uc-card:hover .hero-uc-img { transform: scale(1.04); }
+/* subtle pixel field over each photo (Gary, 2026-11-11): white dots on a slow diagonal wave, weighted to the lower half */
+.hero-uc-canvas { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; pointer-events: none; opacity: 0.55; mix-blend-mode: screen; }
 @media (prefers-reduced-motion: reduce) { .hero-uc-img { transition: none; } .hero-uc-card:hover .hero-uc-img { transform: none; } }
 @media (max-width: 1024px) {
   .hero-section--split .hero-inner { max-width: min(900px, calc(100vw - 80px)); grid-template-columns: 1fr; grid-template-rows: auto auto auto; gap: 32px; }
@@ -3031,18 +3033,21 @@ html[data-theme] .included-section { border-top: 0; }   /* no divider between th
         </div>
 <div class="hero-collage">
         <div class="hero-collage-col">
-        <a class="hero-uc-card" href="https://bolt.new/use-cases/dashboard-builder">
+        <a class="hero-uc-card sc-on-dark" href="https://bolt.new/use-cases/dashboard-builder">
           <img class="hero-uc-img" src="../../images/people/collage-agency.jpg" alt="Two agency teammates reviewing a client dashboard" style="object-position:50% 30%" loading="eager" decoding="async">
+          <canvas class="hero-uc-canvas" id="hero-collage-c1" aria-hidden="true"></canvas>
         </a>
         </div>
         <div class="hero-collage-col">
-        <a class="hero-uc-card" href="https://bolt.new/use-cases/mvp-builder">
+        <a class="hero-uc-card sc-on-dark" href="https://bolt.new/use-cases/mvp-builder">
           <img class="hero-uc-img" src="../../images/people/collage-founders.jpg" alt="Two founders at work" style="object-position:55% 30%" loading="eager" decoding="async">
+          <canvas class="hero-uc-canvas" id="hero-collage-c2" aria-hidden="true"></canvas>
         </a>
         </div>
         <div class="hero-collage-col">
-        <a class="hero-uc-card" href="https://bolt.new/use-cases/appointment-booking-app-builder">
+        <a class="hero-uc-card sc-on-dark" href="https://bolt.new/use-cases/appointment-booking-app-builder">
           <img class="hero-uc-img" src="../../images/people/collage-workshop.jpg" alt="A tradesperson taking a booking by phone in the workshop" style="object-position:55% 35%" loading="eager" decoding="async">
+          <canvas class="hero-uc-canvas" id="hero-collage-c3" aria-hidden="true"></canvas>
         </a>
         </div>
       </div> </div> </div> </section>    <section class="section why-section"> <div class="section-inner"> <div class="why-layout"> <div class="dsa-reveal"><h2 class="section-headline">Small business owners are building<br>what they used to buy.</h2></div> <div class="why-stats-grid"> <div class="why-stat-cell"> <span class="why-stat-number">9.5M+</span> <p class="why-stat-eyebrow">Small business projects built on Bolt.new</p> </div><div class="why-stat-cell"> <span class="why-stat-number">80%</span> <p class="why-stat-eyebrow">Of builders are not developers</p> </div><div class="why-stat-cell"> <span class="why-stat-number">92%</span> <p class="why-stat-eyebrow">Ship a working version inside 24 hours</p> </div><div class="why-stat-cell"> <span class="why-stat-number">50%+</span> <p class="why-stat-eyebrow">Are non-technical founders and business owners</p> </div> </div> </div> </div> </section> <section class="section how-section section--bordered hm-steps uc2-hiw" id="how-it-works"> <div class="section-inner"> <div class="how-header dsa-reveal"> <p class="section-eyebrow eyebrow-scramble">How it works</p> <h2 class="section-headline">Describe it. Build it. Ship it.</h2> <p class="section-sub">There&#39;s no agency or freelance developer between you and the build. Your expertise and experience shapes the app or website.</p> </div> <div class="hm-stage hm-stage--steps">
@@ -5776,6 +5781,27 @@ window.addEventListener('load', function () {
   view.addEventListener('touchstart', function () { clearTimeout(held); root.classList.add('is-paused'); }, { passive: true });
   view.addEventListener('touchend', function () { clearTimeout(held); held = setTimeout(function () { if (document.activeElement !== ta) root.classList.remove('is-paused'); }, 4000); }, { passive: true });
   new IntersectionObserver(function (es) { root.classList.toggle('is-running', es[0].isIntersecting); }, { threshold: 0.35 }).observe(grid);
+})();
+</script>
+<script id="hero-collage-js">
+/* collage photos: a subtle white pixel field (makePixelCanvas) — a slow diagonal
+   wave, strongest toward the bottom of each card, a few twinkles; none under
+   reduced motion. The cards are .sc-on-dark so the literal white survives light mode. */
+(function () {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches || typeof makePixelCanvas !== 'function') return;
+  var SP = 8;
+  [1, 2, 3].forEach(function (i, k) {
+    var el = document.getElementById('hero-collage-c' + i);
+    if (!el) return;
+    makePixelCanvas('hero-collage-c' + i, SP, 2, function (c, r, t, p) {
+      var rows = el.height / SP || 1;
+      var y = r / rows;                                   /* 0 top → 1 bottom */
+      var fade = Math.pow(Math.max(0, y - 0.25) / 0.75, 1.6);  /* nothing on the faces, builds toward the foot */
+      var band = Math.sin((c * 0.22 + r * 0.16) - t * 0.0011 + k * 1.7) * 0.5 + 0.5;
+      var twinkle = (Math.sin(p * 41.3 + t * 0.003) * 0.5 + 0.5) * 0.08;
+      return (Math.pow(band, 2.2) * 0.42 + twinkle) * fade;
+    }, 1.0, '255,255,255');
+  });
 })();
 </script>
 <script src="../../shared-nav-footer.js?v=20261002e"></script>
