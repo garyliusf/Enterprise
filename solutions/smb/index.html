@@ -2037,11 +2037,11 @@ html[data-theme="light"] .hero-section--split .hero-pills li { color: #fff; }
 html[data-theme="light"] .hero-section--split .hero-pills li::before { background: #7FDDC1; }   /* plain row under the button: the capsule wrapped to two lines in the 5-col measure */
 /* collage = three cards of descending size, bottoms stepped up to the right, overlapping, filling the right half
    of the hero and bleeding to the viewport edge. Sizes key off --hc-h (the big card's height). */
-.hero-collage { grid-column: 2; grid-row: 1 / 3; --hc-h: min(440px, 30vw); --hc-overlap: 24px; display: flex; align-items: flex-start; padding-bottom: 56px; margin-right: calc(-1 * max(0px, (100vw - min(1200px, 100vw - 160px)) / 2)); }
+.hero-collage { grid-column: 2; grid-row: 1 / 3; --hc-h: min(410px, 28.5vw); --hc-overlap: 32px; display: flex; align-items: flex-start; padding-bottom: 56px; margin-right: calc(-1 * max(0px, (100vw - min(1200px, 100vw - 160px)) / 2)); }
 .hero-collage-col { display: contents; }
-.hero-collage-col:nth-child(1) .hero-uc-card { height: calc(var(--hc-h) * 0.82); z-index: 1; }
-.hero-collage-col:nth-child(2) .hero-uc-card { height: var(--hc-h); margin-left: calc(-1 * var(--hc-overlap)); z-index: 3; }
-.hero-collage-col:nth-child(3) .hero-uc-card { height: calc(var(--hc-h) * 0.68); margin-left: calc(-1 * var(--hc-overlap)); z-index: 2; }
+.hero-collage-col:nth-child(1) .hero-uc-card { height: calc(var(--hc-h) * 0.78); z-index: 1; }
+.hero-collage-col:nth-child(2) .hero-uc-card { height: var(--hc-h); aspect-ratio: 1 / 1; margin-left: calc(-1 * var(--hc-overlap)); z-index: 3; }   /* square: keeps the second person in frame */
+.hero-collage-col:nth-child(3) .hero-uc-card { height: calc(var(--hc-h) * 0.62); margin-left: calc(-1 * var(--hc-overlap)); z-index: 2; }
 /* uneven tops: the side cards sit lower than the middle one (Gary, 2026-11-11) */
 .hero-collage-col:nth-child(1) .hero-uc-card { transform: translateY(56px); }
 .hero-collage-col:nth-child(3) .hero-uc-card { transform: translateY(28px); }
@@ -2065,6 +2065,74 @@ html[data-theme="light"] .hero-section--split .hero-pills li::before { backgroun
   .hero-collage-col:nth-child(3) { display: none; }   /* two cards on a phone */
   .hero-uc-card { border-radius: 10px; }
 }
+</style>
+<style id="uc2-pg">
+/* ═══ Use Cases v2 — "Try these prompts": prompt tabs with a timer underline, one wide
+   example result, and the real, editable Bolt prompt box floating over its lower half
+   (wired by the page's .re-prompt-shell script). One focal object. ═══ */
+/* above the next section's pixel canvas, which reaches up over the frame's foot */
+.uc2-pg { position: relative; z-index: 2; }
+.uc2-pg .section-header { align-items: center; text-align: center; margin-left: auto; margin-right: auto; }
+.uc2-pg-stage { display: flex; flex-direction: column; align-items: center; gap: 28px; }
+/* tabs: label only; the active tab's underline fills as the timer */
+.uc2-pg-list { display: flex; gap: 28px; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+.uc2-pg-list::-webkit-scrollbar { display: none; }
+.uc2-pg-item { position: relative; flex: none; padding: 6px 0 12px; border: 0; background: transparent; font: inherit; color: inherit; cursor: pointer; }
+.uc2-pg-item::before { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; border-radius: 1px; background: var(--sc-line); opacity: 0; transition: opacity 0.3s ease; }
+.uc2-pg-item.is-active::before { opacity: 1; }
+.uc2-pg-item:focus-visible { outline: 2px solid #1488FC; outline-offset: 2px; border-radius: 4px; }
+.uc2-pg-label { font: 600 16px/1.3 var(--sc-font-sans); letter-spacing: -0.2px; white-space: nowrap; color: var(--sc-text-muted); transition: color 0.25s ease; }
+.uc2-pg-item:hover .uc2-pg-label { color: var(--sc-ink); }
+.uc2-pg-item.is-active .uc2-pg-label { color: var(--sc-ink); }
+.uc2-pg-body { display: none; } /* the prompt text lives in the box; kept in the DOM for search */
+.uc2-pg-timer { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; border-radius: 1px; background: #1488FC; transform: scaleX(0); transform-origin: left; }
+.uc2-pg-item.is-active .uc2-pg-timer { animation: uc2-pg-fill var(--uc2-pg-dur, 6s) linear forwards; animation-play-state: paused; }
+.uc2-pg.is-running:not(.is-paused) .uc2-pg-item.is-active .uc2-pg-timer { animation-play-state: running; }
+.uc2-pg.is-manual .uc2-pg-item.is-active .uc2-pg-timer { animation: none; transform: none; }
+@keyframes uc2-pg-fill { to { transform: scaleX(1); } }
+/* the result, with the box over its lower half */
+.uc2-pg-panel { position: relative; width: 100%; max-width: 900px; } /* the example shots are 800-1100px wide: wider reads soft */
+.uc2-pg-frame { border-radius: 12px; overflow: hidden; border: 0; /* no outline, shadow only (Gary) */ background: #fff; box-shadow: 0 30px 70px -30px rgba(2, 26, 87, 0.45), 0 8px 24px -12px rgba(2, 26, 87, 0.18); color-scheme: light; }
+html[data-theme="dark"] .uc2-pg-frame { box-shadow: 0 30px 70px -24px rgba(0, 0, 0, 0.9), 0 0 60px -10px rgba(20, 136, 252, 0.12); }
+.uc2-pg-bar { display: flex; align-items: center; gap: 6px; padding: 10px 14px; background: #f6f6f8; border-bottom: 1px solid #ededf1; }
+.uc2-pg-bar i { width: 8px; height: 8px; border-radius: 50%; background: #d9dae0; }
+.uc2-pg-panel { --uc2-pg-h: 486px; }
+.uc2-pg-view { position: relative; height: var(--uc2-pg-h); overflow: hidden; }
+.uc2-pg-panel::after { content: ''; position: absolute; z-index: 1; left: 0; right: 0; bottom: 0; height: calc(var(--uc2-pg-h, 486px) * 0.8); border-radius: 0 0 12px 12px; pointer-events: none; background: linear-gradient(to top, rgba(6, 10, 20, 0.9), rgba(6, 10, 20, 0.7) 40%, rgba(6, 10, 20, 0)); }
+.uc2-pg-shot { display: block; width: 100%; height: auto; min-height: 100%; object-fit: cover; object-position: 50% 0; } /* holds still on hover (Gary) */
+.uc2-pg-frame { position: relative; }
+.uc2-pg-ghost { position: absolute; left: 0; right: 0; z-index: 1; pointer-events: none; background: #fff no-repeat; background-size: 100% auto; transition: opacity 0.45s ease; }
+.uc2-pg-ghost.is-gone { opacity: 0; }
+/* a tab may open its result part-way down (data-start) with the site's navbar pinned on top (data-nav), as a
+   sticky nav would be (Gary, 2026-11-09). Both in px of the 1280-wide capture. The pin fades out along its
+   last quarter so a navbar that floats over a photo meets the scrolled photo without a seam. */
+.uc2-pg-pin { position: absolute; left: 0; right: 0; z-index: 1; display: none; pointer-events: none; background: no-repeat 0 0 / 100% auto; -webkit-mask-image: linear-gradient(#000 75%, transparent); mask-image: linear-gradient(#000 75%, transparent); }
+.uc2-pg-box, html[data-theme] .uc2-pg-box { border-color: transparent; } /* no outline, shadow only (Gary) */
+.uc2-pg-box { position: absolute; z-index: 2; left: 50%; bottom: 32px; width: min(560px, calc(100% - 64px)); transform: translateX(-50%); box-shadow: 0 30px 60px -20px rgba(2, 10, 30, 0.6), 0 10px 24px -10px rgba(2, 10, 30, 0.35); }
+html[data-theme="dark"] .uc2-pg-box { background: #17181d; } /* opaque over the screenshot (the shell's dark fill is translucent) */
+.uc2-pg-box .re-prompt-input { min-height: 56px; font-size: 16px; line-height: 1.55; color: var(--sc-ink); }
+.uc2-pg-box .re-prompt-actions { display: flex; align-items: center; gap: 12px; }
+.uc2-pg-box .re-prompt-submit { margin-left: auto; }
+.uc2-pg-box.is-swapped { animation: uc2-pg-pulse 0.6s ease; }
+@keyframes uc2-pg-pulse { 0% { box-shadow: 0 30px 60px -24px rgba(2, 10, 30, 0.55), 0 0 0 0 rgba(20, 136, 252, 0.4); } 100% { box-shadow: 0 30px 60px -24px rgba(2, 10, 30, 0.55), 0 0 0 10px rgba(20, 136, 252, 0); } }
+/* the example site scrolls by hand (wheel / trackpad / finger); at either end the page takes over.
+   Touch too since #678: phones could only ever see the top of each example */
+.uc2-pg-view { overflow-y: auto; overscroll-behavior-y: auto; scrollbar-width: none; } .uc2-pg-view::-webkit-scrollbar { display: none; }
+@media (max-width: 1024px) {
+  .uc2-pg-panel { --uc2-pg-h: 440px; }
+  .uc2-pg-box { bottom: 28px; width: calc(100% - 48px); }
+}
+@media (max-width: 768px) {
+  .uc2-pg-stage { gap: 20px; }
+  /* tabs scroll as a row, flush to the gutters */
+  .uc2-pg-list { gap: 22px; align-self: stretch; margin: 0 -16px; padding: 0 16px; }
+  .uc2-pg-label { font-size: 15px; }
+  .uc2-pg-panel { --uc2-pg-h: 260px; }
+  .uc2-pg-panel::after { display: none; }
+  /* on a phone the box would cover the result: it tucks under the frame's foot instead */
+  .uc2-pg-box { position: relative; left: auto; bottom: auto; width: auto; transform: none; margin: -40px 12px 0; }
+}
+@media (prefers-reduced-motion: reduce) { .uc2-pg-ghost { transition: none; } .uc2-pg-box.is-swapped { animation: none; } }
 </style>
 <style id="home-kit">
 /* ═══ HOME KIT (2026-10-27) — components from the new home page (home/), ported
@@ -2984,7 +3052,7 @@ html[data-theme] .included-section { border-top: 0; }   /* no divider between th
         </div>
         <div class="hero-collage-col">
         <a class="hero-uc-card" href="https://bolt.new/use-cases/mvp-builder">
-          <img class="hero-uc-img" src="../../marketing/images/people/collage-founders.jpg" alt="Two founders at work" style="object-position:40% 30%" loading="eager" decoding="async">
+          <img class="hero-uc-img" src="../../marketing/images/people/collage-founders.jpg" alt="Two founders at work" style="object-position:55% 30%" loading="eager" decoding="async">
         </a>
         </div>
         <div class="hero-collage-col">
@@ -3059,6 +3127,44 @@ html[data-theme] .included-section { border-top: 0; }   /* no divider between th
   </div>
 </section>
 
+<section class="section how-section section--bordered hm-steps uc2-hiw" id="how-it-works"><!-- data-business = the CMS toggle: one of the presets in uc2-hiw-js; missing -> prism -->
+  <div class="section-inner">
+    <div class="how-header dsa-reveal">
+      <p class="section-eyebrow eyebrow-scramble">How it works</p>
+      <h2 class="section-headline">Describe it. Build it. Ship it.</h2>
+      <p class="section-sub" style="max-width:680px;">There’s no agency or freelance developer between you and the build. Your expertise and experience shapes the app or website.</p>
+    </div>
+    <div class="hm-stage hm-stage--steps">
+      <ol class="hm-stage-list"><li class="hm-stage-item is-active"><button type="button" class="hm-stage-btn" aria-pressed="true" data-step="0" data-visual="prompt"><span class="hm-stage-num">01</span><span class="hm-stage-copy"><span class="hm-stage-swap"><span class="hm-stage-kicker">Explain in your own words</span></span><span class="hm-stage-body"><span>Describe your idea and Bolt can start building right away.</span></span></span><span class="hm-stage-bar" aria-hidden="true"><i></i></span></button></li><li class="hm-stage-item"><button type="button" class="hm-stage-btn" aria-pressed="false" data-step="1" data-visual="build"><span class="hm-stage-num">02</span><span class="hm-stage-copy"><span class="hm-stage-swap"><span class="hm-stage-kicker">Watch Bolt build</span></span><span class="hm-stage-body"><span>Bolt builds a real, working website or app in front of you in real time.</span></span></span><span class="hm-stage-bar" aria-hidden="true"><i></i></span></button></li><li class="hm-stage-item"><button type="button" class="hm-stage-btn" aria-pressed="false" data-step="2" data-visual="wired"><span class="hm-stage-num">03</span><span class="hm-stage-copy"><span class="hm-stage-swap"><span class="hm-stage-kicker">No backend configuration</span></span><span class="hm-stage-body"><span>Whether your site needs payments, a user database, auth, or something else, Bolt automatically configures the backend for you.</span></span></span><span class="hm-stage-bar" aria-hidden="true"><i></i></span></button></li><li class="hm-stage-item"><button type="button" class="hm-stage-btn" aria-pressed="false" data-step="3" data-visual="secure"><span class="hm-stage-num">04</span><span class="hm-stage-copy"><span class="hm-stage-swap"><span class="hm-stage-kicker">Secure by design</span></span><span class="hm-stage-body"><span>All your data is secure by default. Bolt’s security agent automatically finds and fixes issues as you build.</span></span></span><span class="hm-stage-bar" aria-hidden="true"><i></i></span></button></li><li class="hm-stage-item"><button type="button" class="hm-stage-btn" aria-pressed="false" data-step="4" data-visual="deploy"><span class="hm-stage-num">05</span><span class="hm-stage-copy"><span class="hm-stage-swap"><span class="hm-stage-kicker">Publish in one click</span></span><span class="hm-stage-body"><span>Go live in one click. No hosting setup or configuration necessary.</span></span></span><span class="hm-stage-bar" aria-hidden="true"><i></i></span></button></li></ol>
+      <div class="hm-stage-view"></div>
+    </div>
+  </div>
+</section>
+
+<!-- uc2-pg: example prompts (synced with marketing/use-cases/ai-website-builder-v2) -->
+<section class="section uc2-pg" id="example-prompts">
+  <div class="section-inner">
+    <div class="section-header dsa-reveal">
+      <p class="section-eyebrow eyebrow-scramble">Example prompts</p>
+      <h2 class="section-headline">Start with a prompt like these</h2>
+    </div>
+    <div class="uc2-pg-stage">
+      <div class="uc2-pg-list" role="tablist" aria-label="Example prompts"><button type="button" class="uc2-pg-item is-active" role="tab" aria-selected="true" aria-controls="uc2-pg-panel" data-prompt="Build a marketing website for my AI vision API with an early-access signup, customer logos, and key stats." data-includes="Hero|Features grid|Pricing table|Testimonials|Sign-up CTA" data-shot="../../marketing/use-cases/images/prompt-results/prism.webp"><i class="uc2-pg-timer" aria-hidden="true"></i><span class="uc2-pg-label">Marketing website</span><span class="uc2-pg-body"><span class="uc2-pg-text">Build a marketing website for my AI vision API with an early-access signup, customer logos, and key stats.</span></span></button><button type="button" class="uc2-pg-item" role="tab" aria-selected="false" aria-controls="uc2-pg-panel" data-prompt="Build a landing page for my fintech app with a waitlist signup, a card preview, and send, exchange, and hold features." data-includes="Menu|Photo gallery|Reservations|Map" data-shot="../../marketing/use-cases/images/prompt-results/kova.webp"><i class="uc2-pg-timer" aria-hidden="true"></i><span class="uc2-pg-label">Startup landing page</span><span class="uc2-pg-body"><span class="uc2-pg-text">Build a landing page for my fintech app with a waitlist signup, a card preview, and send, exchange, and hold features.</span></span></button><button type="button" class="uc2-pg-item" role="tab" aria-selected="false" aria-controls="uc2-pg-panel" data-prompt="Make a website for my coffee roastery with subscription plans, a build-your-box flow, and how it works in three steps." data-includes="Services|Team bios|Client logos|Testimonials|Lead form" data-shot="../../marketing/use-cases/images/prompt-results/emberoak.webp"><i class="uc2-pg-timer" aria-hidden="true"></i><span class="uc2-pg-label">Business website</span><span class="uc2-pg-body"><span class="uc2-pg-text">Make a website for my coffee roastery with subscription plans, a build-your-box flow, and how it works in three steps.</span></span></button><button type="button" class="uc2-pg-item" role="tab" aria-selected="false" aria-controls="uc2-pg-panel" data-prompt="Make a portfolio for my design studio with a bold hero, selected work, and a way to start a project." data-includes="Post editor|Categories|Author profiles|Newsletter|RSS feed" data-shot="../../marketing/use-cases/images/prompt-results/structured.webp"><i class="uc2-pg-timer" aria-hidden="true"></i><span class="uc2-pg-label">Portfolio website</span><span class="uc2-pg-body"><span class="uc2-pg-text">Make a portfolio for my design studio with a bold hero, selected work, and a way to start a project.</span></span></button></div>
+      <div class="uc2-pg-panel" id="uc2-pg-panel" role="tabpanel">
+        <div class="uc2-pg-frame"><div class="uc2-pg-bar" aria-hidden="true"><i></i><i></i><i></i></div>
+            <div class="uc2-pg-view"><img class="uc2-pg-shot" src="../../marketing/use-cases/images/prompt-results/prism.webp" alt="Example of a marketing website built with Bolt" loading="lazy" decoding="async"></div></div>
+        <div class="re-prompt-shell uc2-pg-box">
+          <label class="sr-only" for="uc2-pg-input">Your prompt</label>
+          <textarea id="uc2-pg-input" class="re-prompt-input" rows="3" data-example="Build a marketing website for my AI vision API with an early-access signup, customer logos, and key stats.">Build a marketing website for my AI vision API with an early-access signup, customer logos, and key stats.</textarea>
+          <div class="re-prompt-actions"><a href="https://bolt.new/?get_started=1" class="re-prompt-submit"><span>Build now</span><svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="m4.497 20.835 16.51-7.363c1.324-.59 1.324-2.354 0-2.944L4.497 3.164c-1.495-.667-3.047.814-2.306 2.202l3.152 5.904c.245.459.245 1 0 1.458l-3.152 5.904c-.74 1.388.81 2.87 2.306 2.202Z"></path></svg></a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- /uc2-pg -->
+
+
 <!-- transition pixel field bridging the stats grid into the WHO section -->
 <div class="why-who-transition" aria-hidden="true">
   <canvas id="why-who-pixel-canvas"></canvas>
@@ -3131,19 +3237,6 @@ html[data-theme] .included-section { border-top: 0; }   /* no divider between th
 </section>
 
 <!-- HOW IT WORKS -->
-<section class="section how-section section--bordered hm-steps uc2-hiw" id="how-it-works"><!-- data-business = the CMS toggle: one of the presets in uc2-hiw-js; missing -> prism -->
-  <div class="section-inner">
-    <div class="how-header dsa-reveal">
-      <p class="section-eyebrow eyebrow-scramble">How it works</p>
-      <h2 class="section-headline">Describe it. Build it. Ship it.</h2>
-      <p class="section-sub" style="max-width:680px;">There’s no agency or freelance developer between you and the build. Your expertise and experience shapes the app or website.</p>
-    </div>
-    <div class="hm-stage hm-stage--steps">
-      <ol class="hm-stage-list"><li class="hm-stage-item is-active"><button type="button" class="hm-stage-btn" aria-pressed="true" data-step="0" data-visual="prompt"><span class="hm-stage-num">01</span><span class="hm-stage-copy"><span class="hm-stage-swap"><span class="hm-stage-kicker">Explain in your own words</span></span><span class="hm-stage-body"><span>Describe your idea and Bolt can start building right away.</span></span></span><span class="hm-stage-bar" aria-hidden="true"><i></i></span></button></li><li class="hm-stage-item"><button type="button" class="hm-stage-btn" aria-pressed="false" data-step="1" data-visual="build"><span class="hm-stage-num">02</span><span class="hm-stage-copy"><span class="hm-stage-swap"><span class="hm-stage-kicker">Watch Bolt build</span></span><span class="hm-stage-body"><span>Bolt builds a real, working website or app in front of you in real time.</span></span></span><span class="hm-stage-bar" aria-hidden="true"><i></i></span></button></li><li class="hm-stage-item"><button type="button" class="hm-stage-btn" aria-pressed="false" data-step="2" data-visual="wired"><span class="hm-stage-num">03</span><span class="hm-stage-copy"><span class="hm-stage-swap"><span class="hm-stage-kicker">No backend configuration</span></span><span class="hm-stage-body"><span>Whether your site needs payments, a user database, auth, or something else, Bolt automatically configures the backend for you.</span></span></span><span class="hm-stage-bar" aria-hidden="true"><i></i></span></button></li><li class="hm-stage-item"><button type="button" class="hm-stage-btn" aria-pressed="false" data-step="3" data-visual="secure"><span class="hm-stage-num">04</span><span class="hm-stage-copy"><span class="hm-stage-swap"><span class="hm-stage-kicker">Secure by design</span></span><span class="hm-stage-body"><span>All your data is secure by default. Bolt’s security agent automatically finds and fixes issues as you build.</span></span></span><span class="hm-stage-bar" aria-hidden="true"><i></i></span></button></li><li class="hm-stage-item"><button type="button" class="hm-stage-btn" aria-pressed="false" data-step="4" data-visual="deploy"><span class="hm-stage-num">05</span><span class="hm-stage-copy"><span class="hm-stage-swap"><span class="hm-stage-kicker">Publish in one click</span></span><span class="hm-stage-body"><span>Go live in one click. No hosting setup or configuration necessary.</span></span></span><span class="hm-stage-bar" aria-hidden="true"><i></i></span></button></li></ol>
-      <div class="hm-stage-view"></div>
-    </div>
-  </div>
-</section>
 
 <!-- TEMPLATES RAIL — ported from marketing/solutions.html -->
 <section class="section tmpl-section">
@@ -5610,6 +5703,127 @@ window.addEventListener('load', function () {
     syncBar();
   }, { threshold: 0.35 }).observe(stage);
   paintList(); mount();
+})();
+</script>
+<script id="uc2-pg-js">
+/* Use Cases v2 — prompt playground with the timer slider (prompts type in): the active row's bar fills
+   (CSS animation) and on its end the next prompt loads into the box. It runs while
+   the section is on screen, pauses on hover and while the box has focus, and stops
+   for good once someone types (the box is theirs then). The page's .re-prompt-shell
+   script sends the box's text to bolt.new. Arrow keys move along the list. */
+(function () {
+  var root = document.querySelector('.uc2-pg');
+  if (!root) return;
+  var items = [].slice.call(root.querySelectorAll('.uc2-pg-item'));
+  var list = root.querySelector('.uc2-pg-list'), grid = root.querySelector('.uc2-pg-stage');
+  var box = root.querySelector('.uc2-pg-box'), ta = root.querySelector('#uc2-pg-input'), shot = root.querySelector('.uc2-pg-shot');
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches, cur = 0;
+  if (reduce) root.classList.add('is-manual');
+  /* the prompt types itself into the box (a programmatic value change fires no
+     'input', so it never counts as the visitor editing) */
+  var typing = 0;
+  var typeIn = function (text) {
+    clearInterval(typing);
+    if (reduce) { ta.value = text; return; }
+    var n = 0, step = Math.max(1, Math.round(text.length / 70)); /* ~1.3s whatever the length */
+    ta.value = '';
+    typing = setInterval(function () {
+      n = Math.min(text.length, n + step); ta.value = text.slice(0, n);
+      if (n >= text.length) clearInterval(typing);
+    }, 18);
+  };
+  /* example results: decoded ahead (once the section is near) so a switch never waits on the
+     network, and swapped under a frozen copy of the old one that fades away — the frame never
+     shows its white ground between the two (the flash in Gary's recording) */
+  var view = shot.parentElement, frame = root.querySelector('.uc2-pg-frame'), ready = {};
+  var preload = function (src) {
+    if (ready[src]) return ready[src];
+    var im = new Image(); im.decoding = 'async'; im.src = src;
+    return (ready[src] = (im.decode ? im.decode() : Promise.resolve()).catch(function () {}));
+  };
+  new IntersectionObserver(function (es, io) {
+    if (!es[0].isIntersecting) return;
+    items.forEach(function (x) { preload(x.getAttribute('data-shot')); }); io.disconnect();
+  }, { rootMargin: '800px 0px' }).observe(root);
+  /* data-start / data-nav (px of the 1280-wide capture): open part-way down, navbar pinned */
+  var pin = document.createElement('div');
+  pin.className = 'uc2-pg-pin'; pin.setAttribute('aria-hidden', 'true');
+  frame.appendChild(pin);
+  var scale = function () { return view.clientWidth / (shot.naturalWidth || 1280); };
+  var pinFit = function (it) {
+    var nav = +(it.getAttribute('data-nav') || 0);
+    if (!nav) { pin.style.display = 'none'; return; }
+    pin.style.display = 'block';
+    pin.style.top = view.offsetTop + 'px';
+    pin.style.height = Math.round(nav * scale()) + 'px';
+    pin.style.backgroundImage = 'url("' + it.getAttribute('data-shot') + '")';
+  };
+  var place = function (it) {
+    view.scrollTop = Math.round(+(it.getAttribute('data-start') || 0) * scale());
+    pinFit(it);
+  };
+  if (shot.complete && shot.naturalWidth) place(items[0]);
+  else shot.addEventListener('load', function first() { shot.removeEventListener('load', first); place(items[cur]); });
+  addEventListener('resize', function () { pinFit(items[cur]); });
+  var swapId = 0;
+  var crossfade = function (src, alt) {
+    var id = ++swapId;
+    preload(src).then(function () {
+      if (id !== swapId) return; /* a newer pick won */
+      var old = frame.querySelector('.uc2-pg-ghost'); if (old) old.remove();
+      var g = document.createElement('div');
+      g.className = 'uc2-pg-ghost'; g.setAttribute('aria-hidden', 'true');
+      g.style.top = view.offsetTop + 'px'; g.style.height = view.clientHeight + 'px';
+      g.style.backgroundImage = 'url("' + shot.currentSrc + '")';
+      g.style.backgroundPosition = '0 ' + (-view.scrollTop) + 'px';
+      frame.appendChild(g);
+      shot.src = src; shot.alt = alt; view.scrollTop = 0;
+      requestAnimationFrame(function () { place(items[cur]); });
+      requestAnimationFrame(function () { requestAnimationFrame(function () { g.classList.add('is-gone'); }); });
+      setTimeout(function () { g.remove(); }, reduce ? 0 : 520);
+    });
+  };
+  var pick = function (i, focus) {
+    cur = (i + items.length) % items.length;
+    var it = items[cur];
+    items.forEach(function (x) { var on = x === it; x.classList.toggle('is-active', on); x.setAttribute('aria-selected', on ? 'true' : 'false'); x.tabIndex = on ? 0 : -1; });
+    var p = it.getAttribute('data-prompt');
+    ta.setAttribute('data-example', p);
+    typeIn(p);
+    box.classList.remove('is-swapped'); void box.offsetWidth; box.classList.add('is-swapped');
+    var src = it.getAttribute('data-shot'), label = it.querySelector('.uc2-pg-label').textContent;
+    if (shot.getAttribute('src') !== src) crossfade(src, 'Example of a ' + label.toLowerCase() + ' built with Bolt');
+    if (focus) it.focus({ preventScroll: true });
+    /* the chip row (tablet / phone) scrolls itself, never the page */
+    if (list.scrollWidth > list.clientWidth) list.scrollTo({ left: it.offsetLeft - (list.clientWidth - it.offsetWidth) / 2, behavior: 'smooth' });
+  };
+  items.forEach(function (it, i) {
+    it.tabIndex = i === 0 ? 0 : -1;
+    it.addEventListener('click', function () { pick(i); });
+    it.addEventListener('keydown', function (e) {
+      var d = (e.key === 'ArrowDown' || e.key === 'ArrowRight') ? 1 : (e.key === 'ArrowUp' || e.key === 'ArrowLeft') ? -1 : 0;
+      if (d) { e.preventDefault(); pick(i + d, true); }
+    });
+    it.querySelector('.uc2-pg-timer').addEventListener('animationend', function () { if (it.classList.contains('is-active')) pick(i + 1); });
+  });
+  /* only the result + box pause it: hovering the tabs (e.g. right after a click) lets the new timer run at once */
+  var panel = root.querySelector('.uc2-pg-panel');
+  panel.addEventListener('mouseenter', function () { root.classList.add('is-paused'); });
+  panel.addEventListener('mouseleave', function () { if (document.activeElement !== ta) root.classList.remove('is-paused'); });
+  ta.addEventListener('focus', function () { root.classList.add('is-paused'); });
+  ta.addEventListener('blur', function () { root.classList.remove('is-paused'); });
+  ta.addEventListener('input', function () { clearInterval(typing); root.classList.add('is-manual'); });
+  /* Build now / Enter while the prompt is still typing itself in: finish it first, so the
+     page's .re-prompt-shell script sends the whole prompt (capture phase = before that handler) */
+  var finish = function () { if (!root.classList.contains('is-manual')) { clearInterval(typing); ta.value = ta.getAttribute('data-example') || ta.value; } };
+  var go = box.querySelector('.re-prompt-submit');
+  if (go) go.addEventListener('click', finish, true);
+  ta.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey) finish(); }, true);
+  /* a finger scrolling the result holds the timer, so the tab doesn't change under it */
+  var held = 0;
+  view.addEventListener('touchstart', function () { clearTimeout(held); root.classList.add('is-paused'); }, { passive: true });
+  view.addEventListener('touchend', function () { clearTimeout(held); held = setTimeout(function () { if (document.activeElement !== ta) root.classList.remove('is-paused'); }, 4000); }, { passive: true });
+  new IntersectionObserver(function (es) { root.classList.toggle('is-running', es[0].isIntersecting); }, { threshold: 0.35 }).observe(grid);
 })();
 </script>
 </body>

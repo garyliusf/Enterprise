@@ -119,6 +119,15 @@ if _w >= 0:
     main = main[:_w] + _stage + main[_balanced(main, _w):]
     main, _n = re.subn(r'<section class="section how-section"', '<section class="section how-section section--bordered hm-steps uc2-hiw"', main, count=1)
     assert _n == 1
+    # how it works moves up: directly after the four stats (Gary, 2026-11-11)
+    _hm = re.search(r'<section class="section how-section section--bordered hm-steps uc2-hiw".*?</section>', main, re.S)
+    _sec = _hm.group(0); main = main[:_hm.start()] + main[_hm.end():]
+    _we = main.index('</section>', main.index('<section class="section why-section">')) + len('</section>')
+    main = main[:_we] + ' ' + _sec + main[_we:]
+    # example prompts (uc2-pg) right under it — markup from smb's markers
+    _pg = re.search(r'<!-- uc2-pg:.*?-->\s*(<section class="section uc2-pg".*?</section>)\s*<!-- /uc2-pg -->', tpl, re.S).group(1).replace('../../marketing/', '../../')
+    _he = main.index('</section>', main.index('<section class="section how-section section--bordered hm-steps uc2-hiw"')) + len('</section>')
+    main = main[:_he] + ' ' + _pg + main[_he:]
 
 # ── after main: divider + site footer + wordmark from solutions.html ──
 tail_start = sol.index('<!-- Subtle divider between the prompt-box CTA and the footer columns -->')
