@@ -699,29 +699,40 @@ html[data-theme="light"] .hero-section {
      line, and the green bow at the lower-left crossing. Remove with the holiday
      block. ── */
   .catalog-card-wrap { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
-  .catalog-card-wrap::before {          /* festive tint — darker toward the lower-left where the bow sits */
-    content: ""; position: absolute; inset: 0;
-    background:
-      radial-gradient(ellipse at 16% 84%, rgba(3,24,14,0.30) 0%, rgba(3,24,14,0) 58%),
-      linear-gradient(225deg, rgba(4,30,18,0.02) 0%, rgba(4,30,18,0.18) 100%);
-  }
-  /* Dotted ribbon lines (gift-wrap stitching) — repeating dash via gradient so the
-     dashes stay crisp; a faint shadow keeps them legible on light + dark shots. */
+  /* Dotted ribbon lines — hidden at rest, DRAW IN on hover from the bow outward. */
   .ccw-v, .ccw-h {
-    position: absolute;
-    filter: drop-shadow(0 0 1px rgba(0,0,0,0.25));
+    position: absolute; opacity: 0;
+    filter: drop-shadow(0 0 1px rgba(0,0,0,0.3));
+    transition: opacity 0.25s ease, transform 0.45s cubic-bezier(0.22,0.61,0.36,1);
   }
   .ccw-v { top: 0; bottom: 0; left: 17%; width: 2px;
-    background-image: repeating-linear-gradient(180deg, rgba(255,250,242,0.88) 0 5px, transparent 5px 11px); }
+    background-image: repeating-linear-gradient(180deg, rgba(255,250,242,0.92) 0 5px, transparent 5px 11px);
+    transform: scaleY(0); transform-origin: 50% 81%; }
   .ccw-h { left: 0; right: 0; top: 81%; height: 2px;
-    background-image: repeating-linear-gradient(90deg, rgba(255,250,242,0.88) 0 5px, transparent 5px 11px); }
-  .ccw-bow {                            /* green ribbon knot at the lower-left crossing */
+    background-image: repeating-linear-gradient(90deg, rgba(255,250,242,0.92) 0 5px, transparent 5px 11px);
+    transform: scaleX(0); transform-origin: 17% 50%; }
+  .catalog-card-link:hover .ccw-v,
+  .catalog-card-link:hover .ccw-h { opacity: 1; }
+  .catalog-card-link:hover .ccw-v { transform: scaleY(1); }
+  .catalog-card-link:hover .ccw-h { transform: scaleX(1); transition-delay: 0.14s; }
+  /* Green bow at the lower-left crossing — animates in on its own when the card renders. */
+  .ccw-bow {
     position: absolute; left: 17%; top: 81%;
-    width: 46px; height: 46px;
+    width: 48px; height: 48px;
     transform: translate(-50%, -50%);
-    filter: drop-shadow(0 2px 5px rgba(0,0,0,0.35));
+    filter: drop-shadow(0 2px 5px rgba(0,0,0,0.32));
+    animation: ccwBowIn 0.55s cubic-bezier(0.34,1.56,0.64,1) both;
+    animation-delay: calc(var(--i, 0) * 55ms + 150ms);
+  }
+  @keyframes ccwBowIn {
+    from { opacity: 0; transform: translate(-50%, -50%) scale(0.3) rotate(-16deg); }
+    to   { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0); }
   }
   @media (max-width: 768px) { .ccw-bow { width: 40px; height: 40px; } }
+  @media (prefers-reduced-motion: reduce) {
+    .ccw-bow { animation: none; opacity: 1; }
+    .ccw-v, .ccw-h { transition: opacity 0.2s ease; transform: none; }
+  }
 
   /* Hover affordance — a soft scrim rising from the bottom of the preview with a
      Silkscreen "View Details" label. The gradient is dark rather than light
