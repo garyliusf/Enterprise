@@ -99,9 +99,9 @@ if slug in SPLIT_HERO:
   # per-page photos (Gary, 2026-11-11): [left, middle, right] as (file under marketing/images/people, alt, object-position);
   # None keeps smb's photo for that slot.
   SLUG_PHOTOS = {
-    'ai-for-agencies': [None,
+    'ai-for-agencies': [('agencies-left.jpg', 'Two agency colleagues reviewing a build together', '50% 30%'),
                         ('agencies-middle.jpg', 'Two agency teammates reviewing work on a laptop', '50% 30%'),
-                        None],
+                        None],   # right: the orange-ground portrait, once it arrives as a file
   }
   _imgs = re.findall(r'<img class="hero-uc-img"[^>]*>', _col)
   for _i, _ph in enumerate(SLUG_PHOTOS.get(slug, [])):
