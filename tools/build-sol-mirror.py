@@ -16,7 +16,7 @@ source file — re-run to re-pull.
 
 Writes marketing/solutions/<slug>/index.html (3 levels deep: ../../ = marketing).
 """
-import re, sys, urllib.request, pathlib
+import re, sys, urllib.request, pathlib, html
 
 slug = sys.argv[1] if len(sys.argv) > 1 else 'ai-for-real-estate'
 ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -144,6 +144,46 @@ if _w >= 0:
     _pg = re.search(r'<!-- uc2-pg:.*?-->\s*(<section class="section uc2-pg".*?</section>)\s*<!-- /uc2-pg -->', tpl, re.S).group(1).replace('../../marketing/', '../../')
     _he = main.index('</section>', main.index('<section class="section how-section section--bordered hm-steps uc2-hiw"')) + len('</section>')
     main = main[:_he] + ' ' + _pg + main[_he:]
+    # per-page how-it-works preset + example prompts (Gary, 2026-11-11) — the use-case types' logic:
+    # the preset is a key in uc2-hiw-js PRESETS (data-business on the section); prompts are (label, shot, text[, start, nav]),
+    # shots from marketing/use-cases/images/prompt-results. Reused from the use-case type sets where they fit.
+    PROMPTS = {
+      'marketing':  ('Marketing website', 'prism', 'Build a marketing website for my AI vision API with an early-access signup, customer logos, and key stats.'),
+      'startup':    ('Startup landing page', 'kova', 'Build a landing page for my fintech app with a waitlist signup, a card preview, and send, exchange, and hold features.'),
+      'restaurant': ('Restaurant website', 'pizzeria', 'Make a website for my pizza parlor with the full menu, daily specials, party packages, and our hours and location.', 400, 84),
+      'business':   ('Business website', 'emberoak', 'Make a website for my coffee roastery with subscription plans, a build-your-box flow, and how it works in three steps.'),
+      'portfolio':  ('Portfolio website', 'structured', 'Make a portfolio for my design studio with a bold hero, selected work, and a way to start a project.'),
+      'photo':      ('AI photo studio', 'shotkit', 'Build an AI photo studio that removes the background from my product shots and places them in styled scenes for my store.'),
+      'calendar':   ('Content calendar', 'cadence', 'Build a content calendar where I can plan, draft, and schedule posts for Instagram, LinkedIn, X, and TikTok.'),
+      'coach':      ('AI career coach', 'trailmark', 'Build an AI career coach that maps out a step-by-step roadmap to my target role, with projects and interview prep.'),
+      'queue':      ('Walk-in queue', 'lineup', 'Build a walk-in queue for my barbershop with a live waitlist, wait-time estimates, and a customer display.'),
+      'pos':        ('Caf\u00e9 POS', 'kitchenstock', 'Build a point-of-sale and stock tracker for my caf\u00e9 with daily sales, low-stock alerts, and restock suggestions.'),
+      'crm':        ('Client CRM', 'lightkeep', 'Build a CRM that shows which accounts are going quiet, with deals, tasks, and one-click check-in drafts.'),
+      'events':     ('Event manager', 'attendly', 'Build an event manager for my community with ticket sales, attendee lists, and revenue for each event.'),
+    }
+    SLUG_KIT = {
+      'ai-for-entrepreneurs':  {'hiw': 'prism',      'prompts': ['startup', 'marketing', 'photo', 'coach']},
+      'ai-for-small-business': {'hiw': 'restaurant', 'prompts': ['restaurant', 'pos', 'queue', 'business']},
+      'ai-for-agencies':       {'hiw': 'studio',     'prompts': ['portfolio', 'crm', 'marketing', 'calendar']},
+      'ai-for-real-estate':    {'hiw': 'consult',    'prompts': ['crm', 'events', 'marketing', 'business']},   # no real-estate results yet — generic set
+    }
+    _kit = SLUG_KIT.get(slug)
+    if _kit:
+      main, _n = re.subn(r'<section class="section how-section section--bordered hm-steps uc2-hiw"', '<section class="section how-section section--bordered hm-steps uc2-hiw" data-business="%s"' % _kit['hiw'], main, count=1)
+      assert _n == 1
+      def _btn(key, i):
+        p = PROMPTS[key]; label, shot, text = p[0], p[1], p[2]; on = 'true' if i == 0 else 'false'
+        extra = (' data-start="%d"' % p[3] if len(p) > 3 else '') + (' data-nav="%d"' % p[4] if len(p) > 4 else '')
+        return ('<button type="button" class="uc2-pg-item%s" role="tab" aria-selected="%s" aria-controls="uc2-pg-panel" data-prompt="%s" data-shot="../../use-cases/images/prompt-results/%s.webp"%s>'
+                '<i class="uc2-pg-timer" aria-hidden="true"></i><span class="uc2-pg-label">%s</span><span class="uc2-pg-body"><span class="uc2-pg-text">%s</span></span></button>'
+                % (' is-active' if i == 0 else '', on, html.escape(text, quote=True), shot, extra, html.escape(label), html.escape(text)))
+      _list = ''.join(_btn(k, i) for i, k in enumerate(_kit['prompts']))
+      main, _n = re.subn(r'(<div class="uc2-pg-list"[^>]*>).*?(</div>)', lambda m: m.group(1) + _list + m.group(2), main, count=1, flags=re.S)
+      assert _n == 1
+      _first = PROMPTS[_kit['prompts'][0]]
+      main = re.sub(r'(<img class="uc2-pg-shot"[^>]*src=")[^"]*(")', lambda m: m.group(1) + '../../use-cases/images/prompt-results/%s.webp' % _first[1] + m.group(2), main, count=1)
+      main = re.sub(r'(<img class="uc2-pg-shot"[^>]*alt=")[^"]*(")', lambda m: m.group(1) + 'Example of a %s built with Bolt' % _first[0].lower() + m.group(2), main, count=1)
+      main = re.sub(r'(<textarea id="uc2-pg-input"[^>]*data-example=")[^"]*(")', lambda m: m.group(1) + html.escape(_first[2], quote=True) + m.group(2), main, count=1)   # the box's seed text
 
 # ── after main: divider + site footer + wordmark from solutions.html ──
 tail_start = sol.index('<!-- Subtle divider between the prompt-box CTA and the footer columns -->')
