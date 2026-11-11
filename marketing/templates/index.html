@@ -694,6 +694,29 @@ html[data-theme="light"] .hero-section {
   .catalog-card-preview svg { width: 100%; height: 100%; display: block; }
   html[data-theme="light"] .catalog-card-preview { background: var(--sc-surface); }
 
+  /* ── Holiday gift-wrap overlay (TEMPORARY — MKT-563/570 season). Holiday-tagged
+     cards are "wrapped like a gift": a subtle tint, a vertical + horizontal ribbon
+     line, and the green bow at the lower-left crossing. Remove with the holiday
+     block. ── */
+  .catalog-card-wrap { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
+  .catalog-card-wrap::before {          /* subtle festive tint */
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(4,30,18,0.10) 0%, rgba(4,30,18,0.22) 100%);
+  }
+  .ccw-v, .ccw-h {                      /* ribbon lines — cream, with a soft edge so they read on light + dark shots */
+    position: absolute; background: rgba(255,250,242,0.72);
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.06);
+  }
+  .ccw-v { top: 0; bottom: 0; left: 31%; width: 2px; }
+  .ccw-h { left: 0; right: 0; top: 68%; height: 2px; }
+  .ccw-bow {                            /* green ribbon knot at the lower-left crossing */
+    position: absolute; left: 31%; top: 68%;
+    width: 46px; height: 46px;
+    transform: translate(-50%, -50%);
+    filter: drop-shadow(0 2px 5px rgba(0,0,0,0.35));
+  }
+  @media (max-width: 768px) { .ccw-bow { width: 40px; height: 40px; } }
+
   /* Hover affordance — a soft scrim rising from the bottom of the preview with a
      Silkscreen "View Details" label. The gradient is dark rather than light
      because previews run both dark (mock SVGs) and near-white (real shots), and
@@ -2563,6 +2586,7 @@ function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace
         + '<a href="./detail/?slug=' + slugify(i.name) + '" class="catalog-card-link">'
         +   '<div class="catalog-card-preview" aria-hidden="true">' + mediaFor(i, idx)
         +     '<div class="catalog-card-overlay"><span>View details</span></div>'
+        +     (i.tag === 'holiday' ? '<div class="catalog-card-wrap"><span class="ccw-v"></span><span class="ccw-h"></span><img class="ccw-bow" src="images/ribbon.svg" alt=""></div>' : '')
         +   '</div>'
         +   '<div class="catalog-card-foot">'
         +     '<span class="catalog-card-name">' + i.name + '</span>'
