@@ -87,6 +87,10 @@ if yt:
     main = re.sub(r'(<a class="hero-play-btn"[^>]*>\s*<svg.*?</svg>\s*)</div>', r'\1</a>', main, count=1, flags=re.S)
     main = re.sub(r'<div class="video-modal"[^>]*>.*?<div id="modal-plyr"[^>]*></div>\s*</div>\s*</div>', '', main, count=1, flags=re.S)
 main = main.replace('/public-page-assets/', 'https://bolt.new/public-page-assets/')
+# CMS headlines carry <br>s authored for production's line breaks; the design centres its H2s and the
+# word-reveal wraps "building<br>what" as one word (stacked) — drop them in section headlines (the hero H1's
+# is hidden by CSS on the split hero).
+main = re.sub(r'(<h2 class="section-headline">)(.*?)(</h2>)', lambda m: m.group(1) + re.sub(r'\s*<br\s*/?>\s*', ' ', m.group(2)) + m.group(3), main, flags=re.S)
 
 # ── split hero (2026-11-11): production still renders the prompt box + pills;
 #    the design is copy left + the home use-case collage right, a primary CTA
