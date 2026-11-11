@@ -91,7 +91,7 @@ main = main.replace('/public-page-assets/', 'https://bolt.new/public-page-assets
 # ── split hero (2026-11-11): production still renders the prompt box + pills;
 #    the design is copy left + the home use-case collage right, a primary CTA
 #    and the page's own pills in a cta stack. Markup from smb's markers.
-SPLIT_HERO = {'ai-for-small-business', 'ai-for-entrepreneurs', 'ai-for-agencies'}   # the persona pages (Gary, 2026-11-11); real-estate keeps the prompt hero + video card
+SPLIT_HERO = {'ai-for-small-business', 'ai-for-entrepreneurs', 'ai-for-agencies', 'ai-for-real-estate'}   # all four (real estate joined 2026-11-11; its video card below the hero stays)
 if slug in SPLIT_HERO:
   _cta = re.search(r'<!-- hero-cta-stack -->\s*(<div class="hero-cta-stack">.*?</div>\s*</div>)\s*<!-- /hero-cta-stack -->', tpl, re.S).group(1)
   _col = re.search(r'<!-- hero-collage:.*?-->\s*(<div class="hero-collage[^"]*">.*?)\s*<!-- /hero-collage -->', tpl, re.S).group(1)
