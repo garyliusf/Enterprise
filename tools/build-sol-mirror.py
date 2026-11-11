@@ -101,7 +101,7 @@ if slug in SPLIT_HERO:
   SLUG_PHOTOS = {
     'ai-for-agencies': [('agencies-left.jpg', 'Two agency colleagues reviewing a build together', '50% 30%'),
                         ('agencies-middle.jpg', 'Two agency teammates reviewing work on a laptop', '50% 30%'),
-                        None],   # right: the orange-ground portrait, once it arrives as a file
+                        ('agencies-right.jpg', 'An agency owner at a laptop', '50% 25%')],
   }
   _imgs = re.findall(r'<img class="hero-uc-img"[^>]*>', _col)
   for _i, _ph in enumerate(SLUG_PHOTOS.get(slug, [])):
