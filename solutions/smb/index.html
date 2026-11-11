@@ -1633,6 +1633,13 @@ html[data-theme="light"] .unlock-card::before { background: radial-gradient(240p
   width: 100%; height: auto; display: block;
   transform: translateY(0); transition: transform 0.8s ease-out;
 }
+/* Single-screen shots (production templateCard.fill → .tmpl-card-fill) cover the
+   frame instead — panning a short image looks broken. Synced with
+   templates-rail/styles.css; the route renders both variants. */
+.tmpl-card-fill {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover; object-position: 50% 0%; display: block;
+}
 /* Hover states are pointer-gated: on touch, :hover latches on tap and fires
    mid-swipe, so the scrim and drift flickered card to card. */
 @media (hover: hover) and (pointer: fine) {
@@ -1640,6 +1647,9 @@ html[data-theme="light"] .unlock-card::before { background: radial-gradient(240p
   .tmpl-card:hover .tmpl-card-overlay span { transform: translateY(0); }
   .tmpl-card:hover .tmpl-card-shot { transform: translateY(-40px); }
 }
+/* templateCard.scrollOnHover = false → no drift (not a full-page capture) */
+.tmpl-card.no-pan .tmpl-card-shot,
+.tmpl-card.no-pan:hover .tmpl-card-shot { transform: none; }
 @media (prefers-reduced-motion: reduce) {
   .tmpl-card-shot, .tmpl-card:hover .tmpl-card-shot { transform: none; transition: none; }
 }
