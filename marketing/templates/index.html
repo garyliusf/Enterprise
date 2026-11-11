@@ -698,25 +698,20 @@ html[data-theme="light"] .hero-section {
      cards are "wrapped like a gift": a subtle tint, a vertical + horizontal ribbon
      line, and the green bow at the lower-left crossing. Remove with the holiday
      block. ── */
-  .catalog-card-wrap { position: absolute; inset: 0; z-index: 6; pointer-events: none; }  /* above the View Details wash (z-2) so the pool + bow stay dark on hover */
-  /* Holiday pool behind the bow (bottom-left). It matches the View Details wash:
-     a WHITE pool in light mode, a DARK pool in dark mode. Rest: compact; hover:
-     grows slightly (above the wash, z-6, so it holds through the transition). */
+  .catalog-card-wrap { position: absolute; inset: 0; z-index: 4; pointer-events: none; }  /* above the wash (z-2), below the View Details pill (z-8) */
+  /* Holiday pool behind the bow (bottom-left): a consistent SUBTLE DARK shadow so
+     the bow reads on any card shot (light or dark) without ever looking like a
+     light background. Rest: compact; hover: grows a touch. */
   .catalog-card-wrap::before {
     content: ""; position: absolute; left: 0; bottom: 0; width: 66%; height: 56%;
-    /* default = dark theme */
-    background: radial-gradient(ellipse 120% 120% at 6% 94%, rgba(1,5,3,0.97) 0%, rgba(1,5,3,0.6) 48%, transparent 78%);
+    background: radial-gradient(ellipse 120% 120% at 6% 94%, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 48%, transparent 76%);
     border-radius: 0 0 0 12px;   /* follow the card corner */
     transform-origin: 0% 100%; transform: scale(0.9);
     transition: transform 0.25s ease-out;
   }
-  html[data-theme="light"] .catalog-card-wrap::before {
-    background: radial-gradient(ellipse 120% 120% at 6% 94%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.6) 48%, transparent 78%);
-  }
   .catalog-card-link:hover .catalog-card-wrap::before { transform: scale(1.04); }
   /* In DARK mode the dark pool met the card's 1px border + surface bg at the
-     rounded corner and showed a white sliver; drop the border + darken the bg
-     there. Light mode keeps the default border/bg (the white pool blends in). */
+     rounded corner and showed a white sliver; drop the border + darken the bg. */
   html[data-theme="dark"] .catalog-card.is-holiday .catalog-card-preview { border-color: transparent; background: #0a0a10; }
   /* Dotted ribbon lines — hidden at rest, drawn on hover with a clip wipe so the
      dots stay crisp as the ribbon lays down (vertical top→bottom, horizontal
@@ -799,14 +794,24 @@ html[data-theme="light"] .hero-section {
   html[data-theme="light"] .catalog-card-overlay {
     background: linear-gradient(180deg, rgba(255,255,255,0) 60%, rgba(255,255,255,0.72) 88%, rgba(255,255,255,0.92) 100%);
   }   /* wash starts at 60% (was 40%): it covered most of the shot (Gary, 2026-10-05) */
-  html[data-theme="light"] .catalog-card-overlay span {
+  /* View Details pill — its own top layer (z-8) so it sits ABOVE the holiday
+     bow/ribbon/pool (z-4) and the wash (z-2). */
+  .catalog-card-pill {
+    position: absolute; inset: 0; z-index: 8;
+    display: flex; align-items: flex-end; justify-content: center;
+    padding-bottom: 18px;
+    opacity: 0; transition: opacity 0.32s ease;
+    pointer-events: none;
+  }
+  .catalog-card-link:hover .catalog-card-pill { opacity: 1; }
+  html[data-theme="light"] .catalog-card-pill span {
     background: #fff;
     padding: 9px 16px;
     border-radius: 999px;
     border: 1px solid rgba(var(--sc-ink-rgb), 0.08);
     box-shadow: 0 4px 14px rgba(15,26,42,0.12);
   }
-  .catalog-card-overlay span {
+  .catalog-card-pill span {
     font-family: var(--sc-font-label, 'Literata', serif); font-weight: 500;
     font-size: 10px;
     letter-spacing: 1.6px;
@@ -815,7 +820,7 @@ html[data-theme="light"] .hero-section {
     transform: translateY(6px);
     transition: transform 0.32s cubic-bezier(0.22, 0.61, 0.36, 1);
   }
-  .catalog-card-link:hover .catalog-card-overlay span { transform: translateY(0); }
+  .catalog-card-link:hover .catalog-card-pill span { transform: translateY(0); }
   @media (prefers-reduced-motion: reduce) {
     .catalog-card-overlay span,
     .catalog-card-link:hover .catalog-card-overlay span { transform: none; transition: none; }
@@ -2661,8 +2666,9 @@ function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace
       return '<div class="catalog-card' + (i.tag === 'holiday' ? ' is-holiday' : '') + '" style="--i:' + idx + ';">'
         + '<a href="./detail/?slug=' + slugify(i.name) + '" class="catalog-card-link">'
         +   '<div class="catalog-card-preview" aria-hidden="true">' + mediaFor(i, idx)
-        +     '<div class="catalog-card-overlay"><span>View details</span></div>'
+        +     '<div class="catalog-card-overlay"></div>'
         +     (i.tag === 'holiday' ? CCW_WRAP : '')
+        +     '<div class="catalog-card-pill"><span>View details</span></div>'
         +   '</div>'
         +   '<div class="catalog-card-foot">'
         +     '<span class="catalog-card-name">' + i.name + '</span>'
