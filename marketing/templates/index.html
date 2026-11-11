@@ -712,6 +712,16 @@ html[data-theme="light"] .hero-section {
   html[data-theme="light"] .catalog-card-wrap::before {
     background: radial-gradient(ellipse 120% 120% at 6% 94%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.6) 48%, transparent 76%);
   }
+  /* Dark-shot cards (e.g. E-Gift) are dark top-to-bottom, so white light-mode
+     treatments blow out to near-white on hover. Give them the DARK pool + DARK
+     wash + dark corner even in light mode. */
+  html[data-theme="light"] .catalog-card.is-dark-shot .catalog-card-wrap::before {
+    background: radial-gradient(ellipse 120% 120% at 6% 94%, rgba(0,0,0,0.42) 0%, rgba(0,0,0,0.16) 48%, transparent 76%);
+  }
+  html[data-theme="light"] .catalog-card.is-dark-shot .catalog-card-overlay {
+    background: linear-gradient(180deg, rgba(5,5,8,0) 45%, rgba(5,5,8,0.55) 80%, rgba(5,5,8,0.82) 100%);
+  }
+  html[data-theme="light"] .catalog-card.is-dark-shot .catalog-card-preview { border-color: transparent; background: #0a0a10; }
   .catalog-card-link:hover .catalog-card-wrap::before { transform: scale(1.04); }
   /* In DARK mode the dark pool met the card's 1px border + surface bg at the
      rounded corner and showed a white sliver; drop the border + darken the bg. */
@@ -2494,7 +2504,7 @@ var CATALOG = [
   /* ── Holiday season templates (TEMPORARY — MKT-563, added 2026-11-10). Remove this block + the Holiday filter button after the season. ── */
   { name: 'Holiday Sale Page',      abbr: 'HS', color: 'salmon', tag: 'holiday', desc: 'A warm Black Friday to Cyber Monday sale page with a live countdown, copy-to-clipboard promo code, and a gift-forward product grid.', shot: 'images/holiday-sale-page.webp', cloneUrl: 'https://bolt.new/fork/sb1-5giczkah', url: 'https://holiday-sale-page-shlx.bolt.host/' },
   { name: 'Pre-Order & Pickup Page', abbr: 'PP', color: 'mint', tag: 'holiday', desc: 'A holiday pre-order flow for bakeries: a filterable menu, built-in order summary, and a pickup date-and-time picker.', shot: 'images/pre-order-pickup-page.webp', cloneUrl: 'https://bolt.new/fork/sb1-xubuee4k', url: 'https://hearth-bakery-holida-eibv.bolt.host/' },
-  { name: 'E-Gift Card Page',       abbr: 'GC', color: 'mint', tag: 'holiday', desc: 'An elegant last-minute e-gift card builder with preset and custom amounts, a personal message, and scheduled delivery.', shot: 'images/e-gift-card-page.webp', cloneUrl: 'https://bolt.new/fork/sb1-c75dirx1', url: 'https://rosemary-spa-holiday-xpz4.bolt.host/' },
+  { name: 'E-Gift Card Page',       abbr: 'GC', color: 'mint', tag: 'holiday', darkShot: true, desc: 'An elegant last-minute e-gift card builder with preset and custom amounts, a personal message, and scheduled delivery.', shot: 'images/e-gift-card-page.webp', cloneUrl: 'https://bolt.new/fork/sb1-c75dirx1', url: 'https://rosemary-spa-holiday-xpz4.bolt.host/' },
   { name: 'Holiday Gift Guide',     abbr: 'GG', color: 'blue', tag: 'holiday', desc: 'An editorial gift guide with an editor\'s picks feature, filters by recipient and price, and maker profiles.', shot: 'images/holiday-gift-guide.webp', cloneUrl: 'https://bolt.new/fork/sb1-tgfwpb92', url: 'https://holiday-gift-guide-9f57.bolt.host/' },
   { name: 'Holiday Market Page',    abbr: 'HM', color: 'salmon', tag: 'holiday', desc: 'A motion-rich pop-up and market page with an animated hero, add-to-calendar event block, and a filterable gift-set collection.', shot: 'images/holiday-market-page.webp', cloneUrl: 'https://bolt.new/fork/sb1-jvjbpyvv', url: 'https://holiday-market-pop-u-9uym.bolt.host/' },
   { name: 'Holiday Thank-You Page', abbr: 'TY', color: 'amber', tag: 'holiday', desc: 'A post-purchase thank-you page with a copy-to-clipboard January offer, product recommendations, and care tips.', shot: 'images/holiday-thank-you-page.webp', cloneUrl: 'https://bolt.new/fork/sb1-pb9vbsfv', url: 'https://holiday-thank-you-pa-d36u.bolt.host/' },
@@ -2666,7 +2676,7 @@ function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace
 
   function render(items) {
     grid.innerHTML = items.map(function (i, idx) {
-      return '<div class="catalog-card' + (i.tag === 'holiday' ? ' is-holiday' : '') + '" style="--i:' + idx + ';">'
+      return '<div class="catalog-card' + (i.tag === 'holiday' ? ' is-holiday' : '') + (i.darkShot ? ' is-dark-shot' : '') + '" style="--i:' + idx + ';">'
         + '<a href="./detail/?slug=' + slugify(i.name) + '" class="catalog-card-link">'
         +   '<div class="catalog-card-preview" aria-hidden="true">' + mediaFor(i, idx)
         +     '<div class="catalog-card-overlay"></div>'
