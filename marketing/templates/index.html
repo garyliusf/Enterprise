@@ -698,19 +698,23 @@ html[data-theme="light"] .hero-section {
      cards are "wrapped like a gift": a subtle tint, a vertical + horizontal ribbon
      line, and the green bow at the lower-left crossing. Remove with the holiday
      block. ── */
-  .catalog-card-wrap { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
+  .catalog-card-wrap { position: absolute; inset: 0; z-index: 6; pointer-events: none; }  /* above the View Details wash (z-2) so the pool + bow stay dark on hover */
+  /* Holiday cards: the dark pool meets the rounded corner, where the card's light
+     1px border + light surface bg showed through the anti-aliased edge as a sliver.
+     Drop the border and darken the bg so the corner edge reads dark, not light. */
+  .catalog-card-preview:has(.catalog-card-wrap) { border-color: transparent; background: #0a0a10; }
   /* Dark pool behind the bow (bottom-left). Rest: subtle; hover: wider + darker,
      so the ribbon + bow read against any product shot. */
   .catalog-card-wrap::before {
-    content: ""; position: absolute; left: 0; bottom: 0; width: 82%; height: 70%;
+    content: ""; position: absolute; left: 0; bottom: 0; width: 66%; height: 56%;
     /* Darkest point pulled a few % off the exact corner so the near-black doesn't
-       sit hard against the card's 1px border (that showed as a light sliver). */
-    background: radial-gradient(ellipse 118% 118% at 7% 93%, rgba(1,5,3,0.97) 0%, rgba(1,5,3,0.62) 46%, transparent 76%);
+       sit hard against the card's rounded edge (that showed as a light sliver). */
+    background: radial-gradient(ellipse 120% 120% at 6% 94%, rgba(1,5,3,0.97) 0%, rgba(1,5,3,0.6) 48%, transparent 78%);
     border-radius: 0 0 0 12px;   /* follow the card corner */
-    transform-origin: 0% 100%; transform: scale(0.9); opacity: 1;
-    transition: transform 0.4s cubic-bezier(0.22,0.61,0.36,1), opacity 0.4s ease;
+    transform-origin: 0% 100%; transform: scale(0.9);
+    transition: transform 0.25s ease-out;
   }
-  .catalog-card-link:hover .catalog-card-wrap::before { transform: scale(1.3); opacity: 1; }
+  .catalog-card-link:hover .catalog-card-wrap::before { transform: scale(1.04); }
   /* Dotted ribbon lines — hidden at rest, drawn on hover with a clip wipe so the
      dots stay crisp as the ribbon lays down (vertical top→bottom, horizontal
      right→left), both meeting at the bow knot. */
