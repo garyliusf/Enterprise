@@ -691,6 +691,16 @@ html[data-theme="light"] .hero-section {
     /* Anchors the hover overlay. */
     position: relative;
   }
+  /* The shot pans on hover with a transform, so the browser clips it as its own
+     layer: at the rounded corner its anti-aliased edge pixels let the (often
+     cream) screenshot bleed past the overlays as a light hairline — the "white
+     artifact" on hover. Stopping the shot 1px inside the curve leaves only the
+     preview background in those edge pixels. Measured in WebKit: edge rim
+     brightness median 63 → 36. */
+  .catalog-card-preview .catalog-card-shot-wrap,
+  .catalog-card-preview .catalog-card-fill {
+    clip-path: inset(1px round 11px);
+  }
   .catalog-card-preview svg { width: 100%; height: 100%; display: block; }
   html[data-theme="light"] .catalog-card-preview { background: var(--sc-surface); }
 
@@ -753,8 +763,20 @@ html[data-theme="light"] .hero-section {
     /* -39% (not -50%) centres the bow's KNOT on the line crossing — the knot sits
        at ~39% down the 512 viewBox, above the element's geometric centre. */
     transform: translate(-50%, -39%);
+    transform-origin: 50% 62%;   /* press from just below the knot */
     filter: drop-shadow(0 2px 5px rgba(0,0,0,0.32));
     overflow: visible;
+    transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.22s ease;
+  }
+  /* Hover: the bow is "pressed down" into the box — squashes a little, sinks
+     2px, and its shadow tightens; springs back when the pointer leaves. */
+  .catalog-card-link:hover .catalog-card-wrap .ccw-bow {
+    transform: translate(-50%, -39%) translateY(2px) scale(1.08, 0.86);
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.38));
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .catalog-card-wrap .ccw-bow { transition: none; }
+    .catalog-card-link:hover .catalog-card-wrap .ccw-bow { transform: translate(-50%, -39%); }
   }
   .ccw-bow .rib-loops, .ccw-bow .rib-tails { transform-box: fill-box; opacity: 0; }
   .ccw-bow .rib-loops {
