@@ -2017,6 +2017,50 @@ html .hero-inner > .hero-prompt-shell { margin-top: -4px; }                     
    gap rules differ per page and some sit in later stylesheets. */
 @media (max-width: 768px) { html body .hero-subtitle { margin-top: -4px !important; } }
 </style>
+<style id="hero-split-collage">
+/* ═══ SPLIT HERO (Gary, 2026-11-11): copy on the left, the home page's use-case
+   photo cards as a diagonal collage on the right; the prompt box is gone, a
+   primary CTA + the pills take its place. Cards synced with home's .hm-uc-*. ═══ */
+.hero-section--split { --hero-stack-allowance: 0px; }
+.hero-section--split .hero-inner { max-width: min(1200px, calc(100vw - 160px)); display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); grid-template-rows: auto auto; gap: 36px 56px; align-items: center; }
+.hero-section--split .hero-text { grid-column: 1; grid-row: 1; align-self: end; align-items: flex-start; max-width: none; text-align: left; }
+.hero-section--split .hero-h1 { text-align: left; font-size: clamp(44px, 4.2vw, 60px); max-width: none; }
+.hero-section--split .hero-h1 br { display: none; }
+.hero-section--split .hero-subtitle { text-align: left; max-width: 520px; }
+.hero-section--split .hero-cta-stack { grid-column: 1; grid-row: 2; align-self: start; display: flex; flex-direction: column; align-items: flex-start; gap: 24px; margin-top: -4px; }   /* 36 gap → 32 under the subtitle */
+.hero-section--split .hero-pills { margin: 0; padding: 0; background: none; border: 0; border-radius: 0; justify-content: flex-start; gap: 8px 18px; }   /* plain row under the button: the capsule wrapped to two lines in the 5-col measure */
+.hero-collage { grid-column: 2; grid-row: 1 / 3; --hc-step: 72px; --hc-gap: 14px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--hc-gap); padding: var(--hc-step) 0; }
+.hero-collage-col { display: grid; gap: var(--hc-gap); align-content: start; }
+.hero-collage-col:nth-child(1) { transform: translateY(var(--hc-step)); }
+.hero-collage-col:nth-child(3) { transform: translateY(calc(-1 * var(--hc-step))); }
+.hero-uc-card { position: relative; display: block; overflow: hidden; aspect-ratio: 4 / 5; border-radius: 12px; background: #111; color: #fff; text-decoration: none; isolation: isolate; box-shadow: 0 24px 48px -24px rgba(0, 0, 0, 0.6); }
+.hero-uc-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1); }
+.hero-uc-card:hover .hero-uc-img { transform: scale(1.04); }
+.hero-uc-scrim { position: absolute; inset: 0; background: linear-gradient(to top, rgba(5, 8, 16, 0.82) 0%, rgba(5, 8, 16, 0.42) 34%, rgba(5, 8, 16, 0) 62%), linear-gradient(to bottom, rgba(5, 8, 16, 0.28), rgba(5, 8, 16, 0) 30%); }
+.hero-uc-tag { position: absolute; left: 14px; top: 14px; z-index: 2; padding: 6px 10px; border-radius: 999px; background: rgba(10, 13, 20, 0.62); backdrop-filter: blur(10px) saturate(1.2); -webkit-backdrop-filter: blur(10px) saturate(1.2); font: var(--sc-label-weight, 700) 10px/1 var(--sc-font-label, var(--sc-font-sans)); letter-spacing: 1.4px; text-transform: uppercase; color: #fff; }
+.hero-uc-copy { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; padding: 16px; }
+.hero-uc-title { display: block; font-size: 16px; font-weight: 600; letter-spacing: -0.2px; line-height: 1.25; color: #fff; }
+@media (prefers-reduced-motion: reduce) { .hero-uc-img { transition: none; } .hero-uc-card:hover .hero-uc-img { transform: none; } }
+@media (max-width: 1024px) {
+  .hero-section--split .hero-inner { max-width: min(900px, calc(100vw - 80px)); grid-template-columns: 1fr; grid-template-rows: auto auto auto; gap: 32px; }
+  .hero-section--split .hero-text, .hero-section--split .hero-cta-stack { grid-column: 1; }
+  .hero-section--split .hero-cta-stack { grid-row: 2; margin-top: 0; }
+  .hero-section--split .hero-h1 { font-size: 51px; }
+  .hero-collage { grid-column: 1; grid-row: 3; --hc-step: 48px; margin-top: 16px; }
+}
+@media (max-width: 768px) {
+  .hero-section--split .hero-inner { max-width: calc(100vw - 32px); gap: 24px; }
+  .hero-section--split .hero-h1 { font-size: clamp(37px, 10.45vw, 51px); }
+  .hero-section--split .hero-cta-stack { gap: 20px; }
+  .hero-section--split .hero-btn-group, .hero-section--split .hero-btn-group .hero-btn-primary { width: 100%; }
+  .hero-collage { --hc-step: 28px; --hc-gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 8px; }
+  .hero-collage-col:nth-child(3) { display: none; }   /* four cards on a phone */
+  .hero-collage-col:nth-child(2) { transform: translateY(calc(-1 * var(--hc-step))); }
+  .hero-uc-card { border-radius: 10px; }
+  .hero-uc-title { font-size: 14px; }
+  .hero-uc-copy { padding: 12px; }
+}
+</style>
 <style id="home-kit">
 /* ═══ HOME KIT (2026-10-27) — components from the new home page (home/), ported
    to the self-contained template pages: the hero/closing prompt box, the
@@ -2896,7 +2940,7 @@ html[data-theme] .included-section { border-top: 0; }   /* no divider between th
 
 
 <!-- HERO -->
-<section class="hero-section">
+<section class="hero-section hero-section--split">
   <div class="hero-overlay"></div>
   <canvas id="hero-pixel-dots"></canvas>
   <canvas id="hero-dither" aria-hidden="true"></canvas>
@@ -2912,27 +2956,60 @@ html[data-theme] .included-section { border-top: 0; }   /* no divider between th
         <p class="hero-subtitle">Custom apps for your business, built in an afternoon. No code. No developer. No $100K project.</p>
       </div>
 
-      <!-- Prompt box — bolt-app style animated "comet" outline (from solutions/_template) -->
-      <div class="re-prompt-shell hero-prompt-shell">
-        <span class="hero-prompt-glow hero-prompt-glow--brand" aria-hidden="true"></span>
-        <span class="hero-prompt-glow hero-prompt-glow--accent" aria-hidden="true"></span>
-        <div class="hero-prompt-inner">
-          <label class="sr-only" for="hero-prompt-input">Describe what you want to build</label>
-          <textarea id="hero-prompt-input" class="re-prompt-input" rows="2" data-example="Build me a custom CRM with the fields I actually use, a booking calendar for my services, and invoice reminders for late payments."></textarea>
-          <p class="hero-prompt-example">Build me a custom CRM with the fields I actually use, a booking calendar for my services, and invoice reminders for late payments.</p>
-          <div class="re-prompt-actions">
-            <a href="https://bolt.new/" class="re-prompt-submit">
-              <span>Start building now</span>
-              <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor">
-                <path d="m4.497 20.835 16.51-7.363c1.324-.59 1.324-2.354 0-2.944L4.497 3.164c-1.495-.667-3.047.814-2.306 2.202l3.152 5.904c.245.459.245 1 0 1.458l-3.152 5.904c-.74 1.388.81 2.87 2.306 2.202Z"></path>
-              </svg>
-            </a>
-          </div>
+      <!-- hero-cta-stack -->
+      <div class="hero-cta-stack">
+        <div class="hero-btn-group">
+          <a href="https://bolt.new/" class="hero-btn-primary">
+            <div class="btn-bg-hover"></div>
+            <div class="btn-text-wrap"><div class="btn-text-inner"><span>Start building now</span><span>Start building now</span></div></div>
+          </a>
         </div>
-      </div>
-      <ul class="hero-pills">
+        <ul class="hero-pills">
         <li>63% of builders on Bolt.new are non-technical owners like you</li>
       </ul>
+      </div>
+      <!-- /hero-cta-stack -->
+
+      <!-- hero-collage: the home page's use-case photo cards as a diagonal collage (synced with home/src/home.ts useCases) -->
+      <div class="hero-collage">
+        <div class="hero-collage-col">
+        <a class="hero-uc-card" href="https://bolt.new/use-cases/contractor-invoice-app-builder">
+          <img class="hero-uc-img" src="../../marketing/images/people/founder-greenhouse.webp" alt="" style="object-position:38% 30%" loading="eager" decoding="async">
+          <span class="hero-uc-scrim" aria-hidden="true"></span>
+          <span class="hero-uc-tag">Landscaping</span>
+          <span class="hero-uc-copy"><span class="hero-uc-title">Take quote requests with photos</span></span>
+        </a>
+        <a class="hero-uc-card" href="https://bolt.new/use-cases/restaurant-website-builder">
+          <img class="hero-uc-img" src="../../marketing/images/people/founder-chef.webp" alt="" style="object-position:50% 28%" loading="eager" decoding="async">
+          <span class="hero-uc-scrim" aria-hidden="true"></span>
+          <span class="hero-uc-tag">Restaurants</span>
+          <span class="hero-uc-copy"><span class="hero-uc-title">Take reservations without the fees</span></span>
+        </a>
+        </div>
+        <div class="hero-collage-col">
+        <a class="hero-uc-card" href="https://bolt.new/use-cases/appointment-booking-app-builder">
+          <img class="hero-uc-img" src="../../marketing/images/people/founder-glasses.webp" alt="" style="object-position:62% 30%" loading="eager" decoding="async">
+          <span class="hero-uc-scrim" aria-hidden="true"></span>
+          <span class="hero-uc-tag">Trades</span>
+          <span class="hero-uc-copy"><span class="hero-uc-title">Book jobs from your phone</span></span>
+        </a>
+        <a class="hero-uc-card" href="https://bolt.new/use-cases/dashboard-builder">
+          <img class="hero-uc-img" src="../../marketing/images/people/founder-agency.webp" alt="" style="object-position:50% 32%" loading="eager" decoding="async">
+          <span class="hero-uc-scrim" aria-hidden="true"></span>
+          <span class="hero-uc-tag">Agencies</span>
+          <span class="hero-uc-copy"><span class="hero-uc-title">Give every client a dashboard</span></span>
+        </a>
+        </div>
+        <div class="hero-collage-col">
+        <a class="hero-uc-card" href="https://bolt.new/use-cases/online-store-builder">
+          <img class="hero-uc-img" src="../../marketing/images/people/founder-terracotta.webp" alt="" style="object-position:50% 38%" loading="eager" decoding="async">
+          <span class="hero-uc-scrim" aria-hidden="true"></span>
+          <span class="hero-uc-tag">Retail</span>
+          <span class="hero-uc-copy"><span class="hero-uc-title">Open an online store this week</span></span>
+        </a>
+        </div>
+      </div>
+      <!-- /hero-collage -->
 
     </div>
   </div>

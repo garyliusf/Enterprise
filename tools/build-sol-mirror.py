@@ -88,6 +88,19 @@ if yt:
     main = re.sub(r'<div class="video-modal"[^>]*>.*?<div id="modal-plyr"[^>]*></div>\s*</div>\s*</div>', '', main, count=1, flags=re.S)
 main = main.replace('/public-page-assets/', 'https://bolt.new/public-page-assets/')
 
+# ── split hero (2026-11-11): production still renders the prompt box + pills;
+#    the design is copy left + the home use-case collage right, a primary CTA
+#    and the page's own pills in a cta stack. Markup from smb's markers.
+SPLIT_HERO = {'ai-for-small-business', 'ai-for-entrepreneurs', 'ai-for-agencies'}   # the persona pages (Gary, 2026-11-11); real-estate keeps the prompt hero + video card
+if slug in SPLIT_HERO:
+  _cta = re.search(r'<!-- hero-cta-stack -->  \s*(<div class="hero-cta-stack">.*?)(<ul class="hero-pills">)', tpl, re.S).group(1)
+  _col = re.search(r'<!-- hero-collage:.*?-->\s*(<div class="hero-collage">.*?)\s*<!-- /hero-collage -->', tpl, re.S).group(1)
+  _col = _col.replace('../../marketing/', '../../')
+  main, _n = re.subn(r'<div class="re-prompt-shell hero-prompt-shell">.*?(<ul class="hero-pills">.*?</ul>)', lambda m: _cta + m.group(1) + '\n</div>\n' + _col, main, count=1, flags=re.S)
+  assert _n == 1
+  main, _n = re.subn(r'<section class="hero-section hero-section--sol"', '<section class="hero-section hero-section--sol hero-section--split"', main, count=1)
+  assert _n == 1, 'hero class'
+
 # ── how it works: production still renders the 3-step timeline; the design now
 #    uses the five-scene stage (uc2-hiw, synced from smb). Keep production's
 #    header copy, swap the body, mark the section so the uc2-hiw script hooks it.
