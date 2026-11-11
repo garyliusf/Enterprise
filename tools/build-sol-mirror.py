@@ -88,6 +88,25 @@ if yt:
     main = re.sub(r'<div class="video-modal"[^>]*>.*?<div id="modal-plyr"[^>]*></div>\s*</div>\s*</div>', '', main, count=1, flags=re.S)
 main = main.replace('/public-page-assets/', 'https://bolt.new/public-page-assets/')
 
+# ── how it works: production still renders the 3-step timeline; the design now
+#    uses the five-scene stage (uc2-hiw, synced from smb). Keep production's
+#    header copy, swap the body, mark the section so the uc2-hiw script hooks it.
+def _balanced(s, start):
+    """end index of the element whose open tag starts at `start` (div-balanced)"""
+    i = s.index('>', start) + 1; depth = 1
+    while depth:
+        o = s.find('<div', i); c = s.find('</div>', i)
+        if c < 0: raise ValueError('unbalanced')
+        if 0 <= o < c: depth += 1; i = s.index('>', o) + 1
+        else: depth -= 1; i = c + len('</div>')
+    return i
+_w = main.find('<div class="how-steps-wrap">')
+if _w >= 0:
+    _stage = re.search(r'<div class="hm-stage hm-stage--steps">.*?<div class="hm-stage-view"></div>\s*</div>', tpl, re.S).group(0)
+    main = main[:_w] + _stage + main[_balanced(main, _w):]
+    main, _n = re.subn(r'<section class="section how-section"', '<section class="section how-section section--bordered hm-steps uc2-hiw"', main, count=1)
+    assert _n == 1
+
 # ── after main: divider + site footer + wordmark from solutions.html ──
 tail_start = sol.index('<!-- Subtle divider between the prompt-box CTA and the footer columns -->')
 tail_end = sol.index('</section>', sol.index('<section class="footer-image-section">')) + len('</section>')
