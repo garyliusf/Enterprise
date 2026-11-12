@@ -714,7 +714,7 @@ html[data-theme="light"] .hero-section {
      hover: grows a touch. */
   .catalog-card-wrap::before {
     content: ""; position: absolute; left: 0; bottom: 0; width: 66%; height: 56%;
-    background: radial-gradient(ellipse 120% 120% at 6% 94%, rgba(0,0,0,0.42) 0%, rgba(0,0,0,0.16) 48%, transparent 76%);
+    background: radial-gradient(ellipse 120% 120% at 6% 94%, rgba(0,0,0,0.58) 0%, rgba(0,0,0,0.24) 48%, transparent 76%);   /* deeper (was .42/.16) so the twine and bow read against the shot (Gary, 2026-11-12) */
     border-radius: 0 0 0 12px;   /* follow the card corner */
     transform-origin: 0% 100%; transform: scale(0.9);
     transition: transform 0.25s ease-out;
@@ -741,17 +741,26 @@ html[data-theme="light"] .hero-section {
      right→left), both meeting at the bow knot. */
   .ccw-v, .ccw-h {
     position: absolute; opacity: 0;
-    filter: drop-shadow(0 0 1px rgba(0,0,0,0.35));
     transition: opacity 0.2s ease, clip-path 0.5s cubic-bezier(0.22,0.61,0.36,1);
   }
-  .ccw-v { top: 0; bottom: 0; left: 12%; width: 2px;
-    background-image: repeating-linear-gradient(180deg, #CE1126 0 5px, transparent 5px 11px);
-    clip-path: inset(0 0 100% 0); }                 /* hidden from the bottom; wipes top → bottom */
-  .ccw-h { left: 0; right: 0; top: 86%; height: 2px;
-    background-image: repeating-linear-gradient(90deg, #CE1126 0 5px, transparent 5px 11px);
-    clip-path: inset(0 0 0 100%); }                 /* hidden from the left; wipes right → left */
-  .catalog-card-link:hover .ccw-v,
-  .catalog-card-link:hover .ccw-h { opacity: 1; clip-path: inset(0 0 0 0); }
+  /* Baker's twine, not dots (Gary, 2026-11-12): a 4px cord of red + white
+     diagonal twists, a darker edge so it has roundness, and a cast shadow so it
+     reads as string laid over the card. */
+  .ccw-v, .ccw-h { border-radius: 2px; }
+  .ccw-v { top: 0; bottom: 0; left: 12%; width: 4px;
+    background-image:
+      linear-gradient(90deg, rgba(255,255,255,0.35) 0%, transparent 40%, rgba(0,0,0,0.28) 100%),
+      repeating-linear-gradient(-55deg, #CE1126 0 4px, #fff6f2 4px 8px);
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.45), 0 0 0 0.5px rgba(0,0,0,0.25);
+    clip-path: inset(0 -8px 100% -8px); }           /* hidden from the bottom; wipes top → bottom (side slack keeps the shadow) */
+  .ccw-h { left: 0; right: 0; top: 86%; height: 4px;
+    background-image:
+      linear-gradient(180deg, rgba(255,255,255,0.35) 0%, transparent 40%, rgba(0,0,0,0.28) 100%),
+      repeating-linear-gradient(35deg, #CE1126 0 4px, #fff6f2 4px 8px);
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.45), 0 0 0 0.5px rgba(0,0,0,0.25);
+    clip-path: inset(-8px 0 -8px 100%); }           /* hidden from the left; wipes right → left */
+  .catalog-card-link:hover .ccw-v { opacity: 1; clip-path: inset(0 -8px 0 -8px); }
+  .catalog-card-link:hover .ccw-h { opacity: 1; clip-path: inset(-8px 0 -8px 0); }
   .catalog-card-link:hover .ccw-h { transition-delay: 0.16s; }  /* horizontal follows the vertical */
   /* Green bow at the lower-left crossing — assembles itself when the card renders:
      the loops bloom out from the knot, then the two tails unfurl downward. */
@@ -803,7 +812,7 @@ html[data-theme="light"] .hero-section {
   @media (prefers-reduced-motion: reduce) {
     .ccw-bow .rib-loops, .ccw-bow .rib-tails { animation: none; opacity: 1; transform: none; }
     .ccw-v, .ccw-h { transition: opacity 0.2s ease; }
-    .catalog-card-link:hover .ccw-v, .catalog-card-link:hover .ccw-h { clip-path: inset(0 0 0 0); }
+    .catalog-card-link:hover .ccw-v { clip-path: inset(0 -8px 0 -8px); } .catalog-card-link:hover .ccw-h { clip-path: inset(-8px 0 -8px 0); }
   }
 
   /* Hover affordance — a soft scrim rising from the bottom of the preview with a
