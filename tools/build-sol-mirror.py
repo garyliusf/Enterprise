@@ -271,15 +271,15 @@ extra = '''
 ''' + video_css + '''
 .video-section .hero-play-btn { text-decoration: none; }
 /* the card follows the stats now (not the hero): drop the hero pull-up and give the seam one unit (Gary, 2026-11-12) */
-.why-section + .video-section { margin-top: 0; padding-top: clamp(24px, 4vh, 48px); }
-@media (max-width: 1024px) { .why-section + .video-section { padding-top: 24px; } }
-@media (max-width: 768px) { .why-section + .video-section { margin-top: 0; padding-top: 16px; } }
+.why-section + .video-section { margin-top: 0; padding-top: calc(clamp(24px, 4vh, 48px) + 20px); }   /* +20 breathing room (Gary, 2026-11-12) */
+@media (max-width: 1024px) { .why-section + .video-section { padding-top: 44px; } }
+@media (max-width: 768px) { .why-section + .video-section { margin-top: 0; padding-top: 36px; } }
 /* ...and the seam under it to How it works is one unit too */
 .video-section { padding-bottom: 0; }
-.video-section .hero-video-frame { padding-bottom: 0; }
-.video-section + .how-section { padding-top: clamp(64px, 9vh, 96px); }
-@media (max-width: 1024px) { .video-section + .how-section { padding-top: 48px; } }
-@media (max-width: 768px) { .video-section + .how-section { padding-top: 40px; } }
+.video-section .hero-video-frame { padding-bottom: 24px; }   /* = its top pad: the pixel field shows under the card as much as above it (Gary, 2026-11-12) */
+.video-section + .how-section { padding-top: calc(clamp(40px, 7vh, 72px) + 20px); }
+@media (max-width: 1024px) { .video-section + .how-section { padding-top: 68px; } }
+@media (max-width: 768px) { .video-section + .how-section { padding-top: 60px; } }
 /* strip: social line + the STANDARD button on one row, natural width (Gary, 2026-11-12). The lifted
    rules above carry the sandbox page's phone stacking at every width (regex pulled it out of its media query). */
 .hero-card-strip--social { flex-direction: row; align-items: center; justify-content: space-between; gap: 24px; padding: 16px 16px 16px 20px; }
