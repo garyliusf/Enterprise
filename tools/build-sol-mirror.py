@@ -193,7 +193,9 @@ if _w >= 0:
       'agency-site':   ('Agency website', 'noir', 'Build a website for my design agency that leads with our work: case studies, a services page, and a project inquiry form.'),
       'client-landing': ('Client landing page', 'prism', "Build a landing page for a client's AI product launch with an early-access signup, customer logos, and key stats."),
       'agency-crm':    ('Agency CRM', 'lightkeep', 'Build a CRM for my agency that shows which client accounts are going quiet, with deals, tasks, and one-click check-in drafts.'),
-      'client-site':   ('Client website', 're-architect', "Build a portfolio website for an architecture client with a bold hero, selected projects, and a contact page."),
+      'client-site':   ('Architect portfolio', 're-architect', "Build a portfolio website for an architecture client with a bold hero, selected projects, and a contact page."),
+      'fashion':       ('Editorial fashion website', 'ag-vestige', "Build an editorial website for a fashion label's new collection with a full-bleed lookbook, a manifesto page, and a shop."),
+      'saas':          ('SaaS landing page', 'ag-saas', "Build a landing page for a client's analytics SaaS with a product dashboard preview, customer logos, pricing, and a free-trial signup."),
       're-listings': ('Real estate listings', 're-nestora', 'Build a real estate website for my brokerage with searchable listings, saved homes, and a mortgage calculator.'),
       're-property': ('Property listing site', 're-maison', 'Make a listing website for a luxury property with a photo gallery, amenities, a lease calculator, and a private-tour booking form.'),
       're-buyer':    ('Buyer rep calculator', 're-buyer-rep', 'Build a buyer representation calculator that shows clients what my agent fee costs them under each compensation structure.'),
@@ -202,7 +204,7 @@ if _w >= 0:
     SLUG_KIT = {
       'ai-for-entrepreneurs':  {'hiw': 'prism',      'prompts': ['marketing', 'photo', 'coach', 'calendar']},
       'ai-for-small-business': {'hiw': 'restaurant', 'prompts': ['restaurant', 'pos', 'queue', 'business']},
-      'ai-for-agencies':       {'hiw': 'noir',       'prompts': ['agency-site', 'client-landing', 'agency-crm', 'client-site']},
+      'ai-for-agencies':       {'hiw': 'noir',       'prompts': ['agency-site', 'fashion', 'client-site', 'saas']},
       'ai-for-real-estate':    {'hiw': 'nestora',    'prompts': ['re-listings', 're-portfolio', 're-property', 're-buyer']},
     }
     _kit = SLUG_KIT.get(slug)
