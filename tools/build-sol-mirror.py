@@ -181,7 +181,10 @@ if _w >= 0:
     main = main[:_we] + ' ' + _sec + main[_we:]
     # example prompts (uc2-pg) right under it — markup from smb's markers
     _pg = re.search(r'<!-- uc2-pg:.*?-->\s*(<section class="section uc2-pg".*?</section>)\s*<!-- /uc2-pg -->', tpl, re.S).group(1).replace('../../marketing/', '../../')
-    _he = main.index('</section>', main.index('<section class="section how-section section--bordered hm-steps uc2-hiw"')) + len('</section>')
+    # ...placed straight under the hero (Gary, 2026-11-12). First section after the hero => its H2 renders
+    # statically (CLAUDE.md first-section rule), so the header's .dsa-reveal is dropped here.
+    _pg = _pg.replace('class="section-header dsa-reveal"', 'class="section-header"', 1)
+    _he = main.index('</section>', main.index('<section class="hero-section')) + len('</section>')
     main = main[:_he] + ' ' + _pg + main[_he:]
     # per-page how-it-works preset + example prompts (Gary, 2026-11-11) — the use-case types' logic:
     # the preset is a key in uc2-hiw-js PRESETS (data-business on the section); prompts are (label, shot, text[, start, nav]),
