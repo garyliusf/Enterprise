@@ -5046,10 +5046,12 @@ window.__pageOwnsScrollAnims = true;
       /* ── rendering ── */
       function setLabel(btn, label) { btn.querySelectorAll('.btn-text-inner span').forEach(function (sp) { sp.textContent = label; }); }
       function renderButton(btn, cta) {
-        /* signed in, every plan card CTA is the secondary (bordered) button at the same 52px as the signed-out
-           page's blue ones (Gary, 2026-11-12); the plan logic still says primary vs secondary, the card ignores it */
+        /* signed in, the plan card CTAs are 52px like the signed-out page's (Gary, 2026-11-12): an upgrade
+           ("Upgrade to …", "Create a team", "Subscribe to …") is blue, everything else the bordered ghost button.
+           The plan logic's own primary / secondary is not used on the cards. */
+        var upgrade = !cta.disabled && /^(upgrade|create a team|subscribe|start a team|get pro|get teams)\b/i.test(cta.label);
         btn.classList.remove('hero-btn-primary', 'hero-btn-ghost');
-        btn.classList.add('hero-btn-ghost');
+        btn.classList.add(upgrade ? 'hero-btn-primary' : 'hero-btn-ghost');
         btn.disabled = !!cta.disabled;
         if (cta.disabled) btn.setAttribute('aria-disabled', 'true'); else btn.removeAttribute('aria-disabled');
         setLabel(btn, cta.label);
