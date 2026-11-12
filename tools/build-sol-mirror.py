@@ -125,7 +125,7 @@ if '<div class="template-grid">' in main:
       'ai-for-real-estate': [
         ('Real estate listing website', 'Real estate', '/resources/templates/real-estate', '../../templates/images/nestora-real-estate.webp'),
         ('Luxury property listing', 'Real estate', '/resources/templates/property-listing-website', '../../templates/images/property-listing.webp'),
-        ('Buyer rep compensation calculator', 'Apps', '/resources/templates/buyer-rep-compensation-calculator', '../../templates/images/buyer-rep-calc.webp'),
+        ('Agency website', 'Portfolio', '/resources/templates/studio-portfolio', 'https://bolt.new/public-page-assets/media/solutions/studio-portfolio/screenshot--template-noir-agency.bolt.host---1-.webp'),   # buyer-rep is hidden from the marketplace (its detail page 404s), so it stays off the rail
         ('Architect portfolio', 'Portfolio', '/resources/templates/architect-portfolio', '../../templates/images/architect-portfolio.webp'),
       ],
     }
