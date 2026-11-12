@@ -204,7 +204,7 @@ if _w >= 0:
     }
     SLUG_KIT = {
       'ai-for-entrepreneurs':  {'hiw': 'prism',      'prompts': ['marketing', 'photo', 'coach', 'calendar']},
-      'ai-for-small-business': {'hiw': 'restaurant', 'prompts': ['restaurant', 'pos', 'queue', 'business']},
+      'ai-for-small-business': {'hiw': 'tonys', 'prompts': ['restaurant', 'pos', 'queue', 'business']},
       'ai-for-agencies':       {'hiw': 'noir',       'prompts': ['agency-site', 'fashion', 'client-site', 'saas']},
       'ai-for-real-estate':    {'hiw': 'nestora',    'prompts': ['re-property', 're-portfolio', 're-listings', 're-buyer']},
     }
