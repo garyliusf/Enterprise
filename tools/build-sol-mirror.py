@@ -160,12 +160,16 @@ if _w >= 0:
       'pos':        ('Caf\u00e9 POS', 'kitchenstock', 'Build a point-of-sale and stock tracker for my caf\u00e9 with daily sales, low-stock alerts, and restock suggestions.'),
       'crm':        ('Client CRM', 'lightkeep', 'Build a CRM that shows which accounts are going quiet, with deals, tasks, and one-click check-in drafts.'),
       'events':     ('Event manager', 'attendly', 'Build an event manager for my community with ticket sales, attendee lists, and revenue for each event.'),
+      're-listings': ('Real estate listings', 're-nestora', 'Build a real estate website for my brokerage with searchable listings, saved homes, and a mortgage calculator.'),
+      're-property': ('Property listing site', 're-maison', 'Make a listing website for a luxury property with a photo gallery, amenities, a lease calculator, and a private-tour booking form.'),
+      're-buyer':    ('Buyer rep calculator', 're-buyer-rep', 'Build a buyer representation calculator that shows clients what my agent fee costs them under each compensation structure.'),
+      're-portfolio': ('Architect portfolio', 're-architect', 'Make a portfolio for my architecture studio with a bold hero, selected projects, and a contact page.'),
     }
     SLUG_KIT = {
       'ai-for-entrepreneurs':  {'hiw': 'prism',      'prompts': ['marketing', 'photo', 'coach', 'calendar']},
       'ai-for-small-business': {'hiw': 'restaurant', 'prompts': ['restaurant', 'pos', 'queue', 'business']},
-      'ai-for-agencies':       {'hiw': 'prism',      'prompts': ['portfolio', 'crm', 'marketing', 'calendar']},
-      'ai-for-real-estate':    {'hiw': 'consult',    'prompts': ['crm', 'events', 'marketing', 'business']},   # no real-estate results yet — generic set
+      'ai-for-agencies':       {'hiw': 'noir',       'prompts': ['portfolio', 'crm', 'marketing', 'business']},
+      'ai-for-real-estate':    {'hiw': 'nestora',    'prompts': ['re-listings', 're-property', 're-buyer', 're-portfolio']},
     }
     _kit = SLUG_KIT.get(slug)
     if _kit:
