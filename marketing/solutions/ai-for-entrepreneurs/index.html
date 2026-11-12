@@ -5873,6 +5873,40 @@ window.addEventListener('load', function () {
   });
 })();
 </script>
+<script id="tmpl-rail-drift">
+/* Templates rail auto-drift (Gary, 2026-11-11): the rail creeps left on its own while it is on screen,
+   pauses while the pointer is over it or a finger is down, and stops for good once the visitor scrolls
+   or drags it themselves (the rail is theirs then). It stops at the end of the row. Class-keyed so it
+   runs on every templates rail; none under reduced motion. */
+(function () {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.js-tmpl-rail').forEach(function (rail) {
+    var track = rail.querySelector('.js-tmpl-track, .tmpl-track');
+    if (!track) return;
+    var on = false, paused = false, stopped = false, raf = 0, last = 0, expect = -1, pos = -1;
+    function tick(t) {
+      raf = 0;
+      if (!on || paused || stopped) return;
+      var dt = Math.min(48, t - (last || t)); last = t;
+      var max = track.scrollWidth - track.clientWidth;
+      if (track.scrollLeft >= max - 1) { stopped = true; return; }
+      /* float accumulator: a 0.35px step written straight to scrollLeft rounds away to nothing */
+      pos = Math.min(max, pos + dt * 0.022);   /* ~22px/s */
+      var next = Math.round(pos);
+      if (next !== track.scrollLeft) { expect = next; track.scrollLeft = next; }
+      raf = requestAnimationFrame(tick);
+    }
+    function start() { if (!raf && on && !paused && !stopped) { last = 0; pos = track.scrollLeft; expect = -1; raf = requestAnimationFrame(tick); } }
+    new IntersectionObserver(function (es) { on = es[0].isIntersecting; if (on) start(); }, { threshold: 0.2 }).observe(rail);
+    rail.addEventListener('pointerenter', function () { paused = true; });
+    rail.addEventListener('pointerleave', function () { paused = false; start(); });
+    rail.addEventListener('pointerdown', function () { stopped = true; });
+    rail.addEventListener('touchstart', function () { stopped = true; }, { passive: true });
+    track.addEventListener('wheel', function () { stopped = true; }, { passive: true });
+    track.addEventListener('scroll', function () { if (!stopped && expect >= 0 && Math.abs(track.scrollLeft - expect) > 2) stopped = true; }, { passive: true });
+  });
+})();
+</script>
 <script src="../../shared-nav-footer.js?v=20261002e"></script>
 </body>
 </html>

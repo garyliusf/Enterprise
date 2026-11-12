@@ -103,6 +103,7 @@ if slug in SPLIT_HERO:
   # per-page photos (Gary, 2026-11-11): [left, middle, right] as (file under marketing/images/people, alt, object-position);
   # None keeps smb's photo for that slot.
   SLUG_PHOTOS = {
+    'ai-for-real-estate': [('re-left.webp', 'A real estate agent working on a laptop outside', '55% 30%'), ('re-middle.webp', 'A broker reviewing listings on a tablet', '50% 22%'), None],
     'ai-for-small-business': [('smb-left.webp', 'A restaurant owner smiling at the counter', '50% 28%'), ('smb-middle.webp', 'A plant-shop owner working at a laptop among her plants', '50% 40%'), ('smb-right.webp', 'A tradesperson in an apron checking a booking', '60% 30%')],
     'ai-for-agencies': [('agencies-left.webp', 'Two agency colleagues reviewing a build together', '50% 30%'),
                         ('agencies-middle.webp', 'Two agency teammates reviewing work on a laptop', '50% 30%'),
@@ -141,7 +142,7 @@ if '<div class="template-grid">' in main:
     _rail = ('<section class="section tmpl-section" id="templates"> <div class="section-inner"> <div class="section-header center dsa-reveal"> '
              '<p class="section-eyebrow eyebrow-scramble">Templates</p> <h2 class="section-headline">Start from a template, not a blank prompt</h2> '
              '<p class="section-sub">Bolt-built templates give you a working foundation, styled and wired up, so you&#39;re customizing instead of starting from nothing.</p> </div> '
-             '<div class="tmpl-rail js-tmpl-rail"> <div class="tmpl-track js-tmpl-track"> ' + _cards + ' </div> </div> '
+             '<div class="tmpl-rail js-tmpl-rail" id="tmpl-rail"> <div class="tmpl-track js-tmpl-track"> ' + _cards + ' </div> </div> '
              '<div class="section-cta"> <a href="https://bolt.new/resources/templates" class="hero-btn-primary"> <div class="btn-bg-hover"></div> '
              '<div class="btn-text-wrap"><div class="btn-text-inner"><span>Browse all templates</span><span>Browse all templates</span></div></div> </a> </div> </div> </section>')
     _gs = main.rfind('<section', 0, main.index('<div class="template-grid">')); _ge = main.index('</section>', _gs) + len('</section>')
