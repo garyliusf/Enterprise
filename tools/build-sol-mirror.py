@@ -40,6 +40,14 @@ title = re.search(r'<title>(.*?)</title>', live, re.S).group(1).strip()
 desc_m = re.search(r'<meta name="description" content="([^"]*)"', live)
 head = re.sub(r'<title>.*?</title>', f'<title>{title} — staging mirror</title>' + (f'\n<meta name="description" content="{desc_m.group(1)}">' if desc_m else ''), head, flags=re.S)
 head = head.replace('../../marketing/', '../../')          # smb links ../../marketing/*; the mirror sits under marketing/
+# social cards: drop smb's description / og:* / twitter:* and carry the live page's own (url rewritten to the staging mirror,
+# og:image = production's standard default card). Without this every mirror unfurled as "AI for Small Business" with smb's image.
+head = re.sub(r'<meta (?:name|property)="(?:description|og:[^"]+|twitter:[^"]+)" content="[^"]*">\n?', '', head)
+live_head = live[:live.index('</head>')]
+social = re.findall(r'<meta (?:name|property)="(?:og:[^"]+|twitter:[^"]+)" content="[^"]*">', live_head)
+staging_url = f'https://garyliusf.github.io/Enterprise/marketing/solutions/{slug}/'
+social = [re.sub(r'content="https://bolt\.new/solutions/[^"]*"', f'content="{staging_url}"', m) for m in social]
+head = head.replace('</title>', '</title>\n' + (f'<meta name="description" content="{desc_m.group(1)}">\n' if desc_m else '') + '\n'.join(social), 1)
 
 # ── styles: every <style> block of smb up to <body> ──
 styles = tpl[head_end:tpl.index('<body')]
