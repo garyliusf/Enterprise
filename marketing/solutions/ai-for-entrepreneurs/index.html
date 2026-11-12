@@ -1498,6 +1498,11 @@ html[data-theme="light"] .unlock-card::before { background: radial-gradient(240p
 .why-layout > .dsa-reveal:not(.why-header) { margin-bottom: clamp(40px,6vh,72px); }
 .why-layout > .dsa-reveal:not(.why-header) .section-headline { margin-bottom: 0; }   /* production's 14px H2 margin would stack on the gap */
 @media (max-width: 768px) { .why-layout > .dsa-reveal:not(.why-header) { margin-bottom: 32px; } }
+/* Same-background seam (CLAUDE.md rule, Gary 2026-11-12): the templates rail and the customer stories share the page ground
+   with no boundary, so the lower section's top padding is trimmed to make the seam ONE unit (~144 desktop / 88 tablet / 64 phone), not two (216 / 128 / 96). */
+.tmpl-section ~ .hm-stories { padding-top: clamp(24px, 4vh, 48px); }   /* ~ not +: the mirrors carry the rail's <script> between the two sections */
+@media (max-width: 1024px) { .tmpl-section ~ .hm-stories { padding-top: 24px; } }
+@media (max-width: 768px) { .tmpl-section ~ .hm-stories { padding-top: 16px; } }
 /* stat grid — exact microsoft.html .success-stats */
 .why-stats-grid {
   display: grid;
@@ -2806,6 +2811,8 @@ html[data-theme] .included-section { border-top: 0; }   /* no divider between th
 .hm-wb-preview .pp--shot { aspect-ratio: auto; }
 /* the build preview: breathing room around the capture (Gary, 2026-11-11 — it sat hard against the pane) */
 .hm-wb-preview .pp--shot .ps-img { inset: 14px; width: calc(100% - 28px); height: calc(100% - 28px); border-radius: 6px; object-fit: contain; object-position: 50% 0; background: var(--biz-ground, #f6efe6); }   /* contain: the pane is a touch narrower than the capture, cover was clipping the edges */   /* width/height auto let a replaced element fall back to its natural size */
+.hm-wb-preview .pp--shot.pp--shot-cover .ps-img { object-fit: cover; object-position: 50% 38%; }   /* 38%: the wide tablet pane (1.6) keeps the hero headline in view, the tall desktop pane is unaffected */   /* full-bleed photo heroes fill the pane at any ratio (the pane is 0.73 / 1.6 / 1.0 across widths) */
+.hm-wb-preview .pp--shot.pp--shot-fill .ps-img { inset: 0; width: 100%; height: 100%; border-radius: 0; object-fit: cover; object-position: 50% 0; }   /* dark full-bleed pages fill the pane edge to edge (no light ground ring, no corner showing) */
 .pp--shot .ps-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; display: block; }
 .pp--shot .pp-nav, .pp--shot .pp-hero, .pp--shot .pp-cal, .pp--shot .pp-slot { position: absolute; display: block; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; min-height: 0; box-shadow: none; }
 .pp--shot .pp-book { position: static; display: block; }
@@ -5108,6 +5115,7 @@ window.addEventListener('load', function () {
   "site": "noir.agency",
   "shot": "../../use-cases/images/prompt-results/noir.webp",
   "shotWb": "../../use-cases/images/presets/noir-tablet.webp",
+  "shotWbFit": "fill",
   "prompt": "A website for my design agency that leads with our work, with case studies and a project inquiry form",
   "reply": "Your agency site is ready, with case studies and a project inquiry form. What's next?",
   "followUps": [
@@ -5135,8 +5143,9 @@ window.addEventListener('load', function () {
   "name": "Tony's Pizza Parlor",
   "mark": "flame",
   "site": "tonyspizzaparlor.com",
-  "shot": "../../use-cases/images/prompt-results/pizzeria.webp",
-  "shotWb": "../../use-cases/images/presets/tonys-tablet.webp",
+  "shot": "../../use-cases/images/prompt-results/pizzeria-hero.webp",
+  "shotWb": "../../use-cases/images/presets/tonys-tablet-v3.webp",
+  "shotWbFit": "cover",
   "prompt": "A website for my restaurant with the menu and table reservations",
   "reply": "Your restaurant site is ready, with the menu and table booking. What's next?",
   "followUps": [
@@ -5159,13 +5168,43 @@ window.addEventListener('load', function () {
    "muted": "#8a7266"
   }
  },
+ "maison": {
+  "layout": "shot",
+  "name": "Maison Solène",
+  "mark": "frame",
+  "site": "maisonsolene.com",
+  "shot": "../../use-cases/images/prompt-results/re-maison.webp",
+  "shotWb": "../../use-cases/images/presets/maison-tablet-v3.webp",
+  "shotWbFit": "fill",
+  "prompt": "A listing website for a luxury property with a photo gallery, amenities, and a private-tour booking form",
+  "reply": "Your listing site is ready, with the gallery, amenities, and private-tour booking. What's next?",
+  "followUps": [
+   "Add a floor plan page",
+   "Add a mortgage calculator",
+   "Send tour requests by email"
+  ],
+  "services": [
+   "Hosting",
+   "Database",
+   "Email",
+   "Auth"
+  ],
+  "colors": {
+   "brand": "#c9a86a",
+   "brandDeep": "#a8894f",
+   "ground": "#0f0f10",
+   "line": "#2a2a2c",
+   "ink": "#f3efe8",
+   "muted": "#8f8a82"
+  }
+ },
  "nestora": {
   "layout": "shot",
   "name": "Nestora",
   "mark": "dot",
   "site": "nestora.homes",
   "shot": "../../use-cases/images/prompt-results/re-nestora.webp",
-  "shotWb": "../../use-cases/images/presets/nestora-tablet.webp",
+  "shotWb": "../../use-cases/images/presets/nestora-tablet-v3.webp",
   "prompt": "A real estate website for my brokerage with searchable listings, saved homes, and a mortgage calculator",
   "reply": "Your real estate site is ready, with searchable listings, saved homes, and a mortgage calculator. What's next?",
   "followUps": [
@@ -5612,7 +5651,7 @@ window.addEventListener('load', function () {
   };
   /* the "shot" layout: a real template's capture under the four animated bands (see the CSS) */
   var shotSite = function (wb) {
-    return '<div class="pp pp--shot"><img class="ps-img" src="' + esc(wb ? (B.shotWb || B.shot) : B.shot) + '" alt="" decoding="async">' +
+    return '<div class="pp pp--shot' + (wb && B.shotWbFit ? ' pp--shot-' + B.shotWbFit : '') + '"><img class="ps-img" src="' + esc(wb ? (B.shotWb || B.shot) : B.shot) + '" alt="" decoding="async">' +
       '<div class="pp-nav" style="--i:0"></div><div class="pp-hero" style="--i:1"></div>' +
       '<div class="pp-book" style="--i:2"><div class="pp-cal"></div><div class="pp-slot" style="--i:3"></div></div></div>';
   };
