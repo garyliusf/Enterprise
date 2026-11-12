@@ -753,37 +753,38 @@ html[data-theme="light"] .hero-section {
   /* In DARK mode the dark pool met the card's 1px border + surface bg at the
      rounded corner and showed a white sliver; drop the border + darken the bg. */
   html[data-theme="dark"] .catalog-card.is-holiday .catalog-card-preview { border-color: transparent; background: #0a0a10; }
-  /* Dotted ribbon lines — hidden at rest, drawn on hover with a clip wipe so the
-     dots stay crisp as the ribbon lays down (vertical top→bottom, horizontal
-     right→left), both meeting at the bow knot. */
+  /* Holiday gift-wrap string (Gary, 2026-11-12): a 4px twisted red cord
+     (7 → 5 → 4px; spiral = diagonal darker-red grooves under a translucent
+     round sheen) with a soft cast shadow painted as the bottom background
+     layer, offset 1.5px down-right. Each string sits centred in a 16px box:
+     the vertical box is centred on 12% so the bow (left: 12%) sits on it; the
+     horizontal cord's centre stays at 86% + 2px where the bow was tuned.
+     DRAW-IN = the box GROWS (height top → bottom, width right → left), not a
+     clip-path wipe: an animating clip-path got the string its own compositor
+     layer and the card flashed a light patch at the string's tip mid-wipe
+     (negative insets also made WebKit skip the wipe outright). The pattern is
+     sized in px and anchored to the fixed end so it doesn't crawl as it grows.
+     No filter on the strings for the same reason. */
   .ccw-v, .ccw-h {
-    position: absolute; opacity: 0;
-    transition: opacity 0.2s ease, clip-path 0.5s cubic-bezier(0.22,0.61,0.36,1);
+    position: absolute; opacity: 0; z-index: 1; background-repeat: no-repeat;
+    transition: opacity 0.2s ease, height 0.5s cubic-bezier(0.22,0.61,0.36,1), width 0.5s cubic-bezier(0.22,0.61,0.36,1);
   }
-  /* Red satin ribbon (Gary, 2026-11-12; replaced the candy-cane baker's twine,
-     which read as candy, not gift wrap): a 5px #CE1126 band (7px at first, thinned the same day) with darker edges
-     and a soft sheen down the middle, plus a cast shadow so it lies on the card.
-     The band is painted centred in a 16px transparent box so its shadow
-     (a drop-shadow filter, which clip-path keeps) fits INSIDE the box: the
-     wipe then animates plain 0–100% insets. Negative insets made WebKit skip
-     the wipe and flash the full band on first hover. The vertical box is
-     centred on 12% so the bow (left: 12%) sits on the band; the horizontal
-     band's centre stays at 86% + 2px where the bow was tuned. */
-  .ccw-v, .ccw-h { background-repeat: no-repeat; background-position: center;
-    filter: drop-shadow(1px 1px 1.5px rgba(0,0,0,0.45)); }
-  /* 4px (Gary: 7 → 5 → 4) with a spiral twist: diagonal darker-red grooves
-     under a translucent round sheen, so it reads as a twisted red cord. */
-  .ccw-v { top: 0; bottom: 0; left: calc(12% - 8px); width: 16px; background-size: 4px 100%;
+  .ccw-v { top: 0; height: 0; left: calc(12% - 8px); width: 16px;
+    background-size: 4px 1600px, 4px 1600px, 8px 1600px;
+    background-position: center top, center top, calc(50% + 1.5px) top;
     background-image:
       linear-gradient(90deg, rgba(90,0,10,0.45) 0%, rgba(255,255,255,0) 30%, rgba(255,190,195,0.55) 50%, rgba(255,255,255,0) 70%, rgba(90,0,10,0.45) 100%),
-      repeating-linear-gradient(-55deg, #d81e33 0 2.5px, #8f0a19 2.5px 4px);
-    clip-path: inset(0% 0% 100% 0%); }              /* hidden from the bottom; wipes top → bottom */
-  .ccw-h { left: 0; right: 0; top: calc(86% - 6px); height: 16px; background-size: 100% 4px;
+      repeating-linear-gradient(-55deg, #d81e33 0 2.5px, #8f0a19 2.5px 4px),
+      linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.32) 35%, rgba(0,0,0,0.32) 65%, transparent 100%); }
+  .ccw-h { right: 0; width: 0; top: calc(86% - 6px); height: 16px;
+    background-size: 1600px 4px, 1600px 4px, 1600px 8px;
+    background-position: right center, right center, right calc(50% + 1.5px);
     background-image:
       linear-gradient(180deg, rgba(90,0,10,0.45) 0%, rgba(255,255,255,0) 30%, rgba(255,190,195,0.55) 50%, rgba(255,255,255,0) 70%, rgba(90,0,10,0.45) 100%),
-      repeating-linear-gradient(35deg, #d81e33 0 2.5px, #8f0a19 2.5px 4px);
-    clip-path: inset(0% 0% 0% 100%); }              /* hidden from the left; wipes right → left */
-  .catalog-card-link:hover .ccw-v, .catalog-card-link:hover .ccw-h { opacity: 1; clip-path: inset(0% 0% 0% 0%); }
+      repeating-linear-gradient(35deg, #d81e33 0 2.5px, #8f0a19 2.5px 4px),
+      linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.32) 35%, rgba(0,0,0,0.32) 65%, transparent 100%); }
+  .catalog-card-link:hover .ccw-v { opacity: 1; height: 100%; }
+  .catalog-card-link:hover .ccw-h { opacity: 1; width: 100%; }
   .catalog-card-link:hover .ccw-h { transition-delay: 0.16s; }  /* horizontal follows the vertical */
   /* Green bow at the lower-left crossing — assembles itself when the card renders:
      the loops bloom out from the knot, then the two tails unfurl downward. */
@@ -791,6 +792,7 @@ html[data-theme="light"] .hero-section {
      specificity, so the bow's size + its 100% overrides are scoped to the wrap. */
   .catalog-card-wrap .ccw-bow {
     position: absolute; left: 12%; top: 86%;
+    z-index: 2; will-change: transform;   /* explicit order: bow above the strings, on its own layer */
     width: 48px; height: 48px;
     /* -39% (not -50%) centres the bow's KNOT on the line crossing — the knot sits
        at ~39% down the 512 viewBox, above the element's geometric centre. */
@@ -835,7 +837,7 @@ html[data-theme="light"] .hero-section {
   @media (prefers-reduced-motion: reduce) {
     .ccw-bow .rib-loops, .ccw-bow .rib-tails { animation: none; opacity: 1; transform: none; }
     .ccw-v, .ccw-h { transition: opacity 0.2s ease; }
-    .catalog-card-link:hover .ccw-v, .catalog-card-link:hover .ccw-h { clip-path: inset(0% 0% 0% 0%); }
+    .catalog-card-link:hover .ccw-v { height: 100%; } .catalog-card-link:hover .ccw-h { width: 100%; }
   }
 
   /* Hover affordance — a soft scrim rising from the bottom of the preview with a
