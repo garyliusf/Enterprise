@@ -117,6 +117,36 @@ if slug in SPLIT_HERO:
   main, _n = re.subn(r'<section class="hero-section hero-section--sol"', '<section class="hero-section hero-section--sol hero-section--split"', main, count=1)
   assert _n == 1, 'hero class'
 
+# ── templates: a page on the CMS "grid" layout (described 4-up cards) gets the standard rail instead
+#    (Gary, 2026-11-11): the page's own templates first, then the standard set to fill the rail.
+if '<div class="template-grid">' in main:
+    RAIL_CARDS = {
+      'ai-for-real-estate': [
+        ('Real estate listing website', 'Real estate', '/resources/templates/real-estate', '../../templates/images/nestora-real-estate.webp'),
+        ('Luxury property listing', 'Real estate', '/resources/templates/property-listing-website', '../../templates/images/property-listing.webp'),
+        ('Buyer rep compensation calculator', 'Apps', '/resources/templates/buyer-rep-compensation-calculator', '../../templates/images/buyer-rep-calc.webp'),
+        ('Architect portfolio', 'Portfolio', '/resources/templates/architect-portfolio', '../../templates/images/architect-portfolio.webp'),
+      ],
+    }
+    STANDARD_CARDS = [
+      ('SaaS product landing page and dashboard', 'SaaS', '/resources/templates/saas-landing', 'https://bolt.new/public-page-assets/media/templates/premium-saas-dashboard-lp.webp'),
+      ('Curated, luxury travel site', 'Travel', '/resources/templates/travel-journal', 'https://bolt.new/public-page-assets/media/templates/maison-voyage.webp'),
+      ('Pooled analytics dashboard', 'Internal Tools', '/resources/templates/revenue-dashboard', 'https://bolt.new/public-page-assets/media/templates/vantage-dashboard.webp'),
+      ('Community event board', 'Websites', '/resources/templates/events-guide', 'https://bolt.new/public-page-assets/media/templates/townhall-events.webp'),
+    ]
+    def _card(name, tag, href, shot):
+        return ('<a class="tmpl-card" href="%s"> <div class="tmpl-card-preview" aria-hidden="true"> <img class="tmpl-card-shot" src="%s" alt="" loading="lazy" decoding="async"> '
+                '<div class="tmpl-card-overlay"><span>View details</span></div> </div> <div class="tmpl-card-meta"> <h3 class="tmpl-card-name">%s</h3> <span class="tmpl-card-tag">%s</span> </div> </a>' % (href, shot, name, tag))
+    _cards = ''.join(_card(*c) for c in RAIL_CARDS.get(slug, []) + STANDARD_CARDS)
+    _rail = ('<section class="section tmpl-section" id="templates"> <div class="section-inner"> <div class="section-header center dsa-reveal"> '
+             '<p class="section-eyebrow eyebrow-scramble">Templates</p> <h2 class="section-headline">Start from a template, not a blank prompt</h2> '
+             '<p class="section-sub">Bolt-built templates give you a working foundation, styled and wired up, so you&#39;re customizing instead of starting from nothing.</p> </div> '
+             '<div class="tmpl-rail js-tmpl-rail"> <div class="tmpl-track js-tmpl-track"> ' + _cards + ' </div> </div> '
+             '<div class="section-cta"> <a href="https://bolt.new/resources/templates" class="hero-btn-primary"> <div class="btn-bg-hover"></div> '
+             '<div class="btn-text-wrap"><div class="btn-text-inner"><span>Browse all templates</span><span>Browse all templates</span></div></div> </a> </div> </div> </section>')
+    _gs = main.rfind('<section', 0, main.index('<div class="template-grid">')); _ge = main.index('</section>', _gs) + len('</section>')
+    main = main[:_gs] + _rail + main[_ge:]
+
 # ── how it works: production still renders the 3-step timeline; the design now
 #    uses the five-scene stage (uc2-hiw, synced from smb). Keep production's
 #    header copy, swap the body, mark the section so the uc2-hiw script hooks it.
@@ -160,6 +190,10 @@ if _w >= 0:
       'pos':        ('Caf\u00e9 POS', 'kitchenstock', 'Build a point-of-sale and stock tracker for my caf\u00e9 with daily sales, low-stock alerts, and restock suggestions.'),
       'crm':        ('Client CRM', 'lightkeep', 'Build a CRM that shows which accounts are going quiet, with deals, tasks, and one-click check-in drafts.'),
       'events':     ('Event manager', 'attendly', 'Build an event manager for my community with ticket sales, attendee lists, and revenue for each event.'),
+      'agency-site':   ('Agency website', 'noir', 'Build a website for my design agency that leads with our work: case studies, a services page, and a project inquiry form.'),
+      'client-landing': ('Client landing page', 'prism', "Build a landing page for a client's AI product launch with an early-access signup, customer logos, and key stats."),
+      'agency-crm':    ('Agency CRM', 'lightkeep', 'Build a CRM for my agency that shows which client accounts are going quiet, with deals, tasks, and one-click check-in drafts.'),
+      'client-site':   ('Client website', 're-architect', "Build a portfolio website for an architecture client with a bold hero, selected projects, and a contact page."),
       're-listings': ('Real estate listings', 're-nestora', 'Build a real estate website for my brokerage with searchable listings, saved homes, and a mortgage calculator.'),
       're-property': ('Property listing site', 're-maison', 'Make a listing website for a luxury property with a photo gallery, amenities, a lease calculator, and a private-tour booking form.'),
       're-buyer':    ('Buyer rep calculator', 're-buyer-rep', 'Build a buyer representation calculator that shows clients what my agent fee costs them under each compensation structure.'),
@@ -168,8 +202,8 @@ if _w >= 0:
     SLUG_KIT = {
       'ai-for-entrepreneurs':  {'hiw': 'prism',      'prompts': ['marketing', 'photo', 'coach', 'calendar']},
       'ai-for-small-business': {'hiw': 'restaurant', 'prompts': ['restaurant', 'pos', 'queue', 'business']},
-      'ai-for-agencies':       {'hiw': 'noir',       'prompts': ['portfolio', 'crm', 'marketing', 'business']},
-      'ai-for-real-estate':    {'hiw': 'nestora',    'prompts': ['re-listings', 're-property', 're-buyer', 're-portfolio']},
+      'ai-for-agencies':       {'hiw': 'noir',       'prompts': ['agency-site', 'client-landing', 'agency-crm', 'client-site']},
+      'ai-for-real-estate':    {'hiw': 'nestora',    'prompts': ['re-listings', 're-portfolio', 're-property', 're-buyer']},
     }
     _kit = SLUG_KIT.get(slug)
     if _kit:
