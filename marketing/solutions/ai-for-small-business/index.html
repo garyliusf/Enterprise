@@ -2806,6 +2806,7 @@ html[data-theme] .included-section { border-top: 0; }   /* no divider between th
 .hm-wb-preview .pp--shot { aspect-ratio: auto; }
 /* the build preview: breathing room around the capture (Gary, 2026-11-11 — it sat hard against the pane) */
 .hm-wb-preview .pp--shot .ps-img { inset: 14px; width: calc(100% - 28px); height: calc(100% - 28px); border-radius: 6px; object-fit: contain; object-position: 50% 0; background: var(--biz-ground, #f6efe6); }   /* contain: the pane is a touch narrower than the capture, cover was clipping the edges */   /* width/height auto let a replaced element fall back to its natural size */
+.hm-wb-preview .pp--shot.pp--shot-cover .ps-img { object-fit: cover; object-position: 50% 38%; }   /* 38%: the wide tablet pane (1.6) keeps the hero headline in view, the tall desktop pane is unaffected */   /* full-bleed photo heroes fill the pane at any ratio (the pane is 0.73 / 1.6 / 1.0 across widths) */
 .pp--shot .ps-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; display: block; }
 .pp--shot .pp-nav, .pp--shot .pp-hero, .pp--shot .pp-cal, .pp--shot .pp-slot { position: absolute; display: block; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; min-height: 0; box-shadow: none; }
 .pp--shot .pp-book { position: static; display: block; }
@@ -5136,8 +5137,9 @@ window.addEventListener('load', function () {
   "name": "Tony's Pizza Parlor",
   "mark": "flame",
   "site": "tonyspizzaparlor.com",
-  "shot": "../../use-cases/images/prompt-results/pizzeria.webp",
-  "shotWb": "../../use-cases/images/presets/tonys-tablet.webp",
+  "shot": "../../use-cases/images/prompt-results/pizzeria-hero.webp",
+  "shotWb": "../../use-cases/images/presets/tonys-tablet-v2.webp",
+  "shotWbFit": "cover",
   "prompt": "A website for my restaurant with the menu and table reservations",
   "reply": "Your restaurant site is ready, with the menu and table booking. What's next?",
   "followUps": [
@@ -5166,7 +5168,7 @@ window.addEventListener('load', function () {
   "mark": "dot",
   "site": "nestora.homes",
   "shot": "../../use-cases/images/prompt-results/re-nestora.webp",
-  "shotWb": "../../use-cases/images/presets/nestora-tablet.webp",
+  "shotWb": "../../use-cases/images/presets/nestora-tablet-v3.webp",
   "prompt": "A real estate website for my brokerage with searchable listings, saved homes, and a mortgage calculator",
   "reply": "Your real estate site is ready, with searchable listings, saved homes, and a mortgage calculator. What's next?",
   "followUps": [
@@ -5613,7 +5615,7 @@ window.addEventListener('load', function () {
   };
   /* the "shot" layout: a real template's capture under the four animated bands (see the CSS) */
   var shotSite = function (wb) {
-    return '<div class="pp pp--shot"><img class="ps-img" src="' + esc(wb ? (B.shotWb || B.shot) : B.shot) + '" alt="" decoding="async">' +
+    return '<div class="pp pp--shot' + (wb && B.shotWbFit === 'cover' ? ' pp--shot-cover' : '') + '"><img class="ps-img" src="' + esc(wb ? (B.shotWb || B.shot) : B.shot) + '" alt="" decoding="async">' +
       '<div class="pp-nav" style="--i:0"></div><div class="pp-hero" style="--i:1"></div>' +
       '<div class="pp-book" style="--i:2"><div class="pp-cal"></div><div class="pp-slot" style="--i:3"></div></div></div>';
   };
