@@ -30,6 +30,16 @@ PFX = '.glossary-page'
 spec = importlib.util.spec_from_file_location('bg', ROOT / 'tools/build-glossary.py')
 bg = importlib.util.module_from_spec(spec); spec.loader.exec_module(bg)
 
+# Long-form bodies that are the SEO brief's own copy and may ship. The 301
+# redirect body on staging is a DRAFT written to show the layout — not shipped.
+SHIP_BODIES = {'website-analytics'}
+
+def html_to_md(h):
+    """The staging bodies are plain <p> paragraphs; the CMS field is Markdown."""
+    import html as _h
+    paras = re.findall(r'<p>(.*?)</p>', h, re.S)
+    return '\n\n'.join(_h.unescape(re.sub(r'\s+', ' ', p).strip()) for p in paras)
+
 # ── 1. term entries ────────────────────────────────────────────────────────
 tdir = DST / 'src/content/glossary'; tdir.mkdir(parents=True, exist_ok=True)
 written = 0
@@ -37,19 +47,27 @@ for t in bg.TERMS:
     f = tdir / f"{t['slug']}.json"
     if f.exists() and not OVERWRITE:
         continue
+    body = bg.BODY.get(t['slug'], {}) if t['slug'] in SHIP_BODIES else {}
     entry = {
         'name': t['name'],
         'article': t['art'],
         'category': bg.CATS[t['cat']],
         'definition': t['def'],
-        'sections': [],
+        'sections': [{'label': lbl, 'body': html_to_md(h)} for lbl, h in body.get('sections', [])],
         'faqs': [],
         'related': [r['slug'] for r in bg.related_of(t)],
         'draft': False,
         'tags': [],
     }
+    if body.get('title'): entry['metaTitle'] = body['title']
+    if body.get('description'): entry['metaDescription'] = body['description']
     f.write_text(json.dumps(entry, indent=2, ensure_ascii=False) + '\n')
     written += 1
+if OVERWRITE:
+    keep = {t['slug'] for t in bg.TERMS}
+    for f in tdir.glob('*.json'):
+        if f.stem not in keep:
+            f.unlink(); print('removed stale term:', f.stem)
 
 # ── 2. css ─────────────────────────────────────────────────────────────────
 term_html = (ROOT / 'marketing/glossary/301-redirect/index.html').read_text()
