@@ -188,6 +188,7 @@ if _w >= 0:
       main = re.sub(r'(<img class="uc2-pg-shot"[^>]*src=")[^"]*(")', lambda m: m.group(1) + '../../use-cases/images/prompt-results/%s.webp' % _first[1] + m.group(2), main, count=1)
       main = re.sub(r'(<img class="uc2-pg-shot"[^>]*alt=")[^"]*(")', lambda m: m.group(1) + 'Example of a %s built with Bolt' % _first[0].lower() + m.group(2), main, count=1)
       main = re.sub(r'(<textarea id="uc2-pg-input"[^>]*data-example=")[^"]*(")', lambda m: m.group(1) + html.escape(_first[2], quote=True) + m.group(2), main, count=1)   # the box's seed text
+      main = re.sub(r'(<textarea id="uc2-pg-input"[^>]*>)[^<]*(</textarea>)', lambda m: m.group(1) + html.escape(_first[2]) + m.group(2), main, count=1)   # and its initial value
 
 # ── after main: divider + site footer + wordmark from solutions.html ──
 tail_start = sol.index('<!-- Subtle divider between the prompt-box CTA and the footer columns -->')
