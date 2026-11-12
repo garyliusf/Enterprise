@@ -186,6 +186,12 @@ if _w >= 0:
     _pg = _pg.replace('class="section-header dsa-reveal"', 'class="section-header"', 1)
     _he = main.index('</section>', main.index('<section class="hero-section')) + len('</section>')
     main = main[:_he] + ' ' + _pg + main[_he:]
+    # real estate's video card (the only page with one) sits right above how it works (Gary, 2026-11-12)
+    _vm = re.search(r'<section class="section video-section"[^>]*>.*?</section>', main, re.S)
+    if _vm:
+        _vs = _vm.group(0); main = main[:_vm.start()] + main[_vm.end():]
+        _hs = main.index('<section class="section how-section section--bordered hm-steps uc2-hiw"')
+        main = main[:_hs] + _vs + ' ' + main[_hs:]
     # per-page how-it-works preset + example prompts (Gary, 2026-11-11) — the use-case types' logic:
     # the preset is a key in uc2-hiw-js PRESETS (data-business on the section); prompts are (label, shot, text[, start, nav]),
     # shots from marketing/use-cases/images/prompt-results. Reused from the use-case type sets where they fit.
@@ -258,6 +264,14 @@ extra = '''
 /* the route's video card (production-only markup) — rules from solutions/ai-for-real-estate */
 ''' + video_css + '''
 .video-section .hero-play-btn { text-decoration: none; }
+/* strip: social line + the STANDARD button on one row, natural width (Gary, 2026-11-12). The lifted
+   rules above carry the sandbox page's phone stacking at every width (regex pulled it out of its media query). */
+.hero-card-strip--social { flex-direction: row; align-items: center; justify-content: space-between; gap: 24px; padding: 16px 16px 16px 20px; }
+.hero-card-strip--social .hero-strip-btn { width: auto; flex-shrink: 0; }
+@media (max-width: 768px) {
+  .hero-card-strip--social { flex-direction: column; align-items: center; text-align: center; gap: 16px; padding: 16px; }
+  .hero-card-strip--social .hero-strip-btn { width: auto; min-width: var(--cta-min-w, 220px); max-width: 100%; }
+}
 </style>
 '''
 
