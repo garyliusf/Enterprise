@@ -155,6 +155,12 @@ if '<div class="template-grid">' in main:
              '<div class="btn-text-wrap"><div class="btn-text-inner"><span>Browse all templates</span><span>Browse all templates</span></div></div> </a> </div> </div> </section>')
     _gs = main.rfind('<section', 0, main.index('<div class="template-grid">')); _ge = main.index('</section>', _gs) + len('</section>')
     main = main[:_gs] + _rail + main[_ge:]
+# the templates rail (production's own on three pages, the injected one on real estate) sits ABOVE the
+# "What they build" / "Who can benefit" panel (Gary, 2026-11-12)
+_tm = re.search(r'<section class="section tmpl-section".*?</section>', main, re.S)
+_ts = _tm.group(0); main = main[:_tm.start()] + main[_tm.end():]
+_bs = main.index('<section class="section section--bordered">')
+main = main[:_bs] + _ts + ' ' + main[_bs:]
 
 # ── how it works: production still renders the 3-step timeline; the design now
 #    uses the five-scene stage (uc2-hiw, synced from smb). Keep production's
@@ -264,6 +270,16 @@ extra = '''
 /* the route's video card (production-only markup) — rules from solutions/ai-for-real-estate */
 ''' + video_css + '''
 .video-section .hero-play-btn { text-decoration: none; }
+/* the card follows the stats now (not the hero): drop the hero pull-up and give the seam one unit (Gary, 2026-11-12) */
+.why-section + .video-section { margin-top: 0; padding-top: clamp(24px, 4vh, 48px); }
+@media (max-width: 1024px) { .why-section + .video-section { padding-top: 24px; } }
+@media (max-width: 768px) { .why-section + .video-section { margin-top: 0; padding-top: 16px; } }
+/* ...and the seam under it to How it works is one unit too */
+.video-section { padding-bottom: 0; }
+.video-section .hero-video-frame { padding-bottom: 0; }
+.video-section + .how-section { padding-top: clamp(64px, 9vh, 96px); }
+@media (max-width: 1024px) { .video-section + .how-section { padding-top: 48px; } }
+@media (max-width: 768px) { .video-section + .how-section { padding-top: 40px; } }
 /* strip: social line + the STANDARD button on one row, natural width (Gary, 2026-11-12). The lifted
    rules above carry the sandbox page's phone stacking at every width (regex pulled it out of its media query). */
 .hero-card-strip--social { flex-direction: row; align-items: center; justify-content: space-between; gap: 24px; padding: 16px 16px 16px 20px; }
