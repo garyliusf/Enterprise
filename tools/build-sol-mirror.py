@@ -107,7 +107,7 @@ if slug in SPLIT_HERO:
     'ai-for-small-business': [('smb-left.webp', 'A restaurant owner smiling at the counter', '50% 28%'), ('smb-middle.webp', 'A plant-shop owner working at a laptop among her plants', '50% 40%'), ('smb-right.webp', 'A tradesperson in an apron checking a booking', '60% 30%')],
     'ai-for-agencies': [('agencies-left.webp', 'Two agency colleagues reviewing a build together', '50% 30%'),
                         ('agencies-middle.webp', 'Two agency teammates reviewing work on a laptop', '50% 30%'),
-                        ('agencies-right.webp', 'An agency owner with a laptop', '50% 20%')],
+                        ('agencies-right.webp', 'An agency lead holding a laptop in a studio', '50% 30%')],
   }
   _imgs = re.findall(r'<img class="hero-uc-img"[^>]*>', _col)
   for _i, _ph in enumerate(SLUG_PHOTOS.get(slug, [])):
