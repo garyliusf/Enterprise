@@ -164,7 +164,7 @@ if _w >= 0:
     SLUG_KIT = {
       'ai-for-entrepreneurs':  {'hiw': 'prism',      'prompts': ['marketing', 'photo', 'coach', 'calendar']},
       'ai-for-small-business': {'hiw': 'restaurant', 'prompts': ['restaurant', 'pos', 'queue', 'business']},
-      'ai-for-agencies':       {'hiw': 'studio',     'prompts': ['portfolio', 'crm', 'marketing', 'calendar']},
+      'ai-for-agencies':       {'hiw': 'prism',      'prompts': ['portfolio', 'crm', 'marketing', 'calendar']},
       'ai-for-real-estate':    {'hiw': 'consult',    'prompts': ['crm', 'events', 'marketing', 'business']},   # no real-estate results yet — generic set
     }
     _kit = SLUG_KIT.get(slug)
