@@ -484,9 +484,11 @@ elif new not in t:
 # lp-home previews a light footer without the pull-up)
 cr = DEST / 'src/pages/solutions/cms-builder-render.astro'
 t = cr.read_text()
-if old in t:
-    cr.write_text(t.replace(old, new))
-elif new not in t:
+old_cr = "sec.ok && sec.type === 'closing-band');"   # (the canvas types its callback param, so match the tail only)
+new_cr = "sec.ok && (sec.type === 'closing-band' || sec.type === 'home-page'));"
+if old_cr in t:
+    cr.write_text(t.replace(old_cr, new_cr))
+elif new_cr not in t:
     sys.exit('port-home-section: cms-builder-render darkFooter line not found')
 
 # the hosted CMS worker bundles a static barrel of every meta.ts (CI fails on a stale one)
