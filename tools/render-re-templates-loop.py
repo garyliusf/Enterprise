@@ -150,7 +150,7 @@ for f in range(N):
         if w < 2 or h < 2: continue
         if sx + w / 2 < -20 or sx - w / 2 > W + 20 or sy + h / 2 < -20 or sy - h / 2 > H + 20: continue
         c = card.resize((w, h), Image.LANCZOS)
-        kk = (0.62 + 0.76 * depth) if depth < 0.5 else 1.0
+        kk = (0.62 + 0.76 * depth) if (depth < 0.5 and i not in FEATURED) else 1.0   # featured cards never take the back-of-ring fade (it read as a washed-out page when zoomed)
         if i != fi: kk *= 1 - 0.7 * z            # the ring dims while the camera is on a featured page
         if kk < 1: c.putalpha(c.split()[3].point(lambda v, kk=kk: int(v * kk)))
         items.append((depth + (10 if i in FEATURED else 0), i, c, int(sx - w / 2), int(sy - h / 2)))
