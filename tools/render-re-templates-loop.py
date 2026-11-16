@@ -16,10 +16,11 @@ FPS = 30
 os.makedirs(OUT, exist_ok=True)
 
 # ring order; the three FEATURED real estate templates sit a third of the ring apart
-TEMPLATES = ['nestora-real-estate', 'vantage-dashboard', 'noir-agency',
-             'property-listing', 'buyer-rep-calc', 'meridian-capital',
-             'architect-portfolio', 'tenant-screening']
-FEATURED = [0, 3, 6]
+# slots run right (0) → bottom (2) → left (4) → top (6); the featured three take right, bottom and left so a
+# pull-out never lands at the back of the ring (Gary, 2026-11-16)
+TEMPLATES = ['nestora-real-estate', 'noir-agency', 'property-listing', 'buyer-rep-calc',
+             'architect-portfolio', 'tenant-screening', 'vantage-dashboard', 'meridian-capital']
+FEATURED = [0, 2, 4]
 CARD_W, CARD_H = 198, 264
 HI = 4                     # cards are built at 4x so a push-in stays sharp
 RADIUS_X, RADIUS_Y = 262, 300
