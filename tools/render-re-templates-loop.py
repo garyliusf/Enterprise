@@ -120,6 +120,19 @@ for f in range(N):
     cam_x = CENTER[0] + (fx - CENTER[0]) * z
     cam_y = CENTER[1] + (fy - CENTER[1]) * z
 
+    # stacking hand-off: the featured card rides on top of the ring, but it fades up there as the
+    # push-in starts and fades back down after the pull-out, instead of popping between layers
+    # (the pop read as a flash where it overlapped a neighbour — Gary, 2026-11-16)
+    HAND = 0.6
+    prev = FEATURED[(k - 1) % len(FEATURED)]
+    top_alpha = {}
+    if local < SEG_WIDE:
+        top_alpha[prev] = max(0.0, 1 - local / HAND)
+    elif local < SEG_WIDE + SEG_IN:
+        top_alpha[fi] = min(1.0, (local - SEG_WIDE) / (HAND * 0.5))
+    else:
+        top_alpha[fi] = 1.0
+
     frame = ground.copy().convert('RGBA')
     items = []
     for i in range(K):
@@ -131,12 +144,19 @@ for f in range(N):
         w, h = int(card.width * s / HI), int(card.height * s / HI)
         if w < 2 or h < 2: continue
         if sx + w / 2 < -20 or sx - w / 2 > W + 20 or sy + h / 2 < -20 or sy - h / 2 > H + 20: continue
-        items.append((2 if i == fi else depth, card, sx, sy, w, h))
-    for depth, card, sx, sy, w, h in sorted(items, key=lambda it: it[0]):
         c = card.resize((w, h), Image.LANCZOS)
         kk = (0.62 + 0.76 * depth) if depth < 0.5 else 1.0
-        if depth < 2: kk *= 1 - 0.7 * z            # the ring dims while the camera is on a featured page
+        if i != fi: kk *= 1 - 0.7 * z            # the ring dims while the camera is on a featured page
         if kk < 1: c.putalpha(c.split()[3].point(lambda v, kk=kk: int(v * kk)))
-        frame.alpha_composite(c, (int(sx - w / 2), int(sy - h / 2)))
+        items.append((depth, i, c, int(sx - w / 2), int(sy - h / 2)))
+    items.sort(key=lambda it: it[0])
+    for depth, i, c, px, py in items:
+        frame.alpha_composite(c, (px, py))
+    for depth, i, c, px, py in items:          # the top copies
+        a = top_alpha.get(i, 0.0)
+        if a <= 0: continue
+        if a < 1:
+            c = c.copy(); c.putalpha(c.split()[3].point(lambda v, a=a: int(v * a)))
+        frame.alpha_composite(c, (px, py))
     frame.convert('RGB').save('%s/f%05d.jpg' % (OUT, f), quality=90)
 print(N, 'frames', round(SECS, 1), 's')
