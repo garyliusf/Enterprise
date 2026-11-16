@@ -480,6 +480,14 @@ if old in t:
     bp.write_text(t.replace(old, new))
 elif new not in t:
     sys.exit('port-home-section: BuiltPage darkFooter line not found')
+# the CMS builder canvas makes the same decision for its preview (else editing
+# lp-home previews a light footer without the pull-up)
+cr = DEST / 'src/pages/solutions/cms-builder-render.astro'
+t = cr.read_text()
+if old in t:
+    cr.write_text(t.replace(old, new))
+elif new not in t:
+    sys.exit('port-home-section: cms-builder-render darkFooter line not found')
 
 # the hosted CMS worker bundles a static barrel of every meta.ts (CI fails on a stale one)
 import subprocess

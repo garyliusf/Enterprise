@@ -298,12 +298,18 @@ function ShowcaseCoverflow() {
     s.drag = true; s.moved = 0; s.startX = s.lastX = e.clientX; s.startPos = s.pos; s.lastT = e.timeStamp; s.vel = 0; s.v = 0;
     /* no pointer capture yet: capturing on press retargeted the release and
        click to the stage, so Open in Bolt / Preview did nothing (2026-10-26).
-       It's taken once the press becomes a drag (onMove), like the rail */
+       It's taken once the press becomes a drag (onMove), like the rail — so a
+       release OUTSIDE the stage before that never reaches onPointerUp here:
+       the window hears it instead (Greptile on #689: the cards kept following
+       a mouse with no button held) */
+    window.addEventListener('pointerup', onUp);
+    window.addEventListener('pointercancel', onUp);
     kick();
   };
   const onMove = (e: React.PointerEvent) => {
     const s = st.current;
     if (!s.drag) return;
+    if (e.buttons === 0) { onUp(); return; } /* the button went up where we could not hear it */
     const dx = e.clientX - s.startX;
     s.moved = Math.max(s.moved, Math.abs(dx));
     if (s.moved > 6) { const el = e.currentTarget as HTMLElement; if (!el.hasPointerCapture(e.pointerId)) el.setPointerCapture(e.pointerId); }
@@ -314,6 +320,8 @@ function ShowcaseCoverflow() {
   };
   const onUp = () => {
     const s = st.current;
+    window.removeEventListener('pointerup', onUp);
+    window.removeEventListener('pointercancel', onUp);
     if (!s.drag) return;
     s.drag = false;
     /* a flick moves further (up to 3 cards), then eases onto a card */
@@ -649,9 +657,14 @@ function useScrollRail({ scroller, card, copies = 2, speed = 0.03 }: { scroller:
       if (e.pointerType === 'touch' || e.button !== 0) return;
       stop(); down = true; moved = 0; captured = false; vel = 0;
       startX = e.clientX; startLeft = track.scrollLeft; lastX = e.clientX; lastT = e.timeStamp;
+      /* until the press becomes a drag the pointer is not captured, so a
+         release outside the track only reaches the window */
+      window.addEventListener('pointerup', onUp);
+      window.addEventListener('pointercancel', onUp);
     };
     const onMove = (e: PointerEvent) => {
       if (!down) return;
+      if (e.buttons === 0) { onUp(e); return; }
       const dx = e.clientX - startX;
       if (Math.abs(dx) > moved) moved = Math.abs(dx);
       if (moved > 6 && !captured) { captured = true; track.classList.add('is-dragging'); window.getSelection()?.removeAllRanges(); /* the selection began at pointerdown, before user-select: none applied (the stray selected letter, Gary 2026-10-27) */ try { track.setPointerCapture(e.pointerId); } catch { /* ignore */ } }
@@ -663,6 +676,8 @@ function useScrollRail({ scroller, card, copies = 2, speed = 0.03 }: { scroller:
       }
     };
     const onUp = (e: PointerEvent) => {
+      window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', onUp);
       if (!down) return;
       down = false;
       try { track.releasePointerCapture(e.pointerId); } catch { /* ignore */ }
@@ -731,6 +746,7 @@ function useScrollRail({ scroller, card, copies = 2, speed = 0.03 }: { scroller:
       track.removeEventListener('pointerdown', onDown); track.removeEventListener('pointermove', onMove);
       track.removeEventListener('pointerup', onUp); track.removeEventListener('pointercancel', onUp);
       track.removeEventListener('click', onClick, true); stop();
+      window.removeEventListener('pointerup', onUp); window.removeEventListener('pointercancel', onUp);
       cancelAnimationFrame(raf); io.disconnect(); window.clearTimeout(touchHold);
       track.removeEventListener('scroll', onScrollSync);
       track.removeEventListener('mouseenter', onEnter); track.removeEventListener('mouseleave', onLeave);
