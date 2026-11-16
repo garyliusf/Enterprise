@@ -22,7 +22,11 @@ function useTypewriter(active: boolean) {
   const [idx, setIdx] = useState(0);
   const [len, setLen] = useState(0);
   const [erasing, setErasing] = useState(false);
-  const reduce = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* read after mount, not during render: the server renders an empty slice,
+     so the first client render must too (a reduced-motion browser rendering
+     the whole example straight away was a hydration mismatch) */
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => { setReduce(window.matchMedia('(prefers-reduced-motion: reduce)').matches); }, []);
   const full = EXAMPLES[idx];
   useEffect(() => {
     if (!active || reduce) return;
@@ -64,7 +68,8 @@ export function PromptBox({ id = 'hero', compact = false, types = false }: { id?
     send();
   };
   const onKey = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    /* not while an IME is composing (keyCode 229 = the composition keydown) */
+    if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing && e.keyCode !== 229) {
       e.preventDefault();
       send();
     }

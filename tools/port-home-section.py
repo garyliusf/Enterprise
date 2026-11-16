@@ -481,4 +481,8 @@ if old in t:
 elif new not in t:
     sys.exit('port-home-section: BuiltPage darkFooter line not found')
 
+# the hosted CMS worker bundles a static barrel of every meta.ts (CI fails on a stale one)
+import subprocess
+subprocess.run(['node', 'scripts/gen-section-registry.mjs'], cwd=DEST, check=False)
+
 print(f'home-page section written to {SEC}; {copied} assets → {ASSETS}')

@@ -328,6 +328,8 @@ function ShowcaseCoverflow() {
         ref={root}
         onMouseEnter={() => { st.current.hover = true; }}
         onMouseLeave={() => { st.current.hover = false; }}
+        onFocusCapture={() => { st.current.hover = true; }}
+        onBlurCapture={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) st.current.hover = false; }}
         onPointerDown={onDown}
         onPointerMove={onMove}
         onPointerUp={onUp}
@@ -707,8 +709,11 @@ function useScrollRail({ scroller, card, copies = 2, speed = 0.03 }: { scroller:
     const onLeave = () => { hovered = false; pos = track.scrollLeft; };
     const onTouchStart = () => { window.clearTimeout(touchHold); touchHold = window.setTimeout(() => {}, 1e9); };
     const onTouchEnd = () => { window.clearTimeout(touchHold); touchHold = window.setTimeout(() => { touchHold = 0; pos = track.scrollLeft; }, 2500); };
+    const onFocusOut = (e: FocusEvent) => { if (!track.contains(e.relatedTarget as Node | null)) onLeave(); };
     track.addEventListener('mouseenter', onEnter);
     track.addEventListener('mouseleave', onLeave);
+    track.addEventListener('focusin', onEnter);
+    track.addEventListener('focusout', onFocusOut);
     track.addEventListener('touchstart', onTouchStart, { passive: true });
     track.addEventListener('touchend', onTouchEnd, { passive: true });
     const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; last = 0; });
@@ -729,6 +734,7 @@ function useScrollRail({ scroller, card, copies = 2, speed = 0.03 }: { scroller:
       cancelAnimationFrame(raf); io.disconnect(); window.clearTimeout(touchHold);
       track.removeEventListener('scroll', onScrollSync);
       track.removeEventListener('mouseenter', onEnter); track.removeEventListener('mouseleave', onLeave);
+      track.removeEventListener('focusin', onEnter); track.removeEventListener('focusout', onFocusOut);
       track.removeEventListener('touchstart', onTouchStart); track.removeEventListener('touchend', onTouchEnd);
     };
   }, [scroller, card, copies, speed]);
@@ -755,7 +761,7 @@ export function TemplatesHome() {
                   <span className="hm-tr-name">{t.name}</span>
                   <span className="hm-tr-tag">{t.tag}</span>
                 </span>
-                <CardActions open={t.url} preview={t.preview} label={t.name} />
+                <CardActions open={t.url} preview={t.preview} label={t.name} tabIndex={dupe ? -1 : undefined} />
               </article>
             );
             })}
@@ -851,7 +857,39 @@ const flashlight = (e: React.MouseEvent<HTMLElement>) => {
   el.style.setProperty('--mx', `${e.clientX - r.left}px`);
   el.style.setProperty('--my', `${e.clientY - r.top}px`);
 };
+/* the 1:1 lead goes straight to HubSpot, the same form the enterprise page
+   posts to (src/pages/enterprise/index.astro in bolt-public-pages) — the old
+   hand-off to /enterprise?email=… was dropped there (Greptile on #689) */
+const LEAD_ENDPOINT = 'https://api.hsforms.com/submissions/v3/integration/submit/45403856/20f65973-575f-4229-aa78-666ff2b5f2f3';
+type LeadState = 'idle' | 'invalid' | 'busy' | 'ok' | 'fail';
 export function Enterprise() {
+  const [lead, setLead] = useState<LeadState>('idle');
+  const inflight = useRef(false); /* Enter + click can't double-post */
+  const submitLead = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (inflight.current) return;
+    const email = (e.currentTarget.elements.namedItem('email') as HTMLInputElement | null)?.value.trim() ?? '';
+    if (!/^\S+@\S+\.\S+$/.test(email)) { setLead('invalid'); return; }
+    inflight.current = true;
+    setLead('busy');
+    try {
+      /* the hubspotutk cookie ties the submission to the visitor's analytics history */
+      const hutk = (document.cookie.match(/hubspotutk=([^;]+)/) || [])[1];
+      const context: Record<string, string> = { pageUri: window.location.href, pageName: document.title };
+      if (hutk) context.hutk = hutk;
+      const res = await fetch(LEAD_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fields: [{ name: 'email', value: email }], context }),
+      });
+      setLead(res.ok ? 'ok' : 'fail');
+    } catch {
+      setLead('fail');
+    } finally {
+      inflight.current = false;
+    }
+  };
+  const leadLabel = lead === 'busy' ? 'Submitting…' : lead === 'fail' ? 'Try again' : enterprise.strip.cta;
   return (
     <section className="fw-section fw-section--band hm-ent">
       <div className="fw-inner">
@@ -897,28 +935,22 @@ export function Enterprise() {
               <p className="hm-ent-panel-note">A 30-minute walkthrough with the enterprise team, no deck. Bring the project you want to ship.</p>
             </div>
             <div className="hm-ent-panel-actions">
-              <form
-                className="hm-ent-strip"
-                action={enterprise.strip.action}
-                method="get"
-                target="_blank"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const email = (e.currentTarget.elements.namedItem('email') as HTMLInputElement | null)?.value.trim() ?? '';
-                  const url = new URL(enterprise.strip.action);
-                  if (email) url.searchParams.set('email', email);
-                  window.open(url.toString(), '_blank', 'noopener');
-                }}
-              >
+              {lead === 'ok' ? (
+                <p className="hm-ent-strip-msg" role="status">Thanks — we'll be in touch.</p>
+              ) : (
+              <form className="hm-ent-strip" action={enterprise.strip.action} method="post" onSubmit={submitLead} noValidate>
                 <div className="hero-form-row">
                   <label className="sr-only" htmlFor="ent-email">{enterprise.strip.placeholder}</label>
-                  <input id="ent-email" name="email" type="email" className="hero-email-input" placeholder={enterprise.strip.placeholder} autoComplete="email" required />
-                  <button type="submit" className="hero-cta-button" aria-label="Book a 1:1 with sales">
+                  <input id="ent-email" name="email" type="email" className="hero-email-input" placeholder={enterprise.strip.placeholder} autoComplete="email" required aria-invalid={lead === 'invalid' ? true : undefined} disabled={lead === 'busy'} />
+                  <button type="submit" className="hero-cta-button" aria-label="Book a 1:1 with sales" disabled={lead === 'busy'}>
                     <div className="btn-bg-hover" />
-                    <div className="btn-text-wrap"><div className="btn-text-inner"><span>{enterprise.strip.cta}</span><span>{enterprise.strip.cta}</span></div></div>
+                    <div className="btn-text-wrap"><div className="btn-text-inner"><span>{leadLabel}</span><span>{leadLabel}</span></div></div>
                   </button>
                 </div>
+                {lead === 'invalid' && <p className="hm-ent-strip-msg hm-ent-strip-msg--error" role="alert">Enter a work email address.</p>}
+                {lead === 'fail' && <p className="hm-ent-strip-msg hm-ent-strip-msg--error" role="alert">Something went wrong. Try again.</p>}
               </form>
+              )}
             </div>
           </div>
         </div>
