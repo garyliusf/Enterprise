@@ -18,8 +18,9 @@ os.makedirs(OUT, exist_ok=True)
 # ring order; the three FEATURED real estate templates sit a third of the ring apart
 # slots run right (0) → bottom (2) → left (4) → top (6); the featured three take right, bottom and left so a
 # pull-out never lands at the back of the ring (Gary, 2026-11-16)
-TEMPLATES = ['nestora-real-estate', 'noir-agency', 'property-listing', 'buyer-rep-calc',
-             'architect-portfolio', 'tenant-screening', 'vantage-dashboard', 'meridian-capital']
+# the five around them are the catalog's most striking pages, not more real estate tools (Gary: elegant or with a pop)
+TEMPLATES = ['nestora-real-estate', 'prism', 'property-listing', 'maison-voyage',
+             'architect-portfolio', 'forkful-recipe', 'vestige-fashion', 'noir-agency']
 FEATURED = [0, 2, 4]
 CARD_W, CARD_H = 198, 264
 HI = 4                     # cards are built at 4x so a push-in stays sharp
@@ -52,7 +53,7 @@ def make_ground():
     return ImageChops.screen(g, Image.merge('RGB', (dots.point(lambda v: v // 3), dots.point(lambda v: v // 2), dots)))
 
 SHOTS = {}
-SOURCES = {'property-listing': 'marketing/use-cases/images/prompt-results/re-maison.webp', 'architect-portfolio': 'marketing/use-cases/images/prompt-results/re-architect.webp'}   # the catalog shot is only 1800px tall; this is the full page
+SOURCES = {'prism': 'marketing/use-cases/images/prompt-results/prism.webp', 'property-listing': 'marketing/use-cases/images/prompt-results/re-maison.webp', 'architect-portfolio': 'marketing/use-cases/images/prompt-results/re-architect.webp'}   # the catalog shot is only 1800px tall; this is the full page
 def shot(name):
     if name not in SHOTS:
         im = Image.open(SOURCES.get(name, 'marketing/templates/images/%s.webp' % name)).convert('RGB')
