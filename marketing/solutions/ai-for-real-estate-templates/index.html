@@ -2838,10 +2838,18 @@ html[data-theme] .included-section { border-top: 0; }   /* no divider between th
 .hm-wb-preview .pp .pp-links i:last-child { display: none; }
 </style>
 <style id="hero-templates-experiment">
-/* EXPERIMENT (2026-11-16): the middle collage card is a video scrolling through the real estate templates; the two people stay. */
-.hero-uc-card--video { background: #06153f; }
-.hero-uc-card--video .hero-uc-img { object-position: 50% 0; }
-.hero-uc-card--video .hero-uc-canvas { opacity: 0.8; -webkit-mask-image: radial-gradient(ellipse 62% 46% at 0% 100%, #000 0%, rgba(0,0,0,0.55) 45%, transparent 100%); mask-image: radial-gradient(ellipse 62% 46% at 0% 100%, #000 0%, rgba(0,0,0,0.55) 45%, transparent 100%); }   /* the animated pixel field, held to the bottom-left corner so it stays off the screens (Gary, 2026-11-16) */
+/* EXPERIMENT (2026-11-16): the middle collage piece is three real estate templates as a stacked deck of cards
+   sitting straight on the hero: no box behind them (Gary). The front page scrolls, fades down and away, the
+   two behind step forward and it rejoins at the back. Driven by #re-deck-js; these rules are the resting stack. */
+.hero-uc-card--deck { background: none; box-shadow: none; overflow: visible; border-radius: 0; isolation: auto; }
+html[data-theme="light"] .hero-uc-card--deck { box-shadow: none; }
+.re-deck-card { position: absolute; left: 9%; bottom: 0; width: 82%; aspect-ratio: 3 / 4; overflow: hidden; border-radius: 12px; background: #111; box-shadow: 0 24px 48px -18px rgba(0, 0, 0, 0.6); transform-origin: 50% 100%; will-change: transform, opacity; }
+html[data-theme="light"] .re-deck-card { box-shadow: 0 18px 36px -18px rgba(8, 22, 60, 0.4); }
+.re-deck-card img { display: block; width: 100%; height: auto; will-change: transform; }
+.re-deck-card:nth-child(1) { z-index: 3; }
+.re-deck-card:nth-child(2) { z-index: 2; transform: translateY(-16.5%) scale(0.9); filter: brightness(0.78); }
+.re-deck-card:nth-child(3) { z-index: 1; transform: translateY(-33%) scale(0.8); filter: brightness(0.56); }
+@media (max-width: 768px) { .re-deck-card { border-radius: 10px; } }
 </style>
 </head>
 <body>
@@ -3066,9 +3074,10 @@ html[data-theme] .included-section { border-top: 0; }   /* no divider between th
         </figure>
         </div>
         <div class="hero-collage-col">
-        <figure class="hero-uc-card hero-uc-card--video sc-on-dark">
-          <video class="hero-uc-img" src="../../images/people/re-templates-loop.mp4?v=16" poster="../../images/people/re-templates-poster.webp?v=16" autoplay muted loop playsinline aria-label="A scroll through Bolt's real estate templates"></video>
-          <canvas class="hero-uc-canvas" id="hero-collage-c2" aria-hidden="true"></canvas>
+        <figure class="hero-uc-card hero-uc-card--deck" id="re-deck" role="img" aria-label="Three real estate sites built with Bolt: a listings marketplace, a luxury property site and an architect portfolio">
+          <div class="re-deck-card" data-scroll="0.86"><img src="../../use-cases/images/prompt-results/re-nestora.webp" alt="" decoding="async"></div>
+          <div class="re-deck-card" data-scroll="1.32"><img src="../../use-cases/images/prompt-results/re-maison.webp" alt="" decoding="async"></div>
+          <div class="re-deck-card" data-scroll="0.63"><img src="../../use-cases/images/prompt-results/re-architect.webp" alt="" decoding="async"></div>
         </figure>
         </div>
         <div class="hero-collage-col">
@@ -5861,6 +5870,51 @@ window.addEventListener('load', function () {
   view.addEventListener('touchstart', function () { clearTimeout(held); root.classList.add('is-paused'); }, { passive: true });
   view.addEventListener('touchend', function () { clearTimeout(held); held = setTimeout(function () { if (document.activeElement !== ta) root.classList.remove('is-paused'); }, 4000); }, { passive: true });
   new IntersectionObserver(function (es) { root.classList.toggle('is-running', es[0].isIntersecting); }, { threshold: 0.35 }).observe(grid);
+})();
+</script>
+<script id="re-deck-js">
+/* the hero's template deck (experiment): one beat per card: rest, the front page scrolls, rest, the deck advances.
+   Resting stack is in CSS, so reduced motion and no-JS get the three cards standing still. */
+(function () {
+  var deck = document.getElementById('re-deck');
+  if (!deck || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var cards = [].slice.call(deck.querySelectorAll('.re-deck-card'));
+  var K = cards.length; if (K < 3) return;
+  var imgs = cards.map(function (c) { return c.querySelector('img'); });
+  var REST = 0.5, SCROLL = 2.9, END = 0.35, SWAP = 0.95, SEG = REST + SCROLL + END + SWAP;
+  function smooth(t) { return t * t * (3 - 2 * t); }
+  function quart(t) { return t < 0.5 ? 8 * t * t * t * t : 1 - Math.pow(-2 * t + 2, 4) / 2; }
+  function place(i, d, op, extraY, z, sc) {
+    var c = cards[i];
+    c.style.transform = 'translateY(' + (-16.5 * d + extraY).toFixed(2) + '%) scale(' + (1 - 0.1 * d).toFixed(4) + ')';
+    c.style.filter = d > 0.01 ? 'brightness(' + (1 - 0.22 * d).toFixed(3) + ')' : 'none';
+    c.style.opacity = op.toFixed(3);
+    c.style.zIndex = z;
+    imgs[i].style.transform = 'translateY(' + (-sc * parseFloat(c.dataset.scroll || 0) * c.clientWidth).toFixed(1) + 'px)';
+  }
+  var t0 = null, seen = true;
+  if ('IntersectionObserver' in window) new IntersectionObserver(function (e) { seen = e[0].isIntersecting; }).observe(deck);
+  function frame(now) {
+    requestAnimationFrame(frame);
+    if (t0 === null) t0 = now;
+    if (!seen || document.hidden) { t0 += 16.7; return; }   /* hold the timeline while off screen */
+    var sec = ((now - t0) / 1000) % (SEG * K);
+    var k = Math.min(K - 1, Math.floor(sec / SEG)), local = sec - k * SEG, scroll, e;
+    if (local < REST) { scroll = 0; e = 0; }
+    else if (local < REST + SCROLL) { scroll = smooth((local - REST) / SCROLL); e = 0; }
+    else if (local < REST + SCROLL + END) { scroll = 1; e = 0; }
+    else { scroll = 1; e = (local - REST - SCROLL - END) / SWAP; }
+    var step = e ? quart(Math.min(1, e / 0.85)) : 0;
+    for (var j = 1; j < K; j++) place((k + j) % K, j - step, 1, 0, 10 - j, 0);
+    if (e < 0.5) {            /* the front page sinks and fades out, still on its last scroll position */
+      var g = e / 0.5; g = g * g;
+      place(k, 0, 1 - g, 12 * g, 20, scroll);
+    } else {                  /* and comes back in at the rear, at the top of the page */
+      var a = 1 - Math.pow(1 - (e - 0.5) / 0.5, 3);
+      place(k, 3 - a, a, 0, 1, 0);
+    }
+  }
+  requestAnimationFrame(frame);
 })();
 </script>
 <script id="hero-collage-js">
