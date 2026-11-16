@@ -1,96 +1,142 @@
-"""Render the real estate hero's middle-card video: template screenshots as floating cards
-orbiting on a blue bokeh glow, after the team's `newloop.mp4` reference (Gary, 2026-11-16).
+"""Render the real estate hero's middle-card video: template screenshots as floating cards on a
+slowly orbiting ring over the blue bokeh glow (the team's `newloop.mp4` look), with the camera
+pushing in on the three real estate templates in turn (Gary, 2026-11-16).
 
     python3 tools/render-re-templates-loop.py <frames-dir>
     ffmpeg -framerate 30 -i <frames-dir>/f%05d.jpg -c:v libx264 -pix_fmt yuv420p -crf 26 -movflags +faststart out.mp4
 
-Seamless loop: the ring advances exactly one card slot per cycle and every bob has a whole number of periods.
+Seamless: the ring advances one card slot per loop; the camera starts and ends wide.
 """
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter, ImageChops
 import math, os, sys
 
 OUT = sys.argv[1]
 W, H = 766, 920            # 2x the 383x460 card
 FPS = 30
-SECS = 6.0                 # one slot of the ring per loop
-N = int(SECS * FPS)
 os.makedirs(OUT, exist_ok=True)
 
-TEMPLATES = ['nestora-real-estate', 'property-listing', 'buyer-rep-calc', 'architect-portfolio',
-             'tenant-screening', 'noir-agency', 'vantage-dashboard', 'meridian-capital']
-CARD_W, CARD_H = 198, 264  # 3:4 at the front of the ring
+# ring order; the three FEATURED real estate templates sit a third of the ring apart
+TEMPLATES = ['nestora-real-estate', 'vantage-dashboard', 'noir-agency',
+             'property-listing', 'architect-portfolio', 'meridian-capital',
+             'buyer-rep-calc', 'tenant-screening']
+FEATURED = [0, 3, 6]
+CARD_W, CARD_H = 198, 264
+HI = 4                     # cards are built at 4x so a push-in stays sharp
 RADIUS_X, RADIUS_Y = 262, 300
 CENTER = (W // 2, H // 2 - 26)
 
-# ── ground: blue bokeh with a soft light streak top-right and a faint dot grid ─────────────
+# timeline per featured card (seconds): wide → push in → hold (page scrolls) → pull out → wide
+SEG_WIDE, SEG_IN, SEG_HOLD, SEG_OUT = 1.2, 1.1, 2.6, 1.0
+SEG = SEG_WIDE + SEG_IN + SEG_HOLD + SEG_OUT
+SECS = SEG * len(FEATURED)
+N = int(SECS * FPS)
+
 def make_ground():
     g = Image.new('RGB', (W, H), (7, 34, 110))
     d = ImageDraw.Draw(g)
-    # vertical depth: lighter mid, darker foot
     for y in range(H):
         t = y / H
-        r = int(8 + 12 * (1 - abs(t - 0.4) * 2))
-        gg = int(40 + 50 * (1 - abs(t - 0.35) * 1.6))
-        b = int(120 + 90 * (1 - abs(t - 0.35) * 1.4))
+        r = int(8 + 12 * (1 - abs(t - 0.4) * 2)); gg = int(40 + 50 * (1 - abs(t - 0.35) * 1.6)); b = int(120 + 90 * (1 - abs(t - 0.35) * 1.4))
         d.line((0, y, W, y), fill=(max(4, r), max(20, gg), max(70, min(255, b))))
-    glow = Image.new('RGB', (W, H), (0, 0, 0))
-    gd = ImageDraw.Draw(glow)
-    gd.ellipse((W * 0.45, -H * 0.25, W * 1.35, H * 0.42), fill=(150, 200, 255))      # the light streak
-    gd.ellipse((W * 0.66, -H * 0.16, W * 1.22, H * 0.26), fill=(245, 250, 255))      # its hot core
-    gd.ellipse((-W * 0.3, H * 0.55, W * 0.35, H * 1.15), fill=(20, 80, 200))         # a cool bloom bottom-left
-    glow = glow.filter(ImageFilter.GaussianBlur(110))
-    g = Image.blend(g, Image.eval(glow, lambda v: v), 0.0)
-    from PIL import ImageChops
-    g = ImageChops.screen(g, glow)
-    # faint dot grid, fading toward the bottom
-    dots = Image.new('L', (W, H), 0)
-    dd = ImageDraw.Draw(dots)
+    glow = Image.new('RGB', (W, H), (0, 0, 0)); gd = ImageDraw.Draw(glow)
+    gd.ellipse((W * 0.45, -H * 0.25, W * 1.35, H * 0.42), fill=(150, 200, 255))
+    gd.ellipse((W * 0.66, -H * 0.16, W * 1.22, H * 0.26), fill=(245, 250, 255))
+    gd.ellipse((-W * 0.3, H * 0.55, W * 0.35, H * 1.15), fill=(20, 80, 200))
+    g = ImageChops.screen(g, glow.filter(ImageFilter.GaussianBlur(110)))
+    dots = Image.new('L', (W, H), 0); dd = ImageDraw.Draw(dots)
     for y in range(6, H, 16):
         a = int(60 * (1 - y / H))
         for x in range(6, W, 16):
             dd.rectangle((x, y, x + 1, y + 1), fill=a)
-    g = ImageChops.screen(g, Image.merge('RGB', (dots.point(lambda v: v // 3), dots.point(lambda v: v // 2), dots)))
-    return g
+    return ImageChops.screen(g, Image.merge('RGB', (dots.point(lambda v: v // 3), dots.point(lambda v: v // 2), dots)))
 
-# ── cards: top of each screenshot, rounded, with a soft drop shadow baked in ───────────────
-def make_card(name):
-    im = Image.open('marketing/templates/images/%s.webp' % name).convert('RGB')
-    s = CARD_W / im.width
-    im = im.resize((CARD_W, int(im.height * s)), Image.LANCZOS).crop((0, 0, CARD_W, CARD_H))
-    mask = Image.new('L', (CARD_W, CARD_H), 0)
-    ImageDraw.Draw(mask).rounded_rectangle((0, 0, CARD_W - 1, CARD_H - 1), radius=10, fill=255)
-    pad = 48
-    card = Image.new('RGBA', (CARD_W + pad * 2, CARD_H + pad * 2), (0, 0, 0, 0))
+SHOTS = {}
+def shot(name):
+    if name not in SHOTS:
+        im = Image.open('marketing/templates/images/%s.webp' % name).convert('RGB')
+        s = CARD_W * HI / im.width
+        im = im.resize((CARD_W * HI, int(im.height * s)), Image.LANCZOS)
+        if im.height < CARD_H * HI:   # a short page: extend it with its own ground colour
+            ext = Image.new('RGB', (im.width, CARD_H * HI), im.getpixel((8, im.height - 8)))
+            ext.paste(im, (0, 0)); im = ext
+        SHOTS[name] = im
+    return SHOTS[name]
+
+PAD = 48 * HI
+def make_card(name, y_off=0):
+    """a 4x card: the screenshot from y_off down, rounded, with a soft shadow baked in"""
+    im = shot(name)
+    cw, ch = CARD_W * HI, CARD_H * HI
+    y_off = max(0, min(int(y_off), im.height - ch))
+    face = im.crop((0, y_off, cw, y_off + ch)).convert('RGBA')
+    mask = Image.new('L', (cw, ch), 0)
+    ImageDraw.Draw(mask).rounded_rectangle((0, 0, cw - 1, ch - 1), radius=10 * HI, fill=255)
+    face.putalpha(mask)
+    card = Image.new('RGBA', (cw + PAD * 2, ch + PAD * 2), (0, 0, 0, 0))
     sh = Image.new('L', card.size, 0)
-    ImageDraw.Draw(sh).rounded_rectangle((pad, pad + 18, pad + CARD_W, pad + CARD_H + 18), radius=12, fill=150)
-    sh = sh.filter(ImageFilter.GaussianBlur(22))
-    card.paste((5, 12, 40, 255), (0, 0), sh)
-    face = im.convert('RGBA'); face.putalpha(mask)
-    card.alpha_composite(face, (pad, pad))
+    ImageDraw.Draw(sh).rounded_rectangle((PAD, PAD + 18 * HI, PAD + cw, PAD + ch + 18 * HI), radius=12 * HI, fill=150)
+    card.paste((5, 12, 40, 255), (0, 0), sh.filter(ImageFilter.GaussianBlur(22 * HI)))
+    card.alpha_composite(face, (PAD, PAD))
     return card
 
+def smooth(t): return t * t * (3 - 2 * t)
+def ease_in_out_quart(t): return 8 * t ** 4 if t < 0.5 else 1 - (-2 * t + 2) ** 4 / 2
+
 ground = make_ground()
-cards = [make_card(n) for n in TEMPLATES]
-K = len(cards)
+base_cards = [make_card(n) for n in TEMPLATES]
+K = len(TEMPLATES)
+
+def ring_pose(i, t):
+    """world position, depth and scale of card i at loop time t (0..1)"""
+    ang = (i / K + t / K) * 2 * math.pi
+    x = CENTER[0] + RADIUS_X * math.cos(ang)
+    y = CENTER[1] + RADIUS_Y * math.sin(ang)
+    depth = (math.sin(ang) + 1) / 2
+    scale = 0.62 + 0.40 * depth
+    bob = 6 * math.sin(2 * math.pi * (3 * t + i / K))   # whole bobs per loop → seamless
+    return x, y + bob, depth, scale
+
+SCROLL_PX = {'nestora-real-estate': 170 * HI, 'property-listing': 140 * HI, 'buyer-rep-calc': 0}   # how far each featured page scrolls while held (4x card px)
 
 for f in range(N):
     t = f / N
+    sec = f / FPS
+    k = min(len(FEATURED) - 1, int(sec // SEG))
+    local = sec - k * SEG
+    fi = FEATURED[k]
+
+    # camera: amount of push-in (0 wide … 1 on the card) and the page scroll while held
+    if local < SEG_WIDE:
+        z = 0.0; scroll = 0.0
+    elif local < SEG_WIDE + SEG_IN:
+        z = ease_in_out_quart((local - SEG_WIDE) / SEG_IN); scroll = 0.0
+    elif local < SEG_WIDE + SEG_IN + SEG_HOLD:
+        z = 1.0; scroll = smooth((local - SEG_WIDE - SEG_IN) / SEG_HOLD)
+    else:
+        z = 1.0 - ease_in_out_quart((local - SEG_WIDE - SEG_IN - SEG_HOLD) / SEG_OUT); scroll = 1.0
+    fx, fy, fdepth, fscale = ring_pose(fi, t)
+    z_full = (H * 0.84) / (CARD_H * fscale)        # the featured card stands at 84% of the frame height, glow still around it
+    zoom = 1 + (z_full - 1) * z
+    cam_x = CENTER[0] + (fx - CENTER[0]) * z
+    cam_y = CENTER[1] + (fy - CENTER[1]) * z
+
     frame = ground.copy().convert('RGBA')
     items = []
-    for i, card in enumerate(cards):
-        ang = (i / K + t / K) * 2 * math.pi          # one slot per loop → seamless
-        x = CENTER[0] + RADIUS_X * math.cos(ang)
-        y = CENTER[1] + RADIUS_Y * math.sin(ang)
-        depth = (math.sin(ang) + 1) / 2              # 0 at the back (top), 1 at the front (bottom)
-        scale = 0.62 + 0.40 * depth
-        bob = 6 * math.sin(2 * math.pi * (2 * t + i / K))   # two whole bobs per loop
-        items.append((depth, card, x, y + bob, scale))
-    for depth, card, x, y, scale in sorted(items, key=lambda it: it[0]):
-        w, h = int(card.width * scale), int(card.height * scale)
+    for i in range(K):
+        x, y, depth, scale = ring_pose(i, t)
+        sx = CENTER[0] + (x - cam_x) * zoom
+        sy = CENTER[1] + (y - cam_y) * zoom
+        s = scale * zoom
+        card = make_card(TEMPLATES[i], scroll * SCROLL_PX.get(TEMPLATES[i], 0)) if (i == fi and scroll > 0 and SCROLL_PX.get(TEMPLATES[i], 0)) else base_cards[i]
+        w, h = int(card.width * s / HI), int(card.height * s / HI)
+        if w < 2 or h < 2: continue
+        if sx + w / 2 < -20 or sx - w / 2 > W + 20 or sy + h / 2 < -20 or sy - h / 2 > H + 20: continue
+        items.append((2 if i == fi else depth, card, sx, sy, w, h))
+    for depth, card, sx, sy, w, h in sorted(items, key=lambda it: it[0]):
         c = card.resize((w, h), Image.LANCZOS)
-        if depth < 0.5:                                # cards at the back sit softer and dimmer
-            a = c.split()[3].point(lambda v, k=0.62 + 0.76 * depth: int(v * k))
-            c.putalpha(a)
-        frame.alpha_composite(c, (int(x - w / 2), int(y - h / 2)))
+        kk = (0.62 + 0.76 * depth) if depth < 0.5 else 1.0
+        if depth < 2: kk *= 1 - 0.7 * z            # the ring dims while the camera is on a featured page
+        if kk < 1: c.putalpha(c.split()[3].point(lambda v, kk=kk: int(v * kk)))
+        frame.alpha_composite(c, (int(sx - w / 2), int(sy - h / 2)))
     frame.convert('RGB').save('%s/f%05d.jpg' % (OUT, f), quality=90)
-print(N, 'frames', SECS, 's')
+print(N, 'frames', round(SECS, 1), 's')
