@@ -1,11 +1,12 @@
-"""Render the real estate hero's middle-card video: template screenshots as floating cards on a
-slowly orbiting ring over the blue bokeh glow (the team's `newloop.mp4` look), with the camera
-pushing in on the three real estate templates in turn (Gary, 2026-11-16).
+"""Render the real estate hero's middle-card video: the three real estate templates as floating cards
+on a deep navy glow. No ring, no spinning (Gary, 2026-11-16): the three stand still in a loose triangle and
+the camera visits each one: it pans across, pushes in, the page scrolls, and it pulls back out. The two
+cards the camera is not on fall out of focus (a blur, not a fade).
 
     python3 tools/render-re-templates-loop.py <frames-dir>
     ffmpeg -framerate 30 -i <frames-dir>/f%05d.jpg -c:v libx264 -pix_fmt yuv420p -crf 26 -movflags +faststart out.mp4
 
-Seamless: the ring advances one card slot per loop; the camera starts and ends wide.
+Seamless: the camera starts and ends wide; each card bobs a whole number of times per loop.
 """
 from PIL import Image, ImageDraw, ImageFilter, ImageChops
 import math, os, sys
@@ -15,22 +16,16 @@ W, H = 766, 920            # 2x the 383x460 card
 FPS = 30
 os.makedirs(OUT, exist_ok=True)
 
-# ring order; the three FEATURED real estate templates sit a third of the ring apart
-# slots run right (0) → bottom (2) → left (4) → top (6); the featured three take right, bottom and left so a
-# pull-out never lands at the back of the ring (Gary, 2026-11-16)
-# the five around them are the catalog's most striking pages, not more real estate tools (Gary: elegant or with a pop)
-TEMPLATES = ['nestora-real-estate', 'prism', 'property-listing', 'maison-voyage',
-             'architect-portfolio', 'forkful-recipe', 'vestige-fashion', 'noir-agency']
-FEATURED = [0, 2, 4]
-CARD_W, CARD_H = 198, 264
-HI = 4                     # cards are built at 4x so a push-in stays sharp
-RADIUS_X, RADIUS_Y = 262, 300
-CENTER = (W // 2, H // 2 - 26)
+TEMPLATES = ['nestora-real-estate', 'property-listing', 'architect-portfolio']
+CARD_W, CARD_H = 300, 400
+HI = 3                     # cards are built at 3x so a push-in stays sharp
+# a loose triangle, no overlaps: one card up top, two below, each a touch off the grid
+SLOTS = [(W * 0.50, 244, 1.00), (W * 0.285, 676, 0.96), (W * 0.722, 664, 0.92)]
 
-# timeline per featured card (seconds): wide → push in → hold (page scrolls) → pull out → wide
-SEG_WIDE, SEG_IN, SEG_HOLD, SEG_OUT = 1.2, 1.1, 2.6, 1.0
+# timeline per card (seconds): wide → pan + push in → hold (page scrolls) → pull out
+SEG_WIDE, SEG_IN, SEG_HOLD, SEG_OUT = 0.7, 1.2, 3.0, 1.0
 SEG = SEG_WIDE + SEG_IN + SEG_HOLD + SEG_OUT
-SECS = SEG * len(FEATURED)
+SECS = SEG * len(TEMPLATES)
 N = int(SECS * FPS)
 
 def make_ground():
@@ -93,55 +88,51 @@ ground = make_ground()
 base_cards = [make_card(n) for n in TEMPLATES]
 K = len(TEMPLATES)
 
-def ring_pose(i, t):
-    """world position, depth and scale of card i at loop time t (0..1)"""
-    ang = (i / K + t / K) * 2 * math.pi
-    x = CENTER[0] + RADIUS_X * math.cos(ang)
-    y = CENTER[1] + RADIUS_Y * math.sin(ang)
-    depth = (math.sin(ang) + 1) / 2
-    scale = 0.62 + 0.40 * depth
-    bob = 6 * math.sin(2 * math.pi * (3 * t + i / K))   # whole bobs per loop → seamless
-    return x, y + bob, depth, scale
+def pose(i, t):
+    """world position and scale of card i at loop time t (0..1): its slot plus a slow bob"""
+    x, y, sc = SLOTS[i]
+    return x + 3 * math.sin(2 * math.pi * (t + i / K)), y + 7 * math.sin(2 * math.pi * (2 * t + i / K)), sc
 
-SCROLL_PX = {'nestora-real-estate': 170 * HI, 'property-listing': 262 * HI, 'architect-portfolio': 125 * HI}   # how far each featured page scrolls while held (4x card px)
+SCROLL_PX = {'nestora-real-estate': 258 * HI, 'property-listing': 397 * HI, 'architect-portfolio': 189 * HI}   # how far each page scrolls while held (card px at HI)
 
 SCROLLED = {}
 for f in range(N):
     t = f / N
     sec = f / FPS
-    k = min(len(FEATURED) - 1, int(sec // SEG))
+    k = min(K - 1, int(sec // SEG))
     local = sec - k * SEG
-    fi = FEATURED[k]
+    fi = k
 
-    # camera: amount of push-in (0 wide … 1 on the card) and the page scroll while held
+    # camera: pan (0 centred on the group … 1 centred on the card) leads the push-in on the way in and
+    # trails it on the way out, so the card is never cut off by the frame mid-move
     if local < SEG_WIDE:
-        z = 0.0; scroll = 0.0
+        pan = z = 0.0; scroll = 0.0
     elif local < SEG_WIDE + SEG_IN:
-        z = ease_in_out_quart((local - SEG_WIDE) / SEG_IN); scroll = 0.0
+        u = (local - SEG_WIDE) / SEG_IN
+        pan = ease_in_out_quart(min(1.0, u / 0.7)); z = ease_in_out_quart(max(0.0, (u - 0.2) / 0.8)); scroll = 0.0
     elif local < SEG_WIDE + SEG_IN + SEG_HOLD:
-        z = 1.0; scroll = smooth((local - SEG_WIDE - SEG_IN) / SEG_HOLD)
+        pan = z = 1.0; scroll = smooth((local - SEG_WIDE - SEG_IN) / SEG_HOLD)
     else:
-        z = 1.0 - ease_in_out_quart((local - SEG_WIDE - SEG_IN - SEG_HOLD) / SEG_OUT); scroll = 1.0
-    fx, fy, fdepth, fscale = ring_pose(fi, t)
-    z_full = (H * 0.84) / (CARD_H * fscale)        # the featured card stands at 84% of the frame height, glow still around it
+        u = (local - SEG_WIDE - SEG_IN - SEG_HOLD) / SEG_OUT
+        z = 1.0 - ease_in_out_quart(min(1.0, u / 0.8)); pan = 1.0 - ease_in_out_quart(max(0.0, (u - 0.2) / 0.8)); scroll = 1.0
+    fx, fy, fscale = pose(fi, t)
+    z_full = (H * 0.86) / (CARD_H * fscale)        # the card stands at 86% of the frame height, glow still around it
     zoom = 1 + (z_full - 1) * z
-    cam_x = CENTER[0] + (fx - CENTER[0]) * z
-    cam_y = CENTER[1] + (fy - CENTER[1]) * z
+    cam_x = W / 2 + (fx - W / 2) * pan
+    cam_y = H / 2 + (fy - H / 2) * pan
 
-    # stacking: the three featured cards always sit above the other five in the ring, so a card the
-    # camera pulls out of is already in its final place and nothing slides over it (Gary, 2026-11-16)
     frame = ground.copy().convert('RGBA')
-    items = []
-    for i in range(K):
-        x, y, depth, scale = ring_pose(i, t)
-        sx = CENTER[0] + (x - cam_x) * zoom
-        sy = CENTER[1] + (y - cam_y) * zoom
+    order = [i for i in range(K) if i != fi] + [fi]
+    for i in order:
+        x, y, scale = pose(i, t)
+        sx = W / 2 + (x - cam_x) * zoom
+        sy = H / 2 + (y - cam_y) * zoom
         s = scale * zoom
-        # a featured page stays where its scroll ended once it is back in the ring; it only resets to the
-        # top while the camera is held on the NEXT template, where it is off screen (Gary, 2026-11-16)
+        # a page stays where its scroll ended once the camera pulls out; it only goes back to the top while the
+        # camera is held on the NEXT template, where it is out of focus or off screen
         sc = 0.0
         if i == fi: sc = scroll
-        elif i == FEATURED[(k - 1) % len(FEATURED)] and local < SEG_WIDE + SEG_IN + SEG_HOLD / 2: sc = 1.0
+        elif i == (k - 1) % K and local < SEG_WIDE + SEG_IN + SEG_HOLD / 2: sc = 1.0
         px_off = int(sc * SCROLL_PX.get(TEMPLATES[i], 0))
         if px_off > 0:
             key = (i, px_off)
@@ -155,12 +146,10 @@ for f in range(N):
         if w < 2 or h < 2: continue
         if sx + w / 2 < -20 or sx - w / 2 > W + 20 or sy + h / 2 < -20 or sy - h / 2 > H + 20: continue
         c = card.resize((w, h), Image.LANCZOS)
-        kk = (0.62 + 0.76 * depth) if (depth < 0.5 and i not in FEATURED) else 1.0   # featured cards never take the back-of-ring fade (it read as a washed-out page when zoomed)
-        if i != fi: kk *= 1 - 0.7 * z            # the ring dims while the camera is on a featured page
-        if kk < 1: c.putalpha(c.split()[3].point(lambda v, kk=kk: int(v * kk)))
-        items.append((depth + (10 if i in FEATURED else 0), i, c, int(sx - w / 2), int(sy - h / 2)))
-    items.sort(key=lambda it: it[0])
-    for depth, i, c, px, py in items:
-        frame.alpha_composite(c, (px, py))
+        if i != fi and z > 0.02:                 # out of focus, and a little quieter, while the camera is on another page
+            c = c.filter(ImageFilter.GaussianBlur(9 * z * zoom / z_full + 1.5 * z))
+            kk = 1 - 0.25 * z
+            c.putalpha(c.split()[3].point(lambda v, kk=kk: int(v * kk)))
+        frame.alpha_composite(c, (int(sx - w / 2), int(sy - h / 2)))
     frame.convert('RGB').save('%s/f%05d.jpg' % (OUT, f), quality=90)
 print(N, 'frames', round(SECS, 1), 's')
