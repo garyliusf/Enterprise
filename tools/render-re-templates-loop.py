@@ -129,8 +129,63 @@ def outro_pixels(frames, last, n):
         frames.append(f)
 
 # the show ──────────────────────────────────────────────────────────────────
+# Screen-to-screen transitions only: the ground never shows (Gary, 2026-11-16).
 F = []
 s = int
+
+def trans_push_up(frames, a, b, n):
+    for i in range(n):
+        t = smooth((i + 1) / n)
+        f = a.copy(); f.paste(b, (0, int(H * (1 - t))))
+        frames.append(f)
+
+def trans_push_left(frames, a, b, n):
+    for i in range(n):
+        t = smooth((i + 1) / n)
+        f = Image.new('RGB', (W, H)); f.paste(a, (int(-W * t), 0)); f.paste(b, (int(W * (1 - t)), 0))
+        frames.append(f)
+
+def trans_mosaic(frames, a, b, n, block=38):
+    cols, rows = W // block + 1, H // block + 1
+    order = [(c, r) for c in range(cols) for r in range(rows)]
+    random.shuffle(order)
+    for i in range(n):
+        t = (i + 1) / n
+        mask = Image.new('L', (W, H), 0); md = ImageDraw.Draw(mask)
+        for k, (c, r) in enumerate(order):
+            if k / len(order) <= t:
+                md.rectangle((c * block, r * block, c * block + block - 1, r * block + block - 1), fill=255)
+        frames.append(Image.composite(b, a, mask))
+
+def trans_wipe(frames, a, b, n):
+    for i in range(n):
+        t = out_cubic((i + 1) / n)
+        mask = Image.new('L', (W, H), 0); md = ImageDraw.Draw(mask)
+        edge = int((W + H) * t)
+        md.polygon([(0, 0), (edge, 0), (edge - H, H), (0, H)], fill=255)
+        frames.append(Image.composite(b, a, mask))
+
+def trans_cover_from_right_tilt(frames, a, b, n):
+    for i in range(n):
+        t = out_back((i + 1) / n, 1.0)
+        ang = (1 - t) * -5
+        rot = b.rotate(ang, resample=Image.BICUBIC, expand=True)
+        m = Image.new('L', b.size, 255).rotate(ang, resample=Image.BICUBIC, expand=True)
+        f = a.copy()
+        x = int(W * (1 - t)) + (W - rot.width) // 2
+        f.paste(rot, (x, (H - rot.height) // 2), m)
+        frames.append(f)
+
+def trans_zoom_through(frames, a, b, n):
+    for i in range(n):
+        t = smooth((i + 1) / n)
+        za = 1 + 0.25 * t
+        aa = a.resize((int(W * za), int(H * za)), Image.BILINEAR)
+        f = aa.crop(((aa.width - W) // 2, (aa.height - H) // 2, (aa.width - W) // 2 + W, (aa.height - H) // 2 + H))
+        zb = 0.86 + 0.14 * t
+        bb = b.resize((max(1, int(W * zb)), max(1, int(H * zb))), Image.LANCZOS)
+        g = f.copy(); g.paste(bb, ((W - bb.width) // 2, (H - bb.height) // 2))
+        frames.append(Image.blend(f, g, min(1, t * 1.6)))
 
 nestora = load('nestora-real-estate')
 maison = load('property-listing')
@@ -139,56 +194,41 @@ arch = load('architect-portfolio')
 tenant = load('tenant-screening')
 noir = load('noir-agency')
 
-# 1 Nestora: springs up from the bottom, holds, then a long scroll through the listings
-intro_slide_up(F, view(nestora), s(0.8 * FPS))
-hold(F, view(nestora), s(0.5 * FPS))
+T = s(0.55 * FPS)
+
+# 1 Nestora: hold, scroll the listings
+hold(F, view(nestora), s(0.8 * FPS))
 scroll(F, nestora, 0, 1000, s(2.1 * FPS))
-hold(F, view(nestora, 1000), s(0.3 * FPS))
-outro_slide_left(F, view(nestora, 1000), s(0.35 * FPS))
+hold(F, view(nestora, 1000), s(0.4 * FPS))
+trans_push_up(F, view(nestora, 1000), view(maison), T)
 
-# 2 Maison: pixel mosaic reveal, then a static hold with a slow push-in on the house
-intro_pixels(F, view(maison), s(0.9 * FPS))
-hold(F, view(maison), s(0.4 * FPS))
+# 2 Maison: static with a slow push-in
+hold(F, view(maison), s(0.5 * FPS))
 kenburns(F, maison, 0, 1.0, 1.12, s(2.0 * FPS))
-outro_fade_ground(F, view(maison, 0, 1.12), s(0.35 * FPS))
+hold(F, view(maison, 0, 1.12), s(0.2 * FPS))
+trans_mosaic(F, view(maison, 0, 1.12), view(calc), s(0.7 * FPS))
 
-# 3 Calculator: diagonal wipe, static, then a quick hop down to the fee breakdown
-intro_wipe(F, view(calc, 0), s(0.6 * FPS))
-hold(F, view(calc, 0), s(0.6 * FPS))
-kenburns(F, calc, 0, 1.0, 1.1, s(1.8 * FPS))   # the screenshot ends 40px below the frame, so no scroll
-# hard cut out
+# 3 Calculator: static, gentle zoom
+hold(F, view(calc), s(0.7 * FPS))
+kenburns(F, calc, 0, 1.0, 1.1, s(1.8 * FPS))
+trans_wipe(F, view(calc, 0, 1.1), view(arch), T)
 
-# 4 Architect: pops in from small, static beat, then a gentle scroll
-intro_pop(F, view(arch), s(0.6 * FPS))
-hold(F, view(arch), s(0.7 * FPS))
+# 4 Architect: hold, scroll
+hold(F, view(arch), s(0.8 * FPS))
 scroll(F, arch, 0, 800, s(1.7 * FPS))
-hold(F, view(arch, 800), s(0.25 * FPS))
-# ground pixels appear over the last frame and take it out
-last = view(arch, 800)
-cols, rows = W // 46 + 1, H // 46 + 1
-order = [(c, r) for c in range(cols) for r in range(rows)]; random.shuffle(order)
-n = s(0.6 * FPS)
-for i in range(n):
-    t = (i + 1) / n
-    mask = Image.new('L', (W, H), 0); md = ImageDraw.Draw(mask)
-    for k, (c, r) in enumerate(order):
-        if k / len(order) <= t:
-            md.rectangle((c * 46, r * 46, c * 46 + 45, r * 46 + 45), fill=255)
-    F.append(Image.composite(ground, last, mask))
+hold(F, view(arch, 800), s(0.3 * FPS))
+trans_cover_from_right_tilt(F, view(arch, 800), view(tenant, 0, 1.08), s(0.65 * FPS))
 
-# 5 Tenant screening: drops in with a tilt, static with a slow zoom out
-intro_tilt_drop(F, view(tenant, 0, 1.08), s(0.8 * FPS))
-hold(F, view(tenant, 0, 1.08), s(0.5 * FPS))
+# 5 Tenant screening: static, slow zoom out
+hold(F, view(tenant, 0, 1.08), s(0.6 * FPS))
 kenburns(F, tenant, 0, 1.08, 1.0, s(1.5 * FPS))
-outro_slide_left(F, view(tenant), s(0.35 * FPS))
+trans_push_left(F, view(tenant), view(noir), T)
 
-# 6 Noir agency: slides in from the right, static, then scrolls to the manifesto
-intro_slide_side(F, view(noir), s(0.7 * FPS), from_right=True)
-hold(F, view(noir), s(0.5 * FPS))
+# 6 Noir: hold, scroll, then zoom through back to Nestora
+hold(F, view(noir), s(0.6 * FPS))
 scroll(F, noir, 0, 1000, s(1.9 * FPS))
-hold(F, view(noir, 1000), s(0.25 * FPS))
-outro_fade_ground(F, view(noir, 1000), s(0.35 * FPS))
-hold(F, ground, s(0.25 * FPS))   # a beat on the ground before the loop springs Nestora back up
+hold(F, view(noir, 1000), s(0.3 * FPS))
+trans_zoom_through(F, view(noir, 1000), view(nestora), s(0.7 * FPS))
 
 for i, f in enumerate(F):
     f.save('%s/f%05d.jpg' % (S, i), quality=90)
