@@ -17,8 +17,8 @@ os.makedirs(OUT, exist_ok=True)
 
 # ring order; the three FEATURED real estate templates sit a third of the ring apart
 TEMPLATES = ['nestora-real-estate', 'vantage-dashboard', 'noir-agency',
-             'property-listing', 'architect-portfolio', 'meridian-capital',
-             'buyer-rep-calc', 'tenant-screening']
+             'property-listing', 'buyer-rep-calc', 'meridian-capital',
+             'architect-portfolio', 'tenant-screening']
 FEATURED = [0, 3, 6]
 CARD_W, CARD_H = 198, 264
 HI = 4                     # cards are built at 4x so a push-in stays sharp
@@ -51,9 +51,10 @@ def make_ground():
     return ImageChops.screen(g, Image.merge('RGB', (dots.point(lambda v: v // 3), dots.point(lambda v: v // 2), dots)))
 
 SHOTS = {}
+SOURCES = {'property-listing': 'marketing/use-cases/images/prompt-results/re-maison.webp', 'architect-portfolio': 'marketing/use-cases/images/prompt-results/re-architect.webp'}   # the catalog shot is only 1800px tall; this is the full page
 def shot(name):
     if name not in SHOTS:
-        im = Image.open('marketing/templates/images/%s.webp' % name).convert('RGB')
+        im = Image.open(SOURCES.get(name, 'marketing/templates/images/%s.webp' % name)).convert('RGB')
         s = CARD_W * HI / im.width
         im = im.resize((CARD_W * HI, int(im.height * s)), Image.LANCZOS)
         if im.height < CARD_H * HI:   # a short page: extend it with its own ground colour
@@ -96,7 +97,7 @@ def ring_pose(i, t):
     bob = 6 * math.sin(2 * math.pi * (3 * t + i / K))   # whole bobs per loop → seamless
     return x, y + bob, depth, scale
 
-SCROLL_PX = {'nestora-real-estate': 170 * HI, 'property-listing': 140 * HI, 'buyer-rep-calc': 0}   # how far each featured page scrolls while held (4x card px)
+SCROLL_PX = {'nestora-real-estate': 170 * HI, 'property-listing': 262 * HI, 'architect-portfolio': 125 * HI}   # how far each featured page scrolls while held (4x card px)
 
 for f in range(N):
     t = f / N
