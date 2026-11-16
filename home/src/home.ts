@@ -153,6 +153,9 @@ export const enterprise = {
     { icon: 'cloud', title: 'Customize your cloud setup', body: 'Run Bolt inside your own AWS or Azure tenant, fully isolated.' },
     { icon: 'chat', title: 'Dedicated support', body: 'You’ll get your own customer rep, a private Slack channel, and more.' },
   ],
+  /* the 1:1 panel's copy (its kicker + the note under the lead) */
+  panelKicker: 'Talk to us',
+  panelNote: 'A 30-minute walkthrough with the enterprise team, no deck. Bring the project you want to ship.',
   /* the enterprise page's 1:1 strip; the form hands the email to the enterprise page's own form anchor */
   strip: { lead: 'Schedule a 1:1', /* review 2026-10-26: no 'with Mason' */ placeholder: 'Your work email', cta: 'Book a 1:1', action: 'https://bolt.new/enterprise#talk-to-sales' },
   more: { label: 'See Bolt for Enterprise', href: 'https://bolt.new/enterprise' },

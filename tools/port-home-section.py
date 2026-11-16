@@ -6,12 +6,14 @@ bolt.new/lp/home for Alberto's organic-traffic test, 2026-11-16).
 What it writes into the production checkout given as argv[1]:
 
   src/sections/home-page/
-    meta.ts            label + Zod props (the hero copy is editable; the rest
-                       of the page keeps the reviewed copy from app/home.ts)
+    meta.ts            label + Zod props: every block's copy is editable (hero,
+                       showcase cards, stats, use cases, stories, steps,
+                       templates, enterprise, closing); an empty field or list
+                       renders the reviewed copy from app/home.ts
     index.astro        <HomePage client:load> wrapper + the stylesheet
     HomePage.tsx       the page body: Hero → Showcase → Stats → Use cases →
                        Stories → Steps → Templates → Enterprise → closing band
-    copy.tsx           React context carrying the editable hero copy
+    copy.tsx           React context: CMS props merged over the reviewed copy
     styles.css         home/src/styles/page.css scoped under .hm-root
     app/               home/src components + data, lightly rewritten:
                        asset() → /public-page-assets/home/, the review-only
@@ -56,8 +58,22 @@ copy_src('home.ts')
 copy_src('components/ui.tsx')
 copy_src('components/Story.tsx')
 copy_src('components/Sections.tsx')
+# every section reads its copy from the context (copy.tsx) instead of the
+# module: the CMS can replace any block, empty blocks fall back to home.ts
+def reads(fn_head, names):
+    return (fn_head, fn_head + '\n  const { ' + ', '.join(names) + ' } = useHomeCopy();')
 copy_src('components/Home.tsx', [
-    ("import { useVariant } from './VariantSwitch';", "import { useVariant } from './VariantSwitch';"),
+    ("import { closing, enterprise, showcase, stats, steps, stories, platform, templatesHome, useCases, type ShowcaseCard } from '../home';",
+     "import { platform, type ShowcaseCard } from '../home';\nimport { useHomeCopy } from '../../copy';"),
+    reads('function ShowcaseCoverflow() {', ['showcase']),
+    reads('export function Showcase() {', ['showcase']),
+    reads('export function Stats() {', ['stats']),
+    reads('export function UseCases() {', ['useCases']),
+    reads('export function Stories() {', ['stories']),
+    reads('export function Steps() {', ['steps']),
+    reads('export function TemplatesHome() {', ['templatesHome']),
+    reads('export function Enterprise() {', ['enterprise']),
+    reads('export function Closing() {', ['closing']),
 ])
 # the variant switch is review-only: E is the home page, nothing else ships
 (APP / 'components/VariantSwitch.tsx').write_text('''/* The sandbox's review-only variant switch, reduced to its answer: E is the
@@ -82,15 +98,48 @@ copy_src('components/Hero.tsx', [
 ])
 
 (SEC / 'copy.tsx').write_text('''import { createContext, useContext, type ReactNode } from 'react';
+import type { z } from 'zod';
 import { hero } from './app/config';
+import * as reviewed from './app/home';
+import type { propsSchema } from './meta';
 
-/* The hero copy the CMS can edit; anything left empty falls back to the
-   reviewed copy in app/config.ts. */
+/* The page copy the CMS can edit (meta.ts), merged over the reviewed copy in
+   app/home.ts + app/config.ts: an empty field or an empty list falls back to
+   the reviewed value, a filled list REPLACES the reviewed one (items missing
+   their essentials are dropped first). Home.tsx reads this tree through
+   useHomeCopy() exactly as the sandbox reads the home.ts module. */
+export type HomeProps = z.input<typeof propsSchema>;
+
+export type StepKind = 'prompt' | 'build' | 'wired' | 'secure' | 'deploy';
+export interface ShowcaseItem { shot: string; prompt: string; url: string; preview?: string; name?: string; tag?: string }
+export interface Stat { value: string; label: string }
+export interface UseCase { tag: string; title: string; body: string; photo: string; focus?: string; href?: string }
+export interface Story { quote: string; name: string; role: string; logo?: string; plate?: boolean }
+export interface Step { kicker: string; title: string; body: string; visual: StepKind }
+export interface Template { name: string; tag: string; shot: string; url: string; preview?: string; w?: number; h?: number }
+export interface Feature { icon: string; title: string; body: string }
+export interface Link { label: string; href: string }
+
 export interface HomeCopy {
   titleSerif: string;
   titleSans: string;
   promptExamples: string[];
   promptCta: string;
+  showcase: { rowA: ShowcaseItem[]; rowB: ShowcaseItem[] };
+  stats: Stat[];
+  useCases: { eyebrow: string; title: string; subtitle: string; more: Link; items: UseCase[] };
+  stories: { eyebrow: string; title: string; subtitle: string; items: Story[] };
+  steps: { eyebrow: string; title: string; subtitle: string; items: Step[] };
+  templatesHome: { eyebrow: string; title: string; subtitle: string; more: Link; items: Template[] };
+  enterprise: {
+    eyebrow: string; title: string; body: string; logosLabel: string;
+    logos: { src: string; alt: string }[];
+    features: Feature[];
+    panelKicker: string; panelNote: string;
+    strip: { lead: string; placeholder: string; cta: string; action: string };
+    more: Link;
+  };
+  closing: { eyebrow: string; title: string };
 }
 
 export const DEFAULT_COPY: HomeCopy = {
@@ -98,19 +147,112 @@ export const DEFAULT_COPY: HomeCopy = {
   titleSans: hero.titleSans,
   promptExamples: hero.promptPills.map((p) => p.prompt),
   promptCta: hero.promptCta,
+  showcase: reviewed.showcase,
+  stats: reviewed.stats,
+  useCases: reviewed.useCases,
+  stories: reviewed.stories,
+  steps: reviewed.steps,
+  templatesHome: reviewed.templatesHome,
+  enterprise: reviewed.enterprise,
+  closing: reviewed.closing,
 };
 
 const Ctx = createContext<HomeCopy>(DEFAULT_COPY);
 export const useHomeCopy = () => useContext(Ctx);
 
-export function HomeCopyProvider({ value, children }: { value: Partial<HomeCopy>; children: ReactNode }) {
-  const merged: HomeCopy = {
-    titleSerif: value.titleSerif?.trim() || DEFAULT_COPY.titleSerif,
-    titleSans: value.titleSans?.trim() || DEFAULT_COPY.titleSans,
-    promptExamples: value.promptExamples?.filter((s) => s.trim()).length ? value.promptExamples!.filter((s) => s.trim()) : DEFAULT_COPY.promptExamples,
-    promptCta: value.promptCta?.trim() || DEFAULT_COPY.promptCta,
+const str = (v: string | undefined | null, d: string) => (v && v.trim() ? v.trim() : d);
+const opt = (v: string | undefined | null) => (v && v.trim() ? v.trim() : undefined);
+/* a filled list replaces the reviewed one; items without their essentials
+   (mapper returns null) are dropped; nothing left = the reviewed list */
+function list<T, R>(v: T[] | undefined | null, map: (t: T) => R | null, d: R[]): R[] {
+  const out = (v ?? []).map(map).filter((x): x is R => x !== null);
+  return out.length ? out : d;
+}
+
+type In = NonNullable<HomeProps>;
+type G<K extends keyof In> = NonNullable<In[K]>;
+
+export function mergeCopy(p: HomeProps | undefined): HomeCopy {
+  const v = (p ?? {}) as In;
+  const D = DEFAULT_COPY;
+  const uc = (v.useCases ?? {}) as G<'useCases'>;
+  const st = (v.stories ?? {}) as G<'stories'>;
+  const sp = (v.steps ?? {}) as G<'steps'>;
+  const tp = (v.templates ?? {}) as G<'templates'>;
+  const en = (v.enterprise ?? {}) as G<'enterprise'>;
+  const cl = (v.closing ?? {}) as G<'closing'>;
+  const cards = list(v.showcase, (c) => {
+    const prompt = opt(c.prompt), shot = opt(c.image), url = opt(c.openUrl);
+    return prompt && shot && url ? { shot, prompt, url, preview: opt(c.previewUrl), name: opt(c.name), tag: opt(c.tag) } : null;
+  }, [] as ShowcaseItem[]);
+  return {
+    titleSerif: str(v.titleSerif, D.titleSerif),
+    titleSans: str(v.titleSans, D.titleSans),
+    promptExamples: list(v.promptExamples, (s) => opt(s) ?? null, D.promptExamples),
+    promptCta: str(v.promptCta, D.promptCta),
+    showcase: cards.length ? { rowA: cards, rowB: [] } : D.showcase,
+    stats: list(v.stats, (s) => { const value = opt(s.value), label = opt(s.label); return value && label ? { value, label } : null; }, D.stats),
+    useCases: {
+      eyebrow: str(uc.eyebrow, D.useCases.eyebrow),
+      title: str(uc.title, D.useCases.title),
+      subtitle: str(uc.subtitle, D.useCases.subtitle),
+      more: { label: str(uc.moreLabel, D.useCases.more.label), href: str(uc.moreHref, D.useCases.more.href) },
+      items: list(uc.items, (u) => {
+        const title = opt(u.title), photo = opt(u.image);
+        return title && photo ? { tag: str(u.tag, ''), title, body: str(u.body, ''), photo, focus: opt(u.focus) ?? '50% 30%', href: opt(u.href) } : null;
+      }, D.useCases.items),
+    },
+    stories: {
+      eyebrow: str(st.eyebrow, D.stories.eyebrow),
+      title: str(st.title, D.stories.title),
+      subtitle: str(st.subtitle, D.stories.subtitle),
+      items: list(st.items, (s) => {
+        const quote = opt(s.quote), name = opt(s.name);
+        return quote && name ? { quote, name, role: str(s.role, ''), logo: opt(s.logo), plate: !!s.plate } : null;
+      }, D.stories.items),
+    },
+    steps: {
+      eyebrow: str(sp.eyebrow, D.steps.eyebrow),
+      title: str(sp.title, D.steps.title),
+      subtitle: str(sp.subtitle, D.steps.subtitle),
+      items: list(sp.items, (s) => {
+        const title = opt(s.title);
+        return title ? { kicker: title, title, body: str(s.body, ''), visual: (s.visual ?? 'prompt') as StepKind } : null;
+      }, D.steps.items),
+    },
+    templatesHome: {
+      eyebrow: str(tp.eyebrow, D.templatesHome.eyebrow),
+      title: str(tp.title, D.templatesHome.title),
+      subtitle: str(tp.subtitle, D.templatesHome.subtitle),
+      more: { label: str(tp.moreLabel, D.templatesHome.more.label), href: str(tp.moreHref, D.templatesHome.more.href) },
+      items: list(tp.items, (t) => {
+        const name = opt(t.name), shot = opt(t.image), url = opt(t.openUrl);
+        return name && shot && url ? { name, tag: str(t.tag, ''), shot, url, preview: opt(t.previewUrl) } : null;
+      }, D.templatesHome.items),
+    },
+    enterprise: {
+      eyebrow: str(en.eyebrow, D.enterprise.eyebrow),
+      title: str(en.title, D.enterprise.title),
+      body: str(en.body, D.enterprise.body),
+      logosLabel: str(en.logosLabel, D.enterprise.logosLabel),
+      logos: list(en.logos, (l) => { const src = opt(l.image); return src ? { src, alt: str(l.name, '') } : null; }, D.enterprise.logos),
+      features: list(en.features, (f) => { const title = opt(f.title); return title ? { icon: f.icon ?? 'users', title, body: str(f.body, '') } : null; }, D.enterprise.features),
+      panelKicker: str(en.panelKicker, D.enterprise.panelKicker),
+      panelNote: str(en.panelNote, D.enterprise.panelNote),
+      strip: {
+        lead: str(en.stripLead, D.enterprise.strip.lead),
+        placeholder: str(en.stripPlaceholder, D.enterprise.strip.placeholder),
+        cta: str(en.stripCta, D.enterprise.strip.cta),
+        action: str(en.stripAction, D.enterprise.strip.action),
+      },
+      more: D.enterprise.more,
+    },
+    closing: { eyebrow: str(cl.eyebrow, D.closing.eyebrow), title: str(cl.title, D.closing.title) },
   };
-  return <Ctx.Provider value={merged}>{children}</Ctx.Provider>;
+}
+
+export function HomeCopyProvider({ value, children }: { value: HomeProps | undefined; children: ReactNode }) {
+  return <Ctx.Provider value={mergeCopy(value)}>{children}</Ctx.Provider>;
 }
 ''')
 
@@ -199,7 +341,7 @@ export function pixelize(root: HTMLElement) {
 """)
 
 (SEC / 'HomePage.tsx').write_text('''import { useEffect, useRef } from 'react';
-import { HomeCopyProvider, type HomeCopy } from './copy';
+import { HomeCopyProvider, type HomeProps } from './copy';
 import { pixelize } from './app/pixelize';
 import { Hero } from './app/components/Hero';
 import { FooterZone } from './app/components/Sections';
@@ -210,7 +352,7 @@ import { Closing, Enterprise, Showcase, Stats, Steps, Stories, TemplatesHome, Us
    chrome (nav + footer) comes from BuiltPage; the closing band at the foot
    expects the dark footer pulled up onto it (BuiltPage keys darkFooter on
    this section type). */
-export default function HomePage(props: Partial<HomeCopy>) {
+export default function HomePage(props: HomeProps) {
   const root = useRef<HTMLDivElement>(null);
   useEffect(() => {
     /* belt and braces for the inline stamp in index.astro (client-side
@@ -252,7 +394,10 @@ import type { SectionMeta } from '../types';
 /* The new bolt.new home page as one section (the Enterprise sandbox's
    home/ app, ported by tools/port-home-section.py there). First use:
    /lp/home for the organic-traffic test (Alberto, 2026-11-16). One per page:
-   it is the whole page, closing band included. */
+   it is the whole page, closing band included.
+
+   Every block is optional: an empty field or an empty list renders the
+   reviewed copy (app/home.ts); a filled list replaces the reviewed one. */
 export const meta: SectionMeta = {
   label: 'Home page (full)',
   category: 'Hero',
@@ -260,7 +405,17 @@ export const meta: SectionMeta = {
   maxPerPage: 1,
 };
 
+const text = (help: string) => z.string().describe(`help: ${help}`).optional();
+const long = (help: string) => z.string().describe(`multiline help: ${help}`).optional();
+const image = (help: string) => z.string().describe(`image help: ${help}`).optional();
+const header = (what: string) => ({
+  eyebrow: text(`The small blue label above the headline. Empty = the reviewed ${what} eyebrow.`),
+  title: text(`The headline. Empty = the reviewed ${what} headline.`),
+  subtitle: long(`The line under the headline. Empty = the reviewed one.`),
+});
+
 export const propsSchema = z.object({
+  /* ── hero ── */
   titleSerif: z.string().describe('help: The serif first line of the headline. Empty = "Describe it."').optional(),
   titleSans: z.string().describe('help: The second line. Empty = "Bolt builds it."').optional(),
   promptExamples: z
@@ -268,6 +423,147 @@ export const propsSchema = z.object({
     .default([])
     .describe('help: The example prompts typed into the box, in order. Empty = the reviewed three.'),
   promptCta: z.string().describe('help: The submit button label. Empty = "Build now".').optional(),
+
+  /* ── showcase: the coverflow under the hero ── */
+  showcase: z
+    .array(
+      z.object({
+        prompt: long('The prompt that built it, shown on the card ("An online store for my soda brand…").'),
+        tag: text('The kind of app, in the card\\'s corner ("Retail").'),
+        name: text('A short name, read out by screen readers on the dots ("Soda Shop").'),
+        image: image('A landscape screenshot of the finished site (about 1200×750).'),
+        openUrl: text('The "Open in Bolt" link: https://bolt.new/fork/<id>.'),
+        previewUrl: text('The "Preview" link to the live site. Empty = no Preview button.'),
+      }),
+    )
+    .default([])
+    .describe('help: The cards in the coverflow, in order. Any list here replaces the reviewed ten; a card needs a prompt, an image and an Open link to show.'),
+
+  /* ── stats ── */
+  stats: z
+    .array(z.object({ value: text('The big number ("10M+").'), label: text('The line under it ("builders on Bolt.new").') }))
+    .default([])
+    .describe('help: Three read best. Empty = the reviewed three.'),
+
+  /* ── build anything ── */
+  useCases: z
+    .object({
+      ...header('"Build anything"'),
+      moreLabel: text('The bordered button under the grid. Empty = "See all use cases".'),
+      moreHref: text('Where it goes. Empty = bolt.new/use-cases.'),
+      items: z
+        .array(
+          z.object({
+            tag: text('The glass pill in the corner ("Landscaping").'),
+            title: text('The card title ("Take quote requests with photos").'),
+            body: long('One line under the title.'),
+            image: image('The photo that fills the card (portrait or square, about 900px).'),
+            focus: text('Which part of the photo to keep in view, as CSS object-position ("50% 30%"). Empty = 50% 30%.'),
+            href: text('Where the card links. Empty = the "See all" link.'),
+          }),
+        )
+        .default([])
+        .describe('help: The first card is the large one; one feature + four standard cards fills the grid exactly. A card needs a title and an image.'),
+    })
+    .default({}),
+
+  /* ── customer stories ── */
+  stories: z
+    .object({
+      ...header('"Customer stories"'),
+      items: z
+        .array(
+          z.object({
+            quote: long('The quote, without quotation marks (they are added).'),
+            name: text('Who said it ("Paul Laviolette").'),
+            role: text('Role and company ("Founder, TradeWeave") — the company name is also the fallback initial when there is no logo.'),
+            logo: image('The company mark, square (96×96). Empty = an initial.'),
+            plate: z.boolean().default(false).describe('help: Give a dark logo a white plate in dark mode.'),
+          }),
+        )
+        .default([])
+        .describe('help: The rail of quote cards. A card needs a quote and a name.'),
+    })
+    .default({}),
+
+  /* ── how it works ── */
+  steps: z
+    .object({
+      ...header('"How it works"'),
+      items: z
+        .array(
+          z.object({
+            title: text('The step\\'s one-line header ("Explain in your own words").'),
+            body: long('The line that shows while the step is open.'),
+            visual: z
+              .enum(['prompt', 'build', 'wired', 'secure', 'deploy'])
+              .default('prompt')
+              .describe('help: Which animated scene plays beside the step: prompt (typing), build (the app assembling), wired (backend connecting), secure (the security check), deploy (publish).'),
+          }),
+        )
+        .default([])
+        .describe('help: Five steps, each with one of the five scenes. Empty = the reviewed five.'),
+    })
+    .default({}),
+
+  /* ── templates ── */
+  templates: z
+    .object({
+      ...header('"Templates"'),
+      moreLabel: text('The bordered button under the rail. Empty = "Browse all templates".'),
+      moreHref: text('Where it goes. Empty = bolt.new/resources/templates.'),
+      items: z
+        .array(
+          z.object({
+            name: text('The template name ("Architect Portfolio").'),
+            tag: text('The category ("Portfolio").'),
+            image: image('A full-page capture, portrait, 800px wide — it drifts up on hover.'),
+            openUrl: text('The "Open in Bolt" link: https://bolt.new/fork/<id>.'),
+            previewUrl: text('The "Preview" link to the live template. Empty = no Preview button.'),
+          }),
+        )
+        .default([])
+        .describe('help: The scrolling rail of template cards. A card needs a name, an image and an Open link.'),
+    })
+    .default({}),
+
+  /* ── enterprise band ── */
+  enterprise: z
+    .object({
+      eyebrow: text('Empty = "For enterprise".'),
+      title: text('Empty = "Bolt works for teams".'),
+      body: long('The line under the headline.'),
+      features: z
+        .array(
+          z.object({
+            icon: z.enum(['users', 'list', 'shield', 'cloud', 'chat', 'key']).default('users').describe('help: The small line icon on the cell.'),
+            title: text('The cell title ("Customize your plan").'),
+            body: long('One or two lines under it.'),
+          }),
+        )
+        .default([])
+        .describe('help: The numbered cells. Five fills the grid. Empty = the reviewed five.'),
+      logosLabel: text('The small line above the logo train. Empty = "Trusted by teams shipping with AI".'),
+      logos: z
+        .array(z.object({ image: image('A wordmark SVG with dark artwork (inverted to white in dark mode).'), name: text('Company name, for screen readers.') }))
+        .default([])
+        .describe('help: The logo train. Empty = the reviewed six.'),
+      panelKicker: text('The small label on the 1:1 panel. Empty = "Talk to us".'),
+      stripLead: text('The panel\\'s lead line. Empty = "Schedule a 1:1".'),
+      panelNote: long('The note under the lead.'),
+      stripPlaceholder: text('The email field\\'s placeholder. Empty = "Your work email".'),
+      stripCta: text('The submit button. Empty = "Book a 1:1".'),
+      stripAction: text('Where the email is handed on. Empty = the enterprise page\\'s form.'),
+    })
+    .default({}),
+
+  /* ── closing band ── */
+  closing: z
+    .object({
+      eyebrow: text('Empty = "Start building".'),
+      title: text('Empty = "Try Bolt now". The prompt box under it is the hero\\'s.'),
+    })
+    .default({}),
 });
 
 export const previewProps = {
@@ -283,12 +579,10 @@ export const previewProps = {
 import HomePage from './HomePage';
 import './styles.css';
 
-interface Props {
-  titleSerif?: string;
-  titleSans?: string;
-  promptExamples?: string[];
-  promptCta?: string;
-}
+import type { z } from 'zod';
+import { propsSchema } from './meta';
+
+type Props = z.input<typeof propsSchema>;
 const props = Astro.props;
 ---
 
