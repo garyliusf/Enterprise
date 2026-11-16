@@ -1,12 +1,11 @@
-"""Render the real estate hero's middle-card video: the three real estate templates as floating cards
-on a deep navy glow. No ring, no spinning (Gary, 2026-11-16): the three stand still in a loose triangle and
-the camera visits each one: it pans across, pushes in, the page scrolls, and it pulls back out. The two
-cards the camera is not on fall out of focus (a blur, not a fade).
+"""Render the real estate hero's middle-card video: the three real estate templates as a stacked deck
+on a deep navy glow (Gary, 2026-11-16: "change the animation altogether"; no ring, no camera). The front
+page fills the card and scrolls, then drops away; the two behind step forward and it rejoins at the back.
 
     python3 tools/render-re-templates-loop.py <frames-dir>
     ffmpeg -framerate 30 -i <frames-dir>/f%05d.jpg -c:v libx264 -pix_fmt yuv420p -crf 26 -movflags +faststart out.mp4
 
-Seamless: the camera starts and ends wide; each card bobs a whole number of times per loop.
+Seamless: three identical beats, one per template.
 """
 from PIL import Image, ImageDraw, ImageFilter, ImageChops
 import math, os, sys
@@ -17,14 +16,14 @@ FPS = 30
 os.makedirs(OUT, exist_ok=True)
 
 TEMPLATES = ['nestora-real-estate', 'property-listing', 'architect-portfolio']
-CARD_W, CARD_H = 300, 400
-HI = 3                     # cards are built at 3x so a push-in stays sharp
-# a loose triangle, no overlaps: one card up top, two below, each a touch off the grid
-SLOTS = [(W * 0.50, 244, 1.00), (W * 0.285, 676, 0.96), (W * 0.722, 664, 0.92)]
+CARD_W, CARD_H = 280, 373
+HI = 2                     # the front card is drawn at its native 560px
+FRONT_Y = 506              # centre of the front card; each step back is smaller, higher and dimmer
+def slot(d): return 1 - 0.10 * d, FRONT_Y - 88 * d, min(0.6, 0.24 * d)   # scale, centre y, dim
 
-# timeline per card (seconds): wide → pan + push in → hold (page scrolls) → pull out
-SEG_WIDE, SEG_IN, SEG_HOLD, SEG_OUT = 0.7, 1.2, 3.0, 1.0
-SEG = SEG_WIDE + SEG_IN + SEG_HOLD + SEG_OUT
+# one beat (seconds): rest → the page scrolls → rest → the deck advances
+SEG_REST, SEG_SCROLL, SEG_END, SEG_SWAP = 0.5, 2.9, 0.35, 0.95
+SEG = SEG_REST + SEG_SCROLL + SEG_END + SEG_SWAP
 SECS = SEG * len(TEMPLATES)
 N = int(SECS * FPS)
 
@@ -87,69 +86,53 @@ def ease_in_out_quart(t): return 8 * t ** 4 if t < 0.5 else 1 - (-2 * t + 2) ** 
 ground = make_ground()
 base_cards = [make_card(n) for n in TEMPLATES]
 K = len(TEMPLATES)
+NAVY = (4, 12, 40)
+SCROLL_PX = {'nestora-real-estate': 500, 'property-listing': 741, 'architect-portfolio': 353}   # how far each page scrolls (px at the 560px front size)
+def ease_in_cubic(t): return t ** 3
+def ease_out_cubic(t): return 1 - (1 - t) ** 3
 
-def pose(i, t):
-    """world position and scale of card i at loop time t (0..1): its slot plus a slow bob"""
-    x, y, sc = SLOTS[i]
-    return x + 3 * math.sin(2 * math.pi * (t + i / K)), y + 7 * math.sin(2 * math.pi * (2 * t + i / K)), sc
-
-SCROLL_PX = {'nestora-real-estate': 258 * HI, 'property-listing': 397 * HI, 'architect-portfolio': 189 * HI}   # how far each page scrolls while held (card px at HI)
+def draw(frame, card, scale, cx, cy, dim=0.0, alpha=1.0, rot=0.0):
+    w, h = int(card.width * scale), int(card.height * scale)   # cards are built at the front size
+    c = card.resize((w, h), Image.LANCZOS)
+    if dim > 0:      # further back = darker, toward the ground colour (not see-through)
+        c = Image.composite(Image.blend(c.convert('RGB'), Image.new('RGB', c.size, NAVY), dim).convert('RGBA'), c, c.split()[3].point(lambda v: 255 if v else 0))
+        c.putalpha(card.resize((w, h), Image.LANCZOS).split()[3])
+    if rot: c = c.rotate(rot, resample=Image.BICUBIC, expand=True)
+    if alpha < 1: c.putalpha(c.split()[3].point(lambda v: int(v * alpha)))
+    frame.alpha_composite(c, (int(cx - c.width / 2), int(cy - c.height / 2)))
 
 SCROLLED = {}
 for f in range(N):
-    t = f / N
     sec = f / FPS
     k = min(K - 1, int(sec // SEG))
     local = sec - k * SEG
-    fi = k
-
-    # camera: pan (0 centred on the group … 1 centred on the card) leads the push-in on the way in and
-    # trails it on the way out, so the card is never cut off by the frame mid-move
-    if local < SEG_WIDE:
-        pan = z = 0.0; scroll = 0.0
-    elif local < SEG_WIDE + SEG_IN:
-        u = (local - SEG_WIDE) / SEG_IN
-        pan = ease_in_out_quart(min(1.0, u / 0.7)); z = ease_in_out_quart(max(0.0, (u - 0.2) / 0.8)); scroll = 0.0
-    elif local < SEG_WIDE + SEG_IN + SEG_HOLD:
-        pan = z = 1.0; scroll = smooth((local - SEG_WIDE - SEG_IN) / SEG_HOLD)
-    else:
-        u = (local - SEG_WIDE - SEG_IN - SEG_HOLD) / SEG_OUT
-        z = 1.0 - ease_in_out_quart(min(1.0, u / 0.8)); pan = 1.0 - ease_in_out_quart(max(0.0, (u - 0.2) / 0.8)); scroll = 1.0
-    fx, fy, fscale = pose(fi, t)
-    z_full = (H * 0.86) / (CARD_H * fscale)        # the card stands at 86% of the frame height, glow still around it
-    zoom = 1 + (z_full - 1) * z
-    cam_x = W / 2 + (fx - W / 2) * pan
-    cam_y = H / 2 + (fy - H / 2) * pan
+    if local < SEG_REST: scroll, e = 0.0, 0.0
+    elif local < SEG_REST + SEG_SCROLL: scroll, e = smooth((local - SEG_REST) / SEG_SCROLL), 0.0
+    elif local < SEG_REST + SEG_SCROLL + SEG_END: scroll, e = 1.0, 0.0
+    else: scroll, e = 1.0, (local - SEG_REST - SEG_SCROLL - SEG_END) / SEG_SWAP
 
     frame = ground.copy().convert('RGBA')
-    order = [i for i in range(K) if i != fi] + [fi]
-    for i in order:
-        x, y, scale = pose(i, t)
-        sx = W / 2 + (x - cam_x) * zoom
-        sy = H / 2 + (y - cam_y) * zoom
-        s = scale * zoom
-        # a page stays where its scroll ended once the camera pulls out; it only goes back to the top while the
-        # camera is held on the NEXT template, where it is out of focus or off screen
-        sc = 0.0
-        if i == fi: sc = scroll
-        elif i == (k - 1) % K and local < SEG_WIDE + SEG_IN + SEG_HOLD / 2: sc = 1.0
-        px_off = int(sc * SCROLL_PX.get(TEMPLATES[i], 0))
-        if px_off > 0:
-            key = (i, px_off)
-            if key not in SCROLLED:
-                if len(SCROLLED) > 6: SCROLLED.clear()
-                SCROLLED[key] = make_card(TEMPLATES[i], px_off)
-            card = SCROLLED[key]
-        else:
-            card = base_cards[i]
-        w, h = int(card.width * s / HI), int(card.height * s / HI)
-        if w < 2 or h < 2: continue
-        if sx + w / 2 < -20 or sx - w / 2 > W + 20 or sy + h / 2 < -20 or sy - h / 2 > H + 20: continue
-        c = card.resize((w, h), Image.LANCZOS)
-        if i != fi and z > 0.02:                 # out of focus, and a little quieter, while the camera is on another page
-            c = c.filter(ImageFilter.GaussianBlur(9 * z * zoom / z_full + 1.5 * z))
-            kk = 1 - 0.25 * z
-            c.putalpha(c.split()[3].point(lambda v, kk=kk: int(v * kk)))
-        frame.alpha_composite(c, (int(sx - w / 2), int(sy - h / 2)))
+    front = k
+    px_off = int(scroll * SCROLL_PX[TEMPLATES[front]])
+    if px_off > 0:
+        if px_off not in SCROLLED:
+            if len(SCROLLED) > 4: SCROLLED.clear()
+            SCROLLED[px_off] = make_card(TEMPLATES[front], px_off)
+        fcard = SCROLLED[px_off]
+    else:
+        fcard = base_cards[front]
+    step = ease_in_out_quart(min(1.0, e / 0.85)) if e else 0.0   # how far the two behind have stepped forward
+    # the page that just left comes back in at the rear, at the top of its scroll
+    if e > 0.35:
+        a = ease_out_cubic((e - 0.35) / 0.65)
+        sc, cy, dim = slot(3 - a)
+        draw(frame, base_cards[front], sc, W / 2, cy, dim, alpha=a)
+    for j in (2, 1):
+        sc, cy, dim = slot(j - step)
+        draw(frame, base_cards[(front + j) % K], sc, W / 2, cy, dim)
+    if e < 0.62:      # the front page: tips and drops out of the bottom of the frame
+        g = ease_in_cubic(e / 0.62)
+        sc, cy, dim = slot(0)
+        draw(frame, fcard, sc, W / 2 + 40 * g, cy + 1000 * g, rot=-7 * g)
     frame.convert('RGB').save('%s/f%05d.jpg' % (OUT, f), quality=90)
 print(N, 'frames', round(SECS, 1), 's')
