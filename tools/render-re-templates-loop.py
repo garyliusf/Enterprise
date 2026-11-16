@@ -121,19 +121,8 @@ for f in range(N):
     cam_x = CENTER[0] + (fx - CENTER[0]) * z
     cam_y = CENTER[1] + (fy - CENTER[1]) * z
 
-    # stacking hand-off: the featured card rides on top of the ring, but it fades up there as the
-    # push-in starts and fades back down after the pull-out, instead of popping between layers
-    # (the pop read as a flash where it overlapped a neighbour — Gary, 2026-11-16)
-    HAND = 0.6
-    prev = FEATURED[(k - 1) % len(FEATURED)]
-    top_alpha = {}
-    if local < SEG_WIDE:
-        top_alpha[prev] = max(0.0, 1 - local / HAND)
-    elif local < SEG_WIDE + SEG_IN:
-        top_alpha[fi] = min(1.0, (local - SEG_WIDE) / (HAND * 0.5))
-    else:
-        top_alpha[fi] = 1.0
-
+    # stacking: the three featured cards always sit above the other five in the ring, so a card the
+    # camera pulls out of is already in its final place and nothing slides over it (Gary, 2026-11-16)
     frame = ground.copy().convert('RGBA')
     items = []
     for i in range(K):
@@ -149,15 +138,9 @@ for f in range(N):
         kk = (0.62 + 0.76 * depth) if depth < 0.5 else 1.0
         if i != fi: kk *= 1 - 0.7 * z            # the ring dims while the camera is on a featured page
         if kk < 1: c.putalpha(c.split()[3].point(lambda v, kk=kk: int(v * kk)))
-        items.append((depth, i, c, int(sx - w / 2), int(sy - h / 2)))
+        items.append((depth + (10 if i in FEATURED else 0), i, c, int(sx - w / 2), int(sy - h / 2)))
     items.sort(key=lambda it: it[0])
     for depth, i, c, px, py in items:
-        frame.alpha_composite(c, (px, py))
-    for depth, i, c, px, py in items:          # the top copies
-        a = top_alpha.get(i, 0.0)
-        if a <= 0: continue
-        if a < 1:
-            c = c.copy(); c.putalpha(c.split()[3].point(lambda v, a=a: int(v * a)))
         frame.alpha_composite(c, (px, py))
     frame.convert('RGB').save('%s/f%05d.jpg' % (OUT, f), quality=90)
 print(N, 'frames', round(SECS, 1), 's')
