@@ -50,7 +50,11 @@ def make_ground():
         a = int(60 * (1 - y / H))
         for x in range(6, W, 16):
             dd.rectangle((x, y, x + 1, y + 1), fill=a)
-    return ImageChops.screen(g, Image.merge('RGB', (dots.point(lambda v: v // 3), dots.point(lambda v: v // 2), dots)))
+    g = ImageChops.screen(g, Image.merge('RGB', (dots.point(lambda v: v // 3), dots.point(lambda v: v // 2), dots)))
+    # a deeper navy ground: the bright blue pulled toward near-black, glow kept as a soft highlight (Gary, 2026-11-16)
+    return Image.blend(g, Image.new('RGB', (W, H), (3, 8, 26)), GROUND_DARKEN)
+
+GROUND_DARKEN = 0.5
 
 SHOTS = {}
 SOURCES = {'prism': 'marketing/use-cases/images/prompt-results/prism.webp', 'property-listing': 'marketing/use-cases/images/prompt-results/re-maison.webp', 'architect-portfolio': 'marketing/use-cases/images/prompt-results/re-architect.webp'}   # the catalog shot is only 1800px tall; this is the full page
