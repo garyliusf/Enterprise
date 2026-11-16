@@ -100,6 +100,7 @@ def ring_pose(i, t):
 
 SCROLL_PX = {'nestora-real-estate': 170 * HI, 'property-listing': 262 * HI, 'architect-portfolio': 125 * HI}   # how far each featured page scrolls while held (4x card px)
 
+SCROLLED = {}
 for f in range(N):
     t = f / N
     sec = f / FPS
@@ -131,7 +132,20 @@ for f in range(N):
         sx = CENTER[0] + (x - cam_x) * zoom
         sy = CENTER[1] + (y - cam_y) * zoom
         s = scale * zoom
-        card = make_card(TEMPLATES[i], scroll * SCROLL_PX.get(TEMPLATES[i], 0)) if (i == fi and scroll > 0 and SCROLL_PX.get(TEMPLATES[i], 0)) else base_cards[i]
+        # a featured page stays where its scroll ended once it is back in the ring; it only resets to the
+        # top while the camera is held on the NEXT template, where it is off screen (Gary, 2026-11-16)
+        sc = 0.0
+        if i == fi: sc = scroll
+        elif i == FEATURED[(k - 1) % len(FEATURED)] and local < SEG_WIDE + SEG_IN + SEG_HOLD / 2: sc = 1.0
+        px_off = int(sc * SCROLL_PX.get(TEMPLATES[i], 0))
+        if px_off > 0:
+            key = (i, px_off)
+            if key not in SCROLLED:
+                if len(SCROLLED) > 6: SCROLLED.clear()
+                SCROLLED[key] = make_card(TEMPLATES[i], px_off)
+            card = SCROLLED[key]
+        else:
+            card = base_cards[i]
         w, h = int(card.width * s / HI), int(card.height * s / HI)
         if w < 2 or h < 2: continue
         if sx + w / 2 < -20 or sx - w / 2 > W + 20 or sy + h / 2 < -20 or sy - h / 2 > H + 20: continue
