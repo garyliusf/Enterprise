@@ -2910,20 +2910,148 @@ html[data-theme="light"] .re-pattern { opacity: 1; -webkit-mask-image: linear-gr
 @media (max-width: 768px) { .re-pattern { border-radius: 10px; } }
 </style>
 <style id="re-use-cases">
-/* ═══ USE CASES (experiment, Gary 2026-11-17): the six real estate use-case pages as linked cards, on the page's own
-   compliance-card treatment (.unlock-card: numbered corner, flashlight, blue dot field on light). ═══ */
-.re-uc-card { text-decoration: none; color: inherit; min-height: 220px; }
-.re-uc-more { margin-top: auto; padding-top: 14px; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: #4DA6FF; transition: color 0.3s ease; }
-html[data-theme="light"] .re-uc-more { color: #1488FC; }
-.re-uc-card:hover .re-uc-more { color: #7CBFFF; }
-html[data-theme="light"] .re-uc-card:hover .re-uc-more { color: #0f6fd0; }
-.re-uc-arrow { transition: transform 0.3s ease; }
-.re-uc-card:hover .re-uc-arrow, .re-uc-all a:hover .re-uc-arrow { transform: translateX(3px); }
-.re-uc-card:focus-visible { outline: 2px solid #1488FC; outline-offset: 3px; }
+/* ═══ USE CASES (experiment, Gary 2026-11-17): the home page's photo use-case cards (person full bleed, dark
+   glass tag, copy over a bottom scrim) with the product each person built floating in the scene: a real Bolt
+   build scrolling in a browser, and small live-looking UIs (pipeline, phone listing, calculator, applications,
+   parcel map). Bento of 4 columns: two wide cards on top, four below. Whole card links to the use-case page. ═══ */
+.rx-bento { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: 460px 440px; gap: 16px;
+  grid-template-areas: "web web crm crm" "app calc tenant parcel"; }
+.rx-tile--web { grid-area: web; } .rx-tile--crm { grid-area: crm; } .rx-tile--app { grid-area: app; }
+.rx-tile--calc { grid-area: calc; } .rx-tile--tenant { grid-area: tenant; } .rx-tile--parcel { grid-area: parcel; }
+.rx-tile { position: relative; display: block; overflow: hidden; border-radius: 12px; background: #111; color: #fff; text-decoration: none; isolation: isolate; }
+.rx-tile:focus-visible { outline: 2px solid #1488FC; outline-offset: 3px; }
+.rx-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1); }
+.rx-tile:hover .rx-photo { transform: scale(1.04); }
+.rx-scrim { position: absolute; inset: 0; z-index: 1; background: linear-gradient(to top, rgba(5,8,16,0.86) 0%, rgba(5,8,16,0.5) 30%, rgba(5,8,16,0) 58%), linear-gradient(to bottom, rgba(5,8,16,0.3), rgba(5,8,16,0) 28%); }
+.rx-tag { position: absolute; left: 18px; top: 18px; z-index: 4; padding: 7px 11px; border-radius: 999px; background: rgba(10,13,20,0.62); backdrop-filter: blur(10px) saturate(1.2); -webkit-backdrop-filter: blur(10px) saturate(1.2); font: 700 10.5px/1 var(--sc-font-label); letter-spacing: 1.5px; text-transform: uppercase; color: #fff; }
+.rx-copy { position: absolute; left: 0; right: 0; bottom: 0; z-index: 4; display: flex; flex-direction: column; gap: 6px; padding: 22px 24px 24px; }
+.rx-title { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.4px; line-height: 1.2; color: #fff; }
+.rx-desc { margin: 0; max-width: 420px; font-size: 14px; line-height: 1.5; color: rgba(255,255,255,0.8); }
+.rx-more { display: inline-flex; align-items: center; gap: 8px; margin-top: 4px; font-size: 13px; font-weight: 600; color: #fff; opacity: 0; transform: translateY(6px); transition: opacity 0.35s ease, transform 0.35s ease; }
+.rx-tile:hover .rx-more { opacity: 1; transform: none; }
+.rx-arrow { transition: transform 0.3s ease; }
+.re-uc-all a:hover .rx-arrow { transform: translateX(3px); }
 .re-uc-all { margin-top: 32px; display: flex; justify-content: center; }
 .re-uc-all a { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; color: #4DA6FF; text-decoration: none; }
 html[data-theme="light"] .re-uc-all a { color: #1488FC; }
-@media (max-width: 768px) { .re-uc-card { min-height: 0; } .re-uc-all { margin-top: 24px; } }
+
+/* the floating product: sits in the scene beside the person, lifts on hover */
+.rx-float { position: absolute; z-index: 2; transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
+.rx-tile:hover .rx-float { transform: translateY(-8px); }
+.rx-tile--web .rx-float    { right: 28px; top: 56px; width: 46%; height: 250px; }
+.rx-tile--crm .rx-float    { right: -150px; top: 196px; width: 640px; transform-origin: 100% 0; }   /* below their faces, over the laptop */
+.rx-tile--crm .rx-float    { transform: scale(0.8); }
+.rx-tile--crm:hover .rx-float { transform: translateY(-8px) scale(0.8); }
+.rx-tile--app .rx-float    { right: 14px; top: 104px; width: 112px; height: 196px; }   /* the phone in his hand, below his face */
+.rx-tile--calc .rx-float   { right: 16px; top: 120px; width: 210px; transform: scale(0.8); transform-origin: 100% 0; }   /* under her face */
+.rx-tile--calc:hover .rx-float { transform: translateY(-8px) scale(0.8); }
+.rx-tile--tenant .rx-float { right: -60px; top: 176px; width: 290px; transform: scale(0.82); transform-origin: 100% 0; }
+.rx-tile--tenant:hover .rx-float { transform: translateY(-8px) scale(0.82); }
+.rx-tile--parcel .rx-float { right: 16px; top: 150px; width: 210px; height: 136px; border-radius: 10px; overflow: hidden; box-shadow: 0 0 0 1px rgba(255,255,255,0.14), 0 24px 44px -16px rgba(0,0,0,0.7); }
+
+/* shared mock UI: a light app surface */
+.rx-ui { position: relative; background: #fff; color: #0C0C0F; border-radius: 10px; box-shadow: 0 0 0 1px rgba(255,255,255,0.14), 0 24px 44px -16px rgba(0,0,0,0.7); font-size: 12px; line-height: 1.3; font-family: var(--sc-font-sans); }
+.rx-ui-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 13px; }
+.rx-ui-sp { flex: 1; }
+.rx-chip { padding: 3px 8px; border-radius: 999px; background: #F1F3F7; color: #5B6170; font-size: 11px; font-weight: 500; white-space: nowrap; }
+.rx-btn { padding: 5px 10px; border-radius: 6px; background: #1488FC; color: #fff; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.rx-av { flex: none; display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--c); color: #fff; font-size: 9.5px; font-weight: 700; letter-spacing: 0.2px; }
+.rx-deal-txt { display: flex; flex-direction: column; min-width: 0; }
+.rx-deal-txt b { font-weight: 600; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rx-deal-txt small { color: #7A8090; font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* website: a real build scrolling in a browser frame */
+.rx-browser { position: absolute; inset: 0; border-radius: 10px; overflow: hidden; background: #fff; box-shadow: 0 0 0 1px rgba(255,255,255,0.14), 0 30px 60px -20px rgba(0,0,0,0.75); }
+.rx-browser-bar { display: flex; align-items: center; gap: 5px; height: 24px; padding: 0 10px; background: #F3F4F7; border-bottom: 1px solid #E6E8EE; }
+.rx-browser-bar i { width: 7px; height: 7px; border-radius: 50%; background: #D5D8E0; }
+.rx-browser-bar span { margin-left: 8px; padding: 2px 10px; border-radius: 999px; background: #fff; color: #7A8090; font-size: 9.5px; }
+.rx-browser-view { position: absolute; inset: 24px 0 0 0; overflow: hidden; }
+.rx-scroll { display: block; width: 100%; height: auto; animation: rx-scroll 24s cubic-bezier(0.45, 0, 0.55, 1) infinite alternate; }
+@keyframes rx-scroll { 0%, 8% { transform: translateY(0); } 92%, 100% { transform: translateY(calc(-100% + 226px)); } }
+
+/* CRM pipeline */
+.rx-crm { padding: 14px 14px 16px; }
+.rx-cols { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.rx-col { display: flex; flex-direction: column; gap: 8px; padding: 8px; border-radius: 8px; background: #F5F6F9; }
+.rx-col > p { margin: 0 0 2px; font-size: 10.5px; font-weight: 600; color: #5B6170; display: flex; justify-content: space-between; }
+.rx-col > p span { color: #A0A5B1; }
+.rx-deal { display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 6px; background: #fff; box-shadow: 0 1px 2px rgba(12,12,15,0.08); }
+.rx-deal em { margin-left: auto; font-style: normal; font-weight: 600; font-size: 11px; color: #0C0C0F; }
+.rx-deal .rx-deal-txt { flex: 1; }
+.rx-deal--hot { box-shadow: 0 0 0 1.5px #1488FC, 0 6px 14px -6px rgba(20,136,252,0.5); animation: rx-hot 3.2s ease-in-out infinite; }
+@keyframes rx-hot { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+
+/* app: a phone with a listing */
+.rx-phone { position: absolute; inset: 0; padding: 5px; border-radius: 26px; background: #16181d; box-shadow: 0 0 0 1px rgba(255,255,255,0.16), 0 30px 50px -20px rgba(0,0,0,0.8); }
+.rx-phone-screen { height: 100%; border-radius: 21px; overflow: hidden; background: #fff; color: #0C0C0F; font-family: var(--sc-font-sans); }
+.rx-phone-photo { height: 70px; background: url("../../templates/images/gallery/property-listing-1.webp") 62% 40% / auto 170% no-repeat; }
+.rx-phone-body { display: flex; flex-direction: column; gap: 2px; padding: 10px; font-size: 11px; }
+.rx-phone-tag { align-self: flex-start; margin-bottom: 4px; padding: 2px 6px; border-radius: 999px; background: #E8F3FF; color: #0f6fd0; font-size: 8.5px; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; }
+.rx-phone-body > b { font-size: 11.5px; font-weight: 600; letter-spacing: -0.2px; }
+.rx-phone-body > small { color: #7A8090; font-size: 9.5px; }
+.rx-phone-stats { display: flex; gap: 8px; margin-top: 6px; color: #5B6170; font-size: 9.5px; }
+.rx-phone-stats b { color: #0C0C0F; }
+.rx-phone-cta { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; font-size: 9.5px; color: #5B6170; }
+.rx-phone-cta b { color: #0C0C0F; font-size: 11.5px; }
+.rx-phone-cta i { font-style: normal; padding: 5px 8px; border-radius: 6px; background: #1488FC; color: #fff; font-weight: 600; font-size: 9.5px; }
+
+/* calculator */
+.rx-calc { padding: 14px 14px 12px; }
+.rx-lbl { margin: 0; color: #7A8090; font-size: 10px; font-weight: 500; }
+.rx-big { margin: 2px 0 10px; font-size: 20px; font-weight: 600; letter-spacing: -0.5px; }
+.rx-row { display: flex; justify-content: space-between; align-items: baseline; font-size: 11px; }
+.rx-track { position: relative; height: 4px; margin: 7px 0 11px; border-radius: 4px; background: #E9ECF2; }
+.rx-track i { position: absolute; left: 0; top: 0; bottom: 0; width: var(--v); border-radius: 4px; background: #1488FC; transition: width 0.9s cubic-bezier(0.22, 1, 0.36, 1); }
+.rx-track i::after { content: ""; position: absolute; right: -6px; top: 50%; width: 11px; height: 11px; margin-top: -5.5px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 1.5px #1488FC, 0 2px 4px rgba(12,12,15,0.2); }
+.rx-tile--calc:hover .rx-track i { width: calc(var(--v) + 14%); }
+.rx-tile--calc:hover .rx-track--split i { width: calc(var(--v) - 10%); }
+.rx-net { display: flex; justify-content: space-between; align-items: center; padding: 9px 10px; border-radius: 8px; background: #0f6fd0; color: #fff; font-size: 10px; }
+.rx-net b { font-size: 15px; letter-spacing: -0.3px; }
+
+/* tenant screening */
+.rx-tenant { padding: 12px 14px; }
+.rx-app { display: flex; align-items: center; gap: 9px; padding: 8px 0; border-top: 1px solid #EEF0F4; }
+.rx-app .rx-deal-txt { flex: 1; }
+.rx-pill { flex: none; padding: 3px 8px; border-radius: 999px; font-size: 10px; font-weight: 600; }
+.rx-pill--ok { background: #E3F7EE; color: #0B7A4B; }
+.rx-pill--rev { background: #E8F3FF; color: #0f6fd0; }
+.rx-pill--wait { background: #FFF4E0; color: #9A5B00; }
+.rx-checks { display: flex; gap: 6px; margin-top: 6px; }
+.rx-checks span { padding: 4px 7px; border-radius: 6px; background: #F5F6F9; color: #A0A5B1; font-size: 9.5px; font-weight: 600; }
+.rx-checks span.is-done { color: #0B7A4B; }
+.rx-checks span.is-done::before { content: "\2713  "; }
+
+/* parcel viewer: a map window */
+.rx-map { position: absolute; inset: 0; background: #EEF1F5; }
+.rx-map svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.rx-map-ground { fill: #EEF1F5; }
+.rx-map-park { fill: #DDEFE3; }
+.rx-map-road { fill: none; stroke: #fff; stroke-width: 14; stroke-linecap: round; }
+.rx-map-road--minor { stroke-width: 8; }
+.rx-lots path { fill: #F8F9FB; stroke: #C9CFDA; stroke-width: 1.2; }
+.rx-lot-on { fill: rgba(20,136,252,0.22); stroke: #1488FC; stroke-width: 2.5; animation: rx-lot 2.6s ease-in-out infinite; }
+@keyframes rx-lot { 0%, 100% { fill: rgba(20,136,252,0.16); } 50% { fill: rgba(20,136,252,0.36); } }
+.rx-parcel-card { position: absolute; left: 8px; bottom: 8px; padding: 7px 9px; border-radius: 7px; background: #fff; color: #0C0C0F; font-size: 9.5px; font-family: var(--sc-font-sans); box-shadow: 0 0 0 1px rgba(12,12,15,0.06), 0 10px 22px -10px rgba(8,22,60,0.45); }
+.rx-parcel-card b { display: block; margin-bottom: 4px; font-size: 10px; font-weight: 600; }
+.rx-parcel-card dl { display: grid; grid-template-columns: auto auto; gap: 2px 12px; margin: 0; }
+.rx-parcel-card dt { color: #7A8090; } .rx-parcel-card dd { margin: 0; font-weight: 600; text-align: right; }
+
+@media (prefers-reduced-motion: reduce) { .rx-scroll, .rx-deal--hot, .rx-lot-on { animation: none; } }
+@media (max-width: 1200px) and (min-width: 1025px) { .rx-desc { font-size: 13.5px; } }
+@media (max-width: 1024px) {
+  .rx-bento { grid-template-columns: 1fr 1fr; grid-template-rows: 440px 440px 440px 440px; grid-template-areas: "web web" "crm crm" "app calc" "tenant parcel"; }
+  .rx-tile--web .rx-float { width: 44%; }
+}
+@media (max-width: 768px) {
+  .rx-bento { grid-template-columns: 1fr; grid-template-rows: none; grid-auto-rows: 440px; grid-template-areas: "web" "crm" "app" "calc" "tenant" "parcel"; gap: 12px; }
+  .rx-copy { padding: 20px; }
+  .rx-tag { left: 14px; top: 14px; }
+  .rx-more { display: none; }
+  .rx-tile--web .rx-float { width: 52%; height: 210px; right: 16px; }
+  .rx-tile--crm .rx-float { transform: scale(0.62); right: -170px; }
+  .rx-tile--crm:hover .rx-float { transform: scale(0.62); }
+  .re-uc-all { margin-top: 24px; }
+}
 </style>
 </head>
 <body>
@@ -3195,17 +3323,98 @@ html[data-theme="light"] .re-uc-all a { color: #1488FC; }
     <div class="section-header">
       <p class="section-eyebrow eyebrow-scramble">Use cases</p>
       <h2 class="section-headline">What real estate pros build with Bolt</h2>
-      <p class="section-sub">Pick a starting point, or describe your own. Each guide shows what to ask for and how it comes together.</p>
+      <p class="section-sub">Real products, each one started from a prompt. Open one to see what to ask for and how it comes together.</p>
     </div>
-    <div class="unlocks-grid re-uc-grid">
-      <a class="unlock-card re-uc-card" href="https://bolt.new/use-cases/real-estate-website-builder"><span class="unlock-num">01</span><span class="unlock-icon"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9v11h14V9"/><path d="M10 20v-6h4v6"/></svg></span><h3 class="unlock-title">Real estate website</h3><p class="unlock-desc">Listings, search, saved homes and lead capture, on your own domain.</p><span class="re-uc-more">See how <svg class="re-uc-arrow" width="14" height="12" viewBox="0 0 16 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 7h13M9 2l5 5-5 5"/></svg></span></a>
-      <a class="unlock-card re-uc-card" href="https://bolt.new/use-cases/custom-real-estate-crm"><span class="unlock-num">02</span><span class="unlock-icon"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8"/><path d="M18 14.8c2 .7 3.2 2.4 3.5 5.2"/></svg></span><h3 class="unlock-title">Real estate CRM</h3><p class="unlock-desc">Leads, clients and deals in a pipeline built around how you actually work.</p><span class="re-uc-more">See how <svg class="re-uc-arrow" width="14" height="12" viewBox="0 0 16 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 7h13M9 2l5 5-5 5"/></svg></span></a>
-      <a class="unlock-card re-uc-card" href="https://bolt.new/use-cases/real-estate-app-builder"><span class="unlock-num">03</span><span class="unlock-icon"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></svg></span><h3 class="unlock-title">Real estate app</h3><p class="unlock-desc">An app for buyers and renters, with listings, alerts and tour booking.</p><span class="re-uc-more">See how <svg class="re-uc-arrow" width="14" height="12" viewBox="0 0 16 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 7h13M9 2l5 5-5 5"/></svg></span></a>
-      <a class="unlock-card re-uc-card" href="https://bolt.new/use-cases/tenant-screening-portal"><span class="unlock-num">04</span><span class="unlock-icon"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none" aria-hidden="true"><rect x="5" y="4" width="14" height="17.5" rx="2"/><path d="M9 4V2.5h6V4"/><path d="m9 13 2 2 4-4.5"/></svg></span><h3 class="unlock-title">Tenant screening portal</h3><p class="unlock-desc">Collect applications and documents, and review every renter in one place.</p><span class="re-uc-more">See how <svg class="re-uc-arrow" width="14" height="12" viewBox="0 0 16 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 7h13M9 2l5 5-5 5"/></svg></span></a>
-      <a class="unlock-card re-uc-card" href="https://bolt.new/use-cases/realtor-commission-calculator"><span class="unlock-num">05</span><span class="unlock-icon"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none" aria-hidden="true"><rect x="5" y="2.5" width="14" height="19" rx="2"/><path d="M8 6.5h8"/><path d="M8.5 11h.01M12 11h.01M15.5 11h.01M8.5 14.5h.01M12 14.5h.01M15.5 14.5h.01M8.5 18h.01M12 18h.01M15.5 18h.01" stroke-width="2"/></svg></span><h3 class="unlock-title">Commission calculator</h3><p class="unlock-desc">Splits, fees and net payouts for every deal, worked out in seconds.</p><span class="re-uc-more">See how <svg class="re-uc-arrow" width="14" height="12" viewBox="0 0 16 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 7h13M9 2l5 5-5 5"/></svg></span></a>
-      <a class="unlock-card re-uc-card" href="https://bolt.new/use-cases/parcel-viewer"><span class="unlock-num">06</span><span class="unlock-icon"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none" aria-hidden="true"><path d="M3 6.5 9 4l6 2.5L21 4v13.5L15 20l-6-2.5L3 20z"/><path d="M9 4v13.5M15 6.5V20"/></svg></span><h3 class="unlock-title">Parcel viewer</h3><p class="unlock-desc">Parcels on a map, with lot lines, zoning and ownership details on hand.</p><span class="re-uc-more">See how <svg class="re-uc-arrow" width="14" height="12" viewBox="0 0 16 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 7h13M9 2l5 5-5 5"/></svg></span></a>
+    <div class="rx-bento">
+      <a class="rx-tile rx-tile--web" href="https://bolt.new/use-cases/real-estate-website-builder">
+        <img class="rx-photo" src="../../images/people/founder-agency.webp" alt="" loading="lazy" decoding="async" style="object-position:62% 30%"><span class="rx-scrim" aria-hidden="true"></span><span class="rx-tag">Website</span>
+        <div class="rx-float" aria-hidden="true">
+          <div class="rx-browser"><div class="rx-browser-bar"><i></i><i></i><i></i><span>nestorahomes.com</span></div>
+            <div class="rx-browser-view"><img class="rx-scroll" src="../../use-cases/images/prompt-results/re-nestora.webp" alt="" loading="lazy" decoding="async"></div></div>
+        </div>
+        <div class="rx-copy"><h3 class="rx-title">Real estate website</h3><p class="rx-desc">Listings, search, saved homes and lead capture, on your own domain.</p><span class="rx-more">See how <svg class="rx-arrow" width="14" height="12" viewBox="0 0 16 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 7h13M9 2l5 5-5 5"/></svg></span></div>
+      </a>
+      <a class="rx-tile rx-tile--crm" href="https://bolt.new/use-cases/custom-real-estate-crm">
+        <img class="rx-photo" src="../../images/people/agencies-middle.webp" alt="" loading="lazy" decoding="async" style="object-position:50% 20%"><span class="rx-scrim" aria-hidden="true"></span><span class="rx-tag">CRM</span>
+        <div class="rx-float" aria-hidden="true">
+          <div class="rx-ui rx-crm">
+            <div class="rx-ui-head"><b>Pipeline</b><span class="rx-chip">24 active</span><span class="rx-ui-sp"></span><span class="rx-btn">+ New lead</span></div>
+            <div class="rx-cols">
+              <div class="rx-col"><p>New lead <span>3</span></p><div class="rx-deal"><span class="rx-av" style="--c:#F59E0B">JR</span><span class="rx-deal-txt"><b>Jordan Reyes</b><small>2 bd condo, Midtown</small></span><em>$410k</em></div><div class="rx-deal"><span class="rx-av" style="--c:#8B5CF6">AK</span><span class="rx-deal-txt"><b>Amara Kofi</b><small>Starter home</small></span><em>$365k</em></div></div>
+              <div class="rx-col"><p>Showing <span>2</span></p><div class="rx-deal rx-deal--hot"><span class="rx-av" style="--c:#10B981">ML</span><span class="rx-deal-txt"><b>Marsh family</b><small>418 Alder Ln</small></span><em>$689k</em></div><div class="rx-deal"><span class="rx-av" style="--c:#EC4899">TP</span><span class="rx-deal-txt"><b>Theo Park</b><small>Loft, Pearl St</small></span><em>$540k</em></div></div>
+              <div class="rx-col"><p>Offer <span>2</span></p><div class="rx-deal"><span class="rx-av" style="--c:#1488FC">SN</span><span class="rx-deal-txt"><b>S. Nakamura</b><small>27 Vista Ct</small></span><em>$1.25M</em></div><div class="rx-deal"><span class="rx-av" style="--c:#06B6D4">DW</span><span class="rx-deal-txt"><b>Dana White</b><small>9 Ridge Rd</small></span><em>$812k</em></div></div>
+              <div class="rx-col"><p>Under contract <span>1</span></p><div class="rx-deal"><span class="rx-av" style="--c:#EF4444">BC</span><span class="rx-deal-txt"><b>Ben Castillo</b><small>Cedar Crest</small></span><em>$745k</em></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="rx-copy"><h3 class="rx-title">Real estate CRM</h3><p class="rx-desc">Leads, clients and deals in a pipeline built around how you work.</p><span class="rx-more">See how <svg class="rx-arrow" width="14" height="12" viewBox="0 0 16 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 7h13M9 2l5 5-5 5"/></svg></span></div>
+      </a>
+      <a class="rx-tile rx-tile--app" href="https://bolt.new/use-cases/real-estate-app-builder">
+        <img class="rx-photo" src="../../images/people/re-right.webp" alt="" loading="lazy" decoding="async" style="object-position:30% 25%"><span class="rx-scrim" aria-hidden="true"></span><span class="rx-tag">Mobile app</span>
+        <div class="rx-float" aria-hidden="true">
+          <div class="rx-phone"><div class="rx-phone-screen">
+            <div class="rx-phone-photo"></div>
+            <div class="rx-phone-body"><span class="rx-phone-tag">For lease</span><b>Maison Sol&egrave;ne</b><small>Beverly Hills</small>
+              <div class="rx-phone-cta"><span><b>$42k</b>/mo</span><i>Tour</i></div></div>
+          </div></div>
+        </div>
+        <div class="rx-copy"><h3 class="rx-title">Real estate app</h3><p class="rx-desc">Listings, alerts and tour booking for buyers and renters.</p><span class="rx-more">See how <svg class="rx-arrow" width="14" height="12" viewBox="0 0 16 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 7h13M9 2l5 5-5 5"/></svg></span></div>
+      </a>
+      <a class="rx-tile rx-tile--calc" href="https://bolt.new/use-cases/realtor-commission-calculator">
+        <img class="rx-photo" src="../../images/people/founder-terracotta.webp" alt="" loading="lazy" decoding="async" style="object-position:80% 30%"><span class="rx-scrim" aria-hidden="true"></span><span class="rx-tag">Calculator</span>
+        <div class="rx-float" aria-hidden="true">
+          <div class="rx-ui rx-calc">
+            <p class="rx-lbl">Sale price</p><p class="rx-big">$850,000</p>
+            <div class="rx-row"><span class="rx-lbl">Commission</span><b>5.0%</b></div>
+            <div class="rx-track"><i style="--v:50%"></i></div>
+            <div class="rx-row"><span class="rx-lbl">Your split</span><b>60 / 40</b></div>
+            <div class="rx-track rx-track--split"><i style="--v:60%"></i></div>
+            <div class="rx-net"><span>Your net payout</span><b>$24,225</b></div>
+          </div>
+        </div>
+        <div class="rx-copy"><h3 class="rx-title">Commission calculator</h3><p class="rx-desc">Splits, fees and net payouts, worked out in seconds.</p><span class="rx-more">See how <svg class="rx-arrow" width="14" height="12" viewBox="0 0 16 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 7h13M9 2l5 5-5 5"/></svg></span></div>
+      </a>
+      <a class="rx-tile rx-tile--tenant" href="https://bolt.new/use-cases/tenant-screening-portal">
+        <img class="rx-photo" src="../../images/people/founder-coffee.webp" alt="" loading="lazy" decoding="async" style="object-position:30% 25%"><span class="rx-scrim" aria-hidden="true"></span><span class="rx-tag">Rentals</span>
+        <div class="rx-float" aria-hidden="true">
+          <div class="rx-ui rx-tenant">
+            <div class="rx-ui-head"><b>Applications</b><span class="rx-ui-sp"></span><span class="rx-chip">12 Oak St, Unit 4</span></div>
+            <div class="rx-app"><span class="rx-av" style="--c:#10B981">PL</span><span class="rx-deal-txt"><b>Priya Lal</b><small>Income 3.4&times; rent &middot; Credit 742</small></span><span class="rx-pill rx-pill--ok">Approved</span></div>
+            <div class="rx-app"><span class="rx-av" style="--c:#1488FC">MO</span><span class="rx-deal-txt"><b>Marcus Odum</b><small>Income 2.9&times; rent &middot; Docs 4/5</small></span><span class="rx-pill rx-pill--rev">In review</span></div>
+            
+            <div class="rx-checks"><span class="is-done">ID</span><span class="is-done">Income</span><span class="is-done">Credit</span><span>References</span></div>
+          </div>
+        </div>
+        <div class="rx-copy"><h3 class="rx-title">Tenant screening</h3><p class="rx-desc">Applications, documents and checks for every renter in one place.</p><span class="rx-more">See how <svg class="rx-arrow" width="14" height="12" viewBox="0 0 16 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 7h13M9 2l5 5-5 5"/></svg></span></div>
+      </a>
+      <a class="rx-tile rx-tile--parcel" href="https://bolt.new/use-cases/parcel-viewer">
+        <img class="rx-photo" src="../../images/people/collage-founders.webp" alt="" loading="lazy" decoding="async" style="object-position:22% 30%"><span class="rx-scrim" aria-hidden="true"></span><span class="rx-tag">Maps</span>
+        <div class="rx-float" aria-hidden="true">
+          <div class="rx-map">
+            <svg viewBox="0 0 600 300" preserveAspectRatio="xMidYMid slice">
+              <rect width="600" height="300" class="rx-map-ground"/>
+              <path class="rx-map-park" d="M430 -10 L620 -10 L620 120 L470 140 Z"/>
+              <path class="rx-map-road" d="M-10 150 L620 120"/><path class="rx-map-road" d="M220 -10 L250 320"/><path class="rx-map-road rx-map-road--minor" d="M440 -10 L470 320"/>
+              <g class="rx-lots">
+                <path d="M20 20 L80 18 L84 74 L22 76 Z"/><path d="M86 18 L146 16 L150 72 L88 74 Z"/><path d="M152 16 L210 14 L214 70 L154 72 Z"/>
+                <path d="M22 84 L84 82 L88 136 L24 138 Z"/><path d="M90 82 L150 80 L154 134 L94 136 Z"/><path d="M156 80 L216 78 L220 132 L160 134 Z"/>
+                <path d="M262 14 L330 12 L334 66 L266 68 Z"/><path d="M336 12 L420 9 L424 62 L340 66 Z"/>
+                <path d="M266 76 L334 74 L338 126 L270 128 Z"/>
+                <path d="M26 168 L90 166 L94 222 L28 224 Z"/><path d="M96 166 L158 164 L162 220 L100 222 Z"/><path d="M164 163 L224 161 L228 218 L168 220 Z"/>
+                <path d="M30 232 L96 230 L100 290 L32 292 Z"/><path d="M102 230 L166 228 L170 288 L106 290 Z"/><path d="M172 228 L230 226 L234 286 L176 288 Z"/>
+                <path d="M270 160 L350 156 L356 222 L276 226 Z"/><path d="M358 156 L440 152 L446 218 L362 222 Z"/>
+                <path d="M278 234 L358 230 L362 292 L282 296 Z"/><path d="M364 230 L448 226 L452 288 L368 292 Z"/>
+                <path d="M482 150 L590 146 L594 230 L486 234 Z"/><path d="M488 242 L596 238 L598 300 L490 304 Z"/>
+              </g>
+              <path class="rx-lot-on" d="M342 74 L426 70 L430 124 L346 126 Z"/>
+            </svg>
+                        <div class="rx-parcel-card"><b>APN 4342-021-018</b><dl><dt>Zoning</dt><dd>R-1</dd><dt>Lot</dt><dd>0.24 ac</dd><dt>Owner</dt><dd>L. Marsh</dd></dl></div>
+          </div>
+        </div>
+        <div class="rx-copy"><h3 class="rx-title">Parcel viewer</h3><p class="rx-desc">Lot lines, zoning and ownership details on a map.</p><span class="rx-more">See how <svg class="rx-arrow" width="14" height="12" viewBox="0 0 16 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 7h13M9 2l5 5-5 5"/></svg></span></div>
+      </a>
     </div>
-    <div class="re-uc-all"><a href="https://bolt.new/use-cases">See all use cases <svg class="re-uc-arrow" width="14" height="12" viewBox="0 0 16 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 7h13M9 2l5 5-5 5"/></svg></a></div>
+    <div class="re-uc-all"><a href="https://bolt.new/use-cases">See all use cases <svg class="rx-arrow" width="14" height="12" viewBox="0 0 16 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 7h13M9 2l5 5-5 5"/></svg></a></div>
   </div>
 </section> <section class="section how-section section--bordered hm-steps uc2-hiw" data-business="maison" id="how-it-works"> <div class="section-inner"> <div class="how-header dsa-reveal"> <p class="section-eyebrow eyebrow-scramble">How it works</p> <h2 class="section-headline">Describe it. Build it. Ship it.</h2> <p class="section-sub">Your expertise and experience shapes the app or website. You describe it, AI builds it. There&#39;s no agency or freelance developer between you and the build.</p> </div> <div class="hm-stage hm-stage--steps">
       <ol class="hm-stage-list"><li class="hm-stage-item is-active"><button type="button" class="hm-stage-btn" aria-pressed="true" data-step="0" data-visual="prompt"><span class="hm-stage-num">01</span><span class="hm-stage-copy"><span class="hm-stage-swap"><span class="hm-stage-kicker">Explain in your own words</span></span><span class="hm-stage-body"><span>Describe your idea and Bolt can start building right away.</span></span></span><span class="hm-stage-bar" aria-hidden="true"><i></i></span></button></li><li class="hm-stage-item"><button type="button" class="hm-stage-btn" aria-pressed="false" data-step="1" data-visual="build"><span class="hm-stage-num">02</span><span class="hm-stage-copy"><span class="hm-stage-swap"><span class="hm-stage-kicker">Watch Bolt build</span></span><span class="hm-stage-body"><span>Bolt builds a real, working website or app in front of you in real time.</span></span></span><span class="hm-stage-bar" aria-hidden="true"><i></i></span></button></li><li class="hm-stage-item"><button type="button" class="hm-stage-btn" aria-pressed="false" data-step="2" data-visual="wired"><span class="hm-stage-num">03</span><span class="hm-stage-copy"><span class="hm-stage-swap"><span class="hm-stage-kicker">No backend configuration</span></span><span class="hm-stage-body"><span>Whether your site needs payments, a user database, auth, or something else, Bolt automatically configures the backend for you.</span></span></span><span class="hm-stage-bar" aria-hidden="true"><i></i></span></button></li><li class="hm-stage-item"><button type="button" class="hm-stage-btn" aria-pressed="false" data-step="3" data-visual="secure"><span class="hm-stage-num">04</span><span class="hm-stage-copy"><span class="hm-stage-swap"><span class="hm-stage-kicker">Secure by design</span></span><span class="hm-stage-body"><span>All your data is secure by default. Bolt’s security agent automatically finds and fixes issues as you build.</span></span></span><span class="hm-stage-bar" aria-hidden="true"><i></i></span></button></li><li class="hm-stage-item"><button type="button" class="hm-stage-btn" aria-pressed="false" data-step="4" data-visual="deploy"><span class="hm-stage-num">05</span><span class="hm-stage-copy"><span class="hm-stage-swap"><span class="hm-stage-kicker">Publish in one click</span></span><span class="hm-stage-body"><span>Go live in one click. No hosting setup or configuration necessary.</span></span></span><span class="hm-stage-bar" aria-hidden="true"><i></i></span></button></li></ol>
