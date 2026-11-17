@@ -3483,6 +3483,11 @@ html[data-theme] .included-section { border-top: 0; }   /* no divider between th
 .hero-card-strip--social .hero-strip-btn { width: 100%; }
 }
 .video-section .hero-play-btn { text-decoration: none; }
+/* the vignette overlay sat on top of the play button and swallowed every click (Gary, 2026-11-17): it no longer
+   takes pointer events, and clicking the card plays the video in place (script below) */
+.video-section .hero-video-overlay { pointer-events: none; }
+.video-section .hero-video-card { cursor: pointer; }
+.video-section .hero-video-area iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; z-index: 5; }
 /* the card follows the stats now (not the hero): drop the hero pull-up and give the seam one unit (Gary, 2026-11-12) */
 .why-section + .video-section { margin-top: 0; padding-top: calc(clamp(24px, 4vh, 48px) + 20px); }   /* +20 breathing room (Gary, 2026-11-12) */
 @media (max-width: 1024px) { .why-section + .video-section { padding-top: 44px; } }
@@ -3502,6 +3507,27 @@ html[data-theme] .included-section { border-top: 0; }   /* no divider between th
   .hero-card-strip--social .hero-strip-btn { width: auto; min-width: var(--cta-min-w, 220px); max-width: 100%; }
 }
 </style>
+<script id="video-inline-js">
+/* the video card plays in place: a click swaps the poster for the YouTube embed (autoplaying), the way the live
+   page embeds it; the play link's own href stays as the no-JS fallback */
+(function () {
+  var card = document.querySelector('.video-section .hero-video-card'); if (!card) return;
+  var link = card.querySelector('.hero-play-btn'); var area = card.querySelector('.hero-video-area');
+  if (!link || !area) return;
+  var m = /[?&]v=([\w-]+)/.exec(link.getAttribute('href') || ''); if (!m) return;
+  card.addEventListener('click', function (e) {
+    if (e.target.closest('.hero-card-strip')) return;
+    e.preventDefault();
+    if (area.querySelector('iframe')) return;
+    var f = document.createElement('iframe');
+    f.src = 'https://www.youtube-nocookie.com/embed/' + m[1] + '?autoplay=1&rel=0&playsinline=1';
+    f.title = 'Bolt for real estate'; f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen'; f.allowFullscreen = true;
+    if (getComputedStyle(area).position === 'static') area.style.position = 'relative';
+    area.appendChild(f);
+    link.style.display = 'none';
+  });
+})();
+</script>
 <script>
 /* ── Bolt prompt box → carry prompt to bolt.new ─────────────────────────── */
 (function () {
