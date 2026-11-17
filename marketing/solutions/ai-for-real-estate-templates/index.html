@@ -2964,7 +2964,7 @@ html[data-theme="light"] .re-pattern { opacity: 1; -webkit-mask-image: linear-gr
 .rx-deal em { margin-left: auto; font-style: normal; font-weight: 600; font-size: 11px; color: #0C0C0F; }
 .rx-deal .rx-deal-txt { flex: 1; }
 .rx-deal--hot { box-shadow: 0 0 0 1.5px #1488FC, 0 6px 14px -6px rgba(20,136,252,0.5); animation: rx-hot 3.2s ease-in-out infinite; }
-@keyframes rx-hot { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@keyframes rx-hot { 0%, 100% { translate: 0 0; } 50% { translate: 0 -3px; } }   /* the bob uses `translate`, so the hover move on `transform` can still transition (an animation on transform made the move jump) */
 
 /* app: a phone with a listing */
 .rx-phone { position: absolute; inset: 0; padding: 5px; border-radius: 26px; background: #16181d; box-shadow: 0 0 0 1px rgba(255,255,255,0.16), 0 30px 50px -20px rgba(0,0,0,0.8); }
@@ -3008,7 +3008,7 @@ html[data-theme="light"] .re-pattern { opacity: 1; -webkit-mask-image: linear-gr
 
 /* parcel viewer: a map window */
 .rx-map { position: absolute; inset: 0; background: #EEF1F5; }
-.rx-map svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.rx-map > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
 .rx-map-ground { fill: #EEF1F5; }
 .rx-map-park { fill: #DDEFE3; }
 .rx-map-road { fill: none; stroke: #fff; stroke-width: 14; stroke-linecap: round; }
@@ -3054,7 +3054,7 @@ html[data-theme="light"] .re-pattern { opacity: 1; -webkit-mask-image: linear-gr
 /* CRM: the deal moves a stage */
 .rx-col:has(.rx-deal--hot) { position: relative; z-index: 3; }
 .rx-deal { transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
-.rx-tile--crm:is(:hover, .is-live) .rx-deal--hot { animation: none; transform: translateX(calc(100% + 26px)); }
+.rx-tile--crm:is(:hover, .is-live) .rx-deal--hot { animation: none; translate: 0 0; transform: translateX(calc(100% + 26px)); transition: transform 0.75s cubic-bezier(0.65, 0, 0.35, 1), translate 0.3s ease; }
 .rx-tile--crm:is(:hover, .is-live) .rx-col:has(.rx-deal--hot) .rx-deal:not(.rx-deal--hot) { transform: translateY(-44px); transition-delay: 0.2s; }
 .rx-col:has(.rx-deal--hot) + .rx-col .rx-deal { transition-delay: 0s; }
 .rx-tile--crm:is(:hover, .is-live) .rx-col:has(.rx-deal--hot) + .rx-col .rx-deal { transform: translateY(44px); }
@@ -3077,8 +3077,8 @@ html[data-theme="light"] .re-pattern { opacity: 1; -webkit-mask-image: linear-gr
 .rx-tile--tenant:is(:hover, .is-live) .rx-ref::before { max-width: 14px; }
 
 /* parcel: zoom to the lot, the value appears */
-.rx-map svg { transform-origin: 64% 33%; transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1); }
-.rx-tile--parcel:is(:hover, .is-live) .rx-map svg { transform: scale(1.22); }
+.rx-map > svg { transform-origin: 64% 33%; transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1); }
+.rx-tile--parcel:is(:hover, .is-live) .rx-map > svg { transform: scale(1.22); }
 .rx-parcel-card .rx-x { max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.4s ease 0.15s, opacity 0.3s ease 0.15s; }
 .rx-tile--parcel:is(:hover, .is-live) .rx-parcel-card .rx-x { max-height: 14px; opacity: 1; }
 .rx-parcel-card dd.rx-x { color: #0f6fd0; }
@@ -3131,6 +3131,39 @@ html[data-theme="light"] .re-pattern { opacity: 1; -webkit-mask-image: linear-gr
 .rx-tile--tenant .rx-float { left: auto; width: 250px; }
 .rx-tile--parcel .rx-float { left: auto; width: 250px; height: 136px; }
 @media (max-width: 1024px) { .rx-tile--app, .rx-tile--calc, .rx-tile--tenant, .rx-tile--parcel { --s: 0.9; } }
+/* phone listing, redesigned (Gary: "looks kinda bad"): a real app screen: status bar, full-bleed photo with a save
+   heart and photo count, price first, one quiet line of name + place, the stats, a full-width tour button */
+.rx-phone-screen { display: flex; flex-direction: column; }
+.rx-ph-status { flex: none; display: flex; align-items: center; justify-content: space-between; height: 14px; padding: 0 10px 0 12px; font: 600 7px/1 var(--sc-font-sans); color: #0C0C0F; }
+.rx-ph-status i { width: 14px; height: 6px; border-radius: 1.5px; box-shadow: inset 0 0 0 1px rgba(12,12,15,0.45); background: linear-gradient(90deg, #0C0C0F 70%, transparent 70%) 1.5px 1.5px / 9px 3px no-repeat; }
+.rx-ph-photo { position: relative; flex: none; height: 84px; margin: 0 5px; border-radius: 10px; background: url("../../templates/images/gallery/nestora-real-estate-3.webp") 25% 9% / 240% auto no-repeat; }
+.rx-ph-heart { position: absolute; right: 5px; top: 5px; width: 16px; height: 16px; border-radius: 50%; background: rgba(255,255,255,0.92) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230C0C0F' stroke-width='2.2'%3E%3Cpath d='M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z'/%3E%3C/svg%3E") center / 9px no-repeat; transition: background-color 0.3s ease; }
+.rx-tile--app:is(:hover, .is-live) .rx-ph-heart { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23EF4444' stroke='%23EF4444' stroke-width='2.2'%3E%3Cpath d='M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z'/%3E%3C/svg%3E"); }
+.rx-ph-count { position: absolute; left: 5px; bottom: 5px; padding: 2px 5px; border-radius: 999px; background: rgba(12,12,15,0.55); color: #fff; font: 600 6.5px/1 var(--sc-font-sans); }
+.rx-ph-body { flex: 1 1 auto; padding: 8px 9px 0; font-family: var(--sc-font-sans); color: #0C0C0F; }
+.rx-ph-body p { margin: 0; }
+.rx-ph-price { font-size: 13px; font-weight: 700; letter-spacing: -0.3px; line-height: 1.1; }
+.rx-ph-name { margin-top: 3px !important; font-size: 7.5px; color: #5B6170; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rx-ph-stats { display: flex; gap: 7px; margin-top: 6px !important; font-size: 7.5px; color: #5B6170; }
+.rx-ph-stats b { color: #0C0C0F; font-weight: 600; }
+.rx-ph-cta { flex: none; display: grid; place-items: center; height: 22px; margin: 0 7px 8px; border-radius: 7px; background: #1488FC; color: #fff; font: 600 8px/1 var(--sc-font-sans); transition: background-color 0.35s ease 0.15s; }
+.rx-tile--app:is(:hover, .is-live) .rx-ph-cta { background: #10B981; }
+.rx-notif { top: 16px; }
+/* parcel: a pin drops onto the lot instead of the value line (Gary) */
+.rx-pin-drop { position: absolute; left: 65.6%; top: 32.7%; z-index: 2; width: 0; height: 0; }
+.rx-pin-icon { position: absolute; left: -9px; top: -24px; width: 18px; height: 24px; filter: drop-shadow(0 2px 3px rgba(8,22,60,0.35)); opacity: 0; transform: translateY(-26px); }
+.rx-pin-shadow { position: absolute; left: -5px; top: -2px; width: 10px; height: 4px; border-radius: 50%; background: rgba(8,22,60,0.35); opacity: 0; transform: scale(0.3); }
+.rx-pin-ring { position: absolute; left: -12px; top: -12px; width: 24px; height: 24px; border-radius: 50%; border: 2px solid #1488FC; opacity: 0; }
+.rx-tile--parcel:is(:hover, .is-live) .rx-pin-icon { animation: rx-pin-fall 0.7s cubic-bezier(0.3, 0, 0.3, 1) 0.35s forwards; }
+.rx-tile--parcel:is(:hover, .is-live) .rx-pin-shadow { animation: rx-pin-shadow 0.7s ease 0.35s forwards; }
+.rx-tile--parcel:is(:hover, .is-live) .rx-pin-ring { animation: rx-pin-ring 0.9s ease-out 0.8s; }
+@keyframes rx-pin-fall { 0% { opacity: 0; transform: translateY(-26px); } 20% { opacity: 1; } 60% { transform: translateY(0); } 75% { transform: translateY(-4px); } 90%, 100% { opacity: 1; transform: translateY(0); } }
+@keyframes rx-pin-shadow { 0% { opacity: 0; transform: scale(0.3); } 60%, 100% { opacity: 1; transform: scale(1); } }
+@keyframes rx-pin-ring { 0% { opacity: 0.8; transform: scale(0.3); } 100% { opacity: 0; transform: scale(1.6); } }
+@media (prefers-reduced-motion: reduce) { .rx-tile--parcel:is(:hover, .is-live) .rx-pin-icon, .rx-tile--parcel:is(:hover, .is-live) .rx-pin-shadow { animation: none; opacity: 1; transform: none; } }
+.rx-ph-name { color: #0C0C0F; font-weight: 500; font-size: 8px; }
+.rx-ph-loc { margin-top: 1px !important; font-size: 7.5px; color: #7A8090; }
+.rx-ph-stats { margin-top: 5px !important; }
 </style>
 </head>
 <body>
@@ -3432,10 +3465,15 @@ html[data-theme="light"] .re-pattern { opacity: 1; -webkit-mask-image: linear-gr
         <img class="rx-photo" src="../../images/people/re-right.webp" alt="" loading="lazy" decoding="async" style="object-position:30% 25%"><span class="rx-scrim" aria-hidden="true"></span><span class="rx-tag">Mobile app</span>
         <div class="rx-stage" aria-hidden="true"><div class="rx-float">
           <div class="rx-phone"><div class="rx-phone-screen">
+            <div class="rx-ph-status"><span>9:41</span><i></i></div>
             <div class="rx-notif"><b>Tour booked</b><small>Sat 11:00 AM &middot; Pinewatch A-Frame</small></div>
-            <div class="rx-phone-photo"></div>
-            <div class="rx-phone-body"><span class="rx-phone-tag">For sale</span><b>Pinewatch A-Frame</b><small>Bend, OR</small>
-              <div class="rx-phone-cta"><span><b>$612k</b></span><i><span class="rx-sw"><i>Tour</i><i>Booked</i></span></i></div></div>
+            <div class="rx-ph-photo"><span class="rx-ph-heart"></span><span class="rx-ph-count">1/12</span></div>
+            <div class="rx-ph-body">
+              <p class="rx-ph-price">$612,000</p>
+              <p class="rx-ph-name">Pinewatch A-Frame</p><p class="rx-ph-loc">Bend, OR</p>
+              <p class="rx-ph-stats"><span><b>3</b> bd</span><span><b>2</b> ba</span><span><b>1,340</b> ft&sup2;</span></p>
+            </div>
+            <div class="rx-ph-cta"><span class="rx-sw"><i>Book a tour</i><i>Tour booked &check;</i></span></div>
           </div></div>
         </div></div>
         <div class="rx-copy"><h3 class="rx-title">Real estate app</h3><p class="rx-desc">Listings, alerts and tour booking for buyers and renters.</p><span class="rx-more">See how <svg class="rx-arrow" width="14" height="12" viewBox="0 0 16 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 7h13M9 2l5 5-5 5"/></svg></span></div>
@@ -3486,7 +3524,8 @@ html[data-theme="light"] .re-pattern { opacity: 1; -webkit-mask-image: linear-gr
               </g>
               <path class="rx-lot-on" d="M342 74 L426 70 L430 124 L346 126 Z"/>
             </svg>
-                        <div class="rx-parcel-card"><b>APN 4342-021-018</b><dl><dt>Zoning</dt><dd>R-1</dd><dt>Lot</dt><dd>0.24 ac</dd><dt>Owner</dt><dd>L. Marsh</dd><dt class="rx-x">Est. value</dt><dd class="rx-x">$1.18M</dd></dl></div>
+                        <span class="rx-pin-drop"><span class="rx-pin-ring"></span><span class="rx-pin-shadow"></span><svg class="rx-pin-icon" viewBox="0 0 24 32"><path d="M12 31s10-11.2 10-19A10 10 0 0 0 2 12c0 7.8 10 19 10 19z" fill="#1488FC" stroke="#fff" stroke-width="2"/><circle cx="12" cy="12" r="3.6" fill="#fff"/></svg></span>
+            <div class="rx-parcel-card"><b>APN 4342-021-018</b><dl><dt>Zoning</dt><dd>R-1</dd><dt>Lot</dt><dd>0.24 ac</dd><dt>Owner</dt><dd>L. Marsh</dd></dl></div>
           </div>
         </div></div>
         <div class="rx-copy"><h3 class="rx-title">Parcel viewer</h3><p class="rx-desc">Lot lines, zoning and ownership details on a map.</p><span class="rx-more">See how <svg class="rx-arrow" width="14" height="12" viewBox="0 0 16 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 7h13M9 2l5 5-5 5"/></svg></span></div>
