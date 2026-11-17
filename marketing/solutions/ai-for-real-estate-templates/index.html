@@ -2857,11 +2857,12 @@ html[data-theme="light"] .re-deck-card { box-shadow: 0 18px 36px -18px rgba(8, 2
    input, and it does not animate. Sized in em off --hc-h so it scales with the collage. */
 .re-deck-prompt { position: absolute; z-index: 40; left: 52%; right: calc(-46% + var(--hc-overlap)); top: 69.5%; box-sizing: border-box; font-size: calc(var(--hc-h) * 0.0235); padding: 0.66em; border-radius: 1.65em; background: rgba(217, 217, 217, 0.2); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: 0 0.42em 0.88em rgba(0, 0, 0, 0.02), 0 0.21em 0.42em rgba(0, 0, 0, 0.06); font-family: var(--sc-font-sans, 'Schibsted Grotesk', sans-serif); text-align: left; }   /* measured off Gary's composer art (Frame 671, 2026-11-16): a 20% grey rim 14.5px wide at 22px type, 36px outer / 29px inner radius, hairline #D6D5DE on the white box, barely-there shadows */
 .re-deck-prompt-box { padding: 1.2em 1.4em 1.25em; border-radius: 1.32em; background: #FFFEFE; color: #0C0C0F; border: 1px solid #D6D5DE; box-shadow: 0 0.44em 0.88em rgba(0, 0, 0, 0.02), 0 0.22em 0.44em rgba(0, 0, 0, 0.06); }
-.re-deck-prompt-text { margin: 0; min-height: 4.5em; font-size: 1em; line-height: 1.5; font-weight: 400; color: #0C0C0F; transition: opacity 0.3s ease; }
+.re-deck-prompt-text { margin: 0; min-height: 4.5em; font-size: 1em; line-height: 1.5; font-weight: 400; color: #0C0C0F;  }
+.re-deck-prompt-text.is-leaving { transition: opacity 0.14s ease; }
 /* the prompt follows the template in front: its words settle in with the site's scroll-in reveal (same curve,
    duration and stagger as .dsa-reveal), and the old line fades as the deck advances. Not a typewriter (Gary). */
 .re-deck-prompt-text.is-leaving { opacity: 0; }
-.re-deck-word { display: inline-block; opacity: 0; transform: translate(-0.5em, -0.35em); filter: blur(4px); animation: re-deck-word 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards; animation-delay: calc(var(--i, 0) * 28ms); }
+.re-deck-word { display: inline-block; opacity: 0; transform: translate(-0.5em, -0.35em); filter: blur(4px); animation: re-deck-word 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards; animation-delay: calc(var(--i, 0) * 14ms); }
 @keyframes re-deck-word { to { opacity: 1; transform: none; filter: blur(0); } }
 .re-deck-prompt-row { display: flex; align-items: center; gap: 1.5em; margin-top: 1.3em; color: #73737B; font-size: 0.8em; font-weight: 500; }
 .re-deck-prompt-row svg { display: block; }
@@ -5951,12 +5952,15 @@ window.addEventListener('load', function () {
     else if (local < REST + SCROLL + END) { scroll = 1; e = 0; }
     else { scroll = 1; e = (local - REST - SCROLL - END) / SWAP; }
     var step = e ? quart(Math.min(1, e / 0.85)) : 0;
-    if (ptext) {              /* swap the prompt when a new template takes the front; fade the old one as it leaves */
-      if (k !== shownK) {
-        shownK = k; leaving = false;
+    if (ptext) {              /* the prompt moves WITH the deck: the old line fades the moment the front page starts to
+                                 sink, and the next one's words come in while its template is still stepping forward,
+                                 landing as the card lands (Gary: tie the text to the template arriving) */
+      var want = e > 0.15 ? (k + 1) % K : k;
+      if (want !== shownK) {
+        shownK = want; leaving = false;
         ptext.classList.remove('is-leaving');
-        ptext.innerHTML = (cards[k].dataset.prompt || '').split(' ').map(function (w, i) { return '<span class="re-deck-word" style="--i:' + i + '">' + w + '</span>'; }).join(' ');
-      } else if (e > 0.25 && !leaving) { leaving = true; ptext.classList.add('is-leaving'); }
+        ptext.innerHTML = (cards[want].dataset.prompt || '').split(' ').map(function (w, i) { return '<span class="re-deck-word" style="--i:' + i + '">' + w + '</span>'; }).join(' ');
+      } else if (e > 0 && e <= 0.15 && !leaving) { leaving = true; ptext.classList.add('is-leaving'); }
     }
     for (var j = 1; j < K; j++) place((k + j) % K, j - step, 1, 0, 10 - j, 0);
     if (e < 0.5) {            /* the front page sinks and fades out, still on its last scroll position */
