@@ -34,6 +34,9 @@ export const hero = {
     { label: 'Booking site', prompt: 'My dog walking business needs a booking site that takes customer deposits' },
   ],
   promptCta: 'Build now',
+  /* where Build now sends the prompt. The query string is kept: ?get_started=1 opens Bolt's sign-up box on
+     arrival (Alberto, 2026-11-17); the prompt rides in the hash, as on the use-case pages */
+  promptUrl: 'https://bolt.new/?get_started=1',
   /* what to build, under the prompt: bolt.new's intent picker, same ids,
      labels and instructions as the app (packages/bolt/app/components/chat/
      intents.ts); App second here (Gary, 2026-10-26). A tile selects one

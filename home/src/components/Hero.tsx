@@ -4,11 +4,18 @@ import { BayerDither, BgVideo } from './ui';
 
 /* Carries the prompt into Bolt's composer and submits it there (the
    use-case pages' goToBolt). Opens in a new tab. */
-export function goToBolt(prompt: string, instruction?: string) {
+export function goToBolt(prompt: string, instruction?: string, base: string = hero.promptUrl) {
   let text = prompt.trim() || hero.promptExample;
   /* the app prepends the selected intent's instruction the same way */
   if (instruction) text = `${instruction}\n\n${text}`;
-  window.open('https://bolt.new/?autosubmit=true#prompt=' + encodeURIComponent(text), '_blank', 'noopener');
+  /* the destination keeps its own query string (?get_started=1 opens the
+     sign-up box); the prompt rides in the hash, where bolt.new reads it
+     (use-case-page.js boltUrl) */
+  let u: URL;
+  try { u = new URL(base || hero.promptUrl, window.location.href); } catch { u = new URL(hero.promptUrl); }
+  u.searchParams.set('autosubmit', 'true');
+  u.hash = 'prompt=' + encodeURIComponent(text);
+  window.open(u.toString(), '_blank', 'noopener');
 }
 
 /* The hero prompt box: white card, textarea, suggestion pills, Build now. */

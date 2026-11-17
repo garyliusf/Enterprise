@@ -92,6 +92,8 @@ copy_src('components/Hero.tsx', [
      "  const copy = useHomeCopy();\n  const { full: example, shown } = useTypewriter(text === '', copy.promptExamples);"),
     ("            placeholder={hero.promptExample}", "            placeholder={copy.promptExamples[0]}"),
     ("            {hero.promptCta}", "            {copy.promptCta}"),
+    ("  const send = () => { goToBolt(text || example, picked?.instruction); setIntent(undefined); };",
+     "  const send = () => { goToBolt(text || example, picked?.instruction, copy.promptUrl); setIntent(undefined); };"),
     ("export function Hero() {\n  return (", "export function Hero() {\n  const copy = useHomeCopy();\n  return ("),
     ("          <span className=\"fw-serif\">{hero.titleSerif}</span>\n          <span>{hero.titleSans}</span>",
      "          <span className=\"fw-serif\">{copy.titleSerif}</span>\n          <span>{copy.titleSans}</span>"),
@@ -125,6 +127,7 @@ export interface HomeCopy {
   titleSans: string;
   promptExamples: string[];
   promptCta: string;
+  promptUrl: string;
   showcase: { rowA: ShowcaseItem[]; rowB: ShowcaseItem[] };
   stats: Stat[];
   useCases: { eyebrow: string; title: string; subtitle: string; more: Link; items: UseCase[] };
@@ -147,6 +150,7 @@ export const DEFAULT_COPY: HomeCopy = {
   titleSans: hero.titleSans,
   promptExamples: hero.promptPills.map((p) => p.prompt),
   promptCta: hero.promptCta,
+  promptUrl: hero.promptUrl,
   showcase: reviewed.showcase,
   stats: reviewed.stats,
   useCases: reviewed.useCases,
@@ -190,6 +194,7 @@ export function mergeCopy(p: HomeProps | undefined): HomeCopy {
     titleSans: str(v.titleSans, D.titleSans),
     promptExamples: list(v.promptExamples, (s) => opt(s) ?? null, D.promptExamples),
     promptCta: str(v.promptCta, D.promptCta),
+    promptUrl: str(v.promptUrl, D.promptUrl),
     showcase: cards.length ? { rowA: cards, rowB: [] } : D.showcase,
     stats: list(v.stats, (s) => { const value = opt(s.value), label = opt(s.label); return value && label ? { value, label } : null; }, D.stats),
     useCases: {
@@ -423,6 +428,10 @@ export const propsSchema = z.object({
     .default([])
     .describe('help: The example prompts typed into the box, in order. Empty = the reviewed three.'),
   promptCta: z.string().describe('help: The submit button label. Empty = "Build now".').optional(),
+  promptUrl: z
+    .string()
+    .describe('help: Where the submit button sends the prompt. Query params are kept (?get_started=1 opens the sign-up box); the prompt is added for you. Empty = https://bolt.new/?get_started=1')
+    .optional(),
 
   /* ── showcase: the coverflow under the hero ── */
   showcase: z
@@ -571,6 +580,7 @@ export const previewProps = {
   titleSans: 'Bolt builds it.',
   promptExamples: ['Create a client dashboard for my design studio that includes files and messaging'],
   promptCta: 'Build now',
+  promptUrl: 'https://bolt.new/?get_started=1',
 };
 ''')
 
@@ -736,7 +746,8 @@ if not page.exists():
         "titleSerif": "",
         "titleSans": "",
         "promptExamples": [],
-        "promptCta": ""
+        "promptCta": "",
+        "promptUrl": ""
       }
     }
   ],
