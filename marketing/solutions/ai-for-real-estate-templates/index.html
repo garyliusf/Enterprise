@@ -5957,8 +5957,11 @@ window.addEventListener('load', function () {
   var REST = 0.5, SCROLL = 2.9, END = 0.35, SWAP = 0.95, SEG = REST + SCROLL + END + SWAP;
   function smooth(t) { return t * t * (3 - 2 * t); }
   function quart(t) { return t < 0.5 ? 8 * t * t * t * t : 1 - Math.pow(-2 * t + 2, 4) / 2; }
+  var cur = cards.map(function () { return { d: 0, op: 1, y: 0, sc: 0 }; }), jump = null;
   function place(i, d, op, extraY, z, sc) {
     var c = cards[i];
+    cur[i].d = d; cur[i].op = op; cur[i].y = extraY; cur[i].sc = sc;
+    c.style.cursor = d > 0.5 ? 'pointer' : '';
     c.style.transform = 'translateY(' + (-16.5 * d + extraY).toFixed(2) + '%) scale(' + (1 - 0.1 * d).toFixed(4) + ')';
     c.style.filter = d > 0.01 ? 'brightness(' + (1 - 0.22 * d).toFixed(3) + ')' : 'none';
     c.style.opacity = op.toFixed(3);
@@ -5966,12 +5969,36 @@ window.addEventListener('load', function () {
     imgs[i].style.transform = 'translateY(' + (-sc * parseFloat(c.dataset.scroll || 0) * c.clientWidth).toFixed(1) + 'px)';
   }
   var ptext = document.getElementById('re-deck-prompt-text'), shownK = -1, leaving = false;
+  function showPrompt(n) {
+    shownK = n; leaving = false;
+    if (!ptext) return;
+    ptext.classList.remove('is-leaving');
+    ptext.innerHTML = (cards[n].dataset.prompt || '').split(' ').map(function (w, i) { return '<span class="re-deck-word" style="--i:' + i + '">' + w + '</span>'; }).join(' ');
+  }
+  /* click a template behind the front one and it comes forward (Gary, 2026-11-16): every card glides from wherever it
+     is to its slot in the new order, the prompt swaps with it, and the loop carries on from that card's beat */
+  cards.forEach(function (c, n) {
+    c.addEventListener('click', function () {
+      if (jump || cur[n].d <= 0.5) return;
+      jump = { to: n, start: performance.now(), from: cur.map(function (s) { return { d: s.d, op: s.op, y: s.y, sc: s.sc }; }) };
+      showPrompt(n);
+    });
+  });
   var t0 = null, seen = true;
   if ('IntersectionObserver' in window) new IntersectionObserver(function (e) { seen = e[0].isIntersecting; }).observe(deck);
   function frame(now) {
     requestAnimationFrame(frame);
     if (t0 === null) t0 = now;
     if (!seen || document.hidden) { t0 += 16.7; return; }   /* hold the timeline while off screen */
+    if (jump) {
+      var jt = Math.min(1, (now - jump.start) / 620), je = 1 - Math.pow(1 - jt, 3);
+      for (var q = 0; q < K; q++) {
+        var f = jump.from[q], td = (q - jump.to + K) % K;
+        place(q, f.d + (td - f.d) * je, f.op + (1 - f.op) * je, f.y * (1 - je), q === jump.to ? 30 : 10 - td, f.sc * (1 - je));
+      }
+      if (jt >= 1) { t0 = now - jump.to * SEG * 1000; jump = null; }
+      return;
+    }
     var sec = ((now - t0) / 1000) % (SEG * K);
     var k = Math.min(K - 1, Math.floor(sec / SEG)), local = sec - k * SEG, scroll, e;
     if (local < REST) { scroll = 0; e = 0; }
@@ -5984,9 +6011,7 @@ window.addEventListener('load', function () {
                                  landing as the card lands (Gary: tie the text to the template arriving) */
       var want = e > 0.15 ? (k + 1) % K : k;
       if (want !== shownK) {
-        shownK = want; leaving = false;
-        ptext.classList.remove('is-leaving');
-        ptext.innerHTML = (cards[want].dataset.prompt || '').split(' ').map(function (w, i) { return '<span class="re-deck-word" style="--i:' + i + '">' + w + '</span>'; }).join(' ');
+        showPrompt(want);
       } else if (e > 0 && e <= 0.15 && !leaving) { leaving = true; ptext.classList.add('is-leaving'); }
     }
     for (var j = 1; j < K; j++) place((k + j) % K, j - step, 1, 0, 10 - j, 0);
