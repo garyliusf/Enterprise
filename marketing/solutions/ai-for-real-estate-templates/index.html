@@ -5965,12 +5965,14 @@ window.addEventListener('load', function () {
       } else if (e > 0 && e <= 0.15 && !leaving) { leaving = true; ptext.classList.add('is-leaving'); }
     }
     for (var j = 1; j < K; j++) place((k + j) % K, j - step, 1, 0, 10 - j, 0);
-    if (e < 0.5) {            /* the front page sinks and fades out, still on its last scroll position */
-      var g = e / 0.5; g = g * g;
+    if (e < 0.35) {           /* the front page sinks and fades out, still on its last scroll position */
+      var g = e / 0.35; g = g * g;
       place(k, 0, 1 - g, 12 * g, 20, scroll);
-    } else {                  /* and comes back in at the rear, at the top of the page */
-      var a = 1 - Math.pow(1 - (e - 0.5) / 0.5, 3);
-      place(k, 3 - a, a, 0, 1, 0);
+    } else {                  /* and fades back in IN the rear slot, at the top of its page. It does not travel in from
+                                 further back: the rear slot's top edge is the line the woman's photo sits on, so
+                                 whatever is in that slot has to be on the line (Gary, 2026-11-16) */
+      var a = 1 - Math.pow(1 - (e - 0.35) / 0.65, 3);
+      place(k, 2, a, 0, 1, 0);
     }
   }
   requestAnimationFrame(frame);
