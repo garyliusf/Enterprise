@@ -295,6 +295,6 @@ extra = '''
 </style>
 '''
 
-page = (head + styles + '</head>\n<body>\n\n' + nav + '\n' + main + '\n\n' + tail + '\n' + extra + scripts + rebase(nav_js, UP) + '\n</body>\n</html>\n')
+page = (head + styles + '</head>\n<body>\n\n' + nav + '\n' + main + '\n\n' + tail + '\n' + extra + scripts + (rebase(nav_js, UP) if 'shared-nav-footer.js' not in scripts else '') + '\n</body>\n</html>\n')
 (out_dir / 'index.html').write_text(page)
 print(f'wrote {out_dir / "index.html"} ({len(page):,} chars); title: {title}; video rules: {len(vid_rules)} + {len(vid_media)} media')
