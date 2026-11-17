@@ -265,6 +265,10 @@ wm_rules = '\n'.join(re.findall(r'^\s*\.(?:footer-image-section|bolt-image-wrap)
 assert 'overflow' in wm_rules, wm_rules
 extra = '''
 <style id="mirror-overrides">
+/* the templates rail band sits on the PAGE ground, not the band token's #050508 lift: on a #000 page that lift
+   drew a visible seam above "Start from a template" in dark mode (Gary, 2026-11-16). The rail's edge fades read the
+   same token, so they follow. Light is unchanged (band = ground there already). */
+.tmpl-section { --sc-band: var(--sc-ground); --sc-band-rgb: var(--sc-ground-rgb); }
 /* wordmark strip clipping (from marketing/solutions.html) */
 ''' + wm_rules + '''
 /* the route's video card (production-only markup) — rules from solutions/ai-for-real-estate */
