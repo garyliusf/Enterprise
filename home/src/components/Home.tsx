@@ -958,7 +958,7 @@ export function Enterprise() {
                 <div className="hero-form-row">
                   <label className="sr-only" htmlFor="ent-email">{enterprise.strip.placeholder}</label>
                   <input id="ent-email" name="email" type="email" className="hero-email-input" placeholder={enterprise.strip.placeholder} autoComplete="email" required aria-invalid={lead === 'invalid' ? true : undefined} disabled={lead === 'busy'} />
-                  <button type="submit" className="hero-cta-button" aria-label="Book a 1:1 with sales" disabled={lead === 'busy'}>
+                  <button type="submit" className="hero-cta-button" disabled={lead === 'busy'}>
                     <div className="btn-bg-hover" />
                     <div className="btn-text-wrap"><div className="btn-text-inner"><span>{leadLabel}</span><span>{leadLabel}</span></div></div>
                   </button>

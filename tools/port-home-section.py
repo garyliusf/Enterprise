@@ -248,7 +248,7 @@ export function mergeCopy(p: HomeProps | undefined): HomeCopy {
         lead: str(en.stripLead, D.enterprise.strip.lead),
         placeholder: str(en.stripPlaceholder, D.enterprise.strip.placeholder),
         cta: str(en.stripCta, D.enterprise.strip.cta),
-        action: str(en.stripAction, D.enterprise.strip.action),
+        action: D.enterprise.strip.action,
       },
       more: D.enterprise.more,
     },
@@ -554,7 +554,7 @@ export const propsSchema = z.object({
         .describe('help: The numbered cells. Five fills the grid. Empty = the reviewed five.'),
       logosLabel: text('The small line above the logo train. Empty = "Trusted by teams shipping with AI".'),
       logos: z
-        .array(z.object({ image: image('A wordmark SVG with dark artwork (inverted to white in dark mode).'), name: text('Company name, for screen readers.') }))
+        .array(z.object({ image: image('A wordmark SVG with WHITE artwork (shown dark in light mode, white in dark mode).'), name: text('Company name, for screen readers.') }))
         .default([])
         .describe('help: The logo train. Empty = the reviewed six.'),
       panelKicker: text('The small label on the 1:1 panel. Empty = "Talk to us".'),
@@ -562,7 +562,6 @@ export const propsSchema = z.object({
       panelNote: long('The note under the lead.'),
       stripPlaceholder: text('The email field\\'s placeholder. Empty = "Your work email".'),
       stripCta: text('The submit button. Empty = "Book a 1:1".'),
-      stripAction: text('Where the email is handed on. Empty = the enterprise page\\'s form.'),
     })
     .default({}),
 
