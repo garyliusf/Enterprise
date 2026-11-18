@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
+<script>/* HERO VARIANTS (review only) */(function(){var v=new URLSearchParams(location.search).get('hero');document.documentElement.setAttribute('data-hv',/^[abc]$/.test(v||'')?v:'a');})();</script>
 <!-- Theme resolution. Light is the site default; a visitor whose OS is set to
      dark gets dark. The attribute is ALWAYS stamped (never absent) so the
      ported production chrome rules — which key on html[data-theme='light'] —
@@ -2949,6 +2950,51 @@ html[data-theme="light"] .re-pattern { opacity: 1; -webkit-mask-image: linear-gr
 /* centred layouts (tablet + phone): the woman's -0.09 hc nudge is visual only, so the centred group leaned left;
    it shifts right by half the nudge so the man and the woman sit the same distance from the screen edges (Gary) */
 @media (max-width: 1024px) { .hero-collage--templates { transform: translateX(calc(var(--hc-h) * 0.045)); } }
+/* ═══ HERO VARIANTS (review only, Gary 2026-11-18): A = the current stagger; B = A + floating UI moments; C = the
+   templates lead and the two people become round portraits tucked on the deck's corners. Strip this block, the
+   two hv- markups and the two hv- scripts when one wins. ═══ */
+.hv-switch { position: fixed; left: 16px; bottom: 16px; z-index: 9999; display: flex; align-items: center; gap: 4px; padding: 4px; border-radius: 8px; background: rgba(10,12,18,0.88); border: 1px solid rgba(255,255,255,0.14); font: 600 12px/1 var(--sc-font-sans); color: rgba(255,255,255,0.6); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.hv-switch span { padding: 0 6px 0 4px; }
+.hv-switch button { min-width: 30px; height: 28px; border: 0; border-radius: 6px; background: transparent; color: #fff; font: inherit; cursor: pointer; }
+.hv-switch button.is-on { background: #1488FC; }
+.hv-chips { display: none; }
+html[data-hv="b"] .hv-chips { display: block; position: absolute; inset: 0; z-index: 6; pointer-events: none; }
+.hv-chip { position: absolute; display: flex; align-items: center; gap: 9px; padding: 9px 13px 9px 9px; border-radius: 12px; background: rgba(255,255,255,0.88); border: 1px solid rgba(255,255,255,0.9); -webkit-backdrop-filter: blur(14px) saturate(1.4); backdrop-filter: blur(14px) saturate(1.4); box-shadow: 0 18px 36px -14px rgba(0,0,0,0.55), 0 0 0 1px rgba(12,12,15,0.04); color: #0C0C0F; font-family: var(--sc-font-sans); white-space: nowrap; opacity: 0; animation: hv-in 0.7s cubic-bezier(0.22,1,0.36,1) forwards, hv-float 6s ease-in-out infinite; }
+.hv-txt { display: flex; flex-direction: column; gap: 2px; }
+.hv-chip b { font-size: 12.5px; font-weight: 650; letter-spacing: -0.1px; }
+.hv-chip small { font-size: 11px; color: #5B6170; }
+.hv-av { flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #E8F2FF; color: #0b63c0; font-size: 10.5px; font-weight: 700; }
+.hv-live { flex: none; width: 8px; height: 8px; margin-left: 4px; border-radius: 50%; background: #0d9b7a; box-shadow: 0 0 0 3px rgba(13,155,122,0.2); }
+.hv-check { flex: none; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: #1488FC; color: #fff; }
+.hv-check svg { width: 13px; height: 13px; }
+.hv-chip--price { flex-direction: column; align-items: flex-start; gap: 2px; padding: 10px 14px; }
+.hv-chip--price b { font-size: 17px; font-weight: 700; letter-spacing: -0.4px; }
+.hv-chip--price small:first-child { font-size: 9.5px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #0d9b7a; }
+/* positions in collage units (--hc-h): lead over the man's top edge where it meets the deck; price on the woman's
+   lower-left, beside the deck; tour on the deck's lower-left corner */
+.hv-chip--lead { left: calc(var(--hc-h) * 0.10); top: calc(var(--hc-h) * 0.15); animation-delay: 0.5s, 1.2s; }
+.hv-chip--price { left: calc(var(--hc-h) * 1.10); top: calc(var(--hc-h) * 0.56); animation-delay: 0.8s, 2.4s; }
+.hv-chip--tour { left: calc(var(--hc-h) * 0.30); top: calc(var(--hc-h) * 0.86); animation-delay: 1.1s, 0.2s; }
+@keyframes hv-in { from { opacity: 0; transform: translateY(10px) scale(0.96); } to { opacity: 1; transform: none; } }
+@keyframes hv-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -6px; } }
+@media (max-width: 768px) { .hv-chip { transform-origin: 0 0; scale: 0.72; } .hv-chip--price { left: calc(var(--hc-h) * 0.92); } }
+@media (prefers-reduced-motion: reduce) { .hv-chip { animation: none; opacity: 1; } }
+/* C: the deck leads, the people become round portraits on its corners */
+html[data-hv="c"] .hero-collage--templates { align-items: flex-start; }
+html[data-hv="c"] .hero-collage--templates .hero-collage-col:nth-child(1) .hero-uc-card,
+html[data-hv="c"] .hero-collage--templates .hero-collage-col:nth-child(3) .hero-uc-card { aspect-ratio: 1; border-radius: 50%; z-index: 5; box-shadow: 0 0 0 5px rgba(255,255,255,0.14), 0 22px 40px -16px rgba(0,0,0,0.7); }
+html[data-hv="c"] .hero-collage--templates .hero-collage-col:nth-child(1) .hero-uc-card { height: calc(var(--hc-h) * 0.30); margin-right: calc(var(--hc-h) * -0.12); transform: translateY(calc(var(--hc-h) * 0.66)); }
+html[data-hv="c"] .hero-collage--templates .hero-collage-col:nth-child(2) .hero-uc-card { margin-left: 0; }
+html[data-hv="c"] .hero-collage--templates .hero-collage-col:nth-child(3) .hero-uc-card { height: calc(var(--hc-h) * 0.26); margin-left: calc(var(--hc-h) * -0.13); transform: translateY(calc(var(--hc-h) * 0.04)); }
+html[data-hv="c"] .hero-collage--templates .hero-collage-col:nth-child(3) .hero-uc-img { object-position: 50% 12% !important; }
+html[data-hv="c"] .hero-collage--templates .hero-collage-col:nth-child(1) .hero-uc-img { object-position: 30% 30% !important; }
+html[data-hv="c"] .hero-collage--templates .re-deck-card { left: 0; width: 100%; }
+html[data-hv="c"] .hero-collage--templates .hero-collage-col:nth-child(2) .hero-uc-card { height: calc(var(--hc-h) * 1.08); }
+html[data-hv="c"] .hero-collage--templates { transform: none; }
+html[data-hv="c"] .hero-collage--templates .hero-uc-canvas { display: none; }
+@media (min-width: 1025px) { html[data-hv="c"] .hero-collage--templates { justify-content: flex-end; padding-right: calc(max(0px, (100vw - min(1200px, 100vw - 160px)) / 2) + var(--hc-h) * 0.10); } }   /* the woman's portrait ends on the content edge */
+html[data-hv="c"] .hero-collage--templates .hero-collage-col:nth-child(1) .hero-uc-card,
+html[data-hv="c"] .hero-collage--templates .hero-collage-col:nth-child(3) .hero-uc-card { box-shadow: 0 0 0 4px rgba(255,255,255,0.92), 0 22px 40px -16px rgba(0,0,0,0.7); }
 @media (min-width: 361px) { .hero-h1-line { white-space: nowrap; } }   /* "real estate tools" stays together, so the headline breaks after "Build custom" (Gary) */
 </style>
 <style id="re-use-cases">
@@ -3613,6 +3659,12 @@ html[data-theme="light"] .re-pattern { opacity: 1; -webkit-mask-image: linear-gr
         </div>
         <span class="re-pattern" aria-hidden="true"></span>
         <span class="re-pattern re-pattern--b" aria-hidden="true"></span>
+        <!-- HERO VARIANTS (review only): B's floating UI moments -->
+        <div class="hv-chips" aria-hidden="true">
+          <div class="hv-chip hv-chip--lead"><span class="hv-av">SK</span><span class="hv-txt"><b>New lead</b><small>Sarah Kim · 3 bed under $1.5M</small></span><span class="hv-live"></span></div>
+          <div class="hv-chip hv-chip--price"><small>Listed today</small><b>$3,250,000</b><small>4 bd · 3.5 ba · Sausalito</small></div>
+          <div class="hv-chip hv-chip--tour"><span class="hv-check"><svg viewBox="0 0 12 12" fill="none"><path d="M2.5 6.2 5 8.5l4.5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="hv-txt"><b>Tour booked</b><small>Sat 11:00 · 42 Harbor View Ln</small></span></div>
+        </div>
       </div> </div> </div> </section> <section class="section uc2-pg" id="example-prompts">
   <div class="section-inner">
     <div class="section-header">
@@ -6709,6 +6761,20 @@ window.addEventListener('load', function () {
     track.addEventListener('wheel', function () { stopped = true; }, { passive: true });
     track.addEventListener('scroll', function () { if (!stopped && expect >= 0 && Math.abs(track.scrollLeft - expect) > 2) stopped = true; }, { passive: true });
   });
+})();
+</script>
+<!-- HERO VARIANTS (review only): switcher -->
+<div class="hv-switch" role="group" aria-label="Hero variant"><span>Hero</span><button type="button" data-hv="a">A</button><button type="button" data-hv="b">B</button><button type="button" data-hv="c">C</button></div>
+<script id="hv-switch-js">
+(function () {
+  var html = document.documentElement;
+  function set(v, push) {
+    html.setAttribute('data-hv', v);
+    document.querySelectorAll('.hv-switch button').forEach(function (b) { b.classList.toggle('is-on', b.dataset.hv === v); b.setAttribute('aria-pressed', b.dataset.hv === v); });
+    if (push) { var u = new URL(location.href); u.searchParams.set('hero', v); history.replaceState(null, '', u); }
+  }
+  set(html.getAttribute('data-hv') || 'a');
+  document.querySelectorAll('.hv-switch button').forEach(function (b) { b.addEventListener('click', function () { set(b.dataset.hv, true); }); });
 })();
 </script>
 </body>
