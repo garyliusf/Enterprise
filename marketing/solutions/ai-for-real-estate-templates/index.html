@@ -3112,11 +3112,19 @@ html[data-hv="c"] .hero-collage--templates .hero-collage-col:nth-child(3) .hero-
 .hv-chips .hv-tile--crm .rx-deal-txt b { font-size: 11px; font-weight: 500; }
 .hv-chips .hv-tile--crm .rx-deal-txt small { font-size: 9.5px; max-width: none; }
 .hv-tile--crm.is-on .rx-deal--hot { animation: none; translate: 0 0; transform: translateX(calc(100% + 26px)); transition: transform 0.75s cubic-bezier(0.65, 0, 0.35, 1), translate 0.3s ease; }
-.hv-tile--crm.is-on .rx-col:has(.rx-deal--hot) .rx-deal:not(.rx-deal--hot) { transform: translateY(calc(-1 * var(--hv-step, 47px))); transition-delay: 0.2s; }
+.hv-tile--crm.is-on .rx-col:has(.rx-deal--hot) .rx-deal:not(.rx-deal--hot):not(.hv-new) { transform: translateY(calc(-1 * var(--hv-step, 47px))); transition-delay: 0.2s; }
 .hv-tile--crm.is-on .rx-col:has(.rx-deal--hot) + .rx-col .rx-deal { transform: translateY(var(--hv-step, 47px)); }
 .hv-tile--crm.is-on .rx-n > i:first-child { opacity: 0; } .hv-tile--crm.is-on .rx-n > i + i { opacity: 1; }
 /* layered shadow (Gary: more realistic): a tight contact shadow, a mid soft one and a wide faint ambient one */
 .hv-chips .hv-tile, .hv-chips .hv-toast { box-shadow: 0 0 0 1px rgba(12,12,15,0.06), 0 2px 4px rgba(0,0,0,0.16), 0 10px 22px -6px rgba(0,0,0,0.32), 0 34px 64px -14px rgba(0,0,0,0.6); }
+/* the inquiry -> lead flight (hv-place-js) */
+.hv-fly { position: fixed; z-index: 50; overflow: hidden; pointer-events: none; box-shadow: 0 1px 2px rgba(12,12,15,0.05), 0 0 0 1px rgba(12,12,15,0.04), 0 10px 22px -10px rgba(0,0,0,0.35); font-family: var(--sc-font-sans); color: #0C0C0F; }
+.hv-fly-pill { position: absolute; inset: 0; display: flex; align-items: center; padding: 0 8px; }
+.hv-fly-pill .hv-bar { height: 5px; background: #BFE6CF; }
+.hv-fly-card { position: absolute; left: 0; top: 0; display: flex; flex-direction: column; justify-content: center; height: 100%; padding: 0 calc(8px * var(--k, 1)); transform-origin: 0 50%; }
+.hv-fly-card b { font-size: calc(11px * var(--k, 1)); font-weight: 500; white-space: nowrap; }
+.hv-fly-card small { font-size: calc(9.5px * var(--k, 1)); color: #8A909C; white-space: nowrap; }
+.hv-new { animation: none !important; }
 @media (min-width: 361px) { .hero-h1-line { white-space: nowrap; } }   /* "real estate tools" stays together, so the headline breaks after "Build custom" (Gary) */
 </style>
 <style id="re-use-cases">
@@ -6910,6 +6918,34 @@ window.addEventListener('load', function () {
   }
   if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
     setTimeout(function () { apps.classList.add('is-on'); }, 1700);   /* plays once and stays: the deal moves to Offer, it never goes back (Gary) */
+    /* then the Inquiries reply flies into the Showing column's empty slot and becomes a new card (Gary): one flow,
+       inquiry -> lead. A fixed-position clone flies between the two tiles; on landing a real card takes its place */
+    setTimeout(function () {
+      var bub = toast.querySelector('.hv-msg--out'), col = apps.querySelector('.rx-col'), theo = col && col.querySelectorAll('.rx-deal')[1];
+      if (!bub || !theo) return;
+      var a = bub.getBoundingClientRect(), t = theo.getBoundingClientRect(), step = parseFloat(getComputedStyle(apps).getPropertyValue('--hv-step')) || 47;
+      var kk = parseFloat(getComputedStyle(c).getPropertyValue('--hv-s')) || 1;
+      var to = { left: t.left, top: t.top + step * kk, width: t.width, height: t.height };   /* Theo's original slot (he has moved up) */
+      var fly = document.createElement('div'); fly.className = 'hv-fly'; fly.setAttribute('aria-hidden', 'true');
+      fly.innerHTML = '<span class="hv-fly-pill"><span class="hv-bar"></span></span><span class="hv-fly-card rx-deal-txt"><b>Jordan Reyes</b><small>New inquiry</small></span>';
+      fly.style.cssText = 'left:' + a.left + 'px;top:' + a.top + 'px;width:' + a.width + 'px;height:' + a.height + 'px;--k:' + kk;
+      document.body.appendChild(fly); bub.style.opacity = '0';
+      var anim = fly.animate([
+        { left: a.left + 'px', top: a.top + 'px', width: a.width + 'px', height: a.height + 'px', borderRadius: '9px', backgroundColor: '#E3F6EC', offset: 0 },
+        { left: (a.left + to.left) / 2 + 'px', top: Math.min(a.top, to.top) - 40 * kk + 'px', width: (a.width + to.width) / 2 + 'px', height: (a.height + to.height) / 2 + 'px', borderRadius: '8px', backgroundColor: '#F2FBF6', offset: 0.5 },
+        { left: to.left + 'px', top: to.top + 'px', width: to.width + 'px', height: to.height + 'px', borderRadius: '7px', backgroundColor: '#ffffff', offset: 1 }
+      ], { duration: 1000, easing: 'cubic-bezier(0.65, 0, 0.35, 1)', fill: 'forwards' });
+      fly.querySelector('.hv-fly-pill').animate([{ opacity: 1 }, { opacity: 1, offset: 0.35 }, { opacity: 0, offset: 0.7 }], { duration: 1000, fill: 'forwards' });
+      fly.querySelector('.hv-fly-card').animate([{ opacity: 0 }, { opacity: 0, offset: 0.5 }, { opacity: 1 }], { duration: 1000, fill: 'forwards' });
+      anim.onfinish = function () {
+        var card = document.createElement('div'); card.className = 'rx-deal hv-new';
+        card.innerHTML = '<span class="rx-deal-txt"><b>Jordan Reyes</b><small>New inquiry</small></span>';
+        card.style.cssText = 'position:absolute;left:' + theo.offsetLeft + 'px;top:' + theo.offsetTop + 'px;width:' + theo.offsetWidth + 'px;';
+        col.appendChild(card); fly.remove();
+        var n = col.querySelector('.rx-n > i + i'); if (n) n.textContent = '2';
+        setTimeout(function () { bub.style.transition = 'opacity 0.5s ease'; bub.style.opacity = '1'; }, 700);
+      };
+    }, 2700);
   }
   place(); addEventListener('resize', place); addEventListener('load', place);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(place);
