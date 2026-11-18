@@ -3102,6 +3102,17 @@ html[data-hv="c"] .hero-collage--templates .hero-collage-col:nth-child(3) .hero-
 .hv-tile--apps.is-on .rx-sw > i + i { opacity: 1; transform: none; }
 .hv-tile--apps.is-on .rx-pill--flip { color: #0b8064; }
 .hv-tile--apps .rx-pill--flip .rx-sw > i { justify-self: start; }
+/* the CRM board replaces Applications (Gary): Showing -> Offer, looped by hv-place-js (.is-on), the same moves as the
+   section's CRM card */
+.hv-chips .hv-tile--crm.rx-ui { width: 268px; padding: 8px; gap: 0; border-radius: 12px; }
+.hv-tile--crm .rx-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.hv-tile--crm .rx-col { min-height: 112px; }
+.hv-chips .hv-tile--crm .rx-deal-txt b { font-size: 11px; font-weight: 500; }
+.hv-chips .hv-tile--crm .rx-deal-txt small { font-size: 9.5px; max-width: none; }
+.hv-tile--crm.is-on .rx-deal--hot { animation: none; translate: 0 0; transform: translateX(calc(100% + 26px)); transition: transform 0.75s cubic-bezier(0.65, 0, 0.35, 1), translate 0.3s ease; }
+.hv-tile--crm.is-on .rx-col:has(.rx-deal--hot) .rx-deal:not(.rx-deal--hot) { transform: translateY(calc(-1 * var(--hv-step, 47px))); transition-delay: 0.2s; }
+.hv-tile--crm.is-on .rx-col:has(.rx-deal--hot) + .rx-col .rx-deal { transform: translateY(var(--hv-step, 47px)); }
+.hv-tile--crm.is-on .rx-n > i:first-child { opacity: 0; } .hv-tile--crm.is-on .rx-n > i + i { opacity: 1; }
 @media (min-width: 361px) { .hero-h1-line { white-space: nowrap; } }   /* "real estate tools" stays together, so the headline breaks after "Build custom" (Gary) */
 </style>
 <style id="re-use-cases">
@@ -3768,10 +3779,11 @@ html[data-hv="c"] .hero-collage--templates .hero-collage-col:nth-child(3) .hero-
         <span class="re-pattern re-pattern--b" aria-hidden="true"></span>
         <!-- HERO VARIANTS (review only): B's floating UI moments -->
         <div class="hv-chips" aria-hidden="true">
-          <div class="hv-tile hv-tile--apps rx-ui rx-tenant">
-            <div class="rx-ui-head"><b>Applications</b><span class="rx-ui-sp"></span><span class="rx-chip rx-chip--blue">2 new</span></div>
-            <div class="rx-app"><span class="rx-av" style="--c:#0d9b7a">PL</span><span class="rx-deal-txt"><b>Priya Lal</b><small>3.4&times; rent &middot; 742 credit</small></span><span class="rx-pill rx-pill--ok">Approved</span></div>
-            <div class="rx-app"><span class="rx-av" style="--c:#1488FC">MO</span><span class="rx-deal-txt"><b>Marcus Odum</b><small>2.9&times; rent &middot; docs <span class="rx-sw"><i>4/5</i><i>5/5</i></span></small></span><span class="rx-pill rx-pill--rev rx-pill--flip"><span class="rx-sw"><i>In review</i><i>Approved</i></span></span></div>
+          <div class="hv-tile hv-tile--apps hv-tile--crm rx-ui rx-crm">
+            <div class="rx-cols">
+              <div class="rx-col"><p><span class="rx-stage-dot" style="--d:#F59E0B"></span>Showing <span class="rx-n"><i>2</i><i>1</i></span></p><div class="rx-deal rx-deal--hot"><span class="rx-deal-txt"><b>Marsh family</b><small><span class="rx-sw"><i>$689k &middot; Alder Ln</i><i>Offer sent</i></span></small></span></div><div class="rx-deal"><span class="rx-deal-txt"><b>Theo Park</b><small>$540k &middot; Loft</small></span></div></div>
+              <div class="rx-col"><p><span class="rx-stage-dot" style="--d:#1488FC"></span>Offer <span class="rx-n"><i>1</i><i>2</i></span></p><div class="rx-deal"><span class="rx-deal-txt"><b>S. Nakamura</b><small>$1.25M &middot; Vista Ct</small></span></div></div>
+            </div>
           </div>
           <div class="hv-tile hv-toast hv-tile--inq"><b>Inquiries</b><span class="hv-msg hv-msg--in"><span class="hv-bar"></span></span><span class="hv-msg hv-msg--out"><span class="hv-bar"></span></span></div>
         </div>
@@ -6886,13 +6898,14 @@ window.addEventListener('load', function () {
     var cb = c.getBoundingClientRect(), m = man.getBoundingClientRect(), w = wom.getBoundingClientRect(), f = deck.querySelector('.re-deck-card') ? deck.getBoundingClientRect() : null;
     var H = deck.getBoundingClientRect().height, k = Math.max(0.6, Math.min(1, H / 460)), pad = Math.round(12 * k);
     c.style.setProperty('--hv-s', k.toFixed(3));
+    var hot = apps.querySelector('.rx-deal'); if (hot) apps.style.setProperty('--hv-step', (hot.offsetHeight + parseFloat(getComputedStyle(hot.parentNode).rowGap || 8)) + 'px');
     var x0 = cb.left, y0 = cb.top;
-    apps.style.left = (w.left - x0 - 0.16 * H) + 'px'; apps.style.top = (w.bottom - y0 - 0.16 * H) + 'px';   /* across the seam of her photo and the deck (balance, Gary) */
+    apps.style.left = Math.min(w.left - x0 - 0.16 * H, w.right - x0 - apps.offsetWidth * k) + 'px'; apps.style.top = (w.bottom - y0 - 0.16 * H) + 'px';   /* across the seam of her photo and the deck (balance, Gary) */
     var d = deck.getBoundingClientRect();
     toast.style.left = (m.left - x0 + pad) + 'px'; toast.style.top = (m.top - y0 + 0.07 * H - toast.offsetHeight) + 'px';   /* mostly above his photo, over the dark ground */   /* up top, bridging his top-right corner and the deck: the floats make a triangle, not a row along the bottom */
   }
   if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    var on = false; (function tick() { on = !on; apps.classList.toggle('is-on', on); setTimeout(tick, on ? 2600 : 2200); })();
+    var on = false; (function tick() { on = !on; apps.classList.toggle('is-on', on); setTimeout(tick, on ? 2800 : 2400); })();
   }
   place(); addEventListener('resize', place); addEventListener('load', place);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(place);
