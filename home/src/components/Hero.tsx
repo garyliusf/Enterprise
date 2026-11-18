@@ -3,7 +3,8 @@ import { hero } from '../config';
 import { BayerDither, BgVideo } from './ui';
 
 /* Carries the prompt into Bolt's composer and submits it there (the
-   use-case pages' goToBolt). Opens in a new tab. */
+   use-case pages' goToBolt). Opens in a new tab, or the sign-up box in place
+   when the destination is this page. */
 export function goToBolt(prompt: string, instruction?: string, base: string = hero.promptUrl) {
   let text = prompt.trim() || hero.promptExample;
   /* the app prepends the selected intent's instruction the same way */
@@ -13,6 +14,17 @@ export function goToBolt(prompt: string, instruction?: string, base: string = he
      (use-case-page.js boltUrl) */
   let u: URL;
   try { u = new URL(base || hero.promptUrl, window.location.href); } catch { u = new URL(hero.promptUrl); }
+  /* self-referencing destination (the /lp/home test: Build now points back at
+     the page itself with ?get_started=1): open the site's sign-up box right
+     here instead of loading a second copy of the page in a new tab (Gary: a
+     flash of the reloaded page, then the box). Same trigger the URL param
+     reports, so the sign-up attribution is unchanged. The page's auth frame
+     cancels the event when it takes it; no frame (sandbox, previews) = the tab. */
+  if (u.origin === window.location.origin && u.pathname === window.location.pathname && u.searchParams.has('get_started')) {
+    const ev = new CustomEvent('bolt:auth-open', { cancelable: true, detail: { mode: 'signup', trigger: 'get_started_param' } });
+    window.dispatchEvent(ev);
+    if (ev.defaultPrevented) return;
+  }
   u.searchParams.set('autosubmit', 'true');
   u.hash = 'prompt=' + encodeURIComponent(text);
   window.open(u.toString(), '_blank', 'noopener');
