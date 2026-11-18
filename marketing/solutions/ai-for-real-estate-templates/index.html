@@ -3096,6 +3096,12 @@ html[data-hv="c"] .hero-collage--templates .hero-collage-col:nth-child(3) .hero-
 .hv-msg--in { width: 80%; background: #F1F1EF; } .hv-msg--in .hv-bar { background: #DCDCD8; }
 .hv-msg--out { width: 64%; align-self: flex-end; background: #E3F6EC; } .hv-msg--out .hv-bar { background: #BFE6CF; }
 .hv-chips .hv-tile--inq { transform-origin: 0 100%; }
+/* Applications animates like the section's tenant card (Gary): Marcus's docs tick 4/5 -> 5/5 and In review flips to
+   Approved, on a loop driven by hv-place-js (.is-on) */
+.hv-tile--apps.is-on .rx-sw > i:first-child { opacity: 0; transform: translateY(-5px); }
+.hv-tile--apps.is-on .rx-sw > i + i { opacity: 1; transform: none; }
+.hv-tile--apps.is-on .rx-pill--flip { color: #0b8064; }
+.hv-tile--apps .rx-pill--flip .rx-sw > i { justify-self: start; }
 @media (min-width: 361px) { .hero-h1-line { white-space: nowrap; } }   /* "real estate tools" stays together, so the headline breaks after "Build custom" (Gary) */
 </style>
 <style id="re-use-cases">
@@ -3762,11 +3768,10 @@ html[data-hv="c"] .hero-collage--templates .hero-collage-col:nth-child(3) .hero-
         <span class="re-pattern re-pattern--b" aria-hidden="true"></span>
         <!-- HERO VARIANTS (review only): B's floating UI moments -->
         <div class="hv-chips" aria-hidden="true">
-          <div class="hv-tile hv-tile--show"><b>Showings</b><span class="hv-row"><i>09:00</i><span class="hv-bar"></span></span><span class="hv-row"><i>12:00</i><span class="hv-free">Free</span></span></div>
           <div class="hv-tile hv-tile--apps rx-ui rx-tenant">
             <div class="rx-ui-head"><b>Applications</b><span class="rx-ui-sp"></span><span class="rx-chip rx-chip--blue">2 new</span></div>
             <div class="rx-app"><span class="rx-av" style="--c:#0d9b7a">PL</span><span class="rx-deal-txt"><b>Priya Lal</b><small>3.4&times; rent &middot; 742 credit</small></span><span class="rx-pill rx-pill--ok">Approved</span></div>
-            <div class="rx-app"><span class="rx-av" style="--c:#1488FC">MO</span><span class="rx-deal-txt"><b>Marcus Odum</b><small>2.9&times; rent &middot; docs 4/5</small></span><span class="rx-pill rx-pill--rev">In review</span></div>
+            <div class="rx-app"><span class="rx-av" style="--c:#1488FC">MO</span><span class="rx-deal-txt"><b>Marcus Odum</b><small>2.9&times; rent &middot; docs <span class="rx-sw"><i>4/5</i><i>5/5</i></span></small></span><span class="rx-pill rx-pill--rev rx-pill--flip"><span class="rx-sw"><i>In review</i><i>Approved</i></span></span></div>
           </div>
           <div class="hv-tile hv-toast hv-tile--inq"><b>Inquiries</b><span class="hv-msg hv-msg--in"><span class="hv-bar"></span></span><span class="hv-msg hv-msg--out"><span class="hv-bar"></span></span></div>
         </div>
@@ -6875,17 +6880,19 @@ window.addEventListener('load', function () {
 (function () {
   var c = document.querySelector('.hero-collage--templates'); if (!c) return;
   var man = c.querySelector('.hero-collage-col:nth-child(1) .hero-uc-card'), wom = c.querySelector('.hero-collage-col:nth-child(3) .hero-uc-card');
-  var show = c.querySelector('.hv-tile--show'), apps = c.querySelector('.hv-tile--apps'), toast = c.querySelector('.hv-toast'), deck = document.getElementById('re-deck');
-  if (!show || !apps || !toast || !deck) return;
+  var apps = c.querySelector('.hv-tile--apps'), toast = c.querySelector('.hv-toast'), deck = document.getElementById('re-deck');
+  if (!apps || !toast || !deck) return;
   function place() {
     var cb = c.getBoundingClientRect(), m = man.getBoundingClientRect(), w = wom.getBoundingClientRect(), f = deck.querySelector('.re-deck-card') ? deck.getBoundingClientRect() : null;
     var H = deck.getBoundingClientRect().height, k = Math.max(0.6, Math.min(1, H / 460)), pad = Math.round(12 * k);
     c.style.setProperty('--hv-s', k.toFixed(3));
     var x0 = cb.left, y0 = cb.top;
-    show.style.left = (m.left - x0 + pad) + 'px'; show.style.top = (m.bottom - y0 - pad - show.offsetHeight) + 'px';   /* bottom-left: clear of his face (Gary) */
     apps.style.left = (w.left - x0 - 0.16 * H) + 'px'; apps.style.top = (w.bottom - y0 - 0.16 * H) + 'px';   /* across the seam of her photo and the deck (balance, Gary) */
     var d = deck.getBoundingClientRect();
     toast.style.left = (m.left - x0 + pad) + 'px'; toast.style.top = (m.top - y0 + 0.07 * H - toast.offsetHeight) + 'px';   /* mostly above his photo, over the dark ground */   /* up top, bridging his top-right corner and the deck: the floats make a triangle, not a row along the bottom */
+  }
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    var on = false; (function tick() { on = !on; apps.classList.toggle('is-on', on); setTimeout(tick, on ? 2600 : 2200); })();
   }
   place(); addEventListener('resize', place); addEventListener('load', place);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(place);
