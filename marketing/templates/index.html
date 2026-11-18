@@ -708,7 +708,13 @@ html[data-theme="light"] .hero-section {
      cards are "wrapped like a gift": a subtle tint, a vertical + horizontal ribbon
      line, and the green bow at the lower-left crossing. Remove with the holiday
      block. ── */
-  .catalog-card-wrap { position: absolute; inset: 0; z-index: 4; pointer-events: none; }  /* above the wash (z-2), below the View Details pill (z-8) */
+  .catalog-card-wrap { position: absolute; inset: 0; z-index: 4; pointer-events: none;
+  /* Cord crossing, measured UP from the card foot (Gary, 2026-11-18): the gap
+     between the cord and the View details pill equals the pill's gap to the
+     card foot — 1px border + 18px pad + 33px pill + 19px + half the 3px cord = 71.5px.
+     Phones use a percentage (the pill fills too much of a short card to clear). */
+  --ccw-cross: 71.5px; }
+@media (max-width: 768px) { .catalog-card-wrap { --ccw-cross: 18%; } }  /* above the wash (z-2), below the View Details pill (z-8) */
   /* Holiday pool behind the bow (bottom-left), matching the View Details wash per
      theme: a WHITE pool in light mode, a dark shadow in dark mode. Rest: compact;
      hover: grows a touch. */
@@ -776,7 +782,7 @@ html[data-theme="light"] .hero-section {
       linear-gradient(90deg, rgba(90,0,10,0.45) 0%, rgba(255,255,255,0) 30%, rgba(255,190,195,0.55) 50%, rgba(255,255,255,0) 70%, rgba(90,0,10,0.45) 100%),
       repeating-linear-gradient(-55deg, #d81e33 0 2px, #8f0a19 2px 3px),
       linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.32) 35%, rgba(0,0,0,0.32) 65%, transparent 100%); }
-  .ccw-h { right: 0; width: 0; top: calc(82% - 6px);   /* crossing 86% -> 82% (Gary, 2026-11-18): room above View details */ height: 16px;
+  .ccw-h { right: 0; width: 0; top: calc(100% - var(--ccw-cross) - 8px); height: 16px;
     background-size: 1600px 3px, 1600px 3px, 1600px 6px;
     background-position: right center, right center, right calc(50% + 1px);
     background-image:
@@ -791,7 +797,7 @@ html[data-theme="light"] .hero-section {
   /* `.catalog-card-preview svg` (placeholder mocks) sets svg to 100%×100% at higher
      specificity, so the bow's size + its 100% overrides are scoped to the wrap. */
   .catalog-card-wrap .ccw-bow {
-    position: absolute; left: 12%; top: 82%;   /* moves with the cord crossing */
+    position: absolute; left: 12%; top: calc(100% - var(--ccw-cross));   /* sits on the cord crossing */
     z-index: 2; will-change: transform;   /* explicit order: bow above the strings, on its own layer */
     width: 48px; height: 48px;
     /* -39% (not -50%) centres the bow's KNOT on the line crossing — the knot sits
