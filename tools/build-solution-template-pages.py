@@ -155,7 +155,7 @@ def tile(t):
         body = ('          <div class="rx-phone"><div class="rx-phone-screen">\n'
                 '            <div class="rx-ph-status"><span>9:41</span><i></i></div>\n'
                 '            <div class="rx-notif"><b>%s</b><small>%s</small></div>\n'
-                '            <div class="rx-ph-photo" style="background-image:url(\'%s%s.webp\');background-position:%s;background-size:240%% auto"><span class="rx-ph-heart"></span><span class="rx-ph-count">1/8</span></div>\n'
+                '            <div class="rx-ph-photo" style="background-image:url(\'%s%s.webp\');background-position:%s;background-size:240%% auto"><span class="rx-ph-heart"></span></div>\n'
                 '            <div class="rx-ph-body"><p class="rx-ph-price">%s</p><p class="rx-ph-name">%s</p><p class="rx-ph-loc">%s</p></div>\n'
                 '            <div class="rx-ph-cta"><span class="rx-sw"><i>%s</i><i>%s</i></span></div>\n'
                 '          </div></div>\n') % (t['notif'][0], t['notif'][1], SHOTS, bg, pos, t['price'], t['name'], t['loc'], t['cta'][0], t['cta'][1])
