@@ -23,6 +23,8 @@ E = html.escape
 PAGES = {
   'ai-for-small-business': dict(
     audience='small businesses',
+    swap_prompts={'Restaurant website': [
+        ('Coffee shop website', 'Build a website for my coffee roastery with our roasts, a shop for bags and subscriptions, and our cafe hours.', 'sol-ember')]},
     left_y='0%', left_shift='0.06',
     # phones: her face is at the photo's right edge, so the right photo keeps 100% (the real estate rule shows its left side)
     extra_css='\n<style id="sol-right-photo">@media (max-width: 768px) { .hero-collage--templates .hero-collage-col:nth-child(3) .hero-uc-img { object-position: 65% 18% !important; transform: none; } }</style>',   # phones: his face sits high and right in the photo, under the Orders tile at 30%
@@ -302,7 +304,7 @@ def main():
         # starting shot, alt and prompt text follow the first replacement
         PR = '../../use-cases/images/prompt-results/'
         for old, new in P.get('swap_prompts', {}).items():
-            m = re.search(r'<button type="button" class="uc2-pg-item( is-active)?"[^>]*data-prompt="([^"]*)" data-shot="([^"]*)">(?:(?!</button>).)*?<span class="uc2-pg-label">%s</span>.*?</button>' % re.escape(old), out, re.S)
+            m = re.search(r'<button type="button" class="uc2-pg-item( is-active)?"[^>]*data-prompt="([^"]*)" data-shot="([^"]*)"[^>]*>(?:(?!</button>).)*?<span class="uc2-pg-label">%s</span>.*?</button>' % re.escape(old), out, re.S)
             assert m, old
             active, old_prompt, old_shot = bool(m.group(1)), m.group(2), m.group(3)
             btns = ''.join('<button type="button" class="uc2-pg-item%s" role="tab" aria-selected="%s" aria-controls="uc2-pg-panel" data-prompt="%s" data-shot="%s%s.webp"><i class="uc2-pg-timer" aria-hidden="true"></i><span class="uc2-pg-label">%s</span><span class="uc2-pg-body"><span class="uc2-pg-text">%s</span></span></button>'
