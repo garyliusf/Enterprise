@@ -47,7 +47,7 @@ PAGES = {
              ('Preparing', '#F59E0B', [('#0d9b7a', 'ML', 'Maya L.', ('2 lattes &middot; $11.40', 'Ready')), ('#EC4899', 'TP', 'Table 4', '3 items')], (2, 1)),
              ('Ready', '#1488FC', [('#1488FC', 'BT', 'Ben T.', 'Croissant box')], (1, 2))]),
       dict(kind='calc', href='invoice-generator-app-builder', title='Quotes and invoices', desc='Estimates, deposits and invoices, worked out and sent in seconds.',
-           photo=('collage-desk', '50% 30%'), head='Estimate', big_lbl='Job total', big='$4,800',
+           photo=('smb-right-flip', '0% 8%'), head='Estimate', big_lbl='Job total', big='$4,800',
            r1=('Markup', '15,20', 'pct', '15.0%', 50), r2=('Deposit / balance', '50,40', 'split', '50 / 50', 50), net=('Deposit due today', '2400,1920', 'usd', '$2,400')),
       dict(kind='list', href='custom-inventory-management-system', title='Inventory tracker', desc='Stock levels, reorder alerts and suppliers, without the spreadsheet.',
            photo=('re-right', '30% 25%'), head='Stock', chip='2 low', rows=[
