@@ -1,0 +1,504 @@
+<meta charset="utf-8">
+<title>Holiday Templates — Launch Promo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- the website's two faces (shared-components.css tokens): Schibsted Grotesk + Literata italic. Geist / Geist Serif were tried and dropped (Gary, 2026-11-18) -->
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400..900&family=Literata:ital,opsz,wght@1,7..72,400&display=block" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { height:100%; background:#000; overflow:hidden; }
+  body { display:flex; align-items:center; justify-content:center;
+         font-family:'Schibsted Grotesk', 'Inter', system-ui, -apple-system, sans-serif; }
+
+  /* 1920x1080 stage, scaled to fit the window */
+  #stage { position:relative; flex:none; width:1920px; height:1080px;
+           background:#04070f; overflow:hidden; transform-origin:center center; }
+
+  /* ---- ground: darkest grey for the logo square (Gary, 2026-11-16). Everything after the flood sits on the star scene. ---- */
+  .ground { position:absolute; inset:-6%; z-index:0; }
+  #g-intro { background:#171717; }
+  /* dither grain, after the poster: a fine pixel screen that reads in the light areas */
+  #dither { position:absolute; inset:0; z-index:2; pointer-events:none; mix-blend-mode:overlay; opacity:.2;
+    background-image:
+      radial-gradient(rgba(255,255,255,.55) 1px, transparent 1.2px),
+      radial-gradient(rgba(0,0,40,.55) 1px, transparent 1.2px);
+    background-size:6px 6px, 6px 6px; background-position:0 0, 3px 3px; }
+
+  /* ---- template cards (4:5, like the catalog) ---- */
+  #cards { position:absolute; inset:0; z-index:10; }
+  .card { position:absolute; left:0; top:0; width:648px; height:810px; border-radius:16px;
+          transform-origin:50% 50%; will-change:transform;
+          box-shadow:0 34px 80px rgba(12,22,80,.36), 0 6px 20px rgba(12,22,80,.24); }
+  .face { position:absolute; inset:0; border-radius:16px; overflow:hidden; background:#0a0a10; }
+  .face img { position:absolute; left:0; top:0; width:648px; height:auto; display:block; will-change:transform; }
+  .dim { position:absolute; inset:0; background:#4F7379; opacity:0; }   /* cards further back sink toward the ground */
+
+  /* ---- gift wrap: the templates page's twisted red cord + green bow, scaled for the frame ---- */
+  .wrap { position:absolute; inset:0; pointer-events:none; }
+  /* the pool behind the bow: the templates page's LIGHT-theme one, a white pool (Gary, 2026-11-18; it was the dark-theme
+     shadow). The dark screenshot (E-Gift Card) keeps a dark pool, as it does on the page, or it blows out to white. */
+  .pool { position:absolute; left:0; bottom:0; width:66%; height:56%; opacity:0;
+          background:radial-gradient(ellipse 120% 120% at 6% 94%, rgba(255,255,255,.95) 0%, rgba(255,255,255,.6) 48%, transparent 76%); }
+  .card.dark-shot .pool { background:radial-gradient(ellipse 120% 120% at 6% 94%, rgba(0,0,0,.42) 0%, rgba(0,0,0,.16) 48%, transparent 76%); }
+  .cv, .ch { position:absolute; background-repeat:no-repeat; }
+  .cv { top:0; height:0; left:calc(12% - 22px); width:44px;
+    background-size:10px 3000px, 10px 3000px, 20px 3000px;
+    background-position:center top, center top, calc(50% + 3px) top;
+    background-image:
+      linear-gradient(90deg, rgba(90,0,10,.45) 0%, rgba(255,255,255,0) 30%, rgba(255,190,195,.55) 50%, rgba(255,255,255,0) 70%, rgba(90,0,10,.45) 100%),
+      repeating-linear-gradient(-55deg, #d81e33 0 7px, #8f0a19 7px 10px),
+      linear-gradient(90deg, transparent 0%, rgba(0,0,0,.32) 35%, rgba(0,0,0,.32) 65%, transparent 100%); }
+  .ch { right:0; width:0; top:calc(86% - 22px); height:44px;
+    background-size:3000px 10px, 3000px 10px, 3000px 20px;
+    background-position:right center, right center, right calc(50% + 3px);
+    background-image:
+      linear-gradient(180deg, rgba(90,0,10,.45) 0%, rgba(255,255,255,0) 30%, rgba(255,190,195,.55) 50%, rgba(255,255,255,0) 70%, rgba(90,0,10,.45) 100%),
+      repeating-linear-gradient(35deg, #d81e33 0 7px, #8f0a19 7px 10px),
+      linear-gradient(180deg, transparent 0%, rgba(0,0,0,.32) 35%, rgba(0,0,0,.32) 65%, transparent 100%); }
+  .bow { position:absolute; left:12%; top:86%; width:156px; height:156px; overflow:visible;
+         transform:translate(-50%,-39%); transform-origin:50% 62%;
+         filter:drop-shadow(0 4px 10px rgba(0,0,0,.34)); }
+  .bow .rib-loops, .bow .rib-tails { transform-box:fill-box; opacity:0; }
+  .bow .rib-loops { transform-origin:center; }
+  .bow .rib-tails { transform-origin:center top; }
+
+  /* ---- opening: the logo square. Eight colourways, each wiping up over the last, faster and faster;
+     the last one floods the whole frame, then lifts off the wrapped fan of templates. ---- */
+  #sq { position:absolute; left:0; top:0; z-index:15; overflow:hidden; will-change:transform,width,height,opacity,clip-path;
+        box-shadow:0 40px 90px rgba(0,0,0,.5), 0 8px 24px rgba(0,0,0,.34); }
+  .sq-l { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; will-change:clip-path; }
+  .sq-m { flex:none; will-change:transform; }   /* logo only: the holiday names were tried and removed (Gary, 2026-11-18) */
+  .sq-m i { display:block; width:322px; aspect-ratio:85 / 24; background:var(--ink);
+            -webkit-mask:url(../images/bolt-new.svg) center / contain no-repeat; mask:url(../images/bolt-new.svg) center / contain no-repeat; }
+  /* The colourways are the holidays between the launch and Christmas, in calendar order (Gary, 2026-11-18);
+     Christmas is last, so it is the one that floods the frame. */
+  .sq-l:nth-child(1) { --ink:#FFFFFF;   /* the first square is the Christmas colour instead of the Thanksgiving orange, so the loop starts and ends on it. Christmas red into evergreen with a berry glow where they meet: "more Christmasy" than the dusty rose into sage it replaced (Gary's pick of five, 2026-11-18) */
+    background:
+      radial-gradient(ellipse 32% 44% at 50% 50%, rgba(140,36,84,.74) 0%, rgba(120,48,88,.36) 54%, rgba(120,48,88,0) 100%),
+      linear-gradient(180deg, #D9333D 0%, #D9333D 12%, #A5504E 48%, #2C7C59 84%, #2C7C59 100%); }
+  .sq-l:nth-child(2) { --ink:#FFD60A; background:linear-gradient(180deg, #050505 0%, #050505 20%, #3A3A40 100%); }                /* Black Friday: black, sale-tag yellow */
+  .sq-l:nth-child(3) { --ink:#FFFFFF; background:linear-gradient(180deg, #4FA8FF 0%, #2C7BE5 34%, #0A2F7A 76%, #0A2F7A 100%); }   /* Small Business Saturday: shop-small blue */
+  .sq-l:nth-child(4) { --ink:#D4FF3A; background:linear-gradient(180deg, #7A00FF 0%, #7A00FF 12%, #00E0FF 78%, #00E0FF 100%); }   /* Cyber Monday: neon violet into cyan */
+  .sq-l:nth-child(5) { --ink:#FFFFFF; background:linear-gradient(180deg, #FF4D8D 0%, #FF4D8D 14%, #FF8A5B 74%, #FF8A5B 100%); }   /* Giving Tuesday: warm heart pink into coral */
+  .sq-l:nth-child(6) { --ink:#FFD166; background:linear-gradient(180deg, #0E3AA8 0%, #0E3AA8 16%, #2F6BEB 54%, #DCE8FF 100%); }   /* Hanukkah: blue into silver-white, gold */
+  .sq-l:nth-child(7) { --ink:#F2FFFA; background:linear-gradient(180deg, #070B2A 0%, #070B2A 16%, #14606E 62%, #8EF0D0 100%); }   /* Winter solstice: longest night into aurora green */
+  .sq-l:nth-child(8) { --ink:#FFFFFF;   /* Christmas, last: the same red into evergreen; this one fills the frame and fades into the star */
+    background:
+      radial-gradient(ellipse 32% 44% at 50% 50%, rgba(140,36,84,.74) 0%, rgba(120,48,88,.36) 54%, rgba(120,48,88,0) 100%),
+      linear-gradient(180deg, #D9333D 0%, #D9333D 12%, #A5504E 48%, #2C7C59 84%, #2C7C59 100%); }
+  /* two Christmas baubles hung on the box's top corners, each by its ring (Gary's icons, 2026-11-18): the green snowflake one on
+     the right, the gold reindeer on the left. A red one was tried on the right and removed. They swing a little with each colour
+     change and ride their corners out of frame when the last box expands. Sizes are set in the script. */
+  .bauble { position:absolute; left:0; top:0; z-index:16; transform-origin:50% 8.6%; visibility:hidden;
+            will-change:transform,opacity; filter:drop-shadow(0 8px 11px rgba(0,0,0,.45)); }
+  #sq-grain { position:absolute; inset:0; mix-blend-mode:soft-light; opacity:.55; pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 1.4 -.2'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+  /* ---- the spark: after the Christmas colour fills the frame it fades into a soft blue four-point star on a
+     pale sage ground (the "Spark something new" frames), logo still in the middle. As soon as the logo
+     goes, the templates fan out on that same ground, heading above them; the star stays as their glow. ---- */
+  #star { position:absolute; inset:0; z-index:5; overflow:hidden; visibility:hidden; will-change:opacity;
+          background:radial-gradient(ellipse 80% 80% at 50% 50%, #5B8690 0%, #648E90 55%, #6E978F 100%); }   /* was pale sage (#C3D6D6 to #CFDFD2); darkened so the heading, captions and logo can be white (Gary, 2026-11-18) */
+  #star > svg { position:absolute; left:50%; top:50%; width:1500px; height:1500px; margin:-750px 0 0 -750px;
+              overflow:visible; filter:blur(64px); will-change:transform,opacity; }
+  #star-grain { position:absolute; inset:0; mix-blend-mode:soft-light; opacity:1; pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 1.4 -.2'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  #star-logo { position:absolute; left:50%; top:50%; width:676.2px; aspect-ratio:85 / 24; transform:translate(-50%,-50%); background:#fff;
+               -webkit-mask:url(../images/bolt-new.svg) center / contain no-repeat; mask:url(../images/bolt-new.svg) center / contain no-repeat; }
+
+  /* ---- title block (rest frame) ---- */
+  #title { position:absolute; left:0; right:0; top:108px;   /* 24px lower than the 84px it had (Gary, 2026-11-18: "move down the header slightly") */
+           z-index:20; text-align:center; color:#fff;
+           will-change:transform,opacity,filter; }
+  #title h1 { font-weight:500; font-size:112px; line-height:1.1; letter-spacing:-0.02em; white-space:nowrap; }   /* Schibsted Grotesk Medium, the website's headline weight (Gary, 2026-11-18; Bold then Semi Bold before) */
+  #title h1 em { font-family:'Literata', Georgia, serif; font-style:italic; font-weight:400; letter-spacing:-0.02em; }   /* the site's serif role: Literata italic 400; -2% on both words */
+
+  /* ---- viewing: opened normally, the page plays the rendered video. The scene below recomputes its blurs, grain and
+     motion blur on every frame, which is right for frame-by-frame capture but cannot hold 60fps live (Gary, 2026-11-18:
+     "very jittery and janky"). ?live=1 runs the scene in real time; ?t=<seconds> freezes a frame (what the capture uses). ---- */
+  #player { position:absolute; inset:0; width:100%; height:100%; z-index:60; display:none; object-fit:cover; background:#171717; }
+
+  /* ---- chrome + showcase caption ---- */
+  #logo { position:absolute; right:64px; bottom:56px; height:44px; aspect-ratio:85 / 24; z-index:20; background:#fff;
+          -webkit-mask:url(../images/bolt-new.svg) center / contain no-repeat; mask:url(../images/bolt-new.svg) center / contain no-repeat; }
+  /* the small label over the showcase is the heading's lockup in miniature: Schibsted Grotesk Medium + Literata italic, title case,
+     -2% (Gary, 2026-11-18). It was a 20px uppercase sans label with wide tracking. */
+  #tag  { position:absolute; right:64px; top:58px; z-index:20; opacity:0;
+          font-weight:500; font-size:34px; line-height:1.1; letter-spacing:-0.02em; white-space:nowrap; color:rgba(255,255,255,.92); }
+  #tag em { font-family:'Literata', Georgia, serif; font-style:italic; font-weight:400; }
+  #cap  { position:absolute; left:636px; width:648px; top:916px; height:60px; z-index:20; color:#fff; }
+  .cap-row { position:absolute; inset:0; display:flex; align-items:baseline; justify-content:center; white-space:nowrap;   /* the name alone, centred under the card; the "01 / 06" counter is gone (Gary, 2026-11-18) */
+             opacity:0; will-change:transform,opacity,filter; }
+  .cap-row b { font-weight:600; font-size:36px; letter-spacing:-0.02em; }
+</style>
+
+<div id="stage">
+  <div class="ground" id="g-intro"></div>
+  <div id="dither"></div>
+  <!-- one horizontal-blur filter per card: motion blur scaled to how fast that card is travelling -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs id="mb-defs"></defs></svg>
+
+  <div id="star">
+    <svg viewBox="-750 -750 1500 1500" aria-hidden="true"><g id="star-g"><path id="star-rays" fill="#6A84F0" opacity=".75"/><path id="star-core" fill="#4560EA"/></g></svg>
+    <div id="star-grain"></div>
+    <div id="star-logo"></div>
+  </div>
+
+  <div id="cards"></div>
+  <div id="sq"><div class="sq-l"><div class="sq-m"><i></i></div></div><div class="sq-l"><div class="sq-m"><i></i></div></div><div class="sq-l"><div class="sq-m"><i></i></div></div><div class="sq-l"><div class="sq-m"><i></i></div></div><div class="sq-l"><div class="sq-m"><i></i></div></div><div class="sq-l"><div class="sq-m"><i></i></div></div><div class="sq-l"><div class="sq-m"><i></i></div></div><div class="sq-l"><div class="sq-m"><i></i></div></div><div id="sq-grain"></div></div>
+  <img class="bauble" src="holiday-bauble-green.svg" alt=""><img class="bauble" src="holiday-bauble-reindeer.svg" alt="">
+
+  <div id="title"><h1>Holiday <em>Templates</em></h1></div>
+
+  <div id="logo" role="img" aria-label="bolt.new"></div>
+  <div id="tag">Holiday <em>Templates</em></div>
+  <div id="cap"></div>
+
+  <video id="player" muted loop playsinline preload="auto"></video>
+</div>
+
+<script>
+/* ===================================================================
+   Bolt — Holiday templates launch promo. 1920x1080, 18.85s seamless loop.
+
+   The bolt.new logo in a centred square on darkest grey, its colourway
+   changing eight times (the holidays from Thanksgiving to Christmas),
+   faster each time  ->  Christmas floods the whole frame  ->  the
+   colour fades into a soft blue star on pale sage, logo still in the
+   middle  ->  the logo goes and straight away the six templates fan
+   out in the centre, tied with their cords, heading above them  ->
+   the front bow is pressed, the cord slips off, the fan opens into a
+   row  ->  each template takes the middle, unwraps on the way in and
+   scrolls  ->  the row gathers back into the logo square.
+
+   Everything is a pure function of time (render(t)), so a capture can
+   seek any frame without drift:  window.__seek(seconds).
+   =================================================================== */
+const LOOP = 18.85;
+const IMG = '../marketing/templates/images/';
+/* order = showcase order; `scroll` = how far the page travels (px at the 648px card width) */
+const TEMPLATES = [
+  { name:'Holiday Sale Page',       img:'holiday-sale-page.webp',      scroll:560 },
+  { name:'Holiday Gift Guide',      img:'holiday-gift-guide.webp',     scroll:600 },
+  { name:'E-Gift Card Page',        img:'e-gift-card-page.webp',       scroll:470, darkShot:true },
+  { name:'Holiday Market Page',     img:'holiday-market-page.webp',    scroll:580 },
+  { name:'Pre-Order & Pickup Page', img:'pre-order-pickup-page.webp',  scroll:54  },
+  { name:'Holiday Thank-You Page',  img:'holiday-thank-you-page.webp', scroll:128 },
+];
+const N = TEMPLATES.length;
+const CW = 648, CH = 810;
+
+/* ---- timing (seconds) ---- */
+const SQ_C = [0.45, 0.85, 1.19, 1.48, 1.73, 1.95, 2.15];   // when each next colourway starts: the gaps shrink, so it gathers pace
+const SQ_W = [0.36, 0.31, 0.27, 0.23, 0.21, 0.19, 0.19];   // how long each wipe takes: nearly the whole gap to the next one, so each change eases in instead of snapping (was 0.26 down to 0.17)
+const SQ_FEATHER = 55;             // the wipe's leading edge is a soft fade this tall (% of the square), not a hard line
+const T_FLOOD = [2.5, 3.0];        // the last box grows PAST the frame: its edges are still travelling when they leave it, instead of slowing to a stop on the frame edge (Gary, 2026-11-18: "a bit of momentum, it feels jarring")
+const T_LOGO_GROW = [2.5, 3.3];    // the logo grows with the box, runs a little past its final size and settles back
+const T_STAR = [2.55, 2.88];       // the Christmas colour turns into the star scene INSIDE the box while it expands, so the frame is never a full screen of the Christmas colour (Gary, 2026-11-18)
+const T_BLOOM = [2.82, 3.55];      // the blue star picks the motion up as the box edges leave: a small point of blue that grows out to full size (Gary, 2026-11-18)
+const T_LOGO_OUT = [3.4, 3.7];     // the star's logo eases away once it has settled...
+const T_OPEN = [3.5, 4.4];         // ...as the templates rise and fan out (overlapping, so there is no dead beat)
+const T_WRAP0 = 3.9;               // the cords start drawing
+const T_TITLE_IN = [3.75, 4.35];
+const T_PRESS = 5.65;              // the front bow is pressed almost as soon as the last cord is tied
+const T_TITLE_OUT = [5.9, 6.4];
+const T_FAN = [6.15, 7.35];        // fan -> row: it starts opening while the front cord is still slipping off
+const S0 = 7.35, STEP = 1.75, MOVE = 0.6;   // template k is centred from S0 + k*STEP; the row moves in the last MOVE of each step
+const T_GATHER = [17.25, 18.55];   // row -> back into the logo square
+const SQ = 520, SQ_FIT = 0.635;    // the square's side; the scale at which a card hides behind it
+const FAN_DEG = 6, FAN_R = 800;    // the fan: degrees between neighbours, swung about a pivot this far below the deck
+
+/* ---- easing ---- */
+const clamp01 = v => v < 0 ? 0 : v > 1 ? 1 : v;
+const seg = (t, a, b) => clamp01((t - a) / (b - a));
+const lerp = (a, b, t) => a + (b - a) * t;
+const inOutCubic = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const outCubic = t => 1 - Math.pow(1 - t, 3);
+const inCubic = t => t * t * t;
+const outQuart = t => 1 - Math.pow(1 - t, 4);
+const inOutQuart = t => t < .5 ? 8 * t * t * t * t : 1 - Math.pow(-2 * t + 2, 4) / 2;
+const outSpring = t => { const c1 = 1.15, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
+const outBackS = (t, s) => 1 + (s + 1) * Math.pow(t - 1, 3) + s * Math.pow(t - 1, 2);   // overshoot you can dial
+const outBack = t => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
+const smooth = t => t * t * (3 - 2 * t);
+
+/* ---- build ---- */
+const BOW = '<svg class="bow" viewBox="0 0 512 512" aria-hidden="true">'
+  + '<g class="rib-loops">'
+  +   '<path d="m256 104.712v141.05h-15.52c-21.33 0-38.79-17.46-38.79-38.8v-23.72h-85.35c-4.41 0-8-3.59-8-8 0-4.42 3.59-8 8-8h85.35v-23.73c0-21.34 17.46-38.8 38.79-38.8z" fill="#017b4d"/>'
+  +   '<path d="m403.66 175.242c0 4.41-3.59 8-8 8h-85.35v23.72c0 21.34-17.46 38.8-38.79 38.8h-15.52v-141.05h15.521c21.33 0 38.79 17.46 38.79 38.8v23.73h85.35c4.409 0 7.999 3.58 7.999 8z" fill="#00623d"/>'
+  +   '<path d="m481 131.872v86.73c0 32.01-25.76 53.51-57.25 47.78l-56.19-10.21c-6.55-1.19-12.86-3.48-18.73-6.63-22.37-12-38.52-36.63-38.52-61.97v-4.33h85.35c4.41 0 8-3.59 8-8 0-4.42-3.59-8-8-8h-85.35v-4.34c0-32 25.76-62.87 57.25-68.59l56.19-10.22c31.49-5.73 57.25 15.78 57.25 47.78z" fill="#017b4d"/>'
+  +   '<path d="m108.34 175.242c0 4.41 3.59 8 8 8h85.35v4.33c0 25.35-16.17 50-38.55 61.99-5.87 3.14-12.16 5.42-18.7 6.61l-56.19 10.21c-31.49 5.73-57.25-15.77-57.25-47.78v-86.73c0-32 25.76-53.51 57.25-47.78l56.19 10.22c31.49 5.72 57.25 36.59 57.25 68.59v4.34h-85.35c-4.41 0-8 3.58-8 8z" fill="#00935c"/>'
+  + '</g>'
+  + '<g class="rib-tails">'
+  +   '<path d="m435.07 389.062-67.05-21.02-22.16 60.79-75.21-183.07h.87c21.33 0 38.79-17.46 38.79-38.8v-19.39c0 25.34 16.15 49.97 38.52 61.97z" fill="#025733"/>'
+  +   '<path d="m241.23 245.762-75.22 183.07-22.16-60.79-67.04 21.02 86.33-139.5c22.38-11.99 38.55-36.64 38.55-61.99v19.39c0 21.34 17.46 38.8 38.79 38.8z" fill="#00623d"/>'
+  + '</g></svg>';
+
+const cardsEl = document.getElementById('cards');
+const capEl = document.getElementById('cap');
+const mbDefs = document.getElementById('mb-defs');
+const cards = TEMPLATES.map((tp, i) => {
+  const el = document.createElement('div');
+  el.className = 'card' + (tp.darkShot ? ' dark-shot' : '');
+  mbDefs.insertAdjacentHTML('beforeend', '<filter id="mb' + i + '" x="-30%" y="-10%" width="160%" height="120%" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="0 0"/></filter>');
+  el.innerHTML = '<div class="face"><img src="' + IMG + tp.img + '" alt=""><div class="wrap"><div class="pool"></div>'
+    + '<span class="cv"></span><span class="ch"></span></div><div class="dim"></div></div>' + BOW;
+  cardsEl.appendChild(el);
+  const row = document.createElement('div');
+  row.className = 'cap-row';
+  row.innerHTML = '<b>' + tp.name.replace('&', '&amp;') + '</b>';
+  capEl.appendChild(row);
+  return { el, img: el.querySelector('img'), dim: el.querySelector('.dim'), pool: el.querySelector('.pool'),
+           cv: el.querySelector('.cv'), ch: el.querySelector('.ch'), bow: el.querySelector('.bow'),
+           loops: el.querySelector('.rib-loops'), tails: el.querySelector('.rib-tails'), cap: row,
+           mb: mbDefs.lastElementChild.firstElementChild };
+});
+/* the bow sits OUTSIDE the clipped face so its tails can hang past the card edge when pressed;
+   position it against the card box the same way (.bow is absolutely placed at 12% / 86%) */
+
+/* ---- gift-wrap states ---- */
+const NONE = { v:0, h:0, loops:0, tails:0, press:0, fade:0 };
+const FULL = { v:1, h:1, loops:1, tails:1, press:0, fade:0 };
+/* u = seconds since the press began: press, then the cord slips off and the bow folds away.
+   All gone in 0.4s (it took 0.78s, so the bow was still on a card for most of its move to the middle; Gary, 2026-11-18: "fade out the ribbon and string faster") */
+function unwrapState(u) {
+  if (u <= 0) return FULL;
+  const press = u < .1 ? outCubic(u / .1) : 1 - smooth(seg(u, .16, .28));
+  return { press,
+    h: 1 - inOutCubic(seg(u, .10, .36)),
+    v: 1 - inOutCubic(seg(u, .14, .40)),
+    /* the green bow does not fold away any more (that read as it vanishing): it stays whole and dissolves evenly over 0.42s,
+       easing in and out, shrinking a touch as it goes (Gary, 2026-11-18: "more smooth, it looks too sudden") */
+    tails: 1, loops: 1, fade: smooth(seg(u, .06, .48)) };
+}
+/* u = seconds since the cord started drawing in: vertical, then horizontal, then the bow blooms */
+function wrapInState(u) {
+  if (u <= 0) return NONE;
+  return { press: 0, fade: 0,
+    v: outCubic(seg(u, 0, .55)),
+    h: outCubic(seg(u, .16, .71)),
+    loops: seg(u, .45, 1.0),      // eased (with overshoot) where it is applied
+    tails: outCubic(seg(u, .72, 1.2)) };
+}
+function wrapOf(k, t) {
+  if (k === 0) return t < T_PRESS ? wrapInState(t - T_WRAP0) : unwrapState(t - T_PRESS);
+  const tUn = S0 + k * STEP - MOVE - 0.25;        // pressed while it waits at the side, unwraps on the way in
+  if (t < tUn) return wrapInState(t - (T_WRAP0 + 0.1 + 0.06 * k));
+  return unwrapState(t - tUn);
+}
+
+/* ---- row / deck geometry ---- */
+function rowX(rel) { const a = Math.abs(rel), s = rel < 0 ? -1 : 1;
+  return s * (a <= 1 ? 617 * a : 617 + (a - 1) * 660); }
+const DECK = { x: 1010, y: 622, s: 440 / CW };   // x sits right of centre because the fan has three cards to the left and two to the right
+const ROW_Y = 492;   // the row of cards sits 10px lower than the 482 it had (Gary, 2026-11-18)
+
+function scrollOf(k, t) {
+  const tk = S0 + k * STEP;
+  let s = TEMPLATES[k].scroll * inOutCubic(seg(t, tk - 0.5, tk + STEP - MOVE + 0.4));
+  if (k <= 3) { if (t >= S0 + (k + 2) * STEP) s = 0; }           // back to the top while it is off screen
+  else s *= 1 - inOutCubic(seg(t, T_GATHER[0], T_GATHER[1] - 0.1)); // the last two scroll back as the deck gathers
+  return s;
+}
+
+/* where card i is at time t (pure, so the motion blur can sample its speed).
+   open = how far the fan is spread; q = 1 when everything is tucked behind the logo square (end of the loop). */
+function fanOf(t) { const gather = inOutCubic(seg(t, T_GATHER[0], T_GATHER[1])), opening = t < T_FAN[0];
+  let pos = gather; for (let k = 1; k < N; k++) pos += inOutCubic(seg(t, S0 + k * STEP - MOVE, S0 + k * STEP));
+  return { pos, m: inOutCubic(seg(t, T_FAN[0], T_FAN[1])) * (1 - gather), q: opening ? 0 : gather,
+           open: opening ? outQuart(seg(t, T_OPEN[0] + .08, T_OPEN[1])) : 1 - gather,
+           pop: opening ? lerp(.74, 1, outQuart(seg(t, T_OPEN[0], T_OPEN[1]))) : 1,
+           rise: opening ? 46 * (1 - outQuart(seg(t, T_OPEN[0], T_OPEN[1]))) : 0 }; }
+function geom(i, t) {
+  const f = fanOf(t), m = f.m, q = f.q;
+  let rel = i - f.pos; rel = ((rel + 3) % N + N) % N - 3;              // [-3, 3)
+  const a = Math.abs(rel), near = Math.min(1, a);
+  const cx = lerp(DECK.x, 960, q), cy = lerp(DECK.y, 540, q);
+  const deg = rel * FAN_DEG * f.open, rad = deg * Math.PI / 180;
+  return { rel, a, near, m, q,
+    x: lerp(cx + FAN_R * Math.sin(rad), 960 + rowX(rel), m),
+    y: lerp(cy + FAN_R * (1 - Math.cos(rad)) + f.rise, ROW_Y, m),
+    s: lerp(lerp(DECK.s * (1 - a * .014), SQ_FIT, q) * f.pop, lerp(1, .78, near), m),
+    r: lerp(deg, 0, m) };
+}
+
+function starPath(R, p) { let d = '';
+  for (let k = 0; k <= 180; k++) { const a = k / 180 * Math.PI * 2, c = Math.cos(a), sn = Math.sin(a);
+    const x = R * Math.sign(c) * Math.pow(Math.abs(c), 2 / p), y = R * Math.sign(sn) * Math.pow(Math.abs(sn), 2 / p);
+    d += (k ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1); }
+  return d + 'Z'; }
+document.getElementById('star-core').setAttribute('d', starPath(440, 0.8));
+document.getElementById('star-rays').setAttribute('d', starPath(1000, 0.56));   // the long faint points reaching toward the frame edges
+const starEl = document.getElementById('star'), starG = document.getElementById('star-g'), starLogo = document.getElementById('star-logo');
+
+const stage = document.getElementById('stage');
+const sqEl = document.getElementById('sq'), sqLayers = [...document.querySelectorAll('.sq-l')], sqLogos = [...document.querySelectorAll('.sq-m')], logoEl = document.getElementById('logo');
+const titleEl = document.getElementById('title');
+const tagEl = document.getElementById('tag');
+
+/* size = the icon's box in px (the ball is 72% of it); dx = where its ring sits along the top edge, measured from the right-hand corner
+   (or from the left-hand corner when left is set); amp / ph make each one swing a little differently */
+const BAUBLES = [
+  { size: 104, dx: 0, amp: 4.2, ph: 0 },                   // green, snowflake: on the right-hand corner
+  { size: 104, dx: 0, amp: 3.0, ph: .45, left: true },     // gold reindeer, on the left-hand corner: the same size as the green one, so the two balls match (it was 128, then 115)
+  /* the red one was removed (Gary, 2026-11-18) */
+].map((b, i) => { const el = document.querySelectorAll('.bauble')[i]; el.style.width = el.style.height = b.size + 'px'; return Object.assign(b, { el }); });
+/* each colour change gives them a small kick; the swings die away between changes */
+function baubleSwing(t, b) { let a = 0;
+  for (let i = 0; i < SQ_C.length; i++) { const u = t - SQ_C[i] - .04 * b.ph; if (u > 0) a += (i % 2 ? -1 : 1) * b.amp * Math.exp(-3.2 * u) * Math.sin(2 * Math.PI * 1.5 * u + b.ph); }
+  return a; }
+/* (x, y) = the box's top-right corner (the box is centred, so its left-hand corner is the mirror); t = null when they should hang still */
+function placeBaubles(x, y, t, op) {
+  BAUBLES.forEach(b => {
+    const bx = (b.left ? 1920 - x : x) + b.dx;
+    b.el.style.visibility = op <= 0 || bx > 2060 || bx < -140 ? 'hidden' : 'visible';
+    b.el.style.opacity = op.toFixed(3);
+    b.el.style.transform = 'translate(' + (bx - b.size / 2).toFixed(2) + 'px,' + (y - b.size * .086).toFixed(2) + 'px) rotate(' + (t === null ? 0 : baubleSwing(t, b)).toFixed(3) + 'deg)';
+  });
+}
+let starLogoScale = 1, starClip = 'none';   // set by the expanding box so the star scene shows only inside it, with its logo the same size as the box's
+function render(tRaw) {
+  const t = ((tRaw % LOOP) + LOOP) % LOOP;
+  const fan = fanOf(t), m = fan.m, q = fan.q;                          // m: 0 = deck, 1 = row
+  const opening = t < T_FAN[0];
+  starLogoScale = 1; starClip = 'none';
+
+  /* the logo square */
+  if (opening) {
+    const lin = [0], e = [0];
+    let grow = 0, bump = 0;
+    for (let i = 1; i < sqLayers.length; i++) {
+      lin[i] = seg(t, SQ_C[i - 1], SQ_C[i - 1] + SQ_W[i - 1]); e[i] = inOutCubic(lin[i]);   // eases in and out (was a fast outQuart snap)
+      grow += e[i];
+      bump += Math.sin(Math.PI * seg(t, SQ_C[i - 1], SQ_C[i - 1] + SQ_W[i - 1] + .1));
+    }
+    const fl = inOutCubic(seg(t, T_FLOOD[0], T_FLOOD[1])), fd = smooth(seg(t, T_STAR[0], T_STAR[1]));
+    const logoS = lerp(1, 2.1, outBackS(seg(t, T_LOGO_GROW[0], T_LOGO_GROW[1]), 1.25));
+    const base = SQ * (1 + .012 * grow);                               // a touch bigger with every change
+    const w = lerp(base, 2760, fl), h = lerp(base, 1600, fl);            // well past 1920x1080
+    sqLayers.forEach((l, i) => {
+      if (i > 0) {                                                       // a soft-edged wipe up: the new colour melts over the old one
+        const top = e[i] * (100 + SQ_FEATHER), mask = e[i] >= 1 ? 'none' : 'linear-gradient(0deg, #000 ' + (top - SQ_FEATHER).toFixed(2) + '%, transparent ' + top.toFixed(2) + '%)';
+        l.style.clipPath = e[i] <= 0 ? 'inset(100% 0 0 0)' : 'none';
+        l.style.webkitMaskImage = l.style.maskImage = mask;
+      }
+      /* the logo stays put and only changes colour as the wipe passes over it. It used to ride in from below with a bounce;
+         any offset between the old and new logo shows as a ghosted double during the soft wipe (Gary, 2026-11-18: "a bit softer") */
+      const yIn = 0, yOut = 0;
+      sqLogos[i].style.transform = 'translateY(' + (yIn + yOut).toFixed(2) + 'px) scale(' + logoS.toFixed(4) + ')';
+    });
+    sqEl.style.width = w.toFixed(2) + 'px'; sqEl.style.height = h.toFixed(2) + 'px';
+    sqEl.style.transform = 'translate(' + (960 - w / 2).toFixed(2) + 'px,' + (540 - h / 2).toFixed(2) + 'px) scale(' + (1 + .012 * bump * (1 - fl)).toFixed(4) + ')';
+    sqEl.style.borderRadius = lerp(2, 0, fl).toFixed(1) + 'px';
+    {                                                                  // the star scene is a window the size of the box until the box has passed the frame
+      const sc = 1 + .012 * bump * (1 - fl), bw = w * sc, bh = h * sc;
+      const ix = Math.max(0, 960 - bw / 2), iy = Math.max(0, 540 - bh / 2);
+      starClip = ix + iy > 0 ? 'inset(' + iy.toFixed(2) + 'px ' + ix.toFixed(2) + 'px ' + iy.toFixed(2) + 'px ' + ix.toFixed(2) + 'px)' : 'none';
+      starLogoScale = 322 * logoS * sc / 676.2;
+      placeBaubles(960 + bw / 2, 540 - bh / 2, t, 1 - fd);
+    }
+    sqEl.style.clipPath = 'none';
+    sqEl.style.opacity = (1 - fd).toFixed(3);                          // the colour fades into the star scene beneath, which is clipped to the box; its logo sits exactly under this one
+    sqEl.style.visibility = fd >= 1 ? 'hidden' : 'visible';
+    cardsEl.style.opacity = smooth(seg(t, T_OPEN[0], T_OPEN[0] + .42)).toFixed(3);
+  } else {
+    const op = smooth(seg(q, .6, .96));                                // the loop closes on the first colourway
+    sqLayers.forEach((l, i) => { if (i > 0) l.style.clipPath = 'inset(100% 0 0 0)'; l.style.webkitMaskImage = l.style.maskImage = 'none'; sqLogos[i].style.transform = 'none'; });
+    sqEl.style.width = sqEl.style.height = SQ + 'px';
+    sqEl.style.transform = 'translate(' + (960 - SQ / 2) + 'px,' + (540 - SQ / 2) + 'px) scale(' + lerp(.9, 1, op).toFixed(4) + ')';
+    sqEl.style.borderRadius = '2px';
+    sqEl.style.clipPath = 'none';
+    sqEl.style.opacity = op.toFixed(3);
+    sqEl.style.visibility = op <= 0 ? 'hidden' : 'visible';
+    { const k = lerp(.9, 1, op); placeBaubles(960 + SQ * k / 2, 540 - SQ * k / 2, null, op); }
+    cardsEl.style.opacity = smooth(seg(1 - q, 0, .25)).toFixed(3);     // no stacked shadows leaking round the square
+  }
+
+  /* the star: blooms as the colour fades, then stays as the glow behind the templates until they gather */
+  {
+    const on = t >= Math.min(T_FLOOD[1], T_STAR[0]) && (opening || q < 1);   // the fade starts while the box is still expanding
+    starEl.style.clipPath = on ? starClip : 'none';
+    starEl.style.visibility = on ? 'visible' : 'hidden';
+    if (on) {
+      const bloom = outCubic(seg(t, T_BLOOM[0], T_BLOOM[1])), settle = inOutCubic(seg(t, T_OPEN[0], T_OPEN[1])) * (1 - m);
+      const breathe = 1 + .03 * Math.sin((t - T_BLOOM[1]) * 2.2) * seg(t, T_BLOOM[1], T_BLOOM[1] + .3) * (1 - seg(t, T_OPEN[0], T_OPEN[1]));
+      /* the star starts as a small point of blue and grows to full size, a beat after the ground has changed */
+      starG.style.transform = 'translateY(' + (78 * settle).toFixed(2) + 'px) scale(' + (lerp(.1, 1, bloom) * breathe * lerp(1, 1.32, inOutCubic(seg(t, T_OPEN[0], T_OPEN[1])))).toFixed(4) + ')';
+      starG.style.opacity = smooth(seg(t, T_BLOOM[0], T_BLOOM[0] + .2)).toFixed(3);
+      starEl.style.opacity = (opening ? 1 : 1 - q).toFixed(3);
+      const lo = smooth(seg(t, T_LOGO_OUT[0], T_LOGO_OUT[1]));         // the logo sinks back and softens instead of just cutting out (a logo-to-gift-box morph was tried here and dropped; Gary, 2026-11-18)
+      starLogo.style.opacity = (1 - lo).toFixed(3);
+      starLogo.style.transform = 'translate(-50%,-50%) scale(' + (starLogoScale * lerp(1, .9, lo)).toFixed(4) + ')';
+      starLogo.style.filter = lo > 0 ? 'blur(' + (10 * lo).toFixed(2) + 'px)' : 'none';
+    }
+  }
+
+  cards.forEach((c, i) => {
+    const g = geom(i, t), rel = g.rel, a = g.a, near = g.near, x = g.x, y = g.y, s = g.s, r = g.r;
+    /* motion blur: a short shutter's worth of horizontal travel (skipped across the off-screen wrap) */
+    const ga = geom(i, t - 1 / 120), gb = geom(i, t + 1 / 120);
+    const vx = Math.abs(gb.rel - ga.rel) > 2 ? 0 : Math.abs(gb.x - ga.x) * 60;      // px per second
+    const sd = Math.min(7, vx / 60 * .22 / 2.2 / s);                               // sigma in the card's own px
+    c.mb.setAttribute('stdDeviation', (sd < .35 ? 0 : sd).toFixed(2) + ' 0');
+    c.el.style.filter = sd < .35 ? 'none' : 'url(#mb' + i + ')';
+    c.el.style.transform = 'translate(' + (x - CW / 2).toFixed(2) + 'px,' + (y - CH / 2).toFixed(2) + 'px) rotate(' + r.toFixed(3) + 'deg) scale(' + s.toFixed(4) + ')';
+    c.el.style.zIndex = 100 - Math.round(a * 20) + (rel > 0 ? 1 : 0);
+    c.dim.style.opacity = lerp(near * .1, near * .5, m).toFixed(3);
+    c.img.style.transform = 'translateY(' + (-scrollOf(i, t)).toFixed(2) + 'px)';
+
+    const w = wrapOf(i, t);
+    c.cv.style.height = (w.v * 100).toFixed(2) + '%';
+    c.ch.style.width = (w.h * 100).toFixed(2) + '%';
+    c.pool.style.opacity = Math.max(w.v, w.h, w.loops * (1 - w.fade)).toFixed(3);
+    const lp = w.loops;                                              // 0..1 linear; bloom with overshoot
+    const ls = lp <= 0 ? 0 : lerp(.06, 1, outBack(lp)), lr = -30 * (1 - outCubic(lp));
+    c.loops.style.opacity = (clamp01(lp / .55) * (1 - w.fade)).toFixed(3);
+    c.loops.style.transform = 'scale(' + ls.toFixed(4) + ') rotate(' + lr.toFixed(2) + 'deg)';
+    c.tails.style.opacity = (clamp01(w.tails * 3) * (1 - w.fade)).toFixed(3);
+    c.tails.style.transform = 'scaleY(' + w.tails.toFixed(4) + ')';
+    const bs = lerp(1, .9, w.fade);
+    c.bow.style.transform = 'translate(-50%,-39%) translateY(' + (4 * w.press).toFixed(2) + 'px) scale(' + ((1 + .08 * w.press) * bs).toFixed(4) + ',' + ((1 - .14 * w.press) * bs).toFixed(4) + ')';
+    c.bow.style.visibility = (w.loops > 0 || w.tails > 0) && w.fade < 1 ? 'visible' : 'hidden';
+
+    /* caption for the template in the middle */
+    const tk = S0 + i * STEP;
+    const cin = i === 0 ? outCubic(seg(t, T_FAN[1] - .35, T_FAN[1] + .1)) : outCubic(seg(t, tk - .3, tk + .1));
+    const cout = inCubic(seg(t, tk + STEP - MOVE - .02, tk + STEP - MOVE + .24));
+    c.cap.style.opacity = (cin * (1 - cout)).toFixed(3);
+    c.cap.style.transform = 'translateY(' + (14 * (1 - cin) - 10 * cout).toFixed(2) + 'px)';
+    c.cap.style.filter = 'blur(' + (6 * (1 - cin) + 5 * cout).toFixed(2) + 'px)';
+  });
+
+  /* title block: arrives with the deck, leaves as it opens */
+  const tIn = outCubic(seg(t, T_TITLE_IN[0], T_TITLE_IN[1])), tOut = inCubic(seg(t, T_TITLE_OUT[0], T_TITLE_OUT[1]));
+  const tv = tIn * (1 - tOut);
+  titleEl.style.opacity = tv.toFixed(3);
+  titleEl.style.transform = 'translateY(' + (18 * (1 - tIn) - 18 * tOut).toFixed(2) + 'px)';
+  titleEl.style.filter = 'blur(' + (5 * (1 - tv)).toFixed(2) + 'px)';
+  logoEl.style.opacity = (smooth(seg(t, T_OPEN[0] + .3, T_OPEN[0] + .8)) * (1 - smooth(seg(t, T_GATHER[0], T_GATHER[0] + .5)))).toFixed(3);
+  tagEl.style.opacity = (outCubic(seg(t, T_FAN[1] - .4, T_FAN[1] + .1)) * (1 - inCubic(seg(t, T_GATHER[0], T_GATHER[0] + .4)))).toFixed(3);
+}
+
+/* ---- fit to window + playback ---- */
+function fit() { const s = Math.min(window.innerWidth / 1920, window.innerHeight / 1080); stage.style.transform = 'scale(' + s + ')'; }
+window.addEventListener('resize', fit); fit();
+
+let frozen = null;
+window.__seek = s => { frozen = s; render(s); };
+window.__loop = LOOP;
+const q = new URLSearchParams(location.search);
+if (q.has('t')) window.__seek(parseFloat(q.get('t')));
+/* no ?t and no ?live: play the rendered file (fetched whole, so it loops and scrubs on any server); fall back to the live scene if it is missing */
+let video = false;
+const player = document.getElementById('player');
+if (!q.has('t') && !q.has('live')) {
+  video = true;
+  fetch('holiday-templates-launch.mp4').then(r => { if (!r.ok) throw new Error(r.status); return r.blob(); })
+    .then(b => { player.src = URL.createObjectURL(b); player.style.display = 'block'; return player.play(); })
+    .catch(() => { video = false; player.style.display = 'none'; });
+}
+const t0 = performance.now();
+(function tick(now) { if (frozen === null && !video) render((now - t0) / 1000); requestAnimationFrame(tick); })(t0);
+</script>
