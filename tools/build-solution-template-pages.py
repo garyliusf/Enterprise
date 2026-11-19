@@ -108,7 +108,7 @@ PAGES = {
     bento_head='What agencies build with Bolt',
     bento=[
       dict(kind='web', href='ai-website-builder', title='Client websites', desc='Brand sites, built and handed over in days instead of months.',
-           photo=('founder-agency', '100% 30%'), domain='digitalexperiences.studio', shot='sol-studio', toast=('#0d9b7a', 'HB', 'Approved &middot; Hayes Bakery', 'Homepage v3, ready to publish')),
+           photo=('agencies-team', '30% 20%'), domain='digitalexperiences.studio', shot='sol-studio', toast=('#0d9b7a', 'HB', 'Approved &middot; Hayes Bakery', 'Homepage v3, ready to publish')),
       dict(kind='app', href='custom-event-management-system', title='Client apps', desc='Event, booking and loyalty apps your clients can put in front of customers.',
            photo=('collage-founders', '50% 10%'), notif=('Registration', 'Spring Launch &middot; Apr 18'), bg=('sol-attendly', '50% 3%'),
            price='$45', name='Spring Launch', loc='Pier 27, San Francisco', cta=('Register', 'Registered &check;')),
