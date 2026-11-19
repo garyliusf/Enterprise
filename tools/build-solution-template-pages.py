@@ -57,6 +57,9 @@ PAGES = {
   'ai-for-entrepreneurs': dict(
     audience='entrepreneurs',
     drop_prompts=('AI career coach',),
+    swap_prompts={'Marketing website': [
+        ('AI agent dashboard', 'Build an operations dashboard where I can watch my AI agents, their runs and failures, and approve what needs sign-off.', 'sol-relay'),
+        ('Walk-in queue', 'Build a walk-in queue for my barbershop with a live line, a join page for customers and a display for the waiting room.', 'sol-lineup')]},
     photos=[('collage-laptop', 'A founder working on a laptop', '50% 30%'), ('founder-cafe', 'A founder at his laptop in a cafe', '50% 25%')],
     deck_label='Three products built with Bolt: an AI analytics tool, a pet care app and an AI marketing agent',
     deck=[('sol-quarry', 0.45, 'Build an analytics app where I drop in a CSV and get a dashboard plus answers to questions in plain English.'),
@@ -282,6 +285,22 @@ def main():
             n = len(out)
             out = re.sub(r'<button type="button" class="uc2-pg-item"[^>]*>(?:(?!</button>).)*?<span class="uc2-pg-label">%s</span>.*?</button>' % re.escape(lbl), '', out, count=1, flags=re.S)
             assert len(out) < n, lbl
+        # example prompts replaced in place by new ones; when the replaced one was the active first tab, the panel's
+        # starting shot, alt and prompt text follow the first replacement
+        PR = '../../use-cases/images/prompt-results/'
+        for old, new in P.get('swap_prompts', {}).items():
+            m = re.search(r'<button type="button" class="uc2-pg-item( is-active)?"[^>]*data-prompt="([^"]*)" data-shot="([^"]*)">(?:(?!</button>).)*?<span class="uc2-pg-label">%s</span>.*?</button>' % re.escape(old), out, re.S)
+            assert m, old
+            active, old_prompt, old_shot = bool(m.group(1)), m.group(2), m.group(3)
+            btns = ''.join('<button type="button" class="uc2-pg-item%s" role="tab" aria-selected="%s" aria-controls="uc2-pg-panel" data-prompt="%s" data-shot="%s%s.webp"><i class="uc2-pg-timer" aria-hidden="true"></i><span class="uc2-pg-label">%s</span><span class="uc2-pg-body"><span class="uc2-pg-text">%s</span></span></button>'
+                           % (' is-active' if active and i == 0 else '', 'true' if active and i == 0 else 'false', p, PR, shot, lbl, p) for i, (lbl, p, shot) in enumerate(new))
+            out = out[:m.start()] + btns + out[m.end():]
+            if active:
+                lbl, p, shot = new[0]
+                out = out.replace('<img class="uc2-pg-shot" src="%s"' % old_shot, '<img class="uc2-pg-shot" src="%s%s.webp"' % (PR, shot), 1)
+                out = re.sub(r'(<img class="uc2-pg-shot"[^>]*alt=")[^"]*', lambda mm: mm.group(1) + 'Example built with Bolt: ' + lbl, out, count=1)
+                out = out.replace('data-example="%s">%s</textarea>' % (old_prompt, old_prompt), 'data-example="%s">%s</textarea>' % (p, p), 1)
+                assert p + '</textarea>' in out
         # scripts
         out = out.replace('</body>', scripts + '</body>', 1)
         dst = os.path.join(ROOT, 'marketing/solutions', slug + '-templates')
