@@ -118,7 +118,7 @@ PAGES = {
              ('In review', '#F59E0B', [('#0d9b7a', 'HB', 'Hayes Bakery', ('Homepage v3', 'Approved')), ('#EC4899', 'OF', 'Orbit Fitness', 'Landing page')], (2, 1)),
              ('Live', '#1488FC', [('#1488FC', 'KF', 'Kova Finance', 'Client portal')], (1, 2))]),
       dict(kind='calc', href='invoice-generator-app-builder', title='Project quotes', desc='Scopes, rates and margins, priced before the pitch.',
-           photo=('agencies-duo', '50% 10%'), head='Quote', big_lbl='Project fee', big='$24,000',
+           photo=('agencies-papers', '50% 0%'), head='Quote', big_lbl='Project fee', big='$24,000',
            r1=('Contingency', '5,8', 'pct', '5.0%', 40), r2=('Design / build', '60,45', 'split', '60 / 40', 60), net=('Your margin', '7200,8640', 'usd', '$7,200')),
       dict(kind='list', href='custom-consulting-crm', title='Client portal', desc='Approvals, files and feedback for every client in one place.',
            photo=('agencies-middle', '50% 20%'), head='Approvals', chip='2 new', rows=[
