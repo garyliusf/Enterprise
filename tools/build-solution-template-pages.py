@@ -125,7 +125,7 @@ PAGES = {
              ('#0d9b7a', 'OF', 'Orbit Fitness', 'Landing page &middot; 3 comments', ('ok', 'Approved')),
              ('#1488FC', 'KF', 'Kova Finance', 'Portal &middot; files <span class="rx-sw"><i>4/5</i><i>5/5</i></span>', ('flip', 'In review', 'Approved'))]),
       dict(kind='map', href='directory-website-builder', title='Store locators', desc='Locations, hours and directions for a retail client.',
-           photo=('smb-left', '50% 30%'), card=('Hayes Valley', [('Open', 'till 8pm'), ('Distance', '0.8 mi'), ('Pickup', 'Yes')])),
+           photo=('agencies-writer', '50% 0%'), card=('Hayes Valley', [('Open', 'till 8pm'), ('Distance', '0.8 mi'), ('Pickup', 'Yes')])),
     ]),
 }
 
