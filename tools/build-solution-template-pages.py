@@ -56,7 +56,8 @@ PAGES = {
     ]),
   'ai-for-entrepreneurs': dict(
     audience='entrepreneurs',
-    photos=[('collage-laptop', 'A founder working on a laptop', '50% 30%'), ('collage-desk', 'A founder at her desk', '50% 25%')],
+    drop_prompts=('AI career coach',),
+    photos=[('collage-laptop', 'A founder working on a laptop', '50% 30%'), ('founder-cafe', 'A founder at his laptop in a cafe', '50% 25%')],
     deck_label='Three products built with Bolt: an AI analytics tool, a pet care app and an AI marketing agent',
     deck=[('sol-quarry', 0.45, 'Build an analytics app where I drop in a CSV and get a dashboard plus answers to questions in plain English.'),
           ('sol-tailwise', 0.45, 'Make an AI pet care companion with pet profiles, reminders, a care library and a chat for quick questions.'),
@@ -276,6 +277,11 @@ def main():
         out = out[:a] + out[b:]
         # phones: the left photo slides left inside its frame so the face clears the template deck (the real estate
         # fix for the woman's photo, mirrored); the strip it uncovers on the right sits behind the front template
+        # example prompts dropped from the mirror's CMS list (Gary)
+        for lbl in P.get('drop_prompts', ()):
+            n = len(out)
+            out = re.sub(r'<button type="button" class="uc2-pg-item"[^>]*>(?:(?!</button>).)*?<span class="uc2-pg-label">%s</span>.*?</button>' % re.escape(lbl), '', out, count=1, flags=re.S)
+            assert len(out) < n, lbl
         # scripts
         out = out.replace('</body>', scripts + '</body>', 1)
         dst = os.path.join(ROOT, 'marketing/solutions', slug + '-templates')
