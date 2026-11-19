@@ -113,7 +113,7 @@ PAGES = {
            photo=('collage-founders', '50% 10%'), notif=('Registration', 'Spring Launch &middot; Apr 18'), bg=('sol-attendly', '50% 3%'),
            price='$45', name='Spring Launch', loc='Pier 27, San Francisco', cta=('Register', 'Registered &check;')),
       dict(kind='crm', href='task-management-app-builder', title='Project board', desc='Every client project from brief to launch, in one board.',
-           photo=('collage-laptop', '50% 30%'), cols=[
+           photo=('agencies-pod-flip', '30% 30%'), cols=[
              ('Brief', None, [('#F59E0B', 'FC', 'Fern &amp; Co.', 'Brand site')]),
              ('In review', '#F59E0B', [('#0d9b7a', 'HB', 'Hayes Bakery', ('Homepage v3', 'Approved')), ('#EC4899', 'OF', 'Orbit Fitness', 'Landing page')], (2, 1)),
              ('Live', '#1488FC', [('#1488FC', 'KF', 'Kova Finance', 'Client portal')], (1, 2))]),
