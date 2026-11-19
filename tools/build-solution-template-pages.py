@@ -88,7 +88,7 @@ PAGES = {
              ('#0d9b7a', 'PR', 'Priya Rao', 'Pro &middot; 4 seats', ('ok', 'Active')),
              ('#1488FC', 'MO', 'Marcus Ode', 'Trial &middot; day <span class="rx-sw"><i>13</i><i>14</i></span>', ('flip', 'Trial', 'Paid'))]),
       dict(kind='map', href='directory-website-builder', title='Local marketplace', desc='Listings, search and a map for a local directory business.',
-           photo=('founder-terracotta', '80% 30%'), card=('Hayes Valley Florist', [('Rating', '4.9'), ('Distance', '0.8 mi'), ('Open', 'till 7pm')])),
+           photo=('founder-armchair', '45% 0%'), card=('Hayes Valley Florist', [('Rating', '4.9'), ('Distance', '0.8 mi'), ('Open', 'till 7pm')])),
     ]),
   'ai-for-agencies': dict(
     audience='agencies',
