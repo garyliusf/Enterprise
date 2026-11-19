@@ -57,6 +57,7 @@ PAGES = {
   'ai-for-entrepreneurs': dict(
     audience='entrepreneurs',
     drop_prompts=('AI career coach',),
+    business='lineup',   # how it works builds LineUp instead of the Prism marketing site (Gary)
     # phones: the booth photo on the Mobile app card slides fully right so his face clears the phone mockup
     extra_css='\n<style id="sol-tile-photos">@media (max-width: 768px) { .rx-photo[src$="founder-booth.webp"] { object-position: 100% 0 !important; } .rx-photo[src$=\"founder-terracotta.webp\"] { object-position: 86% 30% !important; } }</style>',
     swap_prompts={'Marketing website': [
@@ -282,6 +283,9 @@ def main():
         out = out[:a] + out[b:]
         # phones: the left photo slides left inside its frame so the face clears the template deck (the real estate
         # fix for the woman's photo, mirrored); the strip it uncovers on the right sits behind the front template
+        if P.get('business'):
+            assert out.count('data-business="prism"') == 1
+            out = out.replace('data-business="prism"', 'data-business="%s"' % P['business'])
         # example prompts dropped from the mirror's CMS list (Gary)
         for lbl in P.get('drop_prompts', ()):
             n = len(out)
