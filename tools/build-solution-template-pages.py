@@ -283,6 +283,11 @@ def main():
         out = out[:a] + out[b:]
         # phones: the left photo slides left inside its frame so the face clears the template deck (the real estate
         # fix for the woman's photo, mirrored); the strip it uncovers on the right sits behind the front template
+        # LineUp is a dark full-bleed app: fill the build pane edge to edge (like Noir) instead of the contained shot,
+        # which ended mid-row on a light ground band (Gary: "the bottom looks clipped")
+        lu = '"shotWb": "../../use-cases/images/presets/lineup-tablet.webp",\n'
+        assert out.count(lu) == 1
+        out = out.replace(lu, lu + '  "shotWbFit": "fill",\n')
         if P.get('business'):
             assert out.count('data-business="prism"') == 1
             out = out.replace('data-business="prism"', 'data-business="%s"' % P['business'])
