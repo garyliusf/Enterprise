@@ -58,7 +58,7 @@ PAGES = {
     audience='entrepreneurs',
     drop_prompts=('AI career coach',),
     # phones: the booth photo on the Mobile app card slides fully right so his face clears the phone mockup
-    extra_css='\n<style id="sol-tile-photos">@media (max-width: 768px) { .rx-photo[src$="founder-booth.webp"] { object-position: 100% 0 !important; } }</style>',
+    extra_css='\n<style id="sol-tile-photos">@media (max-width: 768px) { .rx-photo[src$="founder-booth.webp"] { object-position: 100% 0 !important; } .rx-photo[src$=\"founder-terracotta.webp\"] { object-position: 86% 30% !important; } }</style>',
     swap_prompts={'Marketing website': [
         ('AI agent dashboard', 'Build an operations dashboard where I can watch my AI agents, their runs and failures, and approve what needs sign-off.', 'sol-relay'),
         ('Walk-in queue', 'Build a walk-in queue for my barbershop with a live line, a join page for customers and a display for the waiting room.', 'sol-lineup')]},
@@ -83,7 +83,7 @@ PAGES = {
              ('Building', '#F59E0B', [('#0d9b7a', 'CE', 'CSV export', ('Due Fri', 'Shipped')), ('#EC4899', 'TS', 'Team seats', 'In design')], (2, 1)),
              ('Shipped', '#1488FC', [('#1488FC', 'SS', 'Stripe sync', 'v1.4')], (1, 2))]),
       dict(kind='calc', href='calculator-app-maker', title='Pricing model', desc='Plans, churn and revenue, worked out before you launch.',
-           photo=('smb-middle', '50% 25%'), head='Revenue model', big_lbl='Price per seat', big='$29 / month',
+           photo=('founder-terracotta', '76% 30%'), head='Revenue model', big_lbl='Price per seat', big='$29 / month',
            r1=('Monthly churn', '5.0,3.6', 'pct', '5.0%', 50), r2=('Annual / monthly', '40,55', 'split', '40 / 60', 40), net=('Monthly revenue', '12400,14120', 'usd', '$12,400')),
       dict(kind='list', href='dashboard-builder', title='Admin dashboard', desc='Customers, plans and usage, the way you want to see them.',
            photo=('agencies-right', '50% 12%'), head='Customers', chip='2 new', rows=[
