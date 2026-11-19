@@ -25,8 +25,8 @@ PAGES = {
     audience='small businesses',
     left_y='0%', left_shift='0.06',
     # phones: her face is at the photo's right edge, so the right photo keeps 100% (the real estate rule shows its left side)
-    extra_css='\n<style id="sol-right-photo">@media (max-width: 768px) { .hero-collage--templates .hero-collage-col:nth-child(3) .hero-uc-img { object-position: 100% 18% !important; transform: none; } }</style>',   # phones: his face sits high and right in the photo, under the Orders tile at 30%
-    photos=[('smb-left', 'A café owner smiling behind the counter', '50% 30%'), ('smb-tattoo', 'A shop owner checking orders on her phone at the kitchen counter', '100% 22%')],
+    extra_css='\n<style id="sol-right-photo">@media (max-width: 768px) { .hero-collage--templates .hero-collage-col:nth-child(3) .hero-uc-img { object-position: 65% 18% !important; transform: none; } }</style>',   # phones: his face sits high and right in the photo, under the Orders tile at 30%
+    photos=[('smb-left', 'A café owner smiling behind the counter', '50% 30%'), ('smb-tattoo', 'A shop owner checking orders on her phone at the kitchen counter', '70% 22%')],
     deck_label='Three small business sites built with Bolt: a coffee subscription shop, a pilates studio and a café point of sale',
     deck=[('sol-ember', 0.5, 'Build a coffee subscription site where customers pick a roast, grind and delivery cadence, with a shop for one-off bags.'),
           ('sol-pilates', 0.5, 'Make a website for my pilates studio with the class schedule, instructor bios, pricing and online booking.'),
@@ -97,7 +97,7 @@ PAGES = {
     ]),
   'ai-for-agencies': dict(
     audience='agencies',
-    photos=[('agencies-left', 'Two agency designers reviewing work together', '50% 30%'), ('agencies-right', 'An agency lead holding a laptop', '50% 15%')],
+    photos=[('agencies-left', 'Two agency designers reviewing work together', '50% 30%'), ('agencies-carpenter', 'A maker at his bench on a call with a client', '50% 15%')],
     deck_label='Three client projects built with Bolt: a creative agency site, a fashion store and a content calendar',
     deck=[('sol-kern', 0.5, 'Build a site for our creative studio with a bold type-led hero, selected work and a services page.'),
           ('sol-ashcombe', 0.5, 'Make an online store for a heritage clothing brand with collections, a gift finder and seasonal sales.'),
