@@ -37,7 +37,7 @@ PAGES = {
     bento_head='What small businesses build with Bolt',
     bento=[
       dict(kind='web', href='business-website-builder', title='Business website', desc='Menu, hours, ordering and reviews, on your own domain.',
-           photo=('founder-coffee', '50% 30%'), domain='tonyspizza.com', shot='sol-tonys', toast=('#E8590C', 'AR', 'New order &middot; Ana R.', 'Large margherita, pickup 6:30')),
+           photo=('smb-apron-flip', '30% 30%'), domain='tonyspizza.com', shot='sol-tonys', toast=('#E8590C', 'AR', 'New order &middot; Ana R.', 'Large margherita, pickup 6:30')),
       dict(kind='app', href='appointment-booking-app-builder', title='Booking app', desc='Classes, appointments and reminders your customers book themselves.',
            photo=('smb-laptop-mug', '30% 30%'), notif=('Class booked', 'Sat 9:00 AM &middot; Reformer'), bg=('sol-pilates', '50% 3%'),
            price='$28', name='Reformer Flow', loc='with Ana &middot; 50 min', cta=('Book a class', 'Booked &check;')),
