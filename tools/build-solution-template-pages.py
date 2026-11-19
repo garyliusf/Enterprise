@@ -23,9 +23,10 @@ E = html.escape
 PAGES = {
   'ai-for-small-business': dict(
     audience='small businesses',
+    left_y='0%', left_shift='0.06',   # phones: his face sits high and right in the photo, under the Orders tile at 30%
     photos=[('smb-left', 'A café owner smiling behind the counter', '50% 30%'), ('smb-right', 'A shop owner in an apron working on a laptop', '50% 25%')],
     deck_label='Three small business sites built with Bolt: a coffee subscription shop, a pilates studio and a café point of sale',
-    deck=[('sol-ember', 0.0, 'Build a coffee subscription site where customers pick a roast, grind and delivery cadence, with a shop for one-off bags.'),
+    deck=[('sol-ember', 0.5, 'Build a coffee subscription site where customers pick a roast, grind and delivery cadence, with a shop for one-off bags.'),
           ('sol-pilates', 0.5, 'Make a website for my pilates studio with the class schedule, instructor bios, pricing and online booking.'),
           ('sol-kitchen', 0.0, 'Build a point of sale for my café with a menu grid, open tabs, and stock levels that update with every order.')],
     inbox='Orders', col_a='Preparing', col_b='Ready', dot_a='#F59E0B', dot_b='#0d9b7a',
@@ -56,10 +57,10 @@ PAGES = {
   'ai-for-entrepreneurs': dict(
     audience='entrepreneurs',
     photos=[('collage-laptop', 'A founder working on a laptop', '50% 30%'), ('collage-desk', 'A founder at her desk', '50% 25%')],
-    deck_label='Three products built with Bolt: an AI analytics tool, a pet care app and a personal finance app',
+    deck_label='Three products built with Bolt: an AI analytics tool, a pet care app and an AI marketing agent',
     deck=[('sol-quarry', 0.45, 'Build an analytics app where I drop in a CSV and get a dashboard plus answers to questions in plain English.'),
           ('sol-tailwise', 0.45, 'Make an AI pet care companion with pet profiles, reminders, a care library and a chat for quick questions.'),
-          ('sol-verdant', 0.0, 'Build a personal finance app that sorts spending into categories and shows where my money goes each month.')],
+          ('sol-amplio', 0.45, 'Build an AI marketing agent that takes a product description and drafts the strategy, ads, emails and a landing page.')],
     inbox='Signups', col_a='Trial', col_b='Paid', dot_a='#F59E0B', dot_b='#0d9b7a',
     hot=('Acme Studio', 'Trial &middot; day 12', 'Upgraded to Pro'), second=('Northwind', 'Trial &middot; day 3'), third=('Lumen Co.', '$99 / month'),
     new=('Ivy Labs', 'New signup'),
@@ -228,7 +229,8 @@ def main():
         # styles: R's taller live card on desktop + the experiment blocks, right after the page's last head style
         out = out.replace('.hm-dep-site .pp--shot { aspect-ratio: 1280 / 620; }', '.hm-dep-site .pp--shot { aspect-ratio: 1280 / 620; }\n@media (min-width: 1025px) { .hm-dep-site .pp--shot { aspect-ratio: 1280 / 900; } }', 1)
         k = out.index('</style>', out.index('.hm-dep-site .pp--shot')) + len('</style>')
-        out = out[:k] + '\n' + styles + out[k:]
+        left = '\n<style id="sol-left-photo">@media (max-width: 768px) { .hero-collage--templates .hero-collage-col:nth-child(1) .hero-uc-img { object-position: 100%% %s !important; transform: translateX(calc(var(--hc-h) * -%s)); } }</style>' % (P.get('left_y', '30%'), P.get('left_shift', '0.12'))
+        out = out[:k] + '\n' + styles + left + out[k:]
         # hero collage
         c = collage
         (l, la, lp), (r, ra, rp) = P['photos']
@@ -272,6 +274,8 @@ def main():
         a, b = block(out, '<section class="section section--bordered">', '</section>')
         assert '<section' not in out[a + 10:b]
         out = out[:a] + out[b:]
+        # phones: the left photo slides left inside its frame so the face clears the template deck (the real estate
+        # fix for the woman's photo, mirrored); the strip it uncovers on the right sits behind the front template
         # scripts
         out = out.replace('</body>', scripts + '</body>', 1)
         dst = os.path.join(ROOT, 'marketing/solutions', slug + '-templates')
