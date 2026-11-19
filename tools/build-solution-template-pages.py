@@ -57,6 +57,8 @@ PAGES = {
   'ai-for-entrepreneurs': dict(
     audience='entrepreneurs',
     drop_prompts=('AI career coach',),
+    # phones: the booth photo on the Mobile app card slides fully right so his face clears the phone mockup
+    extra_css='\n<style id="sol-tile-photos">@media (max-width: 768px) { .rx-photo[src$="founder-booth.webp"] { object-position: 100% 0 !important; } }</style>',
     swap_prompts={'Marketing website': [
         ('AI agent dashboard', 'Build an operations dashboard where I can watch my AI agents, their runs and failures, and approve what needs sign-off.', 'sol-relay'),
         ('Walk-in queue', 'Build a walk-in queue for my barbershop with a live line, a join page for customers and a display for the waiting room.', 'sol-lineup')]},
@@ -73,7 +75,7 @@ PAGES = {
       dict(kind='web', href='ai-landing-page-builder', title='Landing page', desc='A launch page with a waitlist, pricing and sign-up, live today.',
            photo=('collage-founders', '50% 10%'), domain='getnorthstar.app', shot='sol-saas', toast=('#7C3AED', 'AM', 'New signup &middot; Alex M.', 'Joined the waitlist')),
       dict(kind='app', href='ai-app-builder', title='Mobile app', desc='Accounts, subscriptions and push notifications in a real app.',
-           photo=('founder-coffee', '50% 30%'), notif=('New subscriber', 'Pro plan &middot; $9.99 / month'), bg=('sol-tailwise', '0% 3%'),
+           photo=('founder-booth', '62% 0%'), notif=('New subscriber', 'Pro plan &middot; $9.99 / month'), bg=('sol-tailwise', '0% 3%'),
            price='$9.99', name='Tailwise Pro', loc='Billed monthly &middot; cancel anytime', cta=('Start free trial', 'Subscribed &check;')),
       dict(kind='crm', href='task-management-app-builder', title='Product roadmap', desc='Feedback, what is being built and what shipped, in one board.',
            photo=('founder-agency', '100% 30%'), cols=[
@@ -234,7 +236,7 @@ def main():
         out = out.replace('.hm-dep-site .pp--shot { aspect-ratio: 1280 / 620; }', '.hm-dep-site .pp--shot { aspect-ratio: 1280 / 620; }\n@media (min-width: 1025px) { .hm-dep-site .pp--shot { aspect-ratio: 1280 / 900; } }', 1)
         k = out.index('</style>', out.index('.hm-dep-site .pp--shot')) + len('</style>')
         left = '\n<style id="sol-left-photo">@media (max-width: 768px) { .hero-collage--templates .hero-collage-col:nth-child(1) .hero-uc-img { object-position: 100%% %s !important; transform: translateX(calc(var(--hc-h) * -%s)); } }</style>' % (P.get('left_y', '30%'), P.get('left_shift', '0.12'))
-        out = out[:k] + '\n' + styles + left + out[k:]
+        out = out[:k] + '\n' + styles + left + P.get('extra_css', '') + out[k:]
         # hero collage
         c = collage
         (l, la, lp), (r, ra, rp) = P['photos']
