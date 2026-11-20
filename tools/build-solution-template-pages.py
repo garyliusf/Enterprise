@@ -124,7 +124,7 @@ PAGES = {
            photo=('agencies-papers', '50% 0%'), head='Quote', big_lbl='Project fee', big='$24,000',
            r1=('Contingency', '5,8', 'pct', '5.0%', 40), r2=('Design / build', '60,45', 'split', '60 / 40', 60), net=('Your margin', '7200,8640', 'usd', '$7,200')),
       dict(kind='list', href='custom-consulting-crm', title='Client portal', desc='Approvals, files and feedback for every client in one place.',
-           photo=('agencies-middle', '50% 20%'), head='Approvals', chip='2 new', rows=[
+           photo=('agencies-grey', '50% 0%'), head='Approvals', chip='2 new', rows=[
              ('#0d9b7a', 'OF', 'Orbit Fitness', 'Landing page &middot; 3 comments', ('ok', 'Approved')),
              ('#1488FC', 'KF', 'Kova Finance', 'Portal &middot; files <span class="rx-sw"><i>4/5</i><i>5/5</i></span>', ('flip', 'In review', 'Approved'))]),
       dict(kind='map', href='directory-website-builder', title='Store locators', desc='Locations, hours and directions for a retail client.',
