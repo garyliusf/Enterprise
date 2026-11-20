@@ -57,7 +57,7 @@ PAGES = {
              ('#0d9b7a', 'OM', 'Oat milk', '24 cartons &middot; supplier Oatly', ('ok', 'In stock')),
              ('#E8590C', 'CB', 'Cold brew beans', '3 bags &middot; reorder at 5', ('flip', 'Low', 'Ordered'))]),
       dict(kind='map', href='food-delivery-app-builder', title='Delivery map', desc='Delivery zones, fees and live drivers on one map.',
-           photo=('agencies-middle', '50% 20%'), card=('Order #214', [('Zone', 'B'), ('Distance', '1.2 mi'), ('Driver', 'Sam K.')])),
+           photo=('smb-standing', '50% 0%'), card=('Order #214', [('Zone', 'B'), ('Distance', '1.2 mi'), ('Driver', 'Sam K.')])),
     ]),
   'ai-for-entrepreneurs': dict(
     audience='entrepreneurs',
