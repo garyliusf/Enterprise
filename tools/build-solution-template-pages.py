@@ -23,6 +23,7 @@ E = html.escape
 PAGES = {
   'ai-for-small-business': dict(
     audience='small businesses',
+    drop_prompts=('Business website',),   # it was Ember & Oak too, a duplicate of the coffee shop tab (Gary)
     swap_prompts={'Restaurant website': [
         ('Coffee shop website', 'Build a website for my coffee roastery with our roasts, a shop for bags and subscriptions, and our cafe hours.', 'sol-ember')]},
     left_y='0%', left_shift='0.06',
