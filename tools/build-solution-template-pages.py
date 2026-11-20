@@ -84,7 +84,7 @@ PAGES = {
            photo=('founder-booth', '62% 0%'), notif=('New subscriber', 'Verdant Plus &middot; $4.99 / month'), bg=('sol-verdant-ring', '50% 50%', 'cover'),
            price='$4.99', name='Verdant Plus', loc='Billed monthly &middot; cancel anytime', cta=('Start free trial', 'Subscribed &check;')),
       dict(kind='crm', href='task-management-app-builder', title='Product roadmap', desc='Feedback, what is being built and what shipped, in one board.',
-           photo=('founder-agency', '100% 30%'), cols=[
+           photo=('founder-agency-tall', '100% 22%'), cols=[
              ('Ideas', None, [('#F59E0B', 'DM', 'Dark mode', '14 votes')]),
              ('Building', '#F59E0B', [('#0d9b7a', 'CE', 'CSV export', ('Due Fri', 'Shipped')), ('#EC4899', 'TS', 'Team seats', 'In design')], (2, 1)),
              ('Shipped', '#1488FC', [('#1488FC', 'SS', 'Stripe sync', 'v1.4')], (1, 2))]),
@@ -243,7 +243,7 @@ def main():
         out = out.replace('.hm-dep-site .pp--shot { aspect-ratio: 1280 / 620; }', '.hm-dep-site .pp--shot { aspect-ratio: 1280 / 620; }\n@media (min-width: 1025px) { .hm-dep-site .pp--shot { aspect-ratio: 1280 / 900; } }', 1)
         k = out.index('</style>', out.index('.hm-dep-site .pp--shot')) + len('</style>')
         left = '\n<style id="sol-left-photo">@media (max-width: 768px) { .hero-collage--templates .hero-collage-col:nth-child(1) .hero-uc-img { object-position: 100%% %s !important; transform: translateX(calc(var(--hc-h) * -%s)); } }</style>' % (P.get('left_y', '30%'), P.get('left_shift', '0.12'))
-        out = out[:k] + '\n' + styles + left + P.get('extra_css', '') + '\n<style id="sol-why-seam">/* stats: equal room above and below (Gary) - the use-case section keeps its own top padding */ .why-section { padding: 128px 0; } @media (max-width: 1024px) { .why-section { padding: 96px 0; } } @media (max-width: 768px) { .why-section { padding: 72px 0; } } /* more room around the stats (Gary) */</style>' + out[k:]
+        out = out[:k] + '\n' + styles + left + P.get('extra_css', '') + '\n<style id="sol-why-seam">/* stats: equal room above and below (Gary) - the use-case section keeps its own top padding */ .why-section { padding: 128px 0; border-top: 0; } @media (max-width: 1024px) { .why-section { padding: 96px 0; } } @media (max-width: 768px) { .why-section { padding: 72px 0; } } /* more room around the stats (Gary) */</style>' + out[k:]
         # hero collage
         c = collage
         (l, la, lp), (r, ra, rp) = P['photos']

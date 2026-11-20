@@ -3164,7 +3164,7 @@ html[data-hv="c"] .hero-collage--templates .hero-collage-col:nth-child(3) .hero-
 /* website: a real build scrolling in a browser frame */
 .rx-browser { position: absolute; inset: 0; border-radius: 10px; overflow: hidden; background: #fff; box-shadow: 0 0 0 1px rgba(255,255,255,0.14), 0 30px 60px -20px rgba(0,0,0,0.75); }
 .rx-browser-bar { display: flex; align-items: center; gap: 5px; height: 24px; padding: 0 10px; background: #F3F4F7; border-bottom: 1px solid #E6E8EE; }
-.rx-browser-bar i { width: 7px; height: 7px; border-radius: 50%; background: #D5D8E0; }
+.rx-browser-bar i { width: 7px; height: 7px; flex-shrink: 0; border-radius: 50%; background: #D5D8E0; }   /* never squeezed by the address pill (phones showed slivers) */
 .rx-browser-bar span { margin-left: 8px; padding: 2px 10px; border-radius: 999px; background: #fff; color: #7A8090; font-size: 9.5px; }
 .rx-browser-view { position: absolute; inset: 24px 0 0 0; overflow: hidden; }
 .rx-scroll { display: block; width: 100%; height: auto; animation: rx-scroll 24s cubic-bezier(0.45, 0, 0.55, 1) infinite alternate; }
@@ -3543,7 +3543,7 @@ html[data-hv="c"] .hero-collage--templates .hero-collage-col:nth-child(3) .hero-
 </style>
 <style id="sol-left-photo">@media (max-width: 768px) { .hero-collage--templates .hero-collage-col:nth-child(1) .hero-uc-img { object-position: 100% 0% !important; transform: translateX(calc(var(--hc-h) * -0.06)); } }</style>
 <style id="sol-right-photo">@media (max-width: 768px) { .hero-collage--templates .hero-collage-col:nth-child(3) .hero-uc-img { object-position: 65% 18% !important; transform: none; } }</style>
-<style id="sol-why-seam">/* stats: equal room above and below (Gary) - the use-case section keeps its own top padding */ .why-section { padding: 128px 0; } @media (max-width: 1024px) { .why-section { padding: 96px 0; } } @media (max-width: 768px) { .why-section { padding: 72px 0; } } /* more room around the stats (Gary) */</style>
+<style id="sol-why-seam">/* stats: equal room above and below (Gary) - the use-case section keeps its own top padding */ .why-section { padding: 128px 0; border-top: 0; } @media (max-width: 1024px) { .why-section { padding: 96px 0; } } @media (max-width: 768px) { .why-section { padding: 72px 0; } } /* more room around the stats (Gary) */</style>
 </head>
 <body>
 
@@ -6830,6 +6830,18 @@ window.addEventListener('load', function () {
 })();
 </script>
 <script id="re-uc-js">
+/* Scrolling site shots: the keyframes move the image by translateY(calc(-100% + 226px)). iOS Safari resolves that
+   percentage when the animation starts and keeps it, so a lazy image that arrives later (height 0 at start) ran
+   226px too low with white above it (Gary's iPhone). Restart each animation once its image has a height, and on
+   resize. */
+(function () {
+  function restart(img) { img.style.animation = 'none'; void img.offsetHeight; img.style.animation = ''; }
+  document.querySelectorAll('.rx-scroll').forEach(function (img) {
+    if (img.complete && img.naturalHeight) restart(img);
+    img.addEventListener('load', function () { restart(img); });
+  });
+  var t; addEventListener('resize', function () { clearTimeout(t); t = setTimeout(function () { document.querySelectorAll('.rx-scroll').forEach(restart); }, 200); });
+})();
 /* use-case cards: the calculator's figures follow its sliders on hover (eased like the slider transition) */
 (function () {
   var tile = document.querySelector('.rx-tile--calc'); if (!tile) return;
