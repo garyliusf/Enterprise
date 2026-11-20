@@ -45,7 +45,7 @@ PAGES = {
            photo=('smb-laptop-mug', '30% 30%'), notif=('Class booked', 'Sat 9:00 AM &middot; Reformer'), bg=('sol-pilates', '50% 3%'),
            price='$28', name='Reformer Flow', loc='with Ana &middot; 50 min', cta=('Book a class', 'Booked &check;')),
       dict(kind='crm', href='custom-pos-system', title='Order board', desc='Every order from the counter, the site and delivery apps, in one place.',
-           photo=('smb-pottery', '60% 0%'), cols=[
+           photo=('smb-pottery', '40% 0%'), cols=[
              ('New', None, [('#F59E0B', 'JR', 'Jo R.', 'Pickup &middot; 6:15')]),
              ('Preparing', '#F59E0B', [('#0d9b7a', 'ML', 'Maya L.', ('2 lattes &middot; $11.40', 'Ready')), ('#EC4899', 'TP', 'Table 4', '3 items')], (2, 1)),
              ('Ready', '#1488FC', [('#1488FC', 'BT', 'Ben T.', 'Croissant box')], (1, 2))]),
