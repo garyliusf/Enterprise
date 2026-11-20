@@ -113,7 +113,7 @@ PAGES = {
       dict(kind='web', href='ai-website-builder', title='Client websites', desc='Brand sites, built and handed over in days instead of months.',
            photo=('agencies-team', '30% 20%'), domain='digitalexperiences.studio', shot='sol-studio', toast=('#0d9b7a', 'HB', 'Approved &middot; Hayes Bakery', 'Homepage v3, ready to publish')),
       dict(kind='app', href='custom-event-management-system', title='Client apps', desc='Event, booking and loyalty apps your clients can put in front of customers.',
-           photo=('agencies-tablet', '0% 0%'), notif=('Registration', 'Spring Launch &middot; Apr 18'), bg=('sol-attendly', '50% 3%'),
+           photo=('agencies-smile', '0% 0%'), notif=('Registration', 'Spring Launch &middot; Apr 18'), bg=('sol-attendly', '50% 3%'),
            price='$45', name='Spring Launch', loc='Pier 27, San Francisco', cta=('Register', 'Registered &check;')),
       dict(kind='crm', href='task-management-app-builder', title='Project board', desc='Every client project from brief to launch, in one board.',
            photo=('agencies-pod-flip', '30% 30%'), cols=[
