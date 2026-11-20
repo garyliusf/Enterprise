@@ -84,7 +84,7 @@ PAGES = {
            photo=('founder-booth', '62% 0%'), notif=('New subscriber', 'Verdant Plus &middot; $4.99 / month'), bg=('sol-verdant-ring', '50% 50%', 'cover'),
            price='$4.99', name='Verdant Plus', loc='Billed monthly &middot; cancel anytime', cta=('Start free trial', 'Subscribed &check;')),
       dict(kind='crm', href='task-management-app-builder', title='Product roadmap', desc='Feedback, what is being built and what shipped, in one board.',
-           photo=('founder-agency-tall', '100% 22%'), cols=[
+           photo=('founder-agency-tall', '100% 14%'), cols=[
              ('Ideas', None, [('#F59E0B', 'DM', 'Dark mode', '14 votes')]),
              ('Building', '#F59E0B', [('#0d9b7a', 'CE', 'CSV export', ('Due Fri', 'Shipped')), ('#EC4899', 'TS', 'Team seats', 'In design')], (2, 1)),
              ('Shipped', '#1488FC', [('#1488FC', 'SS', 'Stripe sync', 'v1.4')], (1, 2))]),
