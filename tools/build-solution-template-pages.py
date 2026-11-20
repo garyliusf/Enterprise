@@ -242,7 +242,7 @@ def main():
         out = out.replace('.hm-dep-site .pp--shot { aspect-ratio: 1280 / 620; }', '.hm-dep-site .pp--shot { aspect-ratio: 1280 / 620; }\n@media (min-width: 1025px) { .hm-dep-site .pp--shot { aspect-ratio: 1280 / 900; } }', 1)
         k = out.index('</style>', out.index('.hm-dep-site .pp--shot')) + len('</style>')
         left = '\n<style id="sol-left-photo">@media (max-width: 768px) { .hero-collage--templates .hero-collage-col:nth-child(1) .hero-uc-img { object-position: 100%% %s !important; transform: translateX(calc(var(--hc-h) * -%s)); } }</style>' % (P.get('left_y', '30%'), P.get('left_shift', '0.12'))
-        out = out[:k] + '\n' + styles + left + P.get('extra_css', '') + out[k:]
+        out = out[:k] + '\n' + styles + left + P.get('extra_css', '') + '\n<style id="sol-why-seam">/* stats -> use cases: the same 36px the page gives how-it-works after the stats (same ground, one seam) */ .why-section + .re-uc-section { padding-top: 36px; }</style>' + out[k:]
         # hero collage
         c = collage
         (l, la, lp), (r, ra, rp) = P['photos']
@@ -281,8 +281,10 @@ def main():
         bento = re.sub(r'(<div class="rx-bento">\n).*(    </div>\n  </div>\n</section>)$', lambda m: m.group(1) + ''.join(tiles) + m.group(2), bento_r, flags=re.S)
         bento = bento.replace('What real estate pros build with Bolt', P['bento_head'])
         assert bento.count('<a class="rx-tile') == 6
+        # the use-case bento goes right after the page's stats section; the stats stay (Gary: only real estate
+        # hides them, via its CMS toggle)
         a, b = block(out, '<section class="section why-section">', '</section>')
-        out = out[:a] + bento + out[b:]
+        out = out[:b] + '\n' + bento + out[b:]
         a, b = block(out, '<section class="section section--bordered">', '</section>')
         assert '<section' not in out[a + 10:b]
         out = out[:a] + out[b:]
