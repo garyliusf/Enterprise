@@ -81,8 +81,8 @@ PAGES = {
       dict(kind='web', href='ai-landing-page-builder', title='Landing page', desc='A launch page with a waitlist, pricing and sign-up, live today.',
            photo=('collage-founders', '50% 10%'), domain='getnorthstar.app', shot='sol-saas', toast=('#7C3AED', 'AM', 'New signup &middot; Alex M.', 'Joined the waitlist')),
       dict(kind='app', href='ai-app-builder', title='Mobile app', desc='Accounts, subscriptions and push notifications in a real app.',
-           photo=('founder-booth', '62% 0%'), notif=('New subscriber', 'Pro plan &middot; $9.99 / month'), bg=('sol-tailwise', '0% 3%'),
-           price='$9.99', name='Tailwise Pro', loc='Billed monthly &middot; cancel anytime', cta=('Start free trial', 'Subscribed &check;')),
+           photo=('founder-booth', '62% 0%'), notif=('New subscriber', 'Verdant Plus &middot; $4.99 / month'), bg=('sol-verdant-ring', '50% 50%', 'cover'),
+           price='$4.99', name='Verdant Plus', loc='Billed monthly &middot; cancel anytime', cta=('Start free trial', 'Subscribed &check;')),
       dict(kind='crm', href='task-management-app-builder', title='Product roadmap', desc='Feedback, what is being built and what shipped, in one board.',
            photo=('founder-agency', '100% 30%'), cols=[
              ('Ideas', None, [('#F59E0B', 'DM', 'Dark mode', '14 votes')]),
@@ -163,14 +163,15 @@ def tile(t):
                 ) % (t['domain'], SHOTS, t['shot'], c, av, b, sm)
         return tile_open(t, 'web') + body + tile_close(t)
     if k == 'app':
-        bg, pos = t['bg']
+        bg, pos = t['bg'][:2]
+        size = t['bg'][2] if len(t['bg']) > 2 else '240%% auto'   # a phone-size capture fills the slot at cover
         body = ('          <div class="rx-phone"><div class="rx-phone-screen">\n'
                 '            <div class="rx-ph-status"><span>9:41</span><i></i></div>\n'
                 '            <div class="rx-notif"><b>%s</b><small>%s</small></div>\n'
-                '            <div class="rx-ph-photo" style="background-image:url(\'%s%s.webp\');background-position:%s;background-size:240%% auto"><span class="rx-ph-heart"></span></div>\n'
+                '            <div class="rx-ph-photo" style="background-image:url(\'%s%s.webp\');background-position:%s;background-size:%s"><span class="rx-ph-heart"></span></div>\n'
                 '            <div class="rx-ph-body"><p class="rx-ph-price">%s</p><p class="rx-ph-name">%s</p><p class="rx-ph-loc">%s</p></div>\n'
                 '            <div class="rx-ph-cta"><span class="rx-sw"><i>%s</i><i>%s</i></span></div>\n'
-                '          </div></div>\n') % (t['notif'][0], t['notif'][1], SHOTS, bg, pos, t['price'], t['name'], t['loc'], t['cta'][0], t['cta'][1])
+                '          </div></div>\n') % (t['notif'][0], t['notif'][1], SHOTS, bg, pos, size.replace('%%', '%'), t['price'], t['name'], t['loc'], t['cta'][0], t['cta'][1])
         return tile_open(t, 'app') + body + tile_close(t)
     if k == 'crm':
         cols = []
